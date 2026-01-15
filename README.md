@@ -21,7 +21,7 @@
 
 - I build practical tools at the intersection of **system administration**, **desktop development**, and **workflow automation**
 - I pay attention to recurring pain points, user complaints, and repetitive tasks, then turn them into solutions that make tech **simpler, faster, and more enjoyable**
-- I have **20 years in tech**, starting in help desk and moving through systems administration, network engineering, broadcast engineering (TV), and consulting
+- **20 years in tech**, starting in help desk and moving through systems administration, network engineering, broadcast engineering (TV), and consulting
 - I’ve learned how non-technical users actually experience technology, how complex systems fail in the real world, and what it takes to earn end-user trust
 - That experience shapes how I build: keep it clear, keep it simple, solve the real problem, and make the user’s job easier
 - My rule: **start with what the user wants, then build the tech to match it**
@@ -30,7 +30,5 @@
 
 ## Background
 
-I started with batch files, moved to PowerShell, and slowly rebuilt a personal toolbox that’s grown into a full ecosystem of utilities. Today I use AI assistants like Claude Code and Codex to accelerate development.
-
-I don’t think AI magically turns everyone into a developer, but it *does* move the work from typing syntax to making decisions. And decisions are still the hard part. The tool matters less than the operator, it was never about the paintbrush, it’s about the artist.
+I started with batch files, moved to PowerShell, and kept rebuilding my personal toolbox until it became a full ecosystem of utilities. Now I use AI assistants (Claude Code, Codex, etc.) to speed up development. AI does not replace skill, it shifts the work from typing syntax to making decisions, and decisions are still the hard part.
 
