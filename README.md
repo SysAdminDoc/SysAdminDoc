@@ -14,6 +14,16 @@ I have spent 20 years in tech, starting in help desk, learning how real people u
 
 Over time I also learned that great tools fail without great documentation. At every job, one of my first priorities is to document the systems, workflows, and procedures so the next person can succeed without tribal knowledge. That is where my handle **SysAdminDoc** came from. More than 10 years ago I ran an intranet site under that name to host my internal docs, and I kept the handle.
 
+Here is the kind of work I build most often:
+
+- **Desktop apps** with clean UI, converters, editors, and system utilities  
+- **PowerShell automation** for deployments, configuration, and remote support  
+- **Browser userscripts** and extensions that fix annoying web UX  
+- **Medical imaging tooling** including DICOM helpers and PACS deployment automation  
+- **Windows utilities** for firewall control, hardening, and system configuration  
+- **Media tools** including downloaders and format converters  
+- **Standalone executables** that ship as a single file and just run  
+
 ---
 
 ## How I Work
@@ -24,7 +34,6 @@ The real advantage is not typing faster, it is knowing what to check. Experience
 
 My default is self-contained builds with minimal dependencies. UX polish matters, consistent design, dark themes, and the small details that make software feel complete. I automate repetitive work early, and I write docs that are clear, practical, and include examples that actually run.
 
-
 ---
 
 ## Toolbox
@@ -34,14 +43,6 @@ My default is self-contained builds with minimal dependencies. UX polish matters
 **Browser:** Userscripts, Chrome and Firefox extensions  
 **Platforms:** Mostly Windows, cross-platform where it makes sense  
 **Workflow:** CLI prototype → GUI refinement → single-binary packaging  
-
-- **Desktop apps** with clean UI, converters, editors, and system utilities  
-- **PowerShell automation** for deployments, configuration, and remote support  
-- **Browser userscripts** and extensions that fix annoying web UX  
-- **Medical imaging tooling** including DICOM helpers and PACS deployment automation  
-- **Windows utilities** for firewall control, hardening, and system configuration  
-- **Media tools** including downloaders and format converters  
-- **Standalone executables** that ship as a single file and just run  
 
 ---
 
