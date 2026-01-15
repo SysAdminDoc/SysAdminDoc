@@ -3,9 +3,21 @@
 
 ---
 
-<p align="center"><a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
-  <img src="https://i.imgur.com/k6ZWMBv.png" alt="Watch the video" width="720">
-</a></p>
+## 💡 Inspiration
+
+**Steve Jobs** inspired me in this video. In summation:
+
+> "You’ve got to start with the **customer experience** and work backwards to the technology. You can’t start with the technology and try to figure out where you’re going to try to sell it."
+>
+> — _Steve Jobs, WWDC 1997_
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
+    <img src="https://i.imgur.com/k6ZWMBv.png" alt="Steve Jobs explaining Customer Experience first" width="720">
+  </a>
+</p>
+
+---
 
 ## 🧩 About Me
 
