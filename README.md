@@ -9,11 +9,11 @@
 
 ## 🧩 About Me
 
-- 🧠 I build practical solutions at the intersection of **system administration**, **desktop development**, and **workflow automation**
-- 🧰 I watch for common issues, customer complaints, and repetitive tasks, then turn them into tools that make tech easier, faster, and more enjoyable to use
-- 🧑‍💻 20 years in tech, started in help desk, learned how real people use computers, how complex systems break, and what it takes to earn an end user's trust
-- 🧭 My rule: start with what the customer wants, then build the tech to match it
-- 📝 Documentation-first mindset, my handle **SysAdminDoc** comes from an intranet site I ran over 10 years ago to host internal docs, I kept the name because it still fits
+- I build practical solutions at the intersection of **system administration**, **desktop development**, and **workflow automation**
+- I watch for common issues, customer complaints, and repetitive tasks, then turn them into tools that make tech easier, faster, and more enjoyable to use
+- 20 years in tech, started in help desk, learned how real people use computers, how complex systems break, and what it takes to earn an end user's trust
+- My rule: start with what the customer wants, then build the tech to match it
+- Documentation-first mindset, my handle **SysAdminDoc** comes from an intranet site I ran over 10 years ago to host internal docs, I kept the name because it still fits
 
 ---
 
