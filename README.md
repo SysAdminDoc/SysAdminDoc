@@ -28,8 +28,6 @@
 - My handle, **SysAdminDoc**, comes from an internal documentation site I ran over a decade ago, the name stuck
 - Ohio originally, now in **South Florida**, and currently going all-in on AI, from Sora music experiments to Veo instructional videos, to nonstop prompt-engineering tinkering
 
----
-
 ## Background
 
 I started with batch files, moved to PowerShell, and slowly rebuilt a personal toolbox that’s grown into a full ecosystem of utilities. Today I use AI assistants like Claude Code and Codex to accelerate development.
