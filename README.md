@@ -30,4 +30,4 @@
 
 ## Background
 
-I started with batch files, moved to PowerShell, and kept rebuilding my personal toolbox until it became a full ecosystem of utilities. Now I use AI assistants (Claude Code, Codex, etc.) to speed up development. AI does not replace skill, it shifts the work from typing syntax to making decisions, and decisions are still the hard part.
+I started with batch files, moved to PowerShell, and kept rebuilding my personal toolbox until it became a full ecosystem of utilities. Now I use AI assistants (Claude Code, Codex, etc.) to speed up development.
