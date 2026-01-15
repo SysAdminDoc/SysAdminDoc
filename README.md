@@ -1,7 +1,7 @@
 # Start with what the customer wants, then build the tech to match it.
 
 <a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
-  <img src="https://img.youtube.com/vi/--MY_0xDcHE/hqdefault.jpg" alt="Watch the video" width="720">
+  <img src="https://i.imgur.com/k6ZWMBv.png" alt="Watch the video" width="720">
 </a>
 
 I build practical solutions at the intersection of **system administration**, **desktop development**, and **workflow automation**. I pay attention to common issues, customer complaints, and repetitive tasks, then turn them into tools that make technology easier, faster, and more enjoyable to use.
