@@ -1,5 +1,10 @@
-I build desktop apps, automation tools, and browser extensions that remove friction from real workflows. I deploy and support medical imaging systems day-to-day, and I build the utilities I wish existed, converters, editors, system tools, and scripts.
+"Start with what the customer wants, then build the tech to match it."
 
+<a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
+  <img src="https://img.youtube.com/vi/--MY_0xDcHE/hqdefault.jpg" alt="Watch this" width="720">
+</a>
+
+---
 Most of my work sits between **system administration**, **desktop development**, and **workflow automation**.
 
 ---
