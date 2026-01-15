@@ -1,11 +1,11 @@
 <h1 align="center">🛠 Matt Parker</h1>
-<p align="center"><b>SysAdminDoc</b> • Systems Admin • Desktop Dev • Workflow Automation</p>
+<p align="center">Systems Admin • Desktop Dev • Workflow Automation</p>
 
 ---
 
-<a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
+<p align="center"><a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
   <img src="https://i.imgur.com/k6ZWMBv.png" alt="Watch the video" width="720">
-</a>
+</a></p>
 
 ## 🧩 About Me
 
@@ -17,7 +17,7 @@
 
 ---
 
-## 🧠 What I Build
+## 🔧 What I Build
 
 I have spent 20 years in tech, starting in help desk, learning how real people use computers, how complex systems break, and what it takes to earn an end user's trust. That experience shapes how I build: tools should match how people think, stay simple, solve the real problem, make their job easier, and work the first time.
 
