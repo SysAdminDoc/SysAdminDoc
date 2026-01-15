@@ -5,7 +5,7 @@
 
 ## 💡 Inspiration
 
-**Steve Jobs** inspired me in this video. In summation:
+**Steve Jobs** sums it up in this video:
 
 > "You’ve got to start with the **customer experience** and work backwards to the technology. You can’t start with the technology and try to figure out where you’re going to try to sell it."
 >
@@ -21,27 +21,22 @@
 
 ## 🧩 About Me
 
-- I build practical solutions at the intersection of **system administration**, **desktop development**, and **workflow automation**
-- I watch for common issues, customer complaints, and repetitive tasks, then turn them into tools that make tech easier, faster, and more enjoyable to use
-- 20 years in tech, started in help desk, learned how real people use computers, how complex systems break, and what it takes to earn an end user's trust
-- My rule: start with what the customer wants, then build the tech to match it
-- Documentation-first mindset, my handle **SysAdminDoc** comes from an intranet site I ran over 10 years ago to host internal docs, I kept the name because it still fits
-
----
-
-## 🔧 What I Build
-
-I have spent 20 years in tech, starting in help desk, learning how real people use computers, how complex systems break, and what it takes to earn an end user's trust. That experience shapes how I build: tools should match how people think, stay simple, solve the real problem, make their job easier, and work the first time.
+- I build practical tools at the intersection of **system administration**, **desktop development**, and **workflow automation**
+- I pay attention to recurring pain points, user complaints, and repetitive tasks, then turn them into solutions that make tech **simpler, faster, and more enjoyable**
+- I have **20 years in tech**, starting in help desk and moving through systems administration, network engineering, broadcast engineering (TV), and consulting
+- I’ve learned how non-technical users actually experience technology, how complex systems fail in the real world, and what it takes to earn end-user trust
+- That experience shapes how I build: keep it clear, keep it simple, solve the real problem, and make the user’s job easier
+- My rule: **start with what the user wants, then build the tech to match it**
+- My handle, **SysAdminDoc**, comes from an internal documentation site I ran over a decade ago, the name stuck
+- Ohio originally, now in **South Florida**, and currently going all-in on AI, from Sora music experiments to Veo instructional videos, to nonstop prompt-engineering tinkering
 
 ---
 
 ## 🧰 How I Work
 
-I started writing tools as batch scripts, moved to PowerShell, and gradually rebuilt my toolbox into something cleaner, safer, and easier to maintain. Now I use AI assistants like Claude Code and Codex to accelerate development, but I treat their output as untrusted until it is thoroughly verified.
+I started with batch files, moved to PowerShell, and slowly rebuilt a personal toolbox that’s grown into a full ecosystem of utilities. Today I use AI assistants like Claude Code and Codex to accelerate development.
 
-The real advantage is not typing faster, it is knowing what to check. Experienced developers move quickly because they validate assumptions, work in small steps, review diffs, and lean on tests. AI did not make "everyone a developer." It shifted the work from writing syntax to exercising judgment, and judgment is still the hard part. The tool matters less than the operator. It was never about the paintbrush, it was always about the artist.
-
-My default is self-contained builds with minimal dependencies. UX polish matters, consistent design, dark themes, and the small details that make software feel complete. I automate repetitive work early, and I write docs that are clear, practical, and include examples that actually run.
+I don’t think AI magically turns everyone into a developer, but it *does* move the work from typing syntax to making decisions. And decisions are still the hard part. The tool matters less than the operator, it was never about the paintbrush, it’s about the artist.
 
 ---
 
@@ -53,12 +48,3 @@ My default is self-contained builds with minimal dependencies. UX polish matters
 **Platforms:** Mostly Windows, cross-platform where it makes sense  
 **Workflow:** CLI prototype → GUI refinement → single-binary packaging  
 
----
-
-## ❓ FAQ
-
-**Why desktop tools instead of web apps?**  
-The problems I solve are Windows-first, offline-friendly, and not worth depending on a server.
-
-**Why self-contained builds?**  
-For small utilities, one executable is easier to ship, run, and support than a pile of dependencies.
