@@ -1,4 +1,3 @@
-<h1 align="center">🛠 Matt Parker</h1>
 <p align="center">Systems Admin • Desktop Dev • Workflow Automation</p>
 
 ---
@@ -13,7 +12,7 @@
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
-    <img src="https://i.imgur.com/k6ZWMBv.png" alt="Steve Jobs explaining Customer Experience first" width="720">
+    <img src="https://i.imgur.com/k6ZWMBv.png" alt="Steve Jobs explaining Customer Experience first" width="320">
   </a>
 </p>
 
