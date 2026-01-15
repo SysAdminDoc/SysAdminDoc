@@ -15,7 +15,7 @@
 </tr>
 </table>
 
-## 🧩 About Me
+## About Me
 
 <p align="center">Systems Admin • Desktop Dev • Workflow Automation</p>
 
@@ -30,19 +30,9 @@
 
 ---
 
-## 🧰 How I Work
+## Background
 
 I started with batch files, moved to PowerShell, and slowly rebuilt a personal toolbox that’s grown into a full ecosystem of utilities. Today I use AI assistants like Claude Code and Codex to accelerate development.
 
 I don’t think AI magically turns everyone into a developer, but it *does* move the work from typing syntax to making decisions. And decisions are still the hard part. The tool matters less than the operator, it was never about the paintbrush, it’s about the artist.
-
----
-
-## 🧱 Toolbox
-
-**Languages:** PowerShell, Python, C#, JavaScript  
-**Desktop:** WinUI 3, WPF, WinForms  
-**Browser:** Userscripts, Chrome and Firefox extensions  
-**Platforms:** Mostly Windows, cross-platform where it makes sense  
-**Workflow:** CLI prototype → GUI refinement → single-binary packaging  
 
