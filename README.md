@@ -1,24 +1,23 @@
-<p align="center">Systems Admin • Desktop Dev • Workflow Automation</p>
+<table>
+<tr>
+<td width="40%">
+<a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
+<img src="https://i.imgur.com/k6ZWMBv.png" alt="Steve Jobs explaining Customer Experience first" width="100%">
+</a>
+</td>
+<td width="60%">
 
----
-
-## 💡 Inspiration
-
-**Steve Jobs** sums it up in this video:
-
-> "You’ve got to start with the **customer experience** and work backwards to the technology. You can’t start with the technology and try to figure out where you’re going to try to sell it."
+> *"You've got to start with the **customer experience** and work backwards to the technology. You can't start with the technology and try to figure out where you're going to try to sell it."*
 >
-> — _Steve Jobs, WWDC 1997_
+> — *Steve Jobs, WWDC 1997*
 
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
-    <img src="https://i.imgur.com/k6ZWMBv.png" alt="Steve Jobs explaining Customer Experience first" width="320">
-  </a>
-</p>
-
----
+</td>
+</tr>
+</table>
 
 ## 🧩 About Me
+
+<p align="center">Systems Admin • Desktop Dev • Workflow Automation</p>
 
 - I build practical tools at the intersection of **system administration**, **desktop development**, and **workflow automation**
 - I pay attention to recurring pain points, user complaints, and repetitive tasks, then turn them into solutions that make tech **simpler, faster, and more enjoyable**
