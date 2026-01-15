@@ -1,32 +1,29 @@
-# Start with what the customer wants, then build the tech to match it.
+<h1 align="center">🛠 Matt Parker</h1>
+<p align="center"><b>SysAdminDoc</b> • Systems Admin • Desktop Dev • Workflow Automation</p>
+
+---
 
 <a href="https://www.youtube.com/watch?v=--MY_0xDcHE">
   <img src="https://i.imgur.com/k6ZWMBv.png" alt="Watch the video" width="720">
 </a>
 
-I build practical solutions at the intersection of **system administration**, **desktop development**, and **workflow automation**. I pay attention to common issues, customer complaints, and repetitive tasks, then turn them into tools that make technology easier, faster, and more enjoyable to use.
+## 🧩 About Me
+
+- 🧠 I build practical solutions at the intersection of **system administration**, **desktop development**, and **workflow automation**
+- 🧰 I watch for common issues, customer complaints, and repetitive tasks, then turn them into tools that make tech easier, faster, and more enjoyable to use
+- 🧑‍💻 20 years in tech, started in help desk, learned how real people use computers, how complex systems break, and what it takes to earn an end user's trust
+- 🧭 My rule: start with what the customer wants, then build the tech to match it
+- 📝 Documentation-first mindset, my handle **SysAdminDoc** comes from an intranet site I ran over 10 years ago to host internal docs, I kept the name because it still fits
 
 ---
 
-## What I Build
+## 🧠 What I Build
 
 I have spent 20 years in tech, starting in help desk, learning how real people use computers, how complex systems break, and what it takes to earn an end user's trust. That experience shapes how I build: tools should match how people think, stay simple, solve the real problem, make their job easier, and work the first time.
 
-Over time I also learned that great tools fail without great documentation. At every job, one of my first priorities is to document the systems, workflows, and procedures so the next person can succeed without tribal knowledge. That is where my handle **SysAdminDoc** came from. More than 10 years ago I ran an intranet site under that name to host my internal docs, and I kept the handle.
-
-Here is the kind of work I build most often:
-
-- **Desktop apps** with clean UI, converters, editors, and system utilities  
-- **PowerShell automation** for deployments, configuration, and remote support  
-- **Browser userscripts** and extensions that fix annoying web UX  
-- **Medical imaging tooling** including DICOM helpers and PACS deployment automation  
-- **Windows utilities** for firewall control, hardening, and system configuration  
-- **Media tools** including downloaders and format converters  
-- **Standalone executables** that ship as a single file and just run  
-
 ---
 
-## How I Work
+## 🧰 How I Work
 
 I started writing tools as batch scripts, moved to PowerShell, and gradually rebuilt my toolbox into something cleaner, safer, and easier to maintain. Now I use AI assistants like Claude Code and Codex to accelerate development, but I treat their output as untrusted until it is thoroughly verified.
 
@@ -36,7 +33,7 @@ My default is self-contained builds with minimal dependencies. UX polish matters
 
 ---
 
-## Toolbox
+## 🧱 Toolbox
 
 **Languages:** PowerShell, Python, C#, JavaScript  
 **Desktop:** WinUI 3, WPF, WinForms  
@@ -46,7 +43,7 @@ My default is self-contained builds with minimal dependencies. UX polish matters
 
 ---
 
-## FAQ
+## ❓ FAQ
 
 **Why desktop tools instead of web apps?**  
 The problems I solve are Windows-first, offline-friendly, and not worth depending on a server.
