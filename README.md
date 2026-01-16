@@ -26,8 +26,4 @@
 - That experience shapes how I build: keep it clear, keep it simple, solve the real problem, and make the user’s job easier
 - My rule: **start with what the user wants, then build the tech to match it**
 - My handle, **SysAdminDoc**, comes from an internal documentation site I ran over a decade ago, the name stuck
-- Ohio originally, now in **South Florida**, and currently going all-in on AI, from Sora music experiments to Veo instructional videos, to nonstop prompt-engineering tinkering
-
-## Background
-
-I started with batch files, moved to PowerShell, and kept rebuilding my personal toolbox until it became a full ecosystem of utilities. Now I use AI assistants (Claude Code, Codex, etc.) to speed up development.
+- Currently going all-in on AI, from Sora music experiments to Veo instructional videos, to nonstop prompt-engineering tinkering
