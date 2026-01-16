@@ -25,5 +25,5 @@
 - I’ve learned how non-technical users actually experience technology, how complex systems fail in the real world, and what it takes to earn end-user trust
 - That experience shapes how I build: keep it clear, keep it simple, solve the real problem, and make the user’s job easier
 - My rule: **start with what the user wants, then build the tech to match it**
-- My handle, **SysAdminDoc**, comes from an internal documentation site I ran over a decade ago, the name stuck
-- Currently going all-in on AI, from Sora music experiments to Veo instructional videos, to nonstop prompt-engineering tinkering
+- **SysAdminDoc** was the title of an internal documentation site I created over a decade ago, I kept the monikor
+- Currently going all-in on AI, from Sora music experiments, Veo instructional videos, to nonstop prompt-engineering ideas
