@@ -20,4 +20,3 @@
 <p align="center">Systems Admin • Desktop Dev • Workflow Automation</p>
 
 - **SysAdminDoc** was the title of an internal documentation site I created over a decade ago, I kept the monikor
-- Currently going all-in on AI, from Sora music experiments, Veo instructional videos, to nonstop prompt-engineering ideas
