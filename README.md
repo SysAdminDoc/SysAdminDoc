@@ -18,8 +18,6 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 
 ---
 
-### 🧰 Tech Stack
-
 <p align="center">
   <img src="https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -39,8 +37,6 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 </p>
 
 ---
-
-### 📊 Stats
 
 <p align="center">
   <picture>
@@ -68,8 +64,6 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 </p>
 
 ---
-
-### 🚀 Quick Launch
 
 Every tool below runs with a single command — paste into PowerShell and go. No cloning, no setup.
 
@@ -309,7 +303,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Flux/main/flux-torrent/Launch
 
 ---
 
-### 🚀 Projects
+### Projects
 
 79 public repos across system utilities, desktop apps, browser customization, web tools, and more. Click any category to explore.
 
