@@ -12,9 +12,9 @@
 
 ---
 
-I'm a Senior Systems Administrator who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch, a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
+I'm a Senior Systems Administrator from Venice, FL who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch — a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
 
-Everything I ship follows a simple rule: **zero-config, and ready to run.** No setup wizards, no dependency hunts. Download it, launch it, done.
+Everything I ship follows a simple rule: **dark-themed, zero-config, and ready to run.** No setup wizards, no dependency hunts. Download it, launch it, done.
 
 ---
 
@@ -127,15 +127,15 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 <summary><b>🌐 Web Applications</b> — 7 repos</summary>
 <br/>
 
-| Project | Description |
-|:--------|:------------|
-| [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) | Open source weather radar viewer |
-| [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) ⭐1 | Real-time aircraft tracker — commercial, military, helicopters |
-| [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform |
-| [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) | Curated directory of 470+ free tools and open source projects |
-| [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Self-hosted multi-video streaming viewer with chat |
-| [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter |
-| [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app |
+| Project | Description | Live |
+|:--------|:------------|:----:|
+| [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) | Open source weather radar viewer | [Launch](https://sysadmindoc.github.io/StormviewRadar/) |
+| [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) ⭐1 | Real-time aircraft tracker — commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
+| [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform | [Launch](https://sysadmindoc.github.io/SPECTRE/) |
+| [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) | Curated directory of 470+ free tools and open source projects | [Launch](https://sysadmindoc.github.io/CoolSites/) |
+| [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Self-hosted multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
+| [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter | — |
+| [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
 
 </details>
 
@@ -211,7 +211,7 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 ---
 
 <p align="center">
-  <sub>All projects aim to be turnkey and zero-config by default.</sub>
+  <sub>All projects are built dark-themed, turnkey, and zero-config by default.</sub>
 </p>
 
 <p align="center">
