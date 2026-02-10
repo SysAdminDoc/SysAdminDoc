@@ -277,7 +277,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Flux/main/flux-torrent/Launch
 | **CoolSites** — 470+ curated tools directory | [Launch](https://sysadmindoc.github.io/CoolSites/) |
 | **Multistreamer** — Multi-video streaming viewer | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
 | **BookmarkVault** — Bookmark management | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
-| **ImageForge** — Image converter | [Repo](https://github.com/SysAdminDoc/ImageForge) |
+| **ImageForge** — Image converter | [Launch](https://github.com/SysAdminDoc/ImageForge](https://sysadmindoc.github.io/ImageForge/) |
 
 </details>
 
