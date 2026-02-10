@@ -2,19 +2,19 @@
   <img src="ascii-cat-header.svg" alt="ASCII Cat Terminal Header" width="800" />
 </p>
 
-<h1 align="center">
+<p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Hey%2C+I'm+Matt+Parker+%F0%9F%91%8B;Systems+Administrator+%7C+Automation+Engineer+%7C+Builder" alt="Typing SVG" />
-</h1>
+</p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=social" alt="GitHub Followers" />
-  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total%20Stars&style=social" alt="GitHub Stars" />
   <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile Views" />
 </p>
 
-<p align="center">
-  <em>I build turnkey desktop tools, browser enhancements, and system automation utilities.<br/>Everything ships dark-themed, zero-config, and ready to run.</em>
-</p>
+---
+
+I'm a Senior Systems Administrator from Venice, FL who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch — a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
+
+Everything I ship follows a simple rule: **dark-themed, zero-config, and ready to run.** No setup wizards, no dependency hunts. Download it, launch it, done.
 
 ---
 
@@ -40,7 +40,7 @@
 
 ---
 
-### 📊 GitHub Stats
+### 📊 Stats
 
 <p align="center">
   <picture>
@@ -69,41 +69,13 @@
 
 ---
 
-## 🚀 Projects
+### 🚀 Projects
 
-### ⭐ Featured
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <h3><a href="https://github.com/SysAdminDoc/win11-nvme-driver-patcher">⚡ win11-nvme-driver-patcher</a></h3>
-      <p><code>PowerShell</code> · ⭐ 10</p>
-      <p>GUI tool to enable the experimental Windows Server 2025 NVMe storage driver on Windows 11. Most starred repo — solves a real sysadmin pain point.</p>
-    </td>
-    <td width="50%" valign="top">
-      <h3><a href="https://github.com/SysAdminDoc/LibreWolf_DarkPortable">🌙 LibreWolf DarkPortable</a></h3>
-      <p><code>JavaScript</code> · ⭐ 7</p>
-      <p>Complete dark theme configuration for LibreWolf. For dark theme lovers — portable, preconfigured, and ready to run.</p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h3><a href="https://github.com/SysAdminDoc/LibreSpot">🎵 LibreSpot</a></h3>
-      <p><code>PowerShell</code> · ⭐ 5</p>
-      <p>Streamlined Spotify customization tool. Automates Spicetify installation, themes, and extensions in one click.</p>
-    </td>
-    <td width="50%" valign="top">
-      <h3><a href="https://github.com/SysAdminDoc/Network_Security_Auditor">🛡️ Network Security Auditor</a></h3>
-      <p><code>PowerShell</code> · ⭐ 2</p>
-      <p>Runs 67 automated security checks across 8 domains with MITRE ATT&CK mapping. Enterprise-grade audit tool.</p>
-    </td>
-  </tr>
-</table>
-
----
+79 public repos across system utilities, desktop apps, browser customization, web tools, and more. Click any category to explore.
 
 <details>
-<summary><h3>⚡ PowerShell System Utilities <sub>(12 repos)</sub></h3></summary>
+<summary><b>⚡ PowerShell System Utilities</b> — 12 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -123,7 +95,8 @@
 </details>
 
 <details>
-<summary><h3>🐍 Python Desktop Applications <sub>(20 repos)</sub></h3></summary>
+<summary><b>🐍 Python Desktop Applications</b> — 20 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -151,7 +124,8 @@
 </details>
 
 <details>
-<summary><h3>🌐 Web Applications <sub>(7 repos)</sub></h3></summary>
+<summary><b>🌐 Web Applications</b> — 7 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -166,7 +140,8 @@
 </details>
 
 <details>
-<summary><h3>🧩 Browser Extensions & Userscripts <sub>(20 repos)</sub></h3></summary>
+<summary><b>🧩 Browser Extensions & Userscripts</b> — 20 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -194,7 +169,8 @@
 </details>
 
 <details>
-<summary><h3>🔒 Security & Networking <sub>(4 repos)</sub></h3></summary>
+<summary><b>🔒 Security & Networking</b> — 4 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -206,7 +182,8 @@
 </details>
 
 <details>
-<summary><h3>🎬 Media & Conversion Tools <sub>(7 repos)</sub></h3></summary>
+<summary><b>🎬 Media & Conversion Tools</b> — 7 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -221,7 +198,8 @@
 </details>
 
 <details>
-<summary><h3>📚 Guides & Resources <sub>(2 repos)</sub></h3></summary>
+<summary><b>📚 Guides & Resources</b> — 2 repos</summary>
+<br/>
 
 | Project | Description |
 |:--------|:------------|
@@ -232,24 +210,9 @@
 
 ---
 
-### 🏗️ What I Build
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                                                                  │
-│   💻  Windows system tools        →  PowerShell WPF GUIs        │
-│   🐍  Desktop applications        →  Python PyQt6 apps          │
-│   🧩  Browser customization       →  Userscripts & extensions   │
-│   🌐  Web apps                    →  OSINT, radar, trackers     │
-│   🔒  Security hardening          →  Auditing & network tools   │
-│   🎬  Media processing            →  Converters & downloaders   │
-│                                                                  │
-│   Design philosophy:  Dark themes · Zero config · Turnkey       │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘
-```
-
----
+<p align="center">
+  <sub>All projects are built dark-themed, turnkey, and zero-config by default.</sub>
+</p>
 
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=0d1117&height=100&section=footer" width="100%" />
