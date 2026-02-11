@@ -18,8 +18,6 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 
 ---
 
-### 🧰 Tech Stack
-
 <p align="center">
   <img src="https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -39,8 +37,6 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 </p>
 
 ---
-
-### 📊 Stats
 
 <p align="center">
   <picture>
@@ -68,10 +64,6 @@ Everything I ship follows a simple rule: **zero-config, and ready to run.** No s
 </p>
 
 ---
-
-### 🚀 Projects
-
-79 public repos across system utilities, desktop apps, browser customization, web tools, and more. Most tools include a one-liner to run directly — paste into PowerShell and go.
 
 <details>
 <summary><b>⚡ PowerShell System Utilities</b> — 12 repos</summary>
