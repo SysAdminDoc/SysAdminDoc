@@ -14,7 +14,7 @@
 
 I'm a Senior Systems Administrator who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch, a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
 
-Everything I ship follows a simple rule: **zero-config, and ready to run.** No setup wizards, no dependency hunts. Download it, launch it, done.
+Everything I ship tries to follow a simple rule: **zero-config and ready to run.** No setup wizards or dependency hunts. Download it, launch it, done.
 
 ---
 
