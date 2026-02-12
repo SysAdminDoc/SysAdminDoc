@@ -259,7 +259,6 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
-| [**LibreWolf_DarkPortable**](https://github.com/SysAdminDoc/LibreWolf_DarkPortable) ⭐7 | Complete dark theme config for LibreWolf | [Repo](https://github.com/SysAdminDoc/LibreWolf_DarkPortable) |
 | [**YTKit**](https://github.com/SysAdminDoc/YTKit) ⭐2 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YTKit/main/YTKit.user.js) |
 | [**EspressoMonkey**](https://github.com/SysAdminDoc/EspressoMonkey) | Modern userscript manager — Manifest V3 | [Repo](https://github.com/SysAdminDoc/EspressoMonkey) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
