@@ -254,7 +254,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 | [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform | [Launch](https://sysadmindoc.github.io/SPECTRE/) |
 | [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) | Curated directory of 470+ free tools and open source projects | [Launch](https://sysadmindoc.github.io/CoolSites/) |
 | [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Self-hosted multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
-| [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter | — |
+| [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter | [Launch](https://sysadmindoc.github.io/ImageForge/) |
 | [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
 
 </details>
