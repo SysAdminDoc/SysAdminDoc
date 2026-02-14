@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="ascii-cat-header.svg" alt="ASCII Cat Terminal Header" width="800" />
+  <img src="ascii-cat-header.svg" alt="Terminal Header" width="800" />
 </p>
 
 <p align="center">
@@ -69,7 +69,7 @@ Everything I ship is intentionally **zero-config and ready to run.** No setup wi
 <summary><b>⚡ PowerShell System Utilities</b> — 12 repos</summary>
 <br/>
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) ⭐10 — GUI to enable Windows Server 2025 NVMe driver on Win11
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) ⭐12 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher_v3.0.0.ps1" | iex
 ```
@@ -79,12 +79,12 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/mai
 irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
 ```
 
-[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) ⭐2 — 67 automated checks across 8 security domains, MITRE ATT&CK mapping
+[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) ⭐5 — 67 automated checks across 8 security domains, MITRE ATT&CK mapping
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main/NetworkSecurityAudit.ps1" | iex
 ```
 
-[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) — Discover, select, and bulk install software via Winget
+[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) ⭐1 — Discover, select, and bulk install software via Winget
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/Wingetter/main/Wingetter.ps1" | iex
 ```
@@ -132,12 +132,17 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/ThankYouJeffrey/main/ThankYou
 </details>
 
 <details>
-<summary><b>🐍 Python Desktop Applications</b> — 20 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
+<summary><b>🐍 Python Desktop Applications</b> — 21 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
 <br/>
 
 [**PyWall**](https://github.com/SysAdminDoc/PyWall) — Real-time Windows Firewall manager and network monitor
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/PyWall/main/PyWall.py" -OutFile "$env:TEMP\PyWall.py"; python "$env:TEMP\PyWall.py"
+```
+
+[**HostsGuard**](https://github.com/SysAdminDoc/HostsGuard) — Real-time network privacy manager — DNS monitoring, hosts file management, firewall rules
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/HostsGuard/main/HostsGuard.py" -OutFile "$env:TEMP\HostsGuard.py"; python "$env:TEMP\HostsGuard.py"
 ```
 
 [**PyShop**](https://github.com/SysAdminDoc/PyShop) — Open source Photoshop alternative
@@ -238,11 +243,12 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 </details>
 
 <details>
-<summary><b>🌐 Web Applications</b> — 7 repos — <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>🌐 Web Applications</b> — 8 repos — <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
 |:--------|:------------|:----:|
+| [**Openshop**](https://github.com/SysAdminDoc/Openshop) | Free browser-based image editor — layers, AI tools, PSD import, Photoshop-inspired workflow | [Launch](https://sysadmindoc.github.io/Openshop/) |
 | [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) | Open source weather radar viewer | [Launch](https://sysadmindoc.github.io/StormviewRadar/) |
 | [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) ⭐1 | Real-time aircraft tracker — commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
 | [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform | [Launch](https://sysadmindoc.github.io/SPECTRE/) |
@@ -254,12 +260,15 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 </details>
 
 <details>
-<summary><b>🧩 Browser Extensions & Userscripts</b> — 20 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>🧩 Browser Extensions & Userscripts</b> — 22 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
 | [**YTKit**](https://github.com/SysAdminDoc/YTKit) ⭐2 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YTKit/main/YTKit.user.js) |
+| [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Fast, undetectable YouTube ad blocker with proxy engine and remote filter lists | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
+| [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) | Full-featured CSS style editor and manager — Stylebot meets Stylus | [Install](https://raw.githubusercontent.com/SysAdminDoc/StyleCraft/main/StyleCraft.user.js) |
+| [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) | Discover userscripts for any website — searches GreasyFork, SleazyFork, and GitHub | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
 | [**EspressoMonkey**](https://github.com/SysAdminDoc/EspressoMonkey) | Modern userscript manager — Manifest V3 | [Repo](https://github.com/SysAdminDoc/EspressoMonkey) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
 | [**Doordash-Enhanced**](https://github.com/SysAdminDoc/Doordash-Enhanced) | DoorDash dark mode and feature enhancements | [Install](https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js) |
@@ -287,7 +296,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 
 | Project | Description |
 |:--------|:------------|
-| [**HOSTShield**](https://github.com/SysAdminDoc/HOSTShield) | Aggressive, categorized hosts files for ad/tracker/malware blocking |
+| [**HOSTShield**](https://github.com/SysAdminDoc/HOSTShield) ⭐1 | Aggressive, categorized hosts files for ad/tracker/malware blocking |
 | [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite) | pfSense scripts and customizations toolkit |
 | [**NextDNSPanel**](https://github.com/SysAdminDoc/NextDNSPanel) | Tools and enhancements for NextDNS |
 | [**ESET**](https://github.com/SysAdminDoc/ESET) | Complete ESET port and address reference lists |
@@ -323,6 +332,16 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 | [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) | Media downloader |
 | [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter with context menu integration |
 | [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filter editor |
+
+</details>
+
+<details>
+<summary><b>🖥️ Native Desktop Applications</b> — 1 repo</summary>
+<br/>
+
+| Project | Description | Language |
+|:--------|:------------|:--------:|
+| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) | Thorough Windows uninstaller — removes programs completely, hunts down every leftover, cleans system cruft | C# |
 
 </details>
 
