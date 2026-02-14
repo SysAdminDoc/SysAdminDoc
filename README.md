@@ -333,6 +333,6 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 | Project | Description |
 |:--------|:------------|
 | [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism) | Field guide for ultra-realistic AI video generation |
-| [**sysadmindoc.github.io**](https://github.com/SysAdminDoc/sysadmindoc.github.io) | ATLAST — A VEO-made sci-fi thriller |
+| [**sysadmindoc.github.io**](https://sysadmindoc.github.io/) | ATLAST — A VEO-made sci-fi thriller |
 
 </details>
