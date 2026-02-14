@@ -261,7 +261,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 </details>
 
 <details>
-<summary><b>🧩 Browser Extensions & Userscripts</b> — 23 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>🧩 Browser Extensions & Userscripts</b> — 16 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
@@ -274,21 +274,14 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 | [**EspressoMonkey**](https://github.com/SysAdminDoc/EspressoMonkey) | Modern userscript manager — Manifest V3 | [Repo](https://github.com/SysAdminDoc/EspressoMonkey) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
 | [**Doordash-Enhanced**](https://github.com/SysAdminDoc/Doordash-Enhanced) | DoorDash dark mode and feature enhancements | [Install](https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js) |
-| [**NoNinite**](https://github.com/SysAdminDoc/NoNinite) | Converts ninite.com into Winget/Chocolatey script generator | [Install](https://raw.githubusercontent.com/SysAdminDoc/NoNinite/main/src/NoNinite.user.js) |
 | [**DarkModer**](https://github.com/SysAdminDoc/DarkModer) | Dark Reader as a userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js) |
-| [**GPTDock**](https://github.com/SysAdminDoc/GPTDock) | Productivity features for ChatGPT | [Install](https://raw.githubusercontent.com/SysAdminDoc/GPTDock/main/ChatGPT%20Prompt%20Panel-10.8.user.js) |
 | [**GeminiBuddy**](https://github.com/SysAdminDoc/GeminiBuddy) | Productivity features for Gemini | [Install](https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js) |
 | [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) | Comprehensive Rumble.com enhancement | [Install](https://raw.githubusercontent.com/SysAdminDoc/RumbleX/main/RumbleX.user.js) |
 | [**DiggSuite**](https://github.com/SysAdminDoc/DiggSuite) | Multi-theme + redesigned UI for Digg | [Install](https://raw.githubusercontent.com/SysAdminDoc/DiggSuite/main/Digg_Enhancement_Suite.user.js) |
-| [**OldRedditHelper**](https://github.com/SysAdminDoc/OldRedditHelper) | Enhancements for old Reddit | [Install](https://raw.githubusercontent.com/SysAdminDoc/OldRedditHelper/main/RES%20for%20Old%20Reddit.user.js) |
-| [**Gmailified**](https://github.com/SysAdminDoc/Gmailified) | Enhancement extension for Gmail | [Install](https://raw.githubusercontent.com/SysAdminDoc/Gmailified/main/Gmail%20Premium%20UI%20Suite.user.js) |
 | [**BetterNext**](https://github.com/SysAdminDoc/BetterNext) | Enhanced NextDNS Control Panel | [Repo](https://github.com/SysAdminDoc/BetterNext) |
 | [**gSearchTweaks**](https://github.com/SysAdminDoc/gSearchTweaks) | Adds YouTube/Reddit/GitHub to Google toolbar | [Install](https://raw.githubusercontent.com/SysAdminDoc/gSearchTweaks/main/Google%20Multi%20Search.user.js) |
 | [**ScrollJumper**](https://github.com/SysAdminDoc/ScrollJumper) | Right-click scrollbar to jump anywhere | [Install](https://raw.githubusercontent.com/SysAdminDoc/ScrollJumper/main/src/ScrollJumper.user.js) |
 | [**HNCC**](https://github.com/SysAdminDoc/HNCC) | Collapsible child comments on Hacker News | [Install](https://raw.githubusercontent.com/SysAdminDoc/HNCC/main/Hacker%20News%20-%20Hide%20Child%20Comments%20%2B%20Clickable%20Reply%20Count-1.5.user.js) |
-| [**fDeBloat**](https://github.com/SysAdminDoc/fDeBloat) | Facebook debloater (beta) | [Install](https://raw.githubusercontent.com/SysAdminDoc/fDeBloat/main/Facebook_Feed_Cleaner_Pro.user.js) |
-| [**UserscriptDevBuddy**](https://github.com/SysAdminDoc/UserscriptDevBuddy) | AI-powered in-page dev tools for userscript authors | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserscriptDevBuddy/main/Userscript%20Dev%20Toolkit.user.js) |
-| [**AutoPagerUniversal**](https://github.com/SysAdminDoc/AutoPagerUniversal) | Universal auto-pagination | [Repo](https://github.com/SysAdminDoc/AutoPagerUniversal) |
 
 </details>
 
