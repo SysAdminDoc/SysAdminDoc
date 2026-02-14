@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/refs/heads/main/header.svg" alt="Terminal Header" width="800" />
+  <img src="header.svg" alt="Terminal Header" width="800" />
 </p>
 
 <p align="center">
