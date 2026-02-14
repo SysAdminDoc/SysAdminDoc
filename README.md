@@ -243,7 +243,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 </details>
 
 <details>
-<summary><b>🌐 Web Applications</b> — 8 repos — <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>🌐 Web Applications</b> — 9 repos — <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
@@ -256,18 +256,20 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 | [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Self-hosted multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
 | [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter | [Launch](https://sysadmindoc.github.io/ImageForge/) |
 | [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
+| [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filter editor | [Launch](https://sysadmindoc.github.io/Text-Filter-Editor/) |
 
 </details>
 
 <details>
-<summary><b>🧩 Browser Extensions & Userscripts</b> — 22 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>🧩 Browser Extensions & Userscripts</b> — 23 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
 | [**YTKit**](https://github.com/SysAdminDoc/YTKit) ⭐2 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YTKit/main/YTKit.user.js) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Fast, undetectable YouTube ad blocker with proxy engine and remote filter lists | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
-| [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) | Full-featured CSS style editor and manager — Stylebot meets Stylus | [Install](https://raw.githubusercontent.com/SysAdminDoc/StyleCraft/main/StyleCraft.user.js) |
+| [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) | Media downloader userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js) |
+| [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) | Full-featured CSS style editor and manager — Chrome extension | [Repo](https://github.com/SysAdminDoc/StyleCraft) |
 | [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) | Discover userscripts for any website — searches GreasyFork, SleazyFork, and GitHub | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
 | [**EspressoMonkey**](https://github.com/SysAdminDoc/EspressoMonkey) | Modern userscript manager — Manifest V3 | [Repo](https://github.com/SysAdminDoc/EspressoMonkey) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
@@ -304,7 +306,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 </details>
 
 <details>
-<summary><b>🎬 Media & Conversion Tools</b> — 7 repos</summary>
+<summary><b>🎬 Media & Conversion Tools</b> — 4 repos</summary>
 <br/>
 
 [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) — Video compression and processing
@@ -327,21 +329,16 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/MediaForge/main/MediaForge.py
 irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/VideoSubtitleRemover.py" -OutFile "$env:TEMP\vsr.py"; python "$env:TEMP\vsr.py"
 ```
 
-| Project | Description |
-|:--------|:------------|
-| [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) | Media downloader |
-| [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter with context menu integration |
-| [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filter editor |
-
 </details>
 
 <details>
-<summary><b>🖥️ Native Desktop Applications</b> — 1 repo</summary>
+<summary><b>🖥️ Native Desktop Applications</b> — 2 repos</summary>
 <br/>
 
 | Project | Description | Language |
 |:--------|:------------|:--------:|
 | [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) | Thorough Windows uninstaller — removes programs completely, hunts down every leftover, cleans system cruft | C# |
+| [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter with context menu integration — 1000+ format conversions | C# |
 
 </details>
 
