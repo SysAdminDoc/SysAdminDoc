@@ -38,28 +38,11 @@ Everything I ship is intentionally **zero-config and ready to run.** No setup wi
 
 ---
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=00000000&title_color=58a6ff&icon_color=1f6feb&text_color=c9d1d9&ring_color=1f6feb" />
-    <img src="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&hide_border=true" alt="GitHub Stats" height="180" />
-  </picture>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=00000000&title_color=58a6ff&text_color=c9d1d9&langs_count=8" />
-    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&hide_border=true&langs_count=8" alt="Top Languages" height="180" />
-  </picture>
-</p>
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-streak-stats.herokuapp.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=00000000&ring=1f6feb&fire=f78166&currStreakLabel=c9d1d9&sideLabels=c9d1d9&dates=8b949e" />
     <img src="https://github-readme-streak-stats.herokuapp.com?user=SysAdminDoc&hide_border=true" alt="GitHub Streak" />
-  </picture>
-</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-profile-trophy.vercel.app/?username=SysAdminDoc&theme=darkhub&no-frame=true&no-bg=true&column=7&margin-w=10" />
-    <img src="https://github-profile-trophy.vercel.app/?username=SysAdminDoc&no-frame=true&no-bg=true&column=7&margin-w=10" alt="Trophies" />
   </picture>
 </p>
 
