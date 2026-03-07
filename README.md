@@ -43,7 +43,7 @@ Everything I ship is intentionally **zero-config and ready to run.** No setup wi
 </p>
 
 <p align="center">
-  <img src="https://github-trophies.vercel.app/?username=SysAdminDoc&theme=darkhub&no-frame=true&no-bg=true&column=7&margin-w=10" alt="Trophies" />
+  <img src="https://github-trophies.vercel.app/?username=SysAdminDoc&theme=darkhub&no-frame=true&no-bg=true&column=8&margin-w=10&title=MultiLanguage,LongTimeUser,Commits,Repositories,Issues,Stars,Followers" alt="Trophies" />
 </p>
 
 ---
