@@ -31,25 +31,7 @@
 ---
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" />
-    <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=default&hide_border=true" />
-    <img src="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" height="170" alt="GitHub Stats" />
-  </picture>
-  &nbsp;&nbsp;
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0d1117&ring=1f6feb&fire=58a6ff&currStreakLabel=58a6ff&sideLabels=8b949e&dates=6e7681" />
-    <source media="(prefers-color-scheme: light)" srcset="https://streak-stats.demolab.com?user=SysAdminDoc&theme=default&hide_border=true" />
-    <img src="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0d1117&ring=1f6feb&fire=58a6ff&currStreakLabel=58a6ff&sideLabels=8b949e&dates=6e7681" height="170" alt="GitHub Streak" />
-  </picture>
-</p>
-
-<p align="center">
   <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="170" alt="Top Languages" />
-</p>
-
-<p align="center">
-  <img src="https://github-trophies.vercel.app/?username=SysAdminDoc&theme=darkhub&no-frame=true&no-bg=true&column=8&margin-w=10&title=MultiLanguage,LongTimeUser,Commits,Repositories,Issues,Stars,Followers" alt="Trophies" />
 </p>
 
 ---
