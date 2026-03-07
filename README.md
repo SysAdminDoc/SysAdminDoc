@@ -1,65 +1,73 @@
-<p align="center">
-  <img src="header.svg" alt="Terminal Header" width="800" />
-</p>
+![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Systems%20Administrator%20%7C%20Automation%20Engineer%20%7C%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Hey%2C+I'm+Matt+Parker+%F0%9F%91%8B;Systems+Administrator+%7C+Automation+Engineer+%7C+Builder" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=100%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23;Building+the+tools+I+wish+existed" alt="Typing SVG" />
 </p>
 
 <p align="center">
   <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile Views" />
+  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb&labelColor=0d1117" alt="Followers" />
+  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&labelColor=0d1117&affiliations=OWNER" alt="Stars" />
 </p>
 
 ---
 
-Systems Administrator who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch, a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
+Systems Administrator who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch — a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
 
 Everything I ship is intentionally **zero-config and ready to run.** No setup wizards, no dependency hunts. Download it, launch it, done.
 
-📦 **[View my full portfolio →](https://sysadmindoc.github.io/)**
+**[View my full portfolio →](https://sysadmindoc.github.io/)**
 
 ---
 
 <p align="center">
-  <img src="https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
-  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
-  <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white" />
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=12" alt="Tech Stack" />
+  </a>
+</p>
+
+---
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" />
+    <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=default&hide_border=true" />
+    <img src="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" height="170" alt="GitHub Stats" />
+  </picture>
+  &nbsp;&nbsp;
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0d1117&ring=1f6feb&fire=58a6ff&currStreakLabel=58a6ff&sideLabels=8b949e&dates=6e7681" />
+    <source media="(prefers-color-scheme: light)" srcset="https://streak-stats.demolab.com?user=SysAdminDoc&theme=default&hide_border=true" />
+    <img src="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0d1117&ring=1f6feb&fire=58a6ff&currStreakLabel=58a6ff&sideLabels=8b949e&dates=6e7681" height="170" alt="GitHub Streak" />
+  </picture>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white" />
-  <img src="https://img.shields.io/badge/Android-34A853?style=for-the-badge&logo=android&logoColor=white" />
-  <img src="https://img.shields.io/badge/pfSense-212121?style=for-the-badge&logo=pfsense&logoColor=white" />
-  <img src="https://img.shields.io/badge/PyQt6-41CD52?style=for-the-badge&logo=qt&logoColor=white" />
-  <img src="https://img.shields.io/badge/WPF-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
-  <img src="https://img.shields.io/badge/Tampermonkey-00485B?style=for-the-badge&logo=tampermonkey&logoColor=white" />
+  <img src="https://github-profile-trophy.vercel.app/?username=SysAdminDoc&theme=darkhub&no-frame=true&no-bg=true&column=7&margin-w=10" alt="Trophies" />
 </p>
 
 ---
 
 <details>
-<summary><b>⚡ PowerShell System Utilities</b> — 13 repos</summary>
+<summary><b>&#9889; PowerShell System Utilities</b> — 13 repos</summary>
 <br/>
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) ⭐15 — GUI to enable Windows Server 2025 NVMe driver on Win11
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;17 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher_v3.0.0.ps1" | iex
 ```
 
-[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) ⭐5 — Spotify customization — automates Spicetify, themes, extensions
-```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
-```
-
-[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) ⭐6 — 67 automated checks across 8 security domains, MITRE ATT&CK mapping
+[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) &#11088;6 — 67 automated checks across 8 security domains, MITRE ATT&CK mapping
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main/NetworkSecurityAudit.ps1" | iex
 ```
 
-[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) ⭐1 — Discover, select, and bulk install software via Winget
+[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;5 — Spotify customization — automates Spicetify, themes, extensions
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
+```
+
+[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;1 — Discover, select, and bulk install software via Winget
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/Wingetter/main/Wingetter.ps1" | iex
 ```
@@ -112,7 +120,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/EXTRACTORX.ps
 </details>
 
 <details>
-<summary><b>🐍 Python Desktop Applications</b> — 24 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> — 29 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
 <br/>
 
 [**PyWall**](https://github.com/SysAdminDoc/PyWall) — Real-time Windows Firewall manager and network monitor
@@ -145,12 +153,37 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Flux/main/flux-torrent/Launch
 irm "https://raw.githubusercontent.com/SysAdminDoc/GitForge/main/gitforge.py" -OutFile "$env:TEMP\gitforge.py"; python "$env:TEMP\gitforge.py"
 ```
 
+[**UniFile**](https://github.com/SysAdminDoc/UniFile) — AI-powered unified file organization — 5 engines, tag-based library, LLM integration
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/UniFile/main/UniFile.py" -OutFile "$env:TEMP\UniFile.py"; python "$env:TEMP\UniFile.py"
+```
+
+[**QuickFind**](https://github.com/SysAdminDoc/QuickFind) — Lightning-fast file search for Windows — reads NTFS MFT directly
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/QuickFind/main/QuickFind.py" -OutFile "$env:TEMP\QuickFind.py"; python "$env:TEMP\QuickFind.py"
+```
+
+[**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) — AI-powered desktop tool for classifying and organizing design asset folders
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/FileOrganizer/main/FileOrganizer.py" -OutFile "$env:TEMP\FileOrganizer.py"; python "$env:TEMP\FileOrganizer.py"
+```
+
+[**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) &#11088;1 — AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/FaceSlim/main/FaceSlim.py" -OutFile "$env:TEMP\FaceSlim.py"; python "$env:TEMP\FaceSlim.py"
+```
+
+[**LipSight**](https://github.com/SysAdminDoc/LipSight) — AI-powered lip reading tool — transcribes speech from silent video
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/LipSight/main/LipSight.py" -OutFile "$env:TEMP\LipSight.py"; python "$env:TEMP\LipSight.py"
+```
+
 [**UniversalCompiler**](https://github.com/SysAdminDoc/UniversalCompiler) — All-in-one script-to-EXE compiler
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/UniversalCompiler/main/UniversalCompiler.ps1" | iex
 ```
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) — Video editing automation for Premiere Pro
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;1 — Video editing automation for Premiere Pro
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/OpenCut/main/Install.ps1" | iex
 ```
@@ -238,14 +271,14 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 </details>
 
 <details>
-<summary><b>🌐 Web Applications</b> — 13 repos — <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> — 17 repos — <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
 |:--------|:------------|:----:|
 | [**Openshop**](https://github.com/SysAdminDoc/Openshop) | Free browser-based image editor — layers, AI tools, PSD import | [Launch](https://sysadmindoc.github.io/Openshop/) |
 | [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) | Open source weather radar viewer | [Launch](https://sysadmindoc.github.io/StormviewRadar/) |
-| [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) ⭐1 | Real-time aircraft tracker — commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
+| [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) | Real-time aircraft tracker — commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
 | [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform | [Launch](https://sysadmindoc.github.io/SPECTRE/) |
 | [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) | Curated directory of 470+ free tools and open source projects | [Launch](https://sysadmindoc.github.io/CoolSites/) |
 | [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
@@ -255,17 +288,21 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 | [**DeGoogler**](https://github.com/SysAdminDoc/DeGoogler) | Turnkey migration toolkit for leaving Google services | [Launch](https://sysadmindoc.github.io/DeGoogler/) |
 | [**SearchHub**](https://github.com/SysAdminDoc/SearchHub) | Search 538 engines across 29 categories | [Launch](https://sysadmindoc.github.io/SearchHub/) |
 | [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
+| [**MHTMLens**](https://github.com/SysAdminDoc/MHTMLens) | MHTML file viewer and inspector | [Launch](https://sysadmindoc.github.io/MHTMLens/) |
+| [**LogLens**](https://github.com/SysAdminDoc/LogLens) | Log file viewer and analyzer | [Launch](https://sysadmindoc.github.io/LogLens/) |
+| [**CronScope**](https://github.com/SysAdminDoc/CronScope) | Cron expression builder and visualizer | [Launch](https://sysadmindoc.github.io/CronScope/) |
+| [**NATO_PHONETIC_TRAINING**](https://github.com/SysAdminDoc/NATO_PHONETIC_TRAINING) | NATO phonetic alphabet training app | [Launch](https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/) |
 | [**RadAtlas**](https://github.com/SysAdminDoc/RadAtlas) | Prototyping | — |
 
 </details>
 
 <details>
-<summary><b>🧩 Browser Extensions & Userscripts</b> — 15 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> — 15 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
-| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) ⭐2 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YouTube-Kit/main/YTKit.user.js) |
+| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) &#11088;3 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YouTube-Kit/main/YTKit.user.js) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
 | [**Chapterizer**](https://github.com/SysAdminDoc/Chapterizer) | Auto-generate YouTube chapters, detect filler words, skip pauses | [Install](https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js) |
 | [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) | Media downloader userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js) |
@@ -284,21 +321,22 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 </details>
 
 <details>
-<summary><b>📱 Android Applications</b> — 5 repos — <i>Kotlin / Material You</i></summary>
+<summary><b>&#128241; Android Applications</b> — 6 repos — <i>Kotlin / Material You</i></summary>
 <br/>
 
 | Project | Description |
 |:--------|:------------|
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) ⭐3 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;3 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
+| [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;1 | Full-featured file manager with root access, archive support, cloud storage |
 | [**FreeVibe**](https://github.com/SysAdminDoc/FreeVibe) | Wallpapers, ringtones, and device personalization |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | Premium dark weather app — no API keys required |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) | Feature-rich alarm clock with dismiss challenges |
-| [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) | Lightweight launcher with 5 built-in dark themes |
+| [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;1 | Lightweight launcher with 5 built-in dark themes |
 
 </details>
 
 <details>
-<summary><b>🔒 Security & Networking</b> — 4 repos</summary>
+<summary><b>&#128274; Security & Networking</b> — 4 repos</summary>
 <br/>
 
 | Project | Description |
@@ -311,12 +349,17 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 </details>
 
 <details>
-<summary><b>🎬 Media & Conversion Tools</b> — 4 repos</summary>
+<summary><b>&#127916; Media & Conversion Tools</b> — 5 repos</summary>
 <br/>
 
 [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) — Video compression and processing
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/VideoCrush/main/video_compressor.py" -OutFile "$env:TEMP\videocrush.py"; python "$env:TEMP\videocrush.py"
+```
+
+[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut) — Video background removal and compositing
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/AlphaCut/main/AlphaCut.py" -OutFile "$env:TEMP\alphacut.py"; python "$env:TEMP\alphacut.py"
 ```
 
 [**yt_livestream_downloader**](https://github.com/SysAdminDoc/yt_livestream_downloader) — Download livestreams while they're still live
@@ -337,7 +380,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 </details>
 
 <details>
-<summary><b>🖥️ Native Desktop Applications</b> — 2 repos</summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> — 2 repos</summary>
 <br/>
 
 | Project | Description | Language |
@@ -348,7 +391,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 </details>
 
 <details>
-<summary><b>📚 Guides & Resources</b> — 2 repos</summary>
+<summary><b>&#128218; Guides & Resources</b> — 2 repos</summary>
 <br/>
 
 | Project | Description |
@@ -359,7 +402,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 </details>
 
 <details>
-<summary><b>🔀 Misc</b> — 5 repos</summary>
+<summary><b>&#128256; Misc</b> — 5 repos</summary>
 <br/>
 
 | Project | Description |
@@ -371,3 +414,19 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 | [**TabExplorer**](https://github.com/SysAdminDoc/TabExplorer) | Tabbed file manager for Windows *(fork)* |
 
 </details>
+
+---
+
+<p align="center">
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-compact&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb" width="98%" alt="Activity Graph" />
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake.svg" />
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" alt="Snake animation" />
+  </picture>
+</p>
+
+![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)
