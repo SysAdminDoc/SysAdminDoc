@@ -32,9 +32,9 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" />
-    <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=default&hide_border=true" />
-    <img src="https://github-readme-stats.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" height="170" alt="GitHub Stats" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" />
+    <source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=default&hide_border=true" />
+    <img src="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e&ring_color=1f6feb" height="170" alt="GitHub Stats" />
   </picture>
   &nbsp;&nbsp;
   <picture>
@@ -45,7 +45,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="170" alt="Top Languages" />
+  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="170" alt="Top Languages" />
 </p>
 
 <p align="center">
@@ -56,24 +56,13 @@
 
 ### Featured Projects
 
-<p align="center">
-  <a href="https://github.com/SysAdminDoc/win11-nvme-driver-patcher">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=win11-nvme-driver-patcher&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
-  </a>
-  &nbsp;
-  <a href="https://github.com/SysAdminDoc/Network_Security_Auditor">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=Network_Security_Auditor&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
-  </a>
-</p>
-<p align="center">
-  <a href="https://github.com/SysAdminDoc/LibreSpot">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=LibreSpot&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
-  </a>
-  &nbsp;
-  <a href="https://github.com/SysAdminDoc/YouTube-Kit">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=YouTube-Kit&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
-  </a>
-</p>
+| Project | Stars | Description |
+|:--------|:-----:|:------------|
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;17 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
+| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;5 | Spotify customization — automates Spicetify, themes, extensions |
+| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;3 | Ultimate YouTube customization userscript |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
 
 ---
 
@@ -447,19 +436,11 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 ---
 
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-compact&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb" width="98%" alt="Activity Graph" />
-</p>
-
-<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" />
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake.svg" />
     <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" alt="Snake animation" />
   </picture>
-</p>
-
-<p align="center">
-  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=dark" alt="Dev Quote" />
 </p>
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)
