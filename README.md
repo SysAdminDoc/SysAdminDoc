@@ -40,15 +40,6 @@ Everything I ship is intentionally **zero-config and ready to run.** No setup wi
 
 ---
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-streak-stats.herokuapp.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=00000000&ring=1f6feb&fire=f78166&currStreakLabel=c9d1d9&sideLabels=c9d1d9&dates=8b949e" />
-    <img src="https://github-readme-streak-stats.herokuapp.com?user=SysAdminDoc&hide_border=true" alt="GitHub Streak" />
-  </picture>
-</p>
-
----
-
 <details>
 <summary><b>⚡ PowerShell System Utilities</b> — 13 repos</summary>
 <br/>
