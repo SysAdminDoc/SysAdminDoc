@@ -12,9 +12,11 @@
 
 ---
 
-Systems Administrator who spends nights and weekends building the tools I wish existed. Most of what you'll find here started as a personal itch — a script that grew legs, a browser annoyance I finally fixed, or a desktop app I couldn't find anywhere else.
-
-Everything I ship is intentionally **zero-config and ready to run.** No setup wizards, no dependency hunts. Download it, launch it, done.
+- Systems Administrator by day, tool builder by night
+- Everything I ship is **zero-config** — download it, launch it, done
+- 100+ open source projects across PowerShell, Python, JavaScript, Kotlin, and C#
+- Currently building AI-powered desktop tools, browser enhancements, and Android apps
+- Work domain: medical imaging, PACS, and chiropractic IT infrastructure
 
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
 
@@ -43,7 +45,34 @@ Everything I ship is intentionally **zero-config and ready to run.** No setup wi
 </p>
 
 <p align="center">
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="170" alt="Top Languages" />
+</p>
+
+<p align="center">
   <img src="https://github-trophies.vercel.app/?username=SysAdminDoc&theme=darkhub&no-frame=true&no-bg=true&column=8&margin-w=10&title=MultiLanguage,LongTimeUser,Commits,Repositories,Issues,Stars,Followers" alt="Trophies" />
+</p>
+
+---
+
+### Featured Projects
+
+<p align="center">
+  <a href="https://github.com/SysAdminDoc/win11-nvme-driver-patcher">
+    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=win11-nvme-driver-patcher&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/SysAdminDoc/Network_Security_Auditor">
+    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=Network_Security_Auditor&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/SysAdminDoc/LibreSpot">
+    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=LibreSpot&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/SysAdminDoc/YouTube-Kit">
+    <img src="https://github-readme-stats.vercel.app/api/pin/?username=SysAdminDoc&repo=YouTube-Kit&theme=github_dark&hide_border=true&bg_color=0d1117&icon_color=1f6feb&title_color=58a6ff&text_color=8b949e" />
+  </a>
 </p>
 
 ---
@@ -427,6 +456,10 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake.svg" />
     <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" alt="Snake animation" />
   </picture>
+</p>
+
+<p align="center">
+  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=dark" alt="Dev Quote" />
 </p>
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)
