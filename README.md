@@ -4,11 +4,6 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=100%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23;Building+the+tools+I+wish+existed" alt="Typing SVG" />
 </p>
 
-<p align="center">
-  <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile Views" />
-  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb&labelColor=0d1117" alt="Followers" />
-  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&labelColor=0d1117&affiliations=OWNER" alt="Stars" />
-</p>
 
 ---
 
@@ -28,23 +23,12 @@
   </a>
 </p>
 
----
 
 <p align="center">
   <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="170" alt="Top Languages" />
 </p>
 
----
 
-### Featured Projects
-
-| Project | Stars | Description |
-|:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;17 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
-| [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
-| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;5 | Spotify customization — automates Spicetify, themes, extensions |
-| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;3 | Ultimate YouTube customization userscript |
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
 
 ---
 
@@ -401,28 +385,5 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 
 </details>
 
-<details>
-<summary><b>&#128256; Misc</b> — 5 repos</summary>
-<br/>
-
-| Project | Description |
-|:--------|:------------|
-| [**HNCC**](https://github.com/SysAdminDoc/HNCC) | Collapsible child comments on Hacker News |
-| [**DuplicateFF**](https://github.com/SysAdminDoc/DuplicateFF) | Duplicate file finder |
-| [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore) | Add Windows Store to Win11 24H2 LTSC *(fork)* |
-| [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser) | Cross-platform GUI for rclone *(fork)* |
-| [**TabExplorer**](https://github.com/SysAdminDoc/TabExplorer) | Tabbed file manager for Windows *(fork)* |
-
-</details>
-
----
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake.svg" />
-    <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/output/github-snake-dark.svg" alt="Snake animation" />
-  </picture>
-</p>
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)
