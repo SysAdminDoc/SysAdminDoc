@@ -1,7 +1,7 @@
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Systems%20Administrator%20%7C%20Automation%20Engineer%20%7C%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=100%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23;Building+the+tools+I+wish+existed" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=120%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
 </p>
 
 <p align="center">
@@ -12,26 +12,55 @@
 
 ---
 
+<table>
+<tr>
+<td width="55%" valign="top">
+
 - Systems Administrator by day, tool builder by night
 - Everything I ship is **zero-config** — download it, launch it, done
-- 100+ open source projects across PowerShell, Python, JavaScript, Kotlin, and C#
+- 120+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
 - Currently building AI-powered desktop tools, browser enhancements, and Android apps
 - Work domain: medical imaging, PACS, and chiropractic IT infrastructure
 
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
 
+</td>
+<td width="45%" valign="top">
+
+**Currently Building**
+
+| | |
+|:--|:--|
+| **VaultBox** | Offline Bitwarden password manager *(C++)* |
+| **NeonNote** | Premium Notepad++ fork *(C++)* |
+| **XRayAcquisition** | Digital X-ray acquisition *(C#/.NET 9)* |
+| **YouTube-Kit** | YouTube enhancement suite *(Chrome MV3)* |
+
+</td>
+</tr>
+</table>
+
 ---
 
 <p align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=12" alt="Tech Stack" />
+    <img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13" alt="Tech Stack" />
   </a>
 </p>
 
 ---
 
 <p align="center">
-  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="170" alt="Top Languages" />
+  <img src="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=8b949e&ring_color=1f6feb" height="180" alt="GitHub Stats" />
+  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="180" alt="Top Languages" />
+</p>
+
+<p align="center">
+  <img src="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0D1117&ring=1F6FEB&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=8B949E&dates=8B949E&stroke=30363D" alt="GitHub Streak" />
+</p>
+
+<p align="center">
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-dark&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb" width="98%" alt="Activity Graph" />
 </p>
 
 ---
@@ -40,9 +69,9 @@
 
 | Project | Stars | Description |
 |:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;17 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;19 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
 | [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
-| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;5 | Spotify customization — automates Spicetify, themes, extensions |
+| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;7 | Spotify customization — automates Spicetify, themes, extensions |
 | [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;3 | Ultimate YouTube customization userscript |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
 
@@ -52,7 +81,7 @@
 <summary><b>&#9889; PowerShell System Utilities</b> — 13 repos</summary>
 <br/>
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;17 — GUI to enable Windows Server 2025 NVMe driver on Win11
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;19 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher_v3.0.0.ps1" | iex
 ```
@@ -62,7 +91,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/mai
 irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main/NetworkSecurityAudit.ps1" | iex
 ```
 
-[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;5 — Spotify customization — automates Spicetify, themes, extensions
+[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;7 — Spotify customization — automates Spicetify, themes, extensions
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
 ```
