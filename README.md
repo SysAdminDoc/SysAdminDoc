@@ -1,7 +1,7 @@
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Systems%20Administrator%20%7C%20Automation%20Engineer%20%7C%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=120%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=150%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
 
 - Systems Administrator by day, tool builder by night
 - Everything I ship is **zero-config** — download it, launch it, done
-- 120+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
+- 150+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
 - Currently building AI-powered desktop tools, browser enhancements, and Android apps
 - Work domain: medical imaging, PACS, and chiropractic IT infrastructure
 
@@ -69,15 +69,16 @@
 | Project | Stars | Description |
 |:--------|:-----:|:------------|
 | [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;19 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
-| [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
 | [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;7 | Spotify customization — automates Spicetify, themes, extensions |
+| [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
 | [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;3 | Ultimate YouTube customization userscript |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;3 | AI-powered video editing automation for Premiere Pro |
 
 ---
 
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> — 13 repos</summary>
+<summary><b>&#9889; PowerShell System Utilities</b> — 29 repos</summary>
 <br/>
 
 [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;19 — GUI to enable Windows Server 2025 NVMe driver on Win11
@@ -95,6 +96,71 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main
 irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
 ```
 
+[**WinForge**](https://github.com/SysAdminDoc/WinForge) — All-in-one Windows provisioning suite — app installer, tweaks, features, updates
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/WinForge/main/WinForge.ps1" | iex
+```
+
+[**Debloat-Win11**](https://github.com/SysAdminDoc/Debloat-Win11) — Enterprise Windows 11 debloating with AppX removal, Office cleanup, telemetry blocking
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/Debloat-Win11/main/Debloat-Win11.ps1" | iex
+```
+
+[**Restore-WindowsDefaults**](https://github.com/SysAdminDoc/Restore-WindowsDefaults) — Reverse debloat changes and restore Windows to factory defaults
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/Restore-WindowsDefaults/main/Restore-WindowsDefaults.ps1" | iex
+```
+
+[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) — WPF GUI to fully disable or re-enable Microsoft Defender
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/DefenderControl/main/DefenderControl.ps1" | iex
+```
+
+[**DefenderShield**](https://github.com/SysAdminDoc/DefenderShield) — Repair and restore Windows Defender and Firewall after debloaters
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/DefenderShield/main/DefenderShield.ps1" | iex
+```
+
+[**TelemetrySlayer**](https://github.com/SysAdminDoc/TelemetrySlayer) — WPF GUI to disable Windows telemetry, data collection, and compatibility bloat
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/TelemetrySlayer/main/TelemetrySlayer.ps1" | iex
+```
+
+[**FirewallForge**](https://github.com/SysAdminDoc/FirewallForge) — WPF Windows Firewall manager with live rule editing and offline backup editor
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/FirewallForge/main/FirewallManager.ps1" | iex
+```
+
+[**NetForge**](https://github.com/SysAdminDoc/NetForge) — WPF network adapter manager — static/DHCP, DNS presets, profile management
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/NetForge/main/NetForge.ps1" | iex
+```
+
+[**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) — Enterprise Windows update automation — OEM drivers, Windows Update, winget
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/SystemUpdatePro/main/SystemUpdatePro.ps1" | iex
+```
+
+[**WURepair**](https://github.com/SysAdminDoc/WURepair) — Comprehensive Windows Update component repair — DLL re-registration, DISM, SFC, network reset
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/WURepair/main/WURepair.ps1" | iex
+```
+
+[**SoftwareScannerGUI**](https://github.com/SysAdminDoc/SoftwareScannerGUI) — WPF audit tool for installed software — AppX, Win32, services, tasks, startup entries
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/SoftwareScannerGUI/main/SoftwareScannerGUI.ps1" | iex
+```
+
+[**NuclearDellRemover**](https://github.com/SysAdminDoc/NuclearDellRemover) — Scorched-earth Dell bloatware removal — 8-phase complete cleanup
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/NuclearDellRemover/main/NuclearDellRemover.ps1" | iex
+```
+
+[**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) — Comprehensive Adobe telemetry and GrowthSDK suppression for Windows
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/Disable-AdobeTelemetry/main/Disable-AdobeTelemetry.ps1" | iex
+```
+
 [**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;1 — Discover, select, and bulk install software via Winget
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/Wingetter/main/Wingetter.ps1" | iex
@@ -105,6 +171,11 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Wingetter/main/Wingetter.ps1"
 irm "https://raw.githubusercontent.com/SysAdminDoc/Start-Menu-Organizer/main/StartMenuOrganizerPro.ps1" | iex
 ```
 
+[**Start-Menu-Manager**](https://github.com/SysAdminDoc/Start-Menu-Manager) — Windows 11 Start Menu and Taskbar management — export/import layouts, toggle settings, save/load profiles
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/Start-Menu-Manager/main/StartMenuManager.ps1" | iex
+```
+
 [**PathForge**](https://github.com/SysAdminDoc/PathForge) — Filesystem repair, stubborn file deletion, path management
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/PathForge/main/PathForge.ps1" | iex
@@ -113,6 +184,16 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/PathForge/main/PathForge.ps1"
 [**MonitorControl**](https://github.com/SysAdminDoc/MonitorControl) — Control monitor settings via DDC/CI
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/MonitorControl/main/MonitorControlPro.ps1" | iex
+```
+
+[**WallBrand**](https://github.com/SysAdminDoc/WallBrand) — Wallpaper branding tool with GUI and CLI modes
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/WallBrand/main/WallBrandPro.ps1" | iex
+```
+
+[**VoidTools-Everything-Settings-Manager**](https://github.com/SysAdminDoc/VoidTools-Everything-Settings-Manager) — GUI for managing VoidTools Everything settings, INI editing, CSV filter/bookmark management
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/VoidTools-Everything-Settings-Manager/main/EverythingSettingsManager.ps1" | iex
 ```
 
 [**PfblockerngManager**](https://github.com/SysAdminDoc/PfblockerngManager) — GUI for managing pfBlockerNG on pfSense firewalls
@@ -148,7 +229,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/EXTRACTORX.ps
 </details>
 
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> — 29 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> — 32 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
 <br/>
 
 [**PyWall**](https://github.com/SysAdminDoc/PyWall) — Real-time Windows Firewall manager and network monitor
@@ -196,6 +277,21 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/QuickFind/main/QuickFind.py" 
 irm "https://raw.githubusercontent.com/SysAdminDoc/FileOrganizer/main/FileOrganizer.py" -OutFile "$env:TEMP\FileOrganizer.py"; python "$env:TEMP\FileOrganizer.py"
 ```
 
+[**HEICShift**](https://github.com/SysAdminDoc/HEICShift) — High-performance HEIC/HEIF batch converter with PyQt6 GUI, parallel conversion, metadata preservation
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/HEICShift/main/heicshift.py" -OutFile "$env:TEMP\heicshift.py"; python "$env:TEMP\heicshift.py"
+```
+
+[**FrameSnap**](https://github.com/SysAdminDoc/FrameSnap) — Browse MP4 videos, mark frames visually, and export precise screenshots
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/FrameSnap/main/framesnap.py" -OutFile "$env:TEMP\framesnap.py"; python "$env:TEMP\framesnap.py"
+```
+
+[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) — GUI for toggling 50+ Windows File Explorer registry settings with live preview
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/ExplorerTweaks/main/explorer_tweaks.py" -OutFile "$env:TEMP\explorer_tweaks.py"; python "$env:TEMP\explorer_tweaks.py"
+```
+
 [**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) &#11088;1 — AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/FaceSlim/main/FaceSlim.py" -OutFile "$env:TEMP\FaceSlim.py"; python "$env:TEMP\FaceSlim.py"
@@ -211,7 +307,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/LipSight/main/LipSight.py" -O
 irm "https://raw.githubusercontent.com/SysAdminDoc/UniversalCompiler/main/UniversalCompiler.ps1" | iex
 ```
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;1 — Video editing automation for Premiere Pro
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;3 — Video editing automation for Premiere Pro
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/OpenCut/main/Install.ps1" | iex
 ```
@@ -299,7 +395,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 </details>
 
 <details>
-<summary><b>&#127760; Web Applications</b> — 17 repos — <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> — 22 repos — <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
@@ -311,6 +407,11 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 | [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) | Curated directory of 470+ free tools and open source projects | [Launch](https://sysadmindoc.github.io/CoolSites/) |
 | [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
 | [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter | [Launch](https://sysadmindoc.github.io/ImageForge/) |
+| [**ClipForge**](https://github.com/SysAdminDoc/ClipForge) | Browser-based video editor powered by FFmpeg.wasm | [Launch](https://sysadmindoc.github.io/ClipForge/) |
+| [**ConvertFlow**](https://github.com/SysAdminDoc/ConvertFlow) | Browser-based media converter — audio, video, image — no uploads | [Launch](https://sysadmindoc.github.io/ConvertFlow/) |
+| [**IconForge**](https://github.com/SysAdminDoc/IconForge) | Browser-based image resizer and converter | [Launch](https://sysadmindoc.github.io/IconForge/) |
+| [**Base64Converter**](https://github.com/SysAdminDoc/Base64Converter) | Base64 encoding/decoding with file, text, QR code, and image support | [Launch](https://sysadmindoc.github.io/Base64Converter/) |
+| [**ImageXpert**](https://github.com/SysAdminDoc/ImageXpert) | Multi-engine reverse image search — Google Lens, Yandex, Bing, TinEye | [Launch](https://sysadmindoc.github.io/ImageXpert/) |
 | [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
 | [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filtering and processing tool | [Launch](https://sysadmindoc.github.io/Text-Filter-Editor/) |
 | [**DeGoogler**](https://github.com/SysAdminDoc/DeGoogler) | Turnkey migration toolkit for leaving Google services | [Launch](https://sysadmindoc.github.io/DeGoogler/) |
@@ -400,7 +501,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/yt_livestream_downloader/main
 irm "https://raw.githubusercontent.com/SysAdminDoc/MediaForge/main/MediaForge.py" -OutFile "$env:TEMP\MediaForge.py"; python "$env:TEMP\MediaForge.py"
 ```
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) — Remove hardcoded subtitles from video
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;1 — Remove hardcoded subtitles from video
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/VideoSubtitleRemover.py" -OutFile "$env:TEMP\vsr.py"; python "$env:TEMP\vsr.py"
 ```
@@ -430,11 +531,12 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 </details>
 
 <details>
-<summary><b>&#128256; Misc</b> — 5 repos</summary>
+<summary><b>&#128256; Misc</b> — 6 repos</summary>
 <br/>
 
 | Project | Description |
 |:--------|:------------|
+| [**Scripts**](https://github.com/SysAdminDoc/Scripts) | Collection of PowerShell scripts and userscripts for sysadmin, debloating, networking, security |
 | [**HNCC**](https://github.com/SysAdminDoc/HNCC) | Collapsible child comments on Hacker News |
 | [**DuplicateFF**](https://github.com/SysAdminDoc/DuplicateFF) | Duplicate file finder |
 | [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore) | Add Windows Store to Win11 24H2 LTSC *(fork)* |
