@@ -10,7 +10,6 @@
   <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&labelColor=0d1117&affiliations=OWNER" alt="Stars" />
 </p>
 
----
 
 <table>
 <tr>
@@ -444,7 +443,6 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 
 </details>
 
----
 
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)
