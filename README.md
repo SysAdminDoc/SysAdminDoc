@@ -1,7 +1,7 @@
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Systems%20Administrator%20%7C%20Automation%20Engineer%20%7C%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=150%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=160%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
 
 - Systems Administrator by day, tool builder by night
 - Everything I ship is **zero-config** — download it, launch it, done
-- 150+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
+- 160+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
 - Currently building AI-powered desktop tools, browser enhancements, and Android apps
 - Work domain: medical imaging, PACS, and chiropractic IT infrastructure
 
@@ -30,10 +30,10 @@
 
 | | |
 |:--|:--|
-| **VaultBox** | Offline Bitwarden password manager *(C++)* |
+| **Project N.O.M.A.D.** | Offline survival command center *(Python/Flask)* |
+| **NovaCut** | Professional Android video editor *(Kotlin)* |
+| **CallShield** | Open-source spam call blocker *(Kotlin)* |
 | **NeonNote** | Premium Notepad++ fork *(C++)* |
-| **XRayAcquisition** | Digital X-ray acquisition *(C#/.NET 9)* |
-| **YouTube-Kit** | YouTube enhancement suite *(Chrome MV3)* |
 
 </td>
 </tr>
@@ -68,20 +68,22 @@
 
 | Project | Stars | Description |
 |:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;19 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;27 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | &#11088;7 | Offline survival command center — maps, AI chat, situation room, NukeMap |
 | [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;7 | Spotify customization — automates Spicetify, themes, extensions |
 | [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
-| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;3 | Ultimate YouTube customization userscript |
+| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;4 | Ultimate YouTube customization suite |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;4 | AI-powered video editing automation for Premiere Pro |
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;3 | Professional video editor for Android |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
-| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;3 | AI-powered video editing automation for Premiere Pro |
 
 ---
 
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> — 29 repos</summary>
+<summary><b>&#9889; PowerShell System Utilities</b> — 31 repos</summary>
 <br/>
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;19 — GUI to enable Windows Server 2025 NVMe driver on Win11
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;27 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher_v3.0.0.ps1" | iex
 ```
@@ -94,6 +96,11 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main
 [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;7 — Spotify customization — automates Spicetify, themes, extensions
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
+```
+
+[**Mavenwinutil**](https://github.com/SysAdminDoc/Mavenwinutil) — Turnkey Windows PC provisioning and optimization — 150+ app installations, WPF GUI
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/Mavenwinutil/main/MavenWinUtil.ps1" | iex
 ```
 
 [**WinForge**](https://github.com/SysAdminDoc/WinForge) — All-in-one Windows provisioning suite — app installer, tweaks, features, updates
@@ -111,7 +118,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Debloat-Win11/main/Debloat-Wi
 irm "https://raw.githubusercontent.com/SysAdminDoc/Restore-WindowsDefaults/main/Restore-WindowsDefaults.ps1" | iex
 ```
 
-[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) — WPF GUI to fully disable or re-enable Microsoft Defender
+[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) &#11088;1 — WPF GUI to fully disable or re-enable Microsoft Defender
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/DefenderControl/main/DefenderControl.ps1" | iex
 ```
@@ -216,6 +223,11 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/JDownloader-2-Ultimate-Manage
 irm "https://raw.githubusercontent.com/SysAdminDoc/YTYT-Downloader/main/src/Install-YTYT.ps1" | iex
 ```
 
+[**bypassnro**](https://github.com/SysAdminDoc/bypassnro) — Windows 11 OOBE bypass and PC provisioning scripts
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/bypassnro/main/MavenWinUtil_v3_0.ps1" | iex
+```
+
 [**ThankYouJeffrey**](https://github.com/SysAdminDoc/ThankYouJeffrey) — A tribute to the creator of PowerShell, Jeffrey Snover
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/ThankYouJeffrey/main/ThankYouJeffrey.ps1" | iex
@@ -229,8 +241,13 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/EXTRACTORX.ps
 </details>
 
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> — 32 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> — 38 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
 <br/>
+
+[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;7 — Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/project-nomad-desktop/master/nomad.py" -OutFile "$env:TEMP\nomad.py"; python "$env:TEMP\nomad.py"
+```
 
 [**PyWall**](https://github.com/SysAdminDoc/PyWall) — Real-time Windows Firewall manager and network monitor
 ```powershell
@@ -292,7 +309,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/FrameSnap/main/framesnap.py" 
 irm "https://raw.githubusercontent.com/SysAdminDoc/ExplorerTweaks/main/explorer_tweaks.py" -OutFile "$env:TEMP\explorer_tweaks.py"; python "$env:TEMP\explorer_tweaks.py"
 ```
 
-[**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) &#11088;1 — AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration
+[**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) — AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/FaceSlim/main/FaceSlim.py" -OutFile "$env:TEMP\FaceSlim.py"; python "$env:TEMP\FaceSlim.py"
 ```
@@ -302,12 +319,37 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/FaceSlim/main/FaceSlim.py" -O
 irm "https://raw.githubusercontent.com/SysAdminDoc/LipSight/main/LipSight.py" -OutFile "$env:TEMP\LipSight.py"; python "$env:TEMP\LipSight.py"
 ```
 
+[**LlamaLink**](https://github.com/SysAdminDoc/LlamaLink) — Sleek GUI frontend for llama.cpp — search, download, and chat with local LLMs
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/LlamaLink/main/llamalink.py" -OutFile "$env:TEMP\llamalink.py"; python "$env:TEMP\llamalink.py"
+```
+
+[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) — Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/SlunderStudio/main/main.py" -OutFile "$env:TEMP\slunderstudio.py"; python "$env:TEMP\slunderstudio.py"
+```
+
+[**InboxForge**](https://github.com/SysAdminDoc/InboxForge) — Full Gmail mailbox downloader, AI-powered organizer and analytics suite
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/InboxForge/main/inboxforge.py" -OutFile "$env:TEMP\inboxforge.py"; python "$env:TEMP\inboxforge.py"
+```
+
+[**NexRay**](https://github.com/SysAdminDoc/NexRay) — Unified medical imaging platform — chiro, vet, dental, hospital — 13 modules, 100+ API routes
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/NexRay/main/main.py" -OutFile "$env:TEMP\nexray.py"; python "$env:TEMP\nexray.py"
+```
+
+[**MavenSort**](https://github.com/SysAdminDoc/MavenSort) — Adaptive local LLM-powered PDF classification tool using Ollama
+```powershell
+irm "https://raw.githubusercontent.com/SysAdminDoc/MavenSort/main/ai-classifier.py" -OutFile "$env:TEMP\mavensort.py"; python "$env:TEMP\mavensort.py"
+```
+
 [**UniversalCompiler**](https://github.com/SysAdminDoc/UniversalCompiler) — All-in-one script-to-EXE compiler
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/UniversalCompiler/main/UniversalCompiler.ps1" | iex
 ```
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;3 — Video editing automation for Premiere Pro
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;4 — Video editing automation for Premiere Pro
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/OpenCut/main/Install.ps1" | iex
 ```
@@ -395,17 +437,20 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 </details>
 
 <details>
-<summary><b>&#127760; Web Applications</b> — 22 repos — <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> — 27 repos — <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
 |:--------|:------------|:----:|
 | [**Openshop**](https://github.com/SysAdminDoc/Openshop) | Free browser-based image editor — layers, AI tools, PSD import | [Launch](https://sysadmindoc.github.io/Openshop/) |
 | [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) | Open source weather radar viewer | [Launch](https://sysadmindoc.github.io/StormviewRadar/) |
-| [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) | Real-time aircraft tracker — commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
+| [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) &#11088;1 | Real-time aircraft tracker — commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
+| [**VIPTrack**](https://github.com/SysAdminDoc/VIPTrack) | Military and VIP aircraft tracker | [Launch](https://sysadmindoc.github.io/VIPTrack/) |
+| [**NukeMap**](https://github.com/SysAdminDoc/NukeMap) | Nuclear weapon effects simulator — blast waves, WW3 simulation, 418 targets | [Launch](https://sysadmindoc.github.io/NukeMap/) |
 | [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform | [Launch](https://sysadmindoc.github.io/SPECTRE/) |
 | [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) | Curated directory of 470+ free tools and open source projects | [Launch](https://sysadmindoc.github.io/CoolSites/) |
 | [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) | Multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
+| [**GifStudio**](https://github.com/SysAdminDoc/GifStudio) | Browser-based GIF creation and editing studio — 100% client-side | [Launch](https://sysadmindoc.github.io/GifStudio/) |
 | [**ImageForge**](https://github.com/SysAdminDoc/ImageForge) | Open source image converter | [Launch](https://sysadmindoc.github.io/ImageForge/) |
 | [**ClipForge**](https://github.com/SysAdminDoc/ClipForge) | Browser-based video editor powered by FFmpeg.wasm | [Launch](https://sysadmindoc.github.io/ClipForge/) |
 | [**ConvertFlow**](https://github.com/SysAdminDoc/ConvertFlow) | Browser-based media converter — audio, video, image — no uploads | [Launch](https://sysadmindoc.github.io/ConvertFlow/) |
@@ -414,6 +459,8 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 | [**ImageXpert**](https://github.com/SysAdminDoc/ImageXpert) | Multi-engine reverse image search — Google Lens, Yandex, Bing, TinEye | [Launch](https://sysadmindoc.github.io/ImageXpert/) |
 | [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
 | [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filtering and processing tool | [Launch](https://sysadmindoc.github.io/Text-Filter-Editor/) |
+| [**ChanPrep**](https://github.com/SysAdminDoc/ChanPrep) | Make any file fit any 4chan board — auto compression, format conversion, Catbox upload | [Launch](https://sysadmindoc.github.io/ChanPrep/) |
+| [**kindred**](https://github.com/SysAdminDoc/kindred) | Compatibility-first dating and social platform | [Launch](https://sysadmindoc.github.io/kindred/) |
 | [**DeGoogler**](https://github.com/SysAdminDoc/DeGoogler) | Turnkey migration toolkit for leaving Google services | [Launch](https://sysadmindoc.github.io/DeGoogler/) |
 | [**SearchHub**](https://github.com/SysAdminDoc/SearchHub) | Search 538 engines across 29 categories | [Launch](https://sysadmindoc.github.io/SearchHub/) |
 | [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
@@ -421,56 +468,71 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/St
 | [**LogLens**](https://github.com/SysAdminDoc/LogLens) | Log file viewer and analyzer | [Launch](https://sysadmindoc.github.io/LogLens/) |
 | [**CronScope**](https://github.com/SysAdminDoc/CronScope) | Cron expression builder and visualizer | [Launch](https://sysadmindoc.github.io/CronScope/) |
 | [**NATO_PHONETIC_TRAINING**](https://github.com/SysAdminDoc/NATO_PHONETIC_TRAINING) | NATO phonetic alphabet training app | [Launch](https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/) |
-| [**RadAtlas**](https://github.com/SysAdminDoc/RadAtlas) | Prototyping | — |
+| [**RadAtlas**](https://github.com/SysAdminDoc/RadAtlas) | Interactive X-ray technique chart for medical imaging professionals | [Launch](https://sysadmindoc.github.io/RadAtlas/) |
 
 </details>
 
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> — 15 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> — 24 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
-| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) &#11088;3 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YouTube-Kit/main/YTKit.user.js) |
+| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) &#11088;4 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YouTube-Kit/main/YTKit.user.js) |
+| [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;2 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [Repo](https://github.com/SysAdminDoc/ScriptVault) |
+| [**StyleKit**](https://github.com/SysAdminDoc/StyleKit) | CSS customization extension — visual editor for any website | [Repo](https://github.com/SysAdminDoc/StyleKit) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
+| [**Claude-Ultimate-Enhancer**](https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer) | All-in-one Claude.ai enhancement suite — themes, usage monitor, prompt library | [Install](https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js) |
+| [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js) |
 | [**Chapterizer**](https://github.com/SysAdminDoc/Chapterizer) | Auto-generate YouTube chapters, detect filler words, skip pauses | [Install](https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js) |
 | [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) | Media downloader userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js) |
-| [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) | Full-featured CSS style editor and manager — Chrome extension | [Repo](https://github.com/SysAdminDoc/StyleCraft) |
+| [**uBlockVanced**](https://github.com/SysAdminDoc/uBlockVanced) | uBlock Origin fork with Catppuccin Mocha and Element Forge panel | [Repo](https://github.com/SysAdminDoc/uBlockVanced) |
+| [**DarkReaderLocal**](https://github.com/SysAdminDoc/DarkReaderLocal) | Debloated offline-only Dark Reader fork — Catppuccin Mocha | [Repo](https://github.com/SysAdminDoc/DarkReaderLocal) |
+| [**BackgroundSearch**](https://github.com/SysAdminDoc/BackgroundSearch) | Chrome extension — force background tabs + context menu search | [Repo](https://github.com/SysAdminDoc/BackgroundSearch) |
+| [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) &#11088;1 | Full-featured CSS style editor and manager — Chrome extension | [Repo](https://github.com/SysAdminDoc/StyleCraft) |
 | [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) | Discover userscripts for any website | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
 | [**EspressoMonkey**](https://github.com/SysAdminDoc/EspressoMonkey) | Modern userscript manager — Manifest V3 | [Repo](https://github.com/SysAdminDoc/EspressoMonkey) |
+| [**NDNS**](https://github.com/SysAdminDoc/NDNS) | NextDNS control panel userscript | [Repo](https://github.com/SysAdminDoc/NDNS) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
 | [**Doordash-Enhanced**](https://github.com/SysAdminDoc/Doordash-Enhanced) | DoorDash dark mode and feature enhancements | [Install](https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js) |
 | [**DarkModer**](https://github.com/SysAdminDoc/DarkModer) | Dark Reader as a userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js) |
-| [**GeminiBuddy**](https://github.com/SysAdminDoc/GeminiBuddy) | Productivity features for Gemini | [Install](https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js) |
+| [**GeminiBuddy**](https://github.com/SysAdminDoc/GeminiBuddy) &#11088;1 | Productivity features for Gemini | [Install](https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js) |
 | [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) | Comprehensive Rumble.com enhancement | [Install](https://raw.githubusercontent.com/SysAdminDoc/RumbleX/main/RumbleX.user.js) |
 | [**DiggSuite**](https://github.com/SysAdminDoc/DiggSuite) | Multi-theme + redesigned UI for Digg | [Install](https://raw.githubusercontent.com/SysAdminDoc/DiggSuite/main/Digg_Enhancement_Suite.user.js) |
 | [**gSearchTweaks**](https://github.com/SysAdminDoc/gSearchTweaks) | Adds YouTube/Reddit/GitHub to Google toolbar | [Install](https://raw.githubusercontent.com/SysAdminDoc/gSearchTweaks/main/Google%20Multi%20Search.user.js) |
 | [**ScrollJumper**](https://github.com/SysAdminDoc/ScrollJumper) | Right-click scrollbar to jump anywhere | [Install](https://raw.githubusercontent.com/SysAdminDoc/ScrollJumper/main/src/ScrollJumper.user.js) |
+| [**uScriptStash**](https://github.com/SysAdminDoc/uScriptStash) | Collection of userscripts | [Repo](https://github.com/SysAdminDoc/uScriptStash) |
 
 </details>
 
 <details>
-<summary><b>&#128241; Android Applications</b> — 6 repos — <i>Kotlin / Material You</i></summary>
+<summary><b>&#128241; Android Applications</b> — 11 repos — <i>Kotlin / Material You</i></summary>
 <br/>
 
 | Project | Description |
 |:--------|:------------|
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;3 | Professional video editor — 40+ effects, 37 transitions, 29 engines |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;3 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
+| [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;2 | Lightweight launcher with 5 built-in dark themes |
+| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;1 | Open-source spam call and text blocker — 15-layer detection, ML scorer |
+| [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;1 | Feature-rich alarm clock with dismiss challenges |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;1 | Full-featured file manager with root access, archive support, cloud storage |
-| [**FreeVibe**](https://github.com/SysAdminDoc/FreeVibe) | Wallpapers, ringtones, and device personalization |
+| [**Aura**](https://github.com/SysAdminDoc/Aura) | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration |
+| [**SnapCrop**](https://github.com/SysAdminDoc/SnapCrop) | Screenshot editor — ML Kit autocrop, 14 draw tools, collage, device mockup |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | Premium dark weather app — no API keys required |
-| [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) | Feature-rich alarm clock with dismiss challenges |
-| [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;1 | Lightweight launcher with 5 built-in dark themes |
+| [**BillMinder**](https://github.com/SysAdminDoc/BillMinder) | Bill tracker with alarm-style reminders |
+| [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) | iOS-style icon pack for Android — 6 iOS eras |
 
 </details>
 
 <details>
-<summary><b>&#128274; Security & Networking</b> — 4 repos</summary>
+<summary><b>&#128274; Security & Networking</b> — 5 repos</summary>
 <br/>
 
 | Project | Description |
 |:--------|:------------|
-| [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite) | pfSense scripts and customizations toolkit |
+| [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite) &#11088;1 | pfSense scripts and customizations toolkit |
+| [**WolfPack**](https://github.com/SysAdminDoc/WolfPack) | Custom LibreWolf portable distribution |
 | [**NextDNSPanel**](https://github.com/SysAdminDoc/NextDNSPanel) | Tools and enhancements for NextDNS |
 | [**BetterNext**](https://github.com/SysAdminDoc/BetterNext) | Enhanced NextDNS Control Panel |
 | [**ESET**](https://github.com/SysAdminDoc/ESET) | Complete ESET port and address reference lists |
@@ -501,7 +563,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/yt_livestream_downloader/main
 irm "https://raw.githubusercontent.com/SysAdminDoc/MediaForge/main/MediaForge.py" -OutFile "$env:TEMP\MediaForge.py"; python "$env:TEMP\MediaForge.py"
 ```
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;1 — Remove hardcoded subtitles from video
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;2 — Remove hardcoded subtitles from video
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/VideoSubtitleRemover.py" -OutFile "$env:TEMP\vsr.py"; python "$env:TEMP\vsr.py"
 ```
@@ -509,23 +571,28 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 </details>
 
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> — 2 repos</summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> — 6 repos</summary>
 <br/>
 
 | Project | Description | Language |
 |:--------|:------------|:--------:|
-| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) | Thorough Windows uninstaller — removes programs completely, hunts down every leftover | C# |
+| [**NeonNote**](https://github.com/SysAdminDoc/NeonNote) | Premium Notepad++ fork — Catppuccin Mocha, Chrome-style tabs | C++ |
+| [**VaultBox**](https://github.com/SysAdminDoc/VaultBox) | Offline Bitwarden password manager — zero server contact, local vault | C++ |
+| [**qBittorrent-Vanced**](https://github.com/SysAdminDoc/qBittorrent-Vanced) | Customized BitTorrent client with dark theme | C++ |
+| [**Scour**](https://github.com/SysAdminDoc/Scour) | High-performance disk cleanup — 12 scanner types, NTFS MFT reading | C# |
+| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) &#11088;1 | Thorough Windows uninstaller — removes programs completely, hunts down every leftover | C# |
 | [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter with context menu integration — 1000+ formats | C# |
 
 </details>
 
 <details>
-<summary><b>&#128218; Guides & Resources</b> — 2 repos</summary>
+<summary><b>&#128218; Guides & Resources</b> — 3 repos</summary>
 <br/>
 
 | Project | Description |
 |:--------|:------------|
 | [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism) | Field guide for ultra-realistic AI video generation |
+| [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide) | Guide for leaving Facebook |
 | [**sysadmindoc.github.io**](https://sysadmindoc.github.io/) | ATLAST — A VEO-made sci-fi thriller |
 
 </details>
