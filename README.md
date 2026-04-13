@@ -73,7 +73,6 @@
 | [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;7 | Spotify customization — automates Spicetify, themes, extensions |
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) | &#11088;7 | Premium YouTube enhancement extension for Chrome & Firefox |
 | [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
-| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) | &#11088;4 | Ultimate YouTube customization suite |
 | [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;5 | AI-powered video editing automation for Premiere Pro |
 | [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;3 | Professional video editor for Android |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
@@ -459,7 +458,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GifText/main/GifText.py" -Out
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
-| [**YouTube-Kit**](https://github.com/SysAdminDoc/YouTube-Kit) &#11088;4 | Ultimate YouTube customization userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/YouTube-Kit/main/YTKit.user.js) |
+| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;7 | Premium YouTube enhancement extension — 150+ features for Chrome & Firefox | [Repo](https://github.com/SysAdminDoc/Astra-Deck) |
 | [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;2 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [Repo](https://github.com/SysAdminDoc/ScriptVault) |
 | [**StyleKit**](https://github.com/SysAdminDoc/StyleKit) | CSS customization extension — visual editor for any website | [Repo](https://github.com/SysAdminDoc/StyleKit) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
