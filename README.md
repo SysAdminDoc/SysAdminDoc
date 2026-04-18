@@ -68,14 +68,16 @@
 
 | Project | Stars | Description |
 |:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;31 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
-| [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | &#11088;9 | Offline survival command center — maps, AI chat, situation room, NukeMap |
-| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;7 | Spotify customization — automates Spicetify, themes, extensions |
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;34 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | &#11088;10 | Offline survival command center — maps, AI chat, situation room, NukeMap |
+| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;9 | Spotify customization — automates Spicetify, themes, extensions |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;8 | AI-powered video editing automation for Premiere Pro |
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) | &#11088;7 | Premium YouTube enhancement extension for Chrome & Firefox |
 | [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
-| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;5 | AI-powered video editing automation for Premiere Pro |
-| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;3 | Professional video editor for Android |
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;3 | AMOLED-dark hosts-based ad blocker for Android |
+| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | &#11088;5 | Premium dark Android weather app — no API keys required |
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;4 | Professional video editor for Android |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;4 | AMOLED-dark hosts-based ad blocker for Android |
+| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | &#11088;4 | AI-powered subtitle and watermark removal — STTN, LAMA, ProPainter |
 
 ---
 
@@ -83,7 +85,7 @@
 <summary><b>&#9889; PowerShell System Utilities</b> — 27 repos</summary>
 <br/>
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;27 — GUI to enable Windows Server 2025 NVMe driver on Win11
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;34 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher_v3.0.0.ps1" | iex
 ```
@@ -93,7 +95,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/mai
 irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main/NetworkSecurityAudit.ps1" | iex
 ```
 
-[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;7 — Spotify customization — automates Spicetify, themes, extensions
+[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;9 — Spotify customization — automates Spicetify, themes, extensions
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
 ```
@@ -224,7 +226,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/EXTRACTORX.ps
 <summary><b>&#128013; Python Desktop Applications</b> — 38 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
 <br/>
 
-[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;7 — Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking
+[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;10 — Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/project-nomad-desktop/master/nomad.py" -OutFile "$env:TEMP\nomad.py"; python "$env:TEMP\nomad.py"
 ```
@@ -319,7 +321,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GmailDownloader/main/gmaildow
 irm "https://raw.githubusercontent.com/SysAdminDoc/UniversalCompiler/main/UniversalCompiler.ps1" | iex
 ```
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;4 — Video editing automation for Premiere Pro
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;8 — AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX
 ```powershell
 irm "https://raw.githubusercontent.com/SysAdminDoc/OpenCut/main/Install.ps1" | iex
 ```
@@ -477,7 +479,6 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GifText/main/GifText.py" -Out
 | [**DarkModer**](https://github.com/SysAdminDoc/DarkModer) | Dark Reader as a userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js) |
 | [**GeminiBuddy**](https://github.com/SysAdminDoc/GeminiBuddy) &#11088;1 | Productivity features for Gemini | [Install](https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js) |
 | [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) | Comprehensive Rumble.com enhancement | [Install](https://raw.githubusercontent.com/SysAdminDoc/RumbleX/main/RumbleX.user.js) |
-| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;7 | Premium YouTube enhancement extension — 150+ features | [Repo](https://github.com/SysAdminDoc/Astra-Deck) |
 | [**Discrub**](https://github.com/SysAdminDoc/Discrub) | Discord message editor, deleter, and exporter | [Repo](https://github.com/SysAdminDoc/Discrub) |
 
 </details>
@@ -488,14 +489,14 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GifText/main/GifText.py" -Out
 
 | Project | Description |
 |:--------|:------------|
-| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;3 | Professional video editor — 40+ effects, 37 transitions, 29 engines |
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;3 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
+| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;5 | Premium dark weather app — no API keys required |
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;4 | Professional video editor — 40+ effects, 37 transitions, 29 engines |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;4 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;2 | Lightweight launcher with 5 built-in dark themes |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;1 | Feature-rich alarm clock with dismiss challenges |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;1 | Full-featured file manager with root access, archive support, cloud storage |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration |
 | [**SnapCrop**](https://github.com/SysAdminDoc/SnapCrop) | Screenshot editor — ML Kit autocrop, 14 draw tools, collage, device mockup |
-| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | Premium dark weather app — no API keys required |
 | [**BillMinder**](https://github.com/SysAdminDoc/BillMinder) | Bill tracker with alarm-style reminders |
 | [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) | iOS-style icon pack for Android — 6 iOS eras |
 
@@ -572,7 +573,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/StreamKeep/main/streamkeep.py
 |:--------|:------------|
 | [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism) | Field guide for ultra-realistic AI video generation |
 | [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide) | Guide for leaving Facebook |
-| [**sysadmindoc.github.io**](https://sysadmindoc.github.io/) | ATLAST — A VEO-made sci-fi thriller |
+| [**sysadmindoc.github.io**](https://sysadmindoc.github.io/) | Personal portfolio and project showcase |
 
 </details>
 
