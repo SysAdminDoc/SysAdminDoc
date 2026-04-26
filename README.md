@@ -82,7 +82,23 @@
 ---
 
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> — 28 repos</summary>
+<summary><b>&#128190; First-time setup</b> — <i>New to this? Install Python 3 + Git in one paste.</i></summary>
+<br/>
+
+The PowerShell and Python sections below clone repos with **Git**, and the Python section runs scripts with **Python 3**. If you don't already have them, open **PowerShell** and paste:
+
+```powershell
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
+```
+
+What it does — uses Windows' built-in `winget` package manager to install [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/), then refreshes your `PATH` so the install one-liners below work right away. Source: [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1).
+
+Already have them? Skip this and jump to the categories below.
+
+</details>
+
+<details>
+<summary><b>&#9889; PowerShell System Utilities</b> — 28 repos — <i>Requires Git (see <b>First-time setup</b> above).</i></summary>
 <br/>
 
 [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;35 — GUI to enable Windows Server 2025 NVMe driver on Win11
@@ -228,7 +244,7 @@ $d="$env:TEMP\EXTRACTORX"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 </details>
 
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> — 42 repos — <i>Requires Python 3.8+ and Git. Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> — 42 repos — <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
 <br/>
 
 [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;10 — Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking
