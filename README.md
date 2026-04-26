@@ -87,358 +87,358 @@
 
 [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;35 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher.ps1" | iex
+$d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/win11-nvme-driver-patcher $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NVMe_Driver_Patcher.ps1"
 ```
 
 [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) &#11088;6 — 67 automated checks across 8 security domains, MITRE ATT&CK mapping
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Network_Security_Auditor/main/NetworkSecurityAudit.ps1" | iex
+$d="$env:TEMP\Network_Security_Auditor"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Network_Security_Auditor $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NetworkSecurityAudit.ps1"
 ```
 
 [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;9 — Spotify customization — automates Spicetify, themes, extensions
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/LibreSpot/main/LibreSpot.ps1" | iex
+$d="$env:TEMP\LibreSpot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LibreSpot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\LibreSpot.ps1"
 ```
 
 [**WinForge**](https://github.com/SysAdminDoc/WinForge) — All-in-one Windows provisioning suite — app installer, tweaks, features, updates
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/WinForge/main/WinForge.ps1" | iex
+$d="$env:TEMP\WinForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WinForge.ps1"
 ```
 
 [**Debloat-Win11**](https://github.com/SysAdminDoc/Debloat-Win11) — Enterprise Windows 11 debloating with AppX removal, Office cleanup, telemetry blocking
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Debloat-Win11/main/Debloat-Win11.ps1" | iex
+$d="$env:TEMP\Debloat-Win11"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Debloat-Win11 $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Debloat-Win11.ps1"
 ```
 
 [**Restore-WindowsDefaults**](https://github.com/SysAdminDoc/Restore-WindowsDefaults) — Reverse debloat changes and restore Windows to factory defaults
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Restore-WindowsDefaults/main/Restore-WindowsDefaults.ps1" | iex
+$d="$env:TEMP\Restore-WindowsDefaults"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Restore-WindowsDefaults $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Restore-WindowsDefaults.ps1"
 ```
 
 [**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) &#11088;4 — WPF GUI to fully disable or re-enable Microsoft Defender
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/DefenderControl/main/DefenderControl.ps1" | iex
+$d="$env:TEMP\DefenderControl"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DefenderControl $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DefenderControl.ps1"
 ```
 
 [**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;2 — Defender disabler/remover with CLI + premium WPF GUI; firewall preserved
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/DisableDefender/main/DisableDefender.ps1" | iex
+$d="$env:TEMP\DisableDefender"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DisableDefender $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DisableDefender.ps1"
 ```
 
 [**DefenderShield**](https://github.com/SysAdminDoc/DefenderShield) — Repair and restore Windows Defender and Firewall after debloaters
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/DefenderShield/main/DefenderShield.ps1" | iex
+$d="$env:TEMP\DefenderShield"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DefenderShield $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DefenderShield.ps1"
 ```
 
 [**TelemetrySlayer**](https://github.com/SysAdminDoc/TelemetrySlayer) — WPF GUI to disable Windows telemetry, data collection, and compatibility bloat
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/TelemetrySlayer/main/TelemetrySlayer.ps1" | iex
+$d="$env:TEMP\TelemetrySlayer"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/TelemetrySlayer $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\TelemetrySlayer.ps1"
 ```
 
 [**FirewallForge**](https://github.com/SysAdminDoc/FirewallForge) — WPF Windows Firewall manager with live rule editing and offline backup editor
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/FirewallForge/main/FirewallManager.ps1" | iex
+$d="$env:TEMP\FirewallForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FirewallForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\FirewallManager.ps1"
 ```
 
 [**NetForge**](https://github.com/SysAdminDoc/NetForge) — WPF network adapter manager — static/DHCP, DNS presets, profile management
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/NetForge/main/NetForge.ps1" | iex
+$d="$env:TEMP\NetForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/NetForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NetForge.ps1"
 ```
 
 [**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) — Enterprise Windows update automation — OEM drivers, Windows Update, winget
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/SystemUpdatePro/main/SystemUpdatePro.ps1" | iex
+$d="$env:TEMP\SystemUpdatePro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SystemUpdatePro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\SystemUpdatePro.ps1"
 ```
 
 [**WURepair**](https://github.com/SysAdminDoc/WURepair) &#11088;2 — Comprehensive Windows Update component repair — DLL re-registration, DISM, SFC, network reset
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/WURepair/main/WURepair.ps1" | iex
+$d="$env:TEMP\WURepair"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WURepair $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WURepair.ps1"
 ```
 
 [**SoftwareScannerGUI**](https://github.com/SysAdminDoc/SoftwareScannerGUI) — WPF audit tool for installed software — AppX, Win32, services, tasks, startup entries
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/SoftwareScannerGUI/main/SoftwareScannerGUI.ps1" | iex
+$d="$env:TEMP\SoftwareScannerGUI"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SoftwareScannerGUI $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\SoftwareScannerGUI.ps1"
 ```
 
 [**NuclearDellRemover**](https://github.com/SysAdminDoc/NuclearDellRemover) — Scorched-earth Dell bloatware removal — 8-phase complete cleanup
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/NuclearDellRemover/main/NuclearDellRemover.ps1" | iex
+$d="$env:TEMP\NuclearDellRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/NuclearDellRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NuclearDellRemover.ps1"
 ```
 
 [**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) — Comprehensive Adobe telemetry and GrowthSDK suppression for Windows
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Disable-AdobeTelemetry/main/Disable-AdobeTelemetry.ps1" | iex
+$d="$env:TEMP\Disable-AdobeTelemetry"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Disable-AdobeTelemetry $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Disable-AdobeTelemetry.ps1"
 ```
 
 [**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;2 — Discover, select, and bulk install software via Winget
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Wingetter/main/Wingetter.ps1" | iex
+$d="$env:TEMP\Wingetter"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Wingetter $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Wingetter.ps1"
 ```
 
 [**Start-Menu-Organizer**](https://github.com/SysAdminDoc/Start-Menu-Organizer) — Clean junk, detect broken shortcuts, reorganize Start Menu
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Start-Menu-Organizer/main/StartMenuOrganizerPro.ps1" | iex
+$d="$env:TEMP\Start-Menu-Organizer"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Start-Menu-Organizer $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\StartMenuOrganizerPro.ps1"
 ```
 
 [**PathForge**](https://github.com/SysAdminDoc/PathForge) — Filesystem repair, stubborn file deletion, path management
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PathForge/main/PathForge.ps1" | iex
+$d="$env:TEMP\PathForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PathForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\PathForge.ps1"
 ```
 
 [**MonitorControl**](https://github.com/SysAdminDoc/MonitorControl) — Control monitor settings via DDC/CI
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/MonitorControl/main/MonitorControlPro.ps1" | iex
+$d="$env:TEMP\MonitorControl"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/MonitorControl $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\MonitorControlPro.ps1"
 ```
 
 [**WallBrand**](https://github.com/SysAdminDoc/WallBrand) — Wallpaper branding tool with GUI and CLI modes
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/WallBrand/main/WallBrandPro.ps1" | iex
+$d="$env:TEMP\WallBrand"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WallBrand $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WallBrandPro.ps1"
 ```
 
 [**VoidTools-Everything-Settings-Manager**](https://github.com/SysAdminDoc/VoidTools-Everything-Settings-Manager) — GUI for managing VoidTools Everything settings, INI editing, CSV filter/bookmark management
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/VoidTools-Everything-Settings-Manager/main/EverythingSettingsManager.ps1" | iex
+$d="$env:TEMP\VoidTools-Everything-Settings-Manager"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VoidTools-Everything-Settings-Manager $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\EverythingSettingsManager.ps1"
 ```
 
 [**PfblockerngManager**](https://github.com/SysAdminDoc/PfblockerngManager) — GUI for managing pfBlockerNG on pfSense firewalls
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PfblockerngManager/main/pfBlockerNG-Manager.ps1" | iex
+$d="$env:TEMP\PfblockerngManager"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PfblockerngManager $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\pfBlockerNG-Manager.ps1"
 ```
 
 [**npp-sc-scanner**](https://github.com/SysAdminDoc/npp-sc-scanner) — Detect and remediate Notepad++ supply chain attack IOCs
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/npp-sc-scanner/main/NppScanner-GUI.ps1" | iex
+$d="$env:TEMP\npp-sc-scanner"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/npp-sc-scanner $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NppScanner-GUI.ps1"
 ```
 
 [**JDownloader-2-Ultimate-Manager**](https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager) — Comprehensive automation for JDownloader 2
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/JDownloader-2-Ultimate-Manager/main/JDownloader%202%20Ultimate%20Manager.ps1" | iex
+$d="$env:TEMP\JDownloader-2-Ultimate-Manager"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\JDownloader 2 Ultimate Manager.ps1"
 ```
 
 [**ThankYouJeffrey**](https://github.com/SysAdminDoc/ThankYouJeffrey) — A tribute to the creator of PowerShell, Jeffrey Snover
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/ThankYouJeffrey/main/ThankYouJeffrey.ps1" | iex
+$d="$env:TEMP\ThankYouJeffrey"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/ThankYouJeffrey $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\ThankYouJeffrey.ps1"
 ```
 
 [**EXTRACTORX**](https://github.com/SysAdminDoc/EXTRACTORX) — Open-source bulk archive extraction tool for Windows
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/ExtractorX.ps1" | iex
+$d="$env:TEMP\EXTRACTORX"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/EXTRACTORX $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\ExtractorX.ps1"
 ```
 
 </details>
 
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> — 42 repos — <i>Requires Python 3.8+. All deps auto-install on first run.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> — 42 repos — <i>Requires Python 3.8+ and Git. Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
 <br/>
 
 [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;10 — Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking
 ```powershell
-$d="$env:TEMP\nomad"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/project-nomad-desktop $d}; pip install -q -r "$d\requirements.txt"; python "$d\nomad.py"
+$d="$env:TEMP\project-nomad-desktop"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/project-nomad-desktop $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\nomad.py"
 ```
 
 [**Tunerize**](https://github.com/SysAdminDoc/Tunerize) &#11088;1 — Re-render any audio as chiptune (built-in NES synth) or through any SoundFont — Audio→MIDI→SF2/chiptune→WAV, locally
 ```powershell
-$d="$env:TEMP\Tunerize"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/Tunerize $d}; pip install -q -r "$d\requirements.txt"; python "$d\app\main.py"
+$d="$env:TEMP\Tunerize"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Tunerize $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\app\main.py"
 ```
 
 [**Vertigo**](https://github.com/SysAdminDoc/Vertigo) &#11088;1 — Vertical video studio for short-form creators — turns raw footage into polished 9:16 for Shorts/TikTok/Reels
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Vertigo/main/vertigo.py" -OutFile "$env:TEMP\vertigo.py"; python "$env:TEMP\vertigo.py"
+$d="$env:TEMP\Vertigo"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Vertigo $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\vertigo.py"
 ```
 
 [**PromptCompanion**](https://github.com/SysAdminDoc/PromptCompanion) — A curated, searchable, offline library of the best AI prompts
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PromptCompanion/main/promptcompanion.py" -OutFile "$env:TEMP\promptcompanion.py"; python "$env:TEMP\promptcompanion.py"
+$d="$env:TEMP\PromptCompanion"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PromptCompanion $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\promptcompanion.py"
 ```
 
 [**SunoJump**](https://github.com/SysAdminDoc/SunoJump) — Audio fingerprint masking for Suno AI — 10-pass pipeline, PyQt6 GUI, batch processing
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/SunoJump/main/sunojump.py" -OutFile "$env:TEMP\sunojump.py"; python "$env:TEMP\sunojump.py"
+$d="$env:TEMP\SunoJump"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SunoJump $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\sunojump.py"
 ```
 
 [**PyWall**](https://github.com/SysAdminDoc/PyWall) — Real-time Windows Firewall manager and network monitor
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PyWall/main/PyWall.py" -OutFile "$env:TEMP\PyWall.py"; python "$env:TEMP\PyWall.py"
+$d="$env:TEMP\PyWall"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PyWall $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\PyWall.py"
 ```
 
 [**HostsGuard**](https://github.com/SysAdminDoc/HostsGuard) — Real-time network privacy manager — DNS monitoring, hosts file management, firewall rules
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/HostsGuard/main/HostsGuard.py" -OutFile "$env:TEMP\HostsGuard.py"; python "$env:TEMP\HostsGuard.py"
+$d="$env:TEMP\HostsGuard"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/HostsGuard $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\HostsGuard.py"
 ```
 
 [**PyShop**](https://github.com/SysAdminDoc/PyShop) — Open source Photoshop alternative
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PyShop/main/pyshop_image_editor.py" -OutFile "$env:TEMP\pyshop.py"; python "$env:TEMP\pyshop.py"
+$d="$env:TEMP\PyShop"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PyShop $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\pyshop_image_editor.py"
 ```
 
 [**SwiftShot**](https://github.com/SysAdminDoc/SwiftShot) — Debloated, Greenshot-inspired screenshot tool
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/SwiftShot/main/App/Install-SwiftShot.ps1" | iex
+$d="$env:TEMP\SwiftShot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SwiftShot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\App\Install-SwiftShot.ps1"
 ```
 
 [**Flux**](https://github.com/SysAdminDoc/Flux) — Privacy-focused BitTorrent client — PyQt6 + libtorrent
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Flux/main/flux-torrent/Launch-Flux.ps1" | iex
+$d="$env:TEMP\Flux"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Flux $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\flux-torrent\Launch-Flux.ps1"
 ```
 
 [**GitForge**](https://github.com/SysAdminDoc/GitForge) — Full GitHub repo manager — clone, sync, diff, manage
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/GitForge/main/gitforge.py" -OutFile "$env:TEMP\gitforge.py"; python "$env:TEMP\gitforge.py"
+$d="$env:TEMP\GitForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/GitForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\gitforge.py"
 ```
 
 [**UniFile**](https://github.com/SysAdminDoc/UniFile) — AI-powered unified file organization — 5 engines, tag-based library, LLM integration
 ```powershell
-$d="$env:TEMP\UniFile"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/UniFile $d}; pip install -q -r "$d\requirements.txt"; python "$d\run.py"
+$d="$env:TEMP\UniFile"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/UniFile $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\run.py"
 ```
 
 [**QuickFind**](https://github.com/SysAdminDoc/QuickFind) &#11088;1 — Lightning-fast file search for Windows — reads NTFS MFT directly
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/QuickFind/main/quickfind.py" -OutFile "$env:TEMP\QuickFind.py"; python "$env:TEMP\QuickFind.py"
+$d="$env:TEMP\QuickFind"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/QuickFind $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\quickfind.py"
 ```
 
 [**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) — AI-powered desktop tool for classifying and organizing design asset folders
 ```powershell
-$d="$env:TEMP\FileOrganizer"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/FileOrganizer $d}; pip install -q -r "$d\requirements.txt"; python "$d\run.py"
+$d="$env:TEMP\FileOrganizer"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FileOrganizer $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\run.py"
 ```
 
 [**HEICShift**](https://github.com/SysAdminDoc/HEICShift) — High-performance HEIC/HEIF batch converter with PyQt6 GUI, parallel conversion, metadata preservation
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/HEICShift/master/heicshift.py" -OutFile "$env:TEMP\heicshift.py"; python "$env:TEMP\heicshift.py"
+$d="$env:TEMP\HEICShift"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/HEICShift $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\heicshift.py"
 ```
 
 [**FrameSnap**](https://github.com/SysAdminDoc/FrameSnap) — Browse MP4 videos, mark frames visually, and export precise screenshots
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/FrameSnap/main/framesnap.py" -OutFile "$env:TEMP\framesnap.py"; python "$env:TEMP\framesnap.py"
+$d="$env:TEMP\FrameSnap"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FrameSnap $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\framesnap.py"
 ```
 
 [**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) — GUI for toggling 50+ Windows File Explorer registry settings with live preview
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/ExplorerTweaks/main/explorer_tweaks.py" -OutFile "$env:TEMP\explorer_tweaks.py"; python "$env:TEMP\explorer_tweaks.py"
+$d="$env:TEMP\ExplorerTweaks"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/ExplorerTweaks $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\explorer_tweaks.py"
 ```
 
 [**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) &#11088;2 — AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/FaceSlim/main/FaceSlim.py" -OutFile "$env:TEMP\FaceSlim.py"; python "$env:TEMP\FaceSlim.py"
+$d="$env:TEMP\FaceSlim"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FaceSlim $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\FaceSlim.py"
 ```
 
 [**LipSight**](https://github.com/SysAdminDoc/LipSight) — AI-powered lip reading tool — transcribes speech from silent video
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/LipSight/main/LipSight.py" -OutFile "$env:TEMP\LipSight.py"; python "$env:TEMP\LipSight.py"
+$d="$env:TEMP\LipSight"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LipSight $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\LipSight.py"
 ```
 
 [**LlamaLink**](https://github.com/SysAdminDoc/LlamaLink) — Sleek GUI frontend for llama.cpp — search, download, and chat with local LLMs
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/LlamaLink/master/llamalink.py" -OutFile "$env:TEMP\llamalink.py"; python "$env:TEMP\llamalink.py"
+$d="$env:TEMP\LlamaLink"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/LlamaLink $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\llamalink.py"
 ```
 
 [**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;1 — Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/SlunderStudio/main/main.py" -OutFile "$env:TEMP\slunderstudio.py"; python "$env:TEMP\slunderstudio.py"
+$d="$env:TEMP\SlunderStudio"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SlunderStudio $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
 [**GmailDownloader**](https://github.com/SysAdminDoc/GmailDownloader) — Full Gmail mailbox downloader, AI-powered organizer & analytics suite
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/GmailDownloader/master/gmaildownloader.py" -OutFile "$env:TEMP\gmaildownloader.py"; python "$env:TEMP\gmaildownloader.py"
+$d="$env:TEMP\GmailDownloader"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/GmailDownloader $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\gmaildownloader.py"
 ```
 
 [**UniversalCompiler**](https://github.com/SysAdminDoc/UniversalCompiler) — All-in-one script-to-EXE compiler
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/UniversalCompiler/main/UniversalCompiler.ps1" | iex
+$d="$env:TEMP\UniversalCompiler"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/UniversalCompiler $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\UniversalCompiler.ps1"
 ```
 
 [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;10 — AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/OpenCut/main/Install.ps1" | iex
+$d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```
 
 [**bypassnroGen**](https://github.com/SysAdminDoc/bypassnroGen) — Generate Windows 11 OOBE bypass files
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/bypassnroGen/main/BypassNRO_Generator.py" -OutFile "$env:TEMP\bypassnro.py"; python "$env:TEMP\bypassnro.py"
+$d="$env:TEMP\bypassnroGen"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/bypassnroGen $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\BypassNRO_Generator.py"
 ```
 
 [**MSStoreHelper**](https://github.com/SysAdminDoc/MSStoreHelper) — Install Microsoft Store apps without the Store
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/MSStoreHelper/main/MSStoreHelper.py" -OutFile "$env:TEMP\MSStoreHelper.py"; python "$env:TEMP\MSStoreHelper.py"
+$d="$env:TEMP\MSStoreHelper"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/MSStoreHelper $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\MSStoreHelper.py"
 ```
 
 [**Qwen3-TTS-Studio**](https://github.com/SysAdminDoc/Qwen3-TTS-Studio) — AI voice generator powered by Qwen3-TTS
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Qwen3-TTS-Studio/main/qwen3_tts_studio.py" -OutFile "$env:TEMP\qwen3tts.py"; python "$env:TEMP\qwen3tts.py"
+$d="$env:TEMP\Qwen3-TTS-Studio"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Qwen3-TTS-Studio $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\qwen3_tts_studio.py"
 ```
 
 [**AppList**](https://github.com/SysAdminDoc/AppList) — Scan, catalog, and export all installed applications
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/AppList/main/AppList.py" -OutFile "$env:TEMP\AppList.py"; python "$env:TEMP\AppList.py"
+$d="$env:TEMP\AppList"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AppList $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\AppList.py"
 ```
 
 [**PillSleepTracker**](https://github.com/SysAdminDoc/PillSleepTracker) — Floating widget for medication tracking + sleep analytics
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PillSleepTracker/main/Launch-PillSleepTracker.ps1" | iex
+$d="$env:TEMP\PillSleepTracker"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PillSleepTracker $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Launch-PillSleepTracker.ps1"
 ```
 
 [**Mattpad**](https://github.com/SysAdminDoc/Mattpad) — Minimal notepad built for personal workflow
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Mattpad/main/mattpad.py" -OutFile "$env:TEMP\mattpad.py"; python "$env:TEMP\mattpad.py"
+$d="$env:TEMP\Mattpad"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Mattpad $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\mattpad.py"
 ```
 
 [**HostsFileGet**](https://github.com/SysAdminDoc/HostsFileGet) — GUI for managing the Windows hosts file
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/HostsFileGet/main/PythonLauncher.ps1" | iex
+$d="$env:TEMP\HostsFileGet"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/HostsFileGet $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\PythonLauncher.ps1"
 ```
 
 [**Bookmark-Organizer-Pro**](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro) — AI-powered bookmark manager and categorizer
 ```powershell
-$d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/Bookmark-Organizer-Pro $d}; pip install -q -r "$d\requirements.txt"; python "$d\main.py"
+$d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Bookmark-Organizer-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
 [**QR-Code-Generator-Pro**](https://github.com/SysAdminDoc/QR-Code-Generator-Pro) — QR generator with 98 visual style presets
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/QR-Code-Generator-Pro/main/qr_code_generator_pro_v7.py" -OutFile "$env:TEMP\qrgen.py"; python "$env:TEMP\qrgen.py"
+$d="$env:TEMP\QR-Code-Generator-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/QR-Code-Generator-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\qr_code_generator_pro_v7.py"
 ```
 
 [**uBlock-Stylus-Converter**](https://github.com/SysAdminDoc/uBlock-Stylus-Converter) — Convert uBlock cosmetic filters to Stylus CSS
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/uBlock-Stylus-Converter/main/ublocktoCSS.py" -OutFile "$env:TEMP\ublock2css.py"; python "$env:TEMP\ublock2css.py"
+$d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/uBlock-Stylus-Converter $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\ublocktoCSS.py"
 ```
 
 [**KeepSyncNotes**](https://github.com/SysAdminDoc/KeepSyncNotes) — Google Keep importer and note tracker
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/KeepSyncNotes/main/keepsync_notes.py" -OutFile "$env:TEMP\keepsync.py"; python "$env:TEMP\keepsync.py"
+$d="$env:TEMP\KeepSyncNotes"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/KeepSyncNotes $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\keepsync_notes.py"
 ```
 
 [**PDFedit**](https://github.com/SysAdminDoc/PDFedit) — Simple PDF editor
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/PDFedit/main/PDFedit.py" -OutFile "$env:TEMP\PDFedit.py"; python "$env:TEMP\PDFedit.py"
+$d="$env:TEMP\PDFedit"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PDFedit $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\PDFedit.py"
 ```
 
 [**CSV_Power_Tool**](https://github.com/SysAdminDoc/CSV_Power_Tool) — Bulk CSV processing and consolidation
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Consolidator.py" -OutFile "$env:TEMP\csvtool.py"; python "$env:TEMP\csvtool.py"
+$d="$env:TEMP\CSV_Power_Tool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/CSV_Power_Tool $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\CSV_Consolidator.py"
 ```
 
 [**AI-Model-Compass**](https://github.com/SysAdminDoc/AI-Model-Compass) — Discover, download, and run local AI models tailored to your hardware
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/AI-Model-Compass/main/ai_model_compass.py" -OutFile "$env:TEMP\aicompass.py"; python "$env:TEMP\aicompass.py"
+$d="$env:TEMP\AI-Model-Compass"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AI-Model-Compass $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\ai_model_compass.py"
 ```
 
 [**DICOM-PACS-Migrator**](https://github.com/SysAdminDoc/DICOM-PACS-Migrator) — Bulk DICOM C-STORE migration with network auto-discovery and crash-safe resume
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/DICOM-PACS-Migrator/main/dicom_migrator.py" -OutFile "$env:TEMP\dicom.py"; python "$env:TEMP\dicom.py"
+$d="$env:TEMP\DICOM-PACS-Migrator"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DICOM-PACS-Migrator $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\dicom_migrator.py"
 ```
 
 [**Stock-Video-Collector**](https://github.com/SysAdminDoc/Stock-Video-Collector) — Stock video collector
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/artlist_scraper.py" -OutFile "$env:TEMP\stockvid.py"; python "$env:TEMP\stockvid.py"
+$d="$env:TEMP\Stock-Video-Collector"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Stock-Video-Collector $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\artlist_scraper.py"
 ```
 
 [**StreamKeep**](https://github.com/SysAdminDoc/StreamKeep) — Multi-platform stream/VOD downloader with built-in media converter
 ```powershell
-$d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/StreamKeep $d}; pip install -q -r "$d\requirements.txt"; python "$d\StreamKeep.py"
+$d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/StreamKeep $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\StreamKeep.py"
 ```
 
 [**GifText**](https://github.com/SysAdminDoc/GifText) — Animated GIF text editor for meme creation
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/GifText/main/GifText.py" -OutFile "$env:TEMP\giftext.py"; python "$env:TEMP\giftext.py"
+$d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/GifText $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\GifText.py"
 ```
 
 </details>
@@ -548,32 +548,32 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GifText/main/GifText.py" -Out
 
 [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) — Video compression and processing
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/VideoCrush/main/video_compressor.py" -OutFile "$env:TEMP\videocrush.py"; python "$env:TEMP\videocrush.py"
+$d="$env:TEMP\VideoCrush"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoCrush $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\video_compressor.py"
 ```
 
 [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut) — Video background removal and compositing
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/AlphaCut/main/AlphaCut.py" -OutFile "$env:TEMP\alphacut.py"; python "$env:TEMP\alphacut.py"
+$d="$env:TEMP\AlphaCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AlphaCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\AlphaCut.py"
 ```
 
 [**yt_livestream_downloader**](https://github.com/SysAdminDoc/yt_livestream_downloader) — Download livestreams while they're still live
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/yt_livestream_downloader/main/yt_livestream_downloader.py" -OutFile "$env:TEMP\ytlive.py"; python "$env:TEMP\ytlive.py"
+$d="$env:TEMP\yt_livestream_downloader"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/yt_livestream_downloader $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\yt_livestream_downloader.py"
 ```
 
 [**MediaForge**](https://github.com/SysAdminDoc/MediaForge) — Multi-format media converter
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/MediaForge/main/MediaForge.py" -OutFile "$env:TEMP\MediaForge.py"; python "$env:TEMP\MediaForge.py"
+$d="$env:TEMP\MediaForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/MediaForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\MediaForge.py"
 ```
 
 [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;9 — Remove hardcoded subtitles from video
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/VideoSubtitleRemover.py" -OutFile "$env:TEMP\vsr.py"; python "$env:TEMP\vsr.py"
+$d="$env:TEMP\VideoSubtitleRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoSubtitleRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\VideoSubtitleRemover.py"
 ```
 
 [**StreamKeep**](https://github.com/SysAdminDoc/StreamKeep) — Multi-platform stream/VOD downloader with built-in media converter
 ```powershell
-$d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/StreamKeep $d}; pip install -q -r "$d\requirements.txt"; python "$d\StreamKeep.py"
+$d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/StreamKeep $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\StreamKeep.py"
 ```
 
 </details>
