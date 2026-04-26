@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.5.0] - 2026-04-26
+
+- Added: `[⬇ Download]` button next to every repo that ships an executable/installable artifact in its latest GitHub release (54 repos audited via `gh release view`). Renders as a `<kbd>`-styled button on GitHub. Each link points at `https://github.com/SysAdminDoc/<repo>/releases/latest` (the redirect URL), so the link stays valid across version bumps without re-editing the README.
+- Added: Download column on the Android Applications, Native Desktop Applications, and Security & Networking tables.
+- Changed: Browser Extensions & Userscripts table — the Install column now shows `[⬇ CRX]` / `[⬇ ZIP]` for repos that ship packed extension artifacts (Astra-Deck, ScriptVault, AmazonEnhanced, StyleKit, uBlockVanced, StyleCraft, EspressoMonkey, RumbleX, Discrub). Userscripts keep their canonical `[Install](raw...user.js)` link since that's the Tampermonkey/Violentmonkey install URL.
+- Changed: Inline-format sections (PowerShell, Python, Media & Conversion) — each qualifying entry's heading line now ends with the download button after the description, so users can grab the prebuilt executable without pasting the clone-install-run one-liner.
+- Notes: 99 repos have either no releases at all or release tags with no qualifying binary artifact (e.g. just `.py` / `.user.js` source). They keep the existing copy-paste one-liner only.
+
 ## [v4.4.0] - 2026-04-26
 
 - Added: `setup.ps1` — winget-based Python 3.12 + Git installer for novice users. Refreshes `PATH` from the registry post-install so the README install one-liners work in the same shell. Probe-then-install (skips if already present), with machine→user scope fallback.
