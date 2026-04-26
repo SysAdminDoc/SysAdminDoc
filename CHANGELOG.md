@@ -2,6 +2,17 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.1.0] - 2026-04-25
+
+- Changed: Refresh star counts (nvme-patcher 35, OpenCut 10, VideoSubtitleRemover 9, Astra-Deck 8, ZeusWatch/NovaCut 6, DefenderControl 4, etc.)
+- Changed: Re-rank Featured Projects by current stars
+- Added: 13 missing repos — MyPortfolio, LocalChromeStore, LocalDesktopStore, LocalAndroidStore, TeamStation, Images, one-ui-home-clone, Tunerize, Vertigo, PromptCompanion, AmazonEnhanced, DisableDefender, SunoJump
+- Added: octopus-factory, Vigil (fork), TagStudio (fork) to Misc
+- Removed: ChanPrep, Scripts (matched portfolio site listing)
+- Changed: Currently Building swap — feature MyPortfolio + DICOM-PACS-Migrator
+- Changed: Section counts updated (PS 28, Py 42, Web 26, Ext 21, Android 12, Desktop 10, Misc 6)
+- Changed: Update repo claim 170+ to 165+ (matches public, non-archived count)
+
 ## [v4.0.0] - 2026-04-13
 
 - Changed: Update repo count 160+ to 170+ (173 total)
