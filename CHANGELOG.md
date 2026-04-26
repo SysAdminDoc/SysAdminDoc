@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.2.0] - 2026-04-26
+
+- Fixed: 16 broken one-liner install snippets after audit of all 87 README install commands
+- Fixed: Branch errors (4) — HEICShift, LlamaLink, GmailDownloader, ClearGem default branch is `master`, not `main`
+- Fixed: Filename renames/case (10) — NVMe patcher (drop `_v3.0.0`), EXTRACTORX → ExtractorX, AI-Model-Compass → ai_model_compass, DICOM-PACS-Migrator → dicom_migrator, Stock-Video-Collector → artlist_scraper, QuickFind/StreamKeep case
+- Fixed: SwiftShot installer moved to `App/` subfolder
+- Changed: 6 package-launcher snippets converted from single-file `irm | python` to git-clone snippets — Tunerize, project-nomad-desktop, UniFile, FileOrganizer, Bookmark-Organizer-Pro, StreamKeep (each refactored into multi-file packages where the launcher script imports siblings)
+
 ## [v4.1.0] - 2026-04-25
 
 - Changed: Refresh star counts (nvme-patcher 35, OpenCut 10, VideoSubtitleRemover 9, Astra-Deck 8, ZeusWatch/NovaCut 6, DefenderControl 4, etc.)

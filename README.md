@@ -87,7 +87,7 @@
 
 [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;35 — GUI to enable Windows Server 2025 NVMe driver on Win11
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher_v3.0.0.ps1" | iex
+irm "https://raw.githubusercontent.com/SysAdminDoc/win11-nvme-driver-patcher/main/NVMe_Driver_Patcher.ps1" | iex
 ```
 
 [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) &#11088;6 — 67 automated checks across 8 security domains, MITRE ATT&CK mapping
@@ -222,7 +222,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/ThankYouJeffrey/main/ThankYou
 
 [**EXTRACTORX**](https://github.com/SysAdminDoc/EXTRACTORX) — Open-source bulk archive extraction tool for Windows
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/EXTRACTORX.ps1" | iex
+irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/ExtractorX.ps1" | iex
 ```
 
 </details>
@@ -233,12 +233,12 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/EXTRACTORX/main/EXTRACTORX.ps
 
 [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;10 — Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/project-nomad-desktop/master/nomad.py" -OutFile "$env:TEMP\nomad.py"; python "$env:TEMP\nomad.py"
+$d="$env:TEMP\nomad"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/project-nomad-desktop $d}; pip install -q -r "$d\requirements.txt"; python "$d\nomad.py"
 ```
 
 [**Tunerize**](https://github.com/SysAdminDoc/Tunerize) &#11088;1 — Re-render any audio as chiptune (built-in NES synth) or through any SoundFont — Audio→MIDI→SF2/chiptune→WAV, locally
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Tunerize/main/tunerize.py" -OutFile "$env:TEMP\tunerize.py"; python "$env:TEMP\tunerize.py"
+$d="$env:TEMP\Tunerize"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/Tunerize $d}; pip install -q -r "$d\requirements.txt"; python "$d\app\main.py"
 ```
 
 [**Vertigo**](https://github.com/SysAdminDoc/Vertigo) &#11088;1 — Vertical video studio for short-form creators — turns raw footage into polished 9:16 for Shorts/TikTok/Reels
@@ -273,7 +273,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/PyShop/main/pyshop_image_edit
 
 [**SwiftShot**](https://github.com/SysAdminDoc/SwiftShot) — Debloated, Greenshot-inspired screenshot tool
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/SwiftShot/main/SwiftShot/Install-SwiftShot.ps1" | iex
+irm "https://raw.githubusercontent.com/SysAdminDoc/SwiftShot/main/App/Install-SwiftShot.ps1" | iex
 ```
 
 [**Flux**](https://github.com/SysAdminDoc/Flux) — Privacy-focused BitTorrent client — PyQt6 + libtorrent
@@ -288,22 +288,22 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GitForge/main/gitforge.py" -O
 
 [**UniFile**](https://github.com/SysAdminDoc/UniFile) — AI-powered unified file organization — 5 engines, tag-based library, LLM integration
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/UniFile/main/UniFile.py" -OutFile "$env:TEMP\UniFile.py"; python "$env:TEMP\UniFile.py"
+$d="$env:TEMP\UniFile"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/UniFile $d}; pip install -q -r "$d\requirements.txt"; python "$d\run.py"
 ```
 
 [**QuickFind**](https://github.com/SysAdminDoc/QuickFind) &#11088;1 — Lightning-fast file search for Windows — reads NTFS MFT directly
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/QuickFind/main/QuickFind.py" -OutFile "$env:TEMP\QuickFind.py"; python "$env:TEMP\QuickFind.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/QuickFind/main/quickfind.py" -OutFile "$env:TEMP\QuickFind.py"; python "$env:TEMP\QuickFind.py"
 ```
 
 [**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) — AI-powered desktop tool for classifying and organizing design asset folders
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/FileOrganizer/main/FileOrganizer.py" -OutFile "$env:TEMP\FileOrganizer.py"; python "$env:TEMP\FileOrganizer.py"
+$d="$env:TEMP\FileOrganizer"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/FileOrganizer $d}; pip install -q -r "$d\requirements.txt"; python "$d\run.py"
 ```
 
 [**HEICShift**](https://github.com/SysAdminDoc/HEICShift) — High-performance HEIC/HEIF batch converter with PyQt6 GUI, parallel conversion, metadata preservation
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/HEICShift/main/heicshift.py" -OutFile "$env:TEMP\heicshift.py"; python "$env:TEMP\heicshift.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/HEICShift/master/heicshift.py" -OutFile "$env:TEMP\heicshift.py"; python "$env:TEMP\heicshift.py"
 ```
 
 [**FrameSnap**](https://github.com/SysAdminDoc/FrameSnap) — Browse MP4 videos, mark frames visually, and export precise screenshots
@@ -328,7 +328,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/LipSight/main/LipSight.py" -O
 
 [**LlamaLink**](https://github.com/SysAdminDoc/LlamaLink) — Sleek GUI frontend for llama.cpp — search, download, and chat with local LLMs
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/LlamaLink/main/llamalink.py" -OutFile "$env:TEMP\llamalink.py"; python "$env:TEMP\llamalink.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/LlamaLink/master/llamalink.py" -OutFile "$env:TEMP\llamalink.py"; python "$env:TEMP\llamalink.py"
 ```
 
 [**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;1 — Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering
@@ -338,7 +338,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/SlunderStudio/main/main.py" -
 
 [**GmailDownloader**](https://github.com/SysAdminDoc/GmailDownloader) — Full Gmail mailbox downloader, AI-powered organizer & analytics suite
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/GmailDownloader/main/gmaildownloader.py" -OutFile "$env:TEMP\gmaildownloader.py"; python "$env:TEMP\gmaildownloader.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/GmailDownloader/master/gmaildownloader.py" -OutFile "$env:TEMP\gmaildownloader.py"; python "$env:TEMP\gmaildownloader.py"
 ```
 
 [**UniversalCompiler**](https://github.com/SysAdminDoc/UniversalCompiler) — All-in-one script-to-EXE compiler
@@ -388,7 +388,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/HostsFileGet/main/PythonLaunc
 
 [**Bookmark-Organizer-Pro**](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro) — AI-powered bookmark manager and categorizer
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Bookmark-Organizer-Pro/main/bookmark_organizer_pro_v4.py" -OutFile "$env:TEMP\bookmarks.py"; python "$env:TEMP\bookmarks.py"
+$d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/Bookmark-Organizer-Pro $d}; pip install -q -r "$d\requirements.txt"; python "$d\main.py"
 ```
 
 [**QR-Code-Generator-Pro**](https://github.com/SysAdminDoc/QR-Code-Generator-Pro) — QR generator with 98 visual style presets
@@ -418,22 +418,22 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/CSV_Power_Tool/main/CSV_Conso
 
 [**AI-Model-Compass**](https://github.com/SysAdminDoc/AI-Model-Compass) — Discover, download, and run local AI models tailored to your hardware
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/AI-Model-Compass/main/AI-Model-Compass.py" -OutFile "$env:TEMP\aicompass.py"; python "$env:TEMP\aicompass.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/AI-Model-Compass/main/ai_model_compass.py" -OutFile "$env:TEMP\aicompass.py"; python "$env:TEMP\aicompass.py"
 ```
 
 [**DICOM-PACS-Migrator**](https://github.com/SysAdminDoc/DICOM-PACS-Migrator) — Bulk DICOM C-STORE migration with network auto-discovery and crash-safe resume
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/DICOM-PACS-Migrator/main/DICOM-PACS-Migrator.py" -OutFile "$env:TEMP\dicom.py"; python "$env:TEMP\dicom.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/DICOM-PACS-Migrator/main/dicom_migrator.py" -OutFile "$env:TEMP\dicom.py"; python "$env:TEMP\dicom.py"
 ```
 
 [**Stock-Video-Collector**](https://github.com/SysAdminDoc/Stock-Video-Collector) — Stock video collector
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/Stock-Video-Collector.py" -OutFile "$env:TEMP\stockvid.py"; python "$env:TEMP\stockvid.py"
+irm "https://raw.githubusercontent.com/SysAdminDoc/Stock-Video-Collector/main/artlist_scraper.py" -OutFile "$env:TEMP\stockvid.py"; python "$env:TEMP\stockvid.py"
 ```
 
 [**StreamKeep**](https://github.com/SysAdminDoc/StreamKeep) — Multi-platform stream/VOD downloader with built-in media converter
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/StreamKeep/main/streamkeep.py" -OutFile "$env:TEMP\streamkeep.py"; python "$env:TEMP\streamkeep.py"
+$d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/StreamKeep $d}; pip install -q -r "$d\requirements.txt"; python "$d\StreamKeep.py"
 ```
 
 [**GifText**](https://github.com/SysAdminDoc/GifText) — Animated GIF text editor for meme creation
@@ -490,7 +490,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/GifText/main/GifText.py" -Out
 | [**StyleKit**](https://github.com/SysAdminDoc/StyleKit) | CSS customization extension — visual editor for any website | [Repo](https://github.com/SysAdminDoc/StyleKit) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
 | [**Claude-Ultimate-Enhancer**](https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer) | All-in-one Claude.ai enhancement suite — themes, usage monitor, prompt library | [Install](https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js) |
-| [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js) |
+| [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js) |
 | [**Chapterizer**](https://github.com/SysAdminDoc/Chapterizer) | Auto-generate YouTube chapters, detect filler words, skip pauses | [Install](https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js) |
 | [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) | Media downloader userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js) |
 | [**uBlockVanced**](https://github.com/SysAdminDoc/uBlockVanced) | uBlock Origin fork with Catppuccin Mocha and Element Forge panel | [Repo](https://github.com/SysAdminDoc/uBlockVanced) |
@@ -573,7 +573,7 @@ irm "https://raw.githubusercontent.com/SysAdminDoc/VideoSubtitleRemover/main/Vid
 
 [**StreamKeep**](https://github.com/SysAdminDoc/StreamKeep) — Multi-platform stream/VOD downloader with built-in media converter
 ```powershell
-irm "https://raw.githubusercontent.com/SysAdminDoc/StreamKeep/main/streamkeep.py" -OutFile "$env:TEMP\streamkeep.py"; python "$env:TEMP\streamkeep.py"
+$d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull}else{git clone https://github.com/SysAdminDoc/StreamKeep $d}; pip install -q -r "$d\requirements.txt"; python "$d\StreamKeep.py"
 ```
 
 </details>
