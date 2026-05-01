@@ -30,10 +30,10 @@
 
 | | |
 |:--|:--|
-| **MyPortfolio** | Unified Windows catalog for every app I ship *(C#/.NET 9)* |
-| **NovaCut** | Professional Android video editor *(Kotlin)* |
-| **Astra-Deck** | Premium YouTube enhancement extension *(JavaScript)* |
-| **DICOM-PACS-Migrator** | Bulk DICOM C-STORE migration workbench *(Python)* |
+| **UniversalConverterX** | Native Windows file converter, 1000+ formats *(C#/.NET 10)* |
+| **FileOrganizer** | AI-powered file organizer with WinUI 3 shell *(C#/Python)* |
+| **AppManagerNG** | Power-user Android package manager *(Kotlin)* |
+| **Vantage** | Customizable new tab dashboard for Chromium *(JavaScript)* |
 
 </td>
 </tr>
@@ -68,10 +68,10 @@
 
 | Project | Stars | Description |
 |:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;35 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
-| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;10 | AI-powered video editing automation for Premiere Pro |
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;36 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;11 | AI-powered video editing automation for Premiere Pro |
 | [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | &#11088;10 | Offline survival command center — maps, AI chat, situation room, NukeMap |
-| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | &#11088;9 | AI-powered subtitle and watermark removal — STTN, LAMA, ProPainter |
+| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | &#11088;10 | AI-powered subtitle and watermark removal — STTN, LAMA, ProPainter |
 | [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;9 | Spotify customization — automates Spicetify, themes, extensions |
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) | &#11088;8 | Premium YouTube enhancement extension for Chrome & Firefox |
 | [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
@@ -495,7 +495,7 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 </details>
 
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> — 21 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> — 22 repos — <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
@@ -504,6 +504,7 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;3 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/ScriptVault/releases/latest) |
 | [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced) | Chrome MV3 Amazon UX cleanup — dark theme, sponsored-result removal, review-quality scoring, 20 locales | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/AmazonEnhanced/releases/latest) |
 | [**StyleKit**](https://github.com/SysAdminDoc/StyleKit) | CSS customization extension — visual editor for any website | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/StyleKit/releases/latest) |
+| [**Vantage**](https://github.com/SysAdminDoc/Vantage) | New tab dashboard for Chromium — customizable search, RSS, news, weather, quick links | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Vantage/releases/latest) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
 | [**Claude-Ultimate-Enhancer**](https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer) | All-in-one Claude.ai enhancement suite — themes, usage monitor, prompt library | [Install](https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js) |
 | [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js) |
@@ -525,7 +526,7 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 </details>
 
 <details>
-<summary><b>&#128241; Android Applications</b> — 12 repos — <i>Kotlin / Material You</i></summary>
+<summary><b>&#128241; Android Applications</b> — 14 repos — <i>Kotlin / Material You</i></summary>
 <br/>
 
 | Project | Description | Download |
@@ -537,6 +538,8 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) &#11088;2 | iOS-style icon pack for Android — 6 iOS eras | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/iOSIconPack/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;2 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;1 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;1 | Power-user package manager — continuation of MuntashirAkon/AppManager (GPL-3.0-or-later) | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;1 | Spam call and text blocker — GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;1 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;1 | Personal Android-app catalog sourced from GitHub Releases — Android sibling of LocalChromeStore | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest) |
 | [**one-ui-home-clone**](https://github.com/SysAdminDoc/one-ui-home-clone) &#11088;1 | Samsung One UI 7 parity launcher — Compose, clone not a port | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/one-ui-home-clone/releases/latest) |
