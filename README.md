@@ -460,7 +460,7 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 </details>
 
 <details>
-<summary><b>&#127760; Web Applications</b> — 26 repos — <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> — 25 repos — <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
@@ -490,7 +490,6 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**LogLens**](https://github.com/SysAdminDoc/LogLens) | Log file viewer and analyzer | [Launch](https://sysadmindoc.github.io/LogLens/) |
 | [**CronScope**](https://github.com/SysAdminDoc/CronScope) | Cron expression builder and visualizer | [Launch](https://sysadmindoc.github.io/CronScope/) |
 | [**NATO_PHONETIC_TRAINING**](https://github.com/SysAdminDoc/NATO_PHONETIC_TRAINING) | NATO phonetic alphabet training app | [Launch](https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/) |
-| [**RadAtlas**](https://github.com/SysAdminDoc/RadAtlas) | Interactive X-ray technique chart for medical imaging professionals | [Launch](https://sysadmindoc.github.io/RadAtlas/) |
 
 </details>
 
