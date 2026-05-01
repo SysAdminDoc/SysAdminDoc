@@ -2,6 +2,15 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.6.0] - 2026-04-30
+
+- Added: **Vantage** to Browser Extensions & Userscripts (new tab dashboard for Chromium — RSS, news, weather, quick links). Ships CRX + XPI + ZIP.
+- Added: **AppManagerNG** to Android Applications (power-user package manager — continuation of MuntashirAkon/AppManager, GPL-3.0-or-later).
+- Added: **CallShield** restored to Android Applications — repo is public again after being temporarily private (removed in v4.0.0).
+- Changed: Section counts — Browser Extensions 21 → 22, Android 12 → 14.
+- Changed: Featured Projects table — refreshed star counts (nvme-patcher 35 → 36, OpenCut 10 → 11, VideoSubtitleRemover 9 → 10).
+- Changed: "Currently Building" table — replaced stale lineup (MyPortfolio / NovaCut / Astra-Deck / DICOM-PACS-Migrator) with the current high-velocity set: UniversalConverterX (C#/.NET 10), FileOrganizer (C#/Python WinUI 3 shell), AppManagerNG (Kotlin), Vantage (JavaScript). DICOM-PACS-Migrator is private and was 404'ing for visitors.
+
 ## [v4.5.0] - 2026-04-26
 
 - Added: `[⬇ Download]` button next to every repo that ships an executable/installable artifact in its latest GitHub release (54 repos audited via `gh release view`). Renders as a `<kbd>`-styled button on GitHub. Each link points at `https://github.com/SysAdminDoc/<repo>/releases/latest` (the redirect URL), so the link stays valid across version bumps without re-editing the README.
