@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.6.1] - 2026-05-01
+
+- Removed: **RadAtlas** from Web Applications (no longer in portfolio).
+- Changed: Web Applications count 26 → 25.
+
 ## [v4.6.0] - 2026-04-30
 
 - Added: **Vantage** to Browser Extensions & Userscripts (new tab dashboard for Chromium — RSS, news, weather, quick links). Ships CRX + XPI + ZIP.
