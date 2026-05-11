@@ -2,6 +2,18 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.7.0] - 2026-05-11
+
+- Removed: **TeamStation** from Native Desktop Applications — repo went PRIVATE on GitHub, public link was 404'ing for visitors.
+- Removed: **DICOM-PACS-Migrator** from Python Desktop Applications — repo is PRIVATE (X-ray repos must be private per global rule), public link was 404'ing.
+- Added: **HurricaneMap** + **ApocalypseWatch** to Web Applications.
+- Added: **OpenSwift** + **SwiftFloris** + **OpenTasker** to Android Applications.
+- Added: **Devicer** + **Snapture** + **OrganizeContacts** to Native Desktop Applications (all C# / .NET 10 WPF).
+- Added: **android-debloat-list** to Guides & Resources.
+- Changed: Section counts — Python 42 → 41, Web 25 → 27, Android 14 → 17, Native Desktop 10 → 12, Guides 3 → 4.
+- Changed: Featured Projects table — refreshed star counts (nvme-patcher 36 → 39, OpenCut 11 → 14, project-nomad-desktop 10 → 11, LibreSpot 9 → 10, Astra-Deck 8 → 9, HostShield 4 → 5). Re-ranked LibreSpot above VideoSubtitleRemover after tie-break by recency.
+- Changed: "167+ open source tools" claim in the hero typing SVG + About line — was 165+.
+
 ## [v4.6.1] - 2026-05-01
 
 - Removed: **RadAtlas** from Web Applications (no longer in portfolio).
