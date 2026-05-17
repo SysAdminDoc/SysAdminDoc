@@ -2,46 +2,47 @@
 
 Last research refresh: 2026-05-17
 Evidence bundle: `.ai/research/2026-05-17/`
-Current repo version in local working notes: v4.7.0
-Current HEAD at research time: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
+Current repo version: v4.8.0
+Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
+P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. The README is currently a hand-maintained catalog of public projects with hardcoded category counts, star counts, install snippets, release download links, and featured-project rankings.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.8.0, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`.
 
 Live GitHub metadata gathered on 2026-05-17 showed:
 
 - 178 active public repos visible to `gh repo list SysAdminDoc --visibility public`.
 - 166 unique `github.com/SysAdminDoc/...` repo mentions in `README.md`.
-- 13 active public repos not linked as GitHub repo entries in the README sample set, including `OpenLumen`, `PhoneFork`, `AI-Usage_Tracker`, `AdapterLock`, `mnamer`, `improve-repo`, `Scripts`, `RadAtlas`, `DuplicateFF`, `ChanPrep`, `null`, and `project-nomad`.
-- 18 displayed star counts drifted from live GitHub values.
-- 40 mentioned repos have a `latestRelease` in GitHub metadata but no `/releases/latest` link in the README.
-- 0 clone-snippet default-branch mismatches were found.
+- 0 active public repos missing from the generated catalog after v4.8.0.
+- 0 renamed-repo redirects after removing the duplicate `EspressoMonkey` profile row.
+- 0 private visibility or medical-imaging privacy violations in `scripts/sync-profile.ps1 -Check`.
+- 170 catalog entries included in the public README and 8 public repos explicitly suppressed with reasons.
 - `.github/` does not exist, so there is no automated README validation, nightly sync, link audit, or workflow security posture yet.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
 ## P0 - Stabilize Catalog Truth
 
-- [ ] Build a canonical catalog source file.
+- [x] Build a canonical catalog source file.
   - Create `data/profile-catalog.json` or `data/profile-catalog.yml` with one row per public catalog entry.
   - Fields: `repo`, `category`, `includeInReadme`, `includeInPortfolio`, `branch`, `entrypoint`, `installKind`, `downloadKind`, `descriptionOverride`, `featured`, `currentlyBuilding`, `privateReason`, `notes`.
   - Seed it from the current README plus live GitHub metadata.
   - Evidence: README drift counts above; existing clone-install-run standard in `CLAUDE.md`; GitHub REST/GraphQL metadata exposes name, description, topics, default branch, stars, releases, and visibility.
 
-- [ ] Implement `scripts/sync-profile.ps1`.
+- [x] Implement `scripts/sync-profile.ps1`.
   - Read catalog data plus GitHub metadata using `gh`.
   - Regenerate README project sections, category counts, star counts, featured rankings, release links, and branch-pinned install snippets.
   - Preserve manual description overrides where GitHub repo descriptions are empty, too long, stale, or less useful for visitors.
   - Refuse to include private repos in the generated public README.
   - Evidence: `README.md` hardcodes every category; live metadata found 13 missing active public repos, 18 star mismatches, and 40 release-link gaps.
 
-- [ ] Add a strict validation mode before changing README content.
+- [x] Add a strict validation mode before changing README content.
   - `scripts/sync-profile.ps1 -Check` should exit non-zero on stale stars, missing public repos, private/renamed/deleted repo links, branch mismatches, missing release links for qualifying artifacts, and count drift.
   - Keep a JSON report artifact for review.
   - Evidence: current manual state already has drift; clone branch audit was clean and should stay guarded.
 
-- [ ] Ship a v4.8.0 catalog refresh from the generated output.
+- [x] Ship a v4.8.0 catalog refresh from the generated output.
   - Resolve `EspressoMonkey`, which currently resolves through GitHub metadata as `ScriptVault`.
   - Add or intentionally suppress `OpenLumen`, `PhoneFork`, `AI-Usage_Tracker`, and other newly public repos with explicit catalog reasons.
   - Refresh star counts and featured-project ordering from live values.
@@ -50,13 +51,13 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
 
 ## P0 - Guard Against Public/Private Mistakes
 
-- [ ] Add a public-readme privacy gate.
+- [x] Add a public-readme privacy gate.
   - Block any README row whose live visibility is not `PUBLIC`.
   - Block medical/X-ray/PACS/DICOM-related repos from public listing unless an explicit allowlist entry exists.
   - Emit a separate private-repo compliance report but do not publish private names in the public README unless already intentionally public and verified safe.
   - Evidence: v4.7.0 removed private TeamStation and DICOM-PACS-Migrator because public links 404 for visitors; global rules require X-ray and medical-imaging repos to stay private.
 
-- [ ] Add a renamed/deleted repo resolver.
+- [x] Add a renamed/deleted repo resolver.
   - Detect GitHub redirects and canonical repository names.
   - Fail validation when a README link points to a renamed repo unless the catalog explicitly records the alias.
   - Evidence: `gh repo view SysAdminDoc/EspressoMonkey` returned canonical repo data for `ScriptVault`, while README still links `EspressoMonkey`.
