@@ -1,0 +1,36 @@
+name: Workflow security
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - ".github/dependabot.yml"
+      - ".github/CODEOWNERS"
+  schedule:
+    - cron: "19 8 * * 3"
+
+concurrency:
+  group: workflow-security-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Install zizmor
+        run: python -m pip install --upgrade zizmor
+
+      - name: Audit workflows
+        run: zizmor .github/workflows

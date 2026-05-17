@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T14:35:13.1405108-04:00",
+  "generatedAt": "2026-05-17T14:50:52.8634072-04:00",
   "readmeInSync": true,
   "publicRepoCount": 178,
   "catalogEntryCount": 178,
@@ -7,5 +7,7 @@
   "missingPublicRepos": [],
   "privateVisibilityViolations": [],
   "medicalPrivacyViolations": [],
-  "renamedRepoRedirects": []
+  "renamedRepoRedirects": [],
+  "linkValidationSkipped": false,
+  "linkValidationFailures": []
 }

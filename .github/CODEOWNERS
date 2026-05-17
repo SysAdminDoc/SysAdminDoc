@@ -1,0 +1,5 @@
+# Generated profile automation and repository security posture.
+/.github/workflows/ @SysAdminDoc
+/scripts/sync-profile.ps1 @SysAdminDoc
+/data/profile-catalog.json @SysAdminDoc
+/reports/profile-sync-report.json @SysAdminDoc

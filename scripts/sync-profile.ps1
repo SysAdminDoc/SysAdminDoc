@@ -6,6 +6,7 @@ param(
     [string]$CatalogPath = "data/profile-catalog.json",
     [string]$ReadmePath = "README.md",
     [string]$ReportPath = "reports/profile-sync-report.json",
+    [switch]$SkipLinkValidation,
     [switch]$Offline
 )
 
@@ -301,6 +302,111 @@ function Get-ReleaseUrl {
 
     $repo = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
     return "https://github.com/$Owner/$repo/releases/latest"
+}
+
+function ConvertTo-RawGitHubUrl {
+    param(
+        [string]$Repo,
+        [string]$Branch,
+        [string]$Path
+    )
+
+    $segments = $Path -split '[\\/]'
+    $encodedPath = ($segments | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+    return "https://raw.githubusercontent.com/$Owner/$Repo/$Branch/$encodedPath"
+}
+
+function Test-HttpUrl {
+    param([string]$Url)
+
+    try {
+        $response = Invoke-WebRequest -Uri $Url -Method Head -MaximumRedirection 5 -TimeoutSec 20
+        return [ordered]@{ ok = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400); status = $response.StatusCode; error = $null }
+    } catch {
+        try {
+            $response = Invoke-WebRequest -Uri $Url -Method Get -MaximumRedirection 5 -TimeoutSec 20
+            return [ordered]@{ ok = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400); status = $response.StatusCode; error = $null }
+        } catch {
+            $status = $null
+            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+                $status = [int]$_.Exception.Response.StatusCode
+            }
+            return [ordered]@{ ok = $false; status = $status; error = $_.Exception.Message }
+        }
+    }
+}
+
+function Test-LinkTargets {
+    param(
+        [hashtable[]]$Included,
+        [hashtable]$RepoLookup
+    )
+
+    $failures = New-Object System.Collections.Generic.List[object]
+
+    foreach ($entry in $Included) {
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $repoForUrl = if ($entry.aliasOf) { [string]$entry.aliasOf } else { [string]$entry.repo }
+        $branch = Get-Branch $entry $meta
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) {
+            $url = ConvertTo-RawGitHubUrl -Repo $repoForUrl -Branch $branch -Path ([string]$entry.entrypoint)
+            $result = Test-HttpUrl $url
+            if (-not $result.ok) {
+                $failures.Add([ordered]@{
+                    repo = $entry.repo
+                    type = "entrypoint"
+                    url = $url
+                    status = $result.status
+                    error = $result.error
+                })
+            }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) {
+            $url = [string]$entry.userscriptUrl
+            $result = Test-HttpUrl $url
+            if (-not $result.ok) {
+                $failures.Add([ordered]@{
+                    repo = $entry.repo
+                    type = "userscript"
+                    url = $url
+                    status = $result.status
+                    error = $result.error
+                })
+            }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) {
+            $url = [string]$entry.liveUrl
+            $result = Test-HttpUrl $url
+            if (-not $result.ok) {
+                $failures.Add([ordered]@{
+                    repo = $entry.repo
+                    type = "launch"
+                    url = $url
+                    status = $result.status
+                    error = $result.error
+                })
+            }
+        }
+
+        if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
+            $releaseUrl = Get-ReleaseUrl $entry
+            $result = Test-HttpUrl $releaseUrl
+            if (-not $result.ok) {
+                $failures.Add([ordered]@{
+                    repo = $entry.repo
+                    type = "release"
+                    url = $releaseUrl
+                    status = $result.status
+                    error = $result.error
+                })
+            }
+        }
+    }
+
+    return $failures.ToArray()
 }
 
 function Get-DownloadLabel {
@@ -843,6 +949,11 @@ function Test-ProfileState {
     }
     $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
 
+    $linkFailures = @()
+    if (-not $Offline -and -not $SkipLinkValidation) {
+        $linkFailures = @(Test-LinkTargets -Included $included -RepoLookup $repoLookup)
+    }
+
     $report = [ordered]@{
         generatedAt = (Get-Date).ToString("o")
         readmeInSync = $readmeInSync
@@ -853,9 +964,11 @@ function Test-ProfileState {
         privateVisibilityViolations = $privateViolations
         medicalPrivacyViolations = $medicalViolations
         renamedRepoRedirects = $redirects
+        linkValidationSkipped = [bool]($Offline -or $SkipLinkValidation)
+        linkValidationFailures = @($linkFailures)
     }
 
-    $failed = -not $readmeInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0
+    $failed = -not $readmeInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0
     return [ordered]@{
         Failed = $failed
         Report = $report
