@@ -2196,9 +2196,9 @@
       "branch": "master",
       "entrypoint": null,
       "installKind": null,
-      "downloadKind": null,
+      "downloadKind": "repo",
       "userscriptUrl": null,
-      "liveUrl": "https://sysadmindoc.github.io/kindred/",
+      "liveUrl": null,
       "language": "HTML",
       "descriptionOverride": "Compatibility-first dating and social platform",
       "featured": false,
@@ -2208,7 +2208,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "notes": null
+      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published."
     },
     {
       "repo": "DeGoogler",

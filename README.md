@@ -478,7 +478,7 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**ImageXpert**](https://github.com/SysAdminDoc/ImageXpert) | Multi-engine reverse image search — Google Lens, Yandex, Bing, TinEye | [Launch](https://sysadmindoc.github.io/ImageXpert/) |
 | [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
 | [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filtering and processing tool | [Launch](https://sysadmindoc.github.io/Text-Filter-Editor/) |
-| [**kindred**](https://github.com/SysAdminDoc/kindred) | Compatibility-first dating and social platform | [Launch](https://sysadmindoc.github.io/kindred/) |
+| [**kindred**](https://github.com/SysAdminDoc/kindred) | Compatibility-first dating and social platform | [Repo](https://github.com/SysAdminDoc/kindred) |
 | [**DeGoogler**](https://github.com/SysAdminDoc/DeGoogler) | Turnkey migration toolkit for leaving Google services | [Launch](https://sysadmindoc.github.io/DeGoogler/) |
 | [**SearchHub**](https://github.com/SysAdminDoc/SearchHub) | Search 538 engines across 29 categories | [Launch](https://sysadmindoc.github.io/SearchHub/) |
 | [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) &#11088;2 | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
