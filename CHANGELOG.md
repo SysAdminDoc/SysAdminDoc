@@ -5,6 +5,7 @@ All notable changes to SysAdminDoc will be documented in this file.
 ## [v4.8.0] - 2026-05-17
 
 - Added: `data/profile-catalog.json` as the canonical catalog source for profile README entries, explicit suppressions, featured/currently-building flags, install metadata, release labels, and manual description overrides.
+- Added: root `projects.json`, generated from the same catalog and live GitHub metadata, so the portfolio site can consume a stable public project feed.
 - Added: `scripts/sync-profile.ps1` with `-SeedCatalog`, `-Write`, and `-Check` modes. The check mode writes `reports/profile-sync-report.json` and fails on missing active public repos, private/public visibility mistakes, medical-imaging privacy violations, renamed repo redirects, or generated README drift.
 - Added: GitHub Actions automation for scheduled/manual profile sync checks, manual generated-profile PR creation, workflow security auditing with `zizmor`, and OpenSSF Scorecard scanning.
 - Added: `.github/CODEOWNERS` plus Dependabot monitoring for GitHub Actions updates.

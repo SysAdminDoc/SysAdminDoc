@@ -83,7 +83,7 @@ jobs:
           git switch -c $branch
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md reports/profile-sync-report.json
+          git add README.md projects.json reports/profile-sync-report.json
           git commit -m "chore: sync generated profile"
           $remote = "https://x-access-token:$env:GH_TOKEN@github.com/${{ github.repository }}.git"
           git push $remote $branch

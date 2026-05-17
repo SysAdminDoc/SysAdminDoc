@@ -5,6 +5,7 @@ param(
     [switch]$Check,
     [string]$CatalogPath = "data/profile-catalog.json",
     [string]$ReadmePath = "README.md",
+    [string]$ProjectsPath = "projects.json",
     [string]$ReportPath = "reports/profile-sync-report.json",
     [switch]$SkipLinkValidation,
     [switch]$Offline
@@ -302,6 +303,18 @@ function Get-ReleaseUrl {
 
     $repo = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
     return "https://github.com/$Owner/$repo/releases/latest"
+}
+
+function ConvertTo-IsoText {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [datetime]) {
+        return $Value.ToString("o")
+    }
+    return [string]$Value
 }
 
 function ConvertTo-RawGitHubUrl {
@@ -702,6 +715,85 @@ function New-Readme {
     return ($blocks -join [Environment]::NewLine)
 }
 
+function New-ProjectsExportJson {
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $entries = @($Catalog.entries | Sort-Object category, @{ Expression = { [int]$_.order } }, repo)
+    $projects = New-Object System.Collections.Generic.List[object]
+    $suppressed = New-Object System.Collections.Generic.List[object]
+
+    foreach ($entry in $entries) {
+        $meta = Get-RepoMeta $entry $repoLookup
+        $repoUrl = Get-RepoUrl $entry
+        $downloadUrl = $null
+        if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
+            $downloadUrl = Get-ReleaseUrl $entry
+        }
+        $topics = @()
+        if ($meta -and $meta.repositoryTopics) {
+            $topics = @($meta.repositoryTopics | ForEach-Object { $_.name } | Sort-Object)
+        }
+
+        $row = [ordered]@{
+            repo = [string]$entry.repo
+            title = [string]$entry.title
+            category = [string]$entry.category
+            includeInReadme = [bool]$entry.includeInReadme
+            includeInPortfolio = [bool]$entry.includeInPortfolio
+            suppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
+            suppressionReason = if ([string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)) { $null } else { [string]$entry.suppressionReason }
+            description = Get-Description $entry $meta
+            repoUrl = $repoUrl
+            liveUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) { $null } else { [string]$entry.liveUrl }
+            installUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) { $null } else { [string]$entry.userscriptUrl }
+            downloadUrl = $downloadUrl
+            downloadKind = if ([string]::IsNullOrWhiteSpace([string]$entry.downloadKind)) { $null } else { [string]$entry.downloadKind }
+            branch = Get-Branch $entry $meta
+            entrypoint = if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) { $null } else { [string]$entry.entrypoint }
+            installKind = if ([string]::IsNullOrWhiteSpace([string]$entry.installKind)) { $null } else { [string]$entry.installKind }
+            language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
+                [string]$entry.language
+            } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
+                [string]$meta.primaryLanguage.name
+            } else {
+                $null
+            }
+            stars = if ($meta) { [int]$meta.stargazerCount } else { $null }
+            latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
+            latestReleaseUrl = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.url } else { $null }
+            pushedAt = if ($meta -and $meta.pushedAt) { ConvertTo-IsoText $meta.pushedAt } else { $null }
+            topics = $topics
+            featured = [bool]$entry.featured
+            featuredRank = if ($entry.featuredRank) { [int]$entry.featuredRank } else { $null }
+            currentlyBuilding = [bool]$entry.currentlyBuilding
+            notes = if ([string]::IsNullOrWhiteSpace([string]$entry.notes)) { $null } else { [string]$entry.notes }
+        }
+
+        if ($row.suppressed) {
+            $suppressed.Add($row)
+        } elseif ($row.includeInPortfolio) {
+            $projects.Add($row)
+        }
+    }
+
+    $payload = [ordered]@{
+        schema = "https://sysadmindoc.github.io/schemas/profile-projects.v1.json"
+        generatedAt = ConvertTo-IsoText $Catalog.generatedAt
+        source = "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
+        publicRepoCount = $Repos.Count
+        projectCount = $projects.Count
+        suppressedCount = $suppressed.Count
+        projects = $projects.ToArray()
+        suppressed = $suppressed.ToArray()
+    }
+
+    return ($payload | ConvertTo-Json -Depth 20)
+}
+
 function New-CatalogFromReadme {
     param([object[]]$Repos)
 
@@ -868,7 +960,8 @@ function Test-ProfileState {
     param(
         [hashtable]$Catalog,
         [object[]]$Repos,
-        [string]$ExpectedReadme
+        [string]$ExpectedReadme,
+        [string]$ExpectedProjects
     )
 
     $repoLookup = ConvertTo-Lookup $Repos
@@ -943,11 +1036,13 @@ function Test-ProfileState {
     }
 
     $currentReadme = Get-Content -LiteralPath $ReadmePath -Raw
+    $currentProjects = if (Test-Path -LiteralPath $ProjectsPath) { Get-Content -LiteralPath $ProjectsPath -Raw } else { "" }
     $normalize = {
         param([string]$Text)
         return (($Text -replace "`r`n", "`n").TrimEnd())
     }
     $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
+    $projectsInSync = (& $normalize $currentProjects) -eq (& $normalize $ExpectedProjects)
 
     $linkFailures = @()
     if (-not $Offline -and -not $SkipLinkValidation) {
@@ -957,6 +1052,7 @@ function Test-ProfileState {
     $report = [ordered]@{
         generatedAt = (Get-Date).ToString("o")
         readmeInSync = $readmeInSync
+        projectsExportInSync = $projectsInSync
         publicRepoCount = $Repos.Count
         catalogEntryCount = $entries.Count
         includedReadmeCount = $included.Count
@@ -968,7 +1064,7 @@ function Test-ProfileState {
         linkValidationFailures = @($linkFailures)
     }
 
-    $failed = -not $readmeInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0
+    $failed = -not $readmeInSync -or -not $projectsInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0
     return [ordered]@{
         Failed = $failed
         Report = $report
@@ -997,14 +1093,17 @@ $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
 
 if ($catalogForRun) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
+    $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos
 
     if ($Write) {
         [System.IO.File]::WriteAllText((Resolve-Path -LiteralPath $ReadmePath).Path, $expected, [System.Text.UTF8Encoding]::new($false))
+        [System.IO.File]::WriteAllText((Join-Path $RepoRoot $ProjectsPath), $expectedProjects + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
         Write-Host "Wrote $ReadmePath from $CatalogPath."
+        Write-Host "Wrote $ProjectsPath from $CatalogPath."
     }
 
     if ($Check) {
-        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected
+        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected -ExpectedProjects $expectedProjects
         $reportDir = Split-Path -Parent $ReportPath
         if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
             New-Item -ItemType Directory -Path $reportDir | Out-Null
