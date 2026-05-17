@@ -14,6 +14,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 - `README.md` is the rendered public profile.
 - `data/profile-catalog.json` is the canonical profile catalog and suppression list.
+- `projects.json` is the generated public project feed for portfolio consumption.
 - `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including entrypoint, userscript, launch, and release-link checks.
 - `reports/profile-sync-report.json` is the latest validation report from `scripts/sync-profile.ps1 -Check`.
 - `.github/workflows/profile-sync.yml` runs scheduled/manual profile checks and can open a manual generated-profile PR.
@@ -49,6 +50,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - 0 renamed repository redirects.
 - `README.md` in sync with generated output.
 - 0 link validation failures across install entrypoints, raw userscripts, launch URLs, and release redirects.
+- `projects.json` is in sync with the catalog and contains 170 public portfolio-ready projects plus 8 explicit suppressions.
 - Local `zizmor .github/workflows` returned no findings after pinning workflow actions to commit SHAs and disabling checkout credential persistence.
 
 ## Project Philosophy
@@ -78,10 +80,11 @@ The README is now generated static Markdown. The catalog file is the source of t
 
 ## Recommended Next Implementation
 
-1. Feed `sysadmindoc.github.io` from the same catalog and move search/filter UX there.
-2. Add topic drift reporting and safe repo-description cleanup.
-3. Add release/download taxonomy from actual latest-release asset names.
-4. Add quarterly archive/retirement reporting.
+1. Update `sysadmindoc.github.io` to consume `https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json`.
+2. Add Pagefind/search and "new", "recently updated", and "has download" views to the portfolio.
+3. Add topic drift reporting and safe repo-description cleanup.
+4. Add release/download taxonomy from actual latest-release asset names.
+5. Add quarterly archive/retirement reporting.
 
 ## Research Artifacts
 
