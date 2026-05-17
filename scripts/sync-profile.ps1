@@ -1,0 +1,908 @@
+[CmdletBinding()]
+param(
+    [switch]$SeedCatalog,
+    [switch]$Write,
+    [switch]$Check,
+    [string]$CatalogPath = "data/profile-catalog.json",
+    [string]$ReadmePath = "README.md",
+    [string]$ReportPath = "reports/profile-sync-report.json",
+    [switch]$Offline
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $RepoRoot
+
+if (-not $SeedCatalog -and -not $Write -and -not $Check) {
+    $Check = $true
+}
+
+$Owner = "SysAdminDoc"
+$MedicalPattern = '(?i)(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)'
+
+$CategoryDefinitions = @(
+    [ordered]@{
+        Slug = "powershell"
+        Title = "&#9889; PowerShell System Utilities"
+        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Requires Git (see <b>First-time setup</b> above).</i></summary>'
+        Render = "code"
+        DefaultInstallKind = "powershell"
+    },
+    [ordered]@{
+        Slug = "python"
+        Title = "&#128013; Python Desktop Applications"
+        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>'
+        Render = "code"
+        DefaultInstallKind = "python"
+    },
+    [ordered]@{
+        Slug = "web"
+        Title = "&#127760; Web Applications"
+        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Click to open in browser, no install needed.</i></summary>'
+        Render = "web-table"
+    },
+    [ordered]@{
+        Slug = "extensions"
+        Title = "&#129513; Browser Extensions & Userscripts"
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>'
+        Render = "install-table"
+    },
+    [ordered]@{
+        Slug = "android"
+        Title = "&#128241; Android Applications"
+        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>Kotlin / Material You</i></summary>'
+        Render = "download-table"
+        DefaultDownloadKind = "apk"
+    },
+    [ordered]@{
+        Slug = "security"
+        Title = "&#128274; Security & Networking"
+        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos</summary>'
+        Render = "download-table"
+    },
+    [ordered]@{
+        Slug = "media"
+        Title = "&#127916; Media & Conversion Tools"
+        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos</summary>'
+        Render = "code"
+        DefaultInstallKind = "python"
+    },
+    [ordered]@{
+        Slug = "desktop"
+        Title = "&#128421;&#65039; Native Desktop Applications"
+        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos</summary>'
+        Render = "desktop-table"
+    },
+    [ordered]@{
+        Slug = "guides"
+        Title = "&#128218; Guides & Resources"
+        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos</summary>'
+        Render = "simple-table"
+    },
+    [ordered]@{
+        Slug = "misc"
+        Title = "&#128256; Misc & Forks"
+        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos</summary>'
+        Render = "simple-table"
+    }
+)
+
+function ConvertTo-CategorySlug {
+    param([string]$SummaryLine)
+
+    if ($SummaryLine -match 'PowerShell System Utilities') { return "powershell" }
+    if ($SummaryLine -match 'Python Desktop Applications') { return "python" }
+    if ($SummaryLine -match 'Web Applications') { return "web" }
+    if ($SummaryLine -match 'Browser Extensions') { return "extensions" }
+    if ($SummaryLine -match 'Android Applications') { return "android" }
+    if ($SummaryLine -match 'Security & Networking') { return "security" }
+    if ($SummaryLine -match 'Media & Conversion Tools') { return "media" }
+    if ($SummaryLine -match 'Native Desktop Applications') { return "desktop" }
+    if ($SummaryLine -match 'Guides & Resources') { return "guides" }
+    if ($SummaryLine -match 'Misc & Forks') { return "misc" }
+    return $null
+}
+
+function Get-GitHubRepos {
+    if ($Offline) {
+        return @()
+    }
+
+    $json = gh repo list $Owner --visibility public --no-archived --limit 300 --json name,description,stargazerCount,defaultBranchRef,latestRelease,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage
+    return @($json | ConvertFrom-Json)
+}
+
+function ConvertTo-Lookup {
+    param([object[]]$Repos)
+
+    $lookup = @{}
+    foreach ($repo in $Repos) {
+        $lookup[$repo.name.ToLowerInvariant()] = $repo
+    }
+    return $lookup
+}
+
+function New-CatalogEntry {
+    param(
+        [string]$Repo,
+        [string]$Category,
+        [string]$Description,
+        [int]$Order
+    )
+
+    return [ordered]@{
+        repo = $Repo
+        title = $Repo
+        category = $Category
+        includeInReadme = $true
+        includeInPortfolio = $true
+        order = $Order
+        branch = $null
+        entrypoint = $null
+        installKind = $null
+        downloadKind = $null
+        userscriptUrl = $null
+        liveUrl = $null
+        language = $null
+        descriptionOverride = $Description
+        featured = $false
+        featuredRank = $null
+        currentlyBuilding = $false
+        currentlyBuildingText = $null
+        allowPublicMedical = $false
+        aliasOf = $null
+        suppressionReason = $null
+        notes = $null
+    }
+}
+
+function Set-IfMissing {
+    param(
+        [hashtable]$Entry,
+        [string]$Name,
+        [object]$Value
+    )
+
+    if (-not $Entry.Contains($Name)) {
+        $Entry[$Name] = $Value
+    }
+}
+
+function ConvertTo-EntryHashtable {
+    param([object]$Entry)
+
+    $json = $Entry | ConvertTo-Json -Depth 20
+    $hash = $json | ConvertFrom-Json -AsHashtable
+
+    Set-IfMissing $hash "title" $hash.repo
+    Set-IfMissing $hash "includeInReadme" $true
+    Set-IfMissing $hash "includeInPortfolio" $true
+    Set-IfMissing $hash "order" 9999
+    Set-IfMissing $hash "branch" $null
+    Set-IfMissing $hash "entrypoint" $null
+    Set-IfMissing $hash "installKind" $null
+    Set-IfMissing $hash "downloadKind" $null
+    Set-IfMissing $hash "userscriptUrl" $null
+    Set-IfMissing $hash "liveUrl" $null
+    Set-IfMissing $hash "language" $null
+    Set-IfMissing $hash "descriptionOverride" $null
+    Set-IfMissing $hash "featured" $false
+    Set-IfMissing $hash "featuredRank" $null
+    Set-IfMissing $hash "currentlyBuilding" $false
+    Set-IfMissing $hash "currentlyBuildingText" $null
+    Set-IfMissing $hash "allowPublicMedical" $false
+    Set-IfMissing $hash "aliasOf" $null
+    Set-IfMissing $hash "suppressionReason" $null
+    Set-IfMissing $hash "notes" $null
+
+    return $hash
+}
+
+function Get-Catalog {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "Catalog not found: $Path. Run scripts/sync-profile.ps1 -SeedCatalog first."
+    }
+
+    $raw = Get-Content -LiteralPath $Path -Raw
+    $catalog = $raw | ConvertFrom-Json
+    $entries = foreach ($entry in $catalog.entries) {
+        ConvertTo-EntryHashtable $entry
+    }
+
+    return [ordered]@{
+        schema = $catalog.schema
+        generatedAt = $catalog.generatedAt
+        entries = @($entries)
+    }
+}
+
+function Get-RepoMeta {
+    param(
+        [hashtable]$Entry,
+        [hashtable]$RepoLookup
+    )
+
+    $key = $Entry.repo.ToLowerInvariant()
+    if ($RepoLookup.ContainsKey($key)) {
+        return $RepoLookup[$key]
+    }
+
+    if ($Entry.aliasOf) {
+        $aliasKey = ([string]$Entry.aliasOf).ToLowerInvariant()
+        if ($RepoLookup.ContainsKey($aliasKey)) {
+            return $RepoLookup[$aliasKey]
+        }
+    }
+
+    return $null
+}
+
+function Get-Description {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Entry.descriptionOverride)) {
+        return [string]$Entry.descriptionOverride
+    }
+    if ($Meta -and -not [string]::IsNullOrWhiteSpace([string]$Meta.description)) {
+        return [string]$Meta.description
+    }
+    return [string]$Entry.repo
+}
+
+function Get-Branch {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Entry.branch)) {
+        return [string]$Entry.branch
+    }
+    if ($Meta -and $Meta.defaultBranchRef -and $Meta.defaultBranchRef.name) {
+        return [string]$Meta.defaultBranchRef.name
+    }
+    return "main"
+}
+
+function Get-StarText {
+    param([object]$Meta)
+
+    if ($Meta -and $Meta.stargazerCount -gt 0) {
+        return " &#11088;$($Meta.stargazerCount)"
+    }
+    return ""
+}
+
+function Get-RepoUrl {
+    param([hashtable]$Entry)
+
+    $repo = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
+    return "https://github.com/$Owner/$repo"
+}
+
+function Get-ProjectLink {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta
+    )
+
+    return "[**$($Entry.title)**]($(Get-RepoUrl $Entry))$(Get-StarText $Meta)"
+}
+
+function Get-ReleaseUrl {
+    param([hashtable]$Entry)
+
+    $repo = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
+    return "https://github.com/$Owner/$repo/releases/latest"
+}
+
+function Get-DownloadLabel {
+    param(
+        [hashtable]$Entry,
+        [string]$Category
+    )
+
+    $kind = ([string]$Entry.downloadKind).ToLowerInvariant()
+    if ([string]::IsNullOrWhiteSpace($kind)) {
+        switch ($Category) {
+            "android" { $kind = "apk" }
+            "extensions" { $kind = "download" }
+            "desktop" { $kind = "zip" }
+            default { $kind = "download" }
+        }
+    }
+
+    switch ($kind) {
+        "apk" { return "APK" }
+        "exe" { return "EXE" }
+        "zip" { return "ZIP" }
+        "zip-xpi" { return "ZIP/XPI" }
+        "crx" { return "CRX" }
+        "xpi" { return "XPI" }
+        "crx-xpi" { return "CRX/XPI" }
+        "userscript" { return "Install" }
+        default { return "Download" }
+    }
+}
+
+function Get-ActionLink {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [string]$Category
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Entry.liveUrl)) {
+        return "[Launch]($($Entry.liveUrl))"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Entry.userscriptUrl)) {
+        return "[Install]($($Entry.userscriptUrl))"
+    }
+
+    if (([string]$Entry.downloadKind).ToLowerInvariant() -eq "repo") {
+        return "[Repo]($(Get-RepoUrl $Entry))"
+    }
+
+    if ($Meta -and $Meta.latestRelease) {
+        $label = Get-DownloadLabel $Entry $Category
+        return "[<kbd>&#11015; $label</kbd>]($(Get-ReleaseUrl $Entry))"
+    }
+
+    return "[Repo]($(Get-RepoUrl $Entry))"
+}
+
+function Get-InstallSnippet {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [string]$Category
+    )
+
+    $branch = Get-Branch $Entry $Meta
+    $installKind = if (-not [string]::IsNullOrWhiteSpace([string]$Entry.installKind)) {
+        [string]$Entry.installKind
+    } else {
+        ($CategoryDefinitions | Where-Object { $_.Slug -eq $Category }).DefaultInstallKind
+    }
+
+    $entrypoint = [string]$Entry.entrypoint
+    if ([string]::IsNullOrWhiteSpace($entrypoint)) {
+        return $null
+    }
+
+    $runner = if ($installKind -eq "powershell") {
+        '& "$d\{0}"' -f $entrypoint
+    } else {
+        'python "$d\{0}"' -f $entrypoint
+    }
+
+    return '$d="$env:TEMP\{0}"; if(Test-Path $d){{git -C $d pull -q}}else{{git clone -q --depth 1 -b {1} https://github.com/{2}/{0} $d}}; if(Test-Path "$d\requirements.txt"){{pip install -q -r "$d\requirements.txt"}}; {3}' -f $Entry.repo, $branch, $Owner, $runner
+}
+
+function New-FirstTimeSetupSection {
+    return @"
+<details>
+<summary><b>&#128190; First-time setup</b> -- <i>New to this? Install Python 3 + Git in one paste.</i></summary>
+<br/>
+
+The PowerShell and Python sections below clone repos with **Git**, and the Python section runs scripts with **Python 3**. If you don't already have them, open **PowerShell** and paste:
+
+``````powershell
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
+``````
+
+What it does -- uses Windows' built-in `winget` package manager to install [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/), then refreshes your `PATH` so the install one-liners below work right away. Source: [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1).
+
+Already have them? Skip this and jump to the categories below.
+
+</details>
+"@
+}
+
+function New-CategorySection {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup,
+        [hashtable]$Definition
+    )
+
+    $items = @($Entries | Where-Object { $_.category -eq $Definition.Slug } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("<details>")
+    $lines.Add(($Definition.Summary -f $items.Count))
+    $lines.Add("<br/>")
+    $lines.Add("")
+
+    switch ($Definition.Render) {
+        "code" {
+            foreach ($entry in $items) {
+                $meta = Get-RepoMeta $entry $RepoLookup
+                $line = "$(Get-ProjectLink $entry $meta) -- $(Get-Description $entry $meta)"
+                $action = Get-ActionLink $entry $meta $Definition.Slug
+                if ($action -match 'releases/latest') {
+                    $line += " &nbsp;$action"
+                }
+                $lines.Add($line)
+                $snippet = Get-InstallSnippet $entry $meta $Definition.Slug
+                if ($snippet) {
+                    $lines.Add('```powershell')
+                    $lines.Add($snippet)
+                    $lines.Add('```')
+                    $lines.Add("")
+                } else {
+                    $lines.Add("")
+                }
+            }
+        }
+        "web-table" {
+            $lines.Add("| Project | Description | Live |")
+            $lines.Add("|:--------|:------------|:----:|")
+            foreach ($entry in $items) {
+                $meta = Get-RepoMeta $entry $RepoLookup
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+            }
+            $lines.Add("")
+        }
+        "install-table" {
+            $lines.Add("| Project | Description | Install |")
+            $lines.Add("|:--------|:------------|:-------:|")
+            foreach ($entry in $items) {
+                $meta = Get-RepoMeta $entry $RepoLookup
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+            }
+            $lines.Add("")
+        }
+        "download-table" {
+            $lines.Add("| Project | Description | Download |")
+            $lines.Add("|:--------|:------------|:--------:|")
+            foreach ($entry in $items) {
+                $meta = Get-RepoMeta $entry $RepoLookup
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+            }
+            $lines.Add("")
+        }
+        "desktop-table" {
+            $lines.Add("| Project | Description | Language | Download |")
+            $lines.Add("|:--------|:------------|:--------:|:--------:|")
+            foreach ($entry in $items) {
+                $meta = Get-RepoMeta $entry $RepoLookup
+                $language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
+                    [string]$entry.language
+                } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
+                    [string]$meta.primaryLanguage.name
+                } else {
+                    ""
+                }
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $language | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+            }
+            $lines.Add("")
+        }
+        "simple-table" {
+            $lines.Add("| Project | Description |")
+            $lines.Add("|:--------|:------------|")
+            foreach ($entry in $items) {
+                $meta = Get-RepoMeta $entry $RepoLookup
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) |")
+            }
+            $lines.Add("")
+        }
+    }
+
+    $lines.Add("</details>")
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-FeaturedSection {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $featured = @($Entries | Where-Object { $_.featured -eq $true } | Sort-Object @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { 9999 } } }, repo)
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("### Featured Projects")
+    $lines.Add("")
+    $lines.Add("| Project | Stars | Description |")
+    $lines.Add("|:--------|:-----:|:------------|")
+    foreach ($entry in $featured) {
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
+        $lines.Add("| [**$($entry.title)**]($(Get-RepoUrl $entry)) | &#11088;$stars | $(Get-Description $entry $meta) |")
+    }
+    return ($lines -join [Environment]::NewLine)
+}
+
+function Update-Header {
+    param(
+        [string]$Header,
+        [int]$PublicRepoCount,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $updated = $Header -replace '\d+%2B\+open\+source\+tools', "$PublicRepoCount%2B+open+source+tools"
+    $updated = $updated -replace '- \d+\+ open source projects across', "- $PublicRepoCount+ open source projects across"
+
+    $building = @($Entries | Where-Object { $_.currentlyBuilding -eq $true } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
+    if ($building.Count -gt 0) {
+        $tableLines = New-Object System.Collections.Generic.List[string]
+        $tableLines.Add("**Currently Building**")
+        $tableLines.Add("")
+        $tableLines.Add("| | |")
+        $tableLines.Add("|:--|:--|")
+        foreach ($entry in $building) {
+            $meta = Get-RepoMeta $entry $RepoLookup
+            $text = if (-not [string]::IsNullOrWhiteSpace([string]$entry.currentlyBuildingText)) {
+                [string]$entry.currentlyBuildingText
+            } else {
+                Get-Description $entry $meta
+            }
+            $tableLines.Add("| **$($entry.title)** | $text |")
+        }
+        $table = $tableLines -join [Environment]::NewLine
+        $pattern = '(?s)\*\*Currently Building\*\*\r?\n\r?\n\| \| \|\r?\n\|:--\|:--\|\r?\n(?:\|.*?\|\r?\n)+'
+        $updated = [regex]::Replace($updated, $pattern, $table + [Environment]::NewLine)
+    }
+
+    return $updated.TrimEnd()
+}
+
+function New-Readme {
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $entries = @($Catalog.entries | Where-Object {
+        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+    })
+    $readme = Get-Content -LiteralPath $ReadmePath -Raw
+    $start = $readme.IndexOf("### Featured Projects", [StringComparison]::Ordinal)
+    if ($start -lt 0) {
+        throw "README marker not found: ### Featured Projects"
+    }
+    $footer = '![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)'
+    $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($entries | Select-Object -ExpandProperty repo -Unique).Count }
+    $header = Update-Header -Header $readme.Substring(0, $start) -PublicRepoCount $publicCount -Entries $entries -RepoLookup $repoLookup
+    $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
+
+    $blocks = New-Object System.Collections.Generic.List[string]
+    $blocks.Add($header)
+    $blocks.Add("")
+    $blocks.Add((New-FeaturedSection -Entries $entries -RepoLookup $repoLookup))
+    $blocks.Add("")
+    $blocks.Add("---")
+    $blocks.Add("")
+    $blocks.Add((New-FirstTimeSetupSection))
+    $blocks.Add("")
+
+    foreach ($definition in $CategoryDefinitions) {
+        $blocks.Add((New-CategorySection -Entries $entries -RepoLookup $repoLookup -Definition $definition))
+        $blocks.Add("")
+    }
+
+    $blocks.Add("")
+    $blocks.Add($footer)
+    $blocks.Add("")
+    return ($blocks -join [Environment]::NewLine)
+}
+
+function New-CatalogFromReadme {
+    param([object[]]$Repos)
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $readme = Get-Content -LiteralPath $ReadmePath -Raw
+    $lines = $readme -split "\r?\n"
+    $entries = [ordered]@{}
+    $category = $null
+    $order = @{}
+    $lastRepo = $null
+    $inCode = $false
+    $codeLines = New-Object System.Collections.Generic.List[string]
+
+    $featuredRank = 1
+    foreach ($line in $lines) {
+        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \|$') {
+            $repo = $Matches.repo
+            if (-not $entries.Contains($repo)) {
+                $entries[$repo] = New-CatalogEntry -Repo $repo -Category "misc" -Description $Matches.description -Order 9999
+            }
+            $entries[$repo].featured = $true
+            $entries[$repo].featuredRank = $featuredRank
+            $featuredRank++
+        }
+    }
+
+    foreach ($line in $lines) {
+        $slug = ConvertTo-CategorySlug $line
+        if ($slug) {
+            $category = $slug
+            if (-not $order.Contains($category)) {
+                $order[$category] = 0
+            }
+            continue
+        }
+
+        if (-not $category) {
+            continue
+        }
+
+        if ($inCode) {
+            if ($line -eq '```') {
+                $inCode = $false
+                if ($lastRepo -and $entries.Contains($lastRepo)) {
+                    $code = ($codeLines -join " ")
+                    if ($code -match 'git clone -q --depth 1 -b (?<branch>\S+)') {
+                        $entries[$lastRepo].branch = $Matches.branch
+                    }
+                    if ($code -match '(?<runner>python|&)\s+"\$d\\(?<entry>[^"]+)"') {
+                        $entries[$lastRepo].entrypoint = $Matches.entry
+                        $entries[$lastRepo].installKind = if ($Matches.runner -eq "&") { "powershell" } else { "python" }
+                    }
+                }
+                $codeLines.Clear()
+                continue
+            }
+            $codeLines.Add($line)
+            continue
+        }
+
+        if ($line -eq '```powershell') {
+            $inCode = $true
+            continue
+        }
+
+        if ($line -match '^\[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? (?:--|—) (?<rest>.+)$') {
+            $repo = $Matches.repo
+            $rest = $Matches.rest
+            $description = $rest -replace '\s*&nbsp;\[.*$', ''
+            $order[$category]++
+            if (-not $entries.Contains($repo)) {
+                $entries[$repo] = New-CatalogEntry -Repo $repo -Category $category -Description $description -Order $order[$category]
+            }
+            $entries[$repo].title = $Matches.title
+            $entries[$repo].category = $category
+            $entries[$repo].order = $order[$category]
+            $entries[$repo].descriptionOverride = $description
+            if ($rest -match 'releases/latest') {
+                $entries[$repo].downloadKind = "download"
+            }
+            $lastRepo = $repo
+            continue
+        }
+
+        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? \| (?<description>.*?) \| (?<tail>.*) \|$') {
+            $repo = $Matches.repo
+            $tail = $Matches.tail
+            $order[$category]++
+            if (-not $entries.Contains($repo)) {
+                $entries[$repo] = New-CatalogEntry -Repo $repo -Category $category -Description $Matches.description -Order $order[$category]
+            }
+            $entries[$repo].title = $Matches.title
+            $entries[$repo].category = $category
+            $entries[$repo].order = $order[$category]
+            $entries[$repo].descriptionOverride = $Matches.description
+
+            if ($category -eq "web" -and $tail -match '\[Launch\]\((?<url>[^)]+)\)') {
+                $entries[$repo].liveUrl = $Matches.url
+            } elseif ($tail -match '\[Install\]\((?<url>[^)]+)\)') {
+                $entries[$repo].userscriptUrl = $Matches.url
+                $entries[$repo].downloadKind = "userscript"
+            } elseif ($tail -match 'releases/latest') {
+                if ($tail -match 'CRX/XPI') { $entries[$repo].downloadKind = "crx-xpi" }
+                elseif ($tail -match 'CRX') { $entries[$repo].downloadKind = "crx" }
+                elseif ($tail -match 'XPI') { $entries[$repo].downloadKind = "xpi" }
+                elseif ($tail -match 'APK') { $entries[$repo].downloadKind = "apk" }
+                elseif ($tail -match 'EXE') { $entries[$repo].downloadKind = "exe" }
+                elseif ($tail -match 'ZIP') { $entries[$repo].downloadKind = "zip" }
+                else { $entries[$repo].downloadKind = "download" }
+            } elseif ($tail -match '\[Repo\]') {
+                $entries[$repo].downloadKind = "repo"
+            }
+
+            if ($category -eq "desktop") {
+                $cells = $tail -split '\s\|\s'
+                if ($cells.Count -ge 2) {
+                    $entries[$repo].language = $cells[0]
+                }
+            }
+            continue
+        }
+
+        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? \| (?<description>.*?) \|$') {
+            $repo = $Matches.repo
+            $order[$category]++
+            if (-not $entries.Contains($repo)) {
+                $entries[$repo] = New-CatalogEntry -Repo $repo -Category $category -Description $Matches.description -Order $order[$category]
+            }
+            $entries[$repo].title = $Matches.title
+            $entries[$repo].category = $category
+            $entries[$repo].order = $order[$category]
+            $entries[$repo].descriptionOverride = $Matches.description
+            continue
+        }
+    }
+
+    $buildingMatches = [regex]::Matches($readme, '\| \*\*(?<repo>[^*]+)\*\* \| (?<text>.*?) \|')
+    foreach ($match in $buildingMatches) {
+        $repo = $match.Groups["repo"].Value
+        if ($entries.Contains($repo)) {
+            $entries[$repo].currentlyBuilding = $true
+            $entries[$repo].currentlyBuildingText = $match.Groups["text"].Value
+        }
+    }
+
+    foreach ($entry in $entries.Values) {
+        $meta = Get-RepoMeta $entry $repoLookup
+        if ($meta -and $meta.defaultBranchRef -and $meta.defaultBranchRef.name -and -not $entry.branch) {
+            $entry.branch = [string]$meta.defaultBranchRef.name
+        }
+        if ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name -and -not $entry.language) {
+            $entry.language = [string]$meta.primaryLanguage.name
+        }
+    }
+
+    return [ordered]@{
+        schema = "https://sysadmindoc.github.io/schemas/profile-catalog.v1.json"
+        generatedAt = (Get-Date).ToString("o")
+        entries = @($entries.Values)
+    }
+}
+
+function Test-ProfileState {
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos,
+        [string]$ExpectedReadme
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $entries = @($Catalog.entries)
+    $included = @($entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })
+    $handledNames = @{}
+    foreach ($entry in $entries) {
+        $handledNames[$entry.repo.ToLowerInvariant()] = $true
+        if ($entry.aliasOf) {
+            $handledNames[([string]$entry.aliasOf).ToLowerInvariant()] = $true
+        }
+    }
+
+    $missingPublic = @()
+    foreach ($repo in $Repos) {
+        if ($repo.name -eq $Owner) {
+            continue
+        }
+        if (-not $handledNames.ContainsKey($repo.name.ToLowerInvariant())) {
+            $missingPublic += [ordered]@{
+                repo = $repo.name
+                description = $repo.description
+                language = if ($repo.primaryLanguage) { $repo.primaryLanguage.name } else { $null }
+            }
+        }
+    }
+
+    $privateViolations = @()
+    $medicalViolations = @()
+    $redirects = @()
+    foreach ($entry in $included) {
+        $meta = Get-RepoMeta $entry $repoLookup
+        if (-not $meta) {
+            if (-not $Offline) {
+                $view = $null
+                try {
+                    $view = gh repo view "$Owner/$($entry.repo)" --json name,url,visibility 2>$null | ConvertFrom-Json
+                } catch {
+                    $view = $null
+                }
+                if ($view -and $view.name -ne $entry.repo) {
+                    $redirects += [ordered]@{
+                        repo = $entry.repo
+                        canonical = $view.name
+                        url = $view.url
+                    }
+                } else {
+                    $privateViolations += [ordered]@{
+                        repo = $entry.repo
+                        reason = "not returned by public active repo list"
+                    }
+                }
+            }
+            continue
+        }
+
+        if ($meta.visibility -ne "PUBLIC" -or $meta.isPrivate) {
+            $privateViolations += [ordered]@{
+                repo = $entry.repo
+                visibility = $meta.visibility
+            }
+        }
+
+        $topicText = if ($meta.repositoryTopics) { ($meta.repositoryTopics.name -join " ") } else { "" }
+        $medicalText = "$($entry.repo) $($meta.description) $topicText"
+        if ($medicalText -match $MedicalPattern -and $entry.allowPublicMedical -ne $true) {
+            $medicalViolations += [ordered]@{
+                repo = $entry.repo
+                reason = "medical-imaging keyword requires explicit allowPublicMedical"
+            }
+        }
+    }
+
+    $currentReadme = Get-Content -LiteralPath $ReadmePath -Raw
+    $normalize = {
+        param([string]$Text)
+        return (($Text -replace "`r`n", "`n").TrimEnd())
+    }
+    $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
+
+    $report = [ordered]@{
+        generatedAt = (Get-Date).ToString("o")
+        readmeInSync = $readmeInSync
+        publicRepoCount = $Repos.Count
+        catalogEntryCount = $entries.Count
+        includedReadmeCount = $included.Count
+        missingPublicRepos = $missingPublic
+        privateVisibilityViolations = $privateViolations
+        medicalPrivacyViolations = $medicalViolations
+        renamedRepoRedirects = $redirects
+    }
+
+    $failed = -not $readmeInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0
+    return [ordered]@{
+        Failed = $failed
+        Report = $report
+    }
+}
+
+$repos = if ($Offline) { @() } else { Get-GitHubRepos }
+
+if ($SeedCatalog) {
+    $catalog = New-CatalogFromReadme -Repos $repos
+    $catalogDir = Split-Path -Parent $CatalogPath
+    if ($catalogDir -and -not (Test-Path -LiteralPath $catalogDir)) {
+        New-Item -ItemType Directory -Path $catalogDir | Out-Null
+    }
+    $catalog | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $CatalogPath -Encoding utf8
+    Write-Host "Seeded $CatalogPath with $($catalog.entries.Count) entries."
+}
+
+$catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
+    Get-Catalog -Path $CatalogPath
+} elseif ($SeedCatalog) {
+    Get-Catalog -Path $CatalogPath
+} else {
+    $null
+}
+
+if ($catalogForRun) {
+    $expected = New-Readme -Catalog $catalogForRun -Repos $repos
+
+    if ($Write) {
+        [System.IO.File]::WriteAllText((Resolve-Path -LiteralPath $ReadmePath).Path, $expected, [System.Text.UTF8Encoding]::new($false))
+        Write-Host "Wrote $ReadmePath from $CatalogPath."
+    }
+
+    if ($Check) {
+        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected
+        $reportDir = Split-Path -Parent $ReportPath
+        if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
+            New-Item -ItemType Directory -Path $reportDir | Out-Null
+        }
+        $result.Report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8
+
+        if ($result.Failed) {
+            Write-Error "Profile sync check failed. See $ReportPath."
+            exit 1
+        }
+
+        Write-Host "Profile sync check passed. Report: $ReportPath"
+    }
+}
