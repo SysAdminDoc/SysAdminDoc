@@ -18,7 +18,8 @@ Live GitHub metadata gathered on 2026-05-17 showed:
 - 0 renamed-repo redirects after removing the duplicate `EspressoMonkey` profile row.
 - 0 private visibility or medical-imaging privacy violations in `scripts/sync-profile.ps1 -Check`.
 - 170 catalog entries included in the public README and 8 public repos explicitly suppressed with reasons.
-- `.github/` does not exist, so there is no automated README validation, nightly sync, link audit, or workflow security posture yet.
+- `.github/` now contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
+- `scripts/sync-profile.ps1 -Check` now validates install entrypoints, raw userscripts, GitHub Pages launch links, and release/latest redirects.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
@@ -64,20 +65,20 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
 
 ## P1 - Automate Safely
 
-- [ ] Add `.github/workflows/profile-sync.yml`.
+- [x] Add `.github/workflows/profile-sync.yml`.
   - Triggers: `workflow_dispatch` plus a non-top-of-hour schedule.
   - Default to check-only on schedule; create a PR or commit only when explicitly enabled.
   - Use least-privilege `GITHUB_TOKEN` permissions.
   - Evidence: GitHub scheduled workflows can be delayed or dropped around high-load periods; scheduled workflows run on the default branch only.
 
-- [ ] Add workflow hardening.
+- [x] Add workflow hardening.
   - Add CODEOWNERS or an equivalent review gate for `.github/workflows/**`.
   - Run `zizmor` once workflows exist.
   - Add OpenSSF Scorecard if the repo starts relying on Actions.
   - Pin or monitor third-party actions deliberately, documenting the tradeoff between SHA pinning and Dependabot action alerts.
   - Evidence: GitHub secure-use docs recommend Dependabot/action dependency visibility and Scorecard; GitHub workflow syntax supports explicit token permissions.
 
-- [ ] Add markdown/link/install validation.
+- [x] Add markdown/link/install validation.
   - Validate all `github.com/SysAdminDoc/<repo>` links against GitHub metadata instead of blind HTTP only.
   - Validate all `raw.githubusercontent.com` userscript links against live default branches and files.
   - Validate launch links on `sysadmindoc.github.io`.

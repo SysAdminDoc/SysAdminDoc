@@ -6,9 +6,14 @@ All notable changes to SysAdminDoc will be documented in this file.
 
 - Added: `data/profile-catalog.json` as the canonical catalog source for profile README entries, explicit suppressions, featured/currently-building flags, install metadata, release labels, and manual description overrides.
 - Added: `scripts/sync-profile.ps1` with `-SeedCatalog`, `-Write`, and `-Check` modes. The check mode writes `reports/profile-sync-report.json` and fails on missing active public repos, private/public visibility mistakes, medical-imaging privacy violations, renamed repo redirects, or generated README drift.
+- Added: GitHub Actions automation for scheduled/manual profile sync checks, manual generated-profile PR creation, workflow security auditing with `zizmor`, and OpenSSF Scorecard scanning.
+- Added: `.github/CODEOWNERS` plus Dependabot monitoring for GitHub Actions updates.
+- Hardened: workflow actions are pinned to commit SHAs and checkout credential persistence is disabled; `zizmor` reports no workflow findings locally.
+- Changed: `scripts/sync-profile.ps1 -Check` now validates entrypoint raw URLs, userscript raw URLs, GitHub Pages launch links, and `/releases/latest` redirects.
 - Changed: Regenerated `README.md` from catalog + live GitHub metadata. The profile now claims `178+` active public projects, refreshes current star counts, category counts, featured ranking values, release/download links, and branch-pinned install snippets from metadata.
 - Added: **OpenLumen**, **PhoneFork**, **AI-Usage_Tracker**, **AdapterLock**, **sysadmindoc.github.io**, and **improve-repo** to the generated catalog/profile where visitor-facing.
 - Removed: **EspressoMonkey** duplicate listing after GitHub redirect verification showed it resolves to **ScriptVault**.
+- Fixed: **kindred** now links to its repository instead of a missing GitHub Pages site.
 - Guarded: **RadAtlas**, **Scripts**, **ChanPrep**, **null**, **project-nomad**, **mnamer**, and **DuplicateFF** now have explicit catalog suppression reasons instead of appearing as unexplained drift.
 
 ## [v4.7.0] - 2026-05-11
