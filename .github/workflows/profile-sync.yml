@@ -1,0 +1,94 @@
+name: Profile sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run check only or open a PR with generated profile changes."
+        required: true
+        default: "check"
+        type: choice
+        options:
+          - check
+          - write-pr
+  schedule:
+    - cron: "37 7 * * 2,5"
+
+concurrency:
+  group: profile-sync-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check generated README
+    if: github.event_name != 'workflow_dispatch' || inputs.mode == 'check'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Validate generated profile
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/sync-profile.ps1 -Check
+
+      - name: Upload sync report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: profile-sync-report
+          path: reports/profile-sync-report.json
+          if-no-files-found: warn
+
+  write-pr:
+    name: Open generated README PR
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'write-pr'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Regenerate profile
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ./scripts/sync-profile.ps1 -Write
+          ./scripts/sync-profile.ps1 -Check
+
+      - name: Create pull request
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if (git diff --quiet) {
+            Write-Host "No generated profile changes."
+            exit 0
+          }
+
+          $branch = "automation/profile-sync-${{ github.run_id }}"
+          git switch -c $branch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md reports/profile-sync-report.json
+          git commit -m "chore: sync generated profile"
+          $remote = "https://x-access-token:$env:GH_TOKEN@github.com/${{ github.repository }}.git"
+          git push $remote $branch
+          gh pr create `
+            --base main `
+            --head $branch `
+            --title "chore: sync generated profile" `
+            --body "Regenerates the profile README from data/profile-catalog.json and live GitHub metadata."

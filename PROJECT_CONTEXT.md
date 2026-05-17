@@ -14,8 +14,12 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 - `README.md` is the rendered public profile.
 - `data/profile-catalog.json` is the canonical profile catalog and suppression list.
-- `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata.
+- `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including entrypoint, userscript, launch, and release-link checks.
 - `reports/profile-sync-report.json` is the latest validation report from `scripts/sync-profile.ps1 -Check`.
+- `.github/workflows/profile-sync.yml` runs scheduled/manual profile checks and can open a manual generated-profile PR.
+- `.github/workflows/workflow-security.yml` runs `zizmor` against workflow changes.
+- `.github/workflows/scorecard.yml` runs OpenSSF Scorecard.
+- `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines.
 - `CHANGELOG.md` records profile/catalog releases.
 - `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work was implemented on 2026-05-17 as v4.8.0.
@@ -44,6 +48,8 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - 0 medical-imaging privacy violations in the generated public README.
 - 0 renamed repository redirects.
 - `README.md` in sync with generated output.
+- 0 link validation failures across install entrypoints, raw userscripts, launch URLs, and release redirects.
+- Local `zizmor .github/workflows` returned no findings after pinning workflow actions to commit SHAs and disabling checkout credential persistence.
 
 ## Project Philosophy
 
@@ -72,11 +78,10 @@ The README is now generated static Markdown. The catalog file is the source of t
 
 ## Recommended Next Implementation
 
-1. Add `.github/workflows/profile-sync.yml` in check-only scheduled mode plus manual write mode.
-2. Add workflow hardening: least-privilege token permissions, CODEOWNERS review gate, and `zizmor` verification.
-3. Extend `scripts/sync-profile.ps1 -Check` with link/install validation for raw userscripts, Pages launch links, and release/latest links.
-4. Feed `sysadmindoc.github.io` from the same catalog and move search/filter UX there.
-5. Add topic drift reporting and safe repo-description cleanup.
+1. Feed `sysadmindoc.github.io` from the same catalog and move search/filter UX there.
+2. Add topic drift reporting and safe repo-description cleanup.
+3. Add release/download taxonomy from actual latest-release asset names.
+4. Add quarterly archive/retirement reporting.
 
 ## Research Artifacts
 
