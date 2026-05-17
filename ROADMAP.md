@@ -1,84 +1,162 @@
 # SysAdminDoc Profile Roadmap
 
-Roadmap for the SysAdminDoc GitHub profile README and companion portfolio page (`sysadmindoc.github.io`). Goal: keep the profile current, discoverable, and reflective of 170+ active repos.
+Last research refresh: 2026-05-17
+Evidence bundle: `.ai/research/2026-05-17/`
+Current repo version in local working notes: v4.7.0
+Current HEAD at research time: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 
-## Planned Features
+## Current Diagnosis
 
-### Content & layout
-- Star-count automation (GitHub Actions nightly cron updates `&#11088; N` badges from live API)
-- Auto-regenerate repo tables from the GitHub API with frontmatter-driven category tags
-- Featured Projects carousel with live screenshots (pulled from each repo's `screenshot.png`)
-- "New this week" strip showing repos tagged in the last 7 days
-- Top-commit-velocity strip for repos in active development
+This repository is the public GitHub profile README for `SysAdminDoc`. The README is currently a hand-maintained catalog of public projects with hardcoded category counts, star counts, install snippets, release download links, and featured-project rankings.
 
-### Navigation
-- TOC jump-links per category (anchor nav at top)
-- Search box (client-side, fuzzy across repo names + descriptions) via a tiny inline JS snippet
-- Filter chips (language, platform, status) driven by JS + data attributes
-- Permalink badges per repo for easy linking in other READMEs
+Live GitHub metadata gathered on 2026-05-17 showed:
 
-### Discoverability
-- Link to the curated portfolio site with per-project deep pages
-- Submit to Awesome lists (awesome-powershell, awesome-userscripts, awesome-android, awesome-stylus)
-- Canonical LinkTree-style landing page mirroring the profile for social bios
-- Pinned repo strategy revisit every quarter (rotate to currently-active projects)
+- 178 active public repos visible to `gh repo list SysAdminDoc --visibility public`.
+- 166 unique `github.com/SysAdminDoc/...` repo mentions in `README.md`.
+- 13 active public repos not linked as GitHub repo entries in the README sample set, including `OpenLumen`, `PhoneFork`, `AI-Usage_Tracker`, `AdapterLock`, `mnamer`, `improve-repo`, `Scripts`, `RadAtlas`, `DuplicateFF`, `ChanPrep`, `null`, and `project-nomad`.
+- 18 displayed star counts drifted from live GitHub values.
+- 40 mentioned repos have a `latestRelease` in GitHub metadata but no `/releases/latest` link in the README.
+- 0 clone-snippet default-branch mismatches were found.
+- `.github/` does not exist, so there is no automated README validation, nightly sync, link audit, or workflow security posture yet.
 
-### Metrics
-- Per-language stars + downloads rollup
-- Weekly release activity chart (from Releases API)
-- Contributors + community PR counter for repos that accept PRs
-- Total lines of code / total commits milestone markers
+One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
-### Tooling
-- One script (`scripts/sync-profile.ps1`) that:
-  - Regenerates README stars/tables from the GitHub API
-  - Updates the featured-project list based on star velocity
-  - Commits if changed, opens PR if gated
-- CI workflow that runs the sync nightly at 05:00 UTC and on-demand via `workflow_dispatch`
-- Lint step that checks every mentioned repo URL responds 200
+## P0 - Stabilize Catalog Truth
 
-## Competitive Research
+- [ ] Build a canonical catalog source file.
+  - Create `data/profile-catalog.json` or `data/profile-catalog.yml` with one row per public catalog entry.
+  - Fields: `repo`, `category`, `includeInReadme`, `includeInPortfolio`, `branch`, `entrypoint`, `installKind`, `downloadKind`, `descriptionOverride`, `featured`, `currentlyBuilding`, `privateReason`, `notes`.
+  - Seed it from the current README plus live GitHub metadata.
+  - Evidence: README drift counts above; existing clone-install-run standard in `CLAUDE.md`; GitHub REST/GraphQL metadata exposes name, description, topics, default branch, stars, releases, and visibility.
 
-- **Awesome-lists ecosystem** - structured, badged, categorized; this profile already mirrors the feel. Add the "Awesome-list" GitHub topic tag to the main repos so they surface in cross-awesome aggregators.
-- **simple-icons/skill-icons** - already used; keep icons current and expand set if new languages adopted (e.g. Zig, Rust).
-- **Github-readme-stats / streak-stats** - already embedded; consider caching via the user's own server if the public instance rate-limits.
-- **Standalone portfolio pages** (like hyperscript / ben awad / theo) - typography-heavy, project-first pages do better than wall-of-badges. The separate `sysadmindoc.github.io` can lean into storytelling while the profile README stays catalog-style.
+- [ ] Implement `scripts/sync-profile.ps1`.
+  - Read catalog data plus GitHub metadata using `gh`.
+  - Regenerate README project sections, category counts, star counts, featured rankings, release links, and branch-pinned install snippets.
+  - Preserve manual description overrides where GitHub repo descriptions are empty, too long, stale, or less useful for visitors.
+  - Refuse to include private repos in the generated public README.
+  - Evidence: `README.md` hardcodes every category; live metadata found 13 missing active public repos, 18 star mismatches, and 40 release-link gaps.
 
-## Nice-to-Haves
+- [ ] Add a strict validation mode before changing README content.
+  - `scripts/sync-profile.ps1 -Check` should exit non-zero on stale stars, missing public repos, private/renamed/deleted repo links, branch mismatches, missing release links for qualifying artifacts, and count drift.
+  - Keep a JSON report artifact for review.
+  - Evidence: current manual state already has drift; clone branch audit was clean and should stay guarded.
 
-- GraphQL-powered "currently coding" card (latest commit timestamp + repo)
-- RSS feed of profile activity for aggregation elsewhere
-- Embedded Spotify "now playing" (Slunder artist link) widget
-- Link to VaultBox/NeonNote release feeds as small badges
-- Optional dark/light theme toggle for the portfolio site (default dark per CLAUDE.md)
-- Dedicated `/press-kit` page on the portfolio site with logos, taglines, links
-- Automated "retirement" marker that archives and badges stale repos (>6 months inactive per CLAUDE.md)
+- [ ] Ship a v4.8.0 catalog refresh from the generated output.
+  - Resolve `EspressoMonkey`, which currently resolves through GitHub metadata as `ScriptVault`.
+  - Add or intentionally suppress `OpenLumen`, `PhoneFork`, `AI-Usage_Tracker`, and other newly public repos with explicit catalog reasons.
+  - Refresh star counts and featured-project ordering from live values.
+  - Recalculate the public-project claim from live active-public count.
+  - Evidence: `OpenCut` is shown as 10 stars in one section and 16 live; `win11-nvme-driver-patcher` is shown as 35 in one section and 40 live.
 
-## Open-Source Research (Round 2)
+## P0 - Guard Against Public/Private Mistakes
 
-### Related OSS Projects
-- https://github.com/awesome-foss/awesome-sysadmin — canonical curated list of FOSS sysadmin tools; inspiration for portfolio categorization
-- https://github.com/kahun/awesome-sysadmin — alternative taxonomy (build, configuration, monitoring, service-discovery)
-- https://github.com/TemporalAgent7/awesome-windows-privacy — Windows-specific tooling curation style
-- https://github.com/rickstaa/awesome-adsb — niche-focused awesome list (good "awesome-sysadmindoc" shape)
-- https://github.com/abhisheknaiidu/awesome-github-profile-readme — dynamic profile READMEs, SVG typing, stat cards
-- https://github.com/anuraghazra/github-readme-stats — pluggable profile cards (stars, langs, streaks)
-- https://github.com/DenverCoder1/readme-typing-svg — the typing SVG already in use; worth upstream-watching for new params
-- https://github.com/topics/sysadmin — live browse of what's trending in the space
+- [ ] Add a public-readme privacy gate.
+  - Block any README row whose live visibility is not `PUBLIC`.
+  - Block medical/X-ray/PACS/DICOM-related repos from public listing unless an explicit allowlist entry exists.
+  - Emit a separate private-repo compliance report but do not publish private names in the public README unless already intentionally public and verified safe.
+  - Evidence: v4.7.0 removed private TeamStation and DICOM-PACS-Migrator because public links 404 for visitors; global rules require X-ray and medical-imaging repos to stay private.
 
-### Features to Borrow
-- Category-taxonomy JSON driving the portfolio site (awesome-foss/awesome-sysadmin pattern) so adding a repo auto-places it on the site
-- Auto-generated "awesome-SysAdminDoc" README sourced from the same repo metadata (badges, tagline, lang, stars) — single source of truth
-- Stale-repo detection via GitHub API `pushed_at` with automatic "archived" badge (borrowed from awesome-list maintenance scripts)
-- Deep-link search across all 170+ repos (Pagefind static index) — borrow from awesome-local-llm style static search
-- Per-repo screenshot lightbox via `github-readme-stats`-style SVG embeds to avoid heavy images
-- Tag cloud driven by repo topics (GitHub Topics API) for portfolio filtering — awesome-list convention
-- RSS feed of new releases across the portfolio (one-click subscribe for followers) — awesome-foss pattern
-- README-diff bot that flags version-string drift across badges, CHANGELOG, and manifest (borrow `readme-typing-svg` CI pattern)
+- [ ] Add a renamed/deleted repo resolver.
+  - Detect GitHub redirects and canonical repository names.
+  - Fail validation when a README link points to a renamed repo unless the catalog explicitly records the alias.
+  - Evidence: `gh repo view SysAdminDoc/EspressoMonkey` returned canonical repo data for `ScriptVault`, while README still links `EspressoMonkey`.
 
-### Patterns & Architectures Worth Studying
-- Awesome-list meta-format: single markdown with strict heading levels + CI linter (`awesome-lint`) — enforces link health, dedup, ordering
-- Profile README composition: multiple SVG widgets stitched together (typing + stats + streak + trophies) with external renderers — zero client JS
-- Topic-driven discoverability: GitHub Topics as both filter axis and SEO signal — every repo gets 5-10 canonical topics
-- Shields.io dynamic badges with JSON endpoints (self-hosted on GitHub Pages) for custom metrics (build count, last-release age)
-- `gh-pages` + Pagefind for static full-text search without a backend — ideal for a 170-repo portfolio
+## P1 - Automate Safely
+
+- [ ] Add `.github/workflows/profile-sync.yml`.
+  - Triggers: `workflow_dispatch` plus a non-top-of-hour schedule.
+  - Default to check-only on schedule; create a PR or commit only when explicitly enabled.
+  - Use least-privilege `GITHUB_TOKEN` permissions.
+  - Evidence: GitHub scheduled workflows can be delayed or dropped around high-load periods; scheduled workflows run on the default branch only.
+
+- [ ] Add workflow hardening.
+  - Add CODEOWNERS or an equivalent review gate for `.github/workflows/**`.
+  - Run `zizmor` once workflows exist.
+  - Add OpenSSF Scorecard if the repo starts relying on Actions.
+  - Pin or monitor third-party actions deliberately, documenting the tradeoff between SHA pinning and Dependabot action alerts.
+  - Evidence: GitHub secure-use docs recommend Dependabot/action dependency visibility and Scorecard; GitHub workflow syntax supports explicit token permissions.
+
+- [ ] Add markdown/link/install validation.
+  - Validate all `github.com/SysAdminDoc/<repo>` links against GitHub metadata instead of blind HTTP only.
+  - Validate all `raw.githubusercontent.com` userscript links against live default branches and files.
+  - Validate launch links on `sysadmindoc.github.io`.
+  - Keep the existing clone-install-run snippets branch-pinned.
+  - Evidence: current branch audit found 0 mismatches, but prior changelog entries show 16 broken one-liners were fixed in v4.2.0.
+
+## P1 - Move Interactive Discovery To The Portfolio
+
+- [ ] Feed `sysadmindoc.github.io` from the same catalog data.
+  - Publish a generated `projects.json` from this repo or consume it from the portfolio repo.
+  - Keep the README as the compact catalog and make the portfolio the rich searchable experience.
+  - Evidence: GitHub README HTML is sanitized; Pagefind supports static search without backend infrastructure.
+
+- [ ] Add Pagefind or an equivalent static search to the portfolio site.
+  - Search repo names, descriptions, categories, topics, platform, release availability, and currently-building status.
+  - Use filters and sorting on the portfolio, not in the GitHub README.
+  - Evidence: Pagefind is designed for static sites and chunks search indexes for low-bandwidth browser search.
+
+- [ ] Add "new", "recently updated", and "has download" portfolio views.
+  - Derive from `pushedAt`, `latestRelease`, release asset type, topics, and catalog categories.
+  - Evidence: live repo metadata already contains enough fields to generate this.
+
+## P1 - Improve Discoverability
+
+- [ ] Add topic coverage and topic drift reporting.
+  - Generate recommended topics per repo from catalog category, language, platform, and key feature tags.
+  - Report missing topics for public repos; apply topics with `gh api` only after review.
+  - Evidence: GitHub topics improve repository discovery; the live audit found many recent active public repos without topics.
+
+- [ ] Submit focused projects to relevant awesome lists after metadata is clean.
+  - Candidates: sysadmin utilities, Android apps, browser extensions, local-first tools, and profile/portfolio tooling.
+  - Do this selectively; awesome-list maintainers expect curated, personally recommended resources.
+  - Evidence: `awesome-sysadmin`, `awesome-github-profile-readme`, and awesome-list tooling reward clean taxonomy, stable descriptions, and link hygiene.
+
+- [ ] Add consistent repo descriptions before README sync.
+  - Fix empty public repo descriptions for `SysAdminDoc`, `AdapterLock`, and `facebook-exit-guide`.
+  - Prefer GitHub repo descriptions as the short source when they are accurate.
+  - Evidence: live metadata found empty descriptions in active public repos.
+
+## P2 - Quality And Trust Signals
+
+- [ ] Add a release/download taxonomy.
+  - Classify APK, EXE, ZIP, XPI, CRX, userscript, source-only, and no-release repos.
+  - Generate download labels consistently from release assets rather than manually curated guesses.
+  - Evidence: 40 mentioned repos have latest releases but no README release/latest link.
+
+- [ ] Add dependency/status badges only where they carry signal.
+  - Avoid badge overload in the profile README.
+  - Prefer a small generated summary over many third-party widgets.
+  - Consider self-hosting GitHub readme stats if rate limits or uptime become a recurring problem.
+  - Evidence: current README already depends on multiple external image services; github-readme-stats documents self-hosting for rate-limit and caching control.
+
+- [ ] Add contributor/community signals if public contribution grows.
+  - Evaluate All Contributors or a generated contributor summary across public repos.
+  - Keep this below project discovery, because most repos are currently personal tools.
+  - Evidence: All Contributors automates README contributor recognition, but the current portfolio goal is project discoverability first.
+
+- [ ] Add a quarterly archive/retirement review.
+  - Mark stale repos in the generated catalog.
+  - Keep forked or intentionally dormant repos out of the main featured set.
+  - Evidence: global working rules already call for archive review after 6+ months of inactivity.
+
+## Verification Standard
+
+Before a generated README refresh is shipped:
+
+- `git status --short --branch`
+- `git log -10 --oneline --decorate`
+- `scripts/sync-profile.ps1 -Check`
+- link audit for GitHub repo URLs, release/latest URLs, raw userscript URLs, and GitHub Pages launch URLs
+- clone snippet audit for default branch and entrypoint existence
+- privacy gate report with zero public README links to private repos
+- markdown render smoke check on GitHub after push
+
+## Source Index
+
+The full source register is `.ai/research/2026-05-17/SOURCE_REGISTER.md`. High-impact sources used in this roadmap include:
+
+- Local: `README.md`, `CHANGELOG.md`, `CLAUDE.md`, previous `ROADMAP.md`, `setup.ps1`, `git log`, `gh repo view`, `gh repo list`.
+- GitHub Docs: profile README requirements, repository README behavior, repository topics, Actions schedule and permissions, secure Actions use.
+- GitHub Markup: rendered README HTML is sanitized before display.
+- Microsoft Learn: WinGet install flags and PowerShell execution-policy behavior.
+- Ecosystem: Pagefind, Shields.io, awesome-lint, GitHub Profile README Generator, awesome-github-profile-readme, awesome-sysadmin, OpenSSF Scorecard, zizmor.
