@@ -20,6 +20,7 @@ Live GitHub metadata gathered on 2026-05-17 showed:
 - 170 catalog entries included in the public README and 8 public repos explicitly suppressed with reasons.
 - `.github/` now contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
 - `scripts/sync-profile.ps1 -Check` now validates install entrypoints, raw userscripts, GitHub Pages launch links, and release/latest redirects.
+- Root `projects.json` is generated from the same catalog for portfolio consumption.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
@@ -87,7 +88,7 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
 
 ## P1 - Move Interactive Discovery To The Portfolio
 
-- [ ] Feed `sysadmindoc.github.io` from the same catalog data.
+- [x] Feed `sysadmindoc.github.io` from the same catalog data.
   - Publish a generated `projects.json` from this repo or consume it from the portfolio repo.
   - Keep the README as the compact catalog and make the portfolio the rich searchable experience.
   - Evidence: GitHub README HTML is sanitized; Pagefind supports static search without backend infrastructure.
