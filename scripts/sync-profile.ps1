@@ -22,7 +22,9 @@ if (-not $SeedCatalog -and -not $Write -and -not $Check) {
 }
 
 $Owner = "SysAdminDoc"
-$MedicalPattern = '(?i)(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)'
+# Word-boundary anchored so substrings (e.g. "dose" inside "glucose"/"overdose")
+# do not false-flag a benign public repo as medical-imaging.
+$MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -424,23 +426,33 @@ function ConvertTo-RawGitHubUrl {
 }
 
 function Test-HttpUrl {
-    param([string]$Url)
+    param([string]$Url, [int]$TimeoutSec = 12, [int]$Retries = 2)
 
-    try {
-        $response = Invoke-WebRequest -Uri $Url -Method Head -MaximumRedirection 5 -TimeoutSec 20
-        return [ordered]@{ ok = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400); status = $response.StatusCode; error = $null }
-    } catch {
-        try {
-            $response = Invoke-WebRequest -Uri $Url -Method Get -MaximumRedirection 5 -TimeoutSec 20
-            return [ordered]@{ ok = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400); status = $response.StatusCode; error = $null }
-        } catch {
-            $status = $null
-            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
-                $status = [int]$_.Exception.Response.StatusCode
+    # Returns ok/status/error plus a `fatal` flag. Only a definitive dead-link
+    # response (404/410) is fatal; transient blocks (403/429/5xx/timeout) are
+    # reported as non-fatal warnings so a flaky host does not fail the whole gate.
+    $status = $null
+    $err = $null
+    for ($attempt = 1; $attempt -le $Retries; $attempt++) {
+        foreach ($method in @('Head', 'Get')) {
+            try {
+                $response = Invoke-WebRequest -Uri $Url -Method $method -MaximumRedirection 5 -TimeoutSec $TimeoutSec
+                $code = [int]$response.StatusCode
+                return [ordered]@{ ok = ($code -ge 200 -and $code -lt 400); status = $code; error = $null; fatal = $false }
+            } catch {
+                $err = $_.Exception.Message
+                $status = $null
+                if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+                    $status = [int]$_.Exception.Response.StatusCode
+                }
+                if ($status -eq 404 -or $status -eq 410) {
+                    return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
+                }
             }
-            return [ordered]@{ ok = $false; status = $status; error = $_.Exception.Message }
         }
+        if ($attempt -lt $Retries) { Start-Sleep -Seconds $attempt }
     }
+    return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false }
 }
 
 function Test-LinkTargets {
@@ -450,6 +462,19 @@ function Test-LinkTargets {
     )
 
     $failures = New-Object System.Collections.Generic.List[object]
+    $warnings = New-Object System.Collections.Generic.List[object]
+
+    $record = {
+        param($entry, $type, $url, $result)
+        $row = [ordered]@{
+            repo = $entry.repo
+            type = $type
+            url = $url
+            status = $result.status
+            error = $result.error
+        }
+        if ($result.fatal) { $failures.Add($row) } else { $warnings.Add($row) }
+    }
 
     foreach ($entry in $Included) {
         $meta = Get-RepoMeta $entry $RepoLookup
@@ -459,61 +484,29 @@ function Test-LinkTargets {
         if (-not [string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) {
             $url = ConvertTo-RawGitHubUrl -Repo $repoForUrl -Branch $branch -Path ([string]$entry.entrypoint)
             $result = Test-HttpUrl $url
-            if (-not $result.ok) {
-                $failures.Add([ordered]@{
-                    repo = $entry.repo
-                    type = "entrypoint"
-                    url = $url
-                    status = $result.status
-                    error = $result.error
-                })
-            }
+            if (-not $result.ok) { & $record $entry "entrypoint" $url $result }
         }
 
         if (-not [string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) {
             $url = [string]$entry.userscriptUrl
             $result = Test-HttpUrl $url
-            if (-not $result.ok) {
-                $failures.Add([ordered]@{
-                    repo = $entry.repo
-                    type = "userscript"
-                    url = $url
-                    status = $result.status
-                    error = $result.error
-                })
-            }
+            if (-not $result.ok) { & $record $entry "userscript" $url $result }
         }
 
         if (-not [string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) {
             $url = [string]$entry.liveUrl
             $result = Test-HttpUrl $url
-            if (-not $result.ok) {
-                $failures.Add([ordered]@{
-                    repo = $entry.repo
-                    type = "launch"
-                    url = $url
-                    status = $result.status
-                    error = $result.error
-                })
-            }
+            if (-not $result.ok) { & $record $entry "launch" $url $result }
         }
 
         if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
             $releaseUrl = Get-ReleaseUrl $entry
             $result = Test-HttpUrl $releaseUrl
-            if (-not $result.ok) {
-                $failures.Add([ordered]@{
-                    repo = $entry.repo
-                    type = "release"
-                    url = $releaseUrl
-                    status = $result.status
-                    error = $result.error
-                })
-            }
+            if (-not $result.ok) { & $record $entry "release" $releaseUrl $result }
         }
     }
 
-    return $failures.ToArray()
+    return [ordered]@{ failures = $failures.ToArray(); warnings = $warnings.ToArray() }
 }
 
 function Get-DownloadLabel {
@@ -1399,8 +1392,11 @@ function Test-ProfileState {
     $projectsInSync = (& $normalize $currentProjects) -eq (& $normalize $ExpectedProjects)
 
     $linkFailures = @()
+    $linkWarnings = @()
     if (-not $Offline -and -not $SkipLinkValidation) {
-        $linkFailures = @(Test-LinkTargets -Included $included -RepoLookup $repoLookup)
+        $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup
+        $linkFailures = @($linkResult.failures)
+        $linkWarnings = @($linkResult.warnings)
     }
 
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
@@ -1417,6 +1413,7 @@ function Test-ProfileState {
         renamedRepoRedirects = $redirects
         linkValidationSkipped = [bool]($Offline -or $SkipLinkValidation)
         linkValidationFailures = @($linkFailures)
+        linkValidationWarnings = @($linkWarnings)
         readmeExperienceChecks = $experienceChecks
     }
 
@@ -1426,6 +1423,10 @@ function Test-ProfileState {
         Report = $report
     }
 }
+
+# Test seam: when dot-sourced (e.g. by Pester), load the functions above and stop
+# before running the live-metadata fetch / generation below.
+if ($MyInvocation.InvocationName -eq '.') { return }
 
 $repos = if ($Offline) { @() } else { Get-GitHubRepos }
 
