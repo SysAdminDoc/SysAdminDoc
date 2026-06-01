@@ -178,7 +178,7 @@ function Get-GitHubRepos {
         return @()
     }
 
-    $args = @(
+    $ghArgs = @(
         "repo", "list", $Owner,
         "--visibility", "public",
         "--no-archived",
@@ -188,7 +188,7 @@ function Get-GitHubRepos {
     $lastOutput = $null
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
-        $output = & gh @args 2>&1
+        $output = & gh @ghArgs 2>&1
         $lastOutput = (($output | Out-String).Trim())
 
         if ($LASTEXITCODE -eq 0) {
@@ -442,8 +442,14 @@ function Test-HttpUrl {
             } catch {
                 $err = $_.Exception.Message
                 $status = $null
-                if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
-                    $status = [int]$_.Exception.Response.StatusCode
+                # StrictMode-safe: not every exception type (e.g. DNS failures) exposes
+                # a Response property, so probe for it before dereferencing.
+                $exception = $_.Exception
+                if ($exception.PSObject.Properties.Name -contains 'Response' -and $exception.Response) {
+                    $response = $exception.Response
+                    if ($response.PSObject.Properties.Name -contains 'StatusCode' -and $response.StatusCode) {
+                        $status = [int]$response.StatusCode
+                    }
                 }
                 if ($status -eq 404 -or $status -eq 410) {
                     return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
