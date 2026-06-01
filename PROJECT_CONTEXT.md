@@ -1,6 +1,6 @@
 # SysAdminDoc Project Context
 
-Last consolidated: 2026-05-17
+Last consolidated: 2026-06-01
 Repository: `C:\Users\--\repos\SysAdminDoc`
 Remote: `https://github.com/SysAdminDoc/SysAdminDoc.git`
 
@@ -23,15 +23,15 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work was implemented on 2026-05-17 as v4.8.0.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, and the generated premium README/action pass shipped as v4.9.0 on 2026-06-01.
 - `AGENTS.md` and `CLAUDE.md` exist locally but are ignored by git. `AGENTS.md` points to `CLAUDE.md`; `CLAUDE.md` is the local working-notes file.
-- `.github/` does not currently exist.
+- `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
 ## Current Verified State
 
 Research run date: 2026-05-17
-P0 implementation date: 2026-05-17
-Version: v4.8.0
+Latest sync date: 2026-06-01
+Version: v4.9.0
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -40,17 +40,18 @@ GitHub topics on this repo: `github-profile`, `portfolio`, `readme`
 
 Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 
-- 178 active public repositories under `SysAdminDoc`.
-- 178 catalog entries total.
-- 170 entries included in the README.
-- 8 public repos explicitly suppressed with reasons.
+- 184 active public repositories under `SysAdminDoc`.
+- 187 catalog entries total.
+- 177 entries included in the README.
+- 9 entries explicitly suppressed with reasons.
 - 0 missing public repos.
 - 0 private visibility violations.
 - 0 medical-imaging privacy violations in the generated public README.
 - 0 renamed repository redirects.
 - `README.md` in sync with generated output.
 - 0 link validation failures across install entrypoints, raw userscripts, launch URLs, and release redirects.
-- `projects.json` is in sync with the catalog and contains 170 public portfolio-ready projects plus 8 explicit suppressions.
+- `readmeExperienceChecks` pass: Start Here section, Catalog Snapshot, featured/currently-building action columns, category anchors, primary-action coverage, and labeled download buttons are all present.
+- `projects.json` is in sync with the catalog and contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata for downstream portfolio rendering.
 - Local `zizmor .github/workflows` returned no findings after pinning workflow actions to commit SHAs and disabling checkout credential persistence.
 
 ## Project Philosophy
@@ -76,7 +77,9 @@ The README should be:
 
 ## Architecture
 
-The README is now generated static Markdown. The catalog file is the source of truth for visitor-facing inclusion, suppression decisions, install snippets, release-link labels, featured rows, category placement, and currently-building rows. The sync script joins that catalog with live `gh repo list` metadata for stars, default branches, releases, visibility, descriptions, topics, and primary languages.
+The README is now generated static Markdown. The catalog file is the source of truth for visitor-facing inclusion, suppression decisions, install snippets, release-link labels, featured rows, category placement, and currently-building rows. The sync script joins that catalog with live GitHub metadata for stars, default branches, releases, visibility, descriptions, topics, and primary languages.
+
+As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub REST metadata when GraphQL returns transient 502 errors. The README includes generated Start Here and Catalog Snapshot sections, action columns for Featured/Currently Building rows, category anchors, and category previews. The generated project feed includes `primaryAction`, `hasDownload`, `hasLiveDemo`, and `hasDirectInstall`.
 
 ## Recommended Next Implementation
 

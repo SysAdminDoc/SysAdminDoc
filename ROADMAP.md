@@ -2,25 +2,26 @@
 
 Last research refresh: 2026-05-17
 Evidence bundle: `.ai/research/2026-05-17/`
-Current repo version: v4.8.0
+Latest profile sync: 2026-06-01
+Current repo version: v4.9.0
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.8.0, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.0, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`.
 
-Live GitHub metadata gathered on 2026-05-17 showed:
+Live GitHub metadata gathered on 2026-06-01 showed:
 
-- 178 active public repos visible to `gh repo list SysAdminDoc --visibility public`.
-- 166 unique `github.com/SysAdminDoc/...` repo mentions in `README.md`.
-- 0 active public repos missing from the generated catalog after v4.8.0.
+- 184 active public repos visible through GitHub metadata.
+- 177 catalog entries included in the public README and 9 public/private-state entries explicitly suppressed with reasons.
+- 0 active public repos missing from the generated catalog after v4.9.0.
 - 0 renamed-repo redirects after removing the duplicate `EspressoMonkey` profile row.
 - 0 private visibility or medical-imaging privacy violations in `scripts/sync-profile.ps1 -Check`.
-- 170 catalog entries included in the public README and 8 public repos explicitly suppressed with reasons.
 - `.github/` now contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
-- `scripts/sync-profile.ps1 -Check` now validates install entrypoints, raw userscripts, GitHub Pages launch links, and release/latest redirects.
-- Root `projects.json` is generated from the same catalog for portfolio consumption.
+- `scripts/sync-profile.ps1 -Check` now validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
+- Root `projects.json` is generated from the same catalog for portfolio consumption and now includes structured primary-action metadata.
+- GitHub GraphQL metadata was returning HTTP 502 during the v4.9.0 pass; the sync script now retries and falls back to REST metadata.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
@@ -103,6 +104,13 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
   - Evidence: live repo metadata already contains enough fields to generate this.
 
 ## P1 - Improve Discoverability
+
+- [x] Add premium generated README navigation and action clarity.
+  - Generate a compact Start Here table for visitor intent routing.
+  - Generate a Catalog Snapshot with current repo/readme/action/trust-state signals.
+  - Add action columns to featured and currently-building rows.
+  - Add stable category anchors and "Start with" category previews.
+  - Evidence: v4.9.0 full `scripts/sync-profile.ps1 -Check` passed with zero link failures and passing `readmeExperienceChecks`.
 
 - [ ] Add topic coverage and topic drift reporting.
   - Generate recommended topics per repo from catalog category, language, platform, and key feature tags.
