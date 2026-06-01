@@ -3,3 +3,8 @@
 *.tmp
 .env
 CLAUDE.md
+AGENTS.md
+CODEX_CHANGELOG.md
+.claude/
+.ai/
+RESEARCH_FEATURE_PLAN.md

@@ -60,7 +60,7 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
   - Block any README row whose live visibility is not `PUBLIC`.
   - Block medical/X-ray/PACS/DICOM-related repos from public listing unless an explicit allowlist entry exists.
   - Emit a separate private-repo compliance report but do not publish private names in the public README unless already intentionally public and verified safe.
-  - Evidence: v4.7.0 removed private TeamStation and DICOM-PACS-Migrator because public links 404 for visitors; global rules require X-ray and medical-imaging repos to stay private.
+  - Evidence: v4.7.0 removed two private repositories because their public links 404 for visitors; global rules require X-ray and medical-imaging repos to stay private.
 
 - [x] Add a renamed/deleted repo resolver.
   - Detect GitHub redirects and canonical repository names.

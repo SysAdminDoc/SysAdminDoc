@@ -44,8 +44,8 @@ All notable changes to SysAdminDoc will be documented in this file.
 
 ## [v4.7.0] - 2026-05-11
 
-- Removed: **TeamStation** from Native Desktop Applications — repo went PRIVATE on GitHub, public link was 404'ing for visitors.
-- Removed: **DICOM-PACS-Migrator** from Python Desktop Applications — repo is PRIVATE (X-ray repos must be private per global rule), public link was 404'ing.
+- Removed: a private desktop app from Native Desktop Applications — repo went PRIVATE on GitHub, public link was 404'ing for visitors.
+- Removed: a private imaging tool from Python Desktop Applications — repo is PRIVATE (medical-imaging repos must stay private per global rule), public link was 404'ing.
 - Added: **HurricaneMap** + **ApocalypseWatch** to Web Applications.
 - Added: **OpenSwift** + **SwiftFloris** + **OpenTasker** to Android Applications.
 - Added: **Devicer** + **Snapture** + **OrganizeContacts** to Native Desktop Applications (all C# / .NET 10 WPF).
@@ -66,7 +66,7 @@ All notable changes to SysAdminDoc will be documented in this file.
 - Added: **CallShield** restored to Android Applications — repo is public again after being temporarily private (removed in v4.0.0).
 - Changed: Section counts — Browser Extensions 21 → 22, Android 12 → 14.
 - Changed: Featured Projects table — refreshed star counts (nvme-patcher 35 → 36, OpenCut 10 → 11, VideoSubtitleRemover 9 → 10).
-- Changed: "Currently Building" table — replaced stale lineup (MyPortfolio / NovaCut / Astra-Deck / DICOM-PACS-Migrator) with the current high-velocity set: UniversalConverterX (C#/.NET 10), FileOrganizer (C#/Python WinUI 3 shell), AppManagerNG (Kotlin), Vantage (JavaScript). DICOM-PACS-Migrator is private and was 404'ing for visitors.
+- Changed: "Currently Building" table — replaced stale lineup (MyPortfolio / NovaCut / Astra-Deck / a private imaging tool) with the current high-velocity set: UniversalConverterX (C#/.NET 10), FileOrganizer (C#/Python WinUI 3 shell), AppManagerNG (Kotlin), Vantage (JavaScript). That imaging tool is private and was 404'ing for visitors.
 
 ## [v4.5.0] - 2026-04-26
 
@@ -93,7 +93,7 @@ All notable changes to SysAdminDoc will be documented in this file.
 
 - Fixed: 16 broken one-liner install snippets after audit of all 87 README install commands
 - Fixed: Branch errors (4) — HEICShift, LlamaLink, GmailDownloader, ClearGem default branch is `master`, not `main`
-- Fixed: Filename renames/case (10) — NVMe patcher (drop `_v3.0.0`), EXTRACTORX → ExtractorX, AI-Model-Compass → ai_model_compass, DICOM-PACS-Migrator → dicom_migrator, Stock-Video-Collector → artlist_scraper, QuickFind/StreamKeep case
+- Fixed: Filename renames/case — NVMe patcher (drop `_v3.0.0`), EXTRACTORX → ExtractorX, AI-Model-Compass → ai_model_compass, Stock-Video-Collector → artlist_scraper, QuickFind/StreamKeep case
 - Fixed: SwiftShot installer moved to `App/` subfolder
 - Changed: 6 package-launcher snippets converted from single-file `irm | python` to git-clone snippets — Tunerize, project-nomad-desktop, UniFile, FileOrganizer, Bookmark-Organizer-Pro, StreamKeep (each refactored into multi-file packages where the launcher script imports siblings)
 
@@ -101,10 +101,10 @@ All notable changes to SysAdminDoc will be documented in this file.
 
 - Changed: Refresh star counts (nvme-patcher 35, OpenCut 10, VideoSubtitleRemover 9, Astra-Deck 8, ZeusWatch/NovaCut 6, DefenderControl 4, etc.)
 - Changed: Re-rank Featured Projects by current stars
-- Added: 13 missing repos — MyPortfolio, LocalChromeStore, LocalDesktopStore, LocalAndroidStore, TeamStation, Images, one-ui-home-clone, Tunerize, Vertigo, PromptCompanion, AmazonEnhanced, DisableDefender, SunoJump
+- Added: 13 missing repos — MyPortfolio, LocalChromeStore, LocalDesktopStore, LocalAndroidStore, Images, one-ui-home-clone, Tunerize, Vertigo, PromptCompanion, AmazonEnhanced, DisableDefender, SunoJump
 - Added: octopus-factory, Vigil (fork), TagStudio (fork) to Misc
 - Removed: ChanPrep, Scripts (matched portfolio site listing)
-- Changed: Currently Building swap — feature MyPortfolio + DICOM-PACS-Migrator
+- Changed: Currently Building swap — feature MyPortfolio + a private imaging tool
 - Changed: Section counts updated (PS 28, Py 42, Web 26, Ext 21, Android 12, Desktop 10, Misc 6)
 - Changed: Update repo claim 170+ to 165+ (matches public, non-archived count)
 
