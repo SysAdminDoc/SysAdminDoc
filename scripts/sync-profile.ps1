@@ -107,13 +107,107 @@ function ConvertTo-CategorySlug {
     return $null
 }
 
+function Get-GitHubReposFromRest {
+    if ($Offline) {
+        return @()
+    }
+
+    $allRepos = New-Object System.Collections.Generic.List[object]
+    $page = 1
+    do {
+        $repoJson = & gh api "users/$Owner/repos?per_page=100&page=$page" 2>&1
+        $repoOutput = (($repoJson | Out-String).Trim())
+        if ($LASTEXITCODE -ne 0) {
+            throw "REST repo metadata fallback failed on page $page. Last gh output: $repoOutput"
+        }
+
+        $pageRepos = @($repoOutput | ConvertFrom-Json)
+        foreach ($repo in $pageRepos) {
+            if (-not $repo.archived -and -not $repo.private) {
+                $allRepos.Add($repo)
+            }
+        }
+        $page++
+    } while ($pageRepos.Count -eq 100)
+
+    $mapped = New-Object System.Collections.Generic.List[object]
+    foreach ($repo in $allRepos) {
+        $release = $null
+        $releaseJson = & gh api "repos/$Owner/$($repo.name)/releases/latest" 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $releaseOutput = (($releaseJson | Out-String).Trim())
+            if (-not [string]::IsNullOrWhiteSpace($releaseOutput)) {
+                $releaseData = $releaseOutput | ConvertFrom-Json
+                $release = [pscustomobject]@{
+                    tagName = $releaseData.tag_name
+                    url = $releaseData.html_url
+                    name = $releaseData.name
+                    publishedAt = $releaseData.published_at
+                }
+            }
+        }
+
+        $topics = @()
+        if ($repo.topics) {
+            $topics = @($repo.topics | ForEach-Object { [pscustomobject]@{ name = $_ } })
+        }
+
+        $mapped.Add([pscustomobject]@{
+            name = $repo.name
+            description = $repo.description
+            stargazerCount = [int]$repo.stargazers_count
+            defaultBranchRef = [pscustomobject]@{ name = $repo.default_branch }
+            latestRelease = $release
+            isPrivate = [bool]$repo.private
+            visibility = "PUBLIC"
+            isArchived = [bool]$repo.archived
+            repositoryTopics = $topics
+            pushedAt = $repo.pushed_at
+            url = $repo.html_url
+            primaryLanguage = if ([string]::IsNullOrWhiteSpace([string]$repo.language)) { $null } else { [pscustomobject]@{ name = $repo.language } }
+        })
+    }
+
+    return $mapped.ToArray()
+}
+
 function Get-GitHubRepos {
     if ($Offline) {
         return @()
     }
 
-    $json = gh repo list $Owner --visibility public --no-archived --limit 300 --json name,description,stargazerCount,defaultBranchRef,latestRelease,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage
-    return @($json | ConvertFrom-Json)
+    $args = @(
+        "repo", "list", $Owner,
+        "--visibility", "public",
+        "--no-archived",
+        "--limit", "300",
+        "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
+    )
+    $lastOutput = $null
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $output = & gh @args 2>&1
+        $lastOutput = (($output | Out-String).Trim())
+
+        if ($LASTEXITCODE -eq 0) {
+            try {
+                $repos = @($lastOutput | ConvertFrom-Json)
+                if ($repos.Count -eq 0) {
+                    throw "GitHub returned an empty repository list."
+                }
+                return $repos
+            } catch {
+                $lastOutput = $_.Exception.Message
+            }
+        }
+
+        if ($attempt -lt 3) {
+            Start-Sleep -Seconds (2 * $attempt)
+        }
+    }
+
+    Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
+    return Get-GitHubReposFromRest
 }
 
 function ConvertTo-Lookup {
@@ -451,7 +545,49 @@ function Get-DownloadLabel {
     }
 }
 
-function Get-ActionLink {
+function Get-CategoryDefinition {
+    param([string]$Slug)
+
+    return ($CategoryDefinitions | Where-Object { $_.Slug -eq $Slug } | Select-Object -First 1)
+}
+
+function Get-CategoryDisplayName {
+    param([string]$Slug)
+
+    switch ($Slug) {
+        "powershell" { return "PowerShell" }
+        "python" { return "Python" }
+        "web" { return "Web" }
+        "extensions" { return "Extensions" }
+        "android" { return "Android" }
+        "security" { return "Security" }
+        "media" { return "Media" }
+        "desktop" { return "Desktop" }
+        "guides" { return "Guides" }
+        "misc" { return "Misc" }
+        default { return $Slug }
+    }
+}
+
+function Get-CategoryAnchor {
+    param([string]$Slug)
+
+    switch ($Slug) {
+        "powershell" { return "powershell-system-utilities" }
+        "python" { return "python-desktop-applications" }
+        "web" { return "web-applications" }
+        "extensions" { return "browser-extensions--userscripts" }
+        "android" { return "android-applications" }
+        "security" { return "security--networking" }
+        "media" { return "media--conversion-tools" }
+        "desktop" { return "native-desktop-applications" }
+        "guides" { return "guides--resources" }
+        "misc" { return "misc--forks" }
+        default { return $Slug }
+    }
+}
+
+function Get-PrimaryAction {
     param(
         [hashtable]$Entry,
         [object]$Meta,
@@ -459,23 +595,63 @@ function Get-ActionLink {
     )
 
     if (-not [string]::IsNullOrWhiteSpace([string]$Entry.liveUrl)) {
-        return "[Launch]($($Entry.liveUrl))"
+        return [ordered]@{
+            kind = "live"
+            label = "Launch"
+            url = [string]$Entry.liveUrl
+        }
     }
 
     if (-not [string]::IsNullOrWhiteSpace([string]$Entry.userscriptUrl)) {
-        return "[Install]($($Entry.userscriptUrl))"
+        return [ordered]@{
+            kind = "install"
+            label = "Install"
+            url = [string]$Entry.userscriptUrl
+        }
     }
 
     if (([string]$Entry.downloadKind).ToLowerInvariant() -eq "repo") {
-        return "[Repo]($(Get-RepoUrl $Entry))"
+        return [ordered]@{
+            kind = "repo"
+            label = "Repo"
+            url = Get-RepoUrl $Entry
+        }
     }
 
     if ($Meta -and $Meta.latestRelease) {
         $label = Get-DownloadLabel $Entry $Category
-        return "[<kbd>&#11015; $label</kbd>]($(Get-ReleaseUrl $Entry))"
+        if ([string]::IsNullOrWhiteSpace($label)) {
+            $label = "Download"
+        }
+        return [ordered]@{
+            kind = "release"
+            label = $label
+            url = Get-ReleaseUrl $Entry
+        }
     }
 
-    return "[Repo]($(Get-RepoUrl $Entry))"
+    return [ordered]@{
+        kind = "repo"
+        label = "Repo"
+        url = Get-RepoUrl $Entry
+    }
+}
+
+function Get-ActionLink {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [string]$Category
+    )
+
+    $action = Get-PrimaryAction $Entry $Meta $Category
+    $label = [string]$action["label"]
+    $url = [string]$action["url"]
+    if ($action["kind"] -eq "release") {
+        return "[<kbd>&#11015; $label</kbd>]($url)"
+    }
+
+    return "[$label]($url)"
 }
 
 function Get-InstallSnippet {
@@ -506,24 +682,109 @@ function Get-InstallSnippet {
     return '$d="$env:TEMP\{0}"; if(Test-Path $d){{git -C $d pull -q}}else{{git clone -q --depth 1 -b {1} https://github.com/{2}/{0} $d}}; if(Test-Path "$d\requirements.txt"){{pip install -q -r "$d\requirements.txt"}}; {3}' -f $Entry.repo, $branch, $Owner, $runner
 }
 
+function New-CategoryLink {
+    param([string]$Slug)
+
+    return "[{0}](#{1})" -f (Get-CategoryDisplayName $Slug), (Get-CategoryAnchor $Slug)
+}
+
+function New-CategoryPreviewLine {
+    param(
+        [hashtable[]]$Items,
+        [hashtable]$RepoLookup
+    )
+
+    $picks = @($Items |
+        Sort-Object @{ Expression = { if ($_.featured -eq $true) { 0 } else { 1 } } },
+                    @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { [int]$_.order } } },
+                    repo |
+        Select-Object -First 3)
+
+    if ($picks.Count -eq 0) {
+        return $null
+    }
+
+    $links = foreach ($entry in $picks) {
+        "[**$($entry.title)**]($(Get-RepoUrl $entry))"
+    }
+
+    return "Start with: $($links -join ', ')."
+}
+
+function New-DiscoverySection {
+    param(
+        [hashtable[]]$Entries,
+        [object[]]$Repos
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($Entries | Select-Object -ExpandProperty repo -Unique).Count }
+    $releaseCount = @($Entries | Where-Object {
+        $action = Get-PrimaryAction $_ (Get-RepoMeta $_ $repoLookup) $_.category
+        $action["kind"] -eq "release"
+    }).Count
+    $liveCount = @($Entries | Where-Object {
+        $action = Get-PrimaryAction $_ (Get-RepoMeta $_ $repoLookup) $_.category
+        $action["kind"] -eq "live"
+    }).Count
+    $installCount = @($Entries | Where-Object {
+        $action = Get-PrimaryAction $_ (Get-RepoMeta $_ $repoLookup) $_.category
+        $action["kind"] -eq "install"
+    }).Count
+    $buildingCount = @($Entries | Where-Object { $_.currentlyBuilding -eq $true }).Count
+    $powershellLink = New-CategoryLink "powershell"
+    $desktopLink = New-CategoryLink "desktop"
+    $extensionsLink = New-CategoryLink "extensions"
+    $androidLink = New-CategoryLink "android"
+    $webLink = New-CategoryLink "web"
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("### Start Here")
+    $lines.Add("")
+    $lines.Add("| Need | Best path | Why |")
+    $lines.Add("|:-----|:----------|:----|")
+    $lines.Add("| A Windows utility you can run now | $powershellLink or $desktopLink | Copy a branch-pinned command or use a release download when one exists. |")
+    $lines.Add("| Browser tools and userscripts | $extensionsLink | Install links stay pointed at releases or raw userscript URLs. |")
+    $lines.Add("| Android apps | $androidLink | APK-ready projects show direct release actions; work-in-progress apps stay marked as repos. |")
+    $lines.Add("| Live web tools | $webLink | Launch in-browser tools without local setup. |")
+    $lines.Add("| The complete searchable catalog | [Full portfolio](https://sysadmindoc.github.io/) | Uses the generated project feed from this repo. |")
+    $lines.Add("")
+    $lines.Add("### Catalog Snapshot")
+    $lines.Add("")
+    $lines.Add("| Signal | Current state |")
+    $lines.Add("|:-------|:--------------|")
+    $lines.Add("| Public repos tracked | $publicCount |")
+    $lines.Add("| README entries | $($Entries.Count) visitor-facing projects |")
+    $lines.Add("| Primary actions | $releaseCount downloads, $liveCount launch links, $installCount userscript installs |")
+    $lines.Add("| Active build queue | $buildingCount projects linked from the first screen |")
+    $lines.Add("| Trust gates | Public-only links, medical/X-ray privacy guard, branch-pinned install snippets |")
+
+    return ($lines -join [Environment]::NewLine)
+}
+
 function New-FirstTimeSetupSection {
-    return @"
+    return @'
 <details>
 <summary><b>&#128190; First-time setup</b> -- <i>New to this? Install Python 3 + Git in one paste.</i></summary>
 <br/>
 
-The PowerShell and Python sections below clone repos with **Git**, and the Python section runs scripts with **Python 3**. If you don't already have them, open **PowerShell** and paste:
+The PowerShell and Python sections clone repos with **Git** and run scripts with **Python 3** when needed. On a fresh Windows machine, open **PowerShell** and paste:
 
-``````powershell
+```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
-``````
+```
 
-What it does -- uses Windows' built-in `winget` package manager to install [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/), then refreshes your `PATH` so the install one-liners below work right away. Source: [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1).
+| Step | Behavior |
+|:-----|:---------|
+| Checks first | Skips Python or Git when already installed. |
+| Installs with Windows tooling | Uses `winget` for [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/). |
+| Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
+| Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have them? Skip this and jump to the categories below.
+Already have Python and Git? Skip this and open the category you need.
 
 </details>
-"@
+'@
 }
 
 function New-CategorySection {
@@ -535,10 +796,16 @@ function New-CategorySection {
 
     $items = @($Entries | Where-Object { $_.category -eq $Definition.Slug } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
     $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("<a id=`"$(Get-CategoryAnchor $Definition.Slug)`"></a>")
     $lines.Add("<details>")
     $lines.Add(($Definition.Summary -f $items.Count))
     $lines.Add("<br/>")
     $lines.Add("")
+    $preview = New-CategoryPreviewLine -Items $items -RepoLookup $RepoLookup
+    if ($preview) {
+        $lines.Add($preview)
+        $lines.Add("")
+    }
 
     switch ($Definition.Render) {
         "code" {
@@ -629,12 +896,14 @@ function New-FeaturedSection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Featured Projects")
     $lines.Add("")
-    $lines.Add("| Project | Stars | Description |")
-    $lines.Add("|:--------|:-----:|:------------|")
+    $lines.Add("| Project | Category | Stars | Description | Action |")
+    $lines.Add("|:--------|:---------|:-----:|:------------|:------:|")
     foreach ($entry in $featured) {
         $meta = Get-RepoMeta $entry $RepoLookup
         $stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
-        $lines.Add("| [**$($entry.title)**]($(Get-RepoUrl $entry)) | &#11088;$stars | $(Get-Description $entry $meta) |")
+        $category = Get-CategoryDisplayName $entry.category
+        $action = Get-ActionLink $entry $meta $entry.category
+        $lines.Add("| [**$($entry.title)**]($(Get-RepoUrl $entry)) | $category | &#11088;$stars | $(Get-Description $entry $meta) | $action |")
     }
     return ($lines -join [Environment]::NewLine)
 }
@@ -655,8 +924,8 @@ function Update-Header {
         $tableLines = New-Object System.Collections.Generic.List[string]
         $tableLines.Add("**Currently Building**")
         $tableLines.Add("")
-        $tableLines.Add("| | |")
-        $tableLines.Add("|:--|:--|")
+        $tableLines.Add("| Project | Focus | Action |")
+        $tableLines.Add("|:--------|:------|:------:|")
         foreach ($entry in $building) {
             $meta = Get-RepoMeta $entry $RepoLookup
             $text = if (-not [string]::IsNullOrWhiteSpace([string]$entry.currentlyBuildingText)) {
@@ -664,10 +933,12 @@ function Update-Header {
             } else {
                 Get-Description $entry $meta
             }
-            $tableLines.Add("| **$($entry.title)** | $text |")
+            $project = "[**$($entry.title)**]($(Get-RepoUrl $entry))"
+            $action = Get-ActionLink $entry $meta $entry.category
+            $tableLines.Add("| $project | $text | $action |")
         }
         $table = $tableLines -join [Environment]::NewLine
-        $pattern = '(?s)\*\*Currently Building\*\*\r?\n\r?\n\| \| \|\r?\n\|:--\|:--\|\r?\n(?:\|.*?\|\r?\n)+'
+        $pattern = '(?s)\*\*Currently Building\*\*\r?\n\r?\n\|[^\r\n]+\|\r?\n\|[:\-\| ]+\|\r?\n(?:\|.*?\|\r?\n)+'
         $updated = [regex]::Replace($updated, $pattern, $table + [Environment]::NewLine)
     }
 
@@ -685,9 +956,16 @@ function New-Readme {
         $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
     })
     $readme = Get-Content -LiteralPath $ReadmePath -Raw
-    $start = $readme.IndexOf("### Featured Projects", [StringComparison]::Ordinal)
+    $sectionMarkers = @("### Start Here", "### Featured Projects")
+    $start = -1
+    foreach ($marker in $sectionMarkers) {
+        $markerIndex = $readme.IndexOf($marker, [StringComparison]::Ordinal)
+        if ($markerIndex -ge 0 -and ($start -lt 0 -or $markerIndex -lt $start)) {
+            $start = $markerIndex
+        }
+    }
     if ($start -lt 0) {
-        throw "README marker not found: ### Featured Projects"
+        throw "README marker not found: ### Start Here or ### Featured Projects"
     }
     $footer = '![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)'
     $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($entries | Select-Object -ExpandProperty repo -Unique).Count }
@@ -696,6 +974,10 @@ function New-Readme {
 
     $blocks = New-Object System.Collections.Generic.List[string]
     $blocks.Add($header)
+    $blocks.Add("")
+    $blocks.Add((New-DiscoverySection -Entries $entries -Repos $Repos))
+    $blocks.Add("")
+    $blocks.Add("---")
     $blocks.Add("")
     $blocks.Add((New-FeaturedSection -Entries $entries -RepoLookup $repoLookup))
     $blocks.Add("")
@@ -733,6 +1015,7 @@ function New-ProjectsExportJson {
         if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
             $downloadUrl = Get-ReleaseUrl $entry
         }
+        $primaryAction = Get-PrimaryAction $entry $meta $entry.category
         $topics = @()
         if ($meta -and $meta.repositoryTopics) {
             $topics = @($meta.repositoryTopics | ForEach-Object { $_.name } | Sort-Object)
@@ -752,6 +1035,14 @@ function New-ProjectsExportJson {
             installUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) { $null } else { [string]$entry.userscriptUrl }
             downloadUrl = $downloadUrl
             downloadKind = if ([string]::IsNullOrWhiteSpace([string]$entry.downloadKind)) { $null } else { [string]$entry.downloadKind }
+            primaryAction = [ordered]@{
+                kind = [string]$primaryAction["kind"]
+                label = [string]$primaryAction["label"]
+                url = [string]$primaryAction["url"]
+            }
+            hasDownload = [bool]($primaryAction["kind"] -eq "release")
+            hasLiveDemo = [bool]($primaryAction["kind"] -eq "live")
+            hasDirectInstall = [bool]($primaryAction["kind"] -eq "install")
             branch = Get-Branch $entry $meta
             entrypoint = if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) { $null } else { [string]$entry.entrypoint }
             installKind = if ([string]::IsNullOrWhiteSpace([string]$entry.installKind)) { $null } else { [string]$entry.installKind }
@@ -810,6 +1101,15 @@ function New-CatalogFromReadme {
     $featuredRank = 1
     foreach ($line in $lines) {
         if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \|$') {
+            $repo = $Matches.repo
+            if (-not $entries.Contains($repo)) {
+                $entries[$repo] = New-CatalogEntry -Repo $repo -Category "misc" -Description $Matches.description -Order 9999
+            }
+            $entries[$repo].featured = $true
+            $entries[$repo].featuredRank = $featuredRank
+            $featuredRank++
+        }
+        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| (?<category>.*?) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \| (?<action>.*?) \|$') {
             $repo = $Matches.repo
             if (-not $entries.Contains($repo)) {
                 $entries[$repo] = New-CatalogEntry -Repo $repo -Category "misc" -Description $Matches.description -Order 9999
@@ -956,6 +1256,60 @@ function New-CatalogFromReadme {
     }
 }
 
+function Test-ReadmeExperience {
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos,
+        [string]$ExpectedReadme
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $entries = @($Catalog.entries | Where-Object {
+        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+    })
+    $featured = @($entries | Where-Object { $_.featured -eq $true })
+    $building = @($entries | Where-Object { $_.currentlyBuilding -eq $true })
+    $missingPrimaryAction = New-Object System.Collections.Generic.List[string]
+
+    foreach ($entry in $entries) {
+        $action = Get-PrimaryAction $entry (Get-RepoMeta $entry $repoLookup) $entry.category
+        if ([string]::IsNullOrWhiteSpace([string]$action["label"]) -or [string]::IsNullOrWhiteSpace([string]$action["url"])) {
+            $missingPrimaryAction.Add([string]$entry.repo)
+        }
+    }
+
+    $missingAnchors = New-Object System.Collections.Generic.List[string]
+    foreach ($definition in $CategoryDefinitions) {
+        $anchor = '<a id="{0}"></a>' -f (Get-CategoryAnchor $definition.Slug)
+        if (-not $ExpectedReadme.Contains($anchor)) {
+            $missingAnchors.Add($definition.Slug)
+        }
+    }
+
+    $unlabeledDownloads = [regex]::Matches($ExpectedReadme, '<kbd>&#11015;\s*</kbd>').Count
+    $hasStartHere = $ExpectedReadme.Contains("### Start Here")
+    $hasSnapshot = $ExpectedReadme.Contains("### Catalog Snapshot")
+    $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
+    $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
+    $passed = $hasStartHere -and $hasSnapshot -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
+        $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
+
+    return [ordered]@{
+        passed = [bool]$passed
+        startHereSection = [bool]$hasStartHere
+        catalogSnapshotSection = [bool]$hasSnapshot
+        featuredRows = $featured.Count
+        featuredActionColumn = [bool]$hasFeaturedActionColumn
+        currentlyBuildingRows = $building.Count
+        currentlyBuildingActionColumn = [bool]$hasCurrentlyBuildingActionColumn
+        categoryAnchorCount = $CategoryDefinitions.Count - $missingAnchors.Count
+        missingCategoryAnchors = $missingAnchors.ToArray()
+        primaryActionCoverage = $entries.Count - $missingPrimaryAction.Count
+        missingPrimaryActions = $missingPrimaryAction.ToArray()
+        unlabeledDownloadButtons = $unlabeledDownloads
+    }
+}
+
 function Test-ProfileState {
     param(
         [hashtable]$Catalog,
@@ -1049,6 +1403,7 @@ function Test-ProfileState {
         $linkFailures = @(Test-LinkTargets -Included $included -RepoLookup $repoLookup)
     }
 
+    $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $report = [ordered]@{
         generatedAt = (Get-Date).ToString("o")
         readmeInSync = $readmeInSync
@@ -1062,9 +1417,10 @@ function Test-ProfileState {
         renamedRepoRedirects = $redirects
         linkValidationSkipped = [bool]($Offline -or $SkipLinkValidation)
         linkValidationFailures = @($linkFailures)
+        readmeExperienceChecks = $experienceChecks
     }
 
-    $failed = -not $readmeInSync -or -not $projectsInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0
+    $failed = -not $readmeInSync -or -not $projectsInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true
     return [ordered]@{
         Failed = $failed
         Report = $report

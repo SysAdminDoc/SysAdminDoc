@@ -28,13 +28,13 @@
 
 **Currently Building**
 
-| | |
-|:--|:--|
-| **Vantage** | Customizable new tab dashboard for Chromium *(JavaScript)* |
-| **UniversalConverterX** | Native Windows file converter, 1000+ formats *(C#/.NET 10)* |
-| **AppManagerNG** | Power-user Android package manager *(Kotlin)* |
-| **PhoneFork** | Dual-Samsung Android migration tool for Windows *(C#/.NET 10)* |
-| **FileOrganizer** | AI-powered file organizer with WinUI 3 shell *(C#/Python)* |
+| Project | Focus | Action |
+|:--------|:------|:------:|
+| [**Vantage**](https://github.com/SysAdminDoc/Vantage) | Customizable new tab dashboard for Chromium *(JavaScript)* | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Vantage/releases/latest) |
+| [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter, 1000+ formats *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/UniversalConverterX) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | Power-user Android package manager *(Kotlin)* | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
+| [**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) | AI-powered file organizer with WinUI 3 shell *(C#/Python)* | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FileOrganizer/releases/latest) |
 
 </td>
 </tr>
@@ -65,21 +65,42 @@
 
 ---
 
+### Start Here
+
+| Need | Best path | Why |
+|:-----|:----------|:----|
+| A Windows utility you can run now | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Copy a branch-pinned command or use a release download when one exists. |
+| Browser tools and userscripts | [Extensions](#browser-extensions--userscripts) | Install links stay pointed at releases or raw userscript URLs. |
+| Android apps | [Android](#android-applications) | APK-ready projects show direct release actions; work-in-progress apps stay marked as repos. |
+| Live web tools | [Web](#web-applications) | Launch in-browser tools without local setup. |
+| The complete searchable catalog | [Full portfolio](https://sysadmindoc.github.io/) | Uses the generated project feed from this repo. |
+
+### Catalog Snapshot
+
+| Signal | Current state |
+|:-------|:--------------|
+| Public repos tracked | 184 |
+| README entries | 177 visitor-facing projects |
+| Primary actions | 102 downloads, 27 launch links, 11 userscript installs |
+| Active build queue | 5 projects linked from the first screen |
+| Trust gates | Public-only links, medical/X-ray privacy guard, branch-pinned install snippets |
+
+---
+
 ### Featured Projects
 
-| Project | Stars | Description |
-|:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;41 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
-| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;17 | AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX |
-| [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | &#11088;11 | Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking |
-| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;11 | Spotify customization — automates Spicetify, themes, extensions |
-| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | &#11088;15 | Remove hardcoded subtitles from video |
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | &#11088;16 | Power-user Android package manager — continuation of Muntashir's AppManager |
-| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) | &#11088;9 | Premium YouTube enhancement extension — 150+ features for Chrome & Firefox |
-| [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
-| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | &#11088;6 | Premium dark weather app — no API keys required |
-| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;10 | Professional video editor — 40+ effects, 37 transitions, 29 engines |
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;7 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
+| Project | Category | Stars | Description | Action |
+|:--------|:---------|:-----:|:------------|:------:|
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | PowerShell | &#11088;41 | GUI to enable Windows Server 2025 NVMe driver on Win11 | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest) |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | Python | &#11088;17 | AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest) |
+| [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | Python | &#11088;11 | Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest) |
+| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | PowerShell | &#11088;11 | Spotify customization — automates Spicetify, themes, extensions | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest) |
+| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | Media | &#11088;15 | Remove hardcoded subtitles from video | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest) |
+| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) | Extensions | &#11088;9 | Premium YouTube enhancement extension — 150+ features for Chrome & Firefox | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) |
+| [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | PowerShell | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest) |
+| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | Android | &#11088;6 | Premium dark weather app — no API keys required | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | Android | &#11088;10 | Professional video editor — 40+ effects, 37 transitions, 29 engines | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest) |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | Android | &#11088;7 | AMOLED-dark hosts-based ad blocker — inspired by AdAway | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
 
 ---
 
@@ -87,21 +108,29 @@
 <summary><b>&#128190; First-time setup</b> -- <i>New to this? Install Python 3 + Git in one paste.</i></summary>
 <br/>
 
-The PowerShell and Python sections below clone repos with **Git**, and the Python section runs scripts with **Python 3**. If you don't already have them, open **PowerShell** and paste:
+The PowerShell and Python sections clone repos with **Git** and run scripts with **Python 3** when needed. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
 ```
 
-What it does -- uses Windows' built-in winget package manager to install [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/), then refreshes your PATH so the install one-liners below work right away. Source: [setup.ps1](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1).
+| Step | Behavior |
+|:-----|:---------|
+| Checks first | Skips Python or Git when already installed. |
+| Installs with Windows tooling | Uses `winget` for [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/). |
+| Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
+| Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have them? Skip this and jump to the categories below.
+Already have Python and Git? Skip this and open the category you need.
 
 </details>
 
+<a id="powershell-system-utilities"></a>
 <details>
 <summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Requires Git (see <b>First-time setup</b> above).</i></summary>
 <br/>
+
+Start with: [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher), [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot), [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor).
 
 [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;41 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 ```powershell
@@ -138,7 +167,7 @@ $d="$env:TEMP\Restore-WindowsDefaults"; if(Test-Path $d){git -C $d pull -q}else{
 $d="$env:TEMP\DefenderControl"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DefenderControl $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DefenderControl.ps1"
 ```
 
-[**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;4 -- Defender disabler/remover with CLI + premium WPF GUI; firewall preserved &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/DisableDefender/releases/latest)
+[**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;6 -- Defender disabler/remover with CLI + premium WPF GUI; firewall preserved &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/DisableDefender/releases/latest)
 ```powershell
 $d="$env:TEMP\DisableDefender"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DisableDefender $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DisableDefender.ps1"
 ```
@@ -248,16 +277,19 @@ $d="$env:TEMP\EXTRACTORX"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 $d="$env:TEMP\AdapterLock"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/AdapterLock $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\AdapterLock.ps1"
 ```
 
-[**Brave-Portable-Updater**](https://github.com/SysAdminDoc/Brave-Portable-Updater) -- Update Brave inside a Portapps portable install without touching system install &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Brave-Portable-Updater/releases/latest)
+[**Brave-Portable-Updater**](https://github.com/SysAdminDoc/Brave-Portable-Updater) -- Update Brave inside a Portapps portable install without touching system install
 ```powershell
-$d="$env:TEMP\Brave-Portable-Updater"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Brave-Portable-Updater $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Brave-Portable-Updater.ps1"
+$d="$env:TEMP\Brave-Portable-Updater"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Brave-Portable-Updater $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Update-BravePortable.ps1"
 ```
 
 </details>
 
+<a id="python-desktop-applications"></a>
 <details>
 <summary><b>&#128013; Python Desktop Applications</b> -- 41 repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
 <br/>
+
+Start with: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Tunerize**](https://github.com/SysAdminDoc/Tunerize).
 
 [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;11 -- Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
 ```powershell
@@ -279,7 +311,7 @@ $d="$env:TEMP\Vertigo"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 $d="$env:TEMP\PromptCompanion"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PromptCompanion $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\promptcompanion.py"
 ```
 
-[**SunoJump**](https://github.com/SysAdminDoc/SunoJump) &#11088;2 -- Audio fingerprint masking for Suno AI — 10-pass pipeline, PyQt6 GUI, batch processing &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SunoJump/releases/latest)
+[**SunoJump**](https://github.com/SysAdminDoc/SunoJump) &#11088;3 -- Audio fingerprint masking for Suno AI — 10-pass pipeline, PyQt6 GUI, batch processing &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SunoJump/releases/latest)
 ```powershell
 $d="$env:TEMP\SunoJump"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SunoJump $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\sunojump.py"
 ```
@@ -329,7 +361,7 @@ $d="$env:TEMP\QuickFind"; if(Test-Path $d){git -C $d pull -q}else{git clone -q -
 $d="$env:TEMP\FileOrganizer"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FileOrganizer $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\run.py"
 ```
 
-[**HEICShift**](https://github.com/SysAdminDoc/HEICShift) -- High-performance HEIC/HEIF batch converter with PyQt6 GUI, parallel conversion, metadata preservation &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/HEICShift/releases/latest)
+[**HEICShift**](https://github.com/SysAdminDoc/HEICShift) &#11088;1 -- High-performance HEIC/HEIF batch converter with PyQt6 GUI, parallel conversion, metadata preservation &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/HEICShift/releases/latest)
 ```powershell
 $d="$env:TEMP\HEICShift"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/HEICShift $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\heicshift.py"
 ```
@@ -339,7 +371,7 @@ $d="$env:TEMP\HEICShift"; if(Test-Path $d){git -C $d pull -q}else{git clone -q -
 $d="$env:TEMP\FrameSnap"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FrameSnap $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\framesnap.py"
 ```
 
-[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) -- GUI for toggling 50+ Windows File Explorer registry settings with live preview &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest)
+[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) &#11088;1 -- GUI for toggling 50+ Windows File Explorer registry settings with live preview &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest)
 ```powershell
 $d="$env:TEMP\ExplorerTweaks"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/ExplorerTweaks $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\explorer_tweaks.py"
 ```
@@ -359,7 +391,7 @@ $d="$env:TEMP\LipSight"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --
 $d="$env:TEMP\LlamaLink"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/LlamaLink $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\llamalink.py"
 ```
 
-[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;2 -- Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SlunderStudio/releases/latest)
+[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;3 -- Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SlunderStudio/releases/latest)
 ```powershell
 $d="$env:TEMP\SlunderStudio"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SlunderStudio $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
@@ -384,7 +416,7 @@ $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 $d="$env:TEMP\bypassnroGen"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/bypassnroGen $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\BypassNRO_Generator.py"
 ```
 
-[**MSStoreHelper**](https://github.com/SysAdminDoc/MSStoreHelper) &#11088;2 -- Install Microsoft Store apps without the Store &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/MSStoreHelper/releases/latest)
+[**MSStoreHelper**](https://github.com/SysAdminDoc/MSStoreHelper) &#11088;3 -- Install Microsoft Store apps without the Store &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/MSStoreHelper/releases/latest)
 ```powershell
 $d="$env:TEMP\MSStoreHelper"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/MSStoreHelper $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\MSStoreHelper.py"
 ```
@@ -414,7 +446,7 @@ $d="$env:TEMP\Mattpad"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 $d="$env:TEMP\HostsFileGet"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/HostsFileGet $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\PythonLauncher.ps1"
 ```
 
-[**Bookmark-Organizer-Pro**](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro) &#11088;1 -- AI-powered bookmark manager and categorizer &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/latest)
+[**Bookmark-Organizer-Pro**](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro) &#11088;2 -- AI-powered bookmark manager and categorizer &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/latest)
 ```powershell
 $d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Bookmark-Organizer-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
@@ -459,16 +491,16 @@ $d="$env:TEMP\Stock-Video-Collector"; if(Test-Path $d){git -C $d pull -q}else{gi
 $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/GifText $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\GifText.py"
 ```
 
-[**FoxPort**](https://github.com/SysAdminDoc/FoxPort) -- Migrate passwords, bookmarks, and extensions from Chromium browsers to Firefox &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FoxPort/releases/latest)
-```powershell
-$d="$env:TEMP\FoxPort"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FoxPort $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\foxport.py"
-```
+[**FoxPort**](https://github.com/SysAdminDoc/FoxPort) -- Migrate passwords, bookmarks, and extensions from Chromium browsers to Firefox &nbsp;[<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/FoxPort/releases/latest)
 
 </details>
 
+<a id="web-applications"></a>
 <details>
-<summary><b>&#127760; Web Applications</b> -- 28 repos -- <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> -- 27 repos -- <i>Click to open in browser, no install needed.</i></summary>
 <br/>
+
+Start with: [**Openshop**](https://github.com/SysAdminDoc/Openshop), [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar), [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack).
 
 | Project | Description | Live |
 |:--------|:------------|:----:|
@@ -492,20 +524,22 @@ $d="$env:TEMP\FoxPort"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**kindred**](https://github.com/SysAdminDoc/kindred) | Compatibility-first dating and social platform | [Repo](https://github.com/SysAdminDoc/kindred) |
 | [**DeGoogler**](https://github.com/SysAdminDoc/DeGoogler) | Turnkey migration toolkit for leaving Google services | [Launch](https://sysadmindoc.github.io/DeGoogler/) |
 | [**SearchHub**](https://github.com/SysAdminDoc/SearchHub) | Search 538 engines across 29 categories | [Launch](https://sysadmindoc.github.io/SearchHub/) |
-| [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) &#11088;2 | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
+| [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) &#11088;3 | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
 | [**MHTMLens**](https://github.com/SysAdminDoc/MHTMLens) | MHTML file viewer and inspector | [Launch](https://sysadmindoc.github.io/MHTMLens/) |
 | [**LogLens**](https://github.com/SysAdminDoc/LogLens) | Log file viewer and analyzer | [Launch](https://sysadmindoc.github.io/LogLens/) |
 | [**CronScope**](https://github.com/SysAdminDoc/CronScope) | Cron expression builder and visualizer | [Launch](https://sysadmindoc.github.io/CronScope/) |
 | [**NATO_PHONETIC_TRAINING**](https://github.com/SysAdminDoc/NATO_PHONETIC_TRAINING) | NATO phonetic alphabet training app | [Launch](https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/) |
 | [**HurricaneMap**](https://github.com/SysAdminDoc/HurricaneMap) | Interactive map of every U.S. hurricane landfall (1851–present) — NOAA HURDAT2 | [Launch](https://sysadmindoc.github.io/HurricaneMap/) |
 | [**ApocalypseWatch**](https://github.com/SysAdminDoc/ApocalypseWatch) | Realtime business-jet tracker dashboard vs. 24h baseline | [Launch](https://sysadmindoc.github.io/ApocalypseWatch/) |
-| [**TsunamiSimulator**](https://sysadmindoc.github.io/TsunamiSimulator/) | 3D-globe tsunami simulator — asteroid impacts, nuclear bursts, submarine earthquakes | [Launch](https://sysadmindoc.github.io/TsunamiSimulator/) |
 
 </details>
 
+<a id="browser-extensions--userscripts"></a>
 <details>
 <summary><b>&#129513; Browser Extensions & Userscripts</b> -- 23 repos -- <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
+
+Start with: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault), [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced).
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
@@ -513,7 +547,7 @@ $d="$env:TEMP\FoxPort"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;3 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/ScriptVault/releases/latest) |
 | [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced) | Chrome MV3 Amazon UX cleanup — dark theme, sponsored-result removal, review-quality scoring, 20 locales | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/AmazonEnhanced/releases/latest) |
 | [**StyleKit**](https://github.com/SysAdminDoc/StyleKit) | CSS customization extension — visual editor for any website | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/StyleKit/releases/latest) |
-| [**Vantage**](https://github.com/SysAdminDoc/Vantage) | New tab dashboard for Chromium — customizable search, RSS, news, weather, quick links | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Vantage/releases/latest) |
+| [**Vantage**](https://github.com/SysAdminDoc/Vantage) &#11088;1 | New tab dashboard for Chromium — customizable search, RSS, news, weather, quick links | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Vantage/releases/latest) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) &#11088;2 | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
 | [**Claude-Ultimate-Enhancer**](https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer) | All-in-one Claude.ai enhancement suite — themes, usage monitor, prompt library | [Install](https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js) |
 | [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js) |
@@ -522,50 +556,56 @@ $d="$env:TEMP\FoxPort"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**uBlockVanced**](https://github.com/SysAdminDoc/uBlockVanced) &#11088;1 | uBlock Origin fork with Catppuccin Mocha and Element Forge panel | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/uBlockVanced/releases/latest) |
 | [**BackgroundSearch**](https://github.com/SysAdminDoc/BackgroundSearch) | Chrome extension — force background tabs + context menu search | [Repo](https://github.com/SysAdminDoc/BackgroundSearch) |
 | [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) &#11088;1 | Full-featured CSS style editor and manager — Chrome extension | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/StyleCraft/releases/latest) |
-| [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) &#11088;1 | Discover userscripts for any website | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
+| [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) &#11088;3 | Discover userscripts for any website | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
 | [**NDNS**](https://github.com/SysAdminDoc/NDNS) | NextDNS control panel userscript | [Repo](https://github.com/SysAdminDoc/NDNS) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
 | [**Doordash-Enhanced**](https://github.com/SysAdminDoc/Doordash-Enhanced) | DoorDash dark mode and feature enhancements | [Install](https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js) |
 | [**DarkModer**](https://github.com/SysAdminDoc/DarkModer) | Dark Reader as a userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js) |
 | [**GeminiBuddy**](https://github.com/SysAdminDoc/GeminiBuddy) &#11088;1 | Productivity features for Gemini | [Install](https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js) |
-| [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) &#11088;1 | Comprehensive Rumble.com enhancement | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/RumbleX/releases/latest) |
+| [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) | Comprehensive Rumble.com enhancement | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/RumbleX/releases/latest) |
 | [**Discrub**](https://github.com/SysAdminDoc/Discrub) | Discord message editor, deleter, and exporter | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/Discrub/releases/latest) |
 | [**AI-Usage_Tracker**](https://github.com/SysAdminDoc/AI-Usage_Tracker) | Usage-limit countdowns and notifications for AI chat tools -- Chrome, Firefox, and userscript builds | [<kbd>&#11015; ZIP/XPI</kbd>](https://github.com/SysAdminDoc/AI-Usage_Tracker/releases/latest) |
 | [**IMDb_Enhanced**](https://github.com/SysAdminDoc/IMDb_Enhanced) | IMDb enhancement userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js) |
 
 </details>
 
+<a id="android-applications"></a>
 <details>
 <summary><b>&#128241; Android Applications</b> -- 19 repos -- <i>Kotlin / Material You</i></summary>
 <br/>
+
+Start with: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**NovaCut**](https://github.com/SysAdminDoc/NovaCut), [**HostShield**](https://github.com/SysAdminDoc/HostShield).
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;6 | Premium dark weather app — no API keys required | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;10 | Professional video editor — 40+ effects, 37 transitions, 29 engines | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest) |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;7 | AMOLED-dark hosts-based ad blocker — inspired by AdAway | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
-| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;4 | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
+| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;5 | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
 | [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) &#11088;2 | iOS-style icon pack for Android — 6 iOS eras | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/iOSIconPack/releases/latest) |
-| [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;2 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
-| [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;3 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;16 | Power-user package manager — continuation of MuntashirAkon/AppManager (GPL-3.0-or-later) | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;3 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
+| [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;5 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;17 | Power-user package manager — continuation of MuntashirAkon/AppManager (GPL-3.0-or-later) | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;2 | Spam call and text blocker — GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;2 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;1 | Personal Android-app catalog sourced from GitHub Releases — Android sibling of LocalChromeStore | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest) |
 | [**one-ui-home-clone**](https://github.com/SysAdminDoc/one-ui-home-clone) &#11088;2 | Samsung One UI 7 parity launcher — Compose, clone not a port | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/one-ui-home-clone/releases/latest) |
 | [**SnapCrop**](https://github.com/SysAdminDoc/SnapCrop) &#11088;1 | Screenshot editor — ML Kit autocrop, 14 draw tools, collage, device mockup | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/SnapCrop/releases/latest) |
 | [**BillMinder**](https://github.com/SysAdminDoc/BillMinder) | Bill tracker with alarm-style reminders | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/BillMinder/releases/latest) |
-| [**OpenSwift**](https://github.com/SysAdminDoc/OpenSwift) | SwiftKey-inspired Android keyboard — glide typing, prediction, themes, clipboard | [Repo](https://github.com/SysAdminDoc/OpenSwift) |
-| [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
-| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;2 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
-| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;1 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
-| [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith/releases/latest) | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
+| [**OpenSwift**](https://github.com/SysAdminDoc/OpenSwift) &#11088;2 | SwiftKey-inspired Android keyboard — glide typing, prediction, themes, clipboard | [Repo](https://github.com/SysAdminDoc/OpenSwift) |
+| [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;3 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
+| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;3 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
+| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;2 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
+| [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
 
 </details>
 
+<a id="security--networking"></a>
 <details>
 <summary><b>&#128274; Security & Networking</b> -- 4 repos</summary>
 <br/>
+
+Start with: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite), [**WolfPack**](https://github.com/SysAdminDoc/WolfPack), [**BetterNext**](https://github.com/SysAdminDoc/BetterNext).
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
@@ -576,9 +616,12 @@ $d="$env:TEMP\FoxPort"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 
 </details>
 
+<a id="media--conversion-tools"></a>
 <details>
 <summary><b>&#127916; Media & Conversion Tools</b> -- 6 repos</summary>
 <br/>
+
+Start with: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
 [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) -- Video compression and processing &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/VideoCrush/releases/latest)
 ```powershell
@@ -612,35 +655,41 @@ $d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 
 </details>
 
+<a id="native-desktop-applications"></a>
 <details>
 <summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 17 repos</summary>
 <br/>
+
+Start with: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore), [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore).
 
 | Project | Description | Language | Download |
 |:--------|:------------|:--------:|:--------:|
 | [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio) &#11088;1 | One Windows desktop catalog for every app I ship — binaries, extensions, APKs from GitHub releases | C# | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/MyPortfolio/releases/latest) |
 | [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore) &#11088;1 | Personal Chromium extension store sourced from GitHub releases — one-click install/uninstall | C# | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/LocalChromeStore/releases/latest) |
 | [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore) &#11088;1 | Private catalog for Windows desktop apps — MSI/Inno/NSIS/ZIP from GitHub releases | C# | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/LocalDesktopStore/releases/latest) |
-| [**Images**](https://github.com/SysAdminDoc/Images) &#11088;1 | Dark-mode Windows 7 Classic Photo Viewer with live inline rename-while-viewing | C# | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Images/releases/latest) |
+| [**Images**](https://github.com/SysAdminDoc/Images) &#11088;2 | Dark-mode Windows 7 Classic Photo Viewer with live inline rename-while-viewing | C# | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Images/releases/latest) |
 | [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) &#11088;3 | Thorough Windows uninstaller — removes programs completely, hunts down every leftover | C# | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/DeepPurge/releases/latest) |
 | [**Scour**](https://github.com/SysAdminDoc/Scour) | High-performance disk cleanup — 12 scanner types, NTFS MFT reading | C# | [Repo](https://github.com/SysAdminDoc/Scour) |
 | [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) &#11088;1 | Native Windows file converter with context menu integration — 1000+ formats | C# | [Repo](https://github.com/SysAdminDoc/UniversalConverterX) |
 | [**Devicer**](https://github.com/SysAdminDoc/Devicer) | Unified Windows toolkit for rooted Android — identify, ROM search, partition backup, boot.img patch, flashing | C# | [Repo](https://github.com/SysAdminDoc/Devicer) |
 | [**Snapture**](https://github.com/SysAdminDoc/Snapture) | All-in-one screenshot utility — region/window/fullscreen, pinned overlays, no telemetry | C# | [Repo](https://github.com/SysAdminDoc/Snapture) |
 | [**OrganizeContacts**](https://github.com/SysAdminDoc/OrganizeContacts) | Local-first contact organizer and deduper — native Windows, no cloud upload | C# | [Repo](https://github.com/SysAdminDoc/OrganizeContacts) |
-| [**VaultBox**](https://github.com/SysAdminDoc/VaultBox) &#11088;1 | Offline Bitwarden password manager — zero server contact, local vault | C++ | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/VaultBox/releases/latest) |
 | [**qBittorrent-Vanced**](https://github.com/SysAdminDoc/qBittorrent-Vanced) | Customized BitTorrent client with dark theme | C++ | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/latest) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows -- apps, media, settings, Wi-Fi, roles, and debloat profiles | C# | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
-| [**QuotaGlass**](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) | Always-visible Claude + Codex quota widget for Windows | C# | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) |
-| [**TaskCopy**](https://github.com/SysAdminDoc/TaskCopy/releases/latest) | Single-click clipboard snippet menu — tray icon, global hotkey, search | C# | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/TaskCopy/releases/latest) |
-| [**AndroidEmulatorPlus**](https://github.com/SysAdminDoc/AndroidEmulatorPlus/releases/latest) | Install Android SDK, manage AVDs, root with Magisk, migrate apps | C# | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/AndroidEmulatorPlus/releases/latest) |
-| [**Keepr**](https://github.com/SysAdminDoc/Keepr/releases/latest) | Pixel-close offline-first Google Keep clone — Tauri 2 + React + Rust + SQLite | TypeScript | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/Keepr/releases/latest) |
+| [**QuotaGlass**](https://github.com/SysAdminDoc/QuotaGlass) | Always-visible AI usage quota widget for Windows | C# | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) |
+| [**TaskCopy**](https://github.com/SysAdminDoc/TaskCopy) | Single-click clipboard snippet menu -- tray icon, global hotkey, search | C# | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/TaskCopy/releases/latest) |
+| [**AndroidEmulatorPlus**](https://github.com/SysAdminDoc/AndroidEmulatorPlus) | Install Android SDK, manage AVDs, root with Magisk, migrate apps | C# | [Repo](https://github.com/SysAdminDoc/AndroidEmulatorPlus) |
+| [**Keepr**](https://github.com/SysAdminDoc/Keepr) &#11088;1 | Pixel-close offline-first Google Keep clone -- Tauri 2 + React + Rust + SQLite | TypeScript | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Keepr/releases/latest) |
+| [**TsunamiSimulator**](https://github.com/SysAdminDoc/TsunamiSimulator) &#11088;1 | 3D-globe tsunami simulator -- asteroid impacts, nuclear bursts, earthquakes, landslides | Rust | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/TsunamiSimulator/releases/latest) |
 
 </details>
 
+<a id="guides--resources"></a>
 <details>
 <summary><b>&#128218; Guides & Resources</b> -- 4 repos</summary>
 <br/>
+
+Start with: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism), [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide), [**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list).
 
 | Project | Description |
 |:--------|:------------|
@@ -651,9 +700,12 @@ $d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 
 </details>
 
+<a id="misc--forks"></a>
 <details>
-<summary><b>&#128256; Misc & Forks</b> -- 7 repos</summary>
+<summary><b>&#128256; Misc & Forks</b> -- 6 repos</summary>
 <br/>
+
+Start with: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory), [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore), [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser).
 
 | Project | Description |
 |:--------|:------------|
@@ -663,7 +715,6 @@ $d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 | [**TabExplorer**](https://github.com/SysAdminDoc/TabExplorer) | Tabbed file manager for Windows *(fork)* |
 | [**Vigil**](https://github.com/SysAdminDoc/Vigil) | Windows packaging for ungoogled-chromium *(fork)* |
 | [**TagStudio**](https://github.com/SysAdminDoc/TagStudio) | User-focused photo & file management system *(fork)* |
-| [**improve-repo**](https://github.com/SysAdminDoc/improve-repo) | Automated repository improvement pipeline -- research, implement, polish, review, and PR |
 
 </details>
 

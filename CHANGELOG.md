@@ -2,6 +2,19 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.0] - 2026-06-01
+
+- Added: premium profile navigation with generated **Start Here** and **Catalog Snapshot** sections so visitors can choose the right project path before entering the long catalog.
+- Added: direct action columns to **Featured Projects** and **Currently Building** rows, reusing the same Launch/Install/Repo/Download action logic as the category tables.
+- Added: stable category anchors and generated "Start with" previews inside every collapsible category to improve scanning and deep linking.
+- Added: structured `primaryAction`, `hasDownload`, `hasLiveDemo`, and `hasDirectInstall` fields to `projects.json` for portfolio consumers.
+- Added: README experience checks to `reports/profile-sync-report.json`; validation now fails if generated navigation, action columns, category anchors, primary actions, or download labels regress.
+- Hardened: `scripts/sync-profile.ps1` now retries GitHub GraphQL metadata and falls back to REST metadata when GitHub returns transient 502 errors.
+- Added: **Brave-Portable-Updater**, **FoxPort**, **IMDb_Enhanced**, **Droidsmith**, **QuotaGlass**, **TaskCopy**, **AndroidEmulatorPlus**, **Keepr**, and **TsunamiSimulator** to the canonical catalog where visitor-facing.
+- Fixed: **Brave-Portable-Updater** now points to `Update-BravePortable.ps1`; **FoxPort** no longer emits a stale root `foxport.py` snippet; **TsunamiSimulator** is listed as a desktop release instead of a dead GitHub Pages launch.
+- Guarded: **VaultBox** is now explicitly suppressed because the repo is private and public profile links would 404 for visitors.
+- Changed: Full profile sync validation now passes with 184 public repos, 187 catalog entries, 177 public README entries, 9 explicit suppressions, 0 link failures, and passing README experience checks.
+
 ## [v4.8.0] - 2026-05-17
 
 - Added: `data/profile-catalog.json` as the canonical catalog source for profile README entries, explicit suppressions, featured/currently-building flags, install metadata, release labels, and manual description overrides.

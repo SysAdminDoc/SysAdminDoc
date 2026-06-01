@@ -1,14 +1,28 @@
 {
-  "generatedAt": "2026-05-17T15:02:49.7043943-04:00",
+  "generatedAt": "2026-06-01T16:35:23.4788253-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
-  "publicRepoCount": 178,
-  "catalogEntryCount": 178,
-  "includedReadmeCount": 170,
+  "publicRepoCount": 184,
+  "catalogEntryCount": 187,
+  "includedReadmeCount": 177,
   "missingPublicRepos": [],
   "privateVisibilityViolations": [],
   "medicalPrivacyViolations": [],
   "renamedRepoRedirects": [],
   "linkValidationSkipped": false,
-  "linkValidationFailures": []
+  "linkValidationFailures": [],
+  "readmeExperienceChecks": {
+    "passed": true,
+    "startHereSection": true,
+    "catalogSnapshotSection": true,
+    "featuredRows": 10,
+    "featuredActionColumn": true,
+    "currentlyBuildingRows": 5,
+    "currentlyBuildingActionColumn": true,
+    "categoryAnchorCount": 10,
+    "missingCategoryAnchors": [],
+    "primaryActionCoverage": 177,
+    "missingPrimaryActions": [],
+    "unlabeledDownloadButtons": 0
+  }
 }
