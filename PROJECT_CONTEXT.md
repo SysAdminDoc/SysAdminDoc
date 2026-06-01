@@ -23,7 +23,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, and the LinkedIn-aligned hero/profile copy shipped as v4.9.1 on 2026-06-01.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, and the top-table layout fix shipped as v4.9.2 on 2026-06-01.
 - `AGENTS.md` and `CLAUDE.md` exist locally but are ignored by git. `AGENTS.md` points to `CLAUDE.md`; `CLAUDE.md` is the local working-notes file.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
@@ -31,7 +31,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-05-17
 Latest sync date: 2026-06-01
-Version: v4.9.1
+Version: v4.9.2
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -54,6 +54,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - `projects.json` is in sync with the catalog and contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata for downstream portfolio rendering.
 - Local `zizmor .github/workflows` returned no findings after pinning workflow actions to commit SHAs and disabling checkout credential persistence.
 - The hand-authored hero section now matches the user's LinkedIn positioning while keeping private production project names and employer-specific details out of the public README.
+- The top hero content uses full-width Markdown sections rather than an HTML two-column wrapper, preventing the Proof Points and Currently Building tables from rendering too narrow on GitHub.
 
 ## Project Philosophy
 

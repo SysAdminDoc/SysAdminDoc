@@ -3,13 +3,13 @@
 Last research refresh: 2026-05-17
 Evidence bundle: `.ai/research/2026-05-17/`
 Latest profile sync: 2026-06-01
-Current repo version: v4.9.1
+Current repo version: v4.9.2
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.1, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.2, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered on 2026-06-01 showed:
 
@@ -23,6 +23,7 @@ Live GitHub metadata gathered on 2026-06-01 showed:
 - Root `projects.json` is generated from the same catalog for portfolio consumption and now includes structured primary-action metadata.
 - GitHub GraphQL metadata was returning HTTP 502 during the v4.9.0 pass; the sync script now retries and falls back to REST metadata.
 - The first-viewport profile copy now leads with healthcare IT, DICOM/PACS specialization, 16+ years of infrastructure experience, 10+ production platforms, and quantified proof points while avoiding private project and employer-specific names in the public README.
+- v4.9.2 removed the HTML two-column wrapper around the top content so the Proof Points and Currently Building tables render full-width instead of cramped inside a narrow GitHub profile column.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
@@ -117,6 +118,10 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
   - Rework the hero descriptor, typing lines, bio copy, and proof-point table around healthcare IT, DICOM/PACS, 16+ years of IT operations, and 10+ production platforms.
   - Keep private production project names and employer-specific details out of the public profile.
   - Evidence: LinkedIn-ready profile copy lives in `C:\Users\--\repos\JobSeek\profiles\linkedin-profile-ready.md`; public README keeps the same claims in generalized language.
+
+- [x] Fix first-viewport table layout.
+  - Remove the HTML two-column wrapper that cramped the Proof Points and Currently Building tables on the rendered GitHub profile.
+  - Keep the generated Currently Building table marker intact so `scripts/sync-profile.ps1` can still refresh it.
 
 - [ ] Add topic coverage and topic drift reporting.
   - Generate recommended topics per repo from catalog category, language, platform, and key feature tags.
