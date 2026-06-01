@@ -11,9 +11,7 @@
 </p>
 
 
-<table>
-<tr>
-<td width="56%" valign="top">
+### Professional Focus
 
 **Healthcare IT engineer and product builder** with 16+ years across systems administration, medical imaging technology, and production software delivery.
 
@@ -25,10 +23,7 @@
 
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
 
-</td>
-<td width="44%" valign="top">
-
-**Proof Points**
+### Proof Points
 
 | Signal | Detail |
 |:--|:--|
@@ -49,10 +44,6 @@
 | [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | Power-user Android package manager *(Kotlin)* | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
 | [**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) | AI-powered file organizer with WinUI 3 shell *(C#/Python)* | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FileOrganizer/releases/latest) |
-
-</td>
-</tr>
-</table>
 
 ---
 

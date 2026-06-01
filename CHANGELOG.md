@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.2] - 2026-06-01
+
+- Fixed: Replaced the first-viewport HTML two-column layout with full-width Markdown sections so **Proof Points** and **Currently Building** no longer render as cramped nested tables on the GitHub profile page.
+- Kept: The generated **Currently Building** marker and table format expected by `scripts/sync-profile.ps1`, so future sync runs can still refresh the table safely.
+
 ## [v4.9.1] - 2026-06-01
 
 - Changed: Rewrote the first-viewport profile copy to match the user's LinkedIn positioning: healthcare IT engineer, DICOM/PACS specialist, AI-augmented product developer, and systems administrator.
