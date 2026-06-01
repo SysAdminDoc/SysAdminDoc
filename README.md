@@ -1,7 +1,7 @@
 ![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Systems%20Administrator%20%7C%20Automation%20Engineer%20%7C%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=178%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=184%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
 
 - Systems Administrator by day, tool builder by night
 - Everything I ship is **zero-config** — download it, launch it, done
-- 178+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
+- 184+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
 - Currently building AI-powered desktop tools, browser enhancements, and Android apps
 - Work domain: medical imaging, PACS, and chiropractic IT infrastructure
 
@@ -69,16 +69,17 @@
 
 | Project | Stars | Description |
 |:--------|:-----:|:------------|
-| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;40 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
-| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;16 | AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX |
+| [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | &#11088;41 | GUI to enable Windows Server 2025 NVMe driver on Win11 |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | &#11088;17 | AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX |
 | [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | &#11088;11 | Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking |
-| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;10 | Spotify customization — automates Spicetify, themes, extensions |
-| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | &#11088;13 | Remove hardcoded subtitles from video |
+| [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | &#11088;11 | Spotify customization — automates Spicetify, themes, extensions |
+| [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | &#11088;15 | Remove hardcoded subtitles from video |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | &#11088;16 | Power-user Android package manager — continuation of Muntashir's AppManager |
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) | &#11088;9 | Premium YouTube enhancement extension — 150+ features for Chrome & Firefox |
 | [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) | &#11088;6 | 67 automated checks across 8 security domains, MITRE ATT&CK mapping |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) | &#11088;6 | Premium dark weather app — no API keys required |
-| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;7 | Professional video editor — 40+ effects, 37 transitions, 29 engines |
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;5 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) | &#11088;10 | Professional video editor — 40+ effects, 37 transitions, 29 engines |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) | &#11088;7 | AMOLED-dark hosts-based ad blocker — inspired by AdAway |
 
 ---
 
@@ -99,10 +100,10 @@ Already have them? Skip this and jump to the categories below.
 </details>
 
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> -- 29 repos -- <i>Requires Git (see <b>First-time setup</b> above).</i></summary>
+<summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Requires Git (see <b>First-time setup</b> above).</i></summary>
 <br/>
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;40 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;41 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 ```powershell
 $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/win11-nvme-driver-patcher $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NVMe_Driver_Patcher.ps1"
 ```
@@ -112,7 +113,7 @@ $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}els
 $d="$env:TEMP\Network_Security_Auditor"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Network_Security_Auditor $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NetworkSecurityAudit.ps1"
 ```
 
-[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;10 -- Spotify customization — automates Spicetify, themes, extensions &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
+[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;11 -- Spotify customization — automates Spicetify, themes, extensions &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
 ```powershell
 $d="$env:TEMP\LibreSpot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LibreSpot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\LibreSpot.ps1"
 ```
@@ -247,10 +248,15 @@ $d="$env:TEMP\EXTRACTORX"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 $d="$env:TEMP\AdapterLock"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/AdapterLock $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\AdapterLock.ps1"
 ```
 
+[**Brave-Portable-Updater**](https://github.com/SysAdminDoc/Brave-Portable-Updater) -- Update Brave inside a Portapps portable install without touching system install &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Brave-Portable-Updater/releases/latest)
+```powershell
+$d="$env:TEMP\Brave-Portable-Updater"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Brave-Portable-Updater $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Brave-Portable-Updater.ps1"
+```
+
 </details>
 
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> -- 40 repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> -- 41 repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
 <br/>
 
 [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;11 -- Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
@@ -368,7 +374,7 @@ $d="$env:TEMP\GmailDownloader"; if(Test-Path $d){git -C $d pull -q}else{git clon
 $d="$env:TEMP\UniversalCompiler"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/UniversalCompiler $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\UniversalCompiler.ps1"
 ```
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;16 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;17 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```
@@ -453,10 +459,15 @@ $d="$env:TEMP\Stock-Video-Collector"; if(Test-Path $d){git -C $d pull -q}else{gi
 $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/GifText $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\GifText.py"
 ```
 
+[**FoxPort**](https://github.com/SysAdminDoc/FoxPort) -- Migrate passwords, bookmarks, and extensions from Chromium browsers to Firefox &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FoxPort/releases/latest)
+```powershell
+$d="$env:TEMP\FoxPort"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FoxPort $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\foxport.py"
+```
+
 </details>
 
 <details>
-<summary><b>&#127760; Web Applications</b> -- 27 repos -- <i>Click to open in browser, no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> -- 28 repos -- <i>Click to open in browser, no install needed.</i></summary>
 <br/>
 
 | Project | Description | Live |
@@ -488,11 +499,12 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**NATO_PHONETIC_TRAINING**](https://github.com/SysAdminDoc/NATO_PHONETIC_TRAINING) | NATO phonetic alphabet training app | [Launch](https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/) |
 | [**HurricaneMap**](https://github.com/SysAdminDoc/HurricaneMap) | Interactive map of every U.S. hurricane landfall (1851–present) — NOAA HURDAT2 | [Launch](https://sysadmindoc.github.io/HurricaneMap/) |
 | [**ApocalypseWatch**](https://github.com/SysAdminDoc/ApocalypseWatch) | Realtime business-jet tracker dashboard vs. 24h baseline | [Launch](https://sysadmindoc.github.io/ApocalypseWatch/) |
+| [**TsunamiSimulator**](https://sysadmindoc.github.io/TsunamiSimulator/) | 3D-globe tsunami simulator — asteroid impacts, nuclear bursts, submarine earthquakes | [Launch](https://sysadmindoc.github.io/TsunamiSimulator/) |
 
 </details>
 
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 22 repos -- <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 23 repos -- <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 | Project | Description | Install |
@@ -519,23 +531,24 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) &#11088;1 | Comprehensive Rumble.com enhancement | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/RumbleX/releases/latest) |
 | [**Discrub**](https://github.com/SysAdminDoc/Discrub) | Discord message editor, deleter, and exporter | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/Discrub/releases/latest) |
 | [**AI-Usage_Tracker**](https://github.com/SysAdminDoc/AI-Usage_Tracker) | Usage-limit countdowns and notifications for AI chat tools -- Chrome, Firefox, and userscript builds | [<kbd>&#11015; ZIP/XPI</kbd>](https://github.com/SysAdminDoc/AI-Usage_Tracker/releases/latest) |
+| [**IMDb_Enhanced**](https://github.com/SysAdminDoc/IMDb_Enhanced) | IMDb enhancement userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js) |
 
 </details>
 
 <details>
-<summary><b>&#128241; Android Applications</b> -- 18 repos -- <i>Kotlin / Material You</i></summary>
+<summary><b>&#128241; Android Applications</b> -- 19 repos -- <i>Kotlin / Material You</i></summary>
 <br/>
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;6 | Premium dark weather app — no API keys required | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
-| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;7 | Professional video editor — 40+ effects, 37 transitions, 29 engines | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest) |
-| [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;5 | AMOLED-dark hosts-based ad blocker — inspired by AdAway | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
+| [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;10 | Professional video editor — 40+ effects, 37 transitions, 29 engines | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest) |
+| [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;7 | AMOLED-dark hosts-based ad blocker — inspired by AdAway | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;4 | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
 | [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) &#11088;2 | iOS-style icon pack for Android — 6 iOS eras | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/iOSIconPack/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;2 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;3 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;3 | Power-user package manager — continuation of MuntashirAkon/AppManager (GPL-3.0-or-later) | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;16 | Power-user package manager — continuation of MuntashirAkon/AppManager (GPL-3.0-or-later) | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;2 | Spam call and text blocker — GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;2 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;1 | Personal Android-app catalog sourced from GitHub Releases — Android sibling of LocalChromeStore | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest) |
@@ -546,6 +559,7 @@ $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;2 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
 | [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;1 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
+| [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith/releases/latest) | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
 
 </details>
 
@@ -586,7 +600,7 @@ $d="$env:TEMP\yt_livestream_downloader"; if(Test-Path $d){git -C $d pull -q}else
 $d="$env:TEMP\MediaForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/MediaForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\MediaForge.py"
 ```
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;13 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;15 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 ```powershell
 $d="$env:TEMP\VideoSubtitleRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoSubtitleRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\VideoSubtitleRemover.py"
 ```
@@ -599,7 +613,7 @@ $d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 </details>
 
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 13 repos</summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 17 repos</summary>
 <br/>
 
 | Project | Description | Language | Download |
@@ -617,6 +631,10 @@ $d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 | [**VaultBox**](https://github.com/SysAdminDoc/VaultBox) &#11088;1 | Offline Bitwarden password manager — zero server contact, local vault | C++ | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/VaultBox/releases/latest) |
 | [**qBittorrent-Vanced**](https://github.com/SysAdminDoc/qBittorrent-Vanced) | Customized BitTorrent client with dark theme | C++ | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/latest) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows -- apps, media, settings, Wi-Fi, roles, and debloat profiles | C# | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
+| [**QuotaGlass**](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) | Always-visible Claude + Codex quota widget for Windows | C# | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) |
+| [**TaskCopy**](https://github.com/SysAdminDoc/TaskCopy/releases/latest) | Single-click clipboard snippet menu — tray icon, global hotkey, search | C# | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/TaskCopy/releases/latest) |
+| [**AndroidEmulatorPlus**](https://github.com/SysAdminDoc/AndroidEmulatorPlus/releases/latest) | Install Android SDK, manage AVDs, root with Magisk, migrate apps | C# | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/AndroidEmulatorPlus/releases/latest) |
+| [**Keepr**](https://github.com/SysAdminDoc/Keepr/releases/latest) | Pixel-close offline-first Google Keep clone — Tauri 2 + React + Rust + SQLite | TypeScript | [<kbd>&#11015;</kbd>](https://github.com/SysAdminDoc/Keepr/releases/latest) |
 
 </details>
 
