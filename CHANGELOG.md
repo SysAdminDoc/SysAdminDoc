@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.1] - 2026-06-01
+
+- Changed: Rewrote the first-viewport profile copy to match the user's LinkedIn positioning: healthcare IT engineer, DICOM/PACS specialist, AI-augmented product developer, and systems administrator.
+- Added: A proof-point table for 16+ years of IT operations, 10+ production platforms, cloud PACS delivery, lead-intelligence scale, X-ray room compliance tooling, and public catalog breadth.
+- Kept: Private production project names and employer-specific details out of the public GitHub profile while preserving the LinkedIn evidence in generic, visitor-safe language.
+- Verified: `scripts/sync-profile.ps1 -Check` remains the required gate so generated catalog counts, private-repo guards, link validation, and README experience checks stay intact after the hand-authored header change.
+
 ## [v4.9.0] - 2026-06-01
 
 - Added: premium profile navigation with generated **Start Here** and **Catalog Snapshot** sections so visitors can choose the right project path before entering the long catalog.

@@ -3,13 +3,13 @@
 Last research refresh: 2026-05-17
 Evidence bundle: `.ai/research/2026-05-17/`
 Latest profile sync: 2026-06-01
-Current repo version: v4.9.0
+Current repo version: v4.9.1
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.0, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.1, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered on 2026-06-01 showed:
 
@@ -22,6 +22,7 @@ Live GitHub metadata gathered on 2026-06-01 showed:
 - `scripts/sync-profile.ps1 -Check` now validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
 - Root `projects.json` is generated from the same catalog for portfolio consumption and now includes structured primary-action metadata.
 - GitHub GraphQL metadata was returning HTTP 502 during the v4.9.0 pass; the sync script now retries and falls back to REST metadata.
+- The first-viewport profile copy now leads with healthcare IT, DICOM/PACS specialization, 16+ years of infrastructure experience, 10+ production platforms, and quantified proof points while avoiding private project and employer-specific names in the public README.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
@@ -111,6 +112,11 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
   - Add action columns to featured and currently-building rows.
   - Add stable category anchors and "Start with" category previews.
   - Evidence: v4.9.0 full `scripts/sync-profile.ps1 -Check` passed with zero link failures and passing `readmeExperienceChecks`.
+
+- [x] Align first-viewport profile narrative with LinkedIn positioning.
+  - Rework the hero descriptor, typing lines, bio copy, and proof-point table around healthcare IT, DICOM/PACS, 16+ years of IT operations, and 10+ production platforms.
+  - Keep private production project names and employer-specific details out of the public profile.
+  - Evidence: LinkedIn-ready profile copy lives in `C:\Users\--\repos\JobSeek\profiles\linkedin-profile-ready.md`; public README keeps the same claims in generalized language.
 
 - [ ] Add topic coverage and topic drift reporting.
   - Generate recommended topics per repo from catalog category, language, platform, and key feature tags.

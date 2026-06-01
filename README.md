@@ -1,7 +1,7 @@
-![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Systems%20Administrator%20%7C%20Automation%20Engineer%20%7C%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
+![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=184%2B+open+source+tools+%E2%80%94+zero+config%2C+ready+to+run;PowerShell+%7C+Python+%7C+JavaScript+%7C+Kotlin+%7C+C%23+%7C+C%2B%2B;Building+the+tools+I+wish+existed" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell" alt="Typing SVG" />
 </p>
 
 <p align="center">
@@ -13,18 +13,32 @@
 
 <table>
 <tr>
-<td width="55%" valign="top">
+<td width="56%" valign="top">
 
-- Systems Administrator by day, tool builder by night
-- Everything I ship is **zero-config** — download it, launch it, done
-- 184+ open source projects across PowerShell, Python, JavaScript, Kotlin, C#, and C++
-- Currently building AI-powered desktop tools, browser enhancements, and Android apps
-- Work domain: medical imaging, PACS, and chiropractic IT infrastructure
+**Healthcare IT engineer and product builder** with 16+ years across systems administration, medical imaging technology, and production software delivery.
+
+- Primary technical engineer for PACS deployments, DR panel configurations, cloud migrations, and clinical support across domestic and international accounts
+- Independently built 10+ production-grade platforms, including a cloud PACS, lead intelligence engine, X-ray room compliance tool, document workflow system, RMM platform, and acquisition workstation software
+- Earlier career: PBS affiliate systems administration, MSP field operations, Windows Server, Cisco networking, Hyper-V, SCCM, Active Directory, and broadcast infrastructure
+- AI-augmented development is the force multiplier; the foundation is infrastructure, automation, and DICOM/PACS domain expertise
+- Public portfolio: 184 active repos, 177 visitor-facing projects, and production work across Python, TypeScript/React, C++20, C#/.NET/WPF, Go, Rust, Kotlin, and PowerShell
 
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
 
 </td>
-<td width="45%" valign="top">
+<td width="44%" valign="top">
+
+**Proof Points**
+
+| Signal | Detail |
+|:--|:--|
+| IT operations | 16+ years |
+| Medical imaging | DICOM/PACS, DR panels, cloud migration |
+| Product delivery | 10+ production platforms |
+| Cloud PACS | 9-container Docker stack |
+| Lead intelligence | 350+ plugins, 1,678 tests |
+| Compliance tooling | 3D X-ray room planner, 2,216 tests |
+| Public catalog | 184 active repos, 13-language portfolio |
 
 **Currently Building**
 
