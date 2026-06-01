@@ -14,6 +14,18 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# `gh ... --json` emits UTF-8. On a legacy Windows console (cp437/cp1252) PowerShell
+# decodes that output with the OEM codepage, mangling non-ASCII characters in repo
+# descriptions (e.g. an em-dash becomes mojibake) and corrupting README/projects.json.
+# Force UTF-8 so generation is byte-identical across Windows and Linux/CI.
+try {
+    $Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+    [Console]::OutputEncoding = $Utf8NoBom
+    $OutputEncoding = $Utf8NoBom
+} catch {
+    Write-Verbose "Could not force UTF-8 console encoding: $($_.Exception.Message)"
+}
+
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
 
