@@ -1,0 +1,52 @@
+{
+  "schema": "https://sysadmindoc.github.io/schemas/profile-catalog.v1.json",
+  "generatedAt": "2026-01-01T00:00:00.0000000-00:00",
+  "entries": [
+    {
+      "repo": "WinTool",
+      "title": "WinTool",
+      "category": "powershell",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "order": 1,
+      "branch": "main",
+      "entrypoint": "WinTool.ps1",
+      "installKind": "powershell",
+      "descriptionOverride": "A test PowerShell tool",
+      "featured": true,
+      "featuredRank": 1
+    },
+    {
+      "repo": "PyTool",
+      "title": "PyTool",
+      "category": "python",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "order": 1,
+      "branch": "master",
+      "entrypoint": "app.py",
+      "installKind": "python",
+      "descriptionOverride": "A test Python tool"
+    },
+    {
+      "repo": "WebTool",
+      "title": "WebTool",
+      "category": "web",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "order": 1,
+      "liveUrl": "https://sysadmindoc.github.io/WebTool/",
+      "descriptionOverride": "A test web app"
+    },
+    {
+      "repo": "HiddenTool",
+      "title": "HiddenTool",
+      "category": "misc",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "order": 1,
+      "descriptionOverride": "Should be excluded",
+      "suppressionReason": "Test suppression: not visitor-facing."
+    }
+  ]
+}
