@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.3
+Current repo version: v4.9.4
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -29,16 +29,17 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
 
-2026-06-04 verification refresh: `Invoke-Pester -Path tests` passed 16/16. A
-structural `scripts/sync-profile.ps1 -Check -SkipLinkValidation` failed with
-`projectsExportInSync=false` while `readmeInSync=true`, so the P0 generated
-drift item is currently live and needs a deliberate `-Write` refresh before the
-next profile release. A full live-link `-Check` exceeded a four-minute host
-timeout, reinforcing the parallel link-validation item below.
+2026-06-04 v4.9.4 refresh: the P0 generated drift-lockout batch added a
+generated-catalog notice, checked that marker in README experience validation,
+refreshed generated header counts, and changed the manual write-PR workflow to
+run `scripts/sync-profile.ps1 -Write -Check` in one metadata snapshot. Pester
+passed 18/18, and the full write/check pass is green with
+`readmeInSync=true`, `projectsExportInSync=true`, full link validation enabled,
+0 link failures, and 0 link warnings.
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.3, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.4, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered through 2026-06-04 showed:
 
@@ -61,10 +62,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Generation integrity and drift enforcement
 
-- [ ] P0 — Enforce generated README/feed drift checks (hand-edit lockout)
+- [x] P0 — Enforce generated README/feed drift checks (hand-edit lockout)
   - Why: hand edits or live-metadata changes can silently reintroduce drift, broken links, and count mismatches; `-Check` already caught stale generated outputs in the v4.9.3 refresh.
   - Touches: `scripts/sync-profile.ps1` (`New-Readme`, `New-ProjectsExportJson`), `.github/workflows/profile-sync.yml`, optional generated-section banner and local git-hook docs.
   - Acceptance: any edit to a generated section fails `-Check`/CI until `-Write` is re-run; `README.md` carries a "do not hand-edit generated sections" banner; the headline count is generated, not typed.
+  - Completed: v4.9.4 added the generated-catalog notice, validation report field, header-count refresh, Pester coverage, and one-process workflow write/check.
   - Source: docs/research-feature-plan-2026-06-04.md (P0); RESEARCH_FEATURE_PLAN (NF1/EI4)
 
 - [ ] P2 — Deeper metadata-drift report in `-Check` (NF2)
@@ -270,8 +272,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.3`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.3`), `CHANGELOG.md:5` (`## [v4.9.3]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` (`scripts/sync-profile.ps1:1324`) checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.4`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.4`), `CHANGELOG.md:5` (`## [v4.9.4]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` (`scripts/sync-profile.ps1:1324`) checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.

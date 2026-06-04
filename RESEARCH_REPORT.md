@@ -5,21 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.3
+Current version after this refresh: v4.9.4
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 16/16 tests.
-- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check` exceeded a
-  four-minute host timeout during the sequential live-link validation path,
-  supporting the existing parallel link-validation roadmap item.
-- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check
-  -SkipLinkValidation` completed and failed because `projectsExportInSync=false`
-  while `readmeInSync=true`. The generated report was refreshed at
-  `reports/profile-sync-report.json` with `linkValidationSkipped=true`. This
-  confirms the P0 generated-feed drift item is currently active; the fix is a
-  deliberate `-Write` regeneration followed by a full successful `-Check`.
+  passed 18/18 tests after the v4.9.4 drift-lockout marker update.
+- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
+  successfully with `readmeInSync=true`, `projectsExportInSync=true`, full
+  link validation enabled, 0 link failures, and 0 link warnings.
+- The v4.9.4 batch closed the active P0 generated-feed drift item by adding the
+  generated-catalog notice, checking that marker in README experience
+  validation, refreshing header counts from live metadata, and changing the
+  manual write-PR workflow to run write/check in a single metadata snapshot.
 - Current official-source recheck still supports the existing plan: GitHub
   profile README rendering is static and tied to the public username-matching
   repo, GitHub Actions workflow permissions remain a first-class workflow

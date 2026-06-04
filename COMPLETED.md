@@ -16,12 +16,13 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Featured vs Currently-Building AppManagerNG contradiction resolved by regeneration; malformed `/releases/latest` title links fixed. — *Source: TODO.md*
 - [x] `projects.json` structured fields added: `primaryAction`, `hasDownload`, `hasLiveDemo`, `hasDirectInstall`. — *Source: TODO.md*
 - [x] Refreshed generated `README.md` and `projects.json` from live GitHub metadata after `-Check` caught stale star-count/feed drift (v4.9.3). — *Source: TODO.md*
+- [x] Enforced generated README/feed drift checks with a generated-catalog hand-edit notice, `readmeExperienceChecks.generatedCatalogNotice`, refreshed header counts, Pester coverage, and a one-process workflow write/check path (v4.9.4). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 
 - [x] Add a public-readme privacy gate that blocks any README row whose live visibility is not PUBLIC, blocks medical/X-ray/PACS/DICOM repos unless explicitly allowlisted, and emits a separate private-repo compliance report without publishing private names. — *Source: ROADMAP.md*
 - [x] Add a renamed/deleted repo resolver that detects GitHub redirects and canonical names and fails validation on README links to renamed repos absent a catalog alias. — *Source: ROADMAP.md*
-- [x] Privacy scrub: untracked the `.ai/` research bundle, gitignored local working files, and scrubbed private medical repo names from `CHANGELOG.md` and `ROADMAP.md`. — *Source: TODO.md*
+- [x] Privacy scrub: untracked the local research bundle, gitignored local working files, and scrubbed private medical repo names from `CHANGELOG.md` and `ROADMAP.md`. — *Source: TODO.md*
 - [x] Anchored the medical-keyword pattern to word boundaries so "dose" no longer matches inside "glucose" and similar false positives. — *Source: TODO.md*
 - [x] Forced `[Console]::OutputEncoding` to UTF-8 so `gh` JSON output is not mojibake'd on legacy Windows consoles; refreshed feed. — *Source: TODO.md*
 

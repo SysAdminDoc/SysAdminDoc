@@ -66,8 +66,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          ./scripts/sync-profile.ps1 -Write
-          ./scripts/sync-profile.ps1 -Check
+          ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Create pull request
         shell: pwsh

@@ -119,6 +119,14 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'PyTool'
         $script:rendered | Should -Not -Match 'HiddenTool'
     }
+    It 'includes the generated catalog hand-edit notice' {
+        $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
+    }
+    It 'reports the generated catalog notice in README experience checks' {
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
+        $result.generatedCatalogNotice | Should -BeTrue
+        $result.passed | Should -BeTrue
+    }
 }
 
 Describe 'New-ProjectsExportJson feed' {

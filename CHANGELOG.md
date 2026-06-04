@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.4] - 2026-06-04
+
+- Added: A generated-catalog hand-edit notice before the generated README catalog sections, with `readmeExperienceChecks.generatedCatalogNotice` enforcing the marker during profile sync validation.
+- Changed: The manual generated-profile workflow now runs `scripts/sync-profile.ps1 -Write -Check` in one process so writes and validation share the same live GitHub metadata snapshot.
+- Changed: Header public portfolio counts and proof-point public catalog counts are refreshed by `Update-Header` from live metadata instead of remaining hand-typed.
+- Added: Pester coverage for the generated-catalog notice and README experience report field.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 18 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with `readmeInSync=true`, `projectsExportInSync=true`, full link validation enabled, 0 link failures, and 0 link warnings.
+
 ## [v4.9.3] - 2026-06-04
 
 - Added: public-safe companion research and feature plan at `docs/research-feature-plan-2026-06-04.md`, focused on generated-profile drift enforcement, topic/description hygiene, portfolio search, accessibility, release taxonomy, and setup hardening.

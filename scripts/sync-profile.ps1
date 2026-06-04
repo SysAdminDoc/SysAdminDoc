@@ -37,6 +37,7 @@ $Owner = "SysAdminDoc"
 # Word-boundary anchored so substrings (e.g. "dose" inside "glucose"/"overdose")
 # do not false-flag a benign public repo as medical-imaging.
 $MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
+$GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -929,6 +930,8 @@ function Update-Header {
 
     $updated = $Header -replace '\d+%2B\+open\+source\+tools', "$PublicRepoCount%2B+open+source+tools"
     $updated = $updated -replace '- \d+\+ open source projects across', "- $PublicRepoCount+ open source projects across"
+    $updated = $updated -replace 'Public portfolio: \d+ active repos, \d+ visitor-facing projects,', "Public portfolio: $PublicRepoCount active repos, $($Entries.Count) visitor-facing projects,"
+    $updated = $updated -replace '\| Public catalog \| \d+ active repos,', "| Public catalog | $PublicRepoCount active repos,"
 
     $building = @($Entries | Where-Object { $_.currentlyBuilding -eq $true } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
     if ($building.Count -gt 0) {
@@ -967,7 +970,7 @@ function New-Readme {
         $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
     })
     $readme = Get-Content -LiteralPath $ReadmePath -Raw
-    $sectionMarkers = @("### Start Here", "### Featured Projects")
+    $sectionMarkers = @($GeneratedCatalogNotice, "### Start Here", "### Featured Projects")
     $start = -1
     foreach ($marker in $sectionMarkers) {
         $markerIndex = $readme.IndexOf($marker, [StringComparison]::Ordinal)
@@ -976,7 +979,7 @@ function New-Readme {
         }
     }
     if ($start -lt 0) {
-        throw "README marker not found: ### Start Here or ### Featured Projects"
+        throw "README marker not found: generated catalog notice, ### Start Here, or ### Featured Projects"
     }
     $footer = '![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)'
     $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($entries | Select-Object -ExpandProperty repo -Unique).Count }
@@ -985,6 +988,8 @@ function New-Readme {
 
     $blocks = New-Object System.Collections.Generic.List[string]
     $blocks.Add($header)
+    $blocks.Add("")
+    $blocks.Add($GeneratedCatalogNotice)
     $blocks.Add("")
     $blocks.Add((New-DiscoverySection -Entries $entries -Repos $Repos))
     $blocks.Add("")
@@ -1300,15 +1305,17 @@ function Test-ReadmeExperience {
     $unlabeledDownloads = [regex]::Matches($ExpectedReadme, '<kbd>&#11015;\s*</kbd>').Count
     $hasStartHere = $ExpectedReadme.Contains("### Start Here")
     $hasSnapshot = $ExpectedReadme.Contains("### Catalog Snapshot")
+    $hasGeneratedNotice = $ExpectedReadme.Contains($GeneratedCatalogNotice)
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
-    $passed = $hasStartHere -and $hasSnapshot -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
+    $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
     return [ordered]@{
         passed = [bool]$passed
         startHereSection = [bool]$hasStartHere
         catalogSnapshotSection = [bool]$hasSnapshot
+        generatedCatalogNotice = [bool]$hasGeneratedNotice
         featuredRows = $featured.Count
         featuredActionColumn = [bool]$hasFeaturedActionColumn
         currentlyBuildingRows = $building.Count
