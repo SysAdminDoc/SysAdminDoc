@@ -9,6 +9,33 @@ Current repo version: v4.9.3
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
+> Last researched: Cycle 1 - 2026-06-04.
+
+## Implementer Instructions
+
+- Treat `data/profile-catalog.json` and `scripts/sync-profile.ps1` as the source
+  of truth for generated README/feed content. Do not hand-edit generated README
+  sections except through the generator.
+- Keep the public profile sanitized: suppress private repos, medical/private
+  project names, employer-specific details, and stale install snippets that
+  would 404 for visitors.
+- For profile changes, run `Invoke-Pester -Path tests`, then
+  `scripts/sync-profile.ps1 -Check`; use `-SkipLinkValidation` only for a
+  structural fast path and record that live-link validation was skipped.
+- Generated reports are evidence, not planning docs. Commit
+  `reports/profile-sync-report.json` only with an intentional `-Write`/`-Check`
+  sync batch, not as part of a research-only handoff.
+- Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
+  means user/external/manual gated, `🔬` means researcher-added this cycle, and
+  `✅` means implemented/closed by the build lane.
+
+2026-06-04 verification refresh: `Invoke-Pester -Path tests` passed 16/16. A
+structural `scripts/sync-profile.ps1 -Check -SkipLinkValidation` failed with
+`projectsExportInSync=false` while `readmeInSync=true`, so the P0 generated
+drift item is currently live and needs a deliberate `-Write` refresh before the
+next profile release. A full live-link `-Check` exceeded a four-minute host
+timeout, reinforcing the parallel link-validation item below.
+
 ## Current Diagnosis
 
 This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.3, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
@@ -217,6 +244,16 @@ Before a generated README refresh is shipped:
 ---
 
 ## Research-Driven Additions
+
+### Researcher Queue (Cycle 1 - 2026-06-04)
+
+- [x] 🔬 `profile-sync-verification-refresh-2026-06-04` - rechecked current
+  GitHub profile README, GitHub Actions workflow-permission, and Pagefind static
+  search docs against the live repo state. Pester passed, structural profile
+  check found `projectsExportInSync=false`, and the full live-link check timed
+  out on the sequential validation path. Existing drift-lockout and parallel
+  link-validation rows cover the findings; no new non-duplicate row was
+  promoted.
 
 *Research conducted 2026-06-03. Items below are new — not duplicates of Existing Planned Work.*
 
