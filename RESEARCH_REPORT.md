@@ -157,8 +157,9 @@ Top opportunities, in priority order:
 6. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
 7. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
 8. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
-9. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-10. P3 - Add `.editorconfig` and generated README markdown linting.
+9. P2 - Add a reduced-motion/static generated profile chrome guard.
+10. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+11. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -775,6 +776,53 @@ PyPI and PowerShell Gallery are still floating.
   practical. A small documented update checklist is better than an unpinned
   "latest" install that silently changes behavior.
 
+## Cycle 9 Research Addendum — 2026-06-04
+
+This pass focused on accessibility and motion in the generated profile chrome.
+The v4.9.12 and v4.9.15 batches already improved theme-aware image chrome,
+plain-text tagline content, image alt text, and third-party render-host
+reduction. The remaining gap is auto-starting visual motion in the hero and
+typing line.
+
+### Evidence reviewed (cycle 9)
+
+- `scripts/sync-profile.ps1:1469-1472` generates the profile header through
+  `capsule-render` URLs containing `animation=fadeIn` and the focus line
+  through `readme-typing-svg` URLs containing `repeat=true`.
+- `README.md:2` renders the generated animated capsule header in the public
+  profile README.
+- `README.md:11` renders the generated looping typing SVG in the public
+  profile README.
+- GitHub README embeds do not provide an in-page pause/stop/hide control for
+  third-party image animation.
+- W3C WCAG 2.2.2 says moving, blinking, or scrolling content that starts
+  automatically, lasts more than five seconds, and appears alongside other
+  content needs a pause, stop, or hide mechanism unless the movement is
+  essential: https://www.w3.org/WAI/WCAG20/Understanding/pause-stop-hide.html
+- MDN documents `prefers-reduced-motion` as the user preference for reducing
+  non-essential motion:
+  https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion
+- `readme-typing-svg` documents `repeat` defaulting to `true`:
+  https://github.com/DenverCoder1/readme-typing-svg
+
+### Finding (cycle 9)
+
+- **Minor — profile chrome still auto-starts motion without a pause control.**
+  The profile README now has better theme and alt-text behavior, but the
+  generated capsule and typing SVG can still animate automatically in a context
+  where the repository cannot supply an accessible pause/stop/hide control. →
+  roadmap "Add a reduced-motion/static profile chrome guard". [Verified]
+
+### Standards note (cycle 9)
+
+- Prefer static committed SVG or text for the hero and focus-line chrome. If the
+  build machine keeps any animated renderer, the validation gate should fail on
+  looping or long-running motion parameters such as `repeat=true` or
+  `animation=` unless there is a documented accessible fallback.
+- Keep this separate from third-party host privacy and link-validation work:
+  those items answer where images come from and whether URLs stay alive; this
+  item answers whether generated chrome respects motion-sensitive users.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -789,6 +837,8 @@ PyPI and PowerShell Gallery are still floating.
 - Should generated Markdown content-safety failures be fatal for all current
   sources, or should GitHub-derived descriptions start as warnings until the
   existing catalog is cleaned?
+- Should motion-safe profile chrome replace the typing SVG entirely with static
+  text/SVG, or keep a non-repeating version if that proves acceptable?
 - Which release trust signals should count as sufficient for README-linked
   EXE/APK/ZIP assets: checksums, signed binaries, GitHub artifact attestations,
   SBOMs, or a documented unsigned status?
