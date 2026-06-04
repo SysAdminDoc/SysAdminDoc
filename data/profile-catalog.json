@@ -3832,7 +3832,7 @@
       "userscriptUrl": null,
       "liveUrl": null,
       "language": "Shell",
-      "descriptionOverride": "Recipe-driven autonomous coding pipeline for Claude Code — multi-agent build/audit/release",
+      "descriptionOverride": "Recipe-driven autonomous coding pipeline - multi-agent build/audit/release",
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
