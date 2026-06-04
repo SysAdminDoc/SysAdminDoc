@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T03:58:55.4475014-04:00",
+  "generatedAt": "2026-06-04T04:07:41.2216196-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -117,7 +117,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-04T07:55:35.0000000Z",
+        "pushedAt": "2026-06-04T07:58:23.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1000,7 +1000,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 4289,
+      "elapsedMs": 5217,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1026,7 +1026,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 4289,
+    "elapsedMs": 5217,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],
@@ -1041,6 +1041,8 @@
     "meaningfulImageAltText": true,
     "genericImageAltTextCount": 0,
     "thirdPartyMetricHostCount": 0,
+    "thirdPartyBadgeHostCount": 0,
+    "profileStatsChromeCount": 1,
     "featuredRows": 10,
     "featuredActionColumn": true,
     "currentlyBuildingRows": 5,

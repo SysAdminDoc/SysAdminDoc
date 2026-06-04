@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.15] - 2026-06-04
+
+- Added: README experience checks now report `thirdPartyBadgeHostCount` and `profileStatsChromeCount` so redundant badge counters and duplicated generated chrome fail validation.
+- Changed: Removed redundant Shields follower/star image badges from the generated header; total public stars now render in the committed local stats SVG panel.
+- Fixed: `Update-Header` strips previously generated local stats chrome before appending the current block, preventing repeated skill/stat panels across successive `-Write` runs.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 32 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with `profileAssetsInSync=true`, 6 asset checks, 0 third-party metric hosts, 0 third-party badge hosts, `profileStatsChromeCount=1`, 185 link targets checked in 5217 ms, 0 link failures, and 0 link warnings. The run used the REST metadata fallback after a transient GitHub GraphQL 502.
+
 ## [v4.9.14] - 2026-06-04
 
 - Added: Committed local dark/light SVG profile panels under `assets/profile/` for catalog stats, language mix, and release asset health.
