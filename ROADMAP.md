@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 13 - 2026-06-04.
+> Last researched: Cycle 14 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 13 - 2026-06-04.
+Last researched: Cycle 14 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -820,6 +820,19 @@ GitHub-detected license.*
   - Verify: run `scripts/sync-profile.ps1 -Write -Check`; confirm `Network_Security_Auditor` and another MIT-licensed row emit SPDX/license fields; temporarily remove or null a fixture license and confirm the report records a missing-license warning without breaking unrelated rows.
   - Complexity: M
 
+### Researcher Queue (Cycle 14 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on live GitHub fork-parent
+metadata versus the manual fork/continuation attribution already shipped.*
+
+- [ ] P2 🤖 🔬 — Report GitHub fork-parent drift against catalog attribution
+  - Why: `forkOf`/`upstreamLicense` now make fork and continuation attribution visible, but the generator does not record whether GitHub itself marks a repository as a fork or which parent GitHub reports. True GitHub forks can drift from manual `forkOf`, while continuation/import rows such as `uBlockVanced` need to stay explicitly allowed as non-GitHub forks.
+  - Evidence: `gh repo view SysAdminDoc/RcloneBrowser --json isFork,parent` reports `isFork=true` with parent owner/name `kapitainsky/RcloneBrowser`, matching its catalog `forkOf`; `gh repo view SysAdminDoc/uBlockVanced --json isFork,parent` reports `isFork=false` while the catalog intentionally records `forkOf=gorhill/uBlock`; `scripts/sync-profile.ps1:210-213` does not request `isFork` or `parent`, and the REST fallback metadata at `scripts/sync-profile.ps1:187-196` omits fork-parent metadata; GitHub CLI documents `isFork` and `parent` as `gh repo view --json` fields: https://cli.github.com/manual/gh_repo_view
+  - Touches: `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, generated `projects.json` if the build machine wants feed fields such as `isFork`/`forkParent`, optional schema additions.
+  - Acceptance: the sync report distinguishes true GitHub forks, catalog-declared continuations/imports, and mismatches; a GitHub fork with no matching `forkOf` is a warning, a GitHub parent that disagrees with catalog `forkOf` is a warning or fatal based on severity, and catalog-declared non-GitHub continuations remain allowed with an explicit `forkAttributionKind` or equivalent field.
+  - Verify: run `scripts/sync-profile.ps1 -Check`; confirm `RcloneBrowser` is reported as a matching GitHub fork and `uBlockVanced` as a catalog-declared continuation/import rather than a false failure; alter a fixture parent or remove `forkOf` for a known GitHub fork and confirm the report flags the mismatch.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -835,6 +848,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Profile-assets refresh report artifact and job summary parity.
 - [ ] P2 — Expanded CODEOWNERS coverage for public profile contract files.
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
+- [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -863,3 +877,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
 - [ ] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths.
 - [ ] P2 — Per-project license metadata in the generated feed, schema, and report.
+- [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
