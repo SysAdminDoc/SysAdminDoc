@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 25 - 2026-06-04.
+> Last researched: Cycle 26 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 25 - 2026-06-04.
+Last researched: Cycle 26 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -995,6 +995,20 @@ same-minute scheduled maintenance runs.*
   - Verify: `rg -n "cron:" .github/workflows` shows no accidental duplicate schedule for independent maintenance jobs; the next scheduled run history shows separate start times.
   - Complexity: S
 
+### Researcher Queue (Cycle 26 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked whether the now-committed
+JSON Schema contracts are covered by the offline Tests workflow when schema
+files change.*
+
+- [ ] P3 🤖 🔬 — Include schema-contract changes in the offline Tests workflow
+  - Why: `tests/sync-profile.Tests.ps1` now includes feed/catalog JSON Schema contract tests, but `.github/workflows/tests.yml` only runs on PR/push changes to `scripts/**`, `tests/**`, and the workflow file itself. A schema-only PR can therefore skip the exact Pester lane that validates those schema contracts, leaving schema drift to manual review or later scheduled profile checks.
+  - Evidence: `.github/workflows/tests.yml:5-15` omits `schemas/**` from both `pull_request.paths` and `push.paths`; `tests/sync-profile.Tests.ps1:425-442` validates the fixture catalog/feed against `schemas/profile-projects.v1.json`; `schemas/profile-catalog.v1.json:3` and `schemas/profile-projects.v1.json:3` are the committed public schema contract IDs; GitHub workflow syntax docs state that `push`/`pull_request` path filters run based on changed file paths and that skipped required checks can remain pending: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+  - Touches: `.github/workflows/tests.yml`; optional `.github/workflows/profile-sync.yml` PR path filter if schema edits should run full generated-profile validation as well.
+  - Acceptance: schema contract changes under `schemas/**` trigger the offline Tests/Pester workflow on PRs and pushes; any future required-check policy either scopes this check safely or uses an always-created status so unrelated docs are not blocked by a skipped path-filtered workflow.
+  - Verify: open or simulate a PR touching only `schemas/profile-projects.v1.json` and confirm `Tests / Pester (offline)` runs; a scratch schema regression still fails the Pester contract case; unrelated planning-doc changes do not become blocked by a skipped required check.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1026,6 +1040,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
 - [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
+- [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

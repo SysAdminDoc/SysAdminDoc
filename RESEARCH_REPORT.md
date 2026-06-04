@@ -176,6 +176,7 @@ Top opportunities, in priority order:
 25. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 26. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
 27. P3 - Stagger same-minute scheduled maintenance workflows.
+28. P3 - Include schema-contract changes in the offline Tests workflow.
 
 ## Evidence Reviewed
 
@@ -1519,6 +1520,46 @@ validation path.
   reduces avoidable overlap.
 - Preserve manual dispatch behavior and avoid top-of-hour cron values.
 
+## Cycle 26 Research Addendum — 2026-06-04
+
+This pass checked whether the committed JSON Schema contracts are covered by
+the offline Tests workflow when schema files themselves change. It found a small
+trigger gap rather than a missing test.
+
+### Evidence reviewed (cycle 26)
+
+- `.github/workflows/tests.yml` runs on `pull_request` and `push`, but both path
+  filters include only `scripts/**`, `tests/**`, and
+  `.github/workflows/tests.yml`.
+- The offline Pester suite contains `Feed JSON Schema contracts` cases that call
+  `Test-FeedSchemaContracts` and validate a generated projects payload against
+  `schemas/profile-projects.v1.json`.
+- `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`
+  define the committed public schema contract IDs.
+- GitHub workflow syntax docs state that `push`/`pull_request` path filters run
+  based on changed file paths and that skipped required checks can remain
+  pending:
+  https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+
+### Finding (cycle 26)
+
+- **Cosmetic — schema-only contract edits can skip the schema-contract test
+  lane.** The tests exist, but the workflow path filters do not include
+  `schemas/**`. A PR that changes only a committed schema can therefore avoid the
+  offline Pester workflow that validates catalog/feed compatibility against
+  those schemas.
+  → roadmap "Include schema-contract changes in the offline Tests workflow".
+  [Verified]
+
+### Standards note (cycle 26)
+
+- Keep this narrow. The heavier profile-sync PR-validation item can decide
+  whether schemas also require a live generated-profile check; this item only
+  ensures the existing offline schema-contract tests are created for schema
+  diffs.
+- If Tests becomes a required check, account for GitHub's skipped-check behavior
+  before relying on path filters globally.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1562,6 +1603,8 @@ validation path.
   public feed, or represented only as aggregate redacted counts?
 - Should the repo adopt a simple maintenance-window convention for scheduled
   workflows, or only stagger accidental same-minute collisions as they appear?
+- Should schema changes trigger only the offline Pester contract lane, or also
+  the heavier profile-sync PR validation path?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
