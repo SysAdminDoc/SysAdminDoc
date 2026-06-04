@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T05:48:31.3554040-04:00",
+  "generatedAt": "2026-06-04T05:58:18.4780145-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -117,7 +117,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-04T07:58:23.0000000Z",
+        "pushedAt": "2026-06-04T09:55:17.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -796,9 +796,10 @@
         "repo": "Vigil",
         "language": "HTML",
         "pushedAt": "2026-05-26T19:05:34.0000000Z",
-        "category": "misc",
+        "category": "desktop",
         "topicHints": [
-          "utility",
+          "desktop-app",
+          "windows",
           "html"
         ]
       },
@@ -818,10 +819,10 @@
         "repo": "WolfPack",
         "language": "Fluent",
         "pushedAt": "2026-04-26T02:19:48.0000000Z",
-        "category": "security",
+        "category": "desktop",
         "topicHints": [
-          "security",
-          "networking",
+          "desktop-app",
+          "windows",
           "fluent",
           "privacy"
         ]
@@ -1012,28 +1013,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.21",
+    "expectedVersion": "v4.9.22",
     "expectedDate": "2026-06-04",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.21"
+        "value": "v4.9.22"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.21"
+        "value": "v4.9.22"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.21"
+        "value": "v4.9.22"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.21"
+        "value": "v4.9.22"
       }
     ],
     "dates": [
@@ -1066,7 +1067,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 3655,
+      "elapsedMs": 3516,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1082,7 +1083,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.56,
+      "ageDays": 2.57,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1092,7 +1093,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 3655,
+    "elapsedMs": 3516,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

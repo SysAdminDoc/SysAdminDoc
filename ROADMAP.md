@@ -5,11 +5,21 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.21
+Current repo version: v4.9.22
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.22 refresh: the WolfPack catalog-hygiene item shipped.
+WolfPack moved out of Security & Networking into Native Desktop Applications,
+and Vigil moved from Misc & Forks into the same desktop group so the
+privacy/browser packaging entries render adjacent to one another. Generated
+counts are now Security & Networking 3, Native Desktop Applications 19, and
+Misc & Forks 5. Verification ran `scripts/sync-profile.ps1 -Write -Check` with
+`readmeInSync=true`, `projectsExportInSync=true`,
+`docVersionConsistency.passed=true`, 0 metadata drift rows, 0 link failures, and
+0 link warnings.
 
 2026-06-04 v4.9.21 refresh: `setup.ps1` hardening shipped. The bootstrapper
 now declares `#Requires -Version 5.1`, supports `-CheckOnly` diagnostics for
@@ -359,10 +369,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Catalog hygiene and attribution
 
-- [ ] P3 — Recategorize WolfPack
+- [x] P3 — Recategorize WolfPack
   - Why: WolfPack (LibreWolf portable distro) sits in a 4-item Security & Networking section; it groups better with Vigil under Desktop/Privacy.
   - Touches: `data/profile-catalog.json` (category edit) then regenerate.
   - Acceptance: WolfPack renders under Desktop/Privacy; Security & Networking is tightened.
+  - Completed: v4.9.22 moved WolfPack and Vigil into Native Desktop Applications, regenerated README/feed/report output, and tightened Security & Networking from 4 to 3 repos.
   - Source: TODO.md (P3)
 
 - [ ] P3 — Standardize fork/continuation + upstream-license attribution
