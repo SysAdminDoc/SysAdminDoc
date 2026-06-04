@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 21 - 2026-06-04.
+> Last researched: Cycle 22 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 21 - 2026-06-04.
+Last researched: Cycle 22 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -936,6 +936,22 @@ shape.*
   - Verify: run `scripts/sync-profile.ps1 -Check` and confirm no malformed changelog-heading warnings remain after cleanup; inject a bad historical heading in a fixture and confirm Pester fails or reports the exact line.
   - Complexity: S
 
+### Researcher Queue (Cycle 22 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on executable install trust
+for raw userscript links. The existing release/download trust item targets
+visitor-facing EXE/APK/ZIP release assets; userscript installs are a separate
+surface because they execute through Tampermonkey/Violentmonkey from raw branch
+URLs.*
+
+- [ ] P2 🤖 🔬 — Add userscript install trust metadata
+  - Why: the README/feed expose 11 direct userscript install actions through raw GitHub URLs. Link validation checks whether those URLs respond, and release-asset trust work covers binary release rows, but the report does not inspect whether raw `.user.js` installs expose stable update metadata, version fields, permission/match scope, or branch/tag provenance.
+  - Evidence: parsing `projects.json` found 11 rows with `downloadKind=userscript` and `primaryAction.kind=install`; 10 point at `raw.githubusercontent.com/.../main/...user.js` and 1 points at `.../master/...user.js`; `scripts/sync-profile.ps1:704-706` adds userscript URLs to link validation, while `scripts/sync-profile.ps1:3055-3062` excludes `userscript` from release-download drift checks; README currently reports "11 userscript installs"; Tampermonkey documents userscript metadata keys including `@version`, `@match`, `@updateURL`, and `@downloadURL`: https://www.tampermonkey.net/documentation.php?locale=en
+  - Touches: `scripts/sync-profile.ps1` (new userscript metadata fetch/parse/report block), `reports/profile-sync-report.json`, optional feed fields such as `userscriptTrust`, and Pester fixtures with representative userscript headers.
+  - Acceptance: the sync report records each userscript install row with branch/tag source, `@name`, `@version`, update/download URL presence, match/include scope summary, and any missing or broad-scope warnings; README can stay minimal, but the build machine gets a prioritized list of raw userscript install trust gaps; suppressed rows remain omitted from public summaries.
+  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm a `userscriptInstallTrust` block reports all 11 current installs; remove `@version` or widen `@match` in a fixture and confirm the warning/failure appears; confirm release-asset trust checks still focus on release-backed downloads.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -956,6 +972,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — JSON Schema contract for `reports/profile-sync-report.json`.
 - [ ] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 - [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
+- [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -992,3 +1009,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
 - [ ] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts.
 - [ ] P2 — Repository release/tag consistency reported beside planning-doc version checks.
+- [ ] P2 — Userscript install trust reporting for raw branch-hosted `.user.js` actions.
