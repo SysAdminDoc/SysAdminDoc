@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.6] - 2026-06-04
+
+- Changed: `scripts/sync-profile.ps1 -SeedCatalog` now exits clearly unless `-ForceSeedCatalog` is also supplied.
+- Added: A loud lossy one-shot bootstrap warning for forced seed mode and clearer missing-catalog guidance that keeps `data/profile-catalog.json` as the source of truth.
+- Changed: Seed-only mode exits after writing the catalog instead of continuing into normal render/check preparation.
+- Added: Pester subprocess coverage for blocked default seed mode and forced offline seed mode.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 23 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata drift rows, full link validation enabled, 0 link failures, and 0 link warnings.
+
 ## [v4.9.5] - 2026-06-04
 
 - Added: Structured `metadataDrift` rows in `reports/profile-sync-report.json`, with repo, field, old value, new value, severity, and failing flags for committed-vs-live `projects.json` drift.
