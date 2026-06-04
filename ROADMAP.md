@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 8 - 2026-06-04.
+> Last researched: Cycle 9 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 8 - 2026-06-04.
+Last researched: Cycle 9 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -747,6 +747,21 @@ new gap is that registry-installed validation tools are not pinned or locked.*
   - Verify: `rg -n "pip install --upgrade|MinimumVersion" .github/workflows` returns no unreviewed floating validation-tool installs; a manual CI run uses the pinned versions; bumping a pin in a scratch branch produces a reviewable diff and still passes Pester/workflow-security.
   - Complexity: S
 
+### Researcher Queue (Cycle 9 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on accessibility and motion.
+Existing completed work already covers theme-aware chrome, plain-text tagline,
+meaningful alt text, and third-party render-host reduction; this item is
+specifically about auto-starting motion in the remaining hero/typing chrome.*
+
+- [ ] P2 🤖 🔬 — Add a reduced-motion/static profile chrome guard
+  - Why: the generated profile header still uses `capsule-render` with `animation=fadeIn` and `readme-typing-svg` with `repeat=true`, while GitHub README embeds do not offer an in-page pause/stop control. This is a separate accessibility concern from dark/light theme handling and alt text.
+  - Evidence: `scripts/sync-profile.ps1:1469-1472` generates the animated capsule and looping typing SVG URLs; `README.md:2` and `README.md:11` render those URLs; W3C WCAG 2.2.2 says moving/blinking/scrolling content that starts automatically, lasts more than five seconds, and appears alongside other content needs a pause/stop/hide mechanism unless essential: https://www.w3.org/WAI/WCAG20/Understanding/pause-stop-hide.html; MDN documents `prefers-reduced-motion` as the user preference for reducing non-essential motion: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion; readme-typing-svg documents `repeat` defaulting to `true`: https://github.com/DenverCoder1/readme-typing-svg
+  - Touches: `scripts/sync-profile.ps1`, generated `README.md`, optional committed `assets/profile/*.svg`, `tests/sync-profile.Tests.ps1`, `reports/profile-sync-report.json`.
+  - Acceptance: generated profile chrome either uses static committed SVG/text for the hero/typing line or configures third-party URLs to avoid looping/auto-starting motion; `readmeExperienceChecks` records a `motionSafeChrome` field and fails when profile chrome contains `repeat=true`, `animation=`, or other known long-running motion parameters without an accessible fallback.
+  - Verify: run `scripts/sync-profile.ps1 -Write -Check` and confirm `motionSafeChrome=true`; temporarily restore `repeat=true` or `animation=fadeIn` in the generator fixture and confirm Pester or `-Check` fails.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -757,6 +772,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.
 - [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
 - [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
+- [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -780,3 +796,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
 - [ ] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows.
 - [ ] P2 — Pinned CI validation-tool installs with a documented update path.
+- [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
