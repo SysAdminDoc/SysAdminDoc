@@ -5,17 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.6
+Current version after this refresh: v4.9.7
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 23/23 tests after the v4.9.6 `-SeedCatalog` guard update.
+  passed 24/24 tests after the v4.9.7 parallel link-validation update.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
-  drift rows, full link validation enabled, 0 link failures, and 0 link warnings. Raw
-  `projectsExportInSync` remains a report signal; info-only star/topic/`pushedAt`
-  drift is now reported without failing the gate.
+  drift rows, full link validation enabled, 239 link targets checked in 6835 ms,
+  0 link failures, and 0 link warnings. Raw `projectsExportInSync` remains a
+  report signal; info-only star/topic/`pushedAt` drift is now reported without
+  failing the gate.
+- The v4.9.7 batch closed the active P2 parallel link-validation item by
+  collecting link targets first, probing them in bounded parallel batches, and
+  adding `linkValidationSummary.warningCountByHost`.
 - The v4.9.6 batch closed the active P2 legacy seed-parser item by requiring
   explicit `-ForceSeedCatalog`, emitting a lossy one-shot bootstrap warning,
   and exiting seed-only mode after the catalog write.
@@ -43,10 +47,9 @@ Top opportunities, in priority order:
 3. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
 4. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
 5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
-6. P2 - Parallelize live link validation; the full check passes but spends most wall time in sequential HTTP probes.
-7. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
-8. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
-9. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+6. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
+7. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
+8. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 
 ## Evidence Reviewed
 
@@ -158,8 +161,8 @@ Important integrations:
 - User value: prevents stale, private, renamed, broken, or malformed public profile links.
 - Entry point: `scripts/sync-profile.ps1 -Check`.
 - Main code: `Test-ProfileState`, `Test-ReadmeExperience`, `Test-LinkTargets`, `Test-HttpUrl`.
-- Current maturity: strong; final check passed with zero fatal link failures and one nonfatal 502 warning.
-- Improvement opportunities: make link probes parallel, add metadata drift detail, and classify warnings by transient status.
+- Current maturity: strong; final check passed with zero fatal link failures, zero link warnings, structured metadata drift detail, and parallel link probes.
+- Improvement opportunities: add metadata hygiene, release-asset, and validation-performance report sections.
 
 ### Public Project Feed
 
@@ -182,8 +185,8 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: functional and tolerant of transient failures, but slow because probes are sequential.
-- Improvement opportunities: parallel probes, shorter per-host timeout, host-level warning summary, and cached validation in CI artifacts.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 6835 ms with zero warnings.
+- Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow
 

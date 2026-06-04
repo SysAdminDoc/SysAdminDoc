@@ -101,6 +101,35 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
     }
 }
 
+Describe 'Test-LinkTargets batch reporting' {
+    It 'summarizes transient warnings by host while keeping fatal failures separate' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $included = @($cat.entries | Where-Object {
+            $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+        })
+        $probe = {
+            param($target)
+
+            if ($target.type -eq 'launch') {
+                return [ordered]@{ ok = $false; status = 404; error = 'missing'; fatal = $true }
+            }
+            return [ordered]@{ ok = $false; status = 503; error = 'busy'; fatal = $false }
+        }
+
+        $result = Test-LinkTargets -Included $included -RepoLookup @{} -ProbeScript $probe -ThrottleLimit 2
+
+        $result.targetCount | Should -Be 3
+        $result.throttleLimit | Should -Be 2
+        @($result.failures) | Should -HaveCount 1
+        @($result.warnings) | Should -HaveCount 2
+        $result.failures[0].host | Should -Be 'sysadmindoc.github.io'
+
+        $rawHost = @($result.warningCountByHost | Where-Object { $_.host -eq 'raw.githubusercontent.com' })
+        $rawHost | Should -HaveCount 1
+        $rawHost[0].count | Should -Be 2
+    }
+}
+
 Describe 'New-Readme generation (offline, fixture catalog)' {
     BeforeAll {
         $script:cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

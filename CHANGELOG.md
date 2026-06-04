@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.7] - 2026-06-04
+
+- Changed: Link validation now collects entrypoint, userscript, launch, and release targets first, then probes them in bounded parallel batches with throttle 16.
+- Added: `linkValidationSummary` to `reports/profile-sync-report.json`, including target count, throttle, elapsed milliseconds, and `warningCountByHost`.
+- Kept: Existing link semantics are preserved: 404/410 remain fatal failures, while transient 403/429/5xx/timeout results stay non-fatal warnings.
+- Added: Pester coverage for deterministic warning/failure separation and warning counts grouped by host.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 24 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with 239 link targets checked in 6835 ms, 0 link failures, and 0 link warnings.
+
 ## [v4.9.6] - 2026-06-04
 
 - Changed: `scripts/sync-profile.ps1 -SeedCatalog` now exits clearly unless `-ForceSeedCatalog` is also supplied.

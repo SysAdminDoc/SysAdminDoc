@@ -41,6 +41,7 @@ $MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose
 $GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
 $MetadataGeneratedAtStaleDays = 7
 $SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
+$LinkValidationThrottle = 16
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -477,26 +478,38 @@ function Test-HttpUrl {
     return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false }
 }
 
-function Test-LinkTargets {
+function Get-LinkHost {
+    param([string]$Url)
+
+    try {
+        return ([Uri]$Url).Host.ToLowerInvariant()
+    } catch {
+        return $null
+    }
+}
+
+function New-LinkValidationTarget {
+    param(
+        [hashtable]$Entry,
+        [string]$Type,
+        [string]$Url
+    )
+
+    return [ordered]@{
+        repo = [string]$Entry.repo
+        type = $Type
+        url = $Url
+        host = Get-LinkHost $Url
+    }
+}
+
+function Get-LinkValidationTargets {
     param(
         [hashtable[]]$Included,
         [hashtable]$RepoLookup
     )
 
-    $failures = New-Object System.Collections.Generic.List[object]
-    $warnings = New-Object System.Collections.Generic.List[object]
-
-    $record = {
-        param($entry, $type, $url, $result)
-        $row = [ordered]@{
-            repo = $entry.repo
-            type = $type
-            url = $url
-            status = $result.status
-            error = $result.error
-        }
-        if ($result.fatal) { $failures.Add($row) } else { $warnings.Add($row) }
-    }
+    $targets = New-Object System.Collections.Generic.List[object]
 
     foreach ($entry in $Included) {
         $meta = Get-RepoMeta $entry $RepoLookup
@@ -505,30 +518,165 @@ function Test-LinkTargets {
 
         if (-not [string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) {
             $url = ConvertTo-RawGitHubUrl -Repo $repoForUrl -Branch $branch -Path ([string]$entry.entrypoint)
-            $result = Test-HttpUrl $url
-            if (-not $result.ok) { & $record $entry "entrypoint" $url $result }
+            $targets.Add((New-LinkValidationTarget -Entry $entry -Type "entrypoint" -Url $url))
         }
 
         if (-not [string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) {
             $url = [string]$entry.userscriptUrl
-            $result = Test-HttpUrl $url
-            if (-not $result.ok) { & $record $entry "userscript" $url $result }
+            $targets.Add((New-LinkValidationTarget -Entry $entry -Type "userscript" -Url $url))
         }
 
         if (-not [string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) {
             $url = [string]$entry.liveUrl
-            $result = Test-HttpUrl $url
-            if (-not $result.ok) { & $record $entry "launch" $url $result }
+            $targets.Add((New-LinkValidationTarget -Entry $entry -Type "launch" -Url $url))
         }
 
         if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
             $releaseUrl = Get-ReleaseUrl $entry
-            $result = Test-HttpUrl $releaseUrl
-            if (-not $result.ok) { & $record $entry "release" $releaseUrl $result }
+            $targets.Add((New-LinkValidationTarget -Entry $entry -Type "release" -Url $releaseUrl))
         }
     }
 
-    return [ordered]@{ failures = $failures.ToArray(); warnings = $warnings.ToArray() }
+    return $targets.ToArray()
+}
+
+function Invoke-LinkProbeBatch {
+    param(
+        [object[]]$Targets,
+        [int]$ThrottleLimit = $LinkValidationThrottle,
+        [scriptblock]$ProbeScript = $null
+    )
+
+    $targetList = @($Targets)
+    $throttle = [Math]::Max(1, $ThrottleLimit)
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    if ($targetList.Count -eq 0) {
+        $stopwatch.Stop()
+        return [ordered]@{
+            results = @()
+            targetCount = 0
+            throttleLimit = $throttle
+            elapsedMs = $stopwatch.ElapsedMilliseconds
+        }
+    }
+
+    if ($ProbeScript) {
+        $probeRows = foreach ($target in $targetList) {
+            $result = & $ProbeScript $target
+            [ordered]@{
+                repo = $target.repo
+                type = $target.type
+                url = $target.url
+                host = $target.host
+                ok = [bool]$result.ok
+                status = $result.status
+                error = $result.error
+                fatal = [bool]$result.fatal
+            }
+        }
+    } else {
+        $probeRows = $targetList | ForEach-Object -Parallel {
+            function Test-ParallelHttpUrl {
+                param([string]$Url, [int]$TimeoutSec = 12, [int]$Retries = 2)
+
+                $status = $null
+                $err = $null
+                for ($attempt = 1; $attempt -le $Retries; $attempt++) {
+                    foreach ($method in @('Head', 'Get')) {
+                        try {
+                            $response = Invoke-WebRequest -Uri $Url -Method $method -MaximumRedirection 5 -TimeoutSec $TimeoutSec
+                            $code = [int]$response.StatusCode
+                            return [ordered]@{ ok = ($code -ge 200 -and $code -lt 400); status = $code; error = $null; fatal = $false }
+                        } catch {
+                            $err = $_.Exception.Message
+                            $status = $null
+                            $exception = $_.Exception
+                            if ($exception.PSObject.Properties.Name -contains 'Response' -and $exception.Response) {
+                                $response = $exception.Response
+                                if ($response.PSObject.Properties.Name -contains 'StatusCode' -and $response.StatusCode) {
+                                    $status = [int]$response.StatusCode
+                                }
+                            }
+                            if ($status -eq 404 -or $status -eq 410) {
+                                return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
+                            }
+                        }
+                    }
+                    if ($attempt -lt $Retries) { Start-Sleep -Seconds $attempt }
+                }
+                return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false }
+            }
+
+            $target = $_
+            $result = Test-ParallelHttpUrl -Url $target.url
+            [ordered]@{
+                repo = $target.repo
+                type = $target.type
+                url = $target.url
+                host = $target.host
+                ok = [bool]$result.ok
+                status = $result.status
+                error = $result.error
+                fatal = [bool]$result.fatal
+            }
+        } -ThrottleLimit $throttle
+    }
+
+    $stopwatch.Stop()
+    return [ordered]@{
+        results = @($probeRows)
+        targetCount = $targetList.Count
+        throttleLimit = $throttle
+        elapsedMs = $stopwatch.ElapsedMilliseconds
+    }
+}
+
+function Test-LinkTargets {
+    param(
+        [hashtable[]]$Included,
+        [hashtable]$RepoLookup,
+        [int]$ThrottleLimit = $LinkValidationThrottle,
+        [scriptblock]$ProbeScript = $null
+    )
+
+    $targets = @(Get-LinkValidationTargets -Included $Included -RepoLookup $RepoLookup)
+    $probeBatch = Invoke-LinkProbeBatch -Targets $targets -ThrottleLimit $ThrottleLimit -ProbeScript $ProbeScript
+    $failures = New-Object System.Collections.Generic.List[object]
+    $warnings = New-Object System.Collections.Generic.List[object]
+
+    foreach ($result in @($probeBatch.results | Where-Object { -not $_.ok } | Sort-Object repo, type, url)) {
+        $row = [ordered]@{
+            repo = $result.repo
+            type = $result.type
+            url = $result.url
+            host = $result.host
+            status = $result.status
+            error = $result.error
+        }
+        if ($result.fatal) { $failures.Add($row) } else { $warnings.Add($row) }
+    }
+
+    $warningCountByHost = @(
+        $warnings |
+            Group-Object { $_.host } |
+            Sort-Object Name |
+            ForEach-Object {
+                [ordered]@{
+                    host = if ([string]::IsNullOrWhiteSpace([string]$_.Name)) { $null } else { [string]$_.Name }
+                    count = $_.Count
+                }
+            }
+    )
+
+    return [ordered]@{
+        failures = $failures.ToArray()
+        warnings = $warnings.ToArray()
+        warningCountByHost = $warningCountByHost
+        targetCount = $probeBatch.targetCount
+        throttleLimit = $probeBatch.throttleLimit
+        elapsedMs = $probeBatch.elapsedMs
+    }
 }
 
 function Get-DownloadLabel {
@@ -1658,10 +1806,22 @@ function Test-ProfileState {
 
     $linkFailures = @()
     $linkWarnings = @()
+    $linkValidationSummary = [ordered]@{
+        targetCount = 0
+        throttleLimit = $LinkValidationThrottle
+        elapsedMs = 0
+        warningCountByHost = @()
+    }
     if (-not $Offline -and -not $SkipLinkValidation) {
         $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup
         $linkFailures = @($linkResult.failures)
         $linkWarnings = @($linkResult.warnings)
+        $linkValidationSummary = [ordered]@{
+            targetCount = $linkResult.targetCount
+            throttleLimit = $linkResult.throttleLimit
+            elapsedMs = $linkResult.elapsedMs
+            warningCountByHost = @($linkResult.warningCountByHost)
+        }
     }
 
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
@@ -1683,6 +1843,7 @@ function Test-ProfileState {
             generatedAt = $metadataDriftResult.generatedAt
         }
         linkValidationSkipped = [bool]($Offline -or $SkipLinkValidation)
+        linkValidationSummary = $linkValidationSummary
         linkValidationFailures = @($linkFailures)
         linkValidationWarnings = @($linkWarnings)
         readmeExperienceChecks = $experienceChecks
