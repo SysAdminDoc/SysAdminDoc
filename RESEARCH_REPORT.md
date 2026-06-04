@@ -156,22 +156,23 @@ Top opportunities, in priority order:
 5. P2 - Extend link validation to the hero/header and non-catalog URLs.
 6. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
 7. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
-8. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
-9. P2 - Add a reduced-motion/static generated profile chrome guard.
-10. P2 - Add a generated profile PR validation handoff for automation-created branches.
-11. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
-12. P2 - Expand CODEOWNERS coverage for profile-contract files.
-13. P2 - Export per-project SPDX/license metadata in the generated feed and report.
-14. P2 - Report GitHub fork-parent drift against catalog attribution.
-15. P2 - Add a public-repo enumeration limit guard.
-16. P2 - Publish a JSON Schema for `profile-sync-report.json`.
-17. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
-18. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
-19. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-20. P3 - Add `.editorconfig` and generated README markdown linting.
-21. P3 - Validate all historical `CHANGELOG.md` release headings.
-22. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
-23. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+8. P2 - Add userscript install trust metadata for raw `.user.js` actions.
+9. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
+10. P2 - Add a reduced-motion/static generated profile chrome guard.
+11. P2 - Add a generated profile PR validation handoff for automation-created branches.
+12. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
+13. P2 - Expand CODEOWNERS coverage for profile-contract files.
+14. P2 - Export per-project SPDX/license metadata in the generated feed and report.
+15. P2 - Report GitHub fork-parent drift against catalog attribution.
+16. P2 - Add a public-repo enumeration limit guard.
+17. P2 - Publish a JSON Schema for `profile-sync-report.json`.
+18. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
+19. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
+20. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+21. P3 - Add `.editorconfig` and generated README markdown linting.
+22. P3 - Validate all historical `CHANGELOG.md` release headings.
+23. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+24. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 
 ## Evidence Reviewed
 
@@ -1360,6 +1361,47 @@ release headings are not validated.
 - This should be a docs-quality warning unless the malformed heading can break
   downstream release tooling; the latest-heading mismatch should remain fatal.
 
+## Cycle 22 Research Addendum — 2026-06-04
+
+This pass checked executable install trust for userscript rows. The existing
+release/download trust roadmap item covers release-backed EXE/APK/ZIP rows; raw
+`.user.js` install actions are a separate surface because userscript managers
+execute and update them from metadata in the script header.
+
+### Evidence reviewed (cycle 22)
+
+- Parsing `projects.json` found 11 rows with `downloadKind=userscript` and
+  `primaryAction.kind=install`.
+- Ten userscript install URLs point to `raw.githubusercontent.com/.../main/...`
+  and one points to `raw.githubusercontent.com/.../master/...`.
+- `README.md` reports "11 userscript installs" in the generated profile
+  snapshot and renders those rows as `Install` actions.
+- `scripts/sync-profile.ps1:704-706` adds userscript URLs to link validation,
+  so the current gate checks reachability.
+- `scripts/sync-profile.ps1:3055-3062` excludes `userscript` from
+  release/download drift checks, which is correct for release assets but leaves
+  userscript trust unreported.
+- Tampermonkey documents userscript metadata keys including `@version`,
+  `@match`, `@updateURL`, and `@downloadURL`:
+  https://www.tampermonkey.net/documentation.php?locale=en
+
+### Finding (cycle 22)
+
+- **Minor — raw userscript installs have link checks but no trust metadata
+  report.** The profile offers 11 direct install links for browser-executed
+  `.user.js` files. A reachable raw URL is necessary but not enough to explain
+  whether the script header has a version, stable update/download URLs,
+  expected match scope, and clear branch/tag provenance.
+  → roadmap "Add userscript install trust metadata". [Verified]
+
+### Standards note (cycle 22)
+
+- Start report-only. Userscript trust signals are nuanced: branch-hosted scripts
+  may be intentional for fast updates, while release/tag URLs are more stable
+  but heavier to maintain.
+- Keep public summaries aggregate-first. Do not surface noisy match-pattern
+  details in the README unless a specific script is flagged.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1393,6 +1435,9 @@ release headings are not validated.
   milestones and releases are intentionally sparse?
 - Should malformed historical changelog headings fail `-Check`, or start as
   report warnings until the existing `v3.0.0` date can be recovered?
+- Should raw userscript install rows stay branch-hosted for automatic updates,
+  or should high-traffic scripts move toward release/tag-hosted install URLs
+  with explicit update metadata?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
