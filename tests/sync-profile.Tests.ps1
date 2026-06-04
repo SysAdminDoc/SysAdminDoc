@@ -253,9 +253,32 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'includes the generated catalog hand-edit notice' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
+    It 'emits theme-aware profile chrome with plain text and descriptive alt text' {
+        $script:rendered | Should -Match '<picture>'
+        $script:rendered | Should -Match '\(prefers-color-scheme: dark\)'
+        $script:rendered | Should -Match '\(prefers-color-scheme: light\)'
+        $script:rendered | Should -Match 'Healthcare IT engineer and DICOM/PACS specialist'
+        $script:rendered | Should -Match 'alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"'
+        $script:rendered | Should -Not -Match 'alt="(Header|Typing SVG|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
+    }
+    It 'places stats chrome after the profile body and before the generated catalog' {
+        $focusIndex = $script:rendered.IndexOf('### Professional Focus', [StringComparison]::Ordinal)
+        $statsIndex = $script:rendered.IndexOf('https://skillicons.dev/icons', [StringComparison]::Ordinal)
+        $noticeIndex = $script:rendered.IndexOf($GeneratedCatalogNotice, [StringComparison]::Ordinal)
+
+        ($focusIndex -ge 0) | Should -BeTrue
+        ($statsIndex -gt $focusIndex) | Should -BeTrue
+        ($statsIndex -lt $noticeIndex) | Should -BeTrue
+        $script:rendered.Substring(0, $focusIndex) | Should -Not -Match 'skillicons\.dev'
+        $script:rendered | Should -Not -Match '(?s)\*\*Currently Building\*\*.*?\r?\n---\r?\n\r?\n---\r?\n\r?\n<p align="center">\s*<a href="https://skillicons\.dev">'
+    }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeTrue
+        $result.themeAwareImageChrome | Should -BeTrue
+        $result.plainTextTagline | Should -BeTrue
+        $result.meaningfulImageAltText | Should -BeTrue
+        $result.genericImageAltTextCount | Should -Be 0
         $result.passed | Should -BeTrue
     }
 }

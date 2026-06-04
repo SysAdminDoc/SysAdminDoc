@@ -54,6 +54,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Fix the first-viewport table layout by removing the HTML two-column wrapper that cramped the Proof Points and Currently Building tables, while keeping the generated Currently Building table marker intact. — *Source: ROADMAP.md*
 - [x] Feed `sysadmindoc.github.io` from the same catalog data by publishing a generated `projects.json` and keeping the README as the compact catalog. — *Source: ROADMAP.md*
 - [x] Added the public-safe companion research plan `docs/research-feature-plan-2026-06-04.md`. — *Source: TODO.md*
+- [x] Generated theme-aware profile chrome with dark/light image sources, a plain-text tagline, descriptive alt text, and validation coverage (v4.9.12). — *Source: ROADMAP.md*
 
 ## Stale / Obsolete Items
 

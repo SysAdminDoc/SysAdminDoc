@@ -1071,6 +1071,98 @@ function New-FeaturedSection {
     return ($lines -join [Environment]::NewLine)
 }
 
+function New-ThemeAwareImage {
+    param(
+        [string]$DarkUrl,
+        [string]$LightUrl,
+        [string]$Alt,
+        [string]$Attributes = ""
+    )
+
+    $suffix = if ([string]::IsNullOrWhiteSpace($Attributes)) { "" } else { " $Attributes" }
+    return "<picture><source media=`"(prefers-color-scheme: dark)`" srcset=`"$DarkUrl`"><source media=`"(prefers-color-scheme: light)`" srcset=`"$LightUrl`"><img src=`"$DarkUrl`" alt=`"$Alt`"$suffix /></picture>"
+}
+
+function New-ProfileChrome {
+    $headerDark = "https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52"
+    $headerLight = "https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=0969DA&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=57606a&descAlignY=52"
+    $typingDark = "https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"
+    $typingLight = "https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=0969DA&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add('<p align="center">')
+    $lines.Add("  $(New-ThemeAwareImage -DarkUrl $headerDark -LightUrl $headerLight -Alt 'SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder')")
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add('  <strong>Healthcare IT engineer and DICOM/PACS specialist</strong><br/>')
+    $lines.Add('  16+ years in IT operations, 10+ production platforms, and public tools across Python, React, C++, C#, Go, Rust, Kotlin, and PowerShell.')
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add("  $(New-ThemeAwareImage -DarkUrl $typingDark -LightUrl $typingLight -Alt 'Rotating focus lines for healthcare IT, DICOM/PACS, production platforms, and core languages')")
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add('  <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile view count for SysAdminDoc" />')
+    $lines.Add('  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb" alt="GitHub follower count for SysAdminDoc" />')
+    $lines.Add('  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&affiliations=OWNER" alt="Total public stars for SysAdminDoc repositories" />')
+    $lines.Add('</p>')
+    $lines.Add('')
+
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-ProfileStatsChrome {
+    $skillsDark = "https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"
+    $skillsLight = "https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"
+    $statsDark = "https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=8b949e&ring_color=1f6feb"
+    $statsLight = "https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=default&hide_border=true&bg_color=ffffff&title_color=0969da&icon_color=0969da&text_color=57606a&ring_color=0969da"
+    $langsDark = "https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8"
+    $langsLight = "https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=default&hide_border=true&bg_color=ffffff&title_color=0969da&text_color=57606a&langs_count=8"
+    $streakDark = "https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0D1117&ring=1F6FEB&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=8B949E&dates=8B949E&stroke=30363D"
+    $streakLight = "https://streak-stats.demolab.com?user=SysAdminDoc&theme=default&hide_border=true&background=FFFFFF&ring=0969DA&fire=0969DA&currStreakLabel=0969DA&sideLabels=57606A&dates=57606A&stroke=d0d7de"
+    $activityDark = "https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-dark&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb"
+    $activityLight = "https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-light&hide_border=true&bg_color=ffffff&color=0969da&line=0969da&point=0969da&area=true&area_color=0969da"
+    $statsImage = New-ThemeAwareImage -DarkUrl $statsDark -LightUrl $statsLight -Alt 'SysAdminDoc GitHub contribution and repository statistics' -Attributes 'height="180"'
+    $languagesImage = New-ThemeAwareImage -DarkUrl $langsDark -LightUrl $langsLight -Alt 'Most-used public repository languages for SysAdminDoc' -Attributes 'height="180"'
+    $activityImage = New-ThemeAwareImage -DarkUrl $activityDark -LightUrl $activityLight -Alt 'SysAdminDoc GitHub contribution activity graph' -Attributes 'width="98%"'
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add('---')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add('  <a href="https://skillicons.dev">')
+    $lines.Add("    $(New-ThemeAwareImage -DarkUrl $skillsDark -LightUrl $skillsLight -Alt 'PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub')")
+    $lines.Add('  </a>')
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('---')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add("  $statsImage")
+    $lines.Add("  $languagesImage")
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add("  $(New-ThemeAwareImage -DarkUrl $streakDark -LightUrl $streakLight -Alt 'SysAdminDoc GitHub contribution streak summary')")
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('<p align="center">')
+    $lines.Add("  $activityImage")
+    $lines.Add('</p>')
+    $lines.Add('')
+    $lines.Add('---')
+
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-ProfileFooter {
+    $footerDark = "https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer"
+    $footerLight = "https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=120&section=footer"
+    return New-ThemeAwareImage -DarkUrl $footerDark -LightUrl $footerLight -Alt "Decorative footer wave for the SysAdminDoc profile"
+}
+
 function Update-Header {
     param(
         [string]$Header,
@@ -1079,7 +1171,16 @@ function Update-Header {
         [hashtable]$RepoLookup
     )
 
-    $updated = $Header -replace '\d+%2B\+open\+source\+tools', "$PublicRepoCount%2B+open+source+tools"
+    $legacyChromePattern = '(?s)\r?\n---\r?\n\r?\n<p align="center">\s*<a href="https://skillicons\.dev">.*?github-readme-activity-graph\.vercel\.app.*?</p>\r?\n\r?\n---'
+    $updated = [regex]::Replace($Header, $legacyChromePattern, [Environment]::NewLine)
+    $focusMarker = "### Professional Focus"
+    $focusIndex = $updated.IndexOf($focusMarker, [StringComparison]::Ordinal)
+    if ($focusIndex -ge 0) {
+        $updated = $updated.Substring($focusIndex)
+    }
+    $updated = (New-ProfileChrome) + [Environment]::NewLine + [Environment]::NewLine + $updated
+
+    $updated = $updated -replace '\d+%2B\+open\+source\+tools', "$PublicRepoCount%2B+open+source+tools"
     $updated = $updated -replace '- \d+\+ open source projects across', "- $PublicRepoCount+ open source projects across"
     $updated = $updated -replace 'Public portfolio: \d+ active repos, \d+ visitor-facing projects,', "Public portfolio: $PublicRepoCount active repos, $($Entries.Count) visitor-facing projects,"
     $updated = $updated -replace '\| Public catalog \| \d+ active repos,', "| Public catalog | $PublicRepoCount active repos,"
@@ -1107,7 +1208,8 @@ function Update-Header {
         $updated = [regex]::Replace($updated, $pattern, $table + [Environment]::NewLine)
     }
 
-    return $updated.TrimEnd()
+    $updated = [regex]::Replace($updated.TrimEnd(), '(\r?\n\s*---\s*)+$', '')
+    return $updated.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + (New-ProfileStatsChrome)
 }
 
 function New-Readme {
@@ -1132,7 +1234,7 @@ function New-Readme {
     if ($start -lt 0) {
         throw "README marker not found: generated catalog notice, ### Start Here, or ### Featured Projects"
     }
-    $footer = '![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)'
+    $footer = New-ProfileFooter
     $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($entries | Select-Object -ExpandProperty repo -Unique).Count }
     $header = Update-Header -Header $readme.Substring(0, $start) -PublicRepoCount $publicCount -Entries $entries -RepoLookup $repoLookup
     $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
@@ -1469,9 +1571,22 @@ function Test-ReadmeExperience {
     $hasStartHere = $ExpectedReadme.Contains("### Start Here")
     $hasSnapshot = $ExpectedReadme.Contains("### Catalog Snapshot")
     $hasGeneratedNotice = $ExpectedReadme.Contains($GeneratedCatalogNotice)
+    $hasThemeAwareChrome = $ExpectedReadme.Contains("<picture>") -and
+        $ExpectedReadme.Contains('(prefers-color-scheme: dark)') -and
+        $ExpectedReadme.Contains('(prefers-color-scheme: light)') -and
+        $ExpectedReadme.Contains("theme=light") -and
+        $ExpectedReadme.Contains("github-light")
+    $hasPlainTextTagline = $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -and
+        $ExpectedReadme.Contains("16+ years in IT operations")
+    $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
+    $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
+    $hasMeaningfulAltText = $genericAltCount -eq 0 -and
+        $ExpectedReadme.Contains('alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"') -and
+        $ExpectedReadme.Contains('alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub"')
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
     $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
+        $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
     return [ordered]@{
@@ -1479,6 +1594,10 @@ function Test-ReadmeExperience {
         startHereSection = [bool]$hasStartHere
         catalogSnapshotSection = [bool]$hasSnapshot
         generatedCatalogNotice = [bool]$hasGeneratedNotice
+        themeAwareImageChrome = [bool]$hasThemeAwareChrome
+        plainTextTagline = [bool]$hasPlainTextTagline
+        meaningfulImageAltText = [bool]$hasMeaningfulAltText
+        genericImageAltTextCount = $genericAltCount
         featuredRows = $featured.Count
         featuredActionColumn = [bool]$hasFeaturedActionColumn
         currentlyBuildingRows = $building.Count

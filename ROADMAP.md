@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.11
+Current repo version: v4.9.12
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 3 - 2026-06-04.
+> Last researched: Cycle 4 - 2026-06-04.
 
 ## Implementer Instructions
 
@@ -28,6 +28,16 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.12 refresh: theme-aware README chrome now renders through
+dark/light `<picture>` sources for the header, typing SVG, skill icons, stats,
+streak card, activity graph, and footer. The generated header also includes a
+plain-text tagline and descriptive alt text. Pester passed 30/30, and full
+`-Write -Check` passed with `themeAwareImageChrome=true`,
+`plainTextTagline=true`, `meaningfulImageAltText=true`, 0 generic image alt
+labels, 239 link targets checked in 6041 ms, 0 link failures, and 0 link
+warnings. The run used the REST metadata fallback after a transient GitHub
+GraphQL 502.
 
 2026-06-04 v4.9.11 refresh: the awesome-list batch prepared a curated
 submission plan in `RESEARCH_REPORT.md` using current catalog data, live target
@@ -182,10 +192,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Accessibility and README chrome
 
-- [ ] P1 — Theme-aware, accessible image chrome (NF3)
+- [x] P1 — Theme-aware, accessible image chrome (NF3)
   - Why: the hero/stats/streak/activity/skill/capsule images are dark-only (`bg_color=0d1117`) and render as dark slabs in GitHub light mode; alt text is generic and the value proposition is trapped inside the typing SVG.
   - Touches: `scripts/sync-profile.ps1` (new `New-HeroChrome`/`New-StatsSection`), `README.md` top section (via generation), Pester fixtures.
   - Acceptance: generator emits `<picture>` blocks with dark+light sources, meaningful `alt` text, and a plain-text tagline that survives host failure; legible in both GitHub themes; coordinate with the hand-authored hero above the generated block.
+  - Completed: v4.9.12 added generated dark/light image chrome, a plain-text tagline, descriptive alt text, and README experience checks for the profile chrome.
   - Source: TODO.md (NF3); docs/research-feature-plan-2026-06-04.md (P1)
 
 ### Release/download taxonomy and third-party assets
@@ -337,8 +348,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.11`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.11`), `CHANGELOG.md:5` (`## [v4.9.11]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.12`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.12`), `CHANGELOG.md:5` (`## [v4.9.12]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
@@ -472,6 +483,18 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: run the workflow manually or set `GITHUB_STEP_SUMMARY` to a temp file in a local dry run and confirm the summary contains the current report values without exposing private/suppressed repo names.
   - Complexity: S
 
+### Researcher Queue (Cycle 4 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass audited repository governance settings after the workflow/report hardening work.*
+
+- [ ] P2 🔧 — Require validation status checks on `main`
+  - Why: `main` has force-push/deletion protection and required conversation resolution, but live branch protection does not require any status checks and there are no repository rulesets. A broken generated-profile check, Pester regression, or workflow-security failure can still be merged by policy unless maintainers manually notice it.
+  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection` returned `required_status_checks=null`, `required_pull_request_reviews=null`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returned no rulesets. GitHub protected-branch docs describe required status checks before merging: https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches/
+  - Touches: GitHub repository branch-protection or ruleset settings; optional `.github/workflows/*.yml` job-name stabilization if required-check names need to be fixed.
+  - Acceptance: the default branch requires the relevant validation checks before merge, at minimum Pester, workflow security, and generated profile sync for changes that affect the profile pipeline; any admin bypass or Dependabot bypass is documented.
+  - Verify: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection --jq '.required_status_checks'` or the rulesets API shows required checks; a PR with a failing required check is blocked from merging.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -479,6 +502,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
+- [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
