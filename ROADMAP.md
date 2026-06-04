@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 14 - 2026-06-04.
+> Last researched: Cycle 15 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 14 - 2026-06-04.
+Last researched: Cycle 15 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -833,6 +833,19 @@ metadata versus the manual fork/continuation attribution already shipped.*
   - Verify: run `scripts/sync-profile.ps1 -Check`; confirm `RcloneBrowser` is reported as a matching GitHub fork and `uBlockVanced` as a catalog-declared continuation/import rather than a false failure; alter a fixture parent or remove `forkOf` for a known GitHub fork and confirm the report flags the mismatch.
   - Complexity: M
 
+### Researcher Queue (Cycle 15 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on future-proofing live
+repository enumeration as the public catalog grows.*
+
+- [ ] P2 🤖 🔬 — Add a public-repo enumeration limit guard
+  - Why: the main metadata path uses `gh repo list SysAdminDoc --visibility public --no-archived --limit 300`; the account currently has 184 active public repositories, so it is well under the cap today, but future growth could silently omit repos beyond the fixed limit. The REST fallback paginates, but the normal path has no near-limit warning or completeness signal.
+  - Evidence: `scripts/sync-profile.ps1:207-213` hard-codes `--limit 300`; `gh repo list SysAdminDoc --visibility public --no-archived --limit 500 --json name --jq 'length'` returned 184 on 2026-06-04; `gh repo list --help` documents `--limit` as the maximum number of repositories to list with default 30; GitHub CLI docs document the same option: https://cli.github.com/manual/gh_repo_list
+  - Touches: `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, optional Pester fixture for enumeration report shape.
+  - Acceptance: the sync report records repository enumeration metadata such as requested limit, returned count, and a near-limit/completeness warning; `-Check` warns when returned count is close to the configured cap and fails or switches strategy if the count equals the cap; the implementation either raises the limit intentionally or uses a paginated/API path that cannot silently truncate public repos.
+  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm `repoEnumeration.returned=184`, `limit=300`, and `nearLimit=false` for the current account; simulate a fixture where returned count equals the limit and confirm the guard warns or fails rather than treating the catalog as complete.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -849,6 +862,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Expanded CODEOWNERS coverage for public profile contract files.
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
+- [ ] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300`.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -878,3 +892,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths.
 - [ ] P2 — Per-project license metadata in the generated feed, schema, and report.
 - [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
+- [ ] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap.

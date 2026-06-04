@@ -163,8 +163,9 @@ Top opportunities, in priority order:
 12. P2 - Expand CODEOWNERS coverage for profile-contract files.
 13. P2 - Export per-project SPDX/license metadata in the generated feed and report.
 14. P2 - Report GitHub fork-parent drift against catalog attribution.
-15. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-16. P3 - Add `.editorconfig` and generated README markdown linting.
+15. P2 - Add a public-repo enumeration limit guard.
+16. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+17. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -1064,6 +1065,44 @@ fork/continuation attribution already shipped in v4.9.23.
 - Keep README rendering unchanged unless the build machine finds a compact
   visitor-facing label. This is primarily a report/feed correctness guard.
 
+## Cycle 15 Research Addendum — 2026-06-04
+
+This pass focused on live repository enumeration completeness as the public
+catalog grows. The current account is under the configured limit, so this is a
+future-proofing guard rather than a current truncation failure.
+
+### Evidence reviewed (cycle 15)
+
+- `scripts/sync-profile.ps1:207-213` builds the normal metadata command with
+  `gh repo list SysAdminDoc --visibility public --no-archived --limit 300`.
+- `gh repo list SysAdminDoc --visibility public --no-archived --limit 500
+  --json name --jq 'length'` returned 184 active public repositories on
+  2026-06-04.
+- `gh repo list --help` documents `--limit` as the maximum number of
+  repositories to list, with default 30.
+- The REST fallback path at `scripts/sync-profile.ps1:141-156` paginates
+  `users/$Owner/repos?per_page=100&page=$page`, but the normal `gh repo list`
+  path has no near-limit warning or completeness metadata.
+- GitHub CLI docs document `gh repo list --limit`:
+  https://cli.github.com/manual/gh_repo_list
+
+### Finding (cycle 15)
+
+- **Minor — normal repo enumeration has a fixed cap without a near-limit
+  signal.** The current account has 184 active public repos, below the hard-coded
+  300 limit, but future growth could reach the cap and silently omit public repos
+  from metadata, drift checks, and generated output. → roadmap "Add a public-repo
+  enumeration limit guard". [Verified]
+
+### Standards note (cycle 15)
+
+- Keep this separate from the REST release-fallback N+1 item. That item handles
+  per-repo release lookup and rate limits after metadata enumeration; this item
+  verifies the first repo list is complete enough to trust.
+- Report-only is enough while the account is far from the cap. Treat equality
+  with the configured limit as suspicious, because an exact hit is more likely
+  to indicate truncation than a naturally exact repository count.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1080,6 +1119,8 @@ fork/continuation attribution already shipped in v4.9.23.
   display compact SPDX labels for download/action-heavy projects?
 - Should catalog `forkOf` rows gain an explicit attribution kind such as
   `github-fork`, `continuation`, or `imported-fork`?
+- What public-repo count threshold should warn before the configured enumeration
+  cap becomes a real truncation risk?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
