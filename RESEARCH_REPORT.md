@@ -165,8 +165,9 @@ Top opportunities, in priority order:
 14. P2 - Report GitHub fork-parent drift against catalog attribution.
 15. P2 - Add a public-repo enumeration limit guard.
 16. P2 - Publish a JSON Schema for `profile-sync-report.json`.
-17. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-18. P3 - Add `.editorconfig` and generated README markdown linting.
+17. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
+18. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+19. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -1146,6 +1147,51 @@ depend on stable report fields.
   report field, while report-schema validation should be a separate generated
   check or Pester assertion with a clear failure message.
 
+## Cycle 17 Research Addendum — 2026-06-04
+
+This pass focused on GitHub's pull-request presentation of the repo's committed
+generated artifacts. The gap is review ergonomics, not generation correctness:
+the generator can keep producing the files, while GitHub can be told which
+fully generated artifacts should be collapsed in diffs by default.
+
+### Evidence reviewed (cycle 17)
+
+- Root listing shows no `.gitattributes`.
+- `git check-attr -a -- README.md projects.json
+  reports/profile-sync-report.json assets/profile/stats-light.svg` returned no
+  attributes.
+- Fully generated, tracked machine artifacts are large enough to dominate a
+  generated-profile PR: `projects.json` is 293,281 bytes,
+  `reports/profile-sync-report.json` is 27,988 bytes, and the six
+  `assets/profile/*.svg` panels total 15,338 bytes.
+- `scripts/sync-profile.ps1` exposes the generated destinations through
+  `ReadmePath`, `ProjectsPath`, `ReportPath`, and `AssetsPath`, and it writes
+  the profile SVG panels under `assets/profile/`.
+- GitHub Docs describe `.gitattributes` with `linguist-generated` as the way to
+  keep selected generated paths hidden by default in diffs and excluded from
+  repository language statistics:
+  https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github
+
+### Finding (cycle 17)
+
+- **Minor — generated feed/report/SVG churn is not marked for GitHub review
+  ergonomics.** The repo already owns generated contract files through
+  CODEOWNERS and validates them through the sync report, but GitHub has no
+  `.gitattributes` hint to collapse the fully generated artifacts in PR diffs.
+  `README.md` should remain visible by default because it is the public profile
+  surface and includes hand-authored context around generated sections.
+  → roadmap "Add a `.gitattributes` generated-artifact diff policy". [Verified]
+
+### Standards note (cycle 17)
+
+- Start with only fully generated files: `projects.json`,
+  `reports/profile-sync-report.json`, and `assets/profile/*.svg`. Marking the
+  whole README as generated would hide high-value public-facing review context
+  until a later workflow can summarize generated README changes safely.
+- Keep this separate from the `.editorconfig`/markdownlint item. `.gitattributes`
+  affects GitHub presentation and language statistics; lint settings affect
+  local formatting consistency.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1166,6 +1212,9 @@ depend on stable report fields.
   cap becomes a real truncation risk?
 - Should the sync-report schema be strict for all diagnostic arrays, or allow
   additive fields so report consumers survive future validation sections?
+- Should GitHub collapse only fully generated feed/report/SVG artifacts, or
+  should a later job-summary workflow make generated README sections safe to
+  mark as generated too?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
