@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 26 - 2026-06-04.
+> Last researched: Cycle 27 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 26 - 2026-06-04.
+Last researched: Cycle 27 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -1009,6 +1009,19 @@ files change.*
   - Verify: open or simulate a PR touching only `schemas/profile-projects.v1.json` and confirm `Tests / Pester (offline)` runs; a scratch schema regression still fails the Pester contract case; unrelated planning-doc changes do not become blocked by a skipped required check.
   - Complexity: S
 
+### Researcher Queue (Cycle 27 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked future Dependabot workflow
+update queue shape, separate from the existing current-PR triage item.*
+
+- [ ] P3 🤖 🔬 — Group routine Dependabot GitHub Actions version updates
+  - Why: the repo intentionally lets Dependabot maintain SHA-pinned workflow actions, but `.github/dependabot.yml` has no `groups` rule, so routine action updates arrive as one PR per dependency. That is manageable for the two current major PRs, but future minor/patch action bumps can consume review attention that should stay focused on permission, action-identity, and `persist-credentials` changes.
+  - Evidence: `.github/dependabot.yml:3-10` has one `github-actions` update block with `open-pull-requests-limit: 5` and no `groups`; live `gh pr list -R SysAdminDoc/SysAdminDoc --state open` currently shows two separate Dependabot GitHub Actions PRs (#5 for `actions/checkout`, #6 for `github/codeql-action`); GitHub's Dependabot options reference says Dependabot opens one PR per dependency by default and `groups` can combine matching updates into fewer targeted PRs with `patterns` and `update-types`: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+  - Touches: `.github/dependabot.yml`; optional maintenance note in the action-update review checklist.
+  - Acceptance: Dependabot groups low-risk GitHub Actions version updates into a named routine-actions group while keeping major or permission-sensitive action updates individually reviewable, or documents why separate PRs are preferred for every SHA-pinned action bump.
+  - Verify: run Dependabot's next scheduled check or a manual Dependabot job and confirm eligible minor/patch action updates use the grouped branch/title; current major action PRs remain triaged through the existing review path.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1041,6 +1054,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
+- [ ] P3 — Dependabot routine GitHub Actions update grouping.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
