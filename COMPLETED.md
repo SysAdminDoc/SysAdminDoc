@@ -35,6 +35,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Hardened `setup.ps1` with `#Requires -Version 5.1`, `-CheckOnly` diagnostics, best-effort `%TEMP%` transcript logging, generated inspect-before-install README guidance, and `readmeExperienceChecks.setupInspectPath` coverage (v4.9.21). — *Source: ROADMAP.md*
 - [x] Recategorized WolfPack and Vigil into Native Desktop Applications, tightening Security & Networking to 3 repos and grouping the privacy/browser packaging rows together (v4.9.22). — *Source: ROADMAP.md*
 - [x] Standardized fork/continuation attribution with catalog `forkOf`/`upstreamLicense` fields, generated feed `forkOf`/`forkOfUrl`/`upstreamLicense` fields, README upstream/license rendering, schema updates, and Pester coverage (v4.9.23). — *Source: ROADMAP.md*
+- [x] Logged "Forge" naming debt for WinForge, FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge, and MediaForge, retaining live names to avoid broken links/releases/stars/install snippets while avoiding the pattern for new repositories (v4.9.24). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 

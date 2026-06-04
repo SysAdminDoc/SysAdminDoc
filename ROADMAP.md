@@ -5,11 +5,45 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.23
+Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 6 - 2026-06-04.
+> Last researched: Cycle 7 - 2026-06-04.
+
+## ▶ Implementer Instructions (for the build machine)
+
+This roadmap is fed continuously by an automated research machine. On every
+pass, the implementing machine should:
+
+1. `git pull --rebase` to get the latest researched items before starting.
+2. Work the open 🤖 items top-down by priority (P0 → P3). Build them properly:
+   multi-file structure, real error handling, no runtime auto-install hacks,
+   version strings synced, docs/CHANGELOG updated in the same commit.
+3. In ADDITION to building items, run a FULL UX AUDIT each pass — do not skip
+   it even when the queue is full. Walk every screen / page / dialog / form /
+   table / empty-loading-error-disabled state across light/dark/high-contrast
+   themes. Check: onboarding, navigation clarity, spacing/contrast/alignment,
+   clipping/overflow, hierarchy, microcopy, destructive-action guards,
+   keyboard + screen-reader accessibility, and trust signals. Fix what you find,
+   or file it back as a new 🤖 roadmap item if it is larger than a pass.
+4. Check off ✅ each item you complete (leave it in place with the checkmark),
+   commit per logical change with a "why" message, and push.
+5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
+   headings — the research machine owns those. Never force-push.
+
+Last researched: Cycle 7 - 2026-06-04.
+
+2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
+documentation-only decision. Existing live repositories named WinForge,
+FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge,
+and MediaForge are retained to avoid breaking links, releases, stars, and
+install snippets; new repository names should avoid the "Forge" pattern unless
+there is an explicit naming exception. Verification ran
+`scripts/sync-profile.ps1 -Write -Check` with
+`docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
+drift rows, 0 link failures, and 0 link warnings after REST fallback from a
+transient GitHub GraphQL 502.
 
 2026-06-04 v4.9.23 refresh: fork/continuation attribution shipped.
 `data/profile-catalog.json` now supports structured `forkOf` and
@@ -94,7 +128,7 @@ and release download totals. Verification ran `npm run check`, `npm run build`,
 173 recently updated / 20 has-download results, combined `view=recent&cat=web&q=Nuke`
 hydration, and no mobile horizontal overflow at 390 px.
 
-## Implementer Instructions
+## Project-Specific Implementer Notes
 
 - Treat `data/profile-catalog.json` and `scripts/sync-profile.ps1` as the source
   of truth for generated README/feed content. Do not hand-edit generated README
@@ -395,10 +429,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.23 added structured attribution fields, schema/feed support, README upstream/license rendering, and metadata for AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser, TabExplorer, Vigil, and TagStudio.
   - Source: TODO.md (P3); docs/research-feature-plan-2026-06-04.md (P3)
 
-- [ ] P3 — Log "Forge" naming debt
+- [x] P3 — Log "Forge" naming debt
   - Why: WinForge, FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, and IconForge run against the no-"Forge" naming rule.
   - Touches: ROADMAP log only — do not rename live repos (breaks stars/links).
   - Acceptance: the debt is recorded and the pattern is avoided for new repos.
+  - Completed: v4.9.24 records the retained names `WinForge`, `FirewallForge`, `NetForge`, `PathForge`, `GitForge`, `ImageForge`, `ClipForge`, `IconForge`, and the additionally found `MediaForge`; no live repos were renamed, and future repo names should avoid the "Forge" pattern unless explicitly excepted.
   - Source: TODO.md (P3)
 
 - [ ] P2 — Add a quarterly archive/retirement / stale-project review
@@ -656,6 +691,47 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: `rg -n "timeout-minutes" .github/workflows` shows coverage for each job; normal manual runs still complete; lowering a timeout on a test branch proves GitHub cancels the intended job/step instead of waiting for the default 360 minutes.
   - Complexity: S
 
+### Researcher Queue (Cycle 7 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass widened from the existing profile-sync
+queue into generated-Markdown safety, workflow linting, setup bootstrapper
+runtime verification, and release/download trust signals. Existing open items
+already cover PSScriptAnalyzer, JSON-shape validation, feed provenance fields,
+header link validation, workflow timeouts, branch protection, SECURITY.md, and
+structured issue forms, so the items below avoid those duplicates.*
+
+- [ ] P1 🤖 🔬 — Add generated Markdown/text safety and URL-scheme validation
+  - Why: the generator inserts catalog titles, descriptions, upstream attribution, and live GitHub metadata directly into GFM table/link contexts. Shape schemas now exist, but they do not prevent Markdown-control characters, raw-HTML-looking text, bidi controls, or unexpected URL schemes from breaking the public profile or making generated links visually deceptive.
+  - Evidence: `scripts/sync-profile.ps1:467`, `:1221`, `:1243`, `:1313`, and `:1683` insert display descriptions and titles into README/feed output; the GFM spec defines table, link, raw HTML, and backslash-escape behavior and says GitHub performs post-processing/sanitization after Markdown-to-HTML conversion: https://github.github.com/gfm/; Unicode UTS #39 documents restricted/default-ignorable characters and confusable data for security-sensitive text: https://www.unicode.org/reports/tr39/
+  - Touches: `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, optional schema/report additions.
+  - Acceptance: generated README table cells and links are escaped or rejected by context; catalog/feed validation rejects bidi controls, embedded null/control characters, raw-HTML-looking generated text where not explicitly allowed, and non-http(s)/GitHub/raw link schemes; `reports/profile-sync-report.json` records a `contentSafety` block with zero current violations.
+  - Verify: add a fixture description containing `|`, `](`, `<script>`, and a bidi control; `Invoke-Pester -Path tests` must fail before escaping/rejection and pass after the safety gate is applied. Run `scripts/sync-profile.ps1 -Check` and confirm `contentSafety.passed=true`.
+  - Complexity: M
+
+- [ ] P2 🤖 🔬 — Add `actionlint` beside `zizmor` for workflow syntax/expression linting
+  - Why: `workflow-security.yml` runs `zizmor`, which is useful for security posture, but no workflow validates GitHub Actions syntax, expression types, action inputs/outputs, `needs:` dependencies, cron syntax, or inline shell snippets. This is a complementary workflow-quality gate, not a replacement for `zizmor`.
+  - Evidence: `.github/workflows/workflow-security.yml:21-36` installs and runs only `zizmor`; `actionlint` documents workflow syntax, expression, action-usage, ShellCheck/Pyflakes, and script-injection checks: https://github.com/rhysd/actionlint; GitHub's script-injection docs warn that attacker-controlled GitHub context values can be substituted into `run:` shell scripts before execution: https://docs.github.com/en/actions/concepts/security/script-injections
+  - Touches: `.github/workflows/workflow-security.yml`, optional `.github/actionlint.yml` if the default rules need project-specific exclusions.
+  - Acceptance: the workflow-security job runs both `zizmor` and `actionlint`; actionlint is pinned or installed through a repeatable versioned path; failures are blocking on workflow/security-file PRs; any project-specific ignores are documented.
+  - Verify: `actionlint .github/workflows/*.yml` passes locally or in CI; introduce an invalid expression or bad `needs:` reference in a scratch branch and confirm the workflow fails before merge.
+  - Complexity: S
+
+- [ ] P2 🤖 🔬 — Add a Windows runner smoke check for `setup.ps1 -CheckOnly`
+  - Why: the README now gives novices an inspect-before-install command that runs `setup.ps1 -CheckOnly`, but current Pester coverage only inspects source text and generated README snippets. Because the script is Windows/WinGet/PATH-specific, an Ubuntu-only source contract can miss runtime regressions in the exact path users are told to run.
+  - Evidence: `README.md:118-130` advertises both the one-paste setup and `-CheckOnly`; `tests/sync-profile.Tests.ps1:345-357` reads `setup.ps1` text but does not execute it; GitHub-hosted runner docs list standard `windows-latest` public-repo runners: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+  - Touches: `.github/workflows/tests.yml` or a new path-filtered setup-smoke workflow; optional Pester helper that shells out to `setup.ps1 -CheckOnly` on Windows only.
+  - Acceptance: a Windows job runs `powershell -NoProfile -ExecutionPolicy Bypass -File setup.ps1 -CheckOnly` for PRs touching `setup.ps1`, README setup text, or tests; the check asserts check-only mode does not install or mutate tools, and uploads/redacts the temp transcript only on failure.
+  - Verify: open a scratch PR touching `setup.ps1`; confirm the Windows smoke job runs and passes. Temporarily make `-CheckOnly` call the install path and confirm the job fails.
+  - Complexity: S
+
+- [ ] P2 🤖 🔬 — Add release/download trust metadata for visitor-facing binary rows
+  - Why: the profile now routes visitors to many executable release assets, but the generated report only classifies asset kinds. It does not tell visitors or the build machine whether release rows have checksums, signatures, attestations, SBOMs, or a documented "unsigned/unattested" status.
+  - Evidence: `reports/profile-sync-report.json:846-864` shows 71 release-action rows, including APK and EXE kinds; OpenSSF Scorecard includes a `Signed-Releases` check and related security posture checks: https://github.com/ossf/scorecard; GitHub artifact attestations establish where and how artifacts were built and can be verified with `gh attestation verify`: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
+  - Touches: `scripts/sync-profile.ps1` report generation, optional README trust microcopy, optional per-repo release checklist outside this profile repo.
+  - Acceptance: `reports/profile-sync-report.json` includes a `releaseTrust` section summarizing, per release-action row, whether latest assets expose checksum/signature/attestation/SBOM evidence or are explicitly `unverified`; the README can keep UI minimal, but the report gives the build machine a prioritized list for high-traffic EXE/APK rows.
+  - Verify: run `scripts/sync-profile.ps1 -Check`; confirm the report counts EXE/APK rows by trust status and flags missing evidence as warnings, not fatal failures. For one repo with an attestation/checksum, verify the report recognizes it.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -663,6 +739,8 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
+- [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.
+- [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -679,7 +757,9 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — Doc version/date consistency gate wired into `-Check` and CI (completed v4.9.20 with `docVersionConsistency` in the existing profile-sync check/report path).
 - [ ] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1`.
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
+- [ ] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output.
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
+- [ ] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows.
