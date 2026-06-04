@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.16
+Current version after this refresh: v4.9.17
 
 ## Verification Refresh — 2026-06-04
 
@@ -34,6 +34,12 @@ Current version after this refresh: v4.9.16
   Pagefind Component UI, project pages expose Category filter and Type metadata,
   no-JS fallback links exist, and `npm run build` passed with Pagefind v1.5.2
   indexing 198 HTML pages, 18,774 words, and 1 filter into `dist/pagefind`.
+- The v4.9.17 batch closed the active P1 portfolio freshness/download views item
+  by implementing URL-backed All/New/Recently updated/Has download catalog views
+  in `sysadmindoc.github.io` commit `29c2b1d`. Portfolio `npm run check`,
+  `npm run build`, `npm test`, and focused Chrome CDP browser checks passed,
+  including 181 all / 147 new / 173 recent / 20 download results and no mobile
+  horizontal overflow at 390 px.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
@@ -84,7 +90,7 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
+2. P1 - Point `sysadmindoc.github.io` at the live `projects.json` feed so the richer Pagefind/search and freshness views share the generated profile catalog state.
 3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
 4. P1 - Publish or repoint the advertised JSON Schema URLs, then validate the feed against them.
 5. P1 - Add a self-contained version/date consistency gate across tracked planning docs.

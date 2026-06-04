@@ -5,11 +5,21 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.16
+Current repo version: v4.9.17
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.17 refresh: the portfolio freshness/download views item was
+implemented in `C:\Users\--\repos\sysadmindoc.github.io` commit
+`29c2b1d feat(catalog): add freshness and download views`, then pushed to
+GitHub. The portfolio now has URL-backed All, New, Recently updated, and Has
+download catalog views derived from tracked catalog rows, cached GitHub metadata,
+and release download totals. Verification ran `npm run check`, `npm run build`,
+`npm test`, and a focused Chrome CDP browser check covering 181 all / 147 new /
+173 recently updated / 20 has-download results, combined `view=recent&cat=web&q=Nuke`
+hydration, and no mobile horizontal overflow at 390 px.
 
 ## Implementer Instructions
 
@@ -273,10 +283,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.16 verified the existing portfolio implementation: `/search/` uses Pagefind Component UI, `npm run build` generates `dist/pagefind`, project detail pages expose Category filter and Type metadata, no-JS fallback links exist, and the portfolio build indexed 198 public pages / 18,774 words / 1 filter with a clean worktree.
   - Source: ROADMAP.md (P1); TODO.md (NF7); docs/research-feature-plan-2026-06-04.md (P1)
 
-- [ ] P1 — Add "new", "recently updated", and "has-download" portfolio views (NF6)
+- [x] P1 — Add "new", "recently updated", and "has-download" portfolio views (NF6)
   - Why: new repos are invisible until a manual refresh; there is no freshness signal.
   - Touches: `sysadmindoc.github.io` views; optional `projects.json` fields (`ageBucket`, `freshnessRank`, `releaseAssetKinds`, `searchKeywords`).
   - Acceptance: portfolio derives views from `pushedAt`, `latestRelease`, release asset type, topics, and catalog categories.
+  - Completed: v4.9.17 implemented URL-backed All/New/Recently updated/Has download catalog views in `sysadmindoc.github.io` commit `29c2b1d`, with visible NEW/DOWNLOAD chips, combined `view=`, `cat=`, `q=`, and `sort=` state, and verification through portfolio check/build/test plus focused browser/mobile validation.
   - Source: ROADMAP.md (P1); TODO.md (NF6); docs/research-feature-plan-2026-06-04.md (P1)
 
 - [ ] P1 — Point the portfolio at the live `projects.json` feed
@@ -394,8 +405,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.16`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.16`), `CHANGELOG.md:5` (`## [v4.9.16]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.17`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.17`), `CHANGELOG.md:5` (`## [v4.9.17]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.

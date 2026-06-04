@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.17] - 2026-06-04
+
+- Added: Implemented the portfolio New, Recently updated, and Has download catalog views in `C:\Users\--\repos\sysadmindoc.github.io`.
+- Changed: `sysadmindoc.github.io` now exposes URL-backed catalog `view=` state that combines with category, search, and sort filters, plus visible `NEW` and `DOWNLOAD` chips.
+- Verified: Portfolio commit `29c2b1d feat(catalog): add freshness and download views` is pushed to GitHub; `npm run check`, `npm run build`, `npm test`, and a focused Chrome CDP browser check passed with 181 all / 147 new / 173 recently updated / 20 has-download results and no mobile horizontal overflow at 390 px.
+
 ## [v4.9.16] - 2026-06-04
 
 - Closed: Marked the portfolio Pagefind search roadmap item complete based on the existing `sysadmindoc.github.io` implementation.
