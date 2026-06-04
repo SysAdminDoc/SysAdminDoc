@@ -777,6 +777,21 @@ itself creates the branch and PR.*
   - Verify: run the manual `write-pr` path or asset-refresh path in a scratch/no-op branch and confirm the generated PR receives the intended Tests/Profile sync/workflow-security checks automatically or shows the expected approval-required state; inspect `gh run list --branch <automation-branch>` or the PR checks API for the expected runs; confirm no recursive generated PR is opened by the validation handoff.
   - Complexity: M
 
+### Researcher Queue (Cycle 11 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on observability parity for
+the committed profile-assets refresh workflow. The existing profile-sync summary
+item remains useful; this item covers the separate asset-refresh workflow that
+also runs the generator and report path.*
+
+- [ ] P2 🤖 🔬 — Add report artifact and summary parity to profile-assets refresh
+  - Why: `.github/workflows/assets-refresh.yml` runs `scripts/sync-profile.ps1 -Write -Check` and can create a PR containing `reports/profile-sync-report.json`, but the workflow does not upload that report as a run artifact or write a job summary when the scheduled/manual run has no changes or fails before PR creation. Maintainers would need to read logs instead of the same structured report used by profile sync.
+  - Evidence: `.github/workflows/assets-refresh.yml:28-62` regenerates assets, stages `reports/profile-sync-report.json`, and opens a PR, but contains no `actions/upload-artifact`, `retention-days`, `$GITHUB_STEP_SUMMARY`, or annotation step; `.github/workflows/profile-sync.yml:37-49` runs `scripts/sync-profile.ps1 -Check` and uploads `reports/profile-sync-report.json` as `profile-sync-report`; GitHub artifact docs describe uploading workflow outputs for debugging and custom `retention-days`: https://docs.github.com/en/actions/tutorials/store-and-share-data; GitHub workflow-command docs describe job summaries and annotations: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+  - Touches: `.github/workflows/assets-refresh.yml`, optional shared summary/report helper used by `profile-sync.yml`, optional generated PR body text.
+  - Acceptance: asset-refresh runs always upload `reports/profile-sync-report.json` with an explicit retention period after the generator step, even on failures that still produce a report; the workflow writes the same public-safe summary fields and warning/error annotations as profile-sync; generated asset PRs include a concise report synopsis or run-artifact link; private/suppressed repo names stay out of summaries.
+  - Verify: dispatch `Profile assets refresh` in a no-op state and confirm the run has a report artifact and Markdown summary; force a harmless validation failure in a scratch branch and confirm `if: always()` still uploads the report when present; `rg -n "upload-artifact|retention-days|GITHUB_STEP_SUMMARY|::warning|::error" .github/workflows/assets-refresh.yml` shows the observability path.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -789,6 +804,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
+- [ ] P2 — Profile-assets refresh report artifact and job summary parity.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -814,3 +830,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Pinned CI validation-tool installs with a documented update path.
 - [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
 - [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
+- [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
