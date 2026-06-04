@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.9
+Current repo version: v4.9.10
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -28,6 +28,13 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.10 refresh: the four empty public GitHub repository
+descriptions reported by `metadataHygiene` were filled for `AdapterLock`,
+`facebook-exit-guide`, `IMDb_Enhanced`, and `SysAdminDoc`. The regenerated
+report now shows 69 missing-topic rows, 0 missing-description rows, 239 link
+targets checked in 6812 ms, 0 link failures, and 0 link warnings. Pester passed
+28/28.
 
 2026-06-04 v4.9.9 refresh: metadata hygiene now includes non-mutating
 `topicHints` for missing-topic repos, catalog categories for topic/description
@@ -78,7 +85,7 @@ passed 18/18, and the full write/check pass is green with
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.9, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.10, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered through 2026-06-04 showed:
 
@@ -87,12 +94,12 @@ Live GitHub metadata gathered through 2026-06-04 showed:
 - 0 active public repos missing from the generated catalog after v4.9.0.
 - 0 renamed-repo redirects after removing the duplicate `EspressoMonkey` profile row.
 - 0 private visibility or medical-imaging privacy violations in `scripts/sync-profile.ps1 -Check`.
-- 69 active public repos with no topics and 4 public repos with empty descriptions.
+- 69 active public repos with no topics and 0 public repos with empty descriptions.
 - `.github/` contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
 - `scripts/sync-profile.ps1 -Check` validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
 - Link validation runs in bounded parallel batches and reports target count, elapsed time, throttle, and warning counts by host.
 - `reports/profile-sync-report.json` now includes metadata hygiene, release/download drift, and validation-performance sections for downstream audits.
-- Missing-topic report rows now include generated `topicHints`; missing-description rows include catalog-backed description suggestions where available. The report does not mutate other repositories.
+- Missing-topic report rows now include generated `topicHints`; the four previously empty public descriptions have been filled on GitHub. The report does not mutate other repositories.
 - `scripts/sync-profile.ps1 -Check` reports structured `metadataDrift` rows for committed-vs-live feed drift; branch/release/action/suppression drift is fatal, while stars, topics, and `pushedAt` are informational.
 - Legacy README reverse parsing through `-SeedCatalog` now requires explicit `-ForceSeedCatalog` and is documented as a lossy one-shot bootstrap, not a routine source-of-truth path.
 - Root `projects.json` is generated from the same catalog for portfolio consumption and includes structured primary-action metadata.
@@ -146,16 +153,17 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 ### Metadata hygiene and discoverability
 
 - [x] P1 — Topic coverage and topic/description drift reporting
-  - Why: live metadata shows 69 active public repos without topics and 4 public repos with empty descriptions, reducing discovery and overloading the catalog with explanatory burden.
+  - Why: live metadata originally showed 69 active public repos without topics and four empty public descriptions, reducing discovery and overloading the catalog with explanatory burden.
   - Touches: `data/profile-catalog.json`, `scripts/sync-profile.ps1` (`Test-ProfileState`), `reports/profile-sync-report.json`, optional helper apply-script.
   - Acceptance: report lists missing topics/descriptions and recommended `topicHints` derived from category/language/platform/role without mutating any repo; any apply mode is separate and requires an explicit allowlist.
   - Completed: v4.9.9 added category/language/role-derived `topicHints`, catalog description suggestions, and a non-mutating allowlist-required topic hint policy to `metadataHygiene`.
   - Source: ROADMAP.md (P1 topic drift); docs/research-feature-plan-2026-06-04.md (P1 topic/description drift)
 
-- [ ] P1 — Add consistent repo descriptions before README sync
+- [x] P1 — Add consistent repo descriptions before README sync
   - Why: empty public-repo descriptions (e.g. `SysAdminDoc`, `AdapterLock`, `facebook-exit-guide`) weaken the generated catalog.
   - Touches: GitHub repo descriptions (reviewed apply), `data/profile-catalog.json` (`descriptionOverride`).
   - Acceptance: the four empty public descriptions are filled; GitHub repo descriptions are preferred as the short source where accurate.
+  - Completed: v4.9.10 filled the four-row `metadataHygiene.missingDescriptions` allowlist on GitHub and regenerated the report to 0 missing descriptions.
   - Source: ROADMAP.md (P1)
 
 - [ ] P1 — Submit focused projects to relevant awesome lists after metadata is clean
@@ -321,8 +329,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.9`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.9`), `CHANGELOG.md:5` (`## [v4.9.9]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.10`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.10`), `CHANGELOG.md:5` (`## [v4.9.10]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
