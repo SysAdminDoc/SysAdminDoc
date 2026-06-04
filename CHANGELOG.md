@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.22] - 2026-06-04
+
+- Changed: Moved WolfPack out of Security & Networking and into Native Desktop Applications, adjacent to Vigil.
+- Changed: Moved Vigil from Misc & Forks into Native Desktop Applications so the privacy/browser packaging entries render together.
+- Changed: Regenerated `README.md` and `projects.json`; Security & Networking now has 3 repos, Native Desktop Applications has 19 repos, and Misc & Forks has 5 repos.
+- Verified: `scripts/sync-profile.ps1 -Write -Check` passed with `readmeInSync=true`, `projectsExportInSync=true`, `docVersionConsistency.passed=true`, 0 metadata drift rows, 0 link failures, and 0 link warnings.
+
 ## [v4.9.21] - 2026-06-04
 
 - Added: Hardened `setup.ps1` with `#Requires -Version 5.1`, `-CheckOnly` prerequisite diagnostics, best-effort transcript logging under `%TEMP%`, and shared version/status helpers.

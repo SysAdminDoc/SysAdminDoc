@@ -33,6 +33,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Published and validated the feed JSON Schema contracts with committed `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`, raw GitHub schema URLs, `schemaValidation` report output, Pester contract tests, and array-stable release/topic feed fields (v4.9.19). — *Source: ROADMAP.md*
 - [x] Added the planning-doc version/date consistency gate with `Test-DocVersionConsistency`, `docVersionConsistency` report output, `-Check` failure wiring, and Pester coverage for aligned docs, version mismatches, and stale sync dates (v4.9.20). — *Source: ROADMAP.md*
 - [x] Hardened `setup.ps1` with `#Requires -Version 5.1`, `-CheckOnly` diagnostics, best-effort `%TEMP%` transcript logging, generated inspect-before-install README guidance, and `readmeExperienceChecks.setupInspectPath` coverage (v4.9.21). — *Source: ROADMAP.md*
+- [x] Recategorized WolfPack and Vigil into Native Desktop Applications, tightening Security & Networking to 3 repos and grouping the privacy/browser packaging rows together (v4.9.22). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 

@@ -24,7 +24,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines; it now supports `-CheckOnly` diagnostics and best-effort `%TEMP%` transcript logging.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, and setup bootstrapper hardening shipped as v4.9.21.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, setup bootstrapper hardening shipped as v4.9.21, and WolfPack/Vigil desktop recategorization shipped as v4.9.22.
 - Local working-note files are ignored by git.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
@@ -32,7 +32,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-04
 Latest sync date: 2026-06-04
-Version: v4.9.21
+Version: v4.9.22
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -60,6 +60,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - `projects.json` contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata and release asset taxonomy (`releaseAssetKinds`, `releaseAssetNames`, `releaseAssetInspected`) for downstream portfolio rendering. The raw `projectsExportInSync` boolean remains in the report, but v4.9.5 adds row-level drift details so exact feed drift can be separated into fatal structural drift and informational metadata drift.
 - `schemaValidation.passed=true`; the normalized catalog and generated projects feed validate against `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`.
 - `docVersionConsistency.passed=true`; `ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` align to the latest planning version/date, and `-Check` fails if a planning sync date falls behind the latest changelog date.
+- WolfPack and Vigil now render together in Native Desktop Applications; generated category counts are Security & Networking 3, Native Desktop Applications 19, and Misc & Forks 5.
 - `README.md` now carries a generated-catalog hand-edit notice before the generated catalog block, and profile sync validation records `readmeExperienceChecks.generatedCatalogNotice`.
 - The manual generated-profile workflow uses `scripts/sync-profile.ps1 -Write -Check` in a single invocation so write and validation share one live metadata snapshot.
 - `-SeedCatalog` is guarded behind `-ForceSeedCatalog` and should only be used as a lossy one-shot bootstrap; routine updates must edit `data/profile-catalog.json` and run `-Write`/`-Check`.
@@ -101,7 +102,7 @@ As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub 
 
 ## Recommended Next Implementation
 
-1. Recategorize WolfPack out of Security & Networking and regenerate the catalog.
+1. Standardize fork/continuation and upstream-license attribution in the catalog and generated rows.
 2. Add Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
 3. Add a PowerShell static-analysis lane for `scripts/` and `setup.ps1`.
 

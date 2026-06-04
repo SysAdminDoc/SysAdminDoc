@@ -614,15 +614,14 @@ Start with: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**NovaCu
 
 <a id="security--networking"></a>
 <details>
-<summary><b>&#128274; Security & Networking</b> -- 4 repos</summary>
+<summary><b>&#128274; Security & Networking</b> -- 3 repos</summary>
 <br/>
 
-Start with: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite), [**WolfPack**](https://github.com/SysAdminDoc/WolfPack), [**BetterNext**](https://github.com/SysAdminDoc/BetterNext).
+Start with: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite), [**BetterNext**](https://github.com/SysAdminDoc/BetterNext), [**ESET**](https://github.com/SysAdminDoc/ESET).
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
 | [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite) &#11088;2 | pfSense scripts and customizations toolkit | [Repo](https://github.com/SysAdminDoc/pfSenseSuite) |
-| [**WolfPack**](https://github.com/SysAdminDoc/WolfPack) | Custom LibreWolf portable distribution | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/WolfPack/releases/latest) |
 | [**BetterNext**](https://github.com/SysAdminDoc/BetterNext) | Enhanced NextDNS Control Panel | [Repo](https://github.com/SysAdminDoc/BetterNext) |
 | [**ESET**](https://github.com/SysAdminDoc/ESET) &#11088;1 | Complete ESET port and address reference lists | [Repo](https://github.com/SysAdminDoc/ESET) |
 
@@ -669,7 +668,7 @@ $d="$env:TEMP\StreamKeep"; if(Test-Path $d){git -C $d pull -q}else{git clone -q 
 
 <a id="native-desktop-applications"></a>
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 17 repos</summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 19 repos</summary>
 <br/>
 
 Start with: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore), [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore).
@@ -686,6 +685,8 @@ Start with: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**Lo
 | [**Devicer**](https://github.com/SysAdminDoc/Devicer) | Unified Windows toolkit for rooted Android — identify, ROM search, partition backup, boot.img patch, flashing | C# | [Repo](https://github.com/SysAdminDoc/Devicer) |
 | [**Snapture**](https://github.com/SysAdminDoc/Snapture) | All-in-one screenshot utility — region/window/fullscreen, pinned overlays, no telemetry | C# | [Repo](https://github.com/SysAdminDoc/Snapture) |
 | [**OrganizeContacts**](https://github.com/SysAdminDoc/OrganizeContacts) | Local-first contact organizer and deduper — native Windows, no cloud upload | C# | [Repo](https://github.com/SysAdminDoc/OrganizeContacts) |
+| [**Vigil**](https://github.com/SysAdminDoc/Vigil) | Windows packaging for ungoogled-chromium *(fork)* | HTML | [Repo](https://github.com/SysAdminDoc/Vigil) |
+| [**WolfPack**](https://github.com/SysAdminDoc/WolfPack) | Custom LibreWolf portable distribution | Fluent | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/WolfPack/releases/latest) |
 | [**qBittorrent-Vanced**](https://github.com/SysAdminDoc/qBittorrent-Vanced) | Customized BitTorrent client with dark theme | C++ | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/latest) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows -- apps, media, settings, Wi-Fi, roles, and debloat profiles | C# | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
 | [**QuotaGlass**](https://github.com/SysAdminDoc/QuotaGlass) | Always-visible AI usage quota widget for Windows | C# | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) |
@@ -714,7 +715,7 @@ Start with: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism), [**face
 
 <a id="misc--forks"></a>
 <details>
-<summary><b>&#128256; Misc & Forks</b> -- 6 repos</summary>
+<summary><b>&#128256; Misc & Forks</b> -- 5 repos</summary>
 <br/>
 
 Start with: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory), [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore), [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser).
@@ -725,7 +726,6 @@ Start with: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory
 | [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore) | Add Windows Store to Win11 24H2 LTSC *(fork)* |
 | [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser) | Cross-platform GUI for rclone *(fork)* |
 | [**TabExplorer**](https://github.com/SysAdminDoc/TabExplorer) | Tabbed file manager for Windows *(fork)* |
-| [**Vigil**](https://github.com/SysAdminDoc/Vigil) | Windows packaging for ungoogled-chromium *(fork)* |
 | [**TagStudio**](https://github.com/SysAdminDoc/TagStudio) | User-focused photo & file management system *(fork)* |
 
 </details>
