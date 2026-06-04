@@ -3,6 +3,7 @@
 Consolidated from legacy research and feature-planning documents on 2026-06-03. This is the canonical research home for the profile-catalog system; planned work derived from it lives in `ROADMAP.md`. The dated source bundle was archived to `docs/archive/research-feature-plan-2026-06-04.md`.
 
 Research refresh: 2026-06-04
+Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" below)
 Repository: SysAdminDoc/SysAdminDoc
 Current version after this refresh: v4.9.3
 
@@ -252,6 +253,64 @@ Important integrations:
 - Do not use private repository data for public stats, widgets, or feed generation.
 - Do not mutate topics or descriptions across other repos without a reviewed allowlist.
 - Do not rename existing public repos just to resolve naming debt; preserve links and stars.
+
+## Deep-Research Addendum — 2026-06-03
+
+This addendum is a fresh, code-first pass after the planning-doc consolidation. It reads the generator end-to-end and adds findings that the prior refresh did not capture. Prior [Verified] findings above stand.
+
+### Executive summary (addendum)
+
+A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The single highest-value finding is that the public feed advertises two JSON Schema URLs that return 404 — the downstream contract is dangling. The second tier is automated-guard gaps: there is no version/date consistency check across planning docs, the link gate ignores the hand-authored hero (including the portfolio link itself), and the privacy-critical `Test-ProfileState` gate has no direct unit test. The third tier is community-health and reliability hygiene: no SECURITY.md despite shipping Scorecard/zizmor, an N+1 REST release-fallback that can blow the unauthenticated rate limit, and no generated-README size budget.
+
+Top addendum opportunities (one line each):
+
+1. P1 — The `schema` URLs in catalog and `projects.json` are 404; publish them or repoint, then validate the feed. [Verified]
+2. P1 — No automated version/date consistency gate across ROADMAP/CHANGELOG/PROJECT_CONTEXT. [Verified]
+3. P1 — `Test-ProfileState` (the private/medical/visibility gate) has zero direct Pester coverage. [Verified]
+4. P2 — Link validation never probes the hero/portfolio/image-host URLs. [Verified]
+5. P2 — REST release-fallback is an unbounded per-repo N+1 (~184 calls) with no rate-limit awareness. [Verified]
+6. P2 — No catalog JSON-shape validation; unknown `downloadKind` silently defaults. [Verified]
+7. P2 — No generated-README size budget (file is ~72 KB and grows unbounded). [Verified]
+8. P2 — No SECURITY.md though Scorecard scores its presence. [Verified]
+9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [Verified]
+10. P3 — Third-party render-host privacy exposure is undocumented as a decision. [Likely]
+
+### Evidence reviewed (addendum)
+
+- `scripts/sync-profile.ps1` read in full: fetch (`Get-GitHubRepos`, `Get-GitHubReposFromRest`), normalization (`ConvertTo-EntryHashtable`, `Get-Catalog`), rendering (`New-Readme`, `New-CategorySection`, `Update-Header`), feed export (`New-ProjectsExportJson`), validation (`Test-ProfileState`, `Test-LinkTargets`, `Test-HttpUrl`, `Test-ReadmeExperience`), and the lossy reverse parser (`New-CatalogFromReadme`).
+- `.github/workflows/profile-sync.yml`, `tests.yml`, `workflow-security.yml`, `scorecard.yml`; `.github/dependabot.yml`, `.github/CODEOWNERS`.
+- `tests/sync-profile.Tests.ps1` (+ `tests/fixtures/catalog.json`), `setup.ps1`, generated `README.md` (73,358 bytes), `data/profile-catalog.json:1` (schema pointer), `reports/profile-sync-report.json`.
+- Git range reviewed: `git log -30 --oneline` through `89cabeb` (consolidation HEAD).
+- Live verification: `https://sysadmindoc.github.io/schemas/profile-projects.v1.json` → **HTTP 404** [Verified]; root listing confirms no `SECURITY.md`/`CITATION.cff`/`.editorconfig`/`.markdownlint*` [Verified].
+- Not verified this pass: rendered GitHub light-mode/mobile appearance; the live `sysadmindoc.github.io` portfolio implementation (separate repo); whether an authenticated CI token already lifts the REST fallback's rate ceiling [Needs validation].
+
+### Quality & friction findings (addendum, severity-tagged)
+
+- **Major — Dangling feed contract.** `projects.json`/catalog advertise `schema` URLs that 404. Consumers following the contract get a dead link; the feed shape is unenforceable. → roadmap "Publish (or stop referencing) the JSON Schema URLs". `scripts/sync-profile.ps1:1086,1264`. [Verified]
+- **Major — Unguarded planning-doc version drift.** Version/date are hand-typed in three tracked docs with no check; the existing alignment item is manual only. → "self-contained version/date consistency gate". [Verified]
+- **Major — Privacy gate is untested.** `Test-ProfileState` (private-visibility + medical-keyword + drift) has no direct unit test; only the regex string is tested. A regression in the gate that keeps private/medical repos off the public profile would pass CI. → "Cover the safety-critical functions". `scripts/sync-profile.ps1:1324-1442`, `tests/sync-profile.Tests.ps1`. [Verified]
+- **Minor — Hero links unvalidated.** The link gate iterates only catalog entries, so the portfolio link, the `setup.ps1` blob link, and seven third-party image hosts are never probed. → "Extend link validation to hero/header". `scripts/sync-profile.ps1:476-528`. [Verified]
+- **Minor — REST fallback N+1.** Per-repo `gh api releases/latest` in the fallback (~184 calls) with no rate-limit handling; a partial fetch yields a silently incomplete feed. → "Cap and authenticate the REST release-fallback". `scripts/sync-profile.ps1:148-162`. [Verified]
+- **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` swallows an unrecognized `downloadKind`; no catalog-shape validation catches the typo. → "Add catalog JSON-shape validation". `scripts/sync-profile.ps1:546`. [Verified]
+- **Minor — No size budget.** ~72 KB generated README with no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Verified]
+- **Minor — No SECURITY.md.** Repo runs Scorecard/zizmor but lacks a security policy Scorecard scores. → "Add SECURITY.md". [Verified]
+- **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [Verified]
+- **Cosmetic — Undocumented render-host exposure.** komarev counter + four stats hosts see every visitor via Camo; no recorded decision. → "Document/justify the third-party render-host privacy exposure". [Likely]
+
+### Competitive & standards notes (addendum)
+
+This is internal profile/portfolio tooling, so the bar is best-practice and platform standards rather than consumer competitors:
+
+- **OpenSSF Scorecard** — explicitly scores Security-Policy, Pinned-Dependencies, Token-Permissions, and Maintained. The repo already pins actions and sets least-privilege `contents: read`; the missing Security-Policy is a concrete, gradeable gap. Avoid: treating the Scorecard badge as proof while the policy file is absent.
+- **JSON Schema (2020-12)** — a published `$schema`/contract is the standard way to let a feed consumer validate. The advertised URLs should resolve and the feed should validate against them; the portfolio repo is the natural home. Avoid: advertising a schema URL that does not exist (current state).
+- **GitHub community-health files** — `SECURITY.md`, and optionally `CITATION.cff`, are the documented community-standards set GitHub surfaces; a flagship profile repo benefits from completing the checklist. Avoid: adding PII as a disclosure contact.
+- **GitHub anonymized image URLs (Camo)** — confirms third-party README images are proxied, which mitigates but does not eliminate the host-availability and decision-record concerns; pairs with the planned action-baked-SVG work.
+- **EditorConfig / markdownlint** — standard whitespace and Markdown contracts for repos with hand-edited Markdown; cheap to add, prevents diff noise in a generated file.
+
+### Open questions raised by the addendum
+
+- Does the CI `GH_TOKEN` already authenticate the REST fallback enough to avoid the 60 req/hr ceiling, or is the N+1 a live risk on scheduled runs? [Needs validation]
+- Should the JSON Schemas live in this repo (`schemas/`, referenced by raw URL) or in `sysadmindoc.github.io` under the advertised path? Cross-repo decision. [Needs validation]
 
 ## Open Questions
 
