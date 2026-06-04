@@ -7,6 +7,25 @@ Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" 
 Repository: SysAdminDoc/SysAdminDoc
 Current version after this refresh: v4.9.3
 
+## Verification Refresh — 2026-06-04
+
+- `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
+  passed 16/16 tests.
+- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check` exceeded a
+  four-minute host timeout during the sequential live-link validation path,
+  supporting the existing parallel link-validation roadmap item.
+- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check
+  -SkipLinkValidation` completed and failed because `projectsExportInSync=false`
+  while `readmeInSync=true`. The generated report was refreshed at
+  `reports/profile-sync-report.json` with `linkValidationSkipped=true`. This
+  confirms the P0 generated-feed drift item is currently active; the fix is a
+  deliberate `-Write` regeneration followed by a full successful `-Check`.
+- Current official-source recheck still supports the existing plan: GitHub
+  profile README rendering is static and tied to the public username-matching
+  repo, GitHub Actions workflow permissions remain a first-class workflow
+  hygiene control, and Pagefind remains a fit for the separate static portfolio
+  rather than the GitHub README. No new roadmap row was needed.
+
 ## Executive Summary
 
 SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the SysAdminDoc account. Its strongest current shape is a generated, trust-oriented portfolio catalog: `data/profile-catalog.json` is joined with live GitHub metadata by `scripts/sync-profile.ps1`, then emitted as the profile `README.md`, the public `projects.json` feed, and the `reports/profile-sync-report.json` validation report. The highest-value direction is to keep the profile accurate, public-safe, accessible, and reusable by the portfolio site without turning the GitHub README into an interactive app.
