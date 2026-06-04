@@ -168,6 +168,7 @@ Top opportunities, in priority order:
 17. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 18. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 19. P3 - Add `.editorconfig` and generated README markdown linting.
+20. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
 
 ## Evidence Reviewed
 
@@ -1192,6 +1193,47 @@ fully generated artifacts should be collapsed in diffs by default.
   affects GitHub presentation and language statistics; lint settings affect
   local formatting consistency.
 
+## Cycle 18 Research Addendum — 2026-06-04
+
+This pass checked the lifecycle of generated pull-request branches created by
+the profile sync and profile-assets refresh workflows. The current state is not
+dirty, but the repository setting does not prevent future branch accumulation.
+
+### Evidence reviewed (cycle 18)
+
+- `.github/workflows/profile-sync.yml` creates
+  `automation/profile-sync-${{ github.run_id }}`, pushes it, and opens a PR
+  with `gh pr create`.
+- `.github/workflows/assets-refresh.yml` creates
+  `automation/profile-assets-${{ github.run_id }}`, pushes it, and opens a PR
+  with `gh pr create`.
+- `gh repo view SysAdminDoc/SysAdminDoc --json deleteBranchOnMerge --jq
+  .deleteBranchOnMerge` returned `false`.
+- `git ls-remote --heads origin automation/*` returned no current automation
+  branches, so the finding is preventive rather than cleanup of a current
+  backlog.
+- GitHub Docs describe an "Automatically delete head branches" repository
+  setting for deleting PR head branches after merge:
+  https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-the-automatic-deletion-of-branches
+
+### Finding (cycle 18)
+
+- **Cosmetic — generated PR branches have no cleanup policy.** The workflows
+  intentionally create one branch per generated profile/assets run, but the repo
+  has automatic branch deletion disabled. Future scheduled/manual generated PRs
+  can leave merged automation branches behind unless the build machine enables
+  repository-wide head-branch deletion or adds a narrowly scoped cleanup path.
+  → roadmap "Enable cleanup for generated automation PR branches". [Verified]
+
+### Standards note (cycle 18)
+
+- Repository-wide auto-delete is simplest, but it is an operator setting and may
+  affect human-created branches too. If that is too broad, prefer a scoped
+  cleanup path that only touches merged `automation/profile-sync-*` and
+  `automation/profile-assets-*` refs.
+- Keep branch cleanup separate from generated PR validation. A generated branch
+  should only be deleted after merge/closure, never as a substitute for checks.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1215,6 +1257,9 @@ fully generated artifacts should be collapsed in diffs by default.
 - Should GitHub collapse only fully generated feed/report/SVG artifacts, or
   should a later job-summary workflow make generated README sections safe to
   mark as generated too?
+- Should generated branch cleanup use the repository-wide auto-delete setting,
+  or a scoped workflow/admin cleanup that only removes merged `automation/*`
+  branches?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?

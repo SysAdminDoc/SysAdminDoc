@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 17 - 2026-06-04.
+> Last researched: Cycle 18 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 17 - 2026-06-04.
+Last researched: Cycle 18 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -875,6 +875,21 @@ Markdown rules, and from CODEOWNERS, which covers review routing.*
   - Verify: `git check-attr linguist-generated -- projects.json reports/profile-sync-report.json assets/profile/stats-light.svg README.md` shows the generated feed/report/SVG paths marked and `README.md` unmarked; a test PR or comparison view collapses the generated artifacts while still showing README and generator-code diffs on first load.
   - Complexity: S
 
+### Researcher Queue (Cycle 18 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on lifecycle hygiene for the
+generated pull-request branches created by the profile sync and profile-assets
+refresh workflows. It is distinct from the generated PR validation handoff item,
+which covers whether those PRs receive checks.*
+
+- [ ] P3 🤖 🔬 — Enable cleanup for generated automation PR branches
+  - Why: the profile sync and profile-assets refresh workflows create short-lived `automation/profile-sync-*` and `automation/profile-assets-*` branches, but the repository is not configured to delete head branches after merge. There are no stale `automation/*` branches right now, so this is preventive hygiene, but scheduled/manual generated PRs can otherwise accumulate branch refs over time.
+  - Evidence: `.github/workflows/profile-sync.yml:85-101` creates `automation/profile-sync-${{ github.run_id }}` and opens a PR; `.github/workflows/assets-refresh.yml:45-62` does the same for `automation/profile-assets-${{ github.run_id }}`; `gh repo view SysAdminDoc/SysAdminDoc --json deleteBranchOnMerge --jq .deleteBranchOnMerge` returned `false`; `git ls-remote --heads origin automation/*` returned no current automation branches; GitHub Docs describe an "Automatically delete head branches" repository setting for deleting PR head branches after merge: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-the-automatic-deletion-of-branches
+  - Touches: GitHub repository pull-request merge settings, or a narrowly scoped workflow/admin cleanup step if the build machine wants to delete only generated `automation/*` branches.
+  - Acceptance: merged generated profile/profile-assets PRs do not leave remote automation branches behind; if repository-wide auto-delete is enabled, any branch-protection or ruleset exception is documented; if cleanup is workflow-specific, it only deletes merged `automation/profile-sync-*` and `automation/profile-assets-*` branches and never touches contributor branches.
+  - Verify: `gh repo view SysAdminDoc/SysAdminDoc --json deleteBranchOnMerge --jq .deleteBranchOnMerge` returns `true` or a documented cleanup workflow exists; merge a scratch generated PR and confirm `git ls-remote --heads origin automation/*` does not retain the merged branch.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -899,6 +914,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
+- [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
