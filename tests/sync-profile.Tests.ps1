@@ -21,6 +21,36 @@ BeforeAll {
         param([string]$Repo, [string]$Category, [string]$Description = 'desc', [int]$Order = 1)
         ConvertTo-EntryHashtable (New-CatalogEntry -Repo $Repo -Category $Category -Description $Description -Order $Order)
     }
+
+    function New-TestRepoMeta {
+        param(
+            [string]$Name,
+            [string]$Description = 'desc',
+            [string[]]$Topics = @('utility'),
+            [string]$Language = 'PowerShell',
+            [switch]$WithRelease
+        )
+
+        [pscustomobject]@{
+            name = $Name
+            description = $Description
+            primaryLanguage = [pscustomobject]@{ name = $Language }
+            repositoryTopics = @($Topics | ForEach-Object { [pscustomobject]@{ name = $_ } })
+            defaultBranchRef = [pscustomobject]@{ name = 'main' }
+            latestRelease = if ($WithRelease) {
+                [pscustomobject]@{
+                    tagName = 'v1.0.0'
+                    url = "https://github.com/SysAdminDoc/$Name/releases/tag/v1.0.0"
+                }
+            } else {
+                $null
+            }
+            stargazerCount = 0
+            pushedAt = '2026-06-04T00:00:00Z'
+            visibility = 'PUBLIC'
+            isPrivate = $false
+        }
+    }
 }
 
 Describe 'Function library loads via the dot-source test seam' {
@@ -127,6 +157,52 @@ Describe 'Test-LinkTargets batch reporting' {
         $rawHost = @($result.warningCountByHost | Where-Object { $_.host -eq 'raw.githubusercontent.com' })
         $rawHost | Should -HaveCount 1
         $rawHost[0].count | Should -Be 2
+    }
+}
+
+Describe 'Report schema depth helpers' {
+    It 'reports repos missing topics or public descriptions' {
+        $repos = @(
+            (New-TestRepoMeta -Name 'NoTopics' -Topics @() -Description 'has description'),
+            (New-TestRepoMeta -Name 'NoDescription' -Topics @('windows') -Description ''),
+            (New-TestRepoMeta -Name 'CompleteRepo' -Topics @('windows') -Description 'ready')
+        )
+
+        $result = Test-MetadataHygiene -Repos $repos
+
+        $result.missingTopicCount | Should -Be 1
+        ($result.missingTopics | ForEach-Object { $_.repo }) | Should -Contain 'NoTopics'
+        $result.missingDescriptionCount | Should -Be 1
+        ($result.missingDescriptions | ForEach-Object { $_.repo }) | Should -Contain 'NoDescription'
+    }
+
+    It 'reports release/download action drift from current catalog metadata' {
+        $missingRelease = New-TestEntry -Repo 'MissingRelease' -Category 'android'
+        $missingRelease.downloadKind = 'apk'
+        $sourceOnly = New-TestEntry -Repo 'SourceOnly' -Category 'desktop'
+        $sourceOnly.downloadKind = 'repo'
+        $userscriptMissingUrl = New-TestEntry -Repo 'ScriptNoUrl' -Category 'extensions'
+        $userscriptMissingUrl.downloadKind = 'userscript'
+        $goodRelease = New-TestEntry -Repo 'GoodRelease' -Category 'android'
+        $goodRelease.downloadKind = 'apk'
+
+        $repos = @(
+            (New-TestRepoMeta -Name 'MissingRelease'),
+            (New-TestRepoMeta -Name 'SourceOnly' -WithRelease),
+            (New-TestRepoMeta -Name 'ScriptNoUrl'),
+            (New-TestRepoMeta -Name 'GoodRelease' -WithRelease)
+        )
+        $lookup = ConvertTo-Lookup $repos
+
+        $result = Test-ReleaseAssetDrift -Entries @($missingRelease, $sourceOnly, $userscriptMissingUrl, $goodRelease) -RepoLookup $lookup
+
+        $result.checkedCatalogRows | Should -Be 4
+        $result.releaseBearingRows | Should -Be 2
+        $result.releaseActionRows | Should -Be 1
+        ($result.missingReleaseForDownloadKind | ForEach-Object { $_.repo }) | Should -Contain 'MissingRelease'
+        ($result.sourceOnlyWithRelease | ForEach-Object { $_.repo }) | Should -Contain 'SourceOnly'
+        ($result.userscriptKindWithoutInstallUrl | ForEach-Object { $_.repo }) | Should -Contain 'ScriptNoUrl'
+        $result.assetApiInspected | Should -BeFalse
     }
 }
 

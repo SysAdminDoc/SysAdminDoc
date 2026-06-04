@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.7
+Current repo version: v4.9.8
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 1 - 2026-06-04.
+> Last researched: Cycle 2 - 2026-06-04.
 
 ## Implementer Instructions
 
@@ -28,6 +28,14 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.8 refresh: report schema depth now includes
+`metadataHygiene`, `releaseAssetDrift`, and `validationPerformance` sections.
+The latest live report records 69 repos missing topics, 4 missing descriptions,
+177 visitor-facing release-drift rows checked, 141 release-bearing rows, 102
+release-action rows, 16 source-only rows with releases, and 239 link targets
+checked in 6801 ms. Pester passed 26/26 and full `-Write -Check` passed with 0
+metadata drift rows, 0 link failures, and 0 link warnings.
 
 2026-06-04 v4.9.7 refresh: live link validation now collects URL targets first
 and probes them in bounded parallel batches with throttle 16. The report adds
@@ -62,7 +70,7 @@ passed 18/18, and the full write/check pass is green with
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.7, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.8, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered through 2026-06-04 showed:
 
@@ -75,6 +83,7 @@ Live GitHub metadata gathered through 2026-06-04 showed:
 - `.github/` contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
 - `scripts/sync-profile.ps1 -Check` validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
 - Link validation runs in bounded parallel batches and reports target count, elapsed time, throttle, and warning counts by host.
+- `reports/profile-sync-report.json` now includes metadata hygiene, release/download drift, and validation-performance sections for downstream audits.
 - `scripts/sync-profile.ps1 -Check` reports structured `metadataDrift` rows for committed-vs-live feed drift; branch/release/action/suppression drift is fatal, while stars, topics, and `pushedAt` are informational.
 - Legacy README reverse parsing through `-SeedCatalog` now requires explicit `-ForceSeedCatalog` and is documented as a lossy one-shot bootstrap, not a routine source-of-truth path.
 - Root `projects.json` is generated from the same catalog for portfolio consumption and includes structured primary-action metadata.
@@ -118,10 +127,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.7 split target collection from probing, added bounded parallel probe batches, preserved fatal vs warning semantics, added `linkValidationSummary.warningCountByHost`, and verified 239 live targets in 6835 ms with no failures/warnings.
   - Source: docs/research-feature-plan-2026-06-04.md (P2); RESEARCH_FEATURE_PLAN (EI7)
 
-- [ ] P1 — Report schema depth (metadata hygiene, release-asset, performance sections)
+- [x] P1 — Report schema depth (metadata hygiene, release-asset, performance sections)
   - Why: the report records pass/fail arrays but does not yet report topic gaps, description gaps, release-asset mismatches, stale feed age, or warning counts by host.
   - Touches: `scripts/sync-profile.ps1` (`Test-ProfileState`, `New-ProjectsExportJson`), `reports/profile-sync-report.json`.
   - Acceptance: report adds `metadataHygiene`, `releaseAssetDrift`, and `validationPerformance` sections; portfolio consumers ignore unknown fields.
+  - Completed: v4.9.8 added `metadataHygiene` missing-topic/description arrays, visitor-facing `releaseAssetDrift` summaries from current release/action metadata, and `validationPerformance.linkValidation` timing/counts.
   - Source: docs/research-feature-plan-2026-06-04.md (Report Schema Depth)
 
 ### Metadata hygiene and discoverability
@@ -301,8 +311,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.7`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.7`), `CHANGELOG.md:5` (`## [v4.9.7]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.8`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.8`), `CHANGELOG.md:5` (`## [v4.9.8]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
@@ -380,12 +390,58 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: the note exists and is referenced from the action-baked-SVG roadmap item.
   - Complexity: S
 
+### Researcher Queue (Cycle 2 - 2026-06-04)
+
+*Research conducted 2026-06-04. Items below were new relative to the open queue at research time. Existing open items already cover JSON Schema publishing, doc-version consistency, header link validation, REST fallback caps, catalog-shape validation, SECURITY.md, and setup `-CheckOnly`/transcript hardening.*
+
+- [ ] P1 — Add a PowerShell static-analysis lane for the generator and setup scripts
+  - Why: Pester exercises selected behavior, but no CI step checks common PowerShell quality/security rules for `scripts/sync-profile.ps1` or `setup.ps1`. Microsoft documents `Invoke-ScriptAnalyzer` as a static checker for `.ps1`, `.psm1`, and `.psd1` files and supports `-EnableExit` for CI failure.
+  - Evidence: `.github/workflows/tests.yml` installs/runs only Pester; root search found no `PSScriptAnalyzerSettings.psd1` or `Invoke-ScriptAnalyzer`; Microsoft Learn `Invoke-ScriptAnalyzer` docs: https://learn.microsoft.com/en-us/powershell/module/psscriptanalyzer/invoke-scriptanalyzer?view=ps-modules
+  - Touches: `PSScriptAnalyzerSettings.psd1` (or equivalent), `.github/workflows/tests.yml`, existing PowerShell scripts only as needed to satisfy the rules.
+  - Acceptance: CI runs `Invoke-ScriptAnalyzer` against `scripts/` and `setup.ps1` with a curated settings file; any suppressions carry justifications; Pester remains the behavioral test lane.
+  - Verify: `pwsh -NoProfile -Command "Install-Module PSScriptAnalyzer -Scope CurrentUser -Force; Invoke-ScriptAnalyzer -Path scripts,setup.ps1 -Recurse -Settings ./PSScriptAnalyzerSettings.psd1 -EnableExit"`
+  - Complexity: M
+
+- [ ] P1 — Add generated-feed provenance fields for downstream consumers
+  - Why: `projects.json` exposes `schema`, `generatedAt`, and a generic `source`, but does not identify the source tree, catalog hash, generator hash/version, or metadata snapshot that produced the feed. The portfolio cannot distinguish a stale cache from a freshly generated feed with unchanged timestamps, and debugging feed drift requires rerunning local context.
+  - Evidence: `projects.json:2-5`; `New-ProjectsExportJson` currently emits top-level `schema`, `generatedAt`, `source`, and counts; GitHub artifact-attestation docs frame provenance as "where and how" artifacts were built: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
+  - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, report writer), `projects.json`, `reports/profile-sync-report.json`, optional portfolio consumer handling.
+  - Acceptance: feed metadata includes a stable schema version plus public-safe provenance such as `sourceRef`, `catalogSha256`, `generatorSha256`, and `metadataSnapshotAt`; `-Check` reports or fails on mismatched provenance when generated files are stale.
+  - Verify: run `scripts/sync-profile.ps1 -Write -Check`; compare the reported catalog/generator hashes to the current files; alter one provenance field and confirm `-Check` catches the mismatch.
+  - Complexity: M
+
+- [ ] P2 — Add structured issue/support intake for catalog and install-link reports
+  - Why: Issues are enabled on the public repo, but the community profile reports no issue template, no PR template, and no contributing guidelines. A profile with 177 visitor-facing entries needs a guided intake for broken install snippets, stale release links, catalog corrections, and README/profile copy corrections; security reports should be routed to the planned `SECURITY.md` instead of public issues.
+  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/community/profile` returned `health_percentage=28` with `issue_template=null`, `contributing=null`, and no security-policy file; `gh api repos/SysAdminDoc/SysAdminDoc` shows `has_issues=true`; GitHub issue-template docs: https://docs.github.com/articles/creating-an-issue-template-for-your-repository
+  - Touches: `.github/ISSUE_TEMPLATE/catalog-link.yml`, `.github/ISSUE_TEMPLATE/profile-correction.yml`, `.github/ISSUE_TEMPLATE/config.yml`, `.github/PULL_REQUEST_TEMPLATE.md`, optional `CONTRIBUTING.md` or `docs/CONTRIBUTING.md`.
+  - Acceptance: the issue chooser has public-safe forms for broken catalog links and profile corrections, required fields capture repo/link/current behavior/expected behavior, security reports point to `SECURITY.md`, and the PR template warns against hand-editing generated README sections.
+  - Verify: GitHub's community profile shows an issue-template check; opening `/issues/new/choose` shows the forms; a PR touching `README.md` presents the template.
+  - Complexity: S
+
+- [ ] P2 — Add a read-only repository settings and community-health baseline to the sync report
+  - Why: `scripts/sync-profile.ps1 -Check` validates generated files, but file checks miss drift in GitHub-hosted settings and community-health state. Live metadata currently shows secret scanning and push protection enabled, but non-provider/generic detection disabled, Dependabot security updates disabled, Projects/Wiki enabled, and missing issue/contributing templates. These should be visible as public-safe report fields before they become silent trust regressions.
+  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc --jq '{has_issues,has_projects,has_wiki,security_and_analysis}'`; `gh api repos/SysAdminDoc/SysAdminDoc/community/profile`; GitHub secret-scanning docs: https://docs.github.com/en/code-security/secret-scanning/enabling-secret-scanning-features
+  - Touches: `scripts/sync-profile.ps1` (new read-only repository/community metadata probe), `reports/profile-sync-report.json`, optional Pester fixture for report shape.
+  - Acceptance: the sync report includes `repositorySettings` and `communityHealth` blocks with non-sensitive statuses; disabled push protection or missing planned community files are warnings; no settings are mutated by the check.
+  - Verify: `scripts/sync-profile.ps1 -Check` records the blocks; mock a missing/disabled field in a fixture and confirm the warning count changes.
+  - Complexity: M
+
+- [ ] P2 — Triage current Dependabot workflow-action update PRs with a repeatable SHA-pin review path
+  - Why: Dependabot has two open PRs updating SHA-pinned workflow actions, and both current check sets pass. The repo already values pinned actions, least-privilege permissions, and `zizmor`; the missing piece is a small repeatable merge/defer protocol so pinned actions do not go stale while still preserving review of major action/runtime changes.
+  - Evidence: `gh pr list -R SysAdminDoc/SysAdminDoc` shows PR #5 (`actions/checkout` 4.3.1 -> 6.0.3) and PR #6 (`github/codeql-action` 3.35.5 -> 4.36.1); `gh pr checks 5` shows Pester and zizmor passing; `gh pr checks 6` shows zizmor passing; GitHub Dependabot action-update docs: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
+  - Touches: `.github/workflows/*.yml`; optional `CONTRIBUTING.md` or `RESEARCH_REPORT.md` maintenance note.
+  - Acceptance: PR #5 and PR #6 are merged or explicitly deferred with a reason; the review checklist records `gh pr checks`, `zizmor`, Pester/profile-sync relevance, `persist-credentials:false`, and permission diffs before merging future action-update PRs.
+  - Verify: `gh pr list -R SysAdminDoc/SysAdminDoc --state open --label github_actions` is empty or each remaining PR has a documented defer reason.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
 
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
+- [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
+- [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
@@ -395,7 +451,9 @@ P1/P2 needing design or staged rollout:
 
 - [ ] P1 — Publish the advertised JSON Schemas and validate the feed against them (cross-repo with `sysadmindoc.github.io`; defines the downstream contract).
 - [ ] P1 — Doc version/date consistency gate wired into `-Check` and CI.
+- [ ] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1`.
+- [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
+- [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
-</content>

@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.8] - 2026-06-04
+
+- Added: `metadataHygiene` in `reports/profile-sync-report.json`, including missing-topic and missing-description counts plus public repo rows for cleanup planning.
+- Added: `releaseAssetDrift` for visitor-facing catalog rows, summarizing current release-bearing rows, release action rows, source-only rows with releases, missing release/download-kind mismatches, and whether asset filename inspection ran.
+- Added: `validationPerformance.linkValidation`, mirroring link target count, throttle, elapsed milliseconds, warning count, failure count, and warning-host count.
+- Added: Pester coverage for metadata hygiene and release/download drift helper behavior.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 26 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with 69 missing-topic rows, 4 missing-description rows, 177 release-drift rows checked, 239 link targets checked in 6801 ms, 0 link failures, and 0 link warnings.
+
 ## [v4.9.7] - 2026-06-04
 
 - Changed: Link validation now collects entrypoint, userscript, launch, and release targets first, then probes them in bounded parallel batches with throttle 16.
