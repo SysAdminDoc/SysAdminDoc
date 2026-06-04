@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T05:35:22.7945944-04:00",
+  "generatedAt": "2026-06-04T05:48:31.3554040-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -1012,28 +1012,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.20",
+    "expectedVersion": "v4.9.21",
     "expectedDate": "2026-06-04",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.20"
+        "value": "v4.9.21"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.20"
+        "value": "v4.9.21"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.20"
+        "value": "v4.9.21"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.20"
+        "value": "v4.9.21"
       }
     ],
     "dates": [
@@ -1066,7 +1066,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 3851,
+      "elapsedMs": 3655,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1082,7 +1082,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.55,
+      "ageDays": 2.56,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1092,7 +1092,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 3851,
+    "elapsedMs": 3655,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],
@@ -1102,6 +1102,7 @@
     "startHereSection": true,
     "catalogSnapshotSection": true,
     "generatedCatalogNotice": true,
+    "setupInspectPath": true,
     "themeAwareImageChrome": true,
     "plainTextTagline": true,
     "meaningfulImageAltText": true,

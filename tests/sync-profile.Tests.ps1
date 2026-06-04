@@ -268,6 +268,13 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'includes the generated catalog hand-edit notice' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
+    It 'renders setup inspect-before-run and check-only guidance' {
+        $script:rendered | Should -Match 'Inspect before installing'
+        $script:rendered | Should -Match ([regex]::Escape('$u=''https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'''))
+        $script:rendered | Should -Match 'SysAdminDoc-setup\.ps1'
+        $script:rendered | Should -Match '-CheckOnly'
+        $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
+    }
     It 'emits theme-aware profile chrome with plain text and descriptive alt text' {
         $script:rendered | Should -Match '<picture>'
         $script:rendered | Should -Match '\(prefers-color-scheme: dark\)'
@@ -297,6 +304,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeTrue
+        $result.setupInspectPath | Should -BeTrue
         $result.themeAwareImageChrome | Should -BeTrue
         $result.plainTextTagline | Should -BeTrue
         $result.meaningfulImageAltText | Should -BeTrue
@@ -319,6 +327,28 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
+    }
+}
+
+Describe 'setup.ps1 hardening contract' {
+    BeforeAll {
+        $script:setupSource = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'setup.ps1') -Raw
+    }
+
+    It 'declares the supported Windows PowerShell floor' {
+        $script:setupSource | Should -Match '(?m)^#Requires -Version 5\.1\s*$'
+    }
+
+    It 'supports check-only diagnostics without installation' {
+        $script:setupSource | Should -Match '\[switch\]\$CheckOnly'
+        $script:setupSource | Should -Match 'Check-only mode: no packages will be installed\.'
+        $script:setupSource | Should -Match 'Run without -CheckOnly to install with winget'
+    }
+
+    It 'writes a best-effort setup transcript under temp' {
+        $script:setupSource | Should -Match 'Start-Transcript'
+        $script:setupSource | Should -Match 'SysAdminDoc-setup-\{0\}\.log'
+        $script:setupSource | Should -Match 'Stop-Transcript'
     }
 }
 

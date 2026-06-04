@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.20
+Current version after this refresh: v4.9.21
 
 ## Verification Refresh — 2026-06-04
 
@@ -64,6 +64,15 @@ Current version after this refresh: v4.9.20
   `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
   drift rows, 0 link failures, and 0 link warnings after REST fallback from a
   transient GitHub GraphQL 502.
+- The v4.9.21 batch closed the active P2 setup bootstrapper hardening item by
+  adding `#Requires -Version 5.1`, `-CheckOnly` diagnostics, best-effort
+  `%TEMP%` transcript logging, generated inspect-before-install README guidance,
+  and `readmeExperienceChecks.setupInspectPath`. Pester passed 42/42,
+  `setup.ps1 -CheckOnly` reported local prerequisite state without installing,
+  and `scripts/sync-profile.ps1 -Write -Check` passed with
+  `setupInspectPath=true`, `projectsExportInSync=true`, 0 metadata drift rows, 0
+  link failures, and 0 link warnings after REST fallback from a transient GitHub
+  GraphQL 502.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
@@ -116,7 +125,7 @@ Top opportunities, in priority order:
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
 2. P1 - Add direct Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
 3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
-4. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
+4. P2 - Extend link validation to the hero/header and non-catalog URLs.
 5. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
 6. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 
@@ -301,8 +310,8 @@ Important integrations:
 - User value: gives new Windows users a one-paste way to install Python and Git before running snippets.
 - Entry point: README First-time setup section and `setup.ps1`.
 - Main code: `Install-Pkg`, `Update-PathFromRegistry`, `Test-Cmd`.
-- Current maturity: useful and straightforward.
-- Improvement opportunities: `#Requires -Version 5.1`, `-CheckOnly`, transcript logging, and an inspect-before-run path.
+- Current maturity: useful and trust-oriented after v4.9.21 added `-CheckOnly`, transcript logging, and inspect-before-install README guidance.
+- Improvement opportunities: optional signing/checksum publication if the user wants a deeper trust model for remote execution.
 
 ### GitHub Actions Automation
 
@@ -343,7 +352,7 @@ Important integrations:
 - Any future widget or metrics integration must use public-only data. Do not grant private repository scope to public-facing stats generation.
 - Topic mutation should remain a reviewed operation because it changes other repositories, not just this profile repo.
 - The generated feed should continue to include suppressed entries only in the `suppressed` array, with no private-only data in public project rows.
-- `setup.ps1` uses remote execution through the README one-liner; an inspect-before-run path would improve trust without removing the convenience path.
+- `setup.ps1` uses remote execution through the README one-liner; the generated README now also exposes a save/review/`-CheckOnly` path before installation.
 
 ## UX, Accessibility, and Trust
 
@@ -367,7 +376,7 @@ Important integrations:
 
 - Run generated metadata refresh whenever `-Check` reports `readmeInSync=false` or fatal `metadataDrift` rows; raw `projectsExportInSync=false` can now be informational when only star/topic/`pushedAt` metadata changed.
 - Review the generated topic hints before any cross-repo topic mutation.
-- Add `#Requires -Version 5.1` and `-CheckOnly` to `setup.ps1`.
+- Keep the setup inspect/check-only path in the generated README when editing first-time setup copy.
 - Add a Pester fixture for the nonfatal link-warning path.
 - Add a generated warning banner around generated README sections.
 

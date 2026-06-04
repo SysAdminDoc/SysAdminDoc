@@ -5,11 +5,23 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.20
+Current repo version: v4.9.21
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.21 refresh: `setup.ps1` hardening shipped. The bootstrapper
+now declares `#Requires -Version 5.1`, supports `-CheckOnly` diagnostics for
+winget, Python, pip, and Git without installing, writes a best-effort transcript
+under `%TEMP%`, and preserves the existing one-paste `irm ... | iex` install
+path. The generated First-time setup README section now includes an
+inspect-before-install command path, and `readmeExperienceChecks` records
+`setupInspectPath=true`. Verification ran `Invoke-Pester -Path tests -Output
+Detailed` (42/42), `setup.ps1 -CheckOnly`, `scripts/sync-profile.ps1 -Write
+-Check` with `setupInspectPath=true`, `projectsExportInSync=true`, 0 metadata
+drift rows, 0 link failures, and 0 link warnings after REST fallback from a
+transient GitHub GraphQL 502, plus `rtk git diff --check`.
 
 2026-06-04 v4.9.20 refresh: the public planning-doc sync item and the
 research-driven doc version/date consistency gate were implemented in
@@ -338,10 +350,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Setup bootstrapper
 
-- [ ] P2 — Harden `setup.ps1`
+- [x] P2 — Harden `setup.ps1`
   - Why: onboarding is strong but lacks an inspect-before-run path; support diagnostics are transient.
   - Touches: `setup.ps1`, `New-FirstTimeSetupSection`, optional tests.
   - Acceptance: adds `#Requires -Version 5.1`, `-CheckOnly` (reports Python/Git/winget state without installing), transcript logging to a temp path, and a README inspect-before-run row; the `irm | iex` default path keeps working.
+  - Completed: v4.9.21 added `#Requires -Version 5.1`, `-CheckOnly`, best-effort `%TEMP%` transcripts, generated inspect-before-install README guidance, `readmeExperienceChecks.setupInspectPath`, and Pester/static contract coverage.
   - Source: TODO.md; docs/research-feature-plan-2026-06-04.md (P2)
 
 ### Catalog hygiene and attribution

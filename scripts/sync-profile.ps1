@@ -1120,11 +1120,19 @@ The PowerShell and Python sections clone repos with **Git** and run scripts with
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
 ```
 
+Inspect before installing:
+
+```powershell
+$u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
+```
+
 | Step | Behavior |
 |:-----|:---------|
 | Checks first | Skips Python or Git when already installed. |
+| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report Python, Git, pip, and winget state without installing. |
 | Installs with Windows tooling | Uses `winget` for [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
+| Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
 Already have Python and Git? Skip this and open the category you need.
@@ -1895,6 +1903,10 @@ function Test-ReadmeExperience {
     $hasStartHere = $ExpectedReadme.Contains("### Start Here")
     $hasSnapshot = $ExpectedReadme.Contains("### Catalog Snapshot")
     $hasGeneratedNotice = $ExpectedReadme.Contains($GeneratedCatalogNotice)
+    $hasSetupInspectPath = $ExpectedReadme.Contains("Inspect before installing") -and
+        $ExpectedReadme.Contains("-CheckOnly") -and
+        $ExpectedReadme.Contains("SysAdminDoc-setup.ps1") -and
+        $ExpectedReadme.Contains("SysAdminDoc-setup-*.log")
     $hasThemeAwareChrome = $ExpectedReadme.Contains("<picture>") -and
         $ExpectedReadme.Contains('(prefers-color-scheme: dark)') -and
         $ExpectedReadme.Contains('(prefers-color-scheme: light)') -and
@@ -1916,7 +1928,7 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains('alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub"')
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
-    $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
+    $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasSetupInspectPath -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
         $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and
         $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $profileStatsChromeCount -eq 1 -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
@@ -1926,6 +1938,7 @@ function Test-ReadmeExperience {
         startHereSection = [bool]$hasStartHere
         catalogSnapshotSection = [bool]$hasSnapshot
         generatedCatalogNotice = [bool]$hasGeneratedNotice
+        setupInspectPath = [bool]$hasSetupInspectPath
         themeAwareImageChrome = [bool]$hasThemeAwareChrome
         plainTextTagline = [bool]$hasPlainTextTagline
         meaningfulImageAltText = [bool]$hasMeaningfulAltText

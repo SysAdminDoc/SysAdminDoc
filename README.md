@@ -118,11 +118,19 @@ The PowerShell and Python sections clone repos with **Git** and run scripts with
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
 ```
 
+Inspect before installing:
+
+```powershell
+$u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
+```
+
 | Step | Behavior |
 |:-----|:---------|
 | Checks first | Skips Python or Git when already installed. |
+| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report Python, Git, pip, and winget state without installing. |
 | Installs with Windows tooling | Uses `winget` for [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
+| Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
 Already have Python and Git? Skip this and open the category you need.

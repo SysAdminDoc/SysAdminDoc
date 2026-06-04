@@ -22,9 +22,9 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/workflows/workflow-security.yml` runs `zizmor` against workflow changes.
 - `.github/workflows/scorecard.yml` runs OpenSSF Scorecard.
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
-- `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines.
+- `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines; it now supports `-CheckOnly` diagnostics and best-effort `%TEMP%` transcript logging.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, and planning-doc version/date consistency checks shipped as v4.9.20.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, and setup bootstrapper hardening shipped as v4.9.21.
 - Local working-note files are ignored by git.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
@@ -32,7 +32,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-04
 Latest sync date: 2026-06-04
-Version: v4.9.20
+Version: v4.9.21
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -56,7 +56,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - `releaseAssetDrift` checks 177 visitor-facing rows, including 141 release-bearing rows, 141 asset-inspected release rows, 71 release-action rows, 17 source-only rows with releases, 0 release asset kind mismatches, and 0 release asset fetch failures.
 - 0 link validation failures across install entrypoints, raw userscripts, launch URLs, and release redirects.
 - `linkValidationSummary` reports 185 URL targets checked with throttle 16 in 5217 ms and 0 warning host groups.
-- `readmeExperienceChecks` pass: Start Here section, Catalog Snapshot, featured/currently-building action columns, category anchors, primary-action coverage, labeled download buttons, generated dark/light image chrome, local metric SVG panels, plain-text tagline, meaningful image alt text, 0 third-party metric hosts, 0 third-party badge hosts, and exactly 1 generated stats chrome block.
+- `readmeExperienceChecks` pass: Start Here section, Catalog Snapshot, setup inspect-before-run guidance, featured/currently-building action columns, category anchors, primary-action coverage, labeled download buttons, generated dark/light image chrome, local metric SVG panels, plain-text tagline, meaningful image alt text, 0 third-party metric hosts, 0 third-party badge hosts, and exactly 1 generated stats chrome block.
 - `projects.json` contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata and release asset taxonomy (`releaseAssetKinds`, `releaseAssetNames`, `releaseAssetInspected`) for downstream portfolio rendering. The raw `projectsExportInSync` boolean remains in the report, but v4.9.5 adds row-level drift details so exact feed drift can be separated into fatal structural drift and informational metadata drift.
 - `schemaValidation.passed=true`; the normalized catalog and generated projects feed validate against `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`.
 - `docVersionConsistency.passed=true`; `ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` align to the latest planning version/date, and `-Check` fails if a planning sync date falls behind the latest changelog date.
@@ -101,9 +101,9 @@ As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub 
 
 ## Recommended Next Implementation
 
-1. Harden `setup.ps1` with check-only diagnostics, transcript logging, and inspect-before-run documentation.
+1. Recategorize WolfPack out of Security & Networking and regenerate the catalog.
 2. Add Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
-3. Add quarterly archive/retirement reporting.
+3. Add a PowerShell static-analysis lane for `scripts/` and `setup.ps1`.
 
 ## Research Artifacts
 
