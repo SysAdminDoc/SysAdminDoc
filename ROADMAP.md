@@ -218,5 +218,116 @@ Before a generated README refresh is shipped:
 
 ## Research-Driven Additions
 
-<!-- populated by the research pass -->
+*Research conducted 2026-06-03. Items below are new — not duplicates of Existing Planned Work.*
+
+These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, `setup.ps1`, the generated `README.md`/`projects.json`, and live verification. Existing Planned Work already covers: drift lockout (P0), metadata-drift report depth, `-SeedCatalog` guard, parallel link validation, report schema depth, topic/description hygiene, theme-aware image chrome, release-asset taxonomy, action-baked SVGs, portfolio search/freshness, `setup.ps1` `-CheckOnly`/transcript, stale-project review, planning-doc sync, and the blocked decisions. The items below are deliberately outside all of those.
+
+### Data integrity and trust gates
+
+- [ ] P1 — Publish (or stop referencing) the JSON Schema URLs the feed advertises
+  - Why: `data/profile-catalog.json` and `projects.json` both declare `schema` pointers (`https://sysadmindoc.github.io/schemas/profile-catalog.v1.json` and `.../profile-projects.v1.json`), but those URLs return HTTP 404. Any downstream consumer that follows the advertised contract gets a dead link, and the feed has no enforceable shape.
+  - Evidence: `scripts/sync-profile.ps1:1086` (`schema = "https://sysadmindoc.github.io/schemas/profile-projects.v1.json"`), `:1264` (catalog schema), `data/profile-catalog.json:1`. Verified 2026-06-03: `https://sysadmindoc.github.io/schemas/profile-projects.v1.json` → 404.
+  - Touches: `sysadmindoc.github.io` (publish the two schema docs) OR `scripts/sync-profile.ps1` (point `schema` at a versioned path that exists, e.g. the raw GitHub blob of a committed `schemas/*.json`); optional `schemas/` dir in this repo.
+  - Acceptance: both advertised `schema` URLs resolve to a real JSON Schema that validates a current `projects.json`/catalog, or the field is repointed to a live URL; a Pester/CI step validates the generated feed against the committed schema.
+  - Verify: `curl -sI <schema-url>` → 200; `Invoke-Pester` includes a schema-validation case that fails on a missing required field.
+  - Complexity: M
+
+- [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.3`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.3`), `CHANGELOG.md:5` (`## [v4.9.3]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` (`scripts/sync-profile.ps1:1324`) checks README/feed drift but never reads the planning docs.
+  - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
+  - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
+  - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
+  - Complexity: M
+
+- [ ] P2 — Extend link validation to hero/header and non-catalog URLs
+  - Why: `Test-LinkTargets` only probes catalog-derived entrypoint/userscript/live/release URLs. The hand-authored hero — the portfolio link `https://sysadmindoc.github.io/`, the `setup.ps1` blob link, and the third-party image hosts (capsule-render, readme-typing-svg, skill-icons, github-readme-stats, streak-stats, activity-graph, komarev) — is never checked. A dead portfolio link or a retired image host would pass the gate.
+  - Evidence: `scripts/sync-profile.ps1:476-528` (`Test-LinkTargets` iterates only `$Included` catalog entries); `README.md:1-68` (hero/header links and image hosts, none catalog-derived).
+  - Touches: `scripts/sync-profile.ps1` (`Test-LinkTargets` plus a static header-URL extractor), report schema.
+  - Acceptance: the portfolio link and `setup.ps1` blob link are probed as fatal-on-404; image hosts are probed as non-fatal warnings grouped under `headerHostWarnings`; results land in the report.
+  - Verify: temporarily point the portfolio link at a 404 in a scratch copy and confirm a fatal failure; confirm image-host outages stay non-fatal.
+  - Complexity: M
+
+### Reliability and performance
+
+- [ ] P2 — Cap and authenticate the REST release-fallback N+1
+  - Why: when the GraphQL path fails three times, `Get-GitHubReposFromRest` issues one `gh api .../releases/latest` per public repo — ~184 sequential calls. Unauthenticated that blows the 60 req/hr limit; even authenticated it is slow and can partially fail mid-run, silently yielding a feed with missing release tags.
+  - Evidence: `scripts/sync-profile.ps1:148-162` (per-repo `gh api releases/latest` loop inside the fallback).
+  - Touches: `scripts/sync-profile.ps1` (`Get-GitHubReposFromRest`): batch via a single GraphQL-less paginated call where possible, add `--paginate`, surface a rate-limit/partial-fetch warning, and fail loudly rather than emitting a half-populated catalog.
+  - Acceptance: fallback completes within a bounded request budget, logs a warning when any per-repo release fetch fails, and never writes a feed where release data is partially missing without flagging it.
+  - Verify: force the GraphQL path to fail (simulate), run `-Write`, confirm the run either completes cleanly or aborts with a clear partial-data warning.
+  - Complexity: M
+
+- [ ] P2 — Add a generated-README size budget guard
+  - Why: the generated `README.md` is ~72 KB. GitHub renders profile READMEs but truncates very long files and degrades on mobile; there is no budget check, so unbounded catalog growth can silently push the profile past a comfortable render size.
+  - Evidence: `README.md` is 73,358 bytes on disk; `New-Readme` (`scripts/sync-profile.ps1:959`) emits every included entry with a full code block and no size accounting.
+  - Touches: `scripts/sync-profile.ps1` (`Test-ProfileState`), report schema.
+  - Acceptance: report records generated byte size and warns past a configurable soft cap (e.g. 96 KB); the warning is informational, not fatal, and suggests collapsing low-traffic categories.
+  - Verify: lower the cap below current size, run `-Check`, confirm the warning appears in the report without failing the gate.
+  - Complexity: S
+
+### Test coverage gaps
+
+- [ ] P1 — Cover the safety-critical functions the Pester suite skips
+  - Why: the hermetic suite tests snippet/URL/description helpers and basic generation, but never exercises `Test-ProfileState` (the privacy/medical/private-visibility/drift gate), `Update-Header` (the Currently-Building regex replace), or `New-ProjectsExportJson` suppression edge cases beyond one fixture. The most safety-critical logic — the gate that keeps private/medical repos out of the public profile — has no direct unit test.
+  - Evidence: `tests/sync-profile.Tests.ps1` (no `Describe` for `Test-ProfileState`, `Update-Header`, or the medical-violation branch at `scripts/sync-profile.ps1:1395`); `MedicalPattern` is tested only as a regex string, not through the gate that consumes it.
+  - Touches: `tests/sync-profile.Tests.ps1`, new offline fixtures (a fake `$Repos` with a private/medical entry).
+  - Acceptance: tests assert `Test-ProfileState` flags a private-visibility repo, flags a medical-keyword repo lacking `allowPublicMedical`, passes one with the allowlist, and that `Update-Header` rewrites the Currently-Building table idempotently.
+  - Verify: `Invoke-Pester -Path tests` shows the new cases green; mutate the medical branch to confirm a test fails.
+  - Complexity: M
+
+- [ ] P2 — Add catalog JSON-shape validation to CI/Pester
+  - Why: a malformed `data/profile-catalog.json` (bad category slug, missing `repo`, duplicate entry, unknown `downloadKind`) only surfaces at generation runtime, and some bad values (e.g. an unrecognized `downloadKind`) silently fall through to a default label. There is no structural validation step.
+  - Evidence: `Get-Catalog` (`scripts/sync-profile.ps1:313`) `ConvertFrom-Json` with no schema/shape assertions; `Get-DownloadLabel` (`:546`) `default { return "Download" }` swallows unknown kinds.
+  - Touches: `tests/sync-profile.Tests.ps1` (or a new `Test-CatalogShape` function), optional committed schema from the P1 schema item.
+  - Acceptance: a test fails on a duplicate `repo`, an unknown `category` slug, or an unknown `downloadKind`; known-good catalog passes.
+  - Verify: inject a duplicate repo into a fixture, run Pester, confirm the new test fails.
+  - Complexity: M
+
+### Repository community health
+
+- [ ] P2 — Add SECURITY.md and a coordinated-disclosure path
+  - Why: the repo ships zizmor, OpenSSF Scorecard, CODEOWNERS, and pinned actions, but has no `SECURITY.md`. Scorecard explicitly scores the presence of a security policy, and a profile repo that runs supply-chain tooling should publish how to report an issue.
+  - Evidence: root listing shows no `SECURITY.md`/`.github/SECURITY.md`; `scorecard.yml` runs the Scorecard action that checks for one.
+  - Touches: `SECURITY.md` (or `.github/SECURITY.md`), public-safe contact only.
+  - Acceptance: a concise security policy exists with a non-PII reporting channel; Scorecard's Security-Policy check stops flagging it.
+  - Verify: GitHub shows the "Security policy" community-health entry as satisfied after push.
+  - Complexity: S
+
+- [ ] P3 — Add `.editorconfig` and a generated-README markdown lint pass
+  - Why: the generated README is large hand-and-machine-mixed Markdown with no lint or whitespace contract; inconsistent line endings or stray trailing whitespace in the hand-authored hero can drift the generated diff. No `.editorconfig` or markdownlint config exists.
+  - Evidence: root listing shows no `.editorconfig`/`.markdownlint*`; `New-Readme` normalizes only trailing `---` runs (`scripts/sync-profile.ps1:984`), not general whitespace.
+  - Touches: `.editorconfig`, optional `.markdownlint.jsonc`, optional `tests.yml` lint leg.
+  - Acceptance: an `.editorconfig` pins LF + final-newline + trim-trailing-whitespace; an optional markdownlint leg runs on PRs touching `README.md` with a curated ruleset (the generated tables are allowlisted).
+  - Verify: introduce trailing whitespace in the hero, confirm the lint leg flags it.
+  - Complexity: S
+
+### Privacy of the public surface
+
+- [ ] P3 — Document/justify the third-party render-host privacy exposure inline
+  - Why: distinct from the planned action-baked-SVG work, the komarev profile-view counter and the stats/streak/activity hosts each see every profile visitor's request through Camo's proxy origin; there is no public note that these are third-party and no documented decision record for keeping them. A short DECISION note makes the trade-off auditable and avoids re-litigating it each research pass.
+  - Evidence: `README.md:8` (komarev counter), `:59-68` (four render hosts); no decision record in tracked docs.
+  - Touches: a short note in `RESEARCH_REPORT.md` or a `docs/decisions/` entry; no code change.
+  - Acceptance: a one-paragraph recorded decision states which hosts are retained, why, and what would trigger removal (tie-in to the action-baked-SVG item).
+  - Verify: the note exists and is referenced from the action-baked-SVG roadmap item.
+  - Complexity: S
+
+### Quick Wins
+
+P2/P3, each doable in well under an hour:
+
+- [ ] P2 — Generated-README size budget guard (informational warning in the report).
+- [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
+- [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
+- [ ] P3 — Recorded decision note on the retained third-party render hosts.
+
+### Larger Bets
+
+P1/P2 needing design or staged rollout:
+
+- [ ] P1 — Publish the advertised JSON Schemas and validate the feed against them (cross-repo with `sysadmindoc.github.io`; defines the downstream contract).
+- [ ] P1 — Doc version/date consistency gate wired into `-Check` and CI.
+- [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
+- [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
+- [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
 </content>
