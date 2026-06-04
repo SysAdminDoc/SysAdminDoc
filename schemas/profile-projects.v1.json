@@ -104,6 +104,9 @@
         "suppressed",
         "suppressionReason",
         "description",
+        "forkOf",
+        "forkOfUrl",
+        "upstreamLicense",
         "repoUrl",
         "liveUrl",
         "installUrl",
@@ -168,6 +171,15 @@
         },
         "description": {
           "type": "string"
+        },
+        "forkOf": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "forkOfUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "upstreamLicense": {
+          "$ref": "#/$defs/nullableString"
         },
         "repoUrl": {
           "type": "string",

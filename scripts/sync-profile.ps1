@@ -316,6 +316,8 @@ function New-CatalogEntry {
         currentlyBuilding = $false
         currentlyBuildingText = $null
         allowPublicMedical = $false
+        forkOf = $null
+        upstreamLicense = $null
         aliasOf = $null
         suppressionReason = $null
         notes = $null
@@ -357,6 +359,8 @@ function ConvertTo-EntryHashtable {
     Set-IfMissing $hash "currentlyBuilding" $false
     Set-IfMissing $hash "currentlyBuildingText" $null
     Set-IfMissing $hash "allowPublicMedical" $false
+    Set-IfMissing $hash "forkOf" $null
+    Set-IfMissing $hash "upstreamLicense" $null
     Set-IfMissing $hash "aliasOf" $null
     Set-IfMissing $hash "suppressionReason" $null
     Set-IfMissing $hash "notes" $null
@@ -418,6 +422,55 @@ function Get-Description {
         return [string]$Meta.description
     }
     return [string]$Entry.repo
+}
+
+function Get-UpstreamUrl {
+    param([string]$ForkOf)
+
+    if ([string]::IsNullOrWhiteSpace($ForkOf)) {
+        return $null
+    }
+
+    if ($ForkOf -match '^[^/\s]+/[^/\s]+$') {
+        return "https://github.com/$ForkOf"
+    }
+
+    return $null
+}
+
+function Get-UpstreamAttribution {
+    param([hashtable]$Entry)
+
+    $parts = New-Object System.Collections.Generic.List[string]
+    $forkOf = [string]$Entry.forkOf
+    if (-not [string]::IsNullOrWhiteSpace($forkOf)) {
+        $url = Get-UpstreamUrl -ForkOf $forkOf
+        if ($url) {
+            $parts.Add("Upstream: [$forkOf]($url)")
+        } else {
+            $parts.Add("Upstream: $forkOf")
+        }
+    }
+
+    $upstreamLicense = [string]$Entry.upstreamLicense
+    if (-not [string]::IsNullOrWhiteSpace($upstreamLicense)) {
+        $parts.Add("License: $upstreamLicense")
+    }
+
+    if ($parts.Count -eq 0) {
+        return ""
+    }
+
+    return "<br/><sub>$($parts -join '; ')</sub>"
+}
+
+function Get-DisplayDescription {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta
+    )
+
+    return "$(Get-Description $Entry $Meta)$(Get-UpstreamAttribution $Entry)"
 }
 
 function Get-Branch {
@@ -1165,7 +1218,7 @@ function New-CategorySection {
         "code" {
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $line = "$(Get-ProjectLink $entry $meta) -- $(Get-Description $entry $meta)"
+                $line = "$(Get-ProjectLink $entry $meta) -- $(Get-DisplayDescription $entry $meta)"
                 $action = Get-ActionLink $entry $meta $Definition.Slug
                 if ($action -match 'releases/latest') {
                     $line += " &nbsp;$action"
@@ -1187,7 +1240,7 @@ function New-CategorySection {
             $lines.Add("|:--------|:------------|:----:|")
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
             }
             $lines.Add("")
         }
@@ -1196,7 +1249,7 @@ function New-CategorySection {
             $lines.Add("|:--------|:------------|:-------:|")
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
             }
             $lines.Add("")
         }
@@ -1205,7 +1258,7 @@ function New-CategorySection {
             $lines.Add("|:--------|:------------|:--------:|")
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
             }
             $lines.Add("")
         }
@@ -1221,7 +1274,7 @@ function New-CategorySection {
                 } else {
                     ""
                 }
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) | $language | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $language | $(Get-ActionLink $entry $meta $Definition.Slug) |")
             }
             $lines.Add("")
         }
@@ -1230,7 +1283,7 @@ function New-CategorySection {
             $lines.Add("|:--------|:------------|")
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-Description $entry $meta) |")
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) |")
             }
             $lines.Add("")
         }
@@ -1257,7 +1310,7 @@ function New-FeaturedSection {
         $stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
         $category = Get-CategoryDisplayName $entry.category
         $action = Get-ActionLink $entry $meta $entry.category
-        $lines.Add("| [**$($entry.title)**]($(Get-RepoUrl $entry)) | $category | &#11088;$stars | $(Get-Description $entry $meta) | $action |")
+        $lines.Add("| [**$($entry.title)**]($(Get-RepoUrl $entry)) | $category | &#11088;$stars | $(Get-DisplayDescription $entry $meta) | $action |")
     }
     return ($lines -join [Environment]::NewLine)
 }
@@ -1515,9 +1568,9 @@ function Update-Header {
         foreach ($entry in $building) {
             $meta = Get-RepoMeta $entry $RepoLookup
             $text = if (-not [string]::IsNullOrWhiteSpace([string]$entry.currentlyBuildingText)) {
-                [string]$entry.currentlyBuildingText
+                "$([string]$entry.currentlyBuildingText)$(Get-UpstreamAttribution $entry)"
             } else {
-                Get-Description $entry $meta
+                Get-DisplayDescription $entry $meta
             }
             $project = "[**$($entry.title)**]($(Get-RepoUrl $entry))"
             $action = Get-ActionLink $entry $meta $entry.category
@@ -1628,6 +1681,9 @@ function New-ProjectsExportJson {
             suppressed = $isSuppressed
             suppressionReason = if ([string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)) { $null } else { [string]$entry.suppressionReason }
             description = Get-Description $entry $meta
+            forkOf = if ([string]::IsNullOrWhiteSpace([string]$entry.forkOf)) { $null } else { [string]$entry.forkOf }
+            forkOfUrl = Get-UpstreamUrl -ForkOf ([string]$entry.forkOf)
+            upstreamLicense = if ([string]::IsNullOrWhiteSpace([string]$entry.upstreamLicense)) { $null } else { [string]$entry.upstreamLicense }
             repoUrl = $repoUrl
             liveUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) { $null } else { [string]$entry.liveUrl }
             installUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) { $null } else { [string]$entry.userscriptUrl }

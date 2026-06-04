@@ -275,6 +275,18 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '-CheckOnly'
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
+    It 'renders upstream and license attribution in featured and category rows' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $entry = @($cat.entries | Where-Object { $_.repo -eq 'WinTool' })[0]
+        $entry.forkOf = 'UpstreamOrg/WinTool'
+        $entry.upstreamLicense = 'MIT'
+        $entry.featured = $true
+        $entry.featuredRank = 1
+
+        $rendered = New-Readme -Catalog $cat -Repos @()
+
+        [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -BeGreaterOrEqual 2
+    }
     It 'emits theme-aware profile chrome with plain text and descriptive alt text' {
         $script:rendered | Should -Match '<picture>'
         $script:rendered | Should -Match '\(prefers-color-scheme: dark\)'
@@ -393,6 +405,20 @@ Describe 'New-ProjectsExportJson feed' {
         $pyTool.hasDownload | Should -BeFalse
         $hiddenTool.releaseAssetKinds | Should -Contain 'exe'
         @($hiddenTool.releaseAssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count | Should -Be 0
+    }
+
+    It 'exports structured upstream attribution fields' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $cat.entries[0].forkOf = 'UpstreamOrg/WinTool'
+        $cat.entries[0].upstreamLicense = 'MIT'
+
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $winTool = $json.projects | Where-Object { $_.repo -eq 'WinTool' }
+
+        $winTool.description | Should -Not -Match 'Upstream:'
+        $winTool.forkOf | Should -Be 'UpstreamOrg/WinTool'
+        $winTool.forkOfUrl | Should -Be 'https://github.com/UpstreamOrg/WinTool'
+        $winTool.upstreamLicense | Should -Be 'MIT'
     }
 }
 

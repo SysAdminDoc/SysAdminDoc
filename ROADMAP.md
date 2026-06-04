@@ -5,11 +5,23 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.22
+Current repo version: v4.9.23
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.23 refresh: fork/continuation attribution shipped.
+`data/profile-catalog.json` now supports structured `forkOf` and
+`upstreamLicense` fields, generated `projects.json` emits `forkOf`,
+`forkOfUrl`, and `upstreamLicense`, and README featured/category/currently
+building rows render a compact upstream/license line for forked or continued
+projects. AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser,
+TabExplorer, Vigil, and TagStudio now carry explicit attribution metadata.
+Verification ran `Invoke-Pester -Path tests -Output Detailed` (44/44) and
+`scripts/sync-profile.ps1 -Write -Check` with `schemaValidation.passed=true`,
+`projectsExportInSync=true`, 0 metadata drift rows, 0 link failures, and 0 link
+warnings after REST fallback from a transient GitHub GraphQL 502.
 
 2026-06-04 v4.9.22 refresh: the WolfPack catalog-hygiene item shipped.
 WolfPack moved out of Security & Networking into Native Desktop Applications,
@@ -376,10 +388,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.22 moved WolfPack and Vigil into Native Desktop Applications, regenerated README/feed/report output, and tightened Security & Networking from 4 to 3 repos.
   - Source: TODO.md (P3)
 
-- [ ] P3 — Standardize fork/continuation + upstream-license attribution
+- [x] P3 — Standardize fork/continuation + upstream-license attribution
   - Why: fork/continuation labeling is uneven (AppManagerNG shows license in body but not Featured; `(fork)` entries lack upstream link/license).
   - Touches: `data/profile-catalog.json` (`forkOf`/`upstreamLicense` fields), README renderer, `projects.json`.
   - Acceptance: Featured and category rows render upstream origin and license uniformly for forked/continued projects.
+  - Completed: v4.9.23 added structured attribution fields, schema/feed support, README upstream/license rendering, and metadata for AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser, TabExplorer, Vigil, and TagStudio.
   - Source: TODO.md (P3); docs/research-feature-plan-2026-06-04.md (P3)
 
 - [ ] P3 — Log "Forge" naming debt
