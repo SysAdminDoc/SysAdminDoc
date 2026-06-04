@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 7 - 2026-06-04.
+> Last researched: Cycle 8 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 7 - 2026-06-04.
+Last researched: Cycle 8 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -732,6 +732,21 @@ structured issue forms, so the items below avoid those duplicates.*
   - Verify: run `scripts/sync-profile.ps1 -Check`; confirm the report counts EXE/APK rows by trust status and flags missing evidence as warnings, not fatal failures. For one repo with an attestation/checksum, verify the report recognizes it.
   - Complexity: M
 
+### Researcher Queue (Cycle 8 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on dependency/toolchain drift
+inside CI. Existing open items already cover GitHub Actions SHA-pin review,
+`actionlint`, PSScriptAnalyzer, workflow timeouts, and Dependabot PR triage; the
+new gap is that registry-installed validation tools are not pinned or locked.*
+
+- [ ] P2 🤖 🔬 — Pin and audit CI-installed validation tools
+  - Why: the workflows pin third-party GitHub Actions by SHA, but they still install validation tools directly from live registries: `zizmor` via `python -m pip install --upgrade zizmor` and Pester via `Install-Module Pester -MinimumVersion 5.5.0 -Force`. A new PyPI or PSGallery release can change CI behavior, break validation, or introduce a supply-chain dependency without a reviewed PR.
+  - Evidence: `.github/workflows/workflow-security.yml:32-36` installs latest `zizmor`; `.github/workflows/tests.yml:39-45` trusts PSGallery and installs any Pester version at or above 5.5.0; no `requirements*.txt`, lock file, or tool-version manifest exists in the repo; pip's repeatable-installs docs recommend exact `==` pins and hash-checking for stricter automated installs: https://pip.pypa.io/en/stable/topics/repeatable-installs/ and https://pip.pypa.io/en/stable/topics/secure-installs/; Microsoft documents `Install-Module -RequiredVersion` for exact module selection: https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module; OpenSSF Scorecard's Pinned-Dependencies check calls unpinned build/release dependencies a medium risk: https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies
+  - Touches: `.github/workflows/tests.yml`, `.github/workflows/workflow-security.yml`, optional `requirements-ci.txt` with hashes, optional `docs/ci-toolchain.md` or a small tool-version manifest.
+  - Acceptance: CI validation tools are installed from exact reviewed versions; Python-installed tools use a pinned requirements file, preferably with hashes or a documented reason hashes are deferred; PowerShell modules use `-RequiredVersion`; the maintenance note explains how to update pins intentionally and how those updates relate to Dependabot/Renovate/manual review.
+  - Verify: `rg -n "pip install --upgrade|MinimumVersion" .github/workflows` returns no unreviewed floating validation-tool installs; a manual CI run uses the pinned versions; bumping a pin in a scratch branch produces a reviewable diff and still passes Pester/workflow-security.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -741,6 +756,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
 - [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.
 - [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
+- [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -763,3 +779,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
 - [ ] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows.
+- [ ] P2 — Pinned CI validation-tool installs with a documented update path.
