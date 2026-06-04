@@ -15,7 +15,8 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `README.md` is the rendered public profile.
 - `data/profile-catalog.json` is the canonical profile catalog and suppression list.
 - `projects.json` is the generated public project feed for portfolio consumption.
-- `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including parallel entrypoint/userscript/launch/release-link checks, README experience checks, generated theme-aware profile chrome checks, committed local SVG profile asset generation, structured metadata-drift checks, metadata hygiene reporting with non-mutating topic hints and catalog-backed description suggestions, release/download drift reporting, and validation-performance reporting.
+- `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including parallel entrypoint/userscript/launch/release-link checks, README experience checks, generated theme-aware profile chrome checks, committed local SVG profile asset generation, structured metadata-drift checks, metadata hygiene reporting with non-mutating topic hints and catalog-backed description suggestions, release/download drift reporting, JSON Schema contract validation, and validation-performance reporting.
+- `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json` are the versioned JSON Schema contracts advertised by the catalog and projects feed through raw GitHub URLs.
 - `reports/profile-sync-report.json` is the latest validation report from `scripts/sync-profile.ps1 -Check`.
 - `.github/workflows/profile-sync.yml` runs scheduled/manual profile checks and can open a manual generated-profile PR.
 - `.github/workflows/workflow-security.yml` runs `zizmor` against workflow changes.
@@ -23,7 +24,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, and portfolio live feed consumption shipped as v4.9.18.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, and feed JSON Schema contracts shipped as v4.9.19.
 - Local working-note files are ignored by git.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
@@ -31,7 +32,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-04
 Latest sync date: 2026-06-04
-Version: v4.9.18
+Version: v4.9.19
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -57,6 +58,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - `linkValidationSummary` reports 185 URL targets checked with throttle 16 in 5217 ms and 0 warning host groups.
 - `readmeExperienceChecks` pass: Start Here section, Catalog Snapshot, featured/currently-building action columns, category anchors, primary-action coverage, labeled download buttons, generated dark/light image chrome, local metric SVG panels, plain-text tagline, meaningful image alt text, 0 third-party metric hosts, 0 third-party badge hosts, and exactly 1 generated stats chrome block.
 - `projects.json` contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata and release asset taxonomy (`releaseAssetKinds`, `releaseAssetNames`, `releaseAssetInspected`) for downstream portfolio rendering. The raw `projectsExportInSync` boolean remains in the report, but v4.9.5 adds row-level drift details so exact feed drift can be separated into fatal structural drift and informational metadata drift.
+- `schemaValidation.passed=true`; the normalized catalog and generated projects feed validate against `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`.
 - `README.md` now carries a generated-catalog hand-edit notice before the generated catalog block, and profile sync validation records `readmeExperienceChecks.generatedCatalogNotice`.
 - The manual generated-profile workflow uses `scripts/sync-profile.ps1 -Write -Check` in a single invocation so write and validation share one live metadata snapshot.
 - `-SeedCatalog` is guarded behind `-ForceSeedCatalog` and should only be used as a lossy one-shot bootstrap; routine updates must edit `data/profile-catalog.json` and run `-Write`/`-Check`.
@@ -98,10 +100,9 @@ As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub 
 
 ## Recommended Next Implementation
 
-1. Publish or repoint the advertised JSON Schema URLs, then validate the feed against them.
-2. Add doc version/date consistency checks to `-Check` and CI.
-3. Harden `setup.ps1` with check-only diagnostics, transcript logging, and inspect-before-run documentation.
-4. Add quarterly archive/retirement reporting.
+1. Add doc version/date consistency checks to `-Check` and CI.
+2. Harden `setup.ps1` with check-only diagnostics, transcript logging, and inspect-before-run documentation.
+3. Add quarterly archive/retirement reporting.
 
 ## Research Artifacts
 

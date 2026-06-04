@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T04:07:41.2216196-04:00",
+  "generatedAt": "2026-06-04T05:19:14.8094391-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -494,7 +494,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T07:48:54.0000000Z",
+        "pushedAt": "2026-06-04T08:06:10.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -995,12 +995,27 @@
     "userscriptKindWithoutInstallUrl": [],
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
   },
+  "schemaValidation": {
+    "passed": true,
+    "catalog": {
+      "schemaPath": "schemas/profile-catalog.v1.json",
+      "schemaId": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
+      "valid": true,
+      "errors": []
+    },
+    "projects": {
+      "schemaPath": "schemas/profile-projects.v1.json",
+      "schemaId": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json",
+      "valid": true,
+      "errors": []
+    }
+  },
   "validationPerformance": {
     "linkValidation": {
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 5217,
+      "elapsedMs": 3700,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1016,7 +1031,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.49,
+      "ageDays": 2.54,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1026,7 +1041,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 5217,
+    "elapsedMs": 3700,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

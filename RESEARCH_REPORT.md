@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.18
+Current version after this refresh: v4.9.19
 
 ## Verification Refresh — 2026-06-04
 
@@ -48,6 +48,13 @@ Current version after this refresh: v4.9.18
   rows, and preserves local curated overlays/fallbacks. Portfolio `npm run
   check`, `npm run build`, `npm test`, `rtk git diff --check`, build-output
   assertions, and focused Chrome CDP browser checks passed.
+- The v4.9.19 batch closed the active P1 dangling feed-contract item by adding
+  committed JSON Schema 2020-12 files under `schemas/`, repointing catalog/feed
+  `schema` fields to raw GitHub URLs, adding schema validation to
+  `Test-ProfileState`, recording `schemaValidation` in the sync report, and
+  serializing release asset/topic fields as arrays. Pester passed 35/35 and full
+  `scripts/sync-profile.ps1 -Write -Check` passed after REST fallback from a
+  transient GitHub GraphQL 502.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
@@ -98,12 +105,11 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Publish or repoint the advertised JSON Schema URLs, then validate the feed against them.
-3. P1 - Add a self-contained version/date consistency gate across tracked planning docs.
-4. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
-5. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
-6. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
-7. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+2. P1 - Add a self-contained version/date consistency gate across tracked planning docs.
+3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
+4. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
+5. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
+6. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 
 ## Evidence Reviewed
 

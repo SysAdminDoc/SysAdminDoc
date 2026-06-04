@@ -1,0 +1,306 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json",
+  "title": "SysAdminDoc profile projects feed",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generatedAt",
+    "source",
+    "publicRepoCount",
+    "projectCount",
+    "suppressedCount",
+    "projects",
+    "suppressed"
+  ],
+  "properties": {
+    "schema": {
+      "const": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "const": "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
+    },
+    "publicRepoCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "projectCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "suppressedCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/project"
+      }
+    },
+    "suppressed": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/project"
+      }
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableUri": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "primaryAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "label",
+        "url"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "install",
+            "live",
+            "release",
+            "repo"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "title",
+        "category",
+        "includeInReadme",
+        "includeInPortfolio",
+        "suppressed",
+        "suppressionReason",
+        "description",
+        "repoUrl",
+        "liveUrl",
+        "installUrl",
+        "downloadUrl",
+        "downloadKind",
+        "primaryAction",
+        "hasDownload",
+        "hasLiveDemo",
+        "hasDirectInstall",
+        "branch",
+        "entrypoint",
+        "installKind",
+        "language",
+        "stars",
+        "latestReleaseTag",
+        "latestReleaseUrl",
+        "releaseAssetKinds",
+        "releaseAssetNames",
+        "releaseAssetInspected",
+        "pushedAt",
+        "topics",
+        "featured",
+        "featuredRank",
+        "currentlyBuilding",
+        "notes"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "android",
+            "desktop",
+            "extensions",
+            "guides",
+            "media",
+            "misc",
+            "powershell",
+            "python",
+            "security",
+            "suppressed",
+            "web"
+          ]
+        },
+        "includeInReadme": {
+          "type": "boolean"
+        },
+        "includeInPortfolio": {
+          "type": "boolean"
+        },
+        "suppressed": {
+          "type": "boolean"
+        },
+        "suppressionReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "description": {
+          "type": "string"
+        },
+        "repoUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "liveUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "installUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "downloadUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "downloadKind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "apk",
+            "crx",
+            "crx-xpi",
+            "download",
+            "exe",
+            "repo",
+            "userscript",
+            "zip",
+            "zip-xpi",
+            null
+          ]
+        },
+        "primaryAction": {
+          "$ref": "#/$defs/primaryAction"
+        },
+        "hasDownload": {
+          "type": "boolean"
+        },
+        "hasLiveDemo": {
+          "type": "boolean"
+        },
+        "hasDirectInstall": {
+          "type": "boolean"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "entrypoint": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "installKind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "powershell",
+            "python",
+            null
+          ]
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "stars": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReleaseUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "releaseAssetKinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "apk",
+              "crx",
+              "exe",
+              "other",
+              "script",
+              "source-archive",
+              "userscript",
+              "xpi",
+              "zip"
+            ]
+          }
+        },
+        "releaseAssetNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "releaseAssetInspected": {
+          "type": "boolean"
+        },
+        "pushedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "featuredRank": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currentlyBuilding": {
+          "type": "boolean"
+        },
+        "notes": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    }
+  }
+}

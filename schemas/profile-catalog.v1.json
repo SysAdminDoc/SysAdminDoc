@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
+  "title": "SysAdminDoc profile catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generatedAt",
+    "entries"
+  ],
+  "properties": {
+    "schema": {
+      "const": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/catalogEntry"
+      }
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableUri": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "catalogEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "title",
+        "category",
+        "includeInReadme",
+        "includeInPortfolio",
+        "order",
+        "branch",
+        "entrypoint",
+        "installKind",
+        "downloadKind",
+        "userscriptUrl",
+        "liveUrl",
+        "language",
+        "descriptionOverride",
+        "featured",
+        "featuredRank",
+        "currentlyBuilding",
+        "currentlyBuildingText",
+        "allowPublicMedical",
+        "aliasOf",
+        "suppressionReason",
+        "notes"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "android",
+            "desktop",
+            "extensions",
+            "guides",
+            "media",
+            "misc",
+            "powershell",
+            "python",
+            "security",
+            "suppressed",
+            "web"
+          ]
+        },
+        "includeInReadme": {
+          "type": "boolean"
+        },
+        "includeInPortfolio": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "branch": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "entrypoint": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "installKind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "powershell",
+            "python",
+            null
+          ]
+        },
+        "downloadKind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "apk",
+            "crx",
+            "crx-xpi",
+            "download",
+            "exe",
+            "repo",
+            "userscript",
+            "zip",
+            "zip-xpi",
+            null
+          ]
+        },
+        "userscriptUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "liveUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "descriptionOverride": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "featuredRank": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currentlyBuilding": {
+          "type": "boolean"
+        },
+        "currentlyBuildingText": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "allowPublicMedical": {
+          "type": "boolean"
+        },
+        "aliasOf": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "suppressionReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "notes": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    }
+  }
+}

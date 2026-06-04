@@ -1,5 +1,5 @@
 {
-  "schema": "https://sysadmindoc.github.io/schemas/profile-projects.v1.json",
+  "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json",
   "generatedAt": "2026-06-01T16:18:55.0998940-04:00",
   "source": "SysAdminDoc/SysAdminDoc data/profile-catalog.json",
   "publicRepoCount": 184,
@@ -90,10 +90,14 @@
       "stars": 11,
       "latestReleaseTag": "v3.73.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NovaCut/releases/tag/v3.73.2",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "NovaCut-v3.73.2.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "NovaCut-v3.73.2.apk"
+      ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:48:54.0000000Z",
+      "pushedAt": "2026-06-04T08:06:10.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -129,8 +133,12 @@
       "stars": 7,
       "latestReleaseTag": "v6.5.9",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/HostShield/releases/tag/v6.5.9",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "HostShield-v6.5.9-full-release.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "HostShield-v6.5.9-full-release.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:02.0000000Z",
       "topics": [
@@ -174,7 +182,9 @@
       "stars": 8,
       "latestReleaseTag": "v6.31.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Aura/releases/tag/v6.31.1",
-      "releaseAssetKinds": "apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
       "releaseAssetNames": [
         "app-debug.apk",
         "Aura-v6.31.1.apk"
@@ -230,8 +240,12 @@
       "stars": 2,
       "latestReleaseTag": "v1.1.9",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/iOSIconPack/releases/tag/v1.1.9",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "iOSIconPack-v1.1.9-release.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "iOSIconPack-v1.1.9-release.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:57:23.0000000Z",
       "topics": [],
@@ -269,8 +283,12 @@
       "stars": 3,
       "latestReleaseTag": "v2.20.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Lawnchair-Lite/releases/tag/v2.20.1",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "Lawnchair-Lite-v2.20.1-release.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "Lawnchair-Lite-v2.20.1-release.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:10.0000000Z",
       "topics": [
@@ -572,7 +590,9 @@
       "stars": 2,
       "latestReleaseTag": "v0.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/one-ui-home-clone/releases/tag/v0.2.0",
-      "releaseAssetKinds": "apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
       "releaseAssetNames": [
         "one-ui-home-clone-v0.2.0-debug.apk",
         "one-ui-home-clone-v0.2.0-release.apk"
@@ -614,8 +634,12 @@
       "stars": 1,
       "latestReleaseTag": "v6.7.3",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SnapCrop/releases/tag/v6.7.3",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "SnapCrop-v6.7.3.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "SnapCrop-v6.7.3.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:59:07.0000000Z",
       "topics": [],
@@ -653,8 +677,12 @@
       "stars": 0,
       "latestReleaseTag": "v2.1.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/BillMinder/releases/tag/v2.1.1",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "BillMinder-v2.1.1-release.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "BillMinder-v2.1.1-release.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-18T02:21:17.0000000Z",
       "topics": [],
@@ -692,8 +720,12 @@
       "stars": 2,
       "latestReleaseTag": "v0.3.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenSwift/releases/tag/v0.3.0",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "app-debug.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "app-debug.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-01T07:07:24.0000000Z",
       "topics": [],
@@ -731,8 +763,12 @@
       "stars": 4,
       "latestReleaseTag": "v1.8.172",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.8.172",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "app-release.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "app-release.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-04T08:02:21.0000000Z",
       "topics": [
@@ -779,8 +815,12 @@
       "stars": 4,
       "latestReleaseTag": "v0.2.59",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.59",
-      "releaseAssetKinds": "apk",
-      "releaseAssetNames": "OpenTasker-v0.2.59-release.apk",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "OpenTasker-v0.2.59-release.apk"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-06T14:14:13.0000000Z",
       "topics": [],
@@ -1146,8 +1186,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.3.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Scour/releases/tag/v0.3.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-18T23:56:43.0000000Z",
       "topics": [
@@ -1192,8 +1234,10 @@
       "stars": 2,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UniversalConverterX/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-01T07:40:10.0000000Z",
       "topics": [
@@ -1418,8 +1462,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:53:38.0000000Z",
       "topics": [],
@@ -1457,7 +1501,9 @@
       "stars": 0,
       "latestReleaseTag": "v0.10.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/QuotaGlass/releases/tag/v0.10.0",
-      "releaseAssetKinds": "exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
       "releaseAssetNames": [
         "QuotaGlass-NMH-v0.10.0-win-arm64.exe",
         "QuotaGlass-NMH-v0.10.0-win-x64.exe",
@@ -1503,7 +1549,9 @@
       "stars": 0,
       "latestReleaseTag": "v0.5.12",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/TaskCopy/releases/tag/v0.5.12",
-      "releaseAssetKinds": "zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
       "releaseAssetNames": [
         "TaskCopy-0.5.12-win-x64-portable.zip",
         "TaskCopy-0.5.12-win-x64-selfcontained.zip"
@@ -1545,8 +1593,8 @@
       "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-06-01T06:32:09.0000000Z",
       "topics": [],
@@ -1732,8 +1780,12 @@
       "stars": 3,
       "latestReleaseTag": "v3.11.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ScriptVault/releases/tag/v3.11.0",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": "ScriptVault-v3.11.0.zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "ScriptVault-v3.11.0.zip"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-04T07:48:54.0000000Z",
       "topics": [
@@ -1873,8 +1925,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Vantage/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-27T09:49:56.0000000Z",
       "topics": [
@@ -1922,8 +1976,10 @@
       "stars": 3,
       "latestReleaseTag": "v0.0.3",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/YoutubeAdblock/releases/tag/v0.0.3",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-03T15:46:50.0000000Z",
       "topics": [
@@ -1966,8 +2022,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer/releases/tag/v1.4.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-28T23:09:36.0000000Z",
       "topics": [
@@ -2011,8 +2069,12 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.3",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ClearGem/releases/tag/v1.0.3",
-      "releaseAssetKinds": "userscript",
-      "releaseAssetNames": "ClearGem.user.js",
+      "releaseAssetKinds": [
+        "userscript"
+      ],
+      "releaseAssetNames": [
+        "ClearGem.user.js"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:58:03.0000000Z",
       "topics": [],
@@ -2050,8 +2112,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:33:33.0000000Z",
       "topics": [
@@ -2095,8 +2157,10 @@
       "stars": 0,
       "latestReleaseTag": "v4.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MediaDL/releases/tag/v4.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:13.0000000Z",
       "topics": [
@@ -2140,8 +2204,12 @@
       "stars": 1,
       "latestReleaseTag": "0.2.6",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/uBlockVanced/releases/tag/0.2.6",
-      "releaseAssetKinds": "crx",
-      "releaseAssetNames": "uBlockVanced_0.2.6.crx",
+      "releaseAssetKinds": [
+        "crx"
+      ],
+      "releaseAssetNames": [
+        "uBlockVanced_0.2.6.crx"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-19T00:03:52.0000000Z",
       "topics": [],
@@ -2179,8 +2247,10 @@
       "stars": 0,
       "latestReleaseTag": "v2.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/BackgroundSearch/releases/tag/v2.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:11.0000000Z",
       "topics": [
@@ -2224,8 +2294,12 @@
       "stars": 1,
       "latestReleaseTag": "v1.6.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleCraft/releases/tag/v1.6.0",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": "stylecraft-v1.6.0.zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "stylecraft-v1.6.0.zip"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-19T00:00:28.0000000Z",
       "topics": [
@@ -2269,8 +2343,10 @@
       "stars": 3,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UserScript-Finder/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:42.0000000Z",
       "topics": [
@@ -2314,8 +2390,10 @@
       "stars": 0,
       "latestReleaseTag": "v3.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NDNS/releases/tag/v3.4.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-03T15:40:02.0000000Z",
       "topics": [
@@ -2359,8 +2437,10 @@
       "stars": 0,
       "latestReleaseTag": "v2.7.5",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/releases/tag/v2.7.5",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:18:06.0000000Z",
       "topics": [
@@ -2404,8 +2484,10 @@
       "stars": 0,
       "latestReleaseTag": "v2.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/releases/tag/v2.6.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:00:44.0000000Z",
       "topics": [
@@ -2448,8 +2530,10 @@
       "stars": 0,
       "latestReleaseTag": "v3.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DarkModer/releases/tag/v3.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:28.0000000Z",
       "topics": [
@@ -2493,8 +2577,8 @@
       "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:00:49.0000000Z",
       "topics": [
@@ -2590,8 +2674,12 @@
       "stars": 1,
       "latestReleaseTag": "v2.10.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Discrub/releases/tag/v2.10.0",
-      "releaseAssetKinds": "crx",
-      "releaseAssetNames": "Discrub-v2.10.0.crx",
+      "releaseAssetKinds": [
+        "crx"
+      ],
+      "releaseAssetNames": [
+        "Discrub-v2.10.0.crx"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-01T06:41:13.0000000Z",
       "topics": [],
@@ -2676,8 +2764,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-06-01T08:15:59.0000000Z",
       "topics": [],
@@ -2715,8 +2803,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:30:40.0000000Z",
       "topics": [
@@ -2760,8 +2848,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/facebook-exit-guide/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:19:55.0000000Z",
       "topics": [],
@@ -2799,8 +2889,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:31:07.0000000Z",
       "topics": [],
@@ -2838,10 +2928,14 @@
       "stars": 0,
       "latestReleaseTag": "v0.13.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/sysadmindoc.github.io/releases/tag/v0.13.1",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": "sysadmindoc-portfolio-v0.13.1.zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "sysadmindoc-portfolio-v0.13.1.zip"
+      ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-02T13:18:38.0000000Z",
+      "pushedAt": "2026-06-04T08:52:15.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -2881,8 +2975,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoCrush/releases/tag/v0.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:46.0000000Z",
       "topics": [
@@ -2928,8 +3024,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-01T06:30:30.0000000Z",
       "topics": [
@@ -2973,8 +3071,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/yt_livestream_downloader/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:52.0000000Z",
       "topics": [
@@ -3017,8 +3117,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MediaForge/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:59.0000000Z",
       "topics": [
@@ -3064,8 +3166,12 @@
       "stars": 17,
       "latestReleaseTag": "v3.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.16.0",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": "VideoSubtitleRemoverPro-v3.16.0-windows.zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "VideoSubtitleRemoverPro-v3.16.0-windows.zip"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-03T16:23:52.0000000Z",
       "topics": [
@@ -3154,8 +3260,10 @@
       "stars": 1,
       "latestReleaseTag": "v0.6.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/octopus-factory/releases/tag/v0.6.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:11:10.0000000Z",
       "topics": [
@@ -3203,8 +3311,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:46:24.0000000Z",
       "topics": [
@@ -3247,8 +3355,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:56:24.0000000Z",
       "topics": [
@@ -3291,8 +3399,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-19T00:02:11.0000000Z",
       "topics": [
@@ -3335,8 +3443,10 @@
       "stars": 0,
       "latestReleaseTag": "145.0.7632.159-1.1-vigil.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Vigil/releases/tag/145.0.7632.159-1.1-vigil.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:05:34.0000000Z",
       "topics": [],
@@ -3374,8 +3484,10 @@
       "stars": 0,
       "latestReleaseTag": "v9.5.6",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/TagStudio/releases/tag/v9.5.6",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:05:22.0000000Z",
       "topics": [
@@ -3418,8 +3530,12 @@
       "stars": 41,
       "latestReleaseTag": "v4.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v4.6.1",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "NVMeDriverPatcher.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "NVMeDriverPatcher.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:39.0000000Z",
       "topics": [
@@ -3463,8 +3579,12 @@
       "stars": 6,
       "latestReleaseTag": "v4.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Network_Security_Auditor/releases/tag/v4.1.0",
-      "releaseAssetKinds": "script",
-      "releaseAssetNames": "NetworkSecurityAudit.ps1",
+      "releaseAssetKinds": [
+        "script"
+      ],
+      "releaseAssetNames": [
+        "NetworkSecurityAudit.ps1"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:15.0000000Z",
       "topics": [
@@ -3561,8 +3681,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/WinForge/releases/tag/v0.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:57:16.0000000Z",
       "topics": [],
@@ -3600,8 +3722,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Debloat-Win11/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:16:47.0000000Z",
       "topics": [],
@@ -3639,8 +3763,10 @@
       "stars": 0,
       "latestReleaseTag": "v4.3.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Restore-WindowsDefaults/releases/tag/v4.3.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:18:43.0000000Z",
       "topics": [],
@@ -3723,7 +3849,9 @@
       "stars": 7,
       "latestReleaseTag": "v0.0.4",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DisableDefender/releases/tag/v0.0.4",
-      "releaseAssetKinds": "script",
+      "releaseAssetKinds": [
+        "script"
+      ],
       "releaseAssetNames": [
         "DisableDefender.GUI.bat",
         "DisableDefender.GUI.ps1",
@@ -3766,8 +3894,10 @@
       "stars": 0,
       "latestReleaseTag": "v2.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DefenderShield/releases/tag/v2.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:16:50.0000000Z",
       "topics": [],
@@ -3805,8 +3935,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/TelemetrySlayer/releases/tag/v1.0.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:19:20.0000000Z",
       "topics": [],
@@ -3844,8 +3976,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/FirewallForge/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:17:06.0000000Z",
       "topics": [],
@@ -3883,8 +4017,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NetForge/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:18:12.0000000Z",
       "topics": [],
@@ -3922,8 +4058,10 @@
       "stars": 0,
       "latestReleaseTag": "v4.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SystemUpdatePro/releases/tag/v4.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:19:16.0000000Z",
       "topics": [],
@@ -3961,8 +4099,10 @@
       "stars": 2,
       "latestReleaseTag": "v2.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/WURepair/releases/tag/v2.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:57:19.0000000Z",
       "topics": [],
@@ -4000,8 +4140,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SoftwareScannerGUI/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:56:57.0000000Z",
       "topics": [],
@@ -4085,8 +4227,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:16:51.0000000Z",
       "topics": [],
@@ -4179,8 +4323,8 @@
       "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:59:58.0000000Z",
       "topics": [
@@ -4224,8 +4368,12 @@
       "stars": 0,
       "latestReleaseTag": "v3.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/PathForge/releases/tag/v3.0.0",
-      "releaseAssetKinds": "script",
-      "releaseAssetNames": "PathForge.ps1",
+      "releaseAssetKinds": [
+        "script"
+      ],
+      "releaseAssetNames": [
+        "PathForge.ps1"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:17.0000000Z",
       "topics": [
@@ -4272,8 +4420,12 @@
       "stars": 1,
       "latestReleaseTag": "v3.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MonitorControl/releases/tag/v3.0.0",
-      "releaseAssetKinds": "script",
-      "releaseAssetNames": "MonitorControlPro.ps1",
+      "releaseAssetKinds": [
+        "script"
+      ],
+      "releaseAssetNames": [
+        "MonitorControlPro.ps1"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:03.0000000Z",
       "topics": [
@@ -4320,8 +4472,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:50.0000000Z",
       "topics": [
@@ -4365,8 +4517,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:48.0000000Z",
       "topics": [
@@ -4411,8 +4563,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:21.0000000Z",
       "topics": [
@@ -4455,8 +4607,10 @@
       "stars": 0,
       "latestReleaseTag": "v8.8.9",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/npp-sc-scanner/releases/tag/v8.8.9",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:11.0000000Z",
       "topics": [
@@ -4552,8 +4706,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T18:57:05.0000000Z",
       "topics": [
@@ -4595,8 +4749,12 @@
       "stars": 1,
       "latestReleaseTag": "v2.3.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/EXTRACTORX/releases/tag/v2.3.1",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "ExtractorX.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "ExtractorX.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:34.0000000Z",
       "topics": [
@@ -4642,8 +4800,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-04-26T20:17:35.0000000Z",
       "topics": [],
@@ -4681,8 +4839,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-19T16:40:49.0000000Z",
       "topics": [],
@@ -4784,8 +4942,8 @@
       "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-04-26T02:13:24.0000000Z",
       "topics": [],
@@ -4870,8 +5028,12 @@
       "stars": 1,
       "latestReleaseTag": "v0.5.3",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/PromptCompanion/releases/tag/v0.5.3",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "PromptCompanion.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "PromptCompanion.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:18:30.0000000Z",
       "topics": [],
@@ -4955,8 +5117,12 @@
       "stars": 0,
       "latestReleaseTag": "v4.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/PyWall/releases/tag/v4.1.0",
-      "releaseAssetKinds": "other",
-      "releaseAssetNames": "PyWall.py",
+      "releaseAssetKinds": [
+        "other"
+      ],
+      "releaseAssetNames": [
+        "PyWall.py"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:27.0000000Z",
       "topics": [
@@ -5002,8 +5168,12 @@
       "stars": 0,
       "latestReleaseTag": "v3.6.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v3.6.0",
-      "releaseAssetKinds": "other",
-      "releaseAssetNames": "HostsGuard.py",
+      "releaseAssetKinds": [
+        "other"
+      ],
+      "releaseAssetNames": [
+        "HostsGuard.py"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:00:51.0000000Z",
       "topics": [
@@ -5049,8 +5219,8 @@
       "stars": 3,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-06-01T07:10:42.0000000Z",
       "topics": [
@@ -5094,7 +5264,9 @@
       "stars": 0,
       "latestReleaseTag": "v2.6.5",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftShot/releases/tag/v2.6.5",
-      "releaseAssetKinds": "exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
       "releaseAssetNames": [
         "SwiftShot-Portable.exe",
         "SwiftShot-Setup.exe"
@@ -5143,8 +5315,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:38.0000000Z",
       "topics": [
@@ -5190,8 +5362,12 @@
       "stars": 0,
       "latestReleaseTag": "v2.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/GitForge/releases/tag/v2.1.0",
-      "releaseAssetKinds": "other",
-      "releaseAssetNames": "gitforge.py",
+      "releaseAssetKinds": [
+        "other"
+      ],
+      "releaseAssetNames": [
+        "gitforge.py"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:43.0000000Z",
       "topics": [
@@ -5236,8 +5412,12 @@
       "stars": 2,
       "latestReleaseTag": "v9.3.15",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UniFile/releases/tag/v9.3.15",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": "UniFile-v9.3.15-windows-x64.zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "UniFile-v9.3.15-windows-x64.zip"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-19T00:04:00.0000000Z",
       "topics": [
@@ -5283,8 +5463,12 @@
       "stars": 1,
       "latestReleaseTag": "v0.7.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/QuickFind/releases/tag/v0.7.1",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "QuickFind.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "QuickFind.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:30.0000000Z",
       "topics": [
@@ -5483,8 +5667,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v1.2.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:33.0000000Z",
       "topics": [
@@ -5530,8 +5716,8 @@
       "stars": 2,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:36.0000000Z",
       "topics": [
@@ -5575,8 +5761,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LipSight/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:55.0000000Z",
       "topics": [
@@ -5620,8 +5808,12 @@
       "stars": 0,
       "latestReleaseTag": "v0.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LlamaLink/releases/tag/v0.4.0",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "LlamaLink.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "LlamaLink.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:17:54.0000000Z",
       "topics": [],
@@ -5659,8 +5851,10 @@
       "stars": 3,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SlunderStudio/releases/tag/v0.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:34.0000000Z",
       "topics": [
@@ -5703,8 +5897,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/GmailDownloader/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:17:22.0000000Z",
       "topics": [],
@@ -5742,8 +5938,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:40.0000000Z",
       "topics": [
@@ -5797,7 +5993,7 @@
         "OpenCut-Setup-1.25.1.exe"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T08:00:11.0000000Z",
+      "pushedAt": "2026-06-04T09:16:03.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -5839,8 +6035,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/bypassnroGen/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:15.0000000Z",
       "topics": [
@@ -5885,8 +6083,12 @@
       "stars": 3,
       "latestReleaseTag": "v3.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MSStoreHelper/releases/tag/v3.2.0",
-      "releaseAssetKinds": "other",
-      "releaseAssetNames": "MSStoreHelper.py",
+      "releaseAssetKinds": [
+        "other"
+      ],
+      "releaseAssetNames": [
+        "MSStoreHelper.py"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:05.0000000Z",
       "topics": [
@@ -5931,8 +6133,12 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Qwen3-TTS-Studio/releases/tag/v1.0.0",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "Qwen3-TTS-Studio.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "Qwen3-TTS-Studio.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-18T23:56:07.0000000Z",
       "topics": [
@@ -5976,8 +6182,12 @@
       "stars": 1,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppList/releases/tag/v1.0.0",
-      "releaseAssetKinds": "other",
-      "releaseAssetNames": "AppList.py",
+      "releaseAssetKinds": [
+        "other"
+      ],
+      "releaseAssetNames": [
+        "AppList.py"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:09.0000000Z",
       "topics": [
@@ -6021,8 +6231,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:22.0000000Z",
       "topics": [
@@ -6066,8 +6276,12 @@
       "stars": 0,
       "latestReleaseTag": "v.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Mattpad/releases/tag/v.2.0",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "Mattpad_Setup.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "Mattpad_Setup.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-18T23:46:29.0000000Z",
       "topics": [
@@ -6111,8 +6325,12 @@
       "stars": 0,
       "latestReleaseTag": "v2.10.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsFileGet/releases/tag/v2.10.0",
-      "releaseAssetKinds": "exe",
-      "releaseAssetNames": "HostsFileGet.exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "HostsFileGet.exe"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-18T23:42:29.0000000Z",
       "topics": [
@@ -6210,8 +6428,10 @@
       "stars": 0,
       "latestReleaseTag": "v7.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/QR-Code-Generator-Pro/releases/tag/v7.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:28.0000000Z",
       "topics": [
@@ -6307,8 +6527,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/KeepSyncNotes/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:33:43.0000000Z",
       "topics": [
@@ -6354,8 +6576,10 @@
       "stars": 0,
       "latestReleaseTag": "v5.5.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/PDFedit/releases/tag/v5.5.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:19.0000000Z",
       "topics": [
@@ -6400,8 +6624,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:27.0000000Z",
       "topics": [
@@ -6445,8 +6669,12 @@
       "stars": 0,
       "latestReleaseTag": "v0.6.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AI-Model-Compass/releases/tag/v0.6.0",
-      "releaseAssetKinds": "other",
-      "releaseAssetNames": "ai_model_compass.py",
+      "releaseAssetKinds": [
+        "other"
+      ],
+      "releaseAssetNames": [
+        "ai_model_compass.py"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:04.0000000Z",
       "topics": [
@@ -6492,8 +6720,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.7.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/tag/v0.7.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:38.0000000Z",
       "topics": [
@@ -6538,8 +6768,10 @@
       "stars": 1,
       "latestReleaseTag": "v1.2.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/GifText/releases/tag/v1.2.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:17:18.0000000Z",
       "topics": [],
@@ -6622,8 +6854,10 @@
       "stars": 2,
       "latestReleaseTag": "v3.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/pfSenseSuite/releases/tag/v3.4.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:18:03.0000000Z",
       "topics": [
@@ -6712,8 +6946,12 @@
       "stars": 0,
       "latestReleaseTag": "v3.5.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/BetterNext/releases/tag/v3.5.2",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": "BetterNext-v3.5.2.zip",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "BetterNext-v3.5.2.zip"
+      ],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-22T03:15:02.0000000Z",
       "topics": [
@@ -6757,8 +6995,8 @@
       "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:30.0000000Z",
       "topics": [
@@ -6802,8 +7040,10 @@
       "stars": 1,
       "latestReleaseTag": "v0.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Openshop/releases/tag/v0.16.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:13.0000000Z",
       "topics": [
@@ -6847,8 +7087,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:01:26.0000000Z",
       "topics": [
@@ -6893,8 +7133,10 @@
       "stars": 1,
       "latestReleaseTag": "v0.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SkyTrack/releases/tag/v0.16.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:24.0000000Z",
       "topics": [
@@ -6938,8 +7180,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.0.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VIPTrack/releases/tag/v0.0.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:36.0000000Z",
       "topics": [
@@ -6983,8 +7227,10 @@
       "stars": 0,
       "latestReleaseTag": "v3.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NukeMap/releases/tag/v3.2.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:18:19.0000000Z",
       "topics": [],
@@ -7022,8 +7268,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:59:48.0000000Z",
       "topics": [
@@ -7068,8 +7314,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/CoolSites/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:23.0000000Z",
       "topics": [
@@ -7113,8 +7361,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:07.0000000Z",
       "topics": [
@@ -7157,8 +7405,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:40.0000000Z",
       "topics": [
@@ -7201,7 +7449,9 @@
       "stars": 0,
       "latestReleaseTag": "v.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ImageForge/releases/tag/v.1.0",
-      "releaseAssetKinds": "exe",
+      "releaseAssetKinds": [
+        "exe"
+      ],
       "releaseAssetNames": [
         "ImageForge.Pro.-.Portable.exe",
         "ImageForge.Pro.Setup.exe"
@@ -7248,8 +7498,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ClipForge/releases/tag/v0.4.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:21.0000000Z",
       "topics": [
@@ -7292,8 +7544,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:34:08.0000000Z",
       "topics": [
@@ -7336,8 +7588,8 @@
       "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:45.0000000Z",
       "topics": [
@@ -7380,8 +7632,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:02:13.0000000Z",
       "topics": [
@@ -7426,8 +7678,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ImageXpert/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:49.0000000Z",
       "topics": [
@@ -7469,8 +7723,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:32:47.0000000Z",
       "topics": [
@@ -7514,8 +7768,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-19T00:02:40.0000000Z",
       "topics": [
@@ -7558,8 +7812,10 @@
       "stars": 0,
       "latestReleaseTag": "v2.5.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/kindred/releases/tag/v2.5.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:25:38.0000000Z",
       "topics": [],
@@ -7597,8 +7853,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.0.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DeGoogler/releases/tag/v0.0.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:00:41.0000000Z",
       "topics": [
@@ -7643,8 +7901,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.1.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SearchHub/releases/tag/v0.1.1",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:32.0000000Z",
       "topics": [
@@ -7687,8 +7947,10 @@
       "stars": 3,
       "latestReleaseTag": "v0.0.4",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UserScriptHunt/releases/tag/v0.0.4",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:44.0000000Z",
       "topics": [
@@ -7731,8 +7993,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MHTMLens/releases/tag/v0.2.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:03:01.0000000Z",
       "topics": [
@@ -7776,8 +8040,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LogLens/releases/tag/v0.2.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:57.0000000Z",
       "topics": [
@@ -7820,8 +8086,10 @@
       "stars": 0,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/CronScope/releases/tag/v0.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:02:25.0000000Z",
       "topics": [
@@ -7865,8 +8133,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-26T19:03:09.0000000Z",
       "topics": [
@@ -7909,8 +8177,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/HurricaneMap/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:58:53.0000000Z",
       "topics": [],
@@ -7948,8 +8218,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-02T05:36:34.0000000Z",
       "topics": [],
@@ -7989,8 +8259,10 @@
       "stars": 3,
       "latestReleaseTag": "v3.11.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ScriptVault/releases/tag/v3.11.0",
-      "releaseAssetKinds": "zip",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-06-04T07:48:54.0000000Z",
       "topics": [
@@ -8034,8 +8306,10 @@
       "stars": 0,
       "latestReleaseTag": "v3.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/improve-repo/releases/tag/v3.2.0",
-      "releaseAssetKinds": "script",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "script"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-04-26T02:19:56.0000000Z",
       "topics": [
@@ -8082,8 +8356,8 @@
       "stars": null,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": null,
       "topics": [],
@@ -8121,8 +8395,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DuplicateFF/releases/tag/v1.0.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T18:53:31.0000000Z",
       "topics": [
@@ -8164,8 +8440,10 @@
       "stars": 0,
       "latestReleaseTag": "2.6.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/mnamer/releases/tag/2.6.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:04:37.0000000Z",
       "topics": [
@@ -8212,7 +8490,7 @@
         "exe",
         "script"
       ],
-      "releaseAssetNames": null,
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:18.0000000Z",
       "topics": [],
@@ -8250,8 +8528,8 @@
       "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": "2026-05-18T23:53:57.0000000Z",
       "topics": [],
@@ -8289,8 +8567,8 @@
       "stars": null,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
-      "releaseAssetKinds": null,
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
       "releaseAssetInspected": false,
       "pushedAt": null,
       "topics": [],
@@ -8328,8 +8606,10 @@
       "stars": 0,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Scripts/releases/tag/v1.1.0",
-      "releaseAssetKinds": "source-archive",
-      "releaseAssetNames": null,
+      "releaseAssetKinds": [
+        "source-archive"
+      ],
+      "releaseAssetNames": [],
       "releaseAssetInspected": true,
       "pushedAt": "2026-05-26T19:01:21.0000000Z",
       "topics": [
