@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.19
+Current version after this refresh: v4.9.20
 
 ## Verification Refresh — 2026-06-04
 
@@ -54,6 +54,15 @@ Current version after this refresh: v4.9.19
   `Test-ProfileState`, recording `schemaValidation` in the sync report, and
   serializing release asset/topic fields as arrays. Pester passed 35/35 and full
   `scripts/sync-profile.ps1 -Write -Check` passed after REST fallback from a
+  transient GitHub GraphQL 502.
+- The v4.9.20 batch closed the active P1 planning-doc version/date consistency
+  gate by adding `Test-DocVersionConsistency`, recording
+  `docVersionConsistency` in the sync report, failing `-Check` on planning-doc
+  version mismatches or stale sync dates, and adding Pester coverage for the
+  passing, mismatched-version, and stale-date cases. Pester passed 38/38 and
+  `scripts/sync-profile.ps1 -Write -Check` passed with
+  `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
+  drift rows, 0 link failures, and 0 link warnings after REST fallback from a
   transient GitHub GraphQL 502.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
@@ -105,7 +114,7 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Add a self-contained version/date consistency gate across tracked planning docs.
+2. P1 - Add direct Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
 3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
 4. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
 5. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
@@ -385,12 +394,12 @@ This addendum is a fresh, code-first pass after the planning-doc consolidation. 
 
 ### Executive summary (addendum)
 
-A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The single highest-value finding is that the public feed advertises two JSON Schema URLs that return 404 — the downstream contract is dangling. The second tier is automated-guard gaps: there is no version/date consistency check across planning docs, the link gate ignores the hand-authored hero (including the portfolio link itself), and the privacy-critical `Test-ProfileState` gate has no direct unit test. The third tier is community-health and reliability hygiene: no SECURITY.md despite shipping Scorecard/zizmor, an N+1 REST release-fallback that can blow the unauthenticated rate limit, and no generated-README size budget.
+A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, and the planning-doc version/date consistency gate was closed in v4.9.20. Remaining automated-guard gaps are that the link gate ignores the hand-authored hero (including the portfolio link itself) and the privacy-critical `Test-ProfileState` gate has no direct unit test. The third tier is community-health and reliability hygiene: no SECURITY.md despite shipping Scorecard/zizmor, an N+1 REST release-fallback that can blow the unauthenticated rate limit, and no generated-README size budget.
 
 Top addendum opportunities (one line each):
 
-1. P1 — The `schema` URLs in catalog and `projects.json` are 404; publish them or repoint, then validate the feed. [Verified]
-2. P1 — No automated version/date consistency gate across ROADMAP/CHANGELOG/PROJECT_CONTEXT. [Verified]
+1. P1 — The `schema` URLs in catalog and `projects.json` are 404; publish them or repoint, then validate the feed. [Closed v4.9.19]
+2. P1 — No automated version/date consistency gate across ROADMAP/CHANGELOG/PROJECT_CONTEXT. [Closed v4.9.20]
 3. P1 — `Test-ProfileState` (the private/medical/visibility gate) has zero direct Pester coverage. [Verified]
 4. P2 — Link validation never probes the hero/portfolio/image-host URLs. [Verified]
 5. P2 — REST release-fallback is an unbounded per-repo N+1 (~184 calls) with no rate-limit awareness. [Verified]
@@ -411,8 +420,8 @@ Top addendum opportunities (one line each):
 
 ### Quality & friction findings (addendum, severity-tagged)
 
-- **Major — Dangling feed contract.** `projects.json`/catalog advertise `schema` URLs that 404. Consumers following the contract get a dead link; the feed shape is unenforceable. → roadmap "Publish (or stop referencing) the JSON Schema URLs". `scripts/sync-profile.ps1:1086,1264`. [Verified]
-- **Major — Unguarded planning-doc version drift.** Version/date are hand-typed in three tracked docs with no check; the existing alignment item is manual only. → "self-contained version/date consistency gate". [Verified]
+- **Major — Dangling feed contract.** `projects.json`/catalog advertise `schema` URLs that 404. Consumers following the contract get a dead link; the feed shape is unenforceable. → roadmap "Publish (or stop referencing) the JSON Schema URLs". `scripts/sync-profile.ps1:1086,1264`. [Closed v4.9.19]
+- **Major — Unguarded planning-doc version drift.** Version/date are hand-typed in three tracked docs with no check; the existing alignment item is manual only. → "self-contained version/date consistency gate". [Closed v4.9.20]
 - **Major — Privacy gate is untested.** `Test-ProfileState` (private-visibility + medical-keyword + drift) has no direct unit test; only the regex string is tested. A regression in the gate that keeps private/medical repos off the public profile would pass CI. → "Cover the safety-critical functions". `scripts/sync-profile.ps1:1324-1442`, `tests/sync-profile.Tests.ps1`. [Verified]
 - **Minor — Hero links unvalidated.** The link gate iterates only catalog entries, so the portfolio link, the `setup.ps1` blob link, and seven third-party image hosts are never probed. → "Extend link validation to hero/header". `scripts/sync-profile.ps1:476-528`. [Verified]
 - **Minor — REST fallback N+1.** Per-repo `gh api releases/latest` in the fallback (~184 calls) with no rate-limit handling; a partial fetch yields a silently incomplete feed. → "Cap and authenticate the REST release-fallback". `scripts/sync-profile.ps1:148-162`. [Verified]

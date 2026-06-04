@@ -2404,6 +2404,162 @@ function Test-FeedSchemaContracts {
     }
 }
 
+function ConvertTo-RepoRelativeReportPath {
+    param([string]$Path)
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    $resolvedPath = Resolve-Path -LiteralPath $fullPath -ErrorAction SilentlyContinue
+    if ($resolvedPath) {
+        return ([System.IO.Path]::GetRelativePath($RepoRoot, $resolvedPath.Path) -replace '\\', '/')
+    }
+
+    return ($Path -replace '\\', '/')
+}
+
+function Read-DocConsistencyFile {
+    param(
+        [string]$Path,
+        [System.Collections.Generic.List[string]]$Errors
+    )
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    $reportPath = ConvertTo-RepoRelativeReportPath -Path $fullPath
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        $Errors.Add("$reportPath is missing")
+        return [ordered]@{
+            path = $reportPath
+            text = $null
+        }
+    }
+
+    try {
+        return [ordered]@{
+            path = $reportPath
+            text = Get-Content -LiteralPath $fullPath -Raw
+        }
+    } catch {
+        $Errors.Add("$reportPath is unreadable: $($_.Exception.Message)")
+        return [ordered]@{
+            path = $reportPath
+            text = $null
+        }
+    }
+}
+
+function Add-DocConsistencyRecord {
+    param(
+        [System.Collections.Generic.List[object]]$Records,
+        [System.Collections.Generic.List[string]]$Errors,
+        [hashtable]$Document,
+        [string]$Field,
+        [string]$Pattern,
+        [string]$MissingMessage
+    )
+
+    $value = $null
+    if (-not [string]::IsNullOrWhiteSpace([string]$Document.text)) {
+        $match = [regex]::Match([string]$Document.text, $Pattern, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+        if ($match.Success) {
+            $value = $match.Groups[1].Value
+        }
+    }
+
+    if ([string]::IsNullOrWhiteSpace([string]$value)) {
+        $Errors.Add("$($Document.path) missing $MissingMessage")
+    }
+
+    $Records.Add([ordered]@{
+            path = $Document.path
+            field = $Field
+            value = if ([string]::IsNullOrWhiteSpace([string]$value)) { $null } else { [string]$value }
+        })
+
+    return $value
+}
+
+function Test-IsoDateText {
+    param([string]$Value)
+
+    $parsedDate = [datetime]::MinValue
+    return [datetime]::TryParseExact(
+        $Value,
+        "yyyy-MM-dd",
+        [System.Globalization.CultureInfo]::InvariantCulture,
+        [System.Globalization.DateTimeStyles]::None,
+        [ref]$parsedDate
+    )
+}
+
+function Test-DocVersionConsistency {
+    param(
+        [string]$RoadmapPath = (Join-Path $RepoRoot "ROADMAP.md"),
+        [string]$ChangelogPath = (Join-Path $RepoRoot "CHANGELOG.md"),
+        [string]$ProjectContextPath = (Join-Path $RepoRoot "PROJECT_CONTEXT.md"),
+        [string]$ResearchReportPath = (Join-Path $RepoRoot "RESEARCH_REPORT.md")
+    )
+
+    $errors = New-Object System.Collections.Generic.List[string]
+    $warnings = New-Object System.Collections.Generic.List[string]
+    $versions = New-Object System.Collections.Generic.List[object]
+    $dates = New-Object System.Collections.Generic.List[object]
+
+    $roadmap = Read-DocConsistencyFile -Path $RoadmapPath -Errors $errors
+    $changelog = Read-DocConsistencyFile -Path $ChangelogPath -Errors $errors
+    $projectContext = Read-DocConsistencyFile -Path $ProjectContextPath -Errors $errors
+    $researchReport = Read-DocConsistencyFile -Path $ResearchReportPath -Errors $errors
+
+    $changelogVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $changelog -Field "latestChangelogVersion" -Pattern '^## \[(v\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}\s*$' -MissingMessage "latest changelog version heading"
+    $roadmapVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $roadmap -Field "currentRepoVersion" -Pattern '^Current repo version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current repo version"
+    $projectContextVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $projectContext -Field "version" -Pattern '^Version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Version"
+    $researchReportVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $researchReport -Field "currentVersionAfterRefresh" -Pattern '^Current version after this refresh:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current version after this refresh"
+
+    $changelogDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $changelog -Field "latestChangelogDate" -Pattern '^## \[v\d+\.\d+\.\d+\] - (\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "latest changelog date"
+    $roadmapSyncDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $roadmap -Field "latestProfileSync" -Pattern '^Latest profile sync:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Latest profile sync"
+    $projectContextSyncDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $projectContext -Field "latestSyncDate" -Pattern '^Latest sync date:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Latest sync date"
+    $researchRefreshDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $researchReport -Field "researchRefresh" -Pattern '^Research refresh:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Research refresh"
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$changelogVersion)) {
+        foreach ($record in @($versions.ToArray())) {
+            if (-not [string]::IsNullOrWhiteSpace([string]$record.value) -and [string]$record.value -ne [string]$changelogVersion) {
+                $errors.Add("$($record.path) $($record.field) value '$($record.value)' does not match CHANGELOG latest version '$changelogVersion'")
+            }
+        }
+    }
+
+    $dateValues = @($changelogDate, $roadmapSyncDate, $projectContextSyncDate, $researchRefreshDate)
+    foreach ($dateValue in $dateValues) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$dateValue) -and -not (Test-IsoDateText -Value ([string]$dateValue))) {
+            $errors.Add("planning doc date '$dateValue' is not a valid yyyy-MM-dd date")
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$changelogDate) -and (Test-IsoDateText -Value ([string]$changelogDate))) {
+        $latestChangelogDate = [datetime]::ParseExact([string]$changelogDate, "yyyy-MM-dd", [System.Globalization.CultureInfo]::InvariantCulture)
+        foreach ($record in @($dates.ToArray() | Where-Object { $_.field -ne "latestChangelogDate" -and -not [string]::IsNullOrWhiteSpace([string]$_.value) })) {
+            if (-not (Test-IsoDateText -Value ([string]$record.value))) {
+                continue
+            }
+
+            $recordedDate = [datetime]::ParseExact([string]$record.value, "yyyy-MM-dd", [System.Globalization.CultureInfo]::InvariantCulture)
+            if ($recordedDate -lt $latestChangelogDate) {
+                $errors.Add("$($record.path) $($record.field) date '$($record.value)' is older than CHANGELOG latest date '$changelogDate'")
+            } elseif ($recordedDate -gt $latestChangelogDate) {
+                $warnings.Add("$($record.path) $($record.field) date '$($record.value)' is newer than CHANGELOG latest date '$changelogDate'")
+            }
+        }
+    }
+
+    return [ordered]@{
+        passed = [bool]($errors.Count -eq 0)
+        expectedVersion = if ([string]::IsNullOrWhiteSpace([string]$changelogVersion)) { $null } else { [string]$changelogVersion }
+        expectedDate = if ([string]::IsNullOrWhiteSpace([string]$changelogDate)) { $null } else { [string]$changelogDate }
+        versions = $versions.ToArray()
+        dates = $dates.ToArray()
+        errors = $errors.ToArray()
+        warnings = $warnings.ToArray()
+    }
+}
+
 function New-MetadataRowIndex {
     param([object]$ProjectsPayload)
 
@@ -3014,6 +3170,7 @@ function Test-ProfileState {
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $schemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
+    $docVersionConsistency = Test-DocVersionConsistency
     $reportGeneratedAt = (Get-Date).ToString("o")
     $validationPerformance = [ordered]@{
         linkValidation = [ordered]@{
@@ -3038,6 +3195,7 @@ function Test-ProfileState {
         metadataHygiene = $metadataHygiene
         releaseAssetDrift = $releaseAssetDrift
         schemaValidation = $schemaValidation
+        docVersionConsistency = $docVersionConsistency
         validationPerformance = $validationPerformance
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations
@@ -3056,7 +3214,7 @@ function Test-ProfileState {
         readmeExperienceChecks = $experienceChecks
     }
 
-    $failed = -not $readmeInSync -or -not $assetsInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true -or $schemaValidation.passed -ne $true
+    $failed = -not $readmeInSync -or -not $assetsInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true -or $schemaValidation.passed -ne $true -or $docVersionConsistency.passed -ne $true
     return [ordered]@{
         Failed = $failed
         Report = $report

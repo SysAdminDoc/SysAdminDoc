@@ -5,11 +5,23 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.19
+Current repo version: v4.9.20
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.20 refresh: the public planning-doc sync item and the
+research-driven doc version/date consistency gate were implemented in
+`scripts/sync-profile.ps1`. `Test-DocVersionConsistency` now reads
+`ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md`,
+records `docVersionConsistency` in `reports/profile-sync-report.json`, and
+causes `-Check` to fail on a version mismatch or on a planning sync date older
+than the latest changelog date. Verification ran `Invoke-Pester -Path tests
+-Output Detailed` (38/38), `scripts/sync-profile.ps1 -Write -Check` with
+`docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
+drift rows, 0 link failures, and 0 link warnings after REST fallback from a
+transient GitHub GraphQL 502, plus `rtk git diff --check`.
 
 2026-06-04 v4.9.19 refresh: the advertised JSON Schema contract item was
 implemented in this repo. `data/profile-catalog.json` and generated
@@ -366,10 +378,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Public planning-doc sync
 
-- [ ] P1 — Keep public planning docs aligned with generated sync state
+- [x] P1 — Keep public planning docs aligned with generated sync state
   - Why: tracked planning docs can drift from the generated profile version, latest sync date, and active open items.
   - Touches: `ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`.
   - Acceptance: version, latest sync date, and remaining open items stay in lockstep with profile-sync releases; public docs stay sanitized.
+  - Completed: v4.9.20 added the automated `docVersionConsistency` gate to `scripts/sync-profile.ps1 -Check`, updated the tracked public planning docs, and records version/date alignment in the sync report.
   - Source: docs/research-feature-plan-2026-06-04.md (P1 Public Planning Files)
 
 ### Blocked — needs user decision
@@ -433,11 +446,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: `curl -sI <schema-url>` → 200; `Invoke-Pester` includes a schema-validation case that fails on a missing required field.
   - Complexity: M
 
-- [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
+- [x] P1 — Add a self-contained version/date consistency gate across tracked planning docs
   - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.19`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
   - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.19`), `CHANGELOG.md:5` (`## [v4.9.19]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
+  - Completed: v4.9.20 added `Test-DocVersionConsistency`, `docVersionConsistency` report output, failure wiring in `Test-ProfileState`, and Pester mismatch/stale-date coverage.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
   - Complexity: M
 
@@ -625,7 +639,7 @@ P2/P3, each doable in well under an hour:
 P1/P2 needing design or staged rollout:
 
 - [x] P1 — Publish the advertised JSON Schemas and validate the feed against them (completed v4.9.19 with committed raw-GitHub schemas and `schemaValidation`).
-- [ ] P1 — Doc version/date consistency gate wired into `-Check` and CI.
+- [x] P1 — Doc version/date consistency gate wired into `-Check` and CI (completed v4.9.20 with `docVersionConsistency` in the existing profile-sync check/report path).
 - [ ] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1`.
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
