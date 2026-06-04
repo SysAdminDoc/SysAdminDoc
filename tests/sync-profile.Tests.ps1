@@ -323,6 +323,14 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
 }
 
 Describe 'New-ProjectsExportJson feed' {
+    It 'points projects and catalog schemas at versioned raw GitHub contracts' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+
+        $cat.schema | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json'
+        $json.schema | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json'
+    }
+
     It 'excludes suppressed entries and includes portfolio entries' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
@@ -355,6 +363,30 @@ Describe 'New-ProjectsExportJson feed' {
         $pyTool.hasDownload | Should -BeFalse
         $hiddenTool.releaseAssetKinds | Should -Contain 'exe'
         @($hiddenTool.releaseAssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count | Should -Be 0
+    }
+}
+
+Describe 'Feed JSON Schema contracts' {
+    It 'validates the normalized fixture catalog and generated projects feed' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-FeedSchemaContracts -Catalog $cat -ProjectsJson $json
+
+        $result.passed | Should -BeTrue
+        $result.catalog.valid | Should -BeTrue
+        $result.projects.valid | Should -BeTrue
+    }
+
+    It 'rejects malformed project feed rows' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $payload.projects[0].repo = $null
+
+        $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
+
+        $result.valid | Should -BeFalse
+        ($result.errors -join "`n") | Should -Match '\$\.projects\[0\]\.repo'
     }
 }
 

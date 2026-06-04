@@ -43,6 +43,11 @@ $GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-cat
 $MetadataGeneratedAtStaleDays = 7
 $SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
 $LinkValidationThrottle = 16
+$SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
+$CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
+$ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
+$CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
+$ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -1597,8 +1602,14 @@ function New-ProjectsExportJson {
             $topics = @($meta.repositoryTopics | ForEach-Object { $_.name } | Sort-Object)
         }
         $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
-        $releaseAssetKinds = if ($meta -and $meta.latestRelease) { @(Get-ReleaseAssetKindsFromMeta -Meta $meta) } else { @() }
-        $releaseAssetNames = if ($isSuppressed) { @() } elseif ($meta -and $meta.latestRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
+        $releaseAssetKinds = @()
+        if ($meta -and $meta.latestRelease) {
+            $releaseAssetKinds = @(Get-ReleaseAssetKindsFromMeta -Meta $meta)
+        }
+        $releaseAssetNames = @()
+        if (-not $isSuppressed -and $meta -and $meta.latestRelease) {
+            $releaseAssetNames = @(Get-ReleaseAssetNamesFromMeta -Meta $meta)
+        }
 
         $row = [ordered]@{
             repo = [string]$entry.repo
@@ -1635,11 +1646,11 @@ function New-ProjectsExportJson {
             stars = if ($meta) { [int]$meta.stargazerCount } else { $null }
             latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
             latestReleaseUrl = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.url } else { $null }
-            releaseAssetKinds = $releaseAssetKinds
-            releaseAssetNames = $releaseAssetNames
+            releaseAssetKinds = @($releaseAssetKinds)
+            releaseAssetNames = @($releaseAssetNames)
             releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
             pushedAt = if ($meta -and $meta.pushedAt) { ConvertTo-IsoText $meta.pushedAt } else { $null }
-            topics = $topics
+            topics = @($topics)
             featured = [bool]$entry.featured
             featuredRank = if ($entry.featuredRank) { [int]$entry.featuredRank } else { $null }
             currentlyBuilding = [bool]$entry.currentlyBuilding
@@ -1654,7 +1665,7 @@ function New-ProjectsExportJson {
     }
 
     $payload = [ordered]@{
-        schema = "https://sysadmindoc.github.io/schemas/profile-projects.v1.json"
+        schema = $ProjectsSchemaUrl
         generatedAt = ConvertTo-IsoText $Catalog.generatedAt
         source = "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
         publicRepoCount = $Repos.Count
@@ -1832,7 +1843,7 @@ function New-CatalogFromReadme {
     }
 
     return [ordered]@{
-        schema = "https://sysadmindoc.github.io/schemas/profile-catalog.v1.json"
+        schema = $CatalogSchemaUrl
         generatedAt = (Get-Date).ToString("o")
         entries = @($entries.Values)
     }
@@ -2003,6 +2014,394 @@ function ConvertTo-ComparableJson {
         return "null"
     }
     return ConvertTo-Json -InputObject $Value -Depth 20 -Compress
+}
+
+function ConvertFrom-JsonElementValue {
+    param([System.Text.Json.JsonElement]$Element)
+
+    switch ($Element.ValueKind) {
+        ([System.Text.Json.JsonValueKind]::Object) {
+            $hash = [ordered]@{}
+            foreach ($property in $Element.EnumerateObject()) {
+                $hash[$property.Name] = (ConvertFrom-JsonElementValue -Element $property.Value)
+            }
+            return $hash
+        }
+        ([System.Text.Json.JsonValueKind]::Array) {
+            $items = New-Object System.Collections.Generic.List[object]
+            foreach ($item in $Element.EnumerateArray()) {
+                $items.Add((ConvertFrom-JsonElementValue -Element $item))
+            }
+            $wrapper = [pscustomobject]@{
+                __JsonArray = $true
+                Items = $null
+            }
+            $wrapper.Items = $items
+            return $wrapper
+        }
+        ([System.Text.Json.JsonValueKind]::String) {
+            return $Element.GetString()
+        }
+        ([System.Text.Json.JsonValueKind]::Number) {
+            $integerValue = [int64]0
+            if ($Element.TryGetInt64([ref]$integerValue)) {
+                return $integerValue
+            }
+            return $Element.GetDouble()
+        }
+        ([System.Text.Json.JsonValueKind]::True) {
+            return $true
+        }
+        ([System.Text.Json.JsonValueKind]::False) {
+            return $false
+        }
+        default {
+            return $null
+        }
+    }
+}
+
+function ConvertFrom-JsonPreservingArrays {
+    param([string]$Json)
+
+    $document = [System.Text.Json.JsonDocument]::Parse($Json)
+    try {
+        return ConvertFrom-JsonElementValue -Element $document.RootElement
+    } finally {
+        $document.Dispose()
+    }
+}
+
+function Get-ObjectPropertyNames {
+    param([object]$Object)
+
+    if ($null -eq $Object) {
+        return @()
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        return @($Object.Keys | ForEach-Object { [string]$_ })
+    }
+    return @($Object.PSObject.Properties | Where-Object { $_.MemberType -in @('NoteProperty', 'Property') } | ForEach-Object { $_.Name })
+}
+
+function Test-JsonArrayWrapper {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $false
+    }
+    $marker = $Value.PSObject.Properties['__JsonArray']
+    return [bool]($marker -and $marker.Value -eq $true -and $Value.PSObject.Properties['Items'])
+}
+
+function Get-JsonArrayItems {
+    param([object]$Value)
+
+    if (Test-JsonArrayWrapper $Value) {
+        foreach ($item in $Value.Items) {
+            $item
+        }
+        return
+    }
+    foreach ($item in @($Value)) {
+        $item
+    }
+}
+
+function Test-ObjectProperty {
+    param(
+        [object]$Object,
+        [string]$Name
+    )
+
+    if ($null -eq $Object) {
+        return [pscustomobject]@{ Exists = $false; Value = $null }
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        $exists = [bool]$Object.Contains($Name)
+        $value = $null
+        if ($exists) {
+            $value = $Object[$Name]
+        }
+        $result = [pscustomobject]@{ Exists = $exists; Value = $null }
+        $result.Value = $value
+        return $result
+    }
+
+    $property = $Object.PSObject.Properties[$Name]
+    $exists = [bool]($null -ne $property)
+    $value = $null
+    if ($property) {
+        $value = $property.Value
+    }
+    $result = [pscustomobject]@{ Exists = $exists; Value = $null }
+    $result.Value = $value
+    return $result
+}
+
+function Get-JsonSchemaValueType {
+    param([object]$Value)
+
+    if ($null -eq $Value) { return "null" }
+    if (Test-JsonArrayWrapper $Value) { return "array" }
+    if ($Value -is [datetime] -or $Value -is [datetimeoffset]) { return "string" }
+    if ($Value -is [bool]) { return "boolean" }
+    if ($Value -is [byte] -or $Value -is [int16] -or $Value -is [int] -or $Value -is [int64]) { return "integer" }
+    if ($Value -is [single] -or $Value -is [double] -or $Value -is [decimal]) {
+        if ([double]$Value % 1 -eq 0) { return "integer" }
+        return "number"
+    }
+    if ($Value -is [string]) { return "string" }
+    if ($Value -is [array] -or $Value -is [System.Collections.IList]) { return "array" }
+    return "object"
+}
+
+function Get-SchemaTypeList {
+    param([object]$Schema)
+
+    $typeInfo = Test-ObjectProperty -Object $Schema -Name "type"
+    if (-not $typeInfo.Exists) {
+        return @()
+    }
+    if ((Get-JsonSchemaValueType $typeInfo.Value) -eq "array") {
+        return @(Get-JsonArrayItems $typeInfo.Value | ForEach-Object { [string]$_ })
+    }
+    return @([string]$typeInfo.Value)
+}
+
+function Resolve-JsonSchemaRef {
+    param(
+        [object]$RootSchema,
+        [string]$Ref
+    )
+
+    if (-not $Ref.StartsWith("#/")) {
+        throw "Only local JSON Schema refs are supported: $Ref"
+    }
+    $value = $RootSchema
+    foreach ($segment in $Ref.Substring(2).Split('/')) {
+        $name = ($segment -replace '~1', '/') -replace '~0', '~'
+        $value = Get-MemberValue -Object $value -Name $name
+        if ($null -eq $value) {
+            throw "JSON Schema ref could not be resolved: $Ref"
+        }
+    }
+    return $value
+}
+
+function Test-JsonSchemaNode {
+    param(
+        [object]$Value,
+        [object]$Schema,
+        [string]$Path = '$',
+        [object]$RootSchema = $null
+    )
+
+    if ($null -eq $RootSchema) {
+        $RootSchema = $Schema
+    }
+    $errors = New-Object System.Collections.Generic.List[string]
+
+    $refInfo = Test-ObjectProperty -Object $Schema -Name '$ref'
+    if ($refInfo.Exists) {
+        try {
+            $resolved = Resolve-JsonSchemaRef -RootSchema $RootSchema -Ref ([string]$refInfo.Value)
+            foreach ($error in @(Test-JsonSchemaNode -Value $Value -Schema $resolved -Path $Path -RootSchema $RootSchema)) {
+                $errors.Add($error)
+            }
+        } catch {
+            $errors.Add("$Path schema ref error: $($_.Exception.Message)")
+        }
+        return $errors.ToArray()
+    }
+
+    $actualType = Get-JsonSchemaValueType $Value
+    $allowedTypes = @(Get-SchemaTypeList $Schema)
+    if ($allowedTypes.Count -gt 0) {
+        $typeOk = $false
+        foreach ($allowedType in $allowedTypes) {
+            if ($allowedType -eq $actualType -or ($allowedType -eq "number" -and $actualType -eq "integer")) {
+                $typeOk = $true
+                break
+            }
+        }
+        if (-not $typeOk) {
+            $errors.Add("$Path expected type $($allowedTypes -join '/') but found $actualType")
+            return $errors.ToArray()
+        }
+    }
+
+    $constInfo = Test-ObjectProperty -Object $Schema -Name "const"
+    if ($constInfo.Exists -and (ConvertTo-ComparableJson $Value) -ne (ConvertTo-ComparableJson $constInfo.Value)) {
+        $errors.Add("$Path must equal $($constInfo.Value)")
+    }
+
+    $enumInfo = Test-ObjectProperty -Object $Schema -Name "enum"
+    if ($enumInfo.Exists) {
+        $matchesEnum = $false
+        foreach ($allowed in @(Get-JsonArrayItems $enumInfo.Value)) {
+            if ((ConvertTo-ComparableJson $Value) -eq (ConvertTo-ComparableJson $allowed)) {
+                $matchesEnum = $true
+                break
+            }
+        }
+        if (-not $matchesEnum) {
+            $errors.Add("$Path value is not in the allowed enum")
+        }
+    }
+
+    if ($actualType -eq "string") {
+        $format = Get-MemberValue -Object $Schema -Name "format"
+        if ($format -eq "uri") {
+            $uri = $null
+            if (-not [System.Uri]::TryCreate([string]$Value, [System.UriKind]::Absolute, [ref]$uri)) {
+                $errors.Add("$Path must be an absolute URI")
+            }
+        } elseif ($format -eq "date-time") {
+            $parsedDate = [datetimeoffset]::MinValue
+            if (-not [datetimeoffset]::TryParse([string]$Value, [ref]$parsedDate)) {
+                $errors.Add("$Path must be an ISO date-time")
+            }
+        }
+
+        $pattern = Get-MemberValue -Object $Schema -Name "pattern"
+        if (-not [string]::IsNullOrWhiteSpace([string]$pattern) -and ([string]$Value) -notmatch ([string]$pattern)) {
+            $errors.Add("$Path does not match pattern $pattern")
+        }
+    }
+
+    if ($actualType -eq "integer" -or $actualType -eq "number") {
+        $minimumInfo = Test-ObjectProperty -Object $Schema -Name "minimum"
+        if ($minimumInfo.Exists -and [double]$Value -lt [double]$minimumInfo.Value) {
+            $errors.Add("$Path must be >= $($minimumInfo.Value)")
+        }
+    }
+
+    if ($actualType -eq "array") {
+        $items = @(Get-JsonArrayItems $Value)
+        $minItemsInfo = Test-ObjectProperty -Object $Schema -Name "minItems"
+        if ($minItemsInfo.Exists -and $items.Count -lt [int]$minItemsInfo.Value) {
+            $errors.Add("$Path must contain at least $($minItemsInfo.Value) item(s)")
+        }
+        $itemsSchema = Get-MemberValue -Object $Schema -Name "items"
+        if ($itemsSchema) {
+            for ($i = 0; $i -lt $items.Count; $i++) {
+                foreach ($error in @(Test-JsonSchemaNode -Value $items[$i] -Schema $itemsSchema -Path "$Path[$i]" -RootSchema $RootSchema)) {
+                    $errors.Add($error)
+                }
+            }
+        }
+    }
+
+    if ($actualType -eq "object") {
+        $required = @(Get-JsonArrayItems (Get-MemberValue -Object $Schema -Name "required"))
+        foreach ($requiredName in $required) {
+            $property = Test-ObjectProperty -Object $Value -Name ([string]$requiredName)
+            if (-not $property.Exists) {
+                $errors.Add("$Path.$requiredName is required")
+            }
+        }
+
+        $properties = Get-MemberValue -Object $Schema -Name "properties"
+        $allowedPropertyNames = @{}
+        foreach ($propertyName in @(Get-ObjectPropertyNames $properties)) {
+            $allowedPropertyNames[$propertyName] = $true
+            $valueProperty = Test-ObjectProperty -Object $Value -Name $propertyName
+            if ($valueProperty.Exists) {
+                $propertySchema = Get-MemberValue -Object $properties -Name $propertyName
+                foreach ($error in @(Test-JsonSchemaNode -Value $valueProperty.Value -Schema $propertySchema -Path "$Path.$propertyName" -RootSchema $RootSchema)) {
+                    $errors.Add($error)
+                }
+            }
+        }
+
+        $additionalProperties = Get-MemberValue -Object $Schema -Name "additionalProperties"
+        if ($additionalProperties -eq $false) {
+            foreach ($propertyName in @(Get-ObjectPropertyNames $Value)) {
+                if (-not $allowedPropertyNames.ContainsKey($propertyName)) {
+                    $errors.Add("$Path.$propertyName is not allowed by the schema")
+                }
+            }
+        }
+    }
+
+    return $errors.ToArray()
+}
+
+function Test-JsonSchemaContract {
+    param(
+        [object]$Value,
+        [string]$SchemaPath
+    )
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($SchemaPath)) { $SchemaPath } else { Join-Path $RepoRoot $SchemaPath }
+    $errors = New-Object System.Collections.Generic.List[string]
+    $schema = $null
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        $errors.Add("schema file not found: $SchemaPath")
+    } else {
+        try {
+            $schema = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $fullPath -Raw)
+        } catch {
+            $errors.Add("schema file is unreadable: $($_.Exception.Message)")
+        }
+    }
+
+    if ($schema) {
+        foreach ($error in @(Test-JsonSchemaNode -Value $Value -Schema $schema -Path '$' -RootSchema $schema)) {
+            $errors.Add($error)
+        }
+    }
+
+    $resolvedSchemaPath = Resolve-Path -LiteralPath $fullPath -ErrorAction SilentlyContinue
+    $schemaPathForReport = if ($resolvedSchemaPath) {
+        ([System.IO.Path]::GetRelativePath($RepoRoot, $resolvedSchemaPath.Path) -replace '\\', '/')
+    } else {
+        $SchemaPath
+    }
+
+    return [ordered]@{
+        schemaPath = [string]$schemaPathForReport
+        schemaId = if ($schema) { Get-MemberValue -Object $schema -Name '$id' } else { $null }
+        valid = [bool]($errors.Count -eq 0)
+        errors = $errors.ToArray()
+    }
+}
+
+function Test-FeedSchemaContracts {
+    param(
+        [hashtable]$Catalog,
+        [string]$ProjectsJson
+    )
+
+    $projectsPayload = $null
+    $projectsParseErrors = New-Object System.Collections.Generic.List[string]
+    try {
+        if ([string]::IsNullOrWhiteSpace($ProjectsJson)) {
+            throw "generated projects feed is empty"
+        }
+        $projectsPayload = ConvertFrom-JsonPreservingArrays -Json $ProjectsJson
+    } catch {
+        $projectsParseErrors.Add("generated projects feed is unreadable: $($_.Exception.Message)")
+    }
+
+    $catalogResult = Test-JsonSchemaContract -Value $Catalog -SchemaPath $CatalogSchemaPath
+    $projectsResult = if ($projectsPayload) {
+        Test-JsonSchemaContract -Value $projectsPayload -SchemaPath $ProjectsSchemaPath
+    } else {
+        [ordered]@{
+            schemaPath = "schemas/profile-projects.v1.json"
+            schemaId = $ProjectsSchemaUrl
+            valid = $false
+            errors = $projectsParseErrors.ToArray()
+        }
+    }
+
+    return [ordered]@{
+        passed = [bool]($catalogResult.valid -and $projectsResult.valid)
+        catalog = $catalogResult
+        projects = $projectsResult
+    }
 }
 
 function New-MetadataRowIndex {
@@ -2614,6 +3013,7 @@ function Test-ProfileState {
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
+    $schemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $reportGeneratedAt = (Get-Date).ToString("o")
     $validationPerformance = [ordered]@{
         linkValidation = [ordered]@{
@@ -2637,6 +3037,7 @@ function Test-ProfileState {
         includedReadmeCount = $included.Count
         metadataHygiene = $metadataHygiene
         releaseAssetDrift = $releaseAssetDrift
+        schemaValidation = $schemaValidation
         validationPerformance = $validationPerformance
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations
@@ -2655,7 +3056,7 @@ function Test-ProfileState {
         readmeExperienceChecks = $experienceChecks
     }
 
-    $failed = -not $readmeInSync -or -not $assetsInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true
+    $failed = -not $readmeInSync -or -not $assetsInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true -or $schemaValidation.passed -ne $true
     return [ordered]@{
         Failed = $failed
         Report = $report

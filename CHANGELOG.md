@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.19] - 2026-06-04
+
+- Added: Committed JSON Schema 2020-12 contracts for `data/profile-catalog.json` and generated `projects.json` under `schemas/`.
+- Changed: Repointed catalog/feed `schema` URLs to raw GitHub schema files in this repo instead of the previously advertised missing `sysadmindoc.github.io/schemas/*` paths.
+- Added: `scripts/sync-profile.ps1 -Check` now validates the normalized catalog and generated project feed against the committed schemas and records `schemaValidation` in `reports/profile-sync-report.json`.
+- Fixed: Generated feed fields `releaseAssetKinds`, `releaseAssetNames`, and `topics` now serialize as arrays for zero-, one-, and multi-item cases.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passed 35/35; `scripts/sync-profile.ps1 -Write -Check` passed with schema validation true, 0 metadata drift, 0 link failures, and 0 link warnings after REST fallback from a transient GitHub GraphQL 502.
+
 ## [v4.9.18] - 2026-06-04
 
 - Added: Implemented portfolio consumption of the live SysAdminDoc `projects.json` feed in `C:\Users\--\repos\sysadmindoc.github.io`.

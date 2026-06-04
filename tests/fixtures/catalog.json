@@ -1,5 +1,5 @@
 {
-  "schema": "https://sysadmindoc.github.io/schemas/profile-catalog.v1.json",
+  "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
   "generatedAt": "2026-01-01T00:00:00.0000000-00:00",
   "entries": [
     {

@@ -5,11 +5,23 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.18
+Current repo version: v4.9.19
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.19 refresh: the advertised JSON Schema contract item was
+implemented in this repo. `data/profile-catalog.json` and generated
+`projects.json` now point to committed raw-GitHub schema URLs under `schemas/`,
+`scripts/sync-profile.ps1 -Check` validates the normalized catalog and generated
+project feed against those schemas, and `reports/profile-sync-report.json`
+records `schemaValidation` with passing catalog/projects checks. The feed
+generator now emits `releaseAssetKinds`, `releaseAssetNames`, and `topics` as
+arrays for all rows, including zero- and one-item cases. Verification ran
+`Invoke-Pester -Path tests -Output Detailed` (35/35), `scripts/sync-profile.ps1
+-Write -Check` with REST fallback after transient GitHub GraphQL 502, JSON parse
+checks for schemas/feed/report, and `rtk git diff --check`.
 
 2026-06-04 v4.9.18 refresh: the live profile-feed portfolio item was
 implemented in `C:\Users\--\repos\sysadmindoc.github.io` commit
@@ -412,17 +424,18 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 ### Data integrity and trust gates
 
-- [ ] P1 — Publish (or stop referencing) the JSON Schema URLs the feed advertises
+- [x] P1 — Publish (or stop referencing) the JSON Schema URLs the feed advertises
   - Why: `data/profile-catalog.json` and `projects.json` both declare `schema` pointers (`https://sysadmindoc.github.io/schemas/profile-catalog.v1.json` and `.../profile-projects.v1.json`), but those URLs return HTTP 404. Any downstream consumer that follows the advertised contract gets a dead link, and the feed has no enforceable shape.
   - Evidence: `scripts/sync-profile.ps1:1086` (`schema = "https://sysadmindoc.github.io/schemas/profile-projects.v1.json"`), `:1264` (catalog schema), `data/profile-catalog.json:1`. Verified 2026-06-03: `https://sysadmindoc.github.io/schemas/profile-projects.v1.json` → 404.
   - Touches: `sysadmindoc.github.io` (publish the two schema docs) OR `scripts/sync-profile.ps1` (point `schema` at a versioned path that exists, e.g. the raw GitHub blob of a committed `schemas/*.json`); optional `schemas/` dir in this repo.
   - Acceptance: both advertised `schema` URLs resolve to a real JSON Schema that validates a current `projects.json`/catalog, or the field is repointed to a live URL; a Pester/CI step validates the generated feed against the committed schema.
+  - Completed: v4.9.19 added `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`, repointed catalog/feed schema URLs to raw GitHub, added `schemaValidation` to `Test-ProfileState`, added Pester contract tests, regenerated `projects.json` with array-stable asset/topic fields, and verified full `-Write -Check`.
   - Verify: `curl -sI <schema-url>` → 200; `Invoke-Pester` includes a schema-validation case that fails on a missing required field.
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.18`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.18`), `CHANGELOG.md:5` (`## [v4.9.18]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.19`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.19`), `CHANGELOG.md:5` (`## [v4.9.19]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
@@ -611,7 +624,7 @@ P2/P3, each doable in well under an hour:
 
 P1/P2 needing design or staged rollout:
 
-- [ ] P1 — Publish the advertised JSON Schemas and validate the feed against them (cross-repo with `sysadmindoc.github.io`; defines the downstream contract).
+- [x] P1 — Publish the advertised JSON Schemas and validate the feed against them (completed v4.9.19 with committed raw-GitHub schemas and `schemaValidation`).
 - [ ] P1 — Doc version/date consistency gate wired into `-Check` and CI.
 - [ ] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1`.
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
