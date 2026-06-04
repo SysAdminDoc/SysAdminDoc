@@ -177,6 +177,7 @@ Top opportunities, in priority order:
 26. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
 27. P3 - Stagger same-minute scheduled maintenance workflows.
 28. P3 - Include schema-contract changes in the offline Tests workflow.
+29. P3 - Group routine Dependabot GitHub Actions version updates.
 
 ## Evidence Reviewed
 
@@ -1560,6 +1561,42 @@ trigger gap rather than a missing test.
 - If Tests becomes a required check, account for GitHub's skipped-check behavior
   before relying on path filters globally.
 
+## Cycle 27 Research Addendum — 2026-06-04
+
+This pass checked future Dependabot workflow-update queue shape. It is separate
+from the existing item that triages the currently open major action-update PRs.
+
+### Evidence reviewed (cycle 27)
+
+- `.github/dependabot.yml` has one `github-actions` update block, a weekly
+  Tuesday schedule, and `open-pull-requests-limit: 5`.
+- The Dependabot config has no `groups` rule.
+- Live `gh pr list -R SysAdminDoc/SysAdminDoc --state open` currently shows two
+  separate Dependabot GitHub Actions PRs: #5 for `actions/checkout` and #6 for
+  `github/codeql-action`.
+- GitHub's Dependabot options reference says Dependabot opens one PR per
+  dependency by default, while `groups` can combine matching updates into fewer
+  targeted PRs with `patterns` and `update-types`:
+  https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+
+### Finding (cycle 27)
+
+- **Cosmetic — routine GitHub Actions updates are not grouped.** The current
+  separate major PRs still need the existing SHA-pin review checklist, but the
+  config has no way to bundle future low-risk minor/patch action bumps. A small
+  group rule can reduce review queue noise without weakening major-action or
+  permission-sensitive review.
+  → roadmap "Group routine Dependabot GitHub Actions version updates".
+  [Verified]
+
+### Standards note (cycle 27)
+
+- Do not group major action updates blindly. Major updates and any action that
+  changes requested permissions, credential persistence, or workflow semantics
+  should stay individually reviewable.
+- Keep this subordinate to the existing action-update triage process; grouping
+  helps queue shape, not trust evaluation.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1605,6 +1642,8 @@ trigger gap rather than a missing test.
   workflows, or only stagger accidental same-minute collisions as they appear?
 - Should schema changes trigger only the offline Pester contract lane, or also
   the heavier profile-sync PR validation path?
+- Should Dependabot group only minor/patch GitHub Actions updates, or keep
+  separate PRs for security-sensitive actions such as checkout and CodeQL?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
