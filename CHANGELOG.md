@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.5] - 2026-06-04
+
+- Added: Structured `metadataDrift` rows in `reports/profile-sync-report.json`, with repo, field, old value, new value, severity, and failing flags for committed-vs-live `projects.json` drift.
+- Added: `metadataDriftSummary` with fatal and informational drift counts plus a 7-day stale `projects.json.generatedAt` warning.
+- Changed: `scripts/sync-profile.ps1 -Check` now fails on fatal metadata drift such as branch, release, action, suppression, and row drift while keeping star/topic/`pushedAt` drift informational.
+- Added: Pester coverage for metadata drift severity and stale-feed warning behavior.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 20 tests, and full `scripts/sync-profile.ps1 -Check` passes with `readmeInSync=true`, 0 fatal metadata drift rows, full link validation enabled, 0 link failures, and 0 link warnings.
+
 ## [v4.9.4] - 2026-06-04
 
 - Added: A generated-catalog hand-edit notice before the generated README catalog sections, with `readmeExperienceChecks.generatedCatalogNotice` enforcing the marker during profile sync validation.

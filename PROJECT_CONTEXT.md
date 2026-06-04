@@ -15,7 +15,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `README.md` is the rendered public profile.
 - `data/profile-catalog.json` is the canonical profile catalog and suppression list.
 - `projects.json` is the generated public project feed for portfolio consumption.
-- `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including entrypoint, userscript, launch, and release-link checks.
+- `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including entrypoint, userscript, launch, release-link, README experience, and structured metadata-drift checks.
 - `reports/profile-sync-report.json` is the latest validation report from `scripts/sync-profile.ps1 -Check`.
 - `.github/workflows/profile-sync.yml` runs scheduled/manual profile checks and can open a manual generated-profile PR.
 - `.github/workflows/workflow-security.yml` runs `zizmor` against workflow changes.
@@ -23,7 +23,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, and the generated drift-lockout marker/workflow batch shipped as v4.9.4.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, and the structured metadata-drift report shipped as v4.9.5.
 - Local working-note files are ignored by git.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
@@ -31,7 +31,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-04
 Latest sync date: 2026-06-04
-Version: v4.9.4
+Version: v4.9.5
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -49,12 +49,13 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - 0 medical-imaging privacy violations in the generated public README.
 - 0 renamed repository redirects.
 - `README.md` in sync with generated output.
+- `metadataDriftSummary` reports 0 fatal metadata drift rows; info-only star/topic/`pushedAt` drift is surfaced without failing `-Check`.
 - 0 link validation failures across install entrypoints, raw userscripts, launch URLs, and release redirects.
 - `readmeExperienceChecks` pass: Start Here section, Catalog Snapshot, featured/currently-building action columns, category anchors, primary-action coverage, and labeled download buttons are all present.
-- `projects.json` is in sync with the catalog and contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata for downstream portfolio rendering.
+- `projects.json` contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata for downstream portfolio rendering. The raw `projectsExportInSync` boolean remains in the report, but v4.9.5 adds row-level drift details so exact feed drift can be separated into fatal structural drift and informational metadata drift.
 - `README.md` now carries a generated-catalog hand-edit notice before the generated catalog block, and profile sync validation records `readmeExperienceChecks.generatedCatalogNotice`.
 - The manual generated-profile workflow uses `scripts/sync-profile.ps1 -Write -Check` in a single invocation so write and validation share one live metadata snapshot.
-- Full live link validation has 0 fatal failures and 0 warnings in the latest v4.9.4 report.
+- Full live link validation has 0 fatal failures and 0 warnings in the latest v4.9.5 report.
 - Local `zizmor .github/workflows` returned no findings after pinning workflow actions to commit SHAs and disabling checkout credential persistence.
 - The hand-authored hero section now matches the user's LinkedIn positioning while keeping private production project names and employer-specific details out of the public README.
 - The top hero content uses full-width Markdown sections rather than an HTML two-column wrapper, preventing the Proof Points and Currently Building tables from rendering too narrow on GitHub.

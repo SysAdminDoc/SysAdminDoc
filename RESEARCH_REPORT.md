@@ -5,15 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.4
+Current version after this refresh: v4.9.5
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 18/18 tests after the v4.9.4 drift-lockout marker update.
-- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
-  successfully with `readmeInSync=true`, `projectsExportInSync=true`, full
-  link validation enabled, 0 link failures, and 0 link warnings.
+  passed 20/20 tests after the v4.9.5 metadata-drift report update.
+- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check` completed
+  successfully with `readmeInSync=true`, 0 fatal metadata drift rows, full link
+  validation enabled, 0 link failures, and 0 link warnings. Raw
+  `projectsExportInSync` remains a report signal; info-only star/topic/`pushedAt`
+  drift is now reported without failing the gate.
+- The v4.9.5 batch closed the active P2 metadata-drift item by adding
+  `Test-MetadataDrift`, row-level `metadataDrift` output, `metadataDriftSummary`,
+  and stale `projects.json.generatedAt` warnings.
 - The v4.9.4 batch closed the active P0 generated-feed drift item by adding the
   generated-catalog notice, checking that marker in README experience
   validation, refreshing header counts from live metadata, and changing the
@@ -247,7 +252,7 @@ Important integrations:
 
 ## Quick Wins
 
-- Run generated metadata refresh whenever `-Check` reports `readmeInSync=false` or `projectsExportInSync=false`.
+- Run generated metadata refresh whenever `-Check` reports `readmeInSync=false` or fatal `metadataDrift` rows; raw `projectsExportInSync=false` can now be informational when only star/topic/`pushedAt` metadata changed.
 - Add a report section for empty descriptions and missing topics before adding any mutation script.
 - Add real alt text and a plain-text tagline under the hero.
 - Add `#Requires -Version 5.1` and `-CheckOnly` to `setup.ps1`.

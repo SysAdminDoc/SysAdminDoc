@@ -17,6 +17,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] `projects.json` structured fields added: `primaryAction`, `hasDownload`, `hasLiveDemo`, `hasDirectInstall`. — *Source: TODO.md*
 - [x] Refreshed generated `README.md` and `projects.json` from live GitHub metadata after `-Check` caught stale star-count/feed drift (v4.9.3). — *Source: TODO.md*
 - [x] Enforced generated README/feed drift checks with a generated-catalog hand-edit notice, `readmeExperienceChecks.generatedCatalogNotice`, refreshed header counts, Pester coverage, and a one-process workflow write/check path (v4.9.4). — *Source: ROADMAP.md*
+- [x] Added structured metadata-drift reporting with fatal/informational severities, stale generated-feed age warnings, and Pester coverage for branch/release/star/stale-age behavior (v4.9.5). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 

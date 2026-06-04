@@ -139,3 +139,107 @@ Describe 'New-ProjectsExportJson feed' {
         ($json.suppressed | ForEach-Object { $_.repo }) | Should -Contain 'HiddenTool'
     }
 }
+
+Describe 'Test-MetadataDrift report' {
+    It 'marks star drift informational and branch/release drift fatal' {
+        $current = [ordered]@{
+            generatedAt = '2026-06-04T00:00:00Z'
+            publicRepoCount = 1
+            projectCount = 1
+            suppressedCount = 0
+            projects = @(
+                [ordered]@{
+                    repo = 'WinTool'
+                    title = 'WinTool'
+                    category = 'powershell'
+                    includeInReadme = $true
+                    includeInPortfolio = $true
+                    suppressed = $false
+                    suppressionReason = $null
+                    description = 'desc'
+                    repoUrl = 'https://github.com/SysAdminDoc/WinTool'
+                    primaryAction = [ordered]@{ kind = 'repo'; label = 'Repo'; url = 'https://github.com/SysAdminDoc/WinTool' }
+                    hasDownload = $false
+                    hasLiveDemo = $false
+                    hasDirectInstall = $false
+                    branch = 'main'
+                    stars = 1
+                    latestReleaseTag = 'v1.0.0'
+                    latestReleaseUrl = 'https://github.com/SysAdminDoc/WinTool/releases/tag/v1.0.0'
+                }
+            )
+            suppressed = @()
+        }
+        $expected = [ordered]@{
+            generatedAt = '2026-06-04T00:00:00Z'
+            publicRepoCount = 1
+            projectCount = 1
+            suppressedCount = 0
+            projects = @(
+                [ordered]@{
+                    repo = 'WinTool'
+                    title = 'WinTool'
+                    category = 'powershell'
+                    includeInReadme = $true
+                    includeInPortfolio = $true
+                    suppressed = $false
+                    suppressionReason = $null
+                    description = 'desc'
+                    repoUrl = 'https://github.com/SysAdminDoc/WinTool'
+                    primaryAction = [ordered]@{ kind = 'repo'; label = 'Repo'; url = 'https://github.com/SysAdminDoc/WinTool' }
+                    hasDownload = $false
+                    hasLiveDemo = $false
+                    hasDirectInstall = $false
+                    branch = 'master'
+                    stars = 2
+                    latestReleaseTag = 'v1.1.0'
+                    latestReleaseUrl = 'https://github.com/SysAdminDoc/WinTool/releases/tag/v1.1.0'
+                }
+            )
+            suppressed = @()
+        }
+
+        $result = Test-MetadataDrift `
+            -CurrentProjectsJson ($current | ConvertTo-Json -Depth 20) `
+            -ExpectedProjectsJson ($expected | ConvertTo-Json -Depth 20)
+
+        $branch = @($result.metadataDrift | Where-Object { $_.field -eq 'branch' })
+        $branch | Should -HaveCount 1
+        $branch[0].severity | Should -Be 'fatal'
+        $branch[0].oldValue | Should -Be 'main'
+        $branch[0].newValue | Should -Be 'master'
+
+        $release = @($result.metadataDrift | Where-Object { $_.field -eq 'latestReleaseTag' })
+        $release | Should -HaveCount 1
+        $release[0].severity | Should -Be 'fatal'
+
+        $stars = @($result.metadataDrift | Where-Object { $_.field -eq 'stars' })
+        $stars | Should -HaveCount 1
+        $stars[0].severity | Should -Be 'info'
+
+        $result.fatalCount | Should -Be 3
+        $result.informationalCount | Should -Be 1
+    }
+
+    It 'warns when the committed projects feed is stale' {
+        $payload = [ordered]@{
+            generatedAt = '2026-05-01T00:00:00Z'
+            publicRepoCount = 0
+            projectCount = 0
+            suppressedCount = 0
+            projects = @()
+            suppressed = @()
+        }
+
+        $result = Test-MetadataDrift `
+            -CurrentProjectsJson ($payload | ConvertTo-Json -Depth 20) `
+            -ExpectedProjectsJson ($payload | ConvertTo-Json -Depth 20) `
+            -Now ([datetimeoffset]::Parse('2026-06-04T00:00:00Z')) `
+            -StaleGeneratedAtDays 7
+
+        $result.generatedAt.stale | Should -BeTrue
+        $result.generatedAt.ageDays | Should -BeGreaterThan 33
+        $result.generatedAt.warning | Should -Match 'older than 7 days'
+        $result.fatalCount | Should -Be 0
+    }
+}
