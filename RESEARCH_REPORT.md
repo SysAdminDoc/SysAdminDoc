@@ -5,12 +5,12 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.14
+Current version after this refresh: v4.9.15
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 32/32 tests after the v4.9.14 committed profile asset update.
+  passed 32/32 tests after the v4.9.15 dependency/status badge cleanup.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
   drift rows, `metadataHygiene` showing 69 missing-topic repos, generated
@@ -21,9 +21,14 @@ Current version after this refresh: v4.9.14
   release rows, 71 release-action rows, 17 source-only release rows, 0 release
   asset kind mismatches, and 0 release asset fetch failures, full link
   validation enabled, `profileAssetsInSync=true`, 6 profile asset checks, 0
-  third-party metric hosts, 185 link targets checked in 4289 ms, 0 link failures, and
-  0 link warnings. Raw `projectsExportInSync` remains a report signal;
+  third-party metric hosts, 0 third-party badge hosts, exactly 1 generated stats
+  chrome block, 185 link targets checked in 5217 ms, 0 link failures, and 0 link
+  warnings. Raw `projectsExportInSync` remains a report signal;
   info-only star/topic/`pushedAt` drift is now reported without failing the gate.
+- The v4.9.15 batch closed the active P2 dependency/status badge item by
+  removing redundant Shields follower/star image badges, moving total public
+  stars into the committed local stats SVG, adding badge/chrome-count report
+  guards, and fixing duplicate generated stats chrome across repeated writes.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
@@ -255,7 +260,7 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: parallelized and tolerant of transient failures; latest report checked 185 targets in 4289 ms with zero warnings.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 185 targets in 5217 ms with zero warnings.
 - Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow

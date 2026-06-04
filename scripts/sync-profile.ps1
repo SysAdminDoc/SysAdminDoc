@@ -1366,13 +1366,20 @@ function New-ProfileAssetSvgs {
         (Get-PrimaryAction $_ $meta $_.category)["kind"] -eq "release"
     }).Count
     $currentBuilds = @($entries | Where-Object { $_.currentlyBuilding -eq $true }).Count
+    $totalStars = 0
+    foreach ($repo in @($Repos)) {
+        $stars = Get-MemberValue -Object $repo -Name "stargazerCount"
+        if ($null -ne $stars -and [string]$stars -match '^\d+$') {
+            $totalStars += [int]$stars
+        }
+    }
     $languageRows = @(Get-TopLanguageRows -Entries $entries -RepoLookup $repoLookup)
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
 
     $statsRows = @(
         [ordered]@{ label = "active public repositories"; value = [string]$Repos.Count; detail = "live GitHub metadata" },
         [ordered]@{ label = "visitor-facing projects"; value = [string]$entries.Count; detail = "generated profile catalog" },
-        [ordered]@{ label = "release download actions"; value = [string]$downloadCount; detail = "uploaded assets only" },
+        [ordered]@{ label = "total public stars"; value = [string]$totalStars; detail = "live GitHub metadata" },
         [ordered]@{ label = "currently building"; value = [string]$currentBuilds; detail = "first-viewport queue" }
     )
     $activityRows = @(
@@ -1412,12 +1419,6 @@ function New-ProfileChrome {
     $lines.Add("  $(New-ThemeAwareImage -DarkUrl $typingDark -LightUrl $typingLight -Alt 'Rotating focus lines for healthcare IT, DICOM/PACS, production platforms, and core languages')")
     $lines.Add('</p>')
     $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add('  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb" alt="GitHub follower count for SysAdminDoc" />')
-    $lines.Add('  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&affiliations=OWNER" alt="Total public stars for SysAdminDoc repositories" />')
-    $lines.Add('</p>')
-    $lines.Add('')
-
     return ($lines -join [Environment]::NewLine)
 }
 
@@ -1468,8 +1469,17 @@ function Update-Header {
         [hashtable]$RepoLookup
     )
 
-    $legacyChromePattern = '(?s)\r?\n---\r?\n\r?\n<p align="center">\s*<a href="https://skillicons\.dev">.*?github-readme-activity-graph\.vercel\.app.*?</p>\r?\n\r?\n---'
-    $updated = [regex]::Replace($Header, $legacyChromePattern, [Environment]::NewLine)
+    $chromePatterns = @(
+        '(?s)\r?\n(?:---\r?\n\r?\n)?<p align="center">\s*<a href="https://skillicons\.dev">.*?github-readme-activity-graph\.vercel\.app.*?</p>\r?\n\r?\n---',
+        '(?s)\r?\n(?:---\r?\n\r?\n)?<p align="center">\s*<a href="https://skillicons\.dev">.*?assets/profile/activity-(?:dark|light)\.svg.*?</p>\r?\n\r?\n---'
+    )
+    $updated = $Header
+    foreach ($chromePattern in $chromePatterns) {
+        do {
+            $previous = $updated
+            $updated = [regex]::Replace($updated, $chromePattern, [Environment]::NewLine)
+        } while ($updated -ne $previous)
+    }
     $focusMarker = "### Professional Focus"
     $focusIndex = $updated.IndexOf($focusMarker, [StringComparison]::Ordinal)
     if ($focusIndex -ge 0) {
@@ -1883,6 +1893,9 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains("assets/profile/activity-light.svg")
     $thirdPartyMetricHostPattern = 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
     $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
+    $thirdPartyBadgeHostPattern = 'img\.shields\.io/github/(?:followers|stars)'
+    $thirdPartyBadgeHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyBadgeHostPattern).Count
+    $profileStatsChromeCount = [regex]::Matches($ExpectedReadme, '<a href="https://skillicons\.dev">').Count
     $hasPlainTextTagline = $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -and
         $ExpectedReadme.Contains("16+ years in IT operations")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
@@ -1894,7 +1907,8 @@ function Test-ReadmeExperience {
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
     $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
         $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and
-        $thirdPartyMetricHostCount -eq 0 -and $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
+        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $profileStatsChromeCount -eq 1 -and
+        $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
     return [ordered]@{
         passed = [bool]$passed
@@ -1906,6 +1920,8 @@ function Test-ReadmeExperience {
         meaningfulImageAltText = [bool]$hasMeaningfulAltText
         genericImageAltTextCount = $genericAltCount
         thirdPartyMetricHostCount = $thirdPartyMetricHostCount
+        thirdPartyBadgeHostCount = $thirdPartyBadgeHostCount
+        profileStatsChromeCount = $profileStatsChromeCount
         featuredRows = $featured.Count
         featuredActionColumn = [bool]$hasFeaturedActionColumn
         currentlyBuildingRows = $building.Count

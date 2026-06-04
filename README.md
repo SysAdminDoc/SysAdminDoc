@@ -11,11 +11,6 @@
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"><source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=0969DA&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell" alt="Rotating focus lines for healthcare IT, DICOM/PACS, production platforms, and core languages" /></picture>
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb" alt="GitHub follower count for SysAdminDoc" />
-  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&affiliations=OWNER" alt="Total public stars for SysAdminDoc repositories" />
-</p>
-
 
 ### Professional Focus
 
@@ -50,44 +45,6 @@
 | [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | Power-user Android package manager *(Kotlin)* | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
 | [**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) | AI-powered file organizer with WinUI 3 shell *(C#/Python)* | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FileOrganizer/releases/latest) |
-
----
-
-<p align="center">
-  <a href="https://skillicons.dev">
-    <picture><source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"><source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"><img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13" alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub" /></picture>
-  </a>
-</p>
-
----
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/stats-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/stats-light.svg"><img src="assets/profile/stats-dark.svg" alt="Generated SysAdminDoc public catalog statistics" width="48%" /></picture>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/languages-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/languages-light.svg"><img src="assets/profile/languages-dark.svg" alt="Generated SysAdminDoc public project language mix" width="48%" /></picture>
-</p>
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/activity-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/activity-light.svg"><img src="assets/profile/activity-dark.svg" alt="Generated SysAdminDoc release asset validation summary" width="98%" /></picture>
-</p>
-
----
-
-<p align="center">
-  <a href="https://skillicons.dev">
-    <picture><source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"><source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"><img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13" alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub" /></picture>
-  </a>
-</p>
-
----
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/stats-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/stats-light.svg"><img src="assets/profile/stats-dark.svg" alt="Generated SysAdminDoc public catalog statistics" width="48%" /></picture>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/languages-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/languages-light.svg"><img src="assets/profile/languages-dark.svg" alt="Generated SysAdminDoc public project language mix" width="48%" /></picture>
-</p>
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/activity-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/activity-light.svg"><img src="assets/profile/activity-dark.svg" alt="Generated SysAdminDoc release asset validation summary" width="98%" /></picture>
-</p>
 
 ---
 

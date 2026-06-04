@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.14
+Current repo version: v4.9.15
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -28,6 +28,17 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.15 refresh: dependency/status badge cleanup removed the
+redundant Shields follower/star image badges from the generated profile header,
+moved the useful public-star signal into the committed local stats SVG, and made
+header regeneration idempotent by stripping previously generated stats chrome
+before appending the current block. `readmeExperienceChecks` now reports
+`thirdPartyBadgeHostCount=0` and `profileStatsChromeCount=1`. Pester passed
+32/32, and full `-Write -Check` passed with `profileAssetsInSync=true`, 6 asset
+checks, 0 third-party metric hosts, 0 third-party badge hosts, 185 link targets
+checked in 5217 ms, 0 link failures, and 0 link warnings. The run used the REST
+metadata fallback after a transient GitHub GraphQL 502.
 
 2026-06-04 v4.9.13 refresh: release asset taxonomy now inspects uploaded
 latest-release asset names, exports `releaseAssetKinds` and `releaseAssetNames`
@@ -237,10 +248,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.14 added committed local SVG profile panels, sync/report checks for six assets, a scheduled/manual assets-refresh workflow, and removed komarev plus readme-stats/streak/activity hosts from the generated README.
   - Source: TODO.md (NF4)
 
-- [ ] P2 — Dependency/status badges only where they carry signal
+- [x] P2 — Dependency/status badges only where they carry signal
   - Why: the README already depends on multiple external image services; badge overload dilutes the catalog.
   - Touches: `README.md` generated header (via generation); optional self-hosted readme-stats.
   - Acceptance: a small generated summary replaces redundant third-party widgets; self-hosting is considered only if rate limits or uptime become a recurring problem.
+  - Completed: v4.9.15 removed redundant Shields follower/star image badges, moved total public stars into the committed local stats SVG, added badge/chrome-count report guards, and fixed duplicate local stats chrome across repeated generator runs.
   - Source: ROADMAP.md (P2)
 
 ### Portfolio site (separate repo `sysadmindoc.github.io`)
@@ -372,8 +384,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.14`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.14`), `CHANGELOG.md:5` (`## [v4.9.14]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.15`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.15`), `CHANGELOG.md:5` (`## [v4.9.15]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.

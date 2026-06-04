@@ -279,6 +279,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"'
         $script:rendered | Should -Not -Match 'alt="(Header|Typing SVG|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
+        $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
     It 'places stats chrome after the profile body and before the generated catalog' {
         $focusIndex = $script:rendered.IndexOf('### Professional Focus', [StringComparison]::Ordinal)
@@ -290,6 +291,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         ($statsIndex -lt $noticeIndex) | Should -BeTrue
         $script:rendered.Substring(0, $focusIndex) | Should -Not -Match 'skillicons\.dev'
         $script:rendered | Should -Not -Match '(?s)\*\*Currently Building\*\*.*?\r?\n---\r?\n\r?\n---\r?\n\r?\n<p align="center">\s*<a href="https://skillicons\.dev">'
+        [regex]::Matches($script:rendered, '<a href="https://skillicons\.dev">').Count | Should -Be 1
+        [regex]::Matches($script:rendered, 'alt="Generated SysAdminDoc release asset validation summary"').Count | Should -Be 1
     }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
@@ -299,16 +302,22 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $result.meaningfulImageAltText | Should -BeTrue
         $result.genericImageAltTextCount | Should -Be 0
         $result.thirdPartyMetricHostCount | Should -Be 0
+        $result.thirdPartyBadgeHostCount | Should -Be 0
+        $result.profileStatsChromeCount | Should -Be 1
         $result.passed | Should -BeTrue
     }
 
     It 'generates committed local profile SVG assets' {
-        $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @()
+        $repo = New-TestRepoMeta -Name 'WinTool'
+        $repo.stargazerCount = 7
+        $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @($repo)
 
         $assets.Keys | Should -Contain 'assets/profile/stats-dark.svg'
         $assets.Keys | Should -Contain 'assets/profile/languages-light.svg'
         $assets.Keys | Should -Contain 'assets/profile/activity-dark.svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
+        $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
+        $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
     }
 }
