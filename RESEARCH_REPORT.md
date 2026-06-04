@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.24
+Current version after this refresh: v4.9.25
 
 ## Verification Refresh — 2026-06-04
 
@@ -100,6 +100,14 @@ Current version after this refresh: v4.9.24
   `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
   drift rows, 0 link failures, and 0 link warnings after REST fallback from a
   transient GitHub GraphQL 502.
+- The v4.9.25 batch closed the active P1 PowerShell static-analysis item by
+  adding `PSScriptAnalyzerSettings.psd1`, wiring pinned PSScriptAnalyzer 1.25.0
+  into `.github/workflows/tests.yml`, and fixing the generator findings around
+  automatic `$error` usage, unused values, and implicit `-SkipLinkValidation`
+  state. The curated analyzer run reports 0 findings locally, Pester passed
+  44/44, and `scripts/sync-profile.ps1 -Write -Check` passed with
+  `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
+  drift rows, 185 link targets checked, 0 link failures, and 0 link warnings.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the

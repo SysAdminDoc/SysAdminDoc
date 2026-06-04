@@ -5,12 +5,16 @@ on:
   pull_request:
     paths:
       - "scripts/**"
+      - "setup.ps1"
+      - "PSScriptAnalyzerSettings.psd1"
       - "tests/**"
       - ".github/workflows/tests.yml"
   push:
     branches: [main]
     paths:
       - "scripts/**"
+      - "setup.ps1"
+      - "PSScriptAnalyzerSettings.psd1"
       - "tests/**"
       - ".github/workflows/tests.yml"
 
@@ -22,6 +26,31 @@ permissions:
   contents: read
 
 jobs:
+  psscriptanalyzer:
+    name: PSScriptAnalyzer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Force -Scope CurrentUser
+          $findings = @(
+            Invoke-ScriptAnalyzer -Path scripts -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
+            Invoke-ScriptAnalyzer -Path setup.ps1 -Settings ./PSScriptAnalyzerSettings.psd1
+          )
+          $findings | Format-Table -AutoSize
+          if ($findings.Count -gt 0) {
+            throw "PSScriptAnalyzer reported $($findings.Count) finding(s)."
+          }
+
   pester:
     name: Pester (offline)
     runs-on: ubuntu-latest
