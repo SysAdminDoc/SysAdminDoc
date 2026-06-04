@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 15 - 2026-06-04.
+> Last researched: Cycle 16 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 15 - 2026-06-04.
+Last researched: Cycle 16 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -846,6 +846,20 @@ repository enumeration as the public catalog grows.*
   - Verify: run `scripts/sync-profile.ps1 -Check` and confirm `repoEnumeration.returned=184`, `limit=300`, and `nearLimit=false` for the current account; simulate a fixture where returned count equals the limit and confirm the guard warns or fails rather than treating the catalog as complete.
   - Complexity: S
 
+### Researcher Queue (Cycle 16 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on the committed sync
+report's machine-readable contract now that multiple workflow-summary and
+artifact items depend on it.*
+
+- [ ] P2 🤖 🔬 — Publish a JSON Schema for `profile-sync-report.json`
+  - Why: `reports/profile-sync-report.json` is now the central evidence artifact for sync status, metadata hygiene, release drift, link validation, schema validation, planning-doc consistency, and planned job summaries, but only the catalog/feed have committed JSON Schemas. Consumers that parse the report still have no versioned contract for report fields.
+  - Evidence: `schemas/` contains only `profile-catalog.v1.json` and `profile-projects.v1.json`; `reports/profile-sync-report.json` has structured top-level fields such as `metadataHygiene`, `releaseAssetDrift`, `validationPerformance`, `readmeExperienceChecks`, `schemaValidation`, and `docVersionConsistency`, but no top-level `schema`/`$schema` pointer; `tests/sync-profile.Tests.ps1` validates catalog/feed schema contracts, not the full sync-report shape; JSON Schema's official docs describe it as a vocabulary for validating JSON data consistency and interoperability: https://json-schema.org/
+  - Touches: `schemas/profile-sync-report.v1.json`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, generated `reports/profile-sync-report.json`, optional workflow summary helper once added.
+  - Acceptance: the sync report includes a versioned schema URL or schema id; a committed `schemas/profile-sync-report.v1.json` validates the generated report shape; Pester or `-Check` validates the current report against the schema; future report-summary helpers can rely on stable optional/required fields.
+  - Verify: run `scripts/sync-profile.ps1 -Write -Check` and Pester; deliberately remove a required report field in a fixture and confirm schema validation fails with a clear report-schema error.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -863,6 +877,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
 - [ ] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300`.
+- [ ] P2 — JSON Schema contract for `reports/profile-sync-report.json`.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -893,3 +908,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Per-project license metadata in the generated feed, schema, and report.
 - [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
 - [ ] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap.
+- [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
