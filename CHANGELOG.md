@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.20] - 2026-06-04
+
+- Added: `Test-DocVersionConsistency` validates the tracked planning docs (`ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md`) from `scripts/sync-profile.ps1 -Check`.
+- Changed: `Test-ProfileState` now records `docVersionConsistency` in `reports/profile-sync-report.json` and fails when planning-doc versions disagree with the latest changelog version or when a recorded planning sync date is older than the latest changelog date.
+- Added: Pester coverage for the matching-doc happy path, version mismatch failure, and stale sync-date failure.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passed 38/38; `scripts/sync-profile.ps1 -Write -Check` passed with `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata drift rows, 0 link failures, and 0 link warnings after REST fallback from a transient GitHub GraphQL 502.
+
 ## [v4.9.19] - 2026-06-04
 
 - Added: Committed JSON Schema 2020-12 contracts for `data/profile-catalog.json` and generated `projects.json` under `schemas/`.

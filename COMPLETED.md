@@ -31,6 +31,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Implemented the separate `sysadmindoc.github.io` New, Recently updated, and Has download catalog views with URL-backed `view=` state, NEW/DOWNLOAD chips, and focused browser/mobile verification (v4.9.17, portfolio commit `29c2b1d`). — *Source: ROADMAP.md*
 - [x] Implemented separate `sysadmindoc.github.io` consumption of the live SysAdminDoc `projects.json` feed with build-time raw-cache sync, suppressed-row exclusion, feed-backed routes/feeds/language lanes/timeline/OG routes, local curated overlays, and fallback data (v4.9.18, portfolio commit `9117f45`). — *Source: ROADMAP.md*
 - [x] Published and validated the feed JSON Schema contracts with committed `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`, raw GitHub schema URLs, `schemaValidation` report output, Pester contract tests, and array-stable release/topic feed fields (v4.9.19). — *Source: ROADMAP.md*
+- [x] Added the planning-doc version/date consistency gate with `Test-DocVersionConsistency`, `docVersionConsistency` report output, `-Check` failure wiring, and Pester coverage for aligned docs, version mismatches, and stale sync dates (v4.9.20). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 

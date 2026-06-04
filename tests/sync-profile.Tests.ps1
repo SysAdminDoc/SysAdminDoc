@@ -390,6 +390,92 @@ Describe 'Feed JSON Schema contracts' {
     }
 }
 
+Describe 'Doc version consistency gate' {
+    BeforeAll {
+        function New-TestPlanningDocSet {
+            param(
+                [string]$Version = 'v4.9.20',
+                [string]$Date = '2026-06-04',
+                [string]$RoadmapVersion = $Version,
+                [string]$ProjectContextVersion = $Version,
+                [string]$ResearchReportVersion = $Version,
+                [string]$ChangelogDate = $Date,
+                [string]$RoadmapDate = $Date,
+                [string]$ProjectContextDate = $Date,
+                [string]$ResearchRefreshDate = $Date
+            )
+
+            $root = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
+            New-Item -ItemType Directory -Path $root | Out-Null
+            $paths = [ordered]@{
+                RoadmapPath = Join-Path $root 'ROADMAP.md'
+                ChangelogPath = Join-Path $root 'CHANGELOG.md'
+                ProjectContextPath = Join-Path $root 'PROJECT_CONTEXT.md'
+                ResearchReportPath = Join-Path $root 'RESEARCH_REPORT.md'
+            }
+
+            Set-Content -LiteralPath $paths.RoadmapPath -Value @(
+                '# Roadmap'
+                ''
+                "Latest profile sync: $RoadmapDate"
+                "Current repo version: $RoadmapVersion"
+            ) -Encoding utf8
+            Set-Content -LiteralPath $paths.ChangelogPath -Value @(
+                '# Changelog'
+                ''
+                "## [$Version] - $ChangelogDate"
+                ''
+                '- Changed: test.'
+            ) -Encoding utf8
+            Set-Content -LiteralPath $paths.ProjectContextPath -Value @(
+                '# Project Context'
+                ''
+                "Latest sync date: $ProjectContextDate"
+                "Version: $ProjectContextVersion"
+            ) -Encoding utf8
+            Set-Content -LiteralPath $paths.ResearchReportPath -Value @(
+                '# Research Report'
+                ''
+                "Research refresh: $ResearchRefreshDate"
+                "Current version after this refresh: $ResearchReportVersion"
+            ) -Encoding utf8
+
+            return $paths
+        }
+    }
+
+    It 'passes when tracked planning docs share the latest version and sync date' {
+        $paths = New-TestPlanningDocSet
+
+        $result = Test-DocVersionConsistency @paths
+
+        $result.passed | Should -BeTrue
+        $result.expectedVersion | Should -Be 'v4.9.20'
+        $result.expectedDate | Should -Be '2026-06-04'
+        @($result.errors) | Should -HaveCount 0
+    }
+
+    It 'rejects a tracked planning doc version mismatch' {
+        $paths = New-TestPlanningDocSet -ProjectContextVersion 'v4.9.19'
+
+        $result = Test-DocVersionConsistency @paths
+
+        $result.passed | Should -BeFalse
+        ($result.errors -join "`n") | Should -Match 'PROJECT_CONTEXT\.md'
+        ($result.errors -join "`n") | Should -Match 'does not match CHANGELOG latest version'
+    }
+
+    It 'rejects sync dates older than the latest changelog release date' {
+        $paths = New-TestPlanningDocSet -ChangelogDate '2026-06-05' -RoadmapDate '2026-06-04'
+
+        $result = Test-DocVersionConsistency @paths
+
+        $result.passed | Should -BeFalse
+        ($result.errors -join "`n") | Should -Match 'ROADMAP\.md'
+        ($result.errors -join "`n") | Should -Match 'older than CHANGELOG latest date'
+    }
+}
+
 Describe 'Seed catalog guard' {
     It 'requires ForceSeedCatalog for the lossy legacy parser' {
         $blocked = Test-SeedCatalogGuard -SeedRequested $true -ForceRequested $false
