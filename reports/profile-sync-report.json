@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T02:08:24.2971980-04:00",
+  "generatedAt": "2026-06-04T02:15:44.2303998-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "publicRepoCount": 184,
@@ -22,6 +22,12 @@
     }
   },
   "linkValidationSkipped": false,
+  "linkValidationSummary": {
+    "targetCount": 239,
+    "throttleLimit": 16,
+    "elapsedMs": 6835,
+    "warningCountByHost": []
+  },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeExperienceChecks": {

@@ -19,6 +19,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Enforced generated README/feed drift checks with a generated-catalog hand-edit notice, `readmeExperienceChecks.generatedCatalogNotice`, refreshed header counts, Pester coverage, and a one-process workflow write/check path (v4.9.4). — *Source: ROADMAP.md*
 - [x] Added structured metadata-drift reporting with fatal/informational severities, stale generated-feed age warnings, and Pester coverage for branch/release/star/stale-age behavior (v4.9.5). — *Source: ROADMAP.md*
 - [x] Guarded the legacy README-to-catalog reverse parser behind explicit `-ForceSeedCatalog`, with lossy bootstrap warnings and seed-mode subprocess coverage (v4.9.6). — *Source: ROADMAP.md*
+- [x] Parallelized link validation with bounded probe batches, `linkValidationSummary`, `warningCountByHost`, and hermetic warning/failure host-summary coverage (v4.9.7). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 

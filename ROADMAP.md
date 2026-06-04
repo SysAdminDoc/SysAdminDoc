@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.6
+Current repo version: v4.9.7
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -28,6 +28,13 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.7 refresh: live link validation now collects URL targets first
+and probes them in bounded parallel batches with throttle 16. The report adds
+`linkValidationSummary` with target count, throttle, elapsed milliseconds, and
+`warningCountByHost`. Pester passed 24/24, and the full live `-Write -Check`
+passed with 239 link targets checked in 6835 ms, 0 link failures, and 0 link
+warnings.
 
 2026-06-04 v4.9.6 refresh: the legacy `-SeedCatalog` parser is now guarded
 behind explicit `-ForceSeedCatalog`, prints a lossy one-shot bootstrap warning,
@@ -55,7 +62,7 @@ passed 18/18, and the full write/check pass is green with
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.6, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.7, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered through 2026-06-04 showed:
 
@@ -67,6 +74,7 @@ Live GitHub metadata gathered through 2026-06-04 showed:
 - 69 active public repos with no topics and 4 public repos with empty descriptions.
 - `.github/` contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
 - `scripts/sync-profile.ps1 -Check` validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
+- Link validation runs in bounded parallel batches and reports target count, elapsed time, throttle, and warning counts by host.
 - `scripts/sync-profile.ps1 -Check` reports structured `metadataDrift` rows for committed-vs-live feed drift; branch/release/action/suppression drift is fatal, while stars, topics, and `pushedAt` are informational.
 - Legacy README reverse parsing through `-SeedCatalog` now requires explicit `-ForceSeedCatalog` and is documented as a lossy one-shot bootstrap, not a routine source-of-truth path.
 - Root `projects.json` is generated from the same catalog for portfolio consumption and includes structured primary-action metadata.
@@ -103,10 +111,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Link validation and report depth
 
-- [ ] P2 — Parallelize link validation
+- [x] P2 — Parallelize link validation
   - Why: the full `-Check` passes but spends most wall time in ~115 sequential HEAD+GET probes; one blocked host can dominate runtime.
   - Touches: `scripts/sync-profile.ps1` (`Test-LinkTargets`, `Test-HttpUrl`), report warning schema.
   - Acceptance: probes run in bounded parallel batches with the same pass/fail semantics (404/410 fatal, transient 403/429/5xx/timeout as warnings), a `warningCountByHost` summary, and a lower wall-clock time.
+  - Completed: v4.9.7 split target collection from probing, added bounded parallel probe batches, preserved fatal vs warning semantics, added `linkValidationSummary.warningCountByHost`, and verified 239 live targets in 6835 ms with no failures/warnings.
   - Source: docs/research-feature-plan-2026-06-04.md (P2); RESEARCH_FEATURE_PLAN (EI7)
 
 - [ ] P1 — Report schema depth (metadata hygiene, release-asset, performance sections)
@@ -292,8 +301,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.6`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.6`), `CHANGELOG.md:5` (`## [v4.9.6]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.7`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.7`), `CHANGELOG.md:5` (`## [v4.9.7]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
