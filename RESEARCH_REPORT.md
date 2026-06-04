@@ -179,6 +179,7 @@ Top opportunities, in priority order:
 28. P3 - Include schema-contract changes in the offline Tests workflow.
 29. P3 - Group routine Dependabot GitHub Actions version updates.
 30. P2 - Report catalog rows omitted from both public feed arrays.
+31. P3 - Guard unsupported JSON Schema keywords in the custom validator.
 
 ## Evidence Reviewed
 
@@ -1637,6 +1638,44 @@ overlay/fallback omission check from v4.9.18.
 - Prefer an explicit reason field or report section over making `category:
   "suppressed"` alone imply a public feed suppression reason.
 
+## Cycle 29 Research Addendum — 2026-06-04
+
+This pass checked whether the in-repo JSON Schema validator fails closed when
+future schemas use keywords outside its current subset. Current schemas are
+simple enough for the validator, so this is a future-proofing guard.
+
+### Evidence reviewed (cycle 29)
+
+- `scripts/sync-profile.ps1:2261-2395` implements `$ref`, `type`, `const`,
+  `enum`, `format`, `pattern`, `minimum`, `minItems`, `items`, `required`,
+  `properties`, and `additionalProperties`.
+- Searches of `schemas/` found no current `oneOf`, `anyOf`, `allOf`, `if`,
+  `then`, or `dependentRequired` keywords.
+- `tests/sync-profile.Tests.ps1:425-445` checks that a missing required project
+  row field is rejected, but there is no fixture proving unsupported schema
+  keywords fail closed.
+- A queued sync-report schema and the Cycle 28 omitted-row accounting invariant
+  are both likely to need semantic constraints that go beyond simple required
+  fields and enums if they are represented in JSON Schema.
+
+### Finding (cycle 29)
+
+- **Cosmetic — unsupported schema keywords can be silently ignored.** The custom
+  validator is sufficient for today's schemas, but a future schema can add
+  conditional or combinator keywords and still appear to pass if those keywords
+  are not implemented. That weakens the schema contract at the exact moment the
+  repo starts adding deeper report/feed semantics.
+  → roadmap "Guard unsupported JSON Schema keywords in the custom validator".
+  [Verified]
+
+### Standards note (cycle 29)
+
+- Failing closed is enough for now. The build machine does not need to implement
+  every JSON Schema keyword immediately; it only needs to prevent schemas from
+  claiming enforcement that the validator does not perform.
+- If deeper schemas become central to downstream consumers, reassess whether a
+  full JSON Schema implementation is better than maintaining a local subset.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1686,6 +1725,8 @@ overlay/fallback omission check from v4.9.18.
   separate PRs for security-sensitive actions such as checkout and CodeQL?
 - Should local-only catalog rows require their own explicit reason field, or is
   a non-public aggregate count enough when `includeInPortfolio=false`?
+- Should the repo keep a small fail-closed custom JSON Schema validator, or adopt
+  a full validator once report schemas need conditionals/combinators?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?

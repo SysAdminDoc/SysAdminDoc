@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 28 - 2026-06-04.
+> Last researched: Cycle 29 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 28 - 2026-06-04.
+Last researched: Cycle 29 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -1037,6 +1037,20 @@ omission check from v4.9.18.*
   - Verify: run a local catalog/feed reconciliation command and confirm no unaccounted rows remain; add a fixture row with `includeInPortfolio=false` and no suppression/local-only reason and confirm Pester or `-Check` reports it; confirm intentionally omitted private/privacy rows still follow the Cycle 24 redaction policy.
   - Complexity: S
 
+### Researcher Queue (Cycle 29 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked whether the in-repo JSON
+Schema validator fails closed when future schemas use keywords outside its
+current subset.*
+
+- [ ] P3 🤖 🔬 — Guard unsupported JSON Schema keywords in the custom validator
+  - Why: the repo now relies on committed JSON Schema contracts for catalog/feed validation, and a future sync-report schema is queued. The custom PowerShell validator implements a useful subset, but it does not reject unknown schema keywords. If a future schema adds `oneOf`, `anyOf`, `allOf`, `if`/`then`, `dependentRequired`, or similar semantic constraints, `Test-JsonSchemaContract` can report success while silently ignoring those rules.
+  - Evidence: `scripts/sync-profile.ps1:2261-2395` implements `$ref`, `type`, `const`, `enum`, `format`, `pattern`, `minimum`, `minItems`, `items`, `required`, `properties`, and `additionalProperties`; searches of `schemas/` show no current `oneOf`, `anyOf`, `allOf`, `if`, `then`, or `dependentRequired` keywords; `tests/sync-profile.Tests.ps1:425-445` checks a required-field failure, but no test proves unsupported schema keywords fail closed.
+  - Touches: `scripts/sync-profile.ps1` (`Test-JsonSchemaContract` / `Test-JsonSchemaNode`), `tests/sync-profile.Tests.ps1`, optional schema authoring note near the queued sync-report schema item.
+  - Acceptance: the validator either implements the next needed JSON Schema keywords or recursively rejects unsupported keywords with a clear error before validating data; schema-contract tests include a fixture with an unsupported keyword that fails until support is intentionally added.
+  - Verify: add a scratch schema using `if`/`then` or `oneOf` that should reject a malformed payload; `Invoke-Pester -Path tests` must fail with an unsupported-keyword or real validation error instead of reporting `valid=true`; current catalog/feed schema validation still passes.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1071,6 +1085,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
 - [ ] P2 — Catalog-to-feed omitted-row accounting in the sync report.
+- [ ] P3 — Fail closed on unsupported custom JSON Schema validator keywords.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
