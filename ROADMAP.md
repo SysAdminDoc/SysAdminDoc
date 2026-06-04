@@ -5,11 +5,26 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.17
+Current repo version: v4.9.18
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
 > Last researched: Cycle 6 - 2026-06-04.
+
+2026-06-04 v4.9.18 refresh: the live profile-feed portfolio item was
+implemented in `C:\Users\--\repos\sysadmindoc.github.io` commit
+`9117f45 feat(data): render portfolio from profile feed`, then pushed to
+GitHub. The portfolio now fetches
+`https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json`
+into an ignored build-time cache, renders catalog/project routes/search feeds
+from `src/data/portfolio.ts`, excludes suppressed/non-portfolio rows, and keeps
+local featured/live-app overlays plus local fallback data. Verification ran
+`npm run check`, `npm run build`, `npm test`, `rtk git diff --check`, and a
+build-output assertion confirming 177 feed projects, profile-feed source
+metadata, no local-only feed omissions, no `DuplicateFF` route, and a present
+`ZeusWatch` route. A focused Chrome CDP browser check also covered 177 cards,
+129 download rows, no suppressed/local-only cards, `DuplicateFF` 404, and no
+mobile horizontal overflow at 390 px.
 
 2026-06-04 v4.9.17 refresh: the portfolio freshness/download views item was
 implemented in `C:\Users\--\repos\sysadmindoc.github.io` commit
@@ -290,10 +305,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.17 implemented URL-backed All/New/Recently updated/Has download catalog views in `sysadmindoc.github.io` commit `29c2b1d`, with visible NEW/DOWNLOAD chips, combined `view=`, `cat=`, `q=`, and `sort=` state, and verification through portfolio check/build/test plus focused browser/mobile validation.
   - Source: ROADMAP.md (P1); TODO.md (NF6); docs/research-feature-plan-2026-06-04.md (P1)
 
-- [ ] P1 — Point the portfolio at the live `projects.json` feed
+- [x] P1 — Point the portfolio at the live `projects.json` feed
   - Why: the portfolio should consume the same public catalog state as the README.
   - Touches: `sysadmindoc.github.io` fetch of `raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json`.
   - Acceptance: the portfolio renders from the feed with raw-fetch caching handled and suppressed entries excluded.
+  - Completed: v4.9.18 implemented `profile-feed:sync`, `src/data/portfolio.ts`, profile feed validation, feed-backed catalog/project routes/feeds/language lanes/timeline/OG routes, suppressed-row exclusion, and local curated overlays/fallbacks in `sysadmindoc.github.io` commit `9117f45`.
   - Source: TODO.md
 
 ### Setup bootstrapper
@@ -392,7 +408,7 @@ Before a generated README refresh is shipped:
 
 *Research conducted 2026-06-03. Items below are new — not duplicates of Existing Planned Work.*
 
-These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, `setup.ps1`, the generated `README.md`/`projects.json`, and live verification. Existing Planned Work already covers: drift lockout (P0), metadata-drift report depth, `-SeedCatalog` guard, parallel link validation, report schema depth, topic/description hygiene, theme-aware image chrome, release-asset taxonomy, action-baked SVGs, portfolio search/freshness, `setup.ps1` `-CheckOnly`/transcript, stale-project review, planning-doc sync, and the blocked decisions. The items below are deliberately outside all of those.
+These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, `setup.ps1`, the generated `README.md`/`projects.json`, and live verification. Existing Planned Work already covers: drift lockout (P0), metadata-drift report depth, `-SeedCatalog` guard, parallel link validation, report schema depth, topic/description hygiene, theme-aware image chrome, release-asset taxonomy, action-baked SVGs, portfolio search/freshness/feed consumption, `setup.ps1` `-CheckOnly`/transcript, stale-project review, planning-doc sync, and the blocked decisions. The items below are deliberately outside all of those.
 
 ### Data integrity and trust gates
 
@@ -405,8 +421,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.17`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.17`), `CHANGELOG.md:5` (`## [v4.9.17]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.18`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.18`), `CHANGELOG.md:5` (`## [v4.9.18]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
