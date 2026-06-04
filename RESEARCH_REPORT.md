@@ -162,8 +162,9 @@ Top opportunities, in priority order:
 11. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
 12. P2 - Expand CODEOWNERS coverage for profile-contract files.
 13. P2 - Export per-project SPDX/license metadata in the generated feed and report.
-14. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-15. P3 - Add `.editorconfig` and generated README markdown linting.
+14. P2 - Report GitHub fork-parent drift against catalog attribution.
+15. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+16. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -1021,6 +1022,48 @@ own detected license.
   build machine finds a compact presentation that does not make the profile
   tables too wide.
 
+## Cycle 14 Research Addendum — 2026-06-04
+
+This pass focused on live GitHub fork-parent metadata versus the manual
+fork/continuation attribution already shipped in v4.9.23.
+
+### Evidence reviewed (cycle 14)
+
+- `gh repo view SysAdminDoc/RcloneBrowser --json isFork,parent,licenseInfo`
+  reports `isFork=true` with parent `kapitainsky/RcloneBrowser`, matching the
+  catalog `forkOf` entry and upstream MIT attribution.
+- `gh repo view SysAdminDoc/uBlockVanced --json isFork,parent,licenseInfo`
+  reports `isFork=false` with no GitHub parent, while the catalog intentionally
+  records `forkOf=gorhill/uBlock` and `upstreamLicense=GPL-3.0`.
+- `scripts/sync-profile.ps1:210-213` requests `gh repo list` fields without
+  `isFork` or `parent`.
+- The REST fallback metadata shape at `scripts/sync-profile.ps1:187-196`
+  includes stars, default branch, latest release, visibility, archive/private
+  status, pushed date, URL, and primary language, but no fork-parent metadata.
+- `projects.json` currently exports manual `forkOf`, `forkOfUrl`, and
+  `upstreamLicense` fields, but no live `isFork`, GitHub parent, or
+  attribution-kind field.
+- GitHub CLI documents `isFork` and `parent` as `gh repo view --json` fields:
+  https://cli.github.com/manual/gh_repo_view
+
+### Finding (cycle 14)
+
+- **Minor — fork/continuation attribution is not checked against live GitHub
+  parent metadata.** Manual `forkOf` fields now make attribution visible, but
+  the report cannot distinguish a true GitHub fork with a matching parent from a
+  continuation/import that intentionally records an upstream without being a
+  GitHub fork. → roadmap "Report GitHub fork-parent drift against catalog
+  attribution". [Verified]
+
+### Standards note (cycle 14)
+
+- Do not fail every `forkOf` row where `isFork=false`. Some rows are
+  continuations or imports, not GitHub fork-network children. The useful report
+  shape is a three-way classification: GitHub fork matches catalog, GitHub fork
+  missing/mismatched catalog attribution, and catalog-declared continuation.
+- Keep README rendering unchanged unless the build machine finds a compact
+  visitor-facing label. This is primarily a report/feed correctness guard.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1035,6 +1078,8 @@ own detected license.
   affect generated README/feed output and setup/install trust?
 - Should per-project license metadata be feed/report-only, or should README rows
   display compact SPDX labels for download/action-heavy projects?
+- Should catalog `forkOf` rows gain an explicit attribution kind such as
+  `github-fork`, `continuation`, or `imported-fork`?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
