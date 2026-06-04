@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 18 - 2026-06-04.
+> Last researched: Cycle 19 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 18 - 2026-06-04.
+Last researched: Cycle 19 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -890,6 +890,22 @@ which covers whether those PRs receive checks.*
   - Verify: `gh repo view SysAdminDoc/SysAdminDoc --json deleteBranchOnMerge --jq .deleteBranchOnMerge` returns `true` or a documented cleanup workflow exists; merge a scratch generated PR and confirm `git ls-remote --heads origin automation/*` does not retain the merged branch.
   - Complexity: S
 
+### Researcher Queue (Cycle 19 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on duplicated generated-PR
+creation logic in the two workflows that can open profile-related pull
+requests. Existing token-handoff and branch-cleanup items cover separate
+runtime semantics; this item covers maintainability of the shared implementation
+path.*
+
+- [ ] P3 🤖 🔬 — Centralize generated PR creation logic
+  - Why: `profile-sync.yml` and `assets-refresh.yml` both embed near-identical PowerShell for detecting changes, creating an `automation/*` branch, staging the same generated files, committing, pushing, and running `gh pr create`. The prior PowerShell `$LASTEXITCODE` guard comment only appears in one workflow, which shows how small fixes can diverge between the two copies.
+  - Evidence: `.github/workflows/profile-sync.yml:71-101` and `.github/workflows/assets-refresh.yml:34-62` both define a `Create pull request` step with the same `git diff --quiet`, `git switch -c`, bot git identity, `git add README.md projects.json reports/profile-sync-report.json assets/profile/*.svg`, `git push`, and `gh pr create` flow; `rg -n "workflow_call|composite|\\.github/actions|uses: \\./\\.github/workflows" .github` found no reusable workflow or composite action in the repo; GitHub Docs describe reusable workflows for avoiding workflow duplication, and composite actions for collecting repeated steps into one action: https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows and https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
+  - Touches: optional `scripts/create-generated-profile-pr.ps1`, or `.github/actions/create-generated-profile-pr/action.yml`, plus `.github/workflows/profile-sync.yml` and `.github/workflows/assets-refresh.yml`.
+  - Acceptance: both generated-PR workflows call one shared helper with inputs for branch prefix, commit message, PR title/body, and no-change message; the helper preserves the `$LASTEXITCODE` no-change guards, stages only the intended generated profile files, uses the existing least-privilege token permissions, and makes future token-handoff/branch-cleanup/report-summary changes in one place.
+  - Verify: run both workflows manually in no-op mode and confirm they exit cleanly without empty commits; force a harmless generated-file change in a scratch branch and confirm each caller opens the expected PR through the shared helper; run workflow-security/actionlint once available.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -915,6 +931,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
+- [ ] P3 — Shared helper/composite action for generated profile PR creation.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

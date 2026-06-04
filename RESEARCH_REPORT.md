@@ -169,6 +169,7 @@ Top opportunities, in priority order:
 18. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 19. P3 - Add `.editorconfig` and generated README markdown linting.
 20. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+21. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 
 ## Evidence Reviewed
 
@@ -1234,6 +1235,54 @@ dirty, but the repository setting does not prevent future branch accumulation.
 - Keep branch cleanup separate from generated PR validation. A generated branch
   should only be deleted after merge/closure, never as a substitute for checks.
 
+## Cycle 19 Research Addendum — 2026-06-04
+
+This pass looked at maintainability of the generated PR path now that both
+profile sync and profile-assets refresh can create pull requests. The existing
+roadmap already covers token semantics, report summaries, and branch cleanup;
+this finding is about duplicated workflow code.
+
+### Evidence reviewed (cycle 19)
+
+- `.github/workflows/profile-sync.yml:71-101` has a `Create pull request` step
+  that checks for changes, creates `automation/profile-sync-*`, configures the
+  bot identity, stages `README.md`, `projects.json`,
+  `reports/profile-sync-report.json`, and `assets/profile/*.svg`, commits,
+  pushes, and runs `gh pr create`.
+- `.github/workflows/assets-refresh.yml:34-62` repeats the same branch, staging,
+  commit, push, and `gh pr create` flow for `automation/profile-assets-*`.
+- The PowerShell `$LASTEXITCODE` explanation for native-command no-change guards
+  is present in the profile-sync workflow copy, but not in the assets-refresh
+  workflow copy.
+- `rg -n "workflow_call|composite|\\.github/actions|uses:" .github` found no
+  reusable workflow or composite action in the current repo.
+- GitHub Docs describe reusable workflows as a way to avoid workflow
+  duplication, and composite actions as a way to collect repeated steps for use
+  in multiple workflows:
+  https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows
+  and
+  https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
+
+### Finding (cycle 19)
+
+- **Cosmetic — generated PR creation logic is duplicated across workflows.**
+  The two workflows currently have the same branch/stage/commit/push/PR
+  mechanics with small message differences. Future changes from the generated PR
+  validation handoff, branch cleanup, or report-summary work will be easier to
+  apply correctly if both workflows call one shared helper or local composite
+  action with explicit inputs.
+  → roadmap "Centralize generated PR creation logic". [Verified]
+
+### Standards note (cycle 19)
+
+- A small PowerShell helper may be simpler than a reusable workflow because both
+  current workflows already run different generation steps before creating a PR.
+  A composite action is also reasonable if the build machine wants the shared
+  behavior to stay inside `.github/`.
+- The helper must keep staging explicit. Do not replace the file list with broad
+  `git add .`, because the generated PR workflows should remain constrained to
+  profile outputs.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1260,6 +1309,8 @@ dirty, but the repository setting does not prevent future branch accumulation.
 - Should generated branch cleanup use the repository-wide auto-delete setting,
   or a scoped workflow/admin cleanup that only removes merged `automation/*`
   branches?
+- Should shared generated-PR logic live as a PowerShell helper under `scripts/`,
+  or as a local composite action under `.github/actions/`?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
