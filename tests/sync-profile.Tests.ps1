@@ -140,6 +140,45 @@ Describe 'New-ProjectsExportJson feed' {
     }
 }
 
+Describe 'Seed catalog guard' {
+    It 'requires ForceSeedCatalog for the lossy legacy parser' {
+        $blocked = Test-SeedCatalogGuard -SeedRequested $true -ForceRequested $false
+        $blocked.allowed | Should -BeFalse
+        $blocked.message | Should -Match 'ForceSeedCatalog'
+        $blocked.message | Should -Match 'lossy'
+
+        $allowed = Test-SeedCatalogGuard -SeedRequested $true -ForceRequested $true
+        $allowed.allowed | Should -BeTrue
+        $allowed.message | Should -Match 'one-shot bootstrap'
+    }
+
+    It 'exits clearly when SeedCatalog is invoked without ForceSeedCatalog' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -Offline -CatalogPath (Join-Path $TestDrive 'blocked-catalog.json') *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match 'ForceSeedCatalog'
+        ($output | Out-String) | Should -Match 'lossy'
+    }
+
+    It 'allows forced offline one-shot seed mode with a lossy warning' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $readmePath = Join-Path $TestDrive 'README.md'
+        $catalogPath = Join-Path $TestDrive 'catalog.json'
+        Set-Content -LiteralPath $readmePath -Value @(
+            '# Temporary profile'
+            ''
+            '### Featured Projects'
+        ) -Encoding utf8
+
+        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -ForceSeedCatalog -Offline -ReadmePath $readmePath -CatalogPath $catalogPath *>&1
+
+        $LASTEXITCODE | Should -Be 0
+        ($output | Out-String) | Should -Match 'LOSSY LEGACY SEED MODE'
+        Test-Path -LiteralPath $catalogPath | Should -BeTrue
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks star drift informational and branch/release drift fatal' {
         $current = [ordered]@{

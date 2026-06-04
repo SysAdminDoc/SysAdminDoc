@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.5
+Current repo version: v4.9.6
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -29,6 +29,13 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
 
+2026-06-04 v4.9.6 refresh: the legacy `-SeedCatalog` parser is now guarded
+behind explicit `-ForceSeedCatalog`, prints a lossy one-shot bootstrap warning,
+and seed-only mode exits after writing the catalog instead of entering normal
+render/check flow. Pester passed 23/23, and the full live `-Write -Check`
+passed with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata drift
+rows, 0 link failures, and 0 link warnings.
+
 2026-06-04 v4.9.5 refresh: the metadata-drift batch added structured
 `metadataDrift` report rows plus `metadataDriftSummary`, including
 fatal/informational counts and a 7-day stale `projects.json.generatedAt`
@@ -48,7 +55,7 @@ passed 18/18, and the full write/check pass is green with
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.5, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.6, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered through 2026-06-04 showed:
 
@@ -61,6 +68,7 @@ Live GitHub metadata gathered through 2026-06-04 showed:
 - `.github/` contains scheduled/manual profile sync, workflow security, Scorecard, CODEOWNERS, and Dependabot configuration.
 - `scripts/sync-profile.ps1 -Check` validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
 - `scripts/sync-profile.ps1 -Check` reports structured `metadataDrift` rows for committed-vs-live feed drift; branch/release/action/suppression drift is fatal, while stars, topics, and `pushedAt` are informational.
+- Legacy README reverse parsing through `-SeedCatalog` now requires explicit `-ForceSeedCatalog` and is documented as a lossy one-shot bootstrap, not a routine source-of-truth path.
 - Root `projects.json` is generated from the same catalog for portfolio consumption and includes structured primary-action metadata.
 - The first-viewport profile copy leads with healthcare IT, DICOM/PACS specialization, 16+ years of infrastructure experience, 10+ production platforms, and quantified proof points while avoiding private project and employer-specific names.
 
@@ -86,10 +94,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.5 added `Test-MetadataDrift`, `metadataDrift`, `metadataDriftSummary`, 7-day stale-feed warnings, fatal vs informational drift severity, and Pester coverage for star/branch/release/stale-age behavior.
   - Source: TODO.md (NF2); docs/research-feature-plan-2026-06-04.md (Report Schema Depth)
 
-- [ ] P2 — Deprecate/guard `-SeedCatalog` legacy parser (EI10)
+- [x] P2 — Deprecate/guard `-SeedCatalog` legacy parser (EI10)
   - Why: the README→catalog reverse parser (`New-CatalogFromReadme`) hard-codes star entity, em-dash separator, single-space pipes, and substring label matching and is brittle to any README drift; catalog JSON is now the source of truth.
   - Touches: `scripts/sync-profile.ps1` (parameters, `New-CatalogFromReadme`, help text), Pester tests.
   - Acceptance: seed mode requires an explicit `-ForceSeedCatalog`, emits a loud "lossy" warning, and is documented as a one-shot bootstrap; default invocation exits clearly.
+  - Completed: v4.9.6 added the `-ForceSeedCatalog` guard, lossy bootstrap warning, seed-only exit behavior, clearer missing-catalog guidance, and Pester subprocess coverage for blocked and forced seed paths.
   - Source: TODO.md (EI10); docs/research-feature-plan-2026-06-04.md (-SeedCatalog Legacy Parser)
 
 ### Link validation and report depth
@@ -283,8 +292,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.5`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.5`), `CHANGELOG.md:5` (`## [v4.9.5]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.6`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.6`), `CHANGELOG.md:5` (`## [v4.9.6]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.

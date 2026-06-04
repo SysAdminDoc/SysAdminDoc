@@ -5,17 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.5
+Current version after this refresh: v4.9.6
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 20/20 tests after the v4.9.5 metadata-drift report update.
-- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check` completed
-  successfully with `readmeInSync=true`, 0 fatal metadata drift rows, full link
-  validation enabled, 0 link failures, and 0 link warnings. Raw
+  passed 23/23 tests after the v4.9.6 `-SeedCatalog` guard update.
+- `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
+  successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
+  drift rows, full link validation enabled, 0 link failures, and 0 link warnings. Raw
   `projectsExportInSync` remains a report signal; info-only star/topic/`pushedAt`
   drift is now reported without failing the gate.
+- The v4.9.6 batch closed the active P2 legacy seed-parser item by requiring
+  explicit `-ForceSeedCatalog`, emitting a lossy one-shot bootstrap warning,
+  and exiting seed-only mode after the catalog write.
 - The v4.9.5 batch closed the active P2 metadata-drift item by adding
   `Test-MetadataDrift`, row-level `metadataDrift` output, `metadataDriftSummary`,
   and stale `projects.json.generatedAt` warnings.
@@ -41,10 +44,9 @@ Top opportunities, in priority order:
 4. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
 5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
 6. P2 - Parallelize live link validation; the full check passes but spends most wall time in sequential HTTP probes.
-7. P2 - Demote or guard `-SeedCatalog`, because the README-to-catalog parser is now a lossy legacy bootstrap path.
-8. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
-9. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
-10. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+7. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
+8. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
+9. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 
 ## Evidence Reviewed
 

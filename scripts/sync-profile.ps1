@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$SeedCatalog,
+    [switch]$ForceSeedCatalog,
     [switch]$Write,
     [switch]$Check,
     [string]$CatalogPath = "data/profile-catalog.json",
@@ -39,6 +40,7 @@ $Owner = "SysAdminDoc"
 $MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
 $GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
 $MetadataGeneratedAtStaleDays = 7
+$SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -316,7 +318,7 @@ function Get-Catalog {
     param([string]$Path)
 
     if (-not (Test-Path -LiteralPath $Path)) {
-        throw "Catalog not found: $Path. Run scripts/sync-profile.ps1 -SeedCatalog first."
+        throw "Catalog not found: $Path. Create data/profile-catalog.json directly, or run scripts/sync-profile.ps1 -SeedCatalog -ForceSeedCatalog only for a lossy one-shot bootstrap."
     }
 
     $raw = Get-Content -LiteralPath $Path -Raw
@@ -1273,6 +1275,18 @@ function New-CatalogFromReadme {
     }
 }
 
+function Test-SeedCatalogGuard {
+    param(
+        [bool]$SeedRequested,
+        [bool]$ForceRequested
+    )
+
+    return [ordered]@{
+        allowed = [bool](-not $SeedRequested -or $ForceRequested)
+        message = if ($SeedRequested) { $SeedCatalogGuardMessage } else { $null }
+    }
+}
+
 function Test-ReadmeExperience {
     param(
         [hashtable]$Catalog,
@@ -1685,6 +1699,15 @@ function Test-ProfileState {
 # before running the live-metadata fetch / generation below.
 if ($MyInvocation.InvocationName -eq '.') { return }
 
+if ($SeedCatalog) {
+    $seedGuard = Test-SeedCatalogGuard -SeedRequested ([bool]$SeedCatalog) -ForceRequested ([bool]$ForceSeedCatalog)
+    if (-not $seedGuard.allowed) {
+        Write-Error $seedGuard.message
+        exit 1
+    }
+    Write-Warning "LOSSY LEGACY SEED MODE: $($seedGuard.message -replace '^-SeedCatalog is a ', '')"
+}
+
 $repos = if ($Offline) { @() } else { Get-GitHubRepos }
 
 if ($SeedCatalog) {
@@ -1695,6 +1718,9 @@ if ($SeedCatalog) {
     }
     $catalog | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $CatalogPath -Encoding utf8
     Write-Host "Seeded $CatalogPath with $($catalog.entries.Count) entries."
+    if (-not $Write -and -not $Check) {
+        exit 0
+    }
 }
 
 $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
