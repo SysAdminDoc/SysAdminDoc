@@ -38,6 +38,7 @@ $Owner = "SysAdminDoc"
 # do not false-flag a benign public repo as medical-imaging.
 $MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
 $GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
+$MetadataGeneratedAtStaleDays = 7
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -1328,6 +1329,230 @@ function Test-ReadmeExperience {
     }
 }
 
+function Get-MemberValue {
+    param(
+        [object]$Object,
+        [string]$Name
+    )
+
+    if ($null -eq $Object) {
+        return $null
+    }
+    if ($Object -is [hashtable]) {
+        if ($Object.ContainsKey($Name)) {
+            return $Object[$Name]
+        }
+        return $null
+    }
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) {
+        return $property.Value
+    }
+    return $null
+}
+
+function Get-NestedMemberValue {
+    param(
+        [object]$Object,
+        [string]$Path
+    )
+
+    $value = $Object
+    foreach ($segment in ($Path -split '\.')) {
+        $value = Get-MemberValue -Object $value -Name $segment
+        if ($null -eq $value) {
+            return $null
+        }
+    }
+    return $value
+}
+
+function ConvertTo-ComparableJson {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return "null"
+    }
+    return ConvertTo-Json -InputObject $Value -Depth 20 -Compress
+}
+
+function New-MetadataRowIndex {
+    param([object]$ProjectsPayload)
+
+    $index = @{}
+    foreach ($collectionName in @("projects", "suppressed")) {
+        $collection = Get-MemberValue -Object $ProjectsPayload -Name $collectionName
+        foreach ($row in @($collection)) {
+            $repo = Get-MemberValue -Object $row -Name "repo"
+            if (-not [string]::IsNullOrWhiteSpace([string]$repo)) {
+                $index[([string]$repo).ToLowerInvariant()] = $row
+            }
+        }
+    }
+    return $index
+}
+
+function New-MetadataDriftRecord {
+    param(
+        [string]$Repo,
+        [string]$Field,
+        [object]$OldValue,
+        [object]$NewValue,
+        [string]$Severity
+    )
+
+    return [ordered]@{
+        repo = if ([string]::IsNullOrWhiteSpace($Repo)) { $null } else { $Repo }
+        field = $Field
+        oldValue = $OldValue
+        newValue = $NewValue
+        severity = $Severity
+        failing = [bool]($Severity -eq "fatal")
+    }
+}
+
+function Test-MetadataDrift {
+    param(
+        [string]$CurrentProjectsJson,
+        [string]$ExpectedProjectsJson,
+        [int]$StaleGeneratedAtDays = $MetadataGeneratedAtStaleDays,
+        [datetimeoffset]$Now = [datetimeoffset]::Now
+    )
+
+    $drift = New-Object System.Collections.Generic.List[object]
+    $current = $null
+    $expected = $null
+
+    try {
+        if ([string]::IsNullOrWhiteSpace($CurrentProjectsJson)) {
+            throw "projects.json is missing or empty"
+        }
+        $current = $CurrentProjectsJson | ConvertFrom-Json
+    } catch {
+        $drift.Add((New-MetadataDriftRecord -Repo $null -Field "projects.json" -OldValue "unreadable" -NewValue "valid generated feed" -Severity "fatal"))
+    }
+
+    try {
+        $expected = $ExpectedProjectsJson | ConvertFrom-Json
+    } catch {
+        $drift.Add((New-MetadataDriftRecord -Repo $null -Field "expectedProjects" -OldValue "generated feed" -NewValue "unreadable" -Severity "fatal"))
+    }
+
+    $generatedAtText = if ($current) { ConvertTo-IsoText (Get-MemberValue -Object $current -Name "generatedAt") } else { $null }
+    $generatedAtInfo = [ordered]@{
+        value = if ([string]::IsNullOrWhiteSpace($generatedAtText)) { $null } else { $generatedAtText }
+        ageDays = $null
+        staleAfterDays = $StaleGeneratedAtDays
+        stale = $false
+        warning = $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($generatedAtText)) {
+        $parsedGeneratedAt = [datetimeoffset]::MinValue
+        if ([datetimeoffset]::TryParse($generatedAtText, [ref]$parsedGeneratedAt)) {
+            $ageDays = [math]::Round(($Now.ToUniversalTime() - $parsedGeneratedAt.ToUniversalTime()).TotalDays, 2)
+            $generatedAtInfo.ageDays = $ageDays
+            if ($ageDays -gt $StaleGeneratedAtDays) {
+                $generatedAtInfo.stale = $true
+                $generatedAtInfo.warning = "projects.json generatedAt is older than $StaleGeneratedAtDays days"
+            }
+        } else {
+            $generatedAtInfo.warning = "projects.json generatedAt could not be parsed"
+        }
+    } else {
+        $generatedAtInfo.warning = "projects.json generatedAt is missing"
+    }
+
+    if ($current -and $expected) {
+        $topLevelFatalFields = @("schema", "source", "publicRepoCount", "projectCount", "suppressedCount")
+        foreach ($field in $topLevelFatalFields) {
+            $oldValue = Get-MemberValue -Object $current -Name $field
+            $newValue = Get-MemberValue -Object $expected -Name $field
+            if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
+            }
+        }
+
+        $currentRows = New-MetadataRowIndex -ProjectsPayload $current
+        $expectedRows = New-MetadataRowIndex -ProjectsPayload $expected
+        $rowKeys = @(@($currentRows.Keys) + @($expectedRows.Keys) | Sort-Object -Unique)
+        $infoFields = @("stars", "pushedAt", "topics")
+        $rowFields = @(
+            "title",
+            "category",
+            "includeInReadme",
+            "includeInPortfolio",
+            "suppressed",
+            "suppressionReason",
+            "description",
+            "repoUrl",
+            "liveUrl",
+            "installUrl",
+            "downloadUrl",
+            "downloadKind",
+            "primaryAction.kind",
+            "primaryAction.label",
+            "primaryAction.url",
+            "hasDownload",
+            "hasLiveDemo",
+            "hasDirectInstall",
+            "branch",
+            "entrypoint",
+            "installKind",
+            "language",
+            "stars",
+            "latestReleaseTag",
+            "latestReleaseUrl",
+            "pushedAt",
+            "topics",
+            "visibility",
+            "featured",
+            "featuredRank",
+            "currentlyBuilding",
+            "notes"
+        )
+
+        foreach ($key in $rowKeys) {
+            $hasCurrent = $currentRows.ContainsKey($key)
+            $hasExpected = $expectedRows.ContainsKey($key)
+            $repo = if ($hasExpected) {
+                [string](Get-MemberValue -Object $expectedRows[$key] -Name "repo")
+            } else {
+                [string](Get-MemberValue -Object $currentRows[$key] -Name "repo")
+            }
+
+            if (-not $hasCurrent) {
+                $drift.Add((New-MetadataDriftRecord -Repo $repo -Field "row" -OldValue $null -NewValue "present" -Severity "fatal"))
+                continue
+            }
+            if (-not $hasExpected) {
+                $drift.Add((New-MetadataDriftRecord -Repo $repo -Field "row" -OldValue "present" -NewValue $null -Severity "fatal"))
+                continue
+            }
+
+            foreach ($field in $rowFields) {
+                $oldValue = Get-NestedMemberValue -Object $currentRows[$key] -Path $field
+                $newValue = Get-NestedMemberValue -Object $expectedRows[$key] -Path $field
+                if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
+                    $severity = if ($infoFields -contains $field) { "info" } else { "fatal" }
+                    $drift.Add((New-MetadataDriftRecord -Repo $repo -Field $field -OldValue $oldValue -NewValue $newValue -Severity $severity))
+                }
+            }
+        }
+    }
+
+    $fatalCount = @($drift | Where-Object { $_.severity -eq "fatal" }).Count
+    $infoCount = @($drift | Where-Object { $_.severity -eq "info" }).Count
+
+    return [ordered]@{
+        metadataDrift = $drift.ToArray()
+        fatalCount = $fatalCount
+        informationalCount = $infoCount
+        generatedAt = $generatedAtInfo
+    }
+}
+
 function Test-ProfileState {
     param(
         [hashtable]$Catalog,
@@ -1415,6 +1640,7 @@ function Test-ProfileState {
     }
     $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
     $projectsInSync = (& $normalize $currentProjects) -eq (& $normalize $ExpectedProjects)
+    $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
 
     $linkFailures = @()
     $linkWarnings = @()
@@ -1436,13 +1662,19 @@ function Test-ProfileState {
         privateVisibilityViolations = $privateViolations
         medicalPrivacyViolations = $medicalViolations
         renamedRepoRedirects = $redirects
+        metadataDrift = @($metadataDriftResult.metadataDrift)
+        metadataDriftSummary = [ordered]@{
+            fatalCount = $metadataDriftResult.fatalCount
+            informationalCount = $metadataDriftResult.informationalCount
+            generatedAt = $metadataDriftResult.generatedAt
+        }
         linkValidationSkipped = [bool]($Offline -or $SkipLinkValidation)
         linkValidationFailures = @($linkFailures)
         linkValidationWarnings = @($linkWarnings)
         readmeExperienceChecks = $experienceChecks
     }
 
-    $failed = -not $readmeInSync -or -not $projectsInSync -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true
+    $failed = -not $readmeInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true
     return [ordered]@{
         Failed = $failed
         Report = $report
