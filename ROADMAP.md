@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 16 - 2026-06-04.
+> Last researched: Cycle 17 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 16 - 2026-06-04.
+Last researched: Cycle 17 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -860,6 +860,21 @@ artifact items depend on it.*
   - Verify: run `scripts/sync-profile.ps1 -Write -Check` and Pester; deliberately remove a required report field in a fixture and confirm schema validation fails with a clear report-schema error.
   - Complexity: M
 
+### Researcher Queue (Cycle 17 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on how GitHub presents the
+large committed generated artifacts during pull-request review. It is separate
+from the existing `.editorconfig`/markdownlint item, which covers whitespace and
+Markdown rules, and from CODEOWNERS, which covers review routing.*
+
+- [ ] P2 🤖 🔬 — Add a `.gitattributes` generated-artifact diff policy
+  - Why: the repo commits large fully generated outputs (`projects.json`, `reports/profile-sync-report.json`, and six `assets/profile/*.svg` panels), but it has no `.gitattributes` policy telling GitHub which generated artifacts should be collapsed in diffs and ignored for language statistics. Reviewers still need the public README visible by default, but the machine-only feed/report/SVG churn can obscure the hand-authored and generator-code changes that explain it.
+  - Evidence: root listing shows no `.gitattributes`; `git check-attr -a -- README.md projects.json reports/profile-sync-report.json assets/profile/stats-light.svg` returned no attributes; tracked generated output sizes are `projects.json` 293,281 bytes, `reports/profile-sync-report.json` 27,988 bytes, and profile SVG panels 15,338 bytes combined; `scripts/sync-profile.ps1` writes those paths through the default `ReadmePath`, `ProjectsPath`, `ReportPath`, and `AssetsPath` parameters; GitHub Docs say `linguist-generated` in `.gitattributes` hides selected generated files by default in diffs and excludes them from repository language statistics: https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github
+  - Touches: `.gitattributes`, optional `RESEARCH_REPORT.md` maintenance note if the README exception needs rationale.
+  - Acceptance: `.gitattributes` marks only fully generated machine artifacts such as `/projects.json`, `/reports/profile-sync-report.json`, and `/assets/profile/*.svg` with `linguist-generated`; `README.md` stays review-visible by default unless a future review-summary workflow intentionally changes that policy; CODEOWNERS continues to own the generated contract files even when GitHub collapses their diffs.
+  - Verify: `git check-attr linguist-generated -- projects.json reports/profile-sync-report.json assets/profile/stats-light.svg README.md` shows the generated feed/report/SVG paths marked and `README.md` unmarked; a test PR or comparison view collapses the generated artifacts while still showing README and generator-code diffs on first load.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -878,6 +893,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
 - [ ] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300`.
 - [ ] P2 — JSON Schema contract for `reports/profile-sync-report.json`.
+- [ ] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -909,3 +925,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
 - [ ] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap.
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
+- [ ] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts.
