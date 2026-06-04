@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T06:15:56.7938679-04:00",
+  "generatedAt": "2026-06-04T08:09:52.7744596-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -117,7 +117,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-04T09:58:00.0000000Z",
+        "pushedAt": "2026-06-04T11:52:32.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -494,7 +494,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T08:06:10.0000000Z",
+        "pushedAt": "2026-06-04T12:08:02.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1013,28 +1013,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.23",
+    "expectedVersion": "v4.9.25",
     "expectedDate": "2026-06-04",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.23"
+        "value": "v4.9.25"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.23"
+        "value": "v4.9.25"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.23"
+        "value": "v4.9.25"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.23"
+        "value": "v4.9.25"
       }
     ],
     "dates": [
@@ -1067,7 +1067,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 4133,
+      "elapsedMs": 4186,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1083,7 +1083,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.58,
+      "ageDays": 2.66,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1093,7 +1093,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 4133,
+    "elapsedMs": 4186,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

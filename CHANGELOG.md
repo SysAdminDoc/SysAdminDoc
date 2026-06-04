@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.25] - 2026-06-04
+
+- Added: `PSScriptAnalyzerSettings.psd1` defines the curated PowerShell static-analysis gate for `scripts/sync-profile.ps1` and `setup.ps1`, including documented exclusions for intentional CLI output, domain-specific helper names, UTF-8-without-BOM policy, and a runspace false positive.
+- Changed: `.github/workflows/tests.yml` now runs a pinned PSScriptAnalyzer 1.25.0 job beside the offline Pester job and fails if any curated analyzer finding is reported.
+- Fixed: Renamed JSON Schema validation loop variables away from PowerShell's automatic `$error` variable, removed unused profile/category variables, and passed `-SkipLinkValidation` explicitly into `Test-ProfileState`.
+- Verified: PSScriptAnalyzer completed with 0 findings locally; `Invoke-Pester -Path tests -Output Detailed` passed 44/44; `scripts/sync-profile.ps1 -Write -Check` passed after REST fallback from a transient GitHub GraphQL 502 with `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata drift rows, 185 link targets checked, 0 link failures, and 0 link warnings.
+
 ## [v4.9.24] - 2026-06-04
 
 - Added: Recorded the "Forge" naming-debt log in `ROADMAP.md`, including WinForge, FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge, and the additionally identified MediaForge.

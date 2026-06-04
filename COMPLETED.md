@@ -49,6 +49,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 
 - [x] Add `.github/workflows/profile-sync.yml` with `workflow_dispatch` plus a non-top-of-hour schedule, defaulting to check-only on schedule, with least-privilege `GITHUB_TOKEN` permissions. — *Source: ROADMAP.md*
 - [x] Add workflow hardening: CODEOWNERS review gate for `.github/workflows/**`, zizmor, OpenSSF Scorecard, and deliberate action pinning/monitoring. — *Source: ROADMAP.md*
+- [x] Added a PSScriptAnalyzer static-analysis CI lane for `scripts/sync-profile.ps1` and `setup.ps1`, with curated settings, documented exclusions, pinned module install, and script fixes for analyzer findings (v4.9.25). — *Source: ROADMAP.md*
 - [x] Add markdown/link/install validation against GitHub metadata, raw userscript links against live default branches, and portfolio launch links, keeping clone-install-run snippets branch-pinned. — *Source: ROADMAP.md*
 - [x] Fixed the dead-code no-changes guard in `profile-sync.yml` where `if (git diff --quiet)` tested stdout instead of the exit code, causing clean scheduled runs to fail. — *Source: TODO.md*
 - [x] Link-validation de-flake: 12s timeout plus retry in `Test-HttpUrl`; only 404/410 are fatal, while transient 403/429/5xx/timeout become `linkValidationWarnings`. — *Source: TODO.md*

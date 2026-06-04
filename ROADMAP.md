@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.24
+Current repo version: v4.9.25
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,19 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 31 - 2026-06-04.
+
+2026-06-04 v4.9.25 refresh: the PSScriptAnalyzer static-analysis lane shipped.
+`PSScriptAnalyzerSettings.psd1` now defines the curated warning/error gate with
+documented exclusions, `.github/workflows/tests.yml` runs a pinned
+PSScriptAnalyzer 1.25.0 job beside offline Pester, and the generator fixes the
+real analyzer findings by avoiding PowerShell's automatic `$error` variable,
+removing unused values, and passing `-SkipLinkValidation` explicitly into
+`Test-ProfileState`. Verification ran the curated analyzer locally with 0
+findings, `Invoke-Pester -Path tests -Output Detailed` passed 44/44, and
+`scripts/sync-profile.ps1 -Write -Check` passed after REST fallback from a
+transient GitHub GraphQL 502 with `docVersionConsistency.passed=true`,
+`projectsExportInSync=true`, 0 metadata drift rows, 185 link targets checked, 0
+link failures, and 0 link warnings.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -603,12 +616,13 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 *Research conducted 2026-06-04. Items below were new relative to the open queue at research time. Existing open items already cover JSON Schema publishing, doc-version consistency, header link validation, REST fallback caps, catalog-shape validation, SECURITY.md, and setup `-CheckOnly`/transcript hardening.*
 
-- [ ] P1 — Add a PowerShell static-analysis lane for the generator and setup scripts
+- [x] P1 — Add a PowerShell static-analysis lane for the generator and setup scripts
   - Why: Pester exercises selected behavior, but no CI step checks common PowerShell quality/security rules for `scripts/sync-profile.ps1` or `setup.ps1`. Microsoft documents `Invoke-ScriptAnalyzer` as a static checker for `.ps1`, `.psm1`, and `.psd1` files and supports `-EnableExit` for CI failure.
   - Evidence: `.github/workflows/tests.yml` installs/runs only Pester; root search found no `PSScriptAnalyzerSettings.psd1` or `Invoke-ScriptAnalyzer`; Microsoft Learn `Invoke-ScriptAnalyzer` docs: https://learn.microsoft.com/en-us/powershell/module/psscriptanalyzer/invoke-scriptanalyzer?view=ps-modules
   - Touches: `PSScriptAnalyzerSettings.psd1` (or equivalent), `.github/workflows/tests.yml`, existing PowerShell scripts only as needed to satisfy the rules.
   - Acceptance: CI runs `Invoke-ScriptAnalyzer` against `scripts/` and `setup.ps1` with a curated settings file; any suppressions carry justifications; Pester remains the behavioral test lane.
-  - Verify: `pwsh -NoProfile -Command "Install-Module PSScriptAnalyzer -Scope CurrentUser -Force; Invoke-ScriptAnalyzer -Path scripts,setup.ps1 -Recurse -Settings ./PSScriptAnalyzerSettings.psd1 -EnableExit"`
+  - Completed: v4.9.25 added `PSScriptAnalyzerSettings.psd1`, wired a pinned PSScriptAnalyzer 1.25.0 job into `tests.yml`, documented settings exclusions, and fixed the real analyzer findings in `scripts/sync-profile.ps1`.
+  - Verify: `pwsh -NoProfile -Command '$findings = @(Invoke-ScriptAnalyzer -Path scripts -Recurse -Settings ./PSScriptAnalyzerSettings.psd1; Invoke-ScriptAnalyzer -Path setup.ps1 -Settings ./PSScriptAnalyzerSettings.psd1); if ($findings.Count -gt 0) { throw "PSScriptAnalyzer reported $($findings.Count) finding(s)." }'`
   - Complexity: M
 
 - [ ] P1 — Add generated-feed provenance fields for downstream consumers
@@ -1125,7 +1139,7 @@ P1/P2 needing design or staged rollout:
 
 - [x] P1 — Publish the advertised JSON Schemas and validate the feed against them (completed v4.9.19 with committed raw-GitHub schemas and `schemaValidation`).
 - [x] P1 — Doc version/date consistency gate wired into `-Check` and CI (completed v4.9.20 with `docVersionConsistency` in the existing profile-sync check/report path).
-- [ ] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1`.
+- [x] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1` (completed v4.9.25 with curated settings, pinned CI install, and script fixes for analyzer findings).
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
 - [ ] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output.
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).

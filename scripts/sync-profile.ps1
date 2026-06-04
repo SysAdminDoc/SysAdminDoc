@@ -1089,8 +1089,7 @@ function New-CategoryLink {
 
 function New-CategoryPreviewLine {
     param(
-        [hashtable[]]$Items,
-        [hashtable]$RepoLookup
+        [hashtable[]]$Items
     )
 
     $picks = @($Items |
@@ -1208,7 +1207,7 @@ function New-CategorySection {
     $lines.Add(($Definition.Summary -f $items.Count))
     $lines.Add("<br/>")
     $lines.Add("")
-    $preview = New-CategoryPreviewLine -Items $items -RepoLookup $RepoLookup
+    $preview = New-CategoryPreviewLine -Items $items
     if ($preview) {
         $lines.Add($preview)
         $lines.Add("")
@@ -1427,10 +1426,6 @@ function New-ProfileAssetSvgs {
         $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
     })
     $releaseDrift = Test-ReleaseAssetDrift -Entries $entries -RepoLookup $repoLookup
-    $downloadCount = @($entries | Where-Object {
-        $meta = Get-RepoMeta $_ $repoLookup
-        (Get-PrimaryAction $_ $meta $_.category)["kind"] -eq "release"
-    }).Count
     $currentBuilds = @($entries | Where-Object { $_.currentlyBuilding -eq $true }).Count
     $totalStars = 0
     foreach ($repo in @($Repos)) {
@@ -2275,8 +2270,8 @@ function Test-JsonSchemaNode {
     if ($refInfo.Exists) {
         try {
             $resolved = Resolve-JsonSchemaRef -RootSchema $RootSchema -Ref ([string]$refInfo.Value)
-            foreach ($error in @(Test-JsonSchemaNode -Value $Value -Schema $resolved -Path $Path -RootSchema $RootSchema)) {
-                $errors.Add($error)
+            foreach ($schemaError in @(Test-JsonSchemaNode -Value $Value -Schema $resolved -Path $Path -RootSchema $RootSchema)) {
+                $errors.Add($schemaError)
             }
         } catch {
             $errors.Add("$Path schema ref error: $($_.Exception.Message)")
@@ -2355,8 +2350,8 @@ function Test-JsonSchemaNode {
         $itemsSchema = Get-MemberValue -Object $Schema -Name "items"
         if ($itemsSchema) {
             for ($i = 0; $i -lt $items.Count; $i++) {
-                foreach ($error in @(Test-JsonSchemaNode -Value $items[$i] -Schema $itemsSchema -Path "$Path[$i]" -RootSchema $RootSchema)) {
-                    $errors.Add($error)
+                foreach ($schemaError in @(Test-JsonSchemaNode -Value $items[$i] -Schema $itemsSchema -Path "$Path[$i]" -RootSchema $RootSchema)) {
+                    $errors.Add($schemaError)
                 }
             }
         }
@@ -2378,8 +2373,8 @@ function Test-JsonSchemaNode {
             $valueProperty = Test-ObjectProperty -Object $Value -Name $propertyName
             if ($valueProperty.Exists) {
                 $propertySchema = Get-MemberValue -Object $properties -Name $propertyName
-                foreach ($error in @(Test-JsonSchemaNode -Value $valueProperty.Value -Schema $propertySchema -Path "$Path.$propertyName" -RootSchema $RootSchema)) {
-                    $errors.Add($error)
+                foreach ($schemaError in @(Test-JsonSchemaNode -Value $valueProperty.Value -Schema $propertySchema -Path "$Path.$propertyName" -RootSchema $RootSchema)) {
+                    $errors.Add($schemaError)
                 }
             }
         }
@@ -2417,8 +2412,8 @@ function Test-JsonSchemaContract {
     }
 
     if ($schema) {
-        foreach ($error in @(Test-JsonSchemaNode -Value $Value -Schema $schema -Path '$' -RootSchema $schema)) {
-            $errors.Add($error)
+        foreach ($schemaError in @(Test-JsonSchemaNode -Value $Value -Schema $schema -Path '$' -RootSchema $schema)) {
+            $errors.Add($schemaError)
         }
     }
 
@@ -2578,9 +2573,9 @@ function Test-DocVersionConsistency {
     $researchReport = Read-DocConsistencyFile -Path $ResearchReportPath -Errors $errors
 
     $changelogVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $changelog -Field "latestChangelogVersion" -Pattern '^## \[(v\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}\s*$' -MissingMessage "latest changelog version heading"
-    $roadmapVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $roadmap -Field "currentRepoVersion" -Pattern '^Current repo version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current repo version"
-    $projectContextVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $projectContext -Field "version" -Pattern '^Version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Version"
-    $researchReportVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $researchReport -Field "currentVersionAfterRefresh" -Pattern '^Current version after this refresh:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current version after this refresh"
+    $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $roadmap -Field "currentRepoVersion" -Pattern '^Current repo version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current repo version"
+    $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $projectContext -Field "version" -Pattern '^Version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Version"
+    $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $researchReport -Field "currentVersionAfterRefresh" -Pattern '^Current version after this refresh:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current version after this refresh"
 
     $changelogDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $changelog -Field "latestChangelogDate" -Pattern '^## \[v\d+\.\d+\.\d+\] - (\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "latest changelog date"
     $roadmapSyncDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $roadmap -Field "latestProfileSync" -Pattern '^Latest profile sync:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Latest profile sync"
@@ -3115,7 +3110,8 @@ function Test-ProfileState {
         [object[]]$Repos,
         [string]$ExpectedReadme,
         [string]$ExpectedProjects,
-        [hashtable]$ExpectedAssets = @{}
+        [hashtable]$ExpectedAssets = @{},
+        [switch]$SkipLinkValidation
     )
 
     $repoLookup = ConvertTo-Lookup $Repos
@@ -3348,7 +3344,7 @@ if ($catalogForRun) {
     }
 
     if ($Check) {
-        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected -ExpectedProjects $expectedProjects -ExpectedAssets $expectedAssets
+        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected -ExpectedProjects $expectedProjects -ExpectedAssets $expectedAssets -SkipLinkValidation:$SkipLinkValidation
         $reportDir = Split-Path -Parent $ReportPath
         if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
             New-Item -ItemType Directory -Path $reportDir | Out-Null
