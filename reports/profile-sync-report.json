@@ -1,10 +1,466 @@
 {
-  "generatedAt": "2026-06-04T02:15:44.2303998-04:00",
+  "generatedAt": "2026-06-04T02:25:02.1331019-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "publicRepoCount": 184,
   "catalogEntryCount": 187,
   "includedReadmeCount": 177,
+  "metadataHygiene": {
+    "missingTopicCount": 69,
+    "missingDescriptionCount": 4,
+    "missingTopics": [
+      {
+        "repo": "AdapterLock",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T20:17:35.0000000Z"
+      },
+      {
+        "repo": "AI-Usage_Tracker",
+        "language": "JavaScript",
+        "pushedAt": "2026-05-26T18:41:46.0000000Z"
+      },
+      {
+        "repo": "AmazonEnhanced",
+        "language": "JavaScript",
+        "pushedAt": "2026-04-26T02:16:22.0000000Z"
+      },
+      {
+        "repo": "android-debloat-list",
+        "language": "PHP",
+        "pushedAt": "2026-05-18T23:31:07.0000000Z"
+      },
+      {
+        "repo": "AndroidEmulatorPlus",
+        "language": "C#",
+        "pushedAt": "2026-06-01T06:32:09.0000000Z"
+      },
+      {
+        "repo": "ApocalypseWatch",
+        "language": "JavaScript",
+        "pushedAt": "2026-05-02T05:36:34.0000000Z"
+      },
+      {
+        "repo": "AppManagerNG",
+        "language": "Java",
+        "pushedAt": "2026-06-04T06:23:19.0000000Z"
+      },
+      {
+        "repo": "BillMinder",
+        "language": "Kotlin",
+        "pushedAt": "2026-05-18T02:21:17.0000000Z"
+      },
+      {
+        "repo": "Brave-Portable-Updater",
+        "language": "PowerShell",
+        "pushedAt": "2026-05-19T16:40:49.0000000Z"
+      },
+      {
+        "repo": "CallShield",
+        "language": "Kotlin",
+        "pushedAt": "2026-06-04T01:07:49.0000000Z"
+      },
+      {
+        "repo": "ClearGem",
+        "language": "JavaScript",
+        "pushedAt": "2026-05-26T18:58:03.0000000Z"
+      },
+      {
+        "repo": "Debloat-Win11",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:16:47.0000000Z"
+      },
+      {
+        "repo": "DefenderControl",
+        "language": "PowerShell",
+        "pushedAt": "2026-05-26T18:53:24.0000000Z"
+      },
+      {
+        "repo": "DefenderShield",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:16:50.0000000Z"
+      },
+      {
+        "repo": "Devicer",
+        "language": "C#",
+        "pushedAt": "2026-05-09T19:59:57.0000000Z"
+      },
+      {
+        "repo": "Disable-AdobeTelemetry",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:16:51.0000000Z"
+      },
+      {
+        "repo": "DisableDefender",
+        "language": "PowerShell",
+        "pushedAt": "2026-05-26T18:53:27.0000000Z"
+      },
+      {
+        "repo": "Discrub",
+        "language": "TypeScript",
+        "pushedAt": "2026-06-01T06:41:13.0000000Z"
+      },
+      {
+        "repo": "Droidsmith",
+        "language": "Rust",
+        "pushedAt": "2026-06-02T04:02:40.0000000Z"
+      },
+      {
+        "repo": "facebook-exit-guide",
+        "language": "HTML",
+        "pushedAt": "2026-04-26T02:19:55.0000000Z"
+      },
+      {
+        "repo": "FirewallForge",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:17:06.0000000Z"
+      },
+      {
+        "repo": "FoxPort",
+        "language": "Python",
+        "pushedAt": "2026-06-03T16:10:16.0000000Z"
+      },
+      {
+        "repo": "FrameSnap",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:17:10.0000000Z"
+      },
+      {
+        "repo": "GifText",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:17:18.0000000Z"
+      },
+      {
+        "repo": "GmailDownloader",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:17:22.0000000Z"
+      },
+      {
+        "repo": "HEICShift",
+        "language": "Python",
+        "pushedAt": "2026-05-17T20:01:00.0000000Z"
+      },
+      {
+        "repo": "HurricaneMap",
+        "language": "JavaScript",
+        "pushedAt": "2026-05-26T18:58:53.0000000Z"
+      },
+      {
+        "repo": "Images",
+        "language": "C#",
+        "pushedAt": "2026-05-25T14:16:03.0000000Z"
+      },
+      {
+        "repo": "IMDb_Enhanced",
+        "language": "JavaScript",
+        "pushedAt": "2026-06-01T08:15:59.0000000Z"
+      },
+      {
+        "repo": "iOSIconPack",
+        "language": "Python",
+        "pushedAt": "2026-05-26T18:57:23.0000000Z"
+      },
+      {
+        "repo": "Keepr",
+        "language": "TypeScript",
+        "pushedAt": "2026-05-27T09:50:54.0000000Z"
+      },
+      {
+        "repo": "kindred",
+        "language": "HTML",
+        "pushedAt": "2026-04-26T02:25:38.0000000Z"
+      },
+      {
+        "repo": "LlamaLink",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:17:54.0000000Z"
+      },
+      {
+        "repo": "LocalAndroidStore",
+        "language": "Kotlin",
+        "pushedAt": "2026-05-18T02:21:22.0000000Z"
+      },
+      {
+        "repo": "LocalChromeStore",
+        "language": "C#",
+        "pushedAt": "2026-05-31T07:54:51.0000000Z"
+      },
+      {
+        "repo": "LocalDesktopStore",
+        "language": "C#",
+        "pushedAt": "2026-05-18T09:09:43.0000000Z"
+      },
+      {
+        "repo": "MyPortfolio",
+        "language": "C#",
+        "pushedAt": "2026-04-26T02:10:57.0000000Z"
+      },
+      {
+        "repo": "NetForge",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:18:12.0000000Z"
+      },
+      {
+        "repo": "NovaCut",
+        "language": "Kotlin",
+        "pushedAt": "2026-06-04T06:16:28.0000000Z"
+      },
+      {
+        "repo": "NuclearDellRemover",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:18:17.0000000Z"
+      },
+      {
+        "repo": "NukeMap",
+        "language": "JavaScript",
+        "pushedAt": "2026-04-26T02:18:19.0000000Z"
+      },
+      {
+        "repo": "null",
+        "language": null,
+        "pushedAt": "2026-05-26T19:01:18.0000000Z"
+      },
+      {
+        "repo": "one-ui-home-clone",
+        "language": "Kotlin",
+        "pushedAt": "2026-05-18T02:21:26.0000000Z"
+      },
+      {
+        "repo": "OpenLumen",
+        "language": "Kotlin",
+        "pushedAt": "2026-06-03T05:06:03.0000000Z"
+      },
+      {
+        "repo": "OpenSwift",
+        "language": "Kotlin",
+        "pushedAt": "2026-06-01T07:07:24.0000000Z"
+      },
+      {
+        "repo": "OpenTasker",
+        "language": "Kotlin",
+        "pushedAt": "2026-05-06T14:14:13.0000000Z"
+      },
+      {
+        "repo": "OrganizeContacts",
+        "language": "C#",
+        "pushedAt": "2026-05-18T02:22:50.0000000Z"
+      },
+      {
+        "repo": "PhoneFork",
+        "language": "C#",
+        "pushedAt": "2026-05-18T23:53:38.0000000Z"
+      },
+      {
+        "repo": "project-nomad",
+        "language": "TypeScript",
+        "pushedAt": "2026-05-18T23:53:57.0000000Z"
+      },
+      {
+        "repo": "PromptCompanion",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:18:30.0000000Z"
+      },
+      {
+        "repo": "qBittorrent-Vanced",
+        "language": "C++",
+        "pushedAt": "2026-05-26T19:05:11.0000000Z"
+      },
+      {
+        "repo": "QuotaGlass",
+        "language": "C#",
+        "pushedAt": "2026-06-01T07:13:57.0000000Z"
+      },
+      {
+        "repo": "Restore-WindowsDefaults",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:18:43.0000000Z"
+      },
+      {
+        "repo": "SnapCrop",
+        "language": "Kotlin",
+        "pushedAt": "2026-05-26T18:59:07.0000000Z"
+      },
+      {
+        "repo": "Snapture",
+        "language": "C#",
+        "pushedAt": "2026-05-18T02:22:07.0000000Z"
+      },
+      {
+        "repo": "SoftwareScannerGUI",
+        "language": "PowerShell",
+        "pushedAt": "2026-05-26T18:56:57.0000000Z"
+      },
+      {
+        "repo": "StreamKeep",
+        "language": "Python",
+        "pushedAt": "2026-06-01T07:20:49.0000000Z"
+      },
+      {
+        "repo": "SunoJump",
+        "language": "Python",
+        "pushedAt": "2026-05-26T18:57:03.0000000Z"
+      },
+      {
+        "repo": "SystemUpdatePro",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:19:16.0000000Z"
+      },
+      {
+        "repo": "TaskCopy",
+        "language": "C#",
+        "pushedAt": "2026-06-01T07:27:03.0000000Z"
+      },
+      {
+        "repo": "TelemetrySlayer",
+        "language": "PowerShell",
+        "pushedAt": "2026-04-26T02:19:20.0000000Z"
+      },
+      {
+        "repo": "TsunamiSimulator",
+        "language": "Rust",
+        "pushedAt": "2026-06-02T05:17:50.0000000Z"
+      },
+      {
+        "repo": "Tunerize",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:13:24.0000000Z"
+      },
+      {
+        "repo": "uBlockVanced",
+        "language": "JavaScript",
+        "pushedAt": "2026-05-19T00:03:52.0000000Z"
+      },
+      {
+        "repo": "Vertigo",
+        "language": "Python",
+        "pushedAt": "2026-04-26T02:11:19.0000000Z"
+      },
+      {
+        "repo": "Vigil",
+        "language": "HTML",
+        "pushedAt": "2026-05-26T19:05:34.0000000Z"
+      },
+      {
+        "repo": "WinForge",
+        "language": "PowerShell",
+        "pushedAt": "2026-05-26T18:57:16.0000000Z"
+      },
+      {
+        "repo": "WolfPack",
+        "language": "Fluent",
+        "pushedAt": "2026-04-26T02:19:48.0000000Z"
+      },
+      {
+        "repo": "WURepair",
+        "language": "PowerShell",
+        "pushedAt": "2026-05-26T18:57:19.0000000Z"
+      }
+    ],
+    "missingDescriptions": [
+      {
+        "repo": "AdapterLock",
+        "language": "PowerShell"
+      },
+      {
+        "repo": "facebook-exit-guide",
+        "language": "HTML"
+      },
+      {
+        "repo": "IMDb_Enhanced",
+        "language": "JavaScript"
+      },
+      {
+        "repo": "SysAdminDoc",
+        "language": "PowerShell"
+      }
+    ]
+  },
+  "releaseAssetDrift": {
+    "checkedCatalogRows": 177,
+    "releaseBearingRows": 141,
+    "releaseActionRows": 102,
+    "sourceOnlyWithRelease": [
+      {
+        "repo": "AppManagerNG",
+        "latestReleaseTag": "v0.5.0"
+      },
+      {
+        "repo": "BackgroundSearch",
+        "latestReleaseTag": "v2.1.0"
+      },
+      {
+        "repo": "BetterNext",
+        "latestReleaseTag": "v3.5.2"
+      },
+      {
+        "repo": "Devicer",
+        "latestReleaseTag": "v1.0.0"
+      },
+      {
+        "repo": "FileExplorer",
+        "latestReleaseTag": "v1.2.0"
+      },
+      {
+        "repo": "kindred",
+        "latestReleaseTag": "v2.5.1"
+      },
+      {
+        "repo": "NDNS",
+        "latestReleaseTag": "v3.4.0"
+      },
+      {
+        "repo": "OpenSwift",
+        "latestReleaseTag": "v0.3.0"
+      },
+      {
+        "repo": "OpenTasker",
+        "latestReleaseTag": "v0.2.59"
+      },
+      {
+        "repo": "OrganizeContacts",
+        "latestReleaseTag": "v0.3.1"
+      },
+      {
+        "repo": "pfSenseSuite",
+        "latestReleaseTag": "v3.4.0"
+      },
+      {
+        "repo": "Scour",
+        "latestReleaseTag": "v0.3.0"
+      },
+      {
+        "repo": "Snapture",
+        "latestReleaseTag": "v0.6.0"
+      },
+      {
+        "repo": "SwiftFloris",
+        "latestReleaseTag": "v1.8.172"
+      },
+      {
+        "repo": "sysadmindoc.github.io",
+        "latestReleaseTag": "v0.13.1"
+      },
+      {
+        "repo": "UniversalConverterX",
+        "latestReleaseTag": "v1.0.0"
+      }
+    ],
+    "missingReleaseForDownloadKind": [],
+    "releaseActionLabelMismatches": [],
+    "userscriptKindWithoutInstallUrl": [],
+    "assetApiInspected": false,
+    "note": "Release asset filename inspection is tracked by the release asset taxonomy roadmap item."
+  },
+  "validationPerformance": {
+    "linkValidation": {
+      "skipped": false,
+      "targetCount": 239,
+      "throttleLimit": 16,
+      "elapsedMs": 6801,
+      "failureCount": 0,
+      "warningCount": 0,
+      "warningHostCount": 0
+    }
+  },
   "missingPublicRepos": [],
   "privateVisibilityViolations": [],
   "medicalPrivacyViolations": [],
@@ -15,7 +471,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.41,
+      "ageDays": 2.42,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -25,7 +481,7 @@
   "linkValidationSummary": {
     "targetCount": 239,
     "throttleLimit": 16,
-    "elapsedMs": 6835,
+    "elapsedMs": 6801,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

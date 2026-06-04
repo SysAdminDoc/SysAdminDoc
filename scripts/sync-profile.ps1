@@ -1715,6 +1715,128 @@ function Test-MetadataDrift {
     }
 }
 
+function Test-MetadataHygiene {
+    param([object[]]$Repos)
+
+    $missingTopics = New-Object System.Collections.Generic.List[object]
+    $missingDescriptions = New-Object System.Collections.Generic.List[object]
+
+    foreach ($repo in @($Repos | Sort-Object name)) {
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        if ([string]::IsNullOrWhiteSpace($repoName)) {
+            continue
+        }
+
+        $language = $null
+        $primaryLanguage = Get-MemberValue -Object $repo -Name "primaryLanguage"
+        if ($primaryLanguage) {
+            $language = Get-MemberValue -Object $primaryLanguage -Name "name"
+        }
+
+        $topicNames = @()
+        $topics = Get-MemberValue -Object $repo -Name "repositoryTopics"
+        foreach ($topic in @($topics)) {
+            $topicName = Get-MemberValue -Object $topic -Name "name"
+            if (-not [string]::IsNullOrWhiteSpace([string]$topicName)) {
+                $topicNames += [string]$topicName
+            }
+        }
+
+        if ($topicNames.Count -eq 0) {
+            $missingTopics.Add([ordered]@{
+                repo = $repoName
+                language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
+                pushedAt = ConvertTo-IsoText (Get-MemberValue -Object $repo -Name "pushedAt")
+            })
+        }
+
+        $description = Get-MemberValue -Object $repo -Name "description"
+        if ([string]::IsNullOrWhiteSpace([string]$description)) {
+            $missingDescriptions.Add([ordered]@{
+                repo = $repoName
+                language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
+            })
+        }
+    }
+
+    return [ordered]@{
+        missingTopicCount = $missingTopics.Count
+        missingDescriptionCount = $missingDescriptions.Count
+        missingTopics = $missingTopics.ToArray()
+        missingDescriptions = $missingDescriptions.ToArray()
+    }
+}
+
+function Test-ReleaseAssetDrift {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $missingReleaseForDownloadKind = New-Object System.Collections.Generic.List[object]
+    $sourceOnlyWithRelease = New-Object System.Collections.Generic.List[object]
+    $releaseActionLabelMismatches = New-Object System.Collections.Generic.List[object]
+    $userscriptKindWithoutInstallUrl = New-Object System.Collections.Generic.List[object]
+    $releaseBearingRows = 0
+    $releaseActionRows = 0
+
+    foreach ($entry in @($Entries | Sort-Object repo)) {
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $hasRelease = [bool]($meta -and $meta.latestRelease)
+        $downloadKind = ([string]$entry.downloadKind).ToLowerInvariant()
+        $action = Get-PrimaryAction $entry $meta $entry.category
+
+        if ($hasRelease) {
+            $releaseBearingRows++
+        }
+        if ($action["kind"] -eq "release") {
+            $releaseActionRows++
+            $expectedLabel = Get-DownloadLabel $entry $entry.category
+            if ([string]$action["label"] -ne [string]$expectedLabel) {
+                $releaseActionLabelMismatches.Add([ordered]@{
+                    repo = [string]$entry.repo
+                    downloadKind = if ([string]::IsNullOrWhiteSpace($downloadKind)) { $null } else { $downloadKind }
+                    expectedLabel = [string]$expectedLabel
+                    actualLabel = [string]$action["label"]
+                })
+            }
+        }
+
+        if ($hasRelease -and $downloadKind -eq "repo") {
+            $sourceOnlyWithRelease.Add([ordered]@{
+                repo = [string]$entry.repo
+                latestReleaseTag = [string]$meta.latestRelease.tagName
+            })
+        }
+
+        if (-not $hasRelease -and -not [string]::IsNullOrWhiteSpace($downloadKind) -and $downloadKind -notin @("repo", "userscript")) {
+            $missingReleaseForDownloadKind.Add([ordered]@{
+                repo = [string]$entry.repo
+                downloadKind = $downloadKind
+            })
+        }
+
+        if ($downloadKind -eq "userscript" -and [string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) {
+            $userscriptKindWithoutInstallUrl.Add([ordered]@{
+                repo = [string]$entry.repo
+                downloadKind = $downloadKind
+            })
+        }
+    }
+
+    return [ordered]@{
+        checkedCatalogRows = @($Entries).Count
+        releaseBearingRows = $releaseBearingRows
+        releaseActionRows = $releaseActionRows
+        sourceOnlyWithRelease = $sourceOnlyWithRelease.ToArray()
+        missingReleaseForDownloadKind = $missingReleaseForDownloadKind.ToArray()
+        releaseActionLabelMismatches = $releaseActionLabelMismatches.ToArray()
+        userscriptKindWithoutInstallUrl = $userscriptKindWithoutInstallUrl.ToArray()
+        assetApiInspected = $false
+        note = "Release asset filename inspection is tracked by the release asset taxonomy roadmap item."
+    }
+}
+
 function Test-ProfileState {
     param(
         [hashtable]$Catalog,
@@ -1825,13 +1947,30 @@ function Test-ProfileState {
     }
 
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
+    $metadataHygiene = Test-MetadataHygiene -Repos $Repos
+    $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
+    $reportGeneratedAt = (Get-Date).ToString("o")
+    $validationPerformance = [ordered]@{
+        linkValidation = [ordered]@{
+            skipped = [bool]($Offline -or $SkipLinkValidation)
+            targetCount = $linkValidationSummary.targetCount
+            throttleLimit = $linkValidationSummary.throttleLimit
+            elapsedMs = $linkValidationSummary.elapsedMs
+            failureCount = @($linkFailures).Count
+            warningCount = @($linkWarnings).Count
+            warningHostCount = @($linkValidationSummary.warningCountByHost).Count
+        }
+    }
     $report = [ordered]@{
-        generatedAt = (Get-Date).ToString("o")
+        generatedAt = $reportGeneratedAt
         readmeInSync = $readmeInSync
         projectsExportInSync = $projectsInSync
         publicRepoCount = $Repos.Count
         catalogEntryCount = $entries.Count
         includedReadmeCount = $included.Count
+        metadataHygiene = $metadataHygiene
+        releaseAssetDrift = $releaseAssetDrift
+        validationPerformance = $validationPerformance
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations
         medicalPrivacyViolations = $medicalViolations

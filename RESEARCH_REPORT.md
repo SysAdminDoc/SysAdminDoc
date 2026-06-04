@@ -3,20 +3,24 @@
 Consolidated from legacy research and feature-planning documents on 2026-06-03. This is the canonical research home for the profile-catalog system; planned work derived from it lives in `ROADMAP.md`. The dated source bundle was archived to `docs/archive/research-feature-plan-2026-06-04.md`.
 
 Research refresh: 2026-06-04
-Deep-research addendum: 2026-06-03 (see "Deep-Research Addendum — 2026-06-03" below)
+Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.7
+Current version after this refresh: v4.9.8
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 24/24 tests after the v4.9.7 parallel link-validation update.
+  passed 26/26 tests after the v4.9.8 report-schema-depth update.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
-  drift rows, full link validation enabled, 239 link targets checked in 6835 ms,
-  0 link failures, and 0 link warnings. Raw `projectsExportInSync` remains a
-  report signal; info-only star/topic/`pushedAt` drift is now reported without
-  failing the gate.
+  drift rows, `metadataHygiene` showing 69 missing-topic repos and 4 missing
+  descriptions, `releaseAssetDrift` checking 177 visitor-facing rows, full link
+  validation enabled, 239 link targets checked in 6801 ms, 0 link failures, and
+  0 link warnings. Raw `projectsExportInSync` remains a report signal;
+  info-only star/topic/`pushedAt` drift is now reported without failing the gate.
+- The v4.9.8 batch closed the active P1 report-schema-depth item by adding
+  `metadataHygiene`, visitor-facing `releaseAssetDrift`, and
+  `validationPerformance` sections.
 - The v4.9.7 batch closed the active P2 parallel link-validation item by
   collecting link targets first, probing them in bounded parallel batches, and
   adding `linkValidationSummary.warningCountByHost`.
@@ -43,7 +47,7 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Add topic and public-description drift reporting; live metadata shows 69 active public repos with no topics and 4 public repos with empty descriptions.
+2. P1 - Add topic hints and public-description cleanup; live metadata still shows 69 active public repos with no topics and 4 public repos with empty descriptions.
 3. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
 4. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
 5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
@@ -162,7 +166,7 @@ Important integrations:
 - Entry point: `scripts/sync-profile.ps1 -Check`.
 - Main code: `Test-ProfileState`, `Test-ReadmeExperience`, `Test-LinkTargets`, `Test-HttpUrl`.
 - Current maturity: strong; final check passed with zero fatal link failures, zero link warnings, structured metadata drift detail, and parallel link probes.
-- Improvement opportunities: add metadata hygiene, release-asset, and validation-performance report sections.
+- Improvement opportunities: add doc-version consistency checks and deeper topic/description remediation guidance.
 
 ### Public Project Feed
 
@@ -185,7 +189,7 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 6835 ms with zero warnings.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 6801 ms with zero warnings.
 - Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow
@@ -339,9 +343,63 @@ This is internal profile/portfolio tooling, so the bar is best-practice and plat
 - Does the CI `GH_TOKEN` already authenticate the REST fallback enough to avoid the 60 req/hr ceiling, or is the N+1 a live risk on scheduled runs? [Needs validation]
 - Should the JSON Schemas live in this repo (`schemas/`, referenced by raw URL) or in `sysadmindoc.github.io` under the advertised path? Cross-repo decision. [Needs validation]
 
+## Cycle 2 Research Addendum — 2026-06-04
+
+This addendum was researched while seed-guard work was still in flight and focused only on planning gaps not already covered by the then-open queue. The seed guard has since shipped as v4.9.6, and the report-schema depth item has since shipped as v4.9.8. The remaining promoted items below still describe future work unless separately checked off in `ROADMAP.md`.
+
+### Executive summary (cycle 2)
+
+The repo has a strong generated-profile core, but the next research gaps are around maintenance confidence and downstream trust rather than visitor-facing catalog layout. Four durable additions were promoted to `ROADMAP.md`: PowerShell static analysis, generated-feed provenance metadata, structured issue/support intake, and a read-only repository/community-health baseline in the sync report. A fifth short-lived but actionable item was added for the currently open Dependabot workflow-action update PRs.
+
+Top cycle 2 opportunities:
+
+1. P1 — Run PSScriptAnalyzer in CI for `scripts/sync-profile.ps1` and `setup.ps1`. [Verified]
+2. P1 — Add public-safe feed provenance fields such as source ref, catalog hash, generator hash, and metadata snapshot time. [Verified]
+3. P2 — Add issue forms and PR/contribution templates for broken catalog links and profile corrections. [Verified]
+4. P2 — Report repository settings and community-health status alongside generated-profile checks. [Verified]
+5. P2 — Triage current Dependabot workflow-action update PRs #5 and #6 with a repeatable SHA-pin review path. [Verified]
+
+### Evidence reviewed (cycle 2)
+
+- At research time, `git pull --rebase` returned already up to date and `git status --short --branch` showed `main...origin/main` plus one in-flight `scripts/sync-profile.ps1` seed-guard edit.
+- That in-flight seed-guard work has since shipped as v4.9.6; current worktree state should always be verified live before using this addendum as implementation context.
+- `projects.json` top-level metadata currently contains `schema`, `generatedAt`, `source`, and counts, but no source ref, catalog/generator hash, or generator version.
+- `.github/workflows/tests.yml` installs and runs Pester only; root/workflow searches found no PSScriptAnalyzer settings file and no `Invoke-ScriptAnalyzer` invocation.
+- Live repository metadata: `gh repo view SysAdminDoc/SysAdminDoc` verified `PUBLIC`, MIT, default branch `main`, topics `github-profile`, `portfolio`, `readme`, and latest push/update on 2026-06-04.
+- Community profile API: `gh api repos/SysAdminDoc/SysAdminDoc/community/profile` returned `health_percentage=28`, no issue template, no contributing file, no PR template, and no security policy.
+- Repository settings API: `gh api repos/SysAdminDoc/SysAdminDoc --jq '{has_issues,has_projects,has_wiki,security_and_analysis}'` showed Issues/Projects/Wiki enabled, secret scanning enabled, push protection enabled, non-provider/generic/validity secret-detection options disabled, and Dependabot security updates disabled.
+- Open PRs: `gh pr list -R SysAdminDoc/SysAdminDoc` showed Dependabot PR #5 (`actions/checkout` 4.3.1 -> 6.0.3) and #6 (`github/codeql-action` 3.35.5 -> 4.36.1). `gh pr checks 5` reported Pester and zizmor passing; `gh pr checks 6` reported zizmor passing.
+
+External sources reviewed:
+
+- Microsoft Learn `Invoke-ScriptAnalyzer`: https://learn.microsoft.com/en-us/powershell/module/psscriptanalyzer/invoke-scriptanalyzer?view=ps-modules
+- Microsoft Learn `about_Signing`: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7.5
+- GitHub artifact attestations: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
+- GitHub issue and pull request templates: https://docs.github.com/articles/creating-an-issue-template-for-your-repository
+- GitHub secret scanning feature docs: https://docs.github.com/en/code-security/secret-scanning/enabling-secret-scanning-features
+- GitHub Dependabot action-update docs: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
+
+### Quality and friction findings (cycle 2)
+
+- **Major — No static PowerShell analysis.** The repo's critical behavior lives in two `.ps1` files, but CI only runs Pester. Microsoft documents PSScriptAnalyzer as a static checker with `-EnableExit` for CI, making this a low-risk guard before future generator/setup refactors. → roadmap "Add a PowerShell static-analysis lane". [Verified]
+- **Major — Feed provenance is too thin for downstream debugging.** `projects.json` tells consumers when it was generated but not what source tree, catalog file hash, or generator script hash produced it. The separate portfolio will consume this feed, so a bad cache or stale generated artifact is hard to diagnose without rerunning the generator. → roadmap "Add generated-feed provenance fields". [Verified]
+- **Minor — Public issue intake is unstructured.** The repo has Issues enabled and a long visitor-facing catalog, but no issue forms for broken install snippets, stale release links, or profile corrections. GitHub's template docs support structured forms and PR templates that can steer users away from generated-section hand edits. → roadmap "Add structured issue/support intake". [Verified]
+- **Minor — GitHub-hosted settings are invisible to `-Check`.** Secret scanning and push protection are currently enabled, but this trust state is not captured in the sync report and can drift independently of tracked files. Community-health status is also absent from the report. → roadmap "Add a read-only repository settings and community-health baseline". [Verified]
+- **Minor — Open workflow-action update PRs need a repeatable review path.** Dependabot is doing its job for pinned actions, but #5 and #6 remain open. The repo should merge or defer them with a standard checklist covering checks, `zizmor`, permissions, and `persist-credentials:false`. → roadmap "Triage current Dependabot workflow-action update PRs". [Verified]
+- **Covered, not duplicated — Setup script trust.** Microsoft `about_Signing` reinforces the existing setup hardening row: the inspect-before-run path is the near-term improvement, with Authenticode signing or checksum publication as optional future trust depth if the user chooses a signing certificate path. No separate roadmap item was added to avoid duplicating `setup.ps1` hardening.
+
+### Standards notes (cycle 2)
+
+- **PSScriptAnalyzer** is a better fit than generic shell linting because the repo's active scripts are PowerShell and the official analyzer understands PowerShell-specific rules, severity, settings, and CI exit behavior.
+- **Artifact attestation** is likely too heavy for the committed `projects.json` feed today, but the provenance principle applies directly. Start with public-safe feed metadata and hashes; consider attestations later only if generated downloadable assets are introduced.
+- **Issue forms** should stay narrowly scoped. This profile repo is not the support desk for every listed project; the forms should capture catalog/link/profile problems and route project-specific bugs to the relevant repository.
+- **Repository settings baselining** should be report-only at first. Mutating Issues/Projects/Wiki, secret scanning options, or Dependabot security settings crosses into account/repo administration and should remain a reviewed operator action.
+
 ## Open Questions
 
 - Which repo-topic taxonomy should be the canonical source: catalog category only, GitHub language plus category, or a curated `topicHints` field?
 - Should low-risk generated metadata drift be auto-PR'd on schedule, or should scheduled jobs remain check-only with manual `write-pr`?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
+- Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
+- Should issue templates live only in this repo, or should the account-level `.github` community-health repo carry shared catalog/link templates for all public SysAdminDoc repositories?
