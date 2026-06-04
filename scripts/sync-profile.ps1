@@ -157,11 +157,15 @@ function Get-GitHubReposFromRest {
             $releaseOutput = (($releaseJson | Out-String).Trim())
             if (-not [string]::IsNullOrWhiteSpace($releaseOutput)) {
                 $releaseData = $releaseOutput | ConvertFrom-Json
+                $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
                 $release = [pscustomobject]@{
                     tagName = $releaseData.tag_name
                     url = $releaseData.html_url
                     name = $releaseData.name
                     publishedAt = $releaseData.published_at
+                    releaseAssetNames = $assetNames
+                    releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
+                    assetApiInspected = $true
                 }
             }
         }
@@ -227,6 +231,45 @@ function Get-GitHubRepos {
 
     Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
     return Get-GitHubReposFromRest
+}
+
+function Add-ReleaseAssetMetadata {
+    param([object[]]$Repos)
+
+    if ($Offline) {
+        return @($Repos)
+    }
+
+    foreach ($repo in @($Repos | Sort-Object name)) {
+        $release = Get-MemberValue -Object $repo -Name "latestRelease"
+        if (-not $release) {
+            continue
+        }
+        if (Test-ReleaseAssetMetadataInspected -Meta $repo) {
+            continue
+        }
+
+        $repoName = Get-MemberValue -Object $repo -Name "name"
+        if ([string]::IsNullOrWhiteSpace([string]$repoName)) {
+            continue
+        }
+
+        $releaseJson = & gh api "repos/$Owner/$repoName/releases/latest" 2>&1
+        $releaseOutput = (($releaseJson | Out-String).Trim())
+        if ($LASTEXITCODE -ne 0) {
+            Set-MemberValue -Object $release -Name "releaseAssetFetchError" -Value $releaseOutput
+            Set-MemberValue -Object $release -Name "assetApiInspected" -Value $false
+            continue
+        }
+
+        $releaseData = $releaseOutput | ConvertFrom-Json
+        $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
+        Set-MemberValue -Object $release -Name "releaseAssetNames" -Value $assetNames
+        Set-MemberValue -Object $release -Name "releaseAssetKinds" -Value @(Get-ReleaseAssetKinds -AssetNames $assetNames)
+        Set-MemberValue -Object $release -Name "assetApiInspected" -Value $true
+    }
+
+    return @($Repos)
 }
 
 function ConvertTo-Lookup {
@@ -418,6 +461,84 @@ function Get-ReleaseUrl {
     return "https://github.com/$Owner/$repo/releases/latest"
 }
 
+function ConvertTo-ReleaseAssetKind {
+    param([string]$Name)
+
+    $lower = ([string]$Name).ToLowerInvariant()
+    if ([string]::IsNullOrWhiteSpace($lower)) { return $null }
+    if ($lower.EndsWith(".apk")) { return "apk" }
+    if ($lower -match '\.(exe|msi|msix|appx|appxbundle)$') { return "exe" }
+    if ($lower -match '\.(zip|7z|rar|tgz)$' -or $lower.EndsWith(".tar.gz")) { return "zip" }
+    if ($lower.EndsWith(".crx")) { return "crx" }
+    if ($lower.EndsWith(".xpi")) { return "xpi" }
+    if ($lower.EndsWith(".user.js") -or $lower.EndsWith(".userscript.js")) { return "userscript" }
+    if ($lower.EndsWith(".jar")) { return "jar" }
+    if ($lower.EndsWith(".deb")) { return "deb" }
+    if ($lower.EndsWith(".rpm")) { return "rpm" }
+    if ($lower.EndsWith(".dmg")) { return "dmg" }
+    if ($lower -match '\.(ps1|bat|cmd|sh)$') { return "script" }
+    return "other"
+}
+
+function Get-ReleaseAssetKinds {
+    param([string[]]$AssetNames)
+
+    $names = @($AssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    if ($names.Count -eq 0) {
+        return @("source-archive")
+    }
+
+    $kinds = foreach ($name in $names) {
+        ConvertTo-ReleaseAssetKind -Name $name
+    }
+    return @($kinds | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Sort-Object -Unique)
+}
+
+function Get-ReleaseAssetNamesFromApiRelease {
+    param([object]$Release)
+
+    $names = New-Object System.Collections.Generic.List[string]
+    foreach ($asset in @((Get-MemberValue -Object $Release -Name "assets"))) {
+        $name = Get-MemberValue -Object $asset -Name "name"
+        if (-not [string]::IsNullOrWhiteSpace([string]$name)) {
+            $names.Add([string]$name)
+        }
+    }
+    return $names.ToArray()
+}
+
+function Test-ReleaseAssetMetadataInspected {
+    param([object]$Meta)
+
+    $release = Get-MemberValue -Object $Meta -Name "latestRelease"
+    if (-not $release) { return $false }
+    return [bool](Get-MemberValue -Object $release -Name "assetApiInspected")
+}
+
+function Get-ReleaseAssetKindsFromMeta {
+    param([object]$Meta)
+
+    $release = Get-MemberValue -Object $Meta -Name "latestRelease"
+    if (-not $release) { return @() }
+    $kinds = @(Get-MemberValue -Object $release -Name "releaseAssetKinds")
+    return @($kinds | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+}
+
+function Get-ReleaseAssetNamesFromMeta {
+    param([object]$Meta)
+
+    $release = Get-MemberValue -Object $Meta -Name "latestRelease"
+    if (-not $release) { return @() }
+    $names = @(Get-MemberValue -Object $release -Name "releaseAssetNames")
+    return @($names | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+}
+
+function Test-HasDownloadableReleaseAsset {
+    param([string[]]$AssetKinds)
+
+    return @($AssetKinds | Where-Object { $_ -ne "source-archive" }).Count -gt 0
+}
+
 function ConvertTo-IsoText {
     param([object]$Value)
 
@@ -531,9 +652,9 @@ function Get-LinkValidationTargets {
             $targets.Add((New-LinkValidationTarget -Entry $entry -Type "launch" -Url $url))
         }
 
-        if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
-            $releaseUrl = Get-ReleaseUrl $entry
-            $targets.Add((New-LinkValidationTarget -Entry $entry -Type "release" -Url $releaseUrl))
+        $action = Get-PrimaryAction $entry $meta $entry.category
+        if ($action["kind"] -eq "release") {
+            $targets.Add((New-LinkValidationTarget -Entry $entry -Type "release" -Url ([string]$action["url"])))
         }
     }
 
@@ -685,16 +806,7 @@ function Get-DownloadLabel {
         [string]$Category
     )
 
-    $kind = ([string]$Entry.downloadKind).ToLowerInvariant()
-    if ([string]::IsNullOrWhiteSpace($kind)) {
-        switch ($Category) {
-            "android" { $kind = "apk" }
-            "extensions" { $kind = "download" }
-            "desktop" { $kind = "zip" }
-            default { $kind = "download" }
-        }
-    }
-
+    $kind = Get-EffectiveDownloadKind -Entry $Entry -Category $Category
     switch ($kind) {
         "apk" { return "APK" }
         "exe" { return "EXE" }
@@ -706,6 +818,64 @@ function Get-DownloadLabel {
         "userscript" { return "Install" }
         default { return "Download" }
     }
+}
+
+function Get-EffectiveDownloadKind {
+    param(
+        [hashtable]$Entry,
+        [string]$Category
+    )
+
+    $kind = ([string]$Entry.downloadKind).ToLowerInvariant()
+    if ([string]::IsNullOrWhiteSpace($kind)) {
+        switch ($Category) {
+            "android" { $kind = "apk" }
+            "extensions" { $kind = "download" }
+            "desktop" { $kind = "zip" }
+            default { $kind = "download" }
+        }
+    }
+    return $kind
+}
+
+function Get-ExpectedReleaseAssetKinds {
+    param(
+        [hashtable]$Entry,
+        [string]$Category
+    )
+
+    $kind = Get-EffectiveDownloadKind -Entry $Entry -Category $Category
+    switch ($kind) {
+        "apk" { return @("apk") }
+        "exe" { return @("exe") }
+        "zip" { return @("zip") }
+        "zip-xpi" { return @("zip", "xpi") }
+        "crx" { return @("crx") }
+        "xpi" { return @("xpi") }
+        "crx-xpi" { return @("crx", "xpi") }
+        "download" { return @("downloadable") }
+        default { return @($kind) }
+    }
+}
+
+function Test-ReleaseAssetKindMatch {
+    param(
+        [string[]]$ExpectedKinds,
+        [string[]]$ActualKinds
+    )
+
+    if (@($ExpectedKinds).Count -eq 0) {
+        return $true
+    }
+    if (@($ExpectedKinds | Where-Object { $_ -eq "downloadable" }).Count -gt 0) {
+        return Test-HasDownloadableReleaseAsset -AssetKinds $ActualKinds
+    }
+    foreach ($kind in @($ExpectedKinds)) {
+        if (@($ActualKinds | Where-Object { $_ -eq $kind }).Count -eq 0) {
+            return $false
+        }
+    }
+    return $true
 }
 
 function Get-CategoryDefinition {
@@ -782,6 +952,13 @@ function Get-PrimaryAction {
     }
 
     if ($Meta -and $Meta.latestRelease) {
+        if ((Test-ReleaseAssetMetadataInspected -Meta $Meta) -and -not (Test-HasDownloadableReleaseAsset -AssetKinds (Get-ReleaseAssetKindsFromMeta -Meta $Meta))) {
+            return [ordered]@{
+                kind = "repo"
+                label = "Repo"
+                url = Get-RepoUrl $Entry
+            }
+        }
         $label = Get-DownloadLabel $Entry $Category
         if ([string]::IsNullOrWhiteSpace($label)) {
             $label = "Download"
@@ -1289,6 +1466,9 @@ function New-ProjectsExportJson {
         if ($meta -and $meta.repositoryTopics) {
             $topics = @($meta.repositoryTopics | ForEach-Object { $_.name } | Sort-Object)
         }
+        $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
+        $releaseAssetKinds = if ($meta -and $meta.latestRelease) { @(Get-ReleaseAssetKindsFromMeta -Meta $meta) } else { @() }
+        $releaseAssetNames = if ($isSuppressed) { @() } elseif ($meta -and $meta.latestRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
 
         $row = [ordered]@{
             repo = [string]$entry.repo
@@ -1296,7 +1476,7 @@ function New-ProjectsExportJson {
             category = [string]$entry.category
             includeInReadme = [bool]$entry.includeInReadme
             includeInPortfolio = [bool]$entry.includeInPortfolio
-            suppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
+            suppressed = $isSuppressed
             suppressionReason = if ([string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)) { $null } else { [string]$entry.suppressionReason }
             description = Get-Description $entry $meta
             repoUrl = $repoUrl
@@ -1325,6 +1505,9 @@ function New-ProjectsExportJson {
             stars = if ($meta) { [int]$meta.stargazerCount } else { $null }
             latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
             latestReleaseUrl = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.url } else { $null }
+            releaseAssetKinds = $releaseAssetKinds
+            releaseAssetNames = $releaseAssetNames
+            releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
             pushedAt = if ($meta -and $meta.pushedAt) { ConvertTo-IsoText $meta.pushedAt } else { $null }
             topics = $topics
             featured = [bool]$entry.featured
@@ -1633,6 +1816,29 @@ function Get-MemberValue {
     return $null
 }
 
+function Set-MemberValue {
+    param(
+        [object]$Object,
+        [string]$Name,
+        [object]$Value
+    )
+
+    if ($null -eq $Object) {
+        return
+    }
+    if ($Object -is [hashtable]) {
+        $Object[$Name] = $Value
+        return
+    }
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) {
+        $property.Value = $Value
+    } else {
+        Add-Member -InputObject $Object -NotePropertyName $Name -NotePropertyValue $Value -Force
+    }
+}
+
 function Get-NestedMemberValue {
     param(
         [object]$Object,
@@ -1785,6 +1991,9 @@ function Test-MetadataDrift {
             "stars",
             "latestReleaseTag",
             "latestReleaseUrl",
+            "releaseAssetKinds",
+            "releaseAssetNames",
+            "releaseAssetInspected",
             "pushedAt",
             "topics",
             "visibility",
@@ -2017,18 +2226,45 @@ function Test-ReleaseAssetDrift {
     $missingReleaseForDownloadKind = New-Object System.Collections.Generic.List[object]
     $sourceOnlyWithRelease = New-Object System.Collections.Generic.List[object]
     $releaseActionLabelMismatches = New-Object System.Collections.Generic.List[object]
+    $releaseAssetKindMismatches = New-Object System.Collections.Generic.List[object]
+    $releaseAssetFetchFailures = New-Object System.Collections.Generic.List[object]
     $userscriptKindWithoutInstallUrl = New-Object System.Collections.Generic.List[object]
+    $releaseAssetKindCounts = @{}
     $releaseBearingRows = 0
     $releaseActionRows = 0
+    $inspectedReleaseRows = 0
 
     foreach ($entry in @($Entries | Sort-Object repo)) {
         $meta = Get-RepoMeta $entry $RepoLookup
         $hasRelease = [bool]($meta -and $meta.latestRelease)
-        $downloadKind = ([string]$entry.downloadKind).ToLowerInvariant()
+        $downloadKind = Get-EffectiveDownloadKind -Entry $entry -Category $entry.category
+        $explicitDownloadKind = ([string]$entry.downloadKind).ToLowerInvariant()
         $action = Get-PrimaryAction $entry $meta $entry.category
+        $assetKinds = if ($hasRelease) { @(Get-ReleaseAssetKindsFromMeta -Meta $meta) } else { @() }
+        $assetNames = if ($hasRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
+        $assetInspected = (Test-ReleaseAssetMetadataInspected -Meta $meta)
 
         if ($hasRelease) {
             $releaseBearingRows++
+            if ($assetInspected) {
+                $inspectedReleaseRows++
+                foreach ($kind in @($assetKinds)) {
+                    if (-not $releaseAssetKindCounts.ContainsKey($kind)) {
+                        $releaseAssetKindCounts[$kind] = 0
+                    }
+                    $releaseAssetKindCounts[$kind]++
+                }
+            } else {
+                $release = Get-MemberValue -Object $meta -Name "latestRelease"
+                $fetchError = Get-MemberValue -Object $release -Name "releaseAssetFetchError"
+                if (-not [string]::IsNullOrWhiteSpace([string]$fetchError)) {
+                    $releaseAssetFetchFailures.Add([ordered]@{
+                        repo = [string]$entry.repo
+                        latestReleaseTag = [string]$meta.latestRelease.tagName
+                        error = [string]$fetchError
+                    })
+                }
+            }
         }
         if ($action["kind"] -eq "release") {
             $releaseActionRows++
@@ -2047,14 +2283,29 @@ function Test-ReleaseAssetDrift {
             $sourceOnlyWithRelease.Add([ordered]@{
                 repo = [string]$entry.repo
                 latestReleaseTag = [string]$meta.latestRelease.tagName
+                releaseAssetKinds = $assetKinds
             })
         }
 
-        if (-not $hasRelease -and -not [string]::IsNullOrWhiteSpace($downloadKind) -and $downloadKind -notin @("repo", "userscript")) {
+        if (-not $hasRelease -and -not [string]::IsNullOrWhiteSpace($explicitDownloadKind) -and $explicitDownloadKind -notin @("repo", "userscript")) {
             $missingReleaseForDownloadKind.Add([ordered]@{
                 repo = [string]$entry.repo
-                downloadKind = $downloadKind
+                downloadKind = $explicitDownloadKind
             })
+        }
+
+        if ($hasRelease -and $assetInspected -and -not [string]::IsNullOrWhiteSpace($explicitDownloadKind) -and $explicitDownloadKind -notin @("repo", "userscript")) {
+            $expectedKinds = @(Get-ExpectedReleaseAssetKinds -Entry $entry -Category $entry.category)
+            if (-not (Test-ReleaseAssetKindMatch -ExpectedKinds $expectedKinds -ActualKinds $assetKinds)) {
+                $releaseAssetKindMismatches.Add([ordered]@{
+                    repo = [string]$entry.repo
+                    downloadKind = $explicitDownloadKind
+                    expectedAssetKinds = $expectedKinds
+                    releaseAssetKinds = $assetKinds
+                    releaseAssetNames = $assetNames
+                    primaryAction = [string]$action["kind"]
+                })
+            }
         }
 
         if ($downloadKind -eq "userscript" -and [string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) {
@@ -2065,16 +2316,31 @@ function Test-ReleaseAssetDrift {
         }
     }
 
+    $kindCounts = @(
+        $releaseAssetKindCounts.GetEnumerator() |
+            Sort-Object Name |
+            ForEach-Object {
+                [ordered]@{
+                    kind = [string]$_.Key
+                    count = [int]$_.Value
+                }
+            }
+    )
+
     return [ordered]@{
         checkedCatalogRows = @($Entries).Count
         releaseBearingRows = $releaseBearingRows
         releaseActionRows = $releaseActionRows
+        assetApiInspected = ($inspectedReleaseRows -gt 0)
+        inspectedReleaseRows = $inspectedReleaseRows
+        releaseAssetKindCounts = $kindCounts
         sourceOnlyWithRelease = $sourceOnlyWithRelease.ToArray()
         missingReleaseForDownloadKind = $missingReleaseForDownloadKind.ToArray()
         releaseActionLabelMismatches = $releaseActionLabelMismatches.ToArray()
+        releaseAssetKindMismatches = $releaseAssetKindMismatches.ToArray()
+        releaseAssetFetchFailures = $releaseAssetFetchFailures.ToArray()
         userscriptKindWithoutInstallUrl = $userscriptKindWithoutInstallUrl.ToArray()
-        assetApiInspected = $false
-        note = "Release asset filename inspection is tracked by the release asset taxonomy roadmap item."
+        note = "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
     }
 }
 
@@ -2249,7 +2515,7 @@ if ($SeedCatalog) {
     Write-Warning "LOSSY LEGACY SEED MODE: $($seedGuard.message -replace '^-SeedCatalog is a ', '')"
 }
 
-$repos = if ($Offline) { @() } else { Get-GitHubRepos }
+$repos = if ($Offline) { @() } else { Add-ReleaseAssetMetadata -Repos (Get-GitHubRepos) }
 
 if ($SeedCatalog) {
     $catalog = New-CatalogFromReadme -Repos $repos

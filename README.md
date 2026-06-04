@@ -46,7 +46,7 @@
 
 | Project | Focus | Action |
 |:--------|:------|:------:|
-| [**Vantage**](https://github.com/SysAdminDoc/Vantage) | Customizable new tab dashboard for Chromium *(JavaScript)* | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Vantage/releases/latest) |
+| [**Vantage**](https://github.com/SysAdminDoc/Vantage) | Customizable new tab dashboard for Chromium *(JavaScript)* | [Repo](https://github.com/SysAdminDoc/Vantage) |
 | [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter, 1000+ formats *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/UniversalConverterX) |
 | [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | Power-user Android package manager *(Kotlin)* | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
@@ -95,7 +95,7 @@
 |:-------|:--------------|
 | Public repos tracked | 184 |
 | README entries | 177 visitor-facing projects |
-| Primary actions | 102 downloads, 27 launch links, 11 userscript installs |
+| Primary actions | 71 downloads, 27 launch links, 11 userscript installs |
 | Active build queue | 5 projects linked from the first screen |
 | Trust gates | Public-only links, medical/X-ray privacy guard, branch-pinned install snippets |
 
@@ -161,17 +161,17 @@ $d="$env:TEMP\Network_Security_Auditor"; if(Test-Path $d){git -C $d pull -q}else
 $d="$env:TEMP\LibreSpot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LibreSpot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\LibreSpot.ps1"
 ```
 
-[**WinForge**](https://github.com/SysAdminDoc/WinForge) -- All-in-one Windows provisioning suite — app installer, tweaks, features, updates &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/WinForge/releases/latest)
+[**WinForge**](https://github.com/SysAdminDoc/WinForge) -- All-in-one Windows provisioning suite — app installer, tweaks, features, updates
 ```powershell
 $d="$env:TEMP\WinForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WinForge.ps1"
 ```
 
-[**Debloat-Win11**](https://github.com/SysAdminDoc/Debloat-Win11) &#11088;1 -- Enterprise Windows 11 debloating with AppX removal, Office cleanup, telemetry blocking &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Debloat-Win11/releases/latest)
+[**Debloat-Win11**](https://github.com/SysAdminDoc/Debloat-Win11) &#11088;1 -- Enterprise Windows 11 debloating with AppX removal, Office cleanup, telemetry blocking
 ```powershell
 $d="$env:TEMP\Debloat-Win11"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Debloat-Win11 $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Debloat-Win11.ps1"
 ```
 
-[**Restore-WindowsDefaults**](https://github.com/SysAdminDoc/Restore-WindowsDefaults) -- Reverse debloat changes and restore Windows to factory defaults &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Restore-WindowsDefaults/releases/latest)
+[**Restore-WindowsDefaults**](https://github.com/SysAdminDoc/Restore-WindowsDefaults) -- Reverse debloat changes and restore Windows to factory defaults
 ```powershell
 $d="$env:TEMP\Restore-WindowsDefaults"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Restore-WindowsDefaults $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Restore-WindowsDefaults.ps1"
 ```
@@ -186,37 +186,37 @@ $d="$env:TEMP\DefenderControl"; if(Test-Path $d){git -C $d pull -q}else{git clon
 $d="$env:TEMP\DisableDefender"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DisableDefender $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DisableDefender.ps1"
 ```
 
-[**DefenderShield**](https://github.com/SysAdminDoc/DefenderShield) -- Repair and restore Windows Defender and Firewall after debloaters &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/DefenderShield/releases/latest)
+[**DefenderShield**](https://github.com/SysAdminDoc/DefenderShield) -- Repair and restore Windows Defender and Firewall after debloaters
 ```powershell
 $d="$env:TEMP\DefenderShield"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DefenderShield $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DefenderShield.ps1"
 ```
 
-[**TelemetrySlayer**](https://github.com/SysAdminDoc/TelemetrySlayer) -- WPF GUI to disable Windows telemetry, data collection, and compatibility bloat &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/TelemetrySlayer/releases/latest)
+[**TelemetrySlayer**](https://github.com/SysAdminDoc/TelemetrySlayer) -- WPF GUI to disable Windows telemetry, data collection, and compatibility bloat
 ```powershell
 $d="$env:TEMP\TelemetrySlayer"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/TelemetrySlayer $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\TelemetrySlayer.ps1"
 ```
 
-[**FirewallForge**](https://github.com/SysAdminDoc/FirewallForge) -- WPF Windows Firewall manager with live rule editing and offline backup editor &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FirewallForge/releases/latest)
+[**FirewallForge**](https://github.com/SysAdminDoc/FirewallForge) -- WPF Windows Firewall manager with live rule editing and offline backup editor
 ```powershell
 $d="$env:TEMP\FirewallForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FirewallForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\FirewallManager.ps1"
 ```
 
-[**NetForge**](https://github.com/SysAdminDoc/NetForge) &#11088;1 -- WPF network adapter manager — static/DHCP, DNS presets, profile management &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/NetForge/releases/latest)
+[**NetForge**](https://github.com/SysAdminDoc/NetForge) &#11088;1 -- WPF network adapter manager — static/DHCP, DNS presets, profile management
 ```powershell
 $d="$env:TEMP\NetForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/NetForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NetForge.ps1"
 ```
 
-[**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) -- Enterprise Windows update automation — OEM drivers, Windows Update, winget &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SystemUpdatePro/releases/latest)
+[**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) -- Enterprise Windows update automation — OEM drivers, Windows Update, winget
 ```powershell
 $d="$env:TEMP\SystemUpdatePro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SystemUpdatePro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\SystemUpdatePro.ps1"
 ```
 
-[**WURepair**](https://github.com/SysAdminDoc/WURepair) &#11088;2 -- Comprehensive Windows Update component repair — DLL re-registration, DISM, SFC, network reset &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/WURepair/releases/latest)
+[**WURepair**](https://github.com/SysAdminDoc/WURepair) &#11088;2 -- Comprehensive Windows Update component repair — DLL re-registration, DISM, SFC, network reset
 ```powershell
 $d="$env:TEMP\WURepair"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WURepair $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WURepair.ps1"
 ```
 
-[**SoftwareScannerGUI**](https://github.com/SysAdminDoc/SoftwareScannerGUI) -- WPF audit tool for installed software — AppX, Win32, services, tasks, startup entries &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SoftwareScannerGUI/releases/latest)
+[**SoftwareScannerGUI**](https://github.com/SysAdminDoc/SoftwareScannerGUI) -- WPF audit tool for installed software — AppX, Win32, services, tasks, startup entries
 ```powershell
 $d="$env:TEMP\SoftwareScannerGUI"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SoftwareScannerGUI $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\SoftwareScannerGUI.ps1"
 ```
@@ -226,7 +226,7 @@ $d="$env:TEMP\SoftwareScannerGUI"; if(Test-Path $d){git -C $d pull -q}else{git c
 $d="$env:TEMP\NuclearDellRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/NuclearDellRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NuclearDellRemover.ps1"
 ```
 
-[**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) &#11088;1 -- Comprehensive Adobe telemetry and GrowthSDK suppression for Windows &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest)
+[**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) &#11088;1 -- Comprehensive Adobe telemetry and GrowthSDK suppression for Windows
 ```powershell
 $d="$env:TEMP\Disable-AdobeTelemetry"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Disable-AdobeTelemetry $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Disable-AdobeTelemetry.ps1"
 ```
@@ -266,7 +266,7 @@ $d="$env:TEMP\VoidTools-Everything-Settings-Manager"; if(Test-Path $d){git -C $d
 $d="$env:TEMP\PfblockerngManager"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PfblockerngManager $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\pfBlockerNG-Manager.ps1"
 ```
 
-[**npp-sc-scanner**](https://github.com/SysAdminDoc/npp-sc-scanner) -- Detect and remediate Notepad++ supply chain attack IOCs &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/npp-sc-scanner/releases/latest)
+[**npp-sc-scanner**](https://github.com/SysAdminDoc/npp-sc-scanner) -- Detect and remediate Notepad++ supply chain attack IOCs
 ```powershell
 $d="$env:TEMP\npp-sc-scanner"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/npp-sc-scanner $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NppScanner-GUI.ps1"
 ```
@@ -385,7 +385,7 @@ $d="$env:TEMP\HEICShift"; if(Test-Path $d){git -C $d pull -q}else{git clone -q -
 $d="$env:TEMP\FrameSnap"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FrameSnap $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\framesnap.py"
 ```
 
-[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) &#11088;1 -- GUI for toggling 50+ Windows File Explorer registry settings with live preview &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest)
+[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) &#11088;1 -- GUI for toggling 50+ Windows File Explorer registry settings with live preview
 ```powershell
 $d="$env:TEMP\ExplorerTweaks"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/ExplorerTweaks $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\explorer_tweaks.py"
 ```
@@ -395,7 +395,7 @@ $d="$env:TEMP\ExplorerTweaks"; if(Test-Path $d){git -C $d pull -q}else{git clone
 $d="$env:TEMP\FaceSlim"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FaceSlim $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\FaceSlim.py"
 ```
 
-[**LipSight**](https://github.com/SysAdminDoc/LipSight) -- AI-powered lip reading tool — transcribes speech from silent video &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/LipSight/releases/latest)
+[**LipSight**](https://github.com/SysAdminDoc/LipSight) -- AI-powered lip reading tool — transcribes speech from silent video
 ```powershell
 $d="$env:TEMP\LipSight"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LipSight $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\LipSight.py"
 ```
@@ -405,12 +405,12 @@ $d="$env:TEMP\LipSight"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --
 $d="$env:TEMP\LlamaLink"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/LlamaLink $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\llamalink.py"
 ```
 
-[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;3 -- Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SlunderStudio/releases/latest)
+[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;3 -- Offline AI music generation suite — song creation, lyrics, MIDI, vocals, stem separation, mastering
 ```powershell
 $d="$env:TEMP\SlunderStudio"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SlunderStudio $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
-[**GmailDownloader**](https://github.com/SysAdminDoc/GmailDownloader) -- Full Gmail mailbox downloader, AI-powered organizer & analytics suite &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/GmailDownloader/releases/latest)
+[**GmailDownloader**](https://github.com/SysAdminDoc/GmailDownloader) -- Full Gmail mailbox downloader, AI-powered organizer & analytics suite
 ```powershell
 $d="$env:TEMP\GmailDownloader"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/GmailDownloader $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\gmaildownloader.py"
 ```
@@ -425,7 +425,7 @@ $d="$env:TEMP\UniversalCompiler"; if(Test-Path $d){git -C $d pull -q}else{git cl
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```
 
-[**bypassnroGen**](https://github.com/SysAdminDoc/bypassnroGen) -- Generate Windows 11 OOBE bypass files &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/bypassnroGen/releases/latest)
+[**bypassnroGen**](https://github.com/SysAdminDoc/bypassnroGen) -- Generate Windows 11 OOBE bypass files
 ```powershell
 $d="$env:TEMP\bypassnroGen"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/bypassnroGen $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\BypassNRO_Generator.py"
 ```
@@ -465,7 +465,7 @@ $d="$env:TEMP\HostsFileGet"; if(Test-Path $d){git -C $d pull -q}else{git clone -
 $d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Bookmark-Organizer-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
-[**QR-Code-Generator-Pro**](https://github.com/SysAdminDoc/QR-Code-Generator-Pro) -- QR generator with 98 visual style presets &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/QR-Code-Generator-Pro/releases/latest)
+[**QR-Code-Generator-Pro**](https://github.com/SysAdminDoc/QR-Code-Generator-Pro) -- QR generator with 98 visual style presets
 ```powershell
 $d="$env:TEMP\QR-Code-Generator-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/QR-Code-Generator-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\qr_code_generator_pro_v7.py"
 ```
@@ -475,12 +475,12 @@ $d="$env:TEMP\QR-Code-Generator-Pro"; if(Test-Path $d){git -C $d pull -q}else{gi
 $d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/uBlock-Stylus-Converter $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\ublocktoCSS.py"
 ```
 
-[**KeepSyncNotes**](https://github.com/SysAdminDoc/KeepSyncNotes) &#11088;1 -- Google Keep importer and note tracker &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/KeepSyncNotes/releases/latest)
+[**KeepSyncNotes**](https://github.com/SysAdminDoc/KeepSyncNotes) &#11088;1 -- Google Keep importer and note tracker
 ```powershell
 $d="$env:TEMP\KeepSyncNotes"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/KeepSyncNotes $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\keepsync_notes.py"
 ```
 
-[**PDFedit**](https://github.com/SysAdminDoc/PDFedit) -- Simple PDF editor &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/PDFedit/releases/latest)
+[**PDFedit**](https://github.com/SysAdminDoc/PDFedit) -- Simple PDF editor
 ```powershell
 $d="$env:TEMP\PDFedit"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PDFedit $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\PDFedit.py"
 ```
@@ -495,12 +495,12 @@ $d="$env:TEMP\CSV_Power_Tool"; if(Test-Path $d){git -C $d pull -q}else{git clone
 $d="$env:TEMP\AI-Model-Compass"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AI-Model-Compass $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\ai_model_compass.py"
 ```
 
-[**Stock-Video-Collector**](https://github.com/SysAdminDoc/Stock-Video-Collector) -- Stock video collector &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Stock-Video-Collector/releases/latest)
+[**Stock-Video-Collector**](https://github.com/SysAdminDoc/Stock-Video-Collector) -- Stock video collector
 ```powershell
 $d="$env:TEMP\Stock-Video-Collector"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Stock-Video-Collector $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\artlist_scraper.py"
 ```
 
-[**GifText**](https://github.com/SysAdminDoc/GifText) &#11088;1 -- Animated GIF text editor for meme creation &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/GifText/releases/latest)
+[**GifText**](https://github.com/SysAdminDoc/GifText) &#11088;1 -- Animated GIF text editor for meme creation
 ```powershell
 $d="$env:TEMP\GifText"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/GifText $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\GifText.py"
 ```
@@ -558,10 +558,10 @@ Start with: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**Scri
 | Project | Description | Install |
 |:--------|:------------|:-------:|
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;10 | Premium YouTube enhancement extension — 150+ features for Chrome & Firefox | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) |
-| [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;3 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/ScriptVault/releases/latest) |
+| [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;3 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/ScriptVault/releases/latest) |
 | [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced) | Chrome MV3 Amazon UX cleanup — dark theme, sponsored-result removal, review-quality scoring, 20 locales | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/AmazonEnhanced/releases/latest) |
 | [**StyleKit**](https://github.com/SysAdminDoc/StyleKit) | CSS customization extension — visual editor for any website | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/StyleKit/releases/latest) |
-| [**Vantage**](https://github.com/SysAdminDoc/Vantage) &#11088;1 | New tab dashboard for Chromium — customizable search, RSS, news, weather, quick links | [<kbd>&#11015; CRX/XPI</kbd>](https://github.com/SysAdminDoc/Vantage/releases/latest) |
+| [**Vantage**](https://github.com/SysAdminDoc/Vantage) &#11088;1 | New tab dashboard for Chromium — customizable search, RSS, news, weather, quick links | [Repo](https://github.com/SysAdminDoc/Vantage) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) &#11088;3 | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
 | [**Claude-Ultimate-Enhancer**](https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer) &#11088;1 | All-in-one Claude.ai enhancement suite — themes, usage monitor, prompt library | [Install](https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js) |
 | [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js) |
@@ -576,7 +576,7 @@ Start with: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**Scri
 | [**Doordash-Enhanced**](https://github.com/SysAdminDoc/Doordash-Enhanced) | DoorDash dark mode and feature enhancements | [Install](https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js) |
 | [**DarkModer**](https://github.com/SysAdminDoc/DarkModer) | Dark Reader as a userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js) |
 | [**GeminiBuddy**](https://github.com/SysAdminDoc/GeminiBuddy) &#11088;1 | Productivity features for Gemini | [Install](https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js) |
-| [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) | Comprehensive Rumble.com enhancement | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/RumbleX/releases/latest) |
+| [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) | Comprehensive Rumble.com enhancement | [<kbd>&#11015; ZIP</kbd>](https://github.com/SysAdminDoc/RumbleX/releases/latest) |
 | [**Discrub**](https://github.com/SysAdminDoc/Discrub) &#11088;1 | Discord message editor, deleter, and exporter | [<kbd>&#11015; CRX</kbd>](https://github.com/SysAdminDoc/Discrub/releases/latest) |
 | [**AI-Usage_Tracker**](https://github.com/SysAdminDoc/AI-Usage_Tracker) | Usage-limit countdowns and notifications for AI chat tools -- Chrome, Firefox, and userscript builds | [<kbd>&#11015; ZIP/XPI</kbd>](https://github.com/SysAdminDoc/AI-Usage_Tracker/releases/latest) |
 | [**IMDb_Enhanced**](https://github.com/SysAdminDoc/IMDb_Enhanced) | IMDb enhancement userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js) |
@@ -637,22 +637,22 @@ Start with: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite), [**
 
 Start with: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) -- Video compression and processing &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/VideoCrush/releases/latest)
+[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) -- Video compression and processing
 ```powershell
 $d="$env:TEMP\VideoCrush"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoCrush $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\video_compressor.py"
 ```
 
-[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut) &#11088;1 -- Video background removal and compositing &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/AlphaCut/releases/latest)
+[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut) &#11088;1 -- Video background removal and compositing
 ```powershell
 $d="$env:TEMP\AlphaCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AlphaCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\AlphaCut.py"
 ```
 
-[**yt_livestream_downloader**](https://github.com/SysAdminDoc/yt_livestream_downloader) -- Download livestreams while they're still live &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/yt_livestream_downloader/releases/latest)
+[**yt_livestream_downloader**](https://github.com/SysAdminDoc/yt_livestream_downloader) -- Download livestreams while they're still live
 ```powershell
 $d="$env:TEMP\yt_livestream_downloader"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/yt_livestream_downloader $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\yt_livestream_downloader.py"
 ```
 
-[**MediaForge**](https://github.com/SysAdminDoc/MediaForge) -- Multi-format media converter &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/MediaForge/releases/latest)
+[**MediaForge**](https://github.com/SysAdminDoc/MediaForge) -- Multi-format media converter
 ```powershell
 $d="$env:TEMP\MediaForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/MediaForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\MediaForge.py"
 ```
