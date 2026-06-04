@@ -160,8 +160,9 @@ Top opportunities, in priority order:
 9. P2 - Add a reduced-motion/static generated profile chrome guard.
 10. P2 - Add a generated profile PR validation handoff for automation-created branches.
 11. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
-12. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-13. P3 - Add `.editorconfig` and generated README markdown linting.
+12. P2 - Expand CODEOWNERS coverage for profile-contract files.
+13. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+14. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -930,6 +931,49 @@ refreshes committed SVG assets and also runs the generator/report path.
   the profile-sync and asset-refresh observability items together, so future
   report fields are not summarized differently by workflow.
 
+## Cycle 12 Research Addendum — 2026-06-04
+
+This pass focused on CODEOWNERS coverage as a prerequisite for the queued
+branch-protection/ruleset work. The repo already has a CODEOWNERS file; the gap
+is that several public-contract paths sit outside its patterns.
+
+### Evidence reviewed (cycle 12)
+
+- `.github/CODEOWNERS:1-7` covers `.github/workflows/`,
+  `scripts/sync-profile.ps1`, `tests/`, `data/profile-catalog.json`,
+  `projects.json`, and `reports/profile-sync-report.json`.
+- Root listing shows additional profile-contract files outside those patterns:
+  `README.md`, `ROADMAP.md`, `RESEARCH_REPORT.md`, `CHANGELOG.md`,
+  `COMPLETED.md`, `PROJECT_CONTEXT.md`, `schemas/`, `assets/`, and `setup.ps1`.
+- The current roadmap already has branch-protection/ruleset work, PR
+  profile-sync validation, generated PR validation handoff, and CODEOWNERS in
+  the repository-security context; this finding is specifically about the owner
+  pattern map being incomplete before code-owner review is required.
+- GitHub CODEOWNERS docs say matching owners receive review requests and branch
+  protection can require review from code owners:
+  https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+- GitHub REST docs describe the CODEOWNERS errors endpoint for checking syntax
+  and owner validity:
+  https://docs.github.com/en/rest/repos/repos#list-codeowners-errors
+
+### Finding (cycle 12)
+
+- **Minor — CODEOWNERS omits several generated/public-contract files.** The
+  current file owns the generator, workflows, tests, catalog, feed, and report,
+  but not the generated README, schemas, profile assets, setup script, or public
+  planning docs. If code-owner review becomes part of branch protection, those
+  changes can miss automatic owner review routing. → roadmap "Expand CODEOWNERS
+  coverage for profile-contract files". [Verified]
+
+### Standards note (cycle 12)
+
+- Keep this as coverage alignment, not as a new review bureaucracy. With a
+  single-owner account, the main value is making critical profile-contract paths
+  visible to GitHub's owner-routing and future branch/ruleset policy.
+- Validate CODEOWNERS after changes through GitHub's errors endpoint; a typo in
+  an owner or pattern can silently weaken the coverage that branch protection is
+  expected to enforce.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -940,6 +984,8 @@ refreshes committed SVG assets and also runs the generator/report path.
   PR creation?
 - Should profile-sync and profile-assets refresh share one report-summary helper
   so their job summaries and annotations cannot drift apart?
+- Should CODEOWNERS cover all public planning docs, or only files that directly
+  affect generated README/feed output and setup/install trust?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?

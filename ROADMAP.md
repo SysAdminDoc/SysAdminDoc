@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 11 - 2026-06-04.
+> Last researched: Cycle 12 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 11 - 2026-06-04.
+Last researched: Cycle 12 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -792,6 +792,19 @@ also runs the generator and report path.*
   - Verify: dispatch `Profile assets refresh` in a no-op state and confirm the run has a report artifact and Markdown summary; force a harmless validation failure in a scratch branch and confirm `if: always()` still uploads the report when present; `rg -n "upload-artifact|retention-days|GITHUB_STEP_SUMMARY|::warning|::error" .github/workflows/assets-refresh.yml` shows the observability path.
   - Complexity: S
 
+### Researcher Queue (Cycle 12 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on CODEOWNERS coverage as a
+prerequisite for the branch-protection/ruleset work already queued.*
+
+- [ ] P2 🤖 🔬 — Expand CODEOWNERS coverage for profile-contract files
+  - Why: `.github/CODEOWNERS` covers workflows, the generator, tests, catalog, public feed, and sync report, but it omits other files that define the public profile contract: `README.md`, `ROADMAP.md`, `RESEARCH_REPORT.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `schemas/`, `assets/profile/`, and `setup.ps1`. If the build machine later enables code-owner review as part of branch protection, these public-facing/generated-contract paths could miss automatic owner review routing.
+  - Evidence: `.github/CODEOWNERS:1-7` owns `.github/workflows/`, `scripts/sync-profile.ps1`, `tests/`, `data/profile-catalog.json`, `projects.json`, and `reports/profile-sync-report.json` only; root listing shows `README.md`, planning docs, `schemas/`, `assets/`, and `setup.ps1` outside those patterns; GitHub CODEOWNERS docs say code owners receive review requests for matching file changes and protected branches can require code-owner approval: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners; GitHub documents a CODEOWNERS errors endpoint for validating owner syntax: https://docs.github.com/en/rest/repos/repos#list-codeowners-errors
+  - Touches: `.github/CODEOWNERS`, optional `RESEARCH_REPORT.md` maintenance note if owner classes need rationale.
+  - Acceptance: CODEOWNERS covers the generated/public contract surface (`README.md`, `projects.json`, `reports/profile-sync-report.json`, `schemas/`, `assets/profile/`), profile-pipeline controls (`scripts/sync-profile.ps1`, `tests/`, `.github/workflows/`, `setup.ps1`), and planning docs (`ROADMAP.md`, `RESEARCH_REPORT.md`, `CHANGELOG.md`, `COMPLETED.md`, `PROJECT_CONTEXT.md`) with valid owners; the coverage map aligns with any future branch-protection rule requiring code-owner review.
+  - Verify: `gh api repos/SysAdminDoc/SysAdminDoc/codeowners/errors --jq '.errors // []'` returns an empty list after push; opening a scratch PR that touches `README.md`, `schemas/profile-projects.v1.json`, or `setup.ps1` requests the expected owner.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -805,6 +818,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
 - [ ] P2 — Profile-assets refresh report artifact and job summary parity.
+- [ ] P2 — Expanded CODEOWNERS coverage for public profile contract files.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -831,3 +845,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
 - [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
 - [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
+- [ ] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths.
