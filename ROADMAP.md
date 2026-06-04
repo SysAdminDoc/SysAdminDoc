@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 24 - 2026-06-04.
+> Last researched: Cycle 25 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 24 - 2026-06-04.
+Last researched: Cycle 25 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -981,6 +981,20 @@ the row is omitted from the README, but still exported through the public feed's
   - Verify: regenerate with `scripts/sync-profile.ps1 -Write -Check` and confirm the private suppression row is absent or redacted from `projects.json`; add a fixture private suppressed row and confirm Pester catches any exported repo name/url/action; confirm public suppressed rows still support portfolio exclusion and stale-review reporting.
   - Complexity: M
 
+### Researcher Queue (Cycle 25 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked scheduled workflow cadence.
+It does not duplicate the explicit timeout-budget item; this is about avoiding
+same-minute scheduled maintenance runs.*
+
+- [ ] P3 🤖 🔬 — Stagger same-minute scheduled maintenance workflows
+  - Why: `assets-refresh.yml` and `workflow-security.yml` are both scheduled for Wednesday at `19 8 * * 3`. They run different maintenance checks, but same-minute starts make run triage noisier and can stack package installs, GitHub API calls, and generated-output checks in the same window. Staggering them costs little and makes scheduled failures easier to attribute.
+  - Evidence: `.github/workflows/assets-refresh.yml:5-6` and `.github/workflows/workflow-security.yml:10-11` both use `cron: "19 8 * * 3"`; `profile-sync.yml` already uses a different Tuesday/Friday schedule (`37 7 * * 2,5`), and `scorecard.yml` uses Thursday at `43 8 * * 4`; GitHub Actions docs note that scheduled workflows can be delayed or dropped during high-load periods and recommend scheduling at a different minute of the hour to reduce delay risk: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+  - Touches: `.github/workflows/assets-refresh.yml`, `.github/workflows/workflow-security.yml`, optional docs note if the repo wants a maintenance-window convention.
+  - Acceptance: scheduled maintenance workflows no longer share the same day+minute unless they intentionally coordinate through concurrency; the chosen minutes avoid the top of the hour and leave enough spacing for the short jobs to finish; manual dispatch behavior is unchanged.
+  - Verify: `rg -n "cron:" .github/workflows` shows no accidental duplicate schedule for independent maintenance jobs; the next scheduled run history shows separate start times.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1011,6 +1025,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
 - [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
+- [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
