@@ -177,19 +177,20 @@ Top opportunities, in priority order:
 18. P2 - Publish a JSON Schema for `profile-sync-report.json`.
 19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
-21. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-22. P3 - Add `.editorconfig` and generated README markdown linting.
-23. P3 - Validate all historical `CHANGELOG.md` release headings.
-24. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
-25. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
-26. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
-27. P3 - Stagger same-minute scheduled maintenance workflows.
-28. P3 - Include schema-contract changes in the offline Tests workflow.
-29. P3 - Group routine Dependabot GitHub Actions version updates.
-30. P2 - Report catalog rows omitted from both public feed arrays.
-31. P3 - Guard unsupported JSON Schema keywords in the custom validator.
-32. P3 - Add internal title/description metadata to generated profile SVG panels.
-33. P3 - Refresh stale catalog field names in completed-work docs.
+21. P2 - Add a live GitHub-rendered profile smoke check.
+22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+23. P3 - Add `.editorconfig` and generated README markdown linting.
+24. P3 - Validate all historical `CHANGELOG.md` release headings.
+25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
+28. P3 - Stagger same-minute scheduled maintenance workflows.
+29. P3 - Include schema-contract changes in the offline Tests workflow.
+30. P3 - Group routine Dependabot GitHub Actions version updates.
+31. P2 - Report catalog rows omitted from both public feed arrays.
+32. P3 - Guard unsupported JSON Schema keywords in the custom validator.
+33. P3 - Add internal title/description metadata to generated profile SVG panels.
+34. P3 - Refresh stale catalog field names in completed-work docs.
 
 ## Evidence Reviewed
 
@@ -1757,6 +1758,151 @@ terminology. It found a docs drift issue rather than a generator failure.
 - Prefer pointing maintainers at `schemas/profile-catalog.v1.json` when a full
   field list would drift quickly.
 
+## Cycle 32 Research Addendum — 2026-06-04
+
+This pass checked the boundary between generated Markdown validation and the
+actual GitHub.com profile rendering path. The repo already says generated
+README refreshes need a "markdown render smoke check on GitHub after push"; the
+missing piece is a repeatable, artifact-producing smoke path that future
+generated-profile changes can run before accepting a PR or after a push.
+
+### Evidence reviewed (cycle 32)
+
+- `ROADMAP.md:503` lists "markdown render smoke check on GitHub after push" in
+  the verification standard, but no current workflow uploads screenshots or
+  records rendered DOM checks.
+- `scripts/sync-profile.ps1:1923-2011` implements `Test-ReadmeExperience` as a
+  string/pattern check over generated README content.
+- `tests/sync-profile.Tests.ps1:250-330` exercises generated Markdown output
+  offline, including profile chrome, alt labels, setup guidance, and duplicate
+  chrome guards.
+- `.github/workflows/profile-sync.yml:23-48` and
+  `.github/workflows/assets-refresh.yml:23-62` run the generator/check path, but
+  neither workflow opens GitHub.com, captures rendered screenshots, checks
+  viewport overflow, or uploads visual artifacts.
+- `README.md:11`, `README.md:60-65`, and the live profile at
+  https://github.com/SysAdminDoc use profile-specific image, table, picture, SVG,
+  kbd, details, and remote-image rendering that can be correct as Markdown but
+  still fail in GitHub.com layout.
+- `RESEARCH_REPORT.md:276` records that rendered GitHub light-mode and mobile
+  behavior were inferred in an earlier pass rather than re-screenshotted in a
+  browser.
+- GitHub docs state that a public username-matching repository README appears on
+  the profile and is formatted with GitHub Flavored Markdown:
+  https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes
+- GitHub's profile docs emphasize the profile README as a top-of-profile public
+  surface:
+  https://docs.github.com/en/account-and-profile/concepts/personal-profile
+- GitHub's Markdown REST API can render Markdown as HTML, but that is not a full
+  substitute for GitHub.com profile CSS, sanitizer, image loading, and responsive
+  behavior:
+  https://docs.github.com/en/rest/markdown/markdown
+- GitHub Markup documents that it covers markup rendering only; sanitization and
+  the rest of the pipeline happen on GitHub.com:
+  https://github.com/github/markup
+- Playwright supports screenshot assertions and stable screenshot generation for
+  visual comparison:
+  https://playwright.dev/docs/test-snapshots
+- GitHub Actions artifacts and job summaries can publish rendered evidence for
+  maintainer review:
+  https://docs.github.com/en/actions/tutorials/store-and-share-data and
+  https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
+
+### Landscape source sweep (cycle 32)
+
+External source set checked for render constraints, accessibility, workflow
+evidence, and adjacent profile-README tooling:
+
+1. https://github.com/SysAdminDoc
+2. https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes
+3. https://docs.github.com/en/account-and-profile/concepts/personal-profile
+4. https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme
+5. https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+6. https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables
+7. https://docs.github.com/en/rest/markdown/markdown
+8. https://github.github.com/gfm/
+9. https://github.com/github/cmark-gfm
+10. https://github.com/github/markup
+11. https://github.blog/changelog/2021-11-24-specify-theme-context-for-images-in-markdown/
+12. https://playwright.dev/docs/test-snapshots
+13. https://playwright.dev/docs/screenshots
+14. https://docs.github.com/en/actions/tutorials/store-and-share-data
+15. https://github.com/actions/upload-artifact
+16. https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
+17. https://www.w3.org/WAI/test-evaluate/easy-checks/image-alt/
+18. https://www.w3.org/TR/svg-aam-1.0/
+19. https://www.w3.org/WAI/WCAG20/Understanding/pause-stop-hide.html
+20. https://docs.github.com/en/actions/reference/security/secure-use
+21. https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+22. https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow
+23. https://github.com/ossf/scorecard-action
+24. https://github.com/ossf/scorecard
+25. https://zizmor.sh/
+26. https://github.com/rhysd/actionlint
+27. https://www.npmjs.com/package/markdownlint-cli2
+28. https://github.com/lycheeverse/lychee
+29. https://github.com/tcort/markdown-link-check
+30. https://github.com/DenverCoder1/readme-typing-svg
+31. https://github.com/tandpfun/skill-icons
+32. https://github.com/anuraghazra/github-readme-stats
+33. https://rahuldkjain.github.io/gh-profile-readme-generator/about/
+34. https://github.com/abhisheknaiidu/awesome-github-profile-readme
+
+### Raw ideas harvested (cycle 32)
+
+- Browser-load the live `https://github.com/SysAdminDoc` profile and capture
+  desktop plus mobile screenshots after profile sync changes.
+- Use GitHub's Markdown REST API as a faster pre-render check for sanitizer/GFM
+  output, but do not treat it as proof of final GitHub.com layout.
+- Add full visual-regression baselines for the profile page.
+- Add screenshot artifacts and a concise job summary to generated-profile
+  workflows so maintainers can inspect render state without opening logs.
+- Add another static Markdown/table linter.
+
+### Fit scoring (cycle 32)
+
+- **Live rendered smoke check** - Fit: high; impact: medium; effort: medium;
+  risk: low if screenshot artifacts are public-safe; dependency: Playwright or
+  equivalent browser runner; novelty: medium because existing checks are static;
+  tier: P2; implementation level: M.
+- **Markdown REST API render check only** - Fit: medium; impact: low; effort:
+  small; rejected as a standalone item because it still misses GitHub.com CSS,
+  viewport, image loading, and responsive behavior. It can be a sub-step inside
+  the live smoke path.
+- **Full visual regression baselines** - Fit: medium; impact: medium; effort:
+  high; rejected for now because profile content, stars, and GitHub shell UI can
+  change. A smoke assertion plus artifacts gives useful proof without brittle
+  pixel baselines.
+- **Static Markdown/table lint only** - Fit: medium; impact: low; effort: small;
+  rejected as a new row because generated README linting and source safety are
+  already queued separately.
+
+### Finding (cycle 32)
+
+- **Minor - generated profile checks do not prove the live GitHub-rendered
+  profile.** The repo has strong generator, schema, link, SVG, and README string
+  checks, but the actual user-visible surface is GitHub.com rendering. A small
+  browser smoke path would catch table compression, horizontal overflow, missing
+  images, theme-specific asset regressions, and first-viewport ordering issues
+  that static tests can miss. -> roadmap "Add a live GitHub-rendered profile
+  smoke check". [Verified]
+
+### Standards note (cycle 32)
+
+- Keep the first implementation smoke-oriented: DOM assertions, horizontal
+  overflow checks, image natural-width/load checks, and screenshots as artifacts.
+  Avoid brittle full-page pixel baselines until the generated profile is stable
+  enough to justify them.
+- If the smoke runs after push against the live profile, record the exact commit
+  SHA, run URL, and profile fetch time in the summary so cache delays are
+  distinguishable from real render regressions.
+- Coverage audit: security/privacy is covered by public-safe screenshot and
+  summary requirements; accessibility is covered through rendered image, motion,
+  table, and first-viewport checks; observability is covered through artifacts
+  and job summaries; testing/docs are covered by the smoke and this roadmap
+  entry. i18n, packaging, plugin, offline, multi-user, and data migration are
+  not active dimensions for this static public GitHub profile surface.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1819,6 +1965,9 @@ terminology. It found a docs drift issue rather than a generator failure.
 - Should issue templates live only in this repo, or should the account-level `.github` community-health repo carry shared catalog/link templates for all public SysAdminDoc repositories?
 - Which checks should be required on every pull request versus only on path-filtered profile-pipeline changes if branch protection/rulesets are tightened?
 - Should profile-sync PR validation use a path-filtered workflow, an always-run workflow with internal no-op logic, or a pair of checks so branch protection never waits on skipped profile-sync runs?
+- Should the live rendered profile smoke run only post-push against
+  `https://github.com/SysAdminDoc`, or should generated PRs also run a
+  Markdown-API/local-preview preflight before the live page changes?
 - What timeout budget should be treated as normal for full live profile validation once committed SVG asset refresh and release-asset checks both run in the same automation path?
 - Should generated Markdown content-safety failures be fatal for all current
   sources, or should GitHub-derived descriptions start as warnings until the
