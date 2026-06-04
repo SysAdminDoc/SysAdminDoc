@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.16] - 2026-06-04
+
+- Closed: Marked the portfolio Pagefind search roadmap item complete based on the existing `sysadmindoc.github.io` implementation.
+- Verified: `C:\Users\--\repos\sysadmindoc.github.io` contains `/search/`, Pagefind Component UI, `npm run search:index`, project Category filter and Type metadata, and no-JS fallback links.
+- Verified: `npm run build` in `sysadmindoc.github.io` passed data, asset, and image audits, built 198 pages, stamped the service worker, and Pagefind v1.5.2 indexed 198 HTML pages, 18,774 words, and 1 filter into `dist/pagefind`.
+
 ## [v4.9.15] - 2026-06-04
 
 - Added: README experience checks now report `thirdPartyBadgeHostCount` and `profileStatsChromeCount` so redundant badge counters and duplicated generated chrome fail validation.

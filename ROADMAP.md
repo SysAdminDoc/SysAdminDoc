@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.15
+Current repo version: v4.9.16
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -28,6 +28,15 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.16 refresh: the portfolio Pagefind item was closed as already
+implemented in `C:\Users\--\repos\sysadmindoc.github.io`. The separate portfolio
+repo has `/search/`, Pagefind Component UI, `npm run search:index`, project
+Category filter and Type metadata, and no-JS fallback links. Verification ran
+`npm run build` in the portfolio repo: data/assets/images audits passed, Astro
+built 198 pages, the service worker stamped to v0.18.1, and Pagefind v1.5.2
+indexed 198 HTML pages, 18,774 words, and 1 filter into `dist/pagefind`. The
+portfolio repo worktree remained clean.
 
 2026-06-04 v4.9.15 refresh: dependency/status badge cleanup removed the
 redundant Shields follower/star image badges from the generated profile header,
@@ -257,10 +266,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Portfolio site (separate repo `sysadmindoc.github.io`)
 
-- [ ] P1 — Add Pagefind (or equivalent) static search to the portfolio
+- [x] P1 — Add Pagefind (or equivalent) static search to the portfolio
   - Why: 184/177 entries exceed browse-only navigation; the README cannot host search (sanitized markup).
   - Touches: `sysadmindoc.github.io` (Pagefind build config, `data-pagefind-body` scoping) consuming `projects.json`.
   - Acceptance: search covers repo name, description, category, topics, platform, release availability, and currently-building status; suppressed/private/medical entries are excluded from the index.
+  - Completed: v4.9.16 verified the existing portfolio implementation: `/search/` uses Pagefind Component UI, `npm run build` generates `dist/pagefind`, project detail pages expose Category filter and Type metadata, no-JS fallback links exist, and the portfolio build indexed 198 public pages / 18,774 words / 1 filter with a clean worktree.
   - Source: ROADMAP.md (P1); TODO.md (NF7); docs/research-feature-plan-2026-06-04.md (P1)
 
 - [ ] P1 — Add "new", "recently updated", and "has-download" portfolio views (NF6)
@@ -384,8 +394,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.15`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.15`), `CHANGELOG.md:5` (`## [v4.9.15]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.16`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.16`), `CHANGELOG.md:5` (`## [v4.9.16]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.

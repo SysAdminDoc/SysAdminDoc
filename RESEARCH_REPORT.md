@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.15
+Current version after this refresh: v4.9.16
 
 ## Verification Refresh — 2026-06-04
 
@@ -29,6 +29,11 @@ Current version after this refresh: v4.9.15
   removing redundant Shields follower/star image badges, moving total public
   stars into the committed local stats SVG, adding badge/chrome-count report
   guards, and fixing duplicate generated stats chrome across repeated writes.
+- The v4.9.16 batch closed the active P1 portfolio Pagefind item as already
+  implemented in `C:\Users\--\repos\sysadmindoc.github.io`: `/search/` uses
+  Pagefind Component UI, project pages expose Category filter and Type metadata,
+  no-JS fallback links exist, and `npm run build` passed with Pagefind v1.5.2
+  indexing 198 HTML pages, 18,774 words, and 1 filter into `dist/pagefind`.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
