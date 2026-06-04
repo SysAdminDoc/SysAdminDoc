@@ -178,6 +178,7 @@ Top opportunities, in priority order:
 27. P3 - Stagger same-minute scheduled maintenance workflows.
 28. P3 - Include schema-contract changes in the offline Tests workflow.
 29. P3 - Group routine Dependabot GitHub Actions version updates.
+30. P2 - Report catalog rows omitted from both public feed arrays.
 
 ## Evidence Reviewed
 
@@ -1597,6 +1598,45 @@ from the existing item that triages the currently open major action-update PRs.
 - Keep this subordinate to the existing action-update triage process; grouping
   helps queue shape, not trust evaluation.
 
+## Cycle 28 Research Addendum — 2026-06-04
+
+This pass checked catalog-to-feed accounting after the public-feed privacy and
+schema-contract items. It found one row that is not exported in either public
+feed array and is not separately reported as intentionally local-only. This is
+about source catalog accounting in this repo, not the portfolio site's local
+overlay/fallback omission check from v4.9.18.
+
+### Evidence reviewed (cycle 28)
+
+- Parsing `data/profile-catalog.json` and `projects.json` found 187 catalog
+  entries, 177 exported `projects`, 9 exported `suppressed` rows, and 1 catalog
+  row absent from both arrays.
+- The absent row is `VaultBox`: `category: "suppressed"`,
+  `includeInReadme: false`, `includeInPortfolio: false`, and
+  `suppressionReason: null`.
+- `scripts/sync-profile.ps1:1665` sets the exported `suppressed` flag only from
+  nonblank `suppressionReason`.
+- `scripts/sync-profile.ps1:1724-1728` adds rows to `suppressed` when that flag
+  is true, otherwise adds only `includeInPortfolio` rows to `projects`.
+
+### Finding (cycle 28)
+
+- **Minor — one catalog row is omitted from both feed arrays without an
+  accounting trail.** This may be intentional local-only state, but the current
+  report and feed do not distinguish intentional omission from a catalog mistake.
+  The row is neither visible to portfolio consumers nor represented in
+  `suppressedCount`.
+  → roadmap "Report catalog rows omitted from both public feed arrays".
+  [Verified]
+
+### Standards note (cycle 28)
+
+- Keep this compatible with Cycle 24 privacy redaction. Private or
+  privacy-sensitive rows should not be publicly named just to satisfy accounting;
+  aggregate/redacted counts are acceptable for those cases.
+- Prefer an explicit reason field or report section over making `category:
+  "suppressed"` alone imply a public feed suppression reason.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1644,6 +1684,8 @@ from the existing item that triages the currently open major action-update PRs.
   the heavier profile-sync PR validation path?
 - Should Dependabot group only minor/patch GitHub Actions updates, or keep
   separate PRs for security-sensitive actions such as checkout and CodeQL?
+- Should local-only catalog rows require their own explicit reason field, or is
+  a non-public aggregate count enough when `includeInPortfolio=false`?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
