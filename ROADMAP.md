@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 12 - 2026-06-04.
+> Last researched: Cycle 13 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 12 - 2026-06-04.
+Last researched: Cycle 13 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -805,6 +805,21 @@ prerequisite for the branch-protection/ruleset work already queued.*
   - Verify: `gh api repos/SysAdminDoc/SysAdminDoc/codeowners/errors --jq '.errors // []'` returns an empty list after push; opening a scratch PR that touches `README.md`, `schemas/profile-projects.v1.json`, or `setup.ps1` requests the expected owner.
   - Complexity: S
 
+### Researcher Queue (Cycle 13 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on repository license
+metadata in the generated feed and report. Existing fork/upstream attribution
+work covers upstream origins; this item covers each SysAdminDoc project's own
+GitHub-detected license.*
+
+- [ ] P2 🤖 🔬 — Export per-project SPDX/license metadata in the feed
+  - Why: the generated feed exposes each project's language, stars, releases, topics, upstream fork info, and upstream license, but it does not expose the repository's own detected license. Awesome-list submissions, portfolio consumers, and visitor trust checks need machine-readable license status without querying GitHub again.
+  - Evidence: `gh repo view SysAdminDoc/Network_Security_Auditor --json licenseInfo` returns `MIT License`/`mit`; `scripts/sync-profile.ps1:210-213` requests live repo fields without `licenseInfo`, and the REST fallback at `scripts/sync-profile.ps1:187-196` also omits license metadata; `projects.json` rows include `upstreamLicense` but no row-level `licenseKey`, `licenseName`, or `licenseSpdxId`; `schemas/profile-projects.v1.json` has no project license fields beyond fork/upstream attribution. GitHub's license REST docs expose detected license `key`, `name`, and `spdx_id`: https://docs.github.com/rest/reference/licenses; the SPDX License List exists to provide stable identifiers for licenses: https://spdx.org/licenses/
+  - Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, generated `projects.json`, `reports/profile-sync-report.json`, optional README/license microcopy if the build machine wants visitor-visible labels.
+  - Acceptance: generated project rows include public-safe license fields such as `licenseKey`, `licenseName`, and `licenseSpdxId` when GitHub detects a license; the schema validates those fields; the sync report summarizes detected/missing/unknown license counts and warns on visitor-facing projects without a license; upstream-license attribution remains separate from the project's own license.
+  - Verify: run `scripts/sync-profile.ps1 -Write -Check`; confirm `Network_Security_Auditor` and another MIT-licensed row emit SPDX/license fields; temporarily remove or null a fixture license and confirm the report records a missing-license warning without breaking unrelated rows.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -819,6 +834,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
 - [ ] P2 — Profile-assets refresh report artifact and job summary parity.
 - [ ] P2 — Expanded CODEOWNERS coverage for public profile contract files.
+- [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -846,3 +862,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
 - [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
 - [ ] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths.
+- [ ] P2 — Per-project license metadata in the generated feed, schema, and report.

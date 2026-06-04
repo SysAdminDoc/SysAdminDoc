@@ -161,8 +161,9 @@ Top opportunities, in priority order:
 10. P2 - Add a generated profile PR validation handoff for automation-created branches.
 11. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
 12. P2 - Expand CODEOWNERS coverage for profile-contract files.
-13. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-14. P3 - Add `.editorconfig` and generated README markdown linting.
+13. P2 - Export per-project SPDX/license metadata in the generated feed and report.
+14. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+15. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -974,6 +975,52 @@ is that several public-contract paths sit outside its patterns.
   an owner or pattern can silently weaken the coverage that branch protection is
   expected to enforce.
 
+## Cycle 13 Research Addendum — 2026-06-04
+
+This pass focused on project license metadata in the generated feed and report.
+The v4.9.23 fork/continuation work added upstream origin and upstream-license
+fields; this item is separate because it records each SysAdminDoc repository's
+own detected license.
+
+### Evidence reviewed (cycle 13)
+
+- `gh repo view SysAdminDoc/Network_Security_Auditor --json licenseInfo`
+  returns `MIT License` with key `mit`, proving GitHub already exposes the
+  repository's own license metadata for at least one visitor-facing project.
+- `scripts/sync-profile.ps1:210-213` requests live repo fields from `gh repo
+  list` without `licenseInfo`.
+- The REST fallback metadata shape in `scripts/sync-profile.ps1:187-196`
+  includes stars, default branch, latest release, visibility, archived/private
+  flags, pushed date, URL, and primary language, but no license field.
+- `New-ProjectsExportJson` emits `forkOf`, `forkOfUrl`, and
+  `upstreamLicense`, plus language/stars/release/topic fields; current
+  `projects.json` rows include no `licenseKey`, `licenseName`, or
+  `licenseSpdxId` field for the project itself.
+- `schemas/profile-projects.v1.json` defines upstream/fork fields but no
+  project license fields.
+- GitHub's license REST docs expose detected license `key`, `name`, and
+  `spdx_id`: https://docs.github.com/rest/reference/licenses
+- The SPDX License List provides stable license identifiers:
+  https://spdx.org/licenses/
+
+### Finding (cycle 13)
+
+- **Minor — generated project rows omit the repository's own license metadata.**
+  The feed is already rich enough for portfolio search, release availability,
+  and fork/upstream attribution, but consumers still cannot tell whether a
+  project is MIT, GPL, unlicensed, or unknown without another GitHub query. →
+  roadmap "Export per-project SPDX/license metadata in the feed". [Verified]
+
+### Standards note (cycle 13)
+
+- Keep upstream license and project license distinct. `upstreamLicense` answers
+  "what was the inherited origin license for a fork/continuation"; generated
+  `licenseKey`/`licenseName`/`licenseSpdxId` would answer "what license does
+  this SysAdminDoc repository currently advertise."
+- Start as feed/report metadata. README license labels can be added only if the
+  build machine finds a compact presentation that does not make the profile
+  tables too wide.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -986,6 +1033,8 @@ is that several public-contract paths sit outside its patterns.
   so their job summaries and annotations cannot drift apart?
 - Should CODEOWNERS cover all public planning docs, or only files that directly
   affect generated README/feed output and setup/install trust?
+- Should per-project license metadata be feed/report-only, or should README rows
+  display compact SPDX labels for download/action-heavy projects?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
