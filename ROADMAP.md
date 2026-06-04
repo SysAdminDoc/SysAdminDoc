@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 27 - 2026-06-04.
+> Last researched: Cycle 28 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 27 - 2026-06-04.
+Last researched: Cycle 28 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -1022,6 +1022,21 @@ update queue shape, separate from the existing current-PR triage item.*
   - Verify: run Dependabot's next scheduled check or a manual Dependabot job and confirm eligible minor/patch action updates use the grouped branch/title; current major action PRs remain triaged through the existing review path.
   - Complexity: S
 
+### Researcher Queue (Cycle 28 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked catalog-to-feed accounting
+after the public-feed privacy and schema-contract items. This is about source
+catalog rows in this repo, not the portfolio site's local overlay/fallback
+omission check from v4.9.18.*
+
+- [ ] P2 🤖 🔬 — Report catalog rows omitted from both public feed arrays
+  - Why: the catalog can contain a non-portfolio row with no `suppressionReason`, which is then absent from both `projects.json.projects` and `projects.json.suppressed`. That may be intentional local-only catalog state, but today it is not counted, reported, or forced to carry a public-safe reason, so feed consumers and maintainers cannot distinguish an intentional omission from a catalog mistake.
+  - Evidence: parsing `data/profile-catalog.json` and `projects.json` found 187 catalog entries, 177 exported `projects`, 9 exported `suppressed` rows, and 1 catalog row absent from both arrays (`VaultBox`); the row has `category: "suppressed"`, `includeInReadme: false`, `includeInPortfolio: false`, and `suppressionReason: null`; `scripts/sync-profile.ps1:1665` sets `suppressed` only from nonblank `suppressionReason`, and `scripts/sync-profile.ps1:1724-1728` exports only suppressed rows or `includeInPortfolio` rows.
+  - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Test-ProfileState` report output), `reports/profile-sync-report.json`, optional `schemas/profile-projects.v1.json` or future sync-report schema if omitted rows become a formal report section.
+  - Acceptance: every catalog entry is either exported as a public project, exported/redacted as a suppressed row under the Cycle 24 privacy rules, or counted in a public-safe `omittedCatalogRows`/`localOnlyRows` report section with an explicit reason; `-Check` warns or fails when a row is excluded from both feed arrays without an intentional reason.
+  - Verify: run a local catalog/feed reconciliation command and confirm no unaccounted rows remain; add a fixture row with `includeInPortfolio=false` and no suppression/local-only reason and confirm Pester or `-Check` reports it; confirm intentionally omitted private/privacy rows still follow the Cycle 24 redaction policy.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1055,6 +1070,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
+- [ ] P2 — Catalog-to-feed omitted-row accounting in the sync report.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
