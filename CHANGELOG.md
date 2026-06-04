@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.14] - 2026-06-04
+
+- Added: Committed local dark/light SVG profile panels under `assets/profile/` for catalog stats, language mix, and release asset health.
+- Added: `profileAssetsInSync` and per-asset checks to the sync report, plus Pester coverage for local asset generation.
+- Added: Scheduled/manual `Profile assets refresh` workflow and included `assets/profile/*.svg` in generated-profile PR staging.
+- Changed: README profile chrome now uses local SVG panels instead of readme-stats, streak-stats, activity-graph, and komarev metric hosts.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 32 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with `profileAssetsInSync=true`, 6 asset checks, 0 third-party metric hosts, 185 link targets checked in 4289 ms, 0 link failures, and 0 link warnings.
+
 ## [v4.9.13] - 2026-06-04
 
 - Added: Latest-release asset filename inspection with normalized `releaseAssetKinds` and `releaseAssetNames` in `projects.json`.

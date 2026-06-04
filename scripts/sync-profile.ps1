@@ -8,6 +8,7 @@ param(
     [string]$ReadmePath = "README.md",
     [string]$ProjectsPath = "projects.json",
     [string]$ReportPath = "reports/profile-sync-report.json",
+    [string]$AssetsPath = "assets/profile",
     [switch]$SkipLinkValidation,
     [switch]$Offline
 )
@@ -1260,6 +1261,137 @@ function New-ThemeAwareImage {
     return "<picture><source media=`"(prefers-color-scheme: dark)`" srcset=`"$DarkUrl`"><source media=`"(prefers-color-scheme: light)`" srcset=`"$LightUrl`"><img src=`"$DarkUrl`" alt=`"$Alt`"$suffix /></picture>"
 }
 
+function ConvertTo-SvgText {
+    param([object]$Value)
+
+    if ($null -eq $Value) { return "" }
+    return [System.Security.SecurityElement]::Escape([string]$Value)
+}
+
+function New-ProfilePanelSvg {
+    param(
+        [string]$Title,
+        [string]$Subtitle,
+        [object[]]$Rows,
+        [ValidateSet("dark", "light")]
+        [string]$Theme,
+        [int]$Width = 820,
+        [int]$Height = 250
+    )
+
+    if ($Theme -eq "dark") {
+        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#58a6ff"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#1f6feb"
+    } else {
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#0969da"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"
+    }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"$(ConvertTo-SvgText $Title)`">")
+    $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
+    $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $Title)</text>")
+    $lines.Add("  <text x=`"32`" y=`"70`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">$(ConvertTo-SvgText $Subtitle)</text>")
+
+    $rowY = 112
+    $columns = 2
+    $colWidth = [math]::Floor(($Width - 64) / $columns)
+    for ($i = 0; $i -lt @($Rows).Count; $i++) {
+        $row = $Rows[$i]
+        $col = $i % $columns
+        $line = [math]::Floor($i / $columns)
+        $x = 32 + ($col * $colWidth)
+        $y = $rowY + ($line * 54)
+        $value = Get-MemberValue -Object $row -Name "value"
+        $label = Get-MemberValue -Object $row -Name "label"
+        $detail = Get-MemberValue -Object $row -Name "detail"
+        $lines.Add("  <circle cx=`"$x`" cy=`"$($y - 6)`" r=`"4`" fill=`"$accent`"/>")
+        $lines.Add("  <text x=`"$($x + 14)`" y=`"$y`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"700`">$(ConvertTo-SvgText $value)</text>")
+        $lines.Add("  <text x=`"$($x + 14)`" y=`"$($y + 20)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">$(ConvertTo-SvgText $label)</text>")
+        if (-not [string]::IsNullOrWhiteSpace([string]$detail)) {
+            $lines.Add("  <text x=`"$($x + 14)`" y=`"$($y + 36)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"11`">$(ConvertTo-SvgText $detail)</text>")
+        }
+    }
+
+    $lines.Add("</svg>")
+    return ($lines -join [Environment]::NewLine)
+}
+
+function Get-TopLanguageRows {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $counts = @{}
+    foreach ($entry in $Entries) {
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
+            [string]$entry.language
+        } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
+            [string]$meta.primaryLanguage.name
+        } else {
+            "Other"
+        }
+        if (-not $counts.ContainsKey($language)) { $counts[$language] = 0 }
+        $counts[$language]++
+    }
+
+    return @(
+        $counts.GetEnumerator() |
+            Sort-Object @{ Expression = { [int]$_.Value }; Descending = $true }, Name |
+            Select-Object -First 6 |
+            ForEach-Object {
+                [ordered]@{
+                    label = [string]$_.Key
+                    value = [string]$_.Value
+                    detail = "visitor-facing projects"
+                }
+            }
+    )
+}
+
+function New-ProfileAssetSvgs {
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $entries = @($Catalog.entries | Where-Object {
+        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+    })
+    $releaseDrift = Test-ReleaseAssetDrift -Entries $entries -RepoLookup $repoLookup
+    $downloadCount = @($entries | Where-Object {
+        $meta = Get-RepoMeta $_ $repoLookup
+        (Get-PrimaryAction $_ $meta $_.category)["kind"] -eq "release"
+    }).Count
+    $currentBuilds = @($entries | Where-Object { $_.currentlyBuilding -eq $true }).Count
+    $languageRows = @(Get-TopLanguageRows -Entries $entries -RepoLookup $repoLookup)
+    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
+
+    $statsRows = @(
+        [ordered]@{ label = "active public repositories"; value = [string]$Repos.Count; detail = "live GitHub metadata" },
+        [ordered]@{ label = "visitor-facing projects"; value = [string]$entries.Count; detail = "generated profile catalog" },
+        [ordered]@{ label = "release download actions"; value = [string]$downloadCount; detail = "uploaded assets only" },
+        [ordered]@{ label = "currently building"; value = [string]$currentBuilds; detail = "first-viewport queue" }
+    )
+    $activityRows = @(
+        [ordered]@{ label = "latest releases inspected"; value = [string]$releaseDrift.inspectedReleaseRows; detail = "asset names normalized" },
+        [ordered]@{ label = "release kind mismatches"; value = [string]@($releaseDrift.releaseAssetKindMismatches).Count; detail = "catalog vs assets" },
+        [ordered]@{ label = "source-only release rows"; value = [string]@($releaseDrift.sourceOnlyWithRelease).Count; detail = "kept as Repo actions" },
+        [ordered]@{ label = "asset fetch failures"; value = [string]@($releaseDrift.releaseAssetFetchFailures).Count; detail = "latest report" }
+    )
+
+    $assets = [ordered]@{}
+    $assets["$assetPathPrefix/stats-dark.svg"] = New-ProfilePanelSvg -Title "SysAdminDoc Catalog Stats" -Subtitle "Generated from public GitHub metadata and data/profile-catalog.json" -Rows $statsRows -Theme dark
+    $assets["$assetPathPrefix/stats-light.svg"] = New-ProfilePanelSvg -Title "SysAdminDoc Catalog Stats" -Subtitle "Generated from public GitHub metadata and data/profile-catalog.json" -Rows $statsRows -Theme light
+    $assets["$assetPathPrefix/languages-dark.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme dark
+    $assets["$assetPathPrefix/languages-light.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme light
+    $assets["$assetPathPrefix/activity-dark.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme dark
+    $assets["$assetPathPrefix/activity-light.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme light
+    return $assets
+}
+
 function New-ProfileChrome {
     $headerDark = "https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52"
     $headerLight = "https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=0969DA&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=57606a&descAlignY=52"
@@ -1281,7 +1413,6 @@ function New-ProfileChrome {
     $lines.Add('</p>')
     $lines.Add('')
     $lines.Add('<p align="center">')
-    $lines.Add('  <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile view count for SysAdminDoc" />')
     $lines.Add('  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb" alt="GitHub follower count for SysAdminDoc" />')
     $lines.Add('  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&affiliations=OWNER" alt="Total public stars for SysAdminDoc repositories" />')
     $lines.Add('</p>')
@@ -1291,19 +1422,12 @@ function New-ProfileChrome {
 }
 
 function New-ProfileStatsChrome {
+    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
     $skillsDark = "https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"
     $skillsLight = "https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"
-    $statsDark = "https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=8b949e&ring_color=1f6feb"
-    $statsLight = "https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=default&hide_border=true&bg_color=ffffff&title_color=0969da&icon_color=0969da&text_color=57606a&ring_color=0969da"
-    $langsDark = "https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8"
-    $langsLight = "https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=default&hide_border=true&bg_color=ffffff&title_color=0969da&text_color=57606a&langs_count=8"
-    $streakDark = "https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0D1117&ring=1F6FEB&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=8B949E&dates=8B949E&stroke=30363D"
-    $streakLight = "https://streak-stats.demolab.com?user=SysAdminDoc&theme=default&hide_border=true&background=FFFFFF&ring=0969DA&fire=0969DA&currStreakLabel=0969DA&sideLabels=57606A&dates=57606A&stroke=d0d7de"
-    $activityDark = "https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-dark&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb"
-    $activityLight = "https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-light&hide_border=true&bg_color=ffffff&color=0969da&line=0969da&point=0969da&area=true&area_color=0969da"
-    $statsImage = New-ThemeAwareImage -DarkUrl $statsDark -LightUrl $statsLight -Alt 'SysAdminDoc GitHub contribution and repository statistics' -Attributes 'height="180"'
-    $languagesImage = New-ThemeAwareImage -DarkUrl $langsDark -LightUrl $langsLight -Alt 'Most-used public repository languages for SysAdminDoc' -Attributes 'height="180"'
-    $activityImage = New-ThemeAwareImage -DarkUrl $activityDark -LightUrl $activityLight -Alt 'SysAdminDoc GitHub contribution activity graph' -Attributes 'width="98%"'
+    $statsImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/stats-dark.svg" -LightUrl "$assetPathPrefix/stats-light.svg" -Alt 'Generated SysAdminDoc public catalog statistics' -Attributes 'width="48%"'
+    $languagesImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/languages-dark.svg" -LightUrl "$assetPathPrefix/languages-light.svg" -Alt 'Generated SysAdminDoc public project language mix' -Attributes 'width="48%"'
+    $activityImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/activity-dark.svg" -LightUrl "$assetPathPrefix/activity-light.svg" -Alt 'Generated SysAdminDoc release asset validation summary' -Attributes 'width="98%"'
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('---')
@@ -1319,10 +1443,6 @@ function New-ProfileStatsChrome {
     $lines.Add('<p align="center">')
     $lines.Add("  $statsImage")
     $lines.Add("  $languagesImage")
-    $lines.Add('</p>')
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add("  $(New-ThemeAwareImage -DarkUrl $streakDark -LightUrl $streakLight -Alt 'SysAdminDoc GitHub contribution streak summary')")
     $lines.Add('</p>')
     $lines.Add('')
     $lines.Add('<p align="center">')
@@ -1758,7 +1878,11 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains('(prefers-color-scheme: dark)') -and
         $ExpectedReadme.Contains('(prefers-color-scheme: light)') -and
         $ExpectedReadme.Contains("theme=light") -and
-        $ExpectedReadme.Contains("github-light")
+        $ExpectedReadme.Contains("assets/profile/stats-light.svg") -and
+        $ExpectedReadme.Contains("assets/profile/languages-light.svg") -and
+        $ExpectedReadme.Contains("assets/profile/activity-light.svg")
+    $thirdPartyMetricHostPattern = 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
+    $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
     $hasPlainTextTagline = $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -and
         $ExpectedReadme.Contains("16+ years in IT operations")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
@@ -1770,7 +1894,7 @@ function Test-ReadmeExperience {
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
     $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
         $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and
-        $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
+        $thirdPartyMetricHostCount -eq 0 -and $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
     return [ordered]@{
         passed = [bool]$passed
@@ -1781,6 +1905,7 @@ function Test-ReadmeExperience {
         plainTextTagline = [bool]$hasPlainTextTagline
         meaningfulImageAltText = [bool]$hasMeaningfulAltText
         genericImageAltTextCount = $genericAltCount
+        thirdPartyMetricHostCount = $thirdPartyMetricHostCount
         featuredRows = $featured.Count
         featuredActionColumn = [bool]$hasFeaturedActionColumn
         currentlyBuildingRows = $building.Count
@@ -1802,8 +1927,8 @@ function Get-MemberValue {
     if ($null -eq $Object) {
         return $null
     }
-    if ($Object -is [hashtable]) {
-        if ($Object.ContainsKey($Name)) {
+    if ($Object -is [System.Collections.IDictionary]) {
+        if ($Object.Contains($Name)) {
             return $Object[$Name]
         }
         return $null
@@ -1826,7 +1951,7 @@ function Set-MemberValue {
     if ($null -eq $Object) {
         return
     }
-    if ($Object -is [hashtable]) {
+    if ($Object -is [System.Collections.IDictionary]) {
         $Object[$Name] = $Value
         return
     }
@@ -2349,7 +2474,8 @@ function Test-ProfileState {
         [hashtable]$Catalog,
         [object[]]$Repos,
         [string]$ExpectedReadme,
-        [string]$ExpectedProjects
+        [string]$ExpectedProjects,
+        [hashtable]$ExpectedAssets = @{}
     )
 
     $repoLookup = ConvertTo-Lookup $Repos
@@ -2431,6 +2557,22 @@ function Test-ProfileState {
     }
     $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
     $projectsInSync = (& $normalize $currentProjects) -eq (& $normalize $ExpectedProjects)
+    $assetChecks = New-Object System.Collections.Generic.List[object]
+    foreach ($assetPath in @($ExpectedAssets.Keys | Sort-Object)) {
+        $fullPath = Join-Path $RepoRoot $assetPath
+        $exists = Test-Path -LiteralPath $fullPath
+        $assetInSync = $false
+        if ($exists) {
+            $currentAsset = Get-Content -LiteralPath $fullPath -Raw
+            $assetInSync = ((& $normalize $currentAsset) -eq (& $normalize ([string]$ExpectedAssets[$assetPath])))
+        }
+        $assetChecks.Add([ordered]@{
+            path = [string]$assetPath
+            exists = [bool]$exists
+            inSync = [bool]$assetInSync
+        })
+    }
+    $assetsInSync = @($assetChecks | Where-Object { $_.inSync -ne $true }).Count -eq 0
     $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
 
     $linkFailures = @()
@@ -2472,6 +2614,8 @@ function Test-ProfileState {
         generatedAt = $reportGeneratedAt
         readmeInSync = $readmeInSync
         projectsExportInSync = $projectsInSync
+        profileAssetsInSync = $assetsInSync
+        profileAssetChecks = $assetChecks.ToArray()
         publicRepoCount = $Repos.Count
         catalogEntryCount = $entries.Count
         includedReadmeCount = $included.Count
@@ -2495,7 +2639,7 @@ function Test-ProfileState {
         readmeExperienceChecks = $experienceChecks
     }
 
-    $failed = -not $readmeInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true
+    $failed = -not $readmeInSync -or -not $assetsInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true
     return [ordered]@{
         Failed = $failed
         Report = $report
@@ -2541,16 +2685,26 @@ $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
 if ($catalogForRun) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
     $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos
+    $expectedAssets = New-ProfileAssetSvgs -Catalog $catalogForRun -Repos $repos
 
     if ($Write) {
         [System.IO.File]::WriteAllText((Resolve-Path -LiteralPath $ReadmePath).Path, $expected, [System.Text.UTF8Encoding]::new($false))
         [System.IO.File]::WriteAllText((Join-Path $RepoRoot $ProjectsPath), $expectedProjects + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+        foreach ($assetPath in @($expectedAssets.Keys)) {
+            $fullPath = Join-Path $RepoRoot $assetPath
+            $assetDir = Split-Path -Parent $fullPath
+            if ($assetDir -and -not (Test-Path -LiteralPath $assetDir)) {
+                New-Item -ItemType Directory -Path $assetDir | Out-Null
+            }
+            [System.IO.File]::WriteAllText($fullPath, [string]$expectedAssets[$assetPath] + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+        }
         Write-Host "Wrote $ReadmePath from $CatalogPath."
         Write-Host "Wrote $ProjectsPath from $CatalogPath."
+        Write-Host "Wrote profile assets to $AssetsPath."
     }
 
     if ($Check) {
-        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected -ExpectedProjects $expectedProjects
+        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected -ExpectedProjects $expectedProjects -ExpectedAssets $expectedAssets
         $reportDir = Split-Path -Parent $ReportPath
         if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
             New-Item -ItemType Directory -Path $reportDir | Out-Null

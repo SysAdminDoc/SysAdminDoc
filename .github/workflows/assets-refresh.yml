@@ -1,0 +1,62 @@
+name: Profile assets refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "19 8 * * 3"
+
+concurrency:
+  group: profile-assets-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    name: Refresh committed profile SVGs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Regenerate profile assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/sync-profile.ps1 -Write -Check
+
+      - name: Create pull request
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git diff --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "No profile asset changes."
+            exit 0
+          }
+
+          $branch = "automation/profile-assets-${{ github.run_id }}"
+          git switch -c $branch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md projects.json reports/profile-sync-report.json assets/profile/*.svg
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "No staged profile asset changes."
+            exit 0
+          }
+          git commit -m "chore: refresh profile assets"
+          $remote = "https://x-access-token:$env:GH_TOKEN@github.com/${{ github.repository }}.git"
+          git push $remote $branch
+          gh pr create `
+            --base main `
+            --head $branch `
+            --title "chore: refresh profile assets" `
+            --body "Regenerates committed profile SVG assets, README, project feed, and sync report from data/profile-catalog.json plus live GitHub metadata."

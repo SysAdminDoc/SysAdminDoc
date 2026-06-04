@@ -272,9 +272,13 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '<picture>'
         $script:rendered | Should -Match '\(prefers-color-scheme: dark\)'
         $script:rendered | Should -Match '\(prefers-color-scheme: light\)'
+        $script:rendered | Should -Match 'assets/profile/stats-light\.svg'
+        $script:rendered | Should -Match 'assets/profile/languages-light\.svg'
+        $script:rendered | Should -Match 'assets/profile/activity-light\.svg'
         $script:rendered | Should -Match 'Healthcare IT engineer and DICOM/PACS specialist'
         $script:rendered | Should -Match 'alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"'
         $script:rendered | Should -Not -Match 'alt="(Header|Typing SVG|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
+        $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
     }
     It 'places stats chrome after the profile body and before the generated catalog' {
         $focusIndex = $script:rendered.IndexOf('### Professional Focus', [StringComparison]::Ordinal)
@@ -294,7 +298,18 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $result.plainTextTagline | Should -BeTrue
         $result.meaningfulImageAltText | Should -BeTrue
         $result.genericImageAltTextCount | Should -Be 0
+        $result.thirdPartyMetricHostCount | Should -Be 0
         $result.passed | Should -BeTrue
+    }
+
+    It 'generates committed local profile SVG assets' {
+        $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @()
+
+        $assets.Keys | Should -Contain 'assets/profile/stats-dark.svg'
+        $assets.Keys | Should -Contain 'assets/profile/languages-light.svg'
+        $assets.Keys | Should -Contain 'assets/profile/activity-dark.svg'
+        $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
+        $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
     }
 }
 

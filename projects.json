@@ -93,7 +93,7 @@
       "releaseAssetKinds": "apk",
       "releaseAssetNames": "NovaCut-v3.73.2.apk",
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:26:57.0000000Z",
+      "pushedAt": "2026-06-04T07:48:54.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -391,7 +391,7 @@
         "AppManagerNG-0.5.0-full-release.apk.sha256"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:33:06.0000000Z",
+      "pushedAt": "2026-06-04T07:55:35.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -734,7 +734,7 @@
       "releaseAssetKinds": "apk",
       "releaseAssetNames": "app-release.apk",
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:34:09.0000000Z",
+      "pushedAt": "2026-06-04T07:48:29.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1690,7 +1690,7 @@
         "ytkit-v4.5.2.user.js"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:29:06.0000000Z",
+      "pushedAt": "2026-06-04T07:45:31.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -1735,7 +1735,7 @@
       "releaseAssetKinds": "zip",
       "releaseAssetNames": "ScriptVault-v3.11.0.zip",
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:29:57.0000000Z",
+      "pushedAt": "2026-06-04T07:48:54.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -5797,7 +5797,7 @@
         "OpenCut-Setup-1.25.1.exe"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:35:41.0000000Z",
+      "pushedAt": "2026-06-04T07:54:40.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -7992,7 +7992,7 @@
       "releaseAssetKinds": "zip",
       "releaseAssetNames": null,
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T07:29:57.0000000Z",
+      "pushedAt": "2026-06-04T07:48:54.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",

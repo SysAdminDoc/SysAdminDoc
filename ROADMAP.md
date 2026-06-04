@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.13
+Current repo version: v4.9.14
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 5 - 2026-06-04.
+> Last researched: Cycle 6 - 2026-06-04.
 
 ## Implementer Instructions
 
@@ -40,6 +40,16 @@ source-only release rows, 0 release asset kind mismatches, 0 release asset fetch
 failures, 185 link targets checked in 4404 ms, 0 link failures, and 0 link
 warnings. The run used the REST metadata fallback after a transient GitHub
 GraphQL 502.
+
+2026-06-04 v4.9.14 refresh: profile metric chrome now uses committed local
+dark/light SVG panels under `assets/profile/` for catalog stats, language mix,
+and release asset health. The komarev counter and third-party stats/streak/
+activity render hosts were removed from the generated README. `profileAssetsInSync`
+and per-asset report checks validate the six committed SVG assets, and the new
+`assets-refresh.yml` workflow can refresh them on schedule or by dispatch.
+Pester passed 32/32, and full `-Write -Check` passed with
+`profileAssetsInSync=true`, 6 asset checks, 0 third-party metric hosts, 185 link
+targets checked in 4289 ms, 0 link failures, and 0 link warnings.
 
 2026-06-04 v4.9.12 refresh: theme-aware README chrome now renders through
 dark/light `<picture>` sources for the header, typing SVG, skill icons, stats,
@@ -220,10 +230,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.13 added latest-release asset inspection, exported `releaseAssetKinds`/`releaseAssetNames`, compared catalog `downloadKind` labels against actual asset kinds, corrected three catalog rows, and regenerated to 0 release asset kind mismatches.
   - Source: ROADMAP.md (P2 release taxonomy); docs/research-feature-plan-2026-06-04.md (P2)
 
-- [ ] P2 — Action-baked stat/snake SVGs (NF4)
+- [x] P2 — Action-baked stat/snake SVGs (NF4)
   - Why: 5–7 third-party render hosts (stats/streak/activity, komarev counter) can rate-limit/outage together and leak visitor IP/UA; Camo caches them anyway, so there is no dynamism benefit.
   - Touches: new `.github/workflows/assets-refresh.yml`, committed `assets/*.svg`, generator references to local assets.
   - Acceptance: a scheduled Action snapshots stats/streak/activity (or a Platane/snk snake) to committed SVGs; README renders with hosts blocked; the komarev counter is dropped or reduced to one tiny badge.
+  - Completed: v4.9.14 added committed local SVG profile panels, sync/report checks for six assets, a scheduled/manual assets-refresh workflow, and removed komarev plus readme-stats/streak/activity hosts from the generated README.
   - Source: TODO.md (NF4)
 
 - [ ] P2 — Dependency/status badges only where they carry signal
@@ -361,15 +372,15 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.13`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.13`), `CHANGELOG.md:5` (`## [v4.9.13]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.14`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.14`), `CHANGELOG.md:5` (`## [v4.9.14]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
   - Complexity: M
 
 - [ ] P2 — Extend link validation to hero/header and non-catalog URLs
-  - Why: `Test-LinkTargets` only probes catalog-derived entrypoint/userscript/live/release URLs. The hand-authored hero — the portfolio link `https://sysadmindoc.github.io/`, the `setup.ps1` blob link, and the third-party image hosts (capsule-render, readme-typing-svg, skill-icons, github-readme-stats, streak-stats, activity-graph, komarev) — is never checked. A dead portfolio link or a retired image host would pass the gate.
+  - Why: `Test-LinkTargets` only probes catalog-derived entrypoint/userscript/live/release URLs. The hand-authored hero — the portfolio link `https://sysadmindoc.github.io/`, the `setup.ps1` blob link, and the remaining third-party image hosts (capsule-render, readme-typing-svg, skill-icons, shields.io) — is never checked. A dead portfolio link or a retired image host would pass the gate.
   - Evidence: `scripts/sync-profile.ps1:476-528` (`Test-LinkTargets` iterates only `$Included` catalog entries); `README.md:1-68` (hero/header links and image hosts, none catalog-derived).
   - Touches: `scripts/sync-profile.ps1` (`Test-LinkTargets` plus a static header-URL extractor), report schema.
   - Acceptance: the portfolio link and `setup.ps1` blob link are probed as fatal-on-404; image hosts are probed as non-fatal warnings grouped under `headerHostWarnings`; results land in the report.
@@ -520,6 +531,18 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: open or simulate a PR touching `data/profile-catalog.json` and confirm `Profile sync / Check generated README` runs and fails on stale generated output; open or inspect an unrelated-doc PR and confirm branch policy does not wait on a skipped profile-sync status.
   - Complexity: S
 
+### Researcher Queue (Cycle 6 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked workflow runtime budgets after profile sync and asset refresh work expanded the number of live-network automation paths.*
+
+- [ ] P2 — Add explicit GitHub Actions timeout budgets
+  - Why: the workflows currently rely on GitHub's default job timeout, which is much larger than any expected profile validation, Pester, workflow-security, Scorecard, or asset-refresh run. A hung package install, GitHub API fallback, third-party image fetch, link validation, or PR-create step can consume runner time and obscure whether the failure is validation drift or infrastructure stall.
+  - Evidence: `rg -n "timeout-minutes" .github/workflows` returned no tracked workflow timeouts; the in-flight `assets-refresh.yml` also has no job or step timeout; GitHub workflow syntax docs state `jobs.<job_id>.timeout-minutes` defaults to 360 and `steps[*].timeout-minutes` can cap individual steps: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+  - Touches: `.github/workflows/profile-sync.yml`, `tests.yml`, `workflow-security.yml`, `scorecard.yml`, and any committed asset-refresh workflow; optional `scripts/sync-profile.ps1` messaging if a timeout-prone phase should emit clearer progress.
+  - Acceptance: every workflow job has an explicit timeout sized to observed runtime plus margin, long live-network steps have step-level caps where useful, and timeout values are documented enough that future workflow additions copy the pattern.
+  - Verify: `rg -n "timeout-minutes" .github/workflows` shows coverage for each job; normal manual runs still complete; lowering a timeout on a test branch proves GitHub cancels the intended job/step instead of waiting for the default 360 minutes.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -529,6 +552,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
+- [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.

@@ -5,12 +5,12 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.13
+Current version after this refresh: v4.9.14
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 31/31 tests after the v4.9.13 release taxonomy update.
+  passed 32/32 tests after the v4.9.14 committed profile asset update.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
   drift rows, `metadataHygiene` showing 69 missing-topic repos, generated
@@ -20,9 +20,14 @@ Current version after this refresh: v4.9.13
   checking 177 visitor-facing rows, 141 release-bearing rows, 141 inspected
   release rows, 71 release-action rows, 17 source-only release rows, 0 release
   asset kind mismatches, and 0 release asset fetch failures, full link
-  validation enabled, 185 link targets checked in 4404 ms, 0 link failures, and
+  validation enabled, `profileAssetsInSync=true`, 6 profile asset checks, 0
+  third-party metric hosts, 185 link targets checked in 4289 ms, 0 link failures, and
   0 link warnings. Raw `projectsExportInSync` remains a report signal;
   info-only star/topic/`pushedAt` drift is now reported without failing the gate.
+- The v4.9.14 batch closed the active P2 action-baked assets item by generating
+  committed local SVG metric panels, validating them in the sync report, adding
+  a scheduled/manual asset-refresh workflow, and removing komarev plus the
+  third-party stats/streak/activity hosts from the generated README.
 - The v4.9.13 batch closed the active P2 release taxonomy item by inspecting
   latest-release asset names, exporting `releaseAssetKinds`/`releaseAssetNames`,
   keeping source-only releases as `Repo` actions, and cleaning the current
@@ -250,7 +255,7 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: parallelized and tolerant of transient failures; latest report checked 185 targets in 4404 ms with zero warnings.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 185 targets in 4289 ms with zero warnings.
 - Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow
@@ -513,6 +518,26 @@ This pass checked whether generated-profile validation currently runs on pull re
 
 - Keep the PR trigger path-scoped but branch-policy-aware: either do not require the path-skipped check globally, or pair it with an always-running lightweight status that reports "not applicable" for unrelated changes. This avoids GitHub's pending skipped-check behavior while still gating profile-pipeline edits.
 
+## Cycle 6 Research Addendum — 2026-06-04
+
+This pass focused on workflow reliability budgets after profile validation, Scorecard, workflow security, and the in-flight committed-asset refresh path all depend on external package, GitHub API, or HTTP work.
+
+### Evidence reviewed (cycle 6)
+
+- `rg -n "timeout-minutes" .github/workflows` returned no timeout declarations in `profile-sync.yml`, `tests.yml`, `workflow-security.yml`, or `scorecard.yml`.
+- The in-flight `.github/workflows/assets-refresh.yml` also has no job or step timeout while running `scripts/sync-profile.ps1 -Write -Check` and creating a generated-assets pull request.
+- The workflows contain live-network or package-install steps: Pester installation from PSGallery, `python -m pip install --upgrade zizmor`, OpenSSF Scorecard, GitHub API-backed profile sync, link validation, and generated PR pushes.
+- Recent `gh run list -R SysAdminDoc/SysAdminDoc --limit 10` results were short and successful for Tests/Workflow security, so this is a failure-budget control rather than a response to a current slow run.
+- GitHub's workflow syntax docs state that job-level `timeout-minutes` defaults to 360 minutes and step-level `timeout-minutes` can cap individual steps: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+
+### Finding (cycle 6)
+
+- **Minor — Workflow jobs have no explicit timeout budget.** The current workflows are expected to finish in seconds or a few minutes, but a stuck external dependency or long REST fallback would wait on GitHub's broad default job timeout. → roadmap "Add explicit GitHub Actions timeout budgets". [Verified]
+
+### Standards note (cycle 6)
+
+- Use job-level budgets first, with step-level caps only for known live-network or package-install steps. The budgets should leave enough room for full link validation and release-asset refresh, but they should be short enough that a stall is clearly an infrastructure failure rather than an ambiguous validation result.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -523,3 +548,4 @@ This pass checked whether generated-profile validation currently runs on pull re
 - Should issue templates live only in this repo, or should the account-level `.github` community-health repo carry shared catalog/link templates for all public SysAdminDoc repositories?
 - Which checks should be required on every pull request versus only on path-filtered profile-pipeline changes if branch protection/rulesets are tightened?
 - Should profile-sync PR validation use a path-filtered workflow, an always-run workflow with internal no-op logic, or a pair of checks so branch protection never waits on skipped profile-sync runs?
+- What timeout budget should be treated as normal for full live profile validation once committed SVG asset refresh and release-asset checks both run in the same automation path?
