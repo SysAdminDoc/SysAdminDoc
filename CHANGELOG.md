@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.11] - 2026-06-04
+
+- Added: Prepared an awesome-list submission candidate plan in `RESEARCH_REPORT.md`, using current catalog data plus live target-list checks.
+- Added: Shortlist entries for `Network_Security_Auditor`, `win11-nvme-driver-patcher`, `UserScript-Finder`, and the `SysAdminDoc` profile README, with target lists, proposed entry text, and pre-submit gates.
+- Changed: Marked the awesome-list roadmap item complete as candidate preparation only; no external pull requests were opened in this repo batch.
+
 ## [v4.9.10] - 2026-06-04
 
 - Changed: Filled the four empty public GitHub repository descriptions reported by `metadataHygiene` for `AdapterLock`, `facebook-exit-guide`, `IMDb_Enhanced`, and `SysAdminDoc`.
