@@ -166,10 +166,11 @@ Top opportunities, in priority order:
 15. P2 - Add a public-repo enumeration limit guard.
 16. P2 - Publish a JSON Schema for `profile-sync-report.json`.
 17. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
-18. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-19. P3 - Add `.editorconfig` and generated README markdown linting.
-20. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
-21. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+18. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
+19. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+20. P3 - Add `.editorconfig` and generated README markdown linting.
+21. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+22. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 
 ## Evidence Reviewed
 
@@ -1283,6 +1284,43 @@ this finding is about duplicated workflow code.
   `git add .`, because the generated PR workflows should remain constrained to
   profile outputs.
 
+## Cycle 20 Research Addendum — 2026-06-04
+
+This pass checked whether the profile repository's public release state matches
+the tracked planning-doc version. The docs are internally consistent, but GitHub
+Releases and tags are behind that version series.
+
+### Evidence reviewed (cycle 20)
+
+- `CHANGELOG.md` starts at `v4.9.24` dated 2026-06-04.
+- `ROADMAP.md` reports `Current repo version: v4.9.24`.
+- `PROJECT_CONTEXT.md` reports `Version: v4.9.24`.
+- `gh repo view SysAdminDoc/SysAdminDoc --json latestRelease` returned latest
+  release tag `v3.0.0`, published 2026-04-13.
+- `git tag --list "v4.9.*"` returned no local `v4.9.*` tags in the clean clone.
+- `reports/profile-sync-report.json` has `docVersionConsistency`, but that
+  section does not compare the tracked version to GitHub Releases or tags.
+- GitHub Docs describe releases as deployable project iterations based on tags:
+  https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+
+### Finding (cycle 20)
+
+- **Minor — tracked profile versions are ahead of public GitHub Releases.** The
+  repo's planning docs and changelog now identify `v4.9.24` as current, while
+  the public latest release remains `v3.0.0`. If releases are intended to be a
+  public trust/version surface, the report should catch this drift; if they are
+  not, the repo should document that the changelog version is the canonical
+  profile-doc version and releases are intentionally sparse.
+  → roadmap "Add a profile-repo release/tag consistency check". [Verified]
+
+### Standards note (cycle 20)
+
+- Keep release consistency policy explicit. A profile README repo may reasonably
+  use changelog-only versions, but the current mix of versioned docs plus stale
+  GitHub Releases is ambiguous to visitors and downstream tooling.
+- This should augment, not replace, `docVersionConsistency`: tracked docs can be
+  internally aligned while still drifting from public release/tag state.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1311,6 +1349,9 @@ this finding is about duplicated workflow code.
   branches?
 - Should shared generated-PR logic live as a PowerShell helper under `scripts/`,
   or as a local composite action under `.github/actions/`?
+- Should `v4.9.x` planning versions produce matching GitHub Releases/tags, or
+  should this repo document that changelog versions are internal profile-doc
+  milestones and releases are intentionally sparse?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?

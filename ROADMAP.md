@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 19 - 2026-06-04.
+> Last researched: Cycle 20 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 19 - 2026-06-04.
+Last researched: Cycle 20 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -906,6 +906,21 @@ path.*
   - Verify: run both workflows manually in no-op mode and confirm they exit cleanly without empty commits; force a harmless generated-file change in a scratch branch and confirm each caller opens the expected PR through the shared helper; run workflow-security/actionlint once available.
   - Complexity: S
 
+### Researcher Queue (Cycle 20 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on public version/release
+trust for the profile repository itself. The existing `docVersionConsistency`
+gate keeps tracked planning documents aligned, but it does not compare those
+versions with GitHub Releases or tags.*
+
+- [ ] P2 🤖 🔬 — Add a profile-repo release/tag consistency check
+  - Why: tracked docs say the current repo version is `v4.9.24`, but the public GitHub Releases surface still reports `v3.0.0` as the latest release and no `v4.9.*` tags exist locally. Visitors, downstream consumers, and future schema/provenance work can see a stale release history even while CHANGELOG/ROADMAP/PROJECT_CONTEXT advance.
+  - Evidence: `CHANGELOG.md:5` and `ROADMAP.md:8` report `v4.9.24`; `PROJECT_CONTEXT.md:35` reports `Version: v4.9.24`; `gh repo view SysAdminDoc/SysAdminDoc --json latestRelease --jq .latestRelease` returned tag `v3.0.0`, published 2026-04-13; `git tag --list "v4.9.*"` returned no tags; current `reports/profile-sync-report.json` has `docVersionConsistency` but no GitHub release/tag comparison; GitHub Docs describe releases as deployable project iterations based on tags: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+  - Touches: `scripts/sync-profile.ps1` (`Test-DocVersionConsistency` or a new release-consistency probe), `reports/profile-sync-report.json`, optional Pester fixture, and the release/tag process for this repo.
+  - Acceptance: the report records the latest tracked version, latest GitHub release tag/date, whether the matching tag exists, and whether the public release is intentionally behind; `-Check` warns or fails when the tracked version is ahead of the latest release without an explicit policy; the build machine either publishes a matching release/tag or documents that this repo uses changelog-only internal versions.
+  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm a `repositoryReleaseConsistency` (or equivalent) section captures the current `v4.9.24` vs `v3.0.0` drift; publish/tag a scratch or real release and confirm the warning clears; simulate an older latest release in a fixture and confirm Pester catches the mismatch.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -925,6 +940,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300`.
 - [ ] P2 — JSON Schema contract for `reports/profile-sync-report.json`.
 - [ ] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
+- [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -959,3 +975,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap.
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
 - [ ] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts.
+- [ ] P2 — Repository release/tag consistency reported beside planning-doc version checks.
