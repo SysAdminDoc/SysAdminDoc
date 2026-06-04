@@ -9,7 +9,7 @@ Current repo version: v4.9.25
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 31 - 2026-06-04.
+> Last researched: Cycle 32 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 31 - 2026-06-04.
+Last researched: Cycle 32 - 2026-06-04.
 
 2026-06-04 v4.9.25 refresh: the PSScriptAnalyzer static-analysis lane shipped.
 `PSScriptAnalyzerSettings.psd1` now defines the curated warning/error gate with
@@ -1093,6 +1093,21 @@ not cover.*
   - Verify: `rg -n "privateReason" COMPLETED.md PROJECT_CONTEXT.md ROADMAP.md RESEARCH_REPORT.md` returns no unqualified current-field references; schema/catalog checks still pass through `scripts/sync-profile.ps1 -Check`.
   - Complexity: S
 
+### Researcher Queue (Cycle 32 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on the gap between static
+generated Markdown checks and the live GitHub profile renderer. The existing
+verification standard already calls for a markdown render smoke after push; this
+item makes that proof repeatable for generated-profile changes.*
+
+- [ ] P2 🤖 🔬 — Add a live GitHub-rendered profile smoke check
+  - Why: `scripts/sync-profile.ps1 -Check` and `Test-ReadmeExperience` verify generated Markdown strings, links, assets, schemas, and report state, but they do not load the actual `https://github.com/SysAdminDoc` profile with GitHub.com CSS, sanitizer output, responsive table behavior, image loading, or theme handling. The repo already had a top-table layout failure class, and `RESEARCH_REPORT.md` still records rendered light/mobile behavior as inferred rather than browser-screenshotted.
+  - Evidence: `ROADMAP.md:503` lists "markdown render smoke check on GitHub after push" as a release proof but no workflow or script currently captures it; `scripts/sync-profile.ps1:1923-2011` only inspects README text patterns inside `Test-ReadmeExperience`; `tests/sync-profile.Tests.ps1:250-330` exercises offline generated Markdown rather than GitHub.com rendering; `.github/workflows/profile-sync.yml:23-48` and `.github/workflows/assets-refresh.yml:23-62` run generator/report checks but no browser smoke or screenshot upload; the live profile currently renders the README at `https://github.com/SysAdminDoc`; GitHub docs state username-matching public repo READMEs appear on the profile and use GitHub Flavored Markdown: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes; GitHub's Markdown REST API can render Markdown HTML but GitHub Markup notes sanitization and the rest of the GitHub.com pipeline happen outside the markup library: https://docs.github.com/en/rest/markdown/markdown and https://github.com/github/markup; Playwright supports screenshot assertions for rendered pages: https://playwright.dev/docs/test-snapshots
+  - Touches: optional `tests/rendered-profile-smoke.*` or `scripts/render-profile-smoke.*`, `.github/workflows/profile-sync.yml`, `.github/workflows/assets-refresh.yml`, optional scheduled/manual workflow, screenshot artifacts, `reports/profile-sync-report.json` or job summary fields.
+  - Acceptance: a manual/scheduled and PR-safe smoke path loads the live profile or GitHub-rendered README after generated-profile changes, checks 390 px mobile and desktop widths for no horizontal overflow, confirms the first viewport contains the hero, Professional Focus, Proof Points, and Currently Building content in readable order, verifies profile SVG and typing/skill images resolved or reports host failures, and uploads light/dark or viewport screenshots plus a concise job summary without private repository names.
+  - Verify: run the smoke workflow or script after a no-op profile sync; confirm screenshots are uploaded as artifacts with explicit retention, the job summary links the artifacts, DOM assertions pass for `https://github.com/SysAdminDoc`, and an intentionally broken scratch README layout fails before merge or before a generated PR is accepted.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1114,6 +1129,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 - [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
 - [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
+- [ ] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -1160,3 +1176,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts.
 - [ ] P2 — Repository release/tag consistency reported beside planning-doc version checks.
 - [ ] P2 — Userscript install trust reporting for raw branch-hosted `.user.js` actions.
+- [ ] P2 — Live GitHub profile DOM/screenshot smoke proof for generated README changes.
