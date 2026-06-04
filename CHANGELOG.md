@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.21] - 2026-06-04
+
+- Added: Hardened `setup.ps1` with `#Requires -Version 5.1`, `-CheckOnly` prerequisite diagnostics, best-effort transcript logging under `%TEMP%`, and shared version/status helpers.
+- Changed: The generated First-time setup README section now includes an inspect-before-install command path plus table rows for `-CheckOnly` and transcript diagnostics while keeping the one-paste `irm ... | iex` install path.
+- Added: `readmeExperienceChecks.setupInspectPath` now guards the generated README setup guidance, with Pester coverage for the setup script contract and rendered inspect-before-run copy.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passed 42/42; `setup.ps1 -CheckOnly` reported winget/Python/pip/Git without installing; `scripts/sync-profile.ps1 -Write -Check` passed with `setupInspectPath=true`, `projectsExportInSync=true`, 0 metadata drift rows, 0 link failures, and 0 link warnings after REST fallback from a transient GitHub GraphQL 502.
+
 ## [v4.9.20] - 2026-06-04
 
 - Added: `Test-DocVersionConsistency` validates the tracked planning docs (`ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md`) from `scripts/sync-profile.ps1 -Check`.
