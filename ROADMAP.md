@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.8
+Current repo version: v4.9.9
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 2 - 2026-06-04.
+> Last researched: Cycle 3 - 2026-06-04.
 
 ## Implementer Instructions
 
@@ -29,9 +29,17 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
 
+2026-06-04 v4.9.9 refresh: metadata hygiene now includes non-mutating
+`topicHints` for missing-topic repos, catalog categories for topic/description
+cleanup, catalog-backed description suggestions, and an explicit policy that any
+future apply mode must require an allowlist. Pester passed 28/28 and full
+`-Write -Check` passed with all 69 missing-topic rows carrying hints, 4
+missing-description rows, 3 catalog-backed description suggestions, 239 link
+targets checked in 5882 ms, 0 link failures, and 0 link warnings.
+
 2026-06-04 v4.9.8 refresh: report schema depth now includes
 `metadataHygiene`, `releaseAssetDrift`, and `validationPerformance` sections.
-The latest live report records 69 repos missing topics, 4 missing descriptions,
+The v4.9.8 live report recorded 69 repos missing topics, 4 missing descriptions,
 177 visitor-facing release-drift rows checked, 141 release-bearing rows, 102
 release-action rows, 16 source-only rows with releases, and 239 link targets
 checked in 6801 ms. Pester passed 26/26 and full `-Write -Check` passed with 0
@@ -70,7 +78,7 @@ passed 18/18, and the full write/check pass is green with
 
 ## Current Diagnosis
 
-This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.8, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
+This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.9.9, the README is generated from `data/profile-catalog.json` plus live GitHub metadata through `scripts/sync-profile.ps1`, with a hand-authored LinkedIn-aligned hero section preserved above the generated catalog.
 
 Live GitHub metadata gathered through 2026-06-04 showed:
 
@@ -84,6 +92,7 @@ Live GitHub metadata gathered through 2026-06-04 showed:
 - `scripts/sync-profile.ps1 -Check` validates install entrypoints, raw userscripts, GitHub Pages launch links, release/latest redirects, generated README navigation, action columns, category anchors, and primary-action coverage.
 - Link validation runs in bounded parallel batches and reports target count, elapsed time, throttle, and warning counts by host.
 - `reports/profile-sync-report.json` now includes metadata hygiene, release/download drift, and validation-performance sections for downstream audits.
+- Missing-topic report rows now include generated `topicHints`; missing-description rows include catalog-backed description suggestions where available. The report does not mutate other repositories.
 - `scripts/sync-profile.ps1 -Check` reports structured `metadataDrift` rows for committed-vs-live feed drift; branch/release/action/suppression drift is fatal, while stars, topics, and `pushedAt` are informational.
 - Legacy README reverse parsing through `-SeedCatalog` now requires explicit `-ForceSeedCatalog` and is documented as a lossy one-shot bootstrap, not a routine source-of-truth path.
 - Root `projects.json` is generated from the same catalog for portfolio consumption and includes structured primary-action metadata.
@@ -136,10 +145,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Metadata hygiene and discoverability
 
-- [ ] P1 — Topic coverage and topic/description drift reporting
+- [x] P1 — Topic coverage and topic/description drift reporting
   - Why: live metadata shows 69 active public repos without topics and 4 public repos with empty descriptions, reducing discovery and overloading the catalog with explanatory burden.
   - Touches: `data/profile-catalog.json`, `scripts/sync-profile.ps1` (`Test-ProfileState`), `reports/profile-sync-report.json`, optional helper apply-script.
   - Acceptance: report lists missing topics/descriptions and recommended `topicHints` derived from category/language/platform/role without mutating any repo; any apply mode is separate and requires an explicit allowlist.
+  - Completed: v4.9.9 added category/language/role-derived `topicHints`, catalog description suggestions, and a non-mutating allowlist-required topic hint policy to `metadataHygiene`.
   - Source: ROADMAP.md (P1 topic drift); docs/research-feature-plan-2026-06-04.md (P1 topic/description drift)
 
 - [ ] P1 — Add consistent repo descriptions before README sync
@@ -259,7 +269,7 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Source: TODO.md (blocked)
 
 - [ ] P2 — Topics for ~60 bare repos via `gh api .../topics`
-  - Why: applying topics mutates other repositories, so it needs explicit user go-ahead and a reviewed allowlist (out of scope for autonomous edits to this repo).
+  - Why: applying topics mutates other repositories, so it needs explicit user go-ahead and a reviewed allowlist before any autonomous edit can proceed.
   - Touches: other repositories' topics (reviewed apply only).
   - Acceptance: topics applied only after explicit user approval and allowlist review.
   - Source: TODO.md (blocked); docs/research-feature-plan-2026-06-04.md (open question)
@@ -311,8 +321,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.8`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.8`), `CHANGELOG.md:5` (`## [v4.9.8]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.9`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.9`), `CHANGELOG.md:5` (`## [v4.9.9]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
@@ -434,12 +444,25 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: `gh pr list -R SysAdminDoc/SysAdminDoc --state open --label github_actions` is empty or each remaining PR has a documented defer reason.
   - Complexity: S
 
+### Researcher Queue (Cycle 3 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass looked for workflow/operator-experience gaps after the v4.9.8 report schema expansion rather than adding more catalog features.*
+
+- [ ] P2 — Surface profile-sync results in GitHub Actions job summaries
+  - Why: `.github/workflows/profile-sync.yml` uploads `reports/profile-sync-report.json` as an artifact, but maintainers must download/open the JSON to see high-signal results. The report now includes metadata hygiene, release drift, validation performance, and link-warning summaries, and recent scheduled profile-sync runs show failures before the latest fixes. GitHub Actions supports Markdown job summaries through `$GITHUB_STEP_SUMMARY` and warning/error annotations through workflow commands.
+  - Evidence: `.github/workflows/profile-sync.yml` only has the `Upload sync report` artifact step after `scripts/sync-profile.ps1 -Check`; `gh api repos/SysAdminDoc/SysAdminDoc/actions/runs` showed recent scheduled Profile sync runs concluding failure before the current v4.9.x fixes; GitHub workflow-command docs: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+  - Touches: `.github/workflows/profile-sync.yml`, optional `scripts/sync-profile.ps1` helper to render a concise summary from `reports/profile-sync-report.json`.
+  - Acceptance: check and write-pr modes append a Markdown summary with readme/feed sync status, fatal metadata drift count, missing-topic/description counts, release-drift summary, link target count, warning count by host, and validation duration; fatal or warning conditions also emit GitHub annotations; the JSON artifact remains uploaded with an explicit retention period.
+  - Verify: run the workflow manually or set `GITHUB_STEP_SUMMARY` to a temp file in a local dry run and confirm the summary contains the current report values without exposing private/suppressed repo names.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
 
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
+- [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.

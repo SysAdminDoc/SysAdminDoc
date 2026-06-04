@@ -1715,16 +1715,129 @@ function Test-MetadataDrift {
     }
 }
 
+function ConvertTo-TopicToken {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $null
+    }
+
+    $token = $Value.ToLowerInvariant()
+    $token = $token -replace '\+', 'plus'
+    $token = $token -replace '#', 'sharp'
+    $token = $token -replace '[^a-z0-9]+', '-'
+    $token = $token.Trim('-')
+    if ([string]::IsNullOrWhiteSpace($token)) {
+        return $null
+    }
+    return $token
+}
+
+function Add-TopicHint {
+    param(
+        [System.Collections.Generic.List[string]]$Hints,
+        [string]$Value
+    )
+
+    $token = ConvertTo-TopicToken $Value
+    if (-not [string]::IsNullOrWhiteSpace($token) -and -not $Hints.Contains($token)) {
+        $Hints.Add($token)
+    }
+}
+
+function New-CatalogEntryLookup {
+    param([hashtable[]]$Entries)
+
+    $lookup = @{}
+    foreach ($entry in @($Entries)) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.repo)) {
+            $lookup[([string]$entry.repo).ToLowerInvariant()] = $entry
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.aliasOf)) {
+            $lookup[([string]$entry.aliasOf).ToLowerInvariant()] = $entry
+        }
+    }
+    return $lookup
+}
+
+function Get-TopicHints {
+    param(
+        [string]$Repo,
+        [string]$Language,
+        [hashtable]$Entry,
+        [string]$Description
+    )
+
+    $hints = New-Object System.Collections.Generic.List[string]
+    if ($Entry) {
+        switch ([string]$Entry.category) {
+            "powershell" { foreach ($hint in @("powershell", "windows", "sysadmin")) { Add-TopicHint $hints $hint } }
+            "python" { foreach ($hint in @("python", "desktop-app", "windows")) { Add-TopicHint $hints $hint } }
+            "web" { foreach ($hint in @("web-app", "javascript", "github-pages")) { Add-TopicHint $hints $hint } }
+            "extensions" { foreach ($hint in @("browser-extension", "userscript")) { Add-TopicHint $hints $hint } }
+            "android" { foreach ($hint in @("android", "kotlin")) { Add-TopicHint $hints $hint } }
+            "security" { foreach ($hint in @("security", "networking")) { Add-TopicHint $hints $hint } }
+            "media" { foreach ($hint in @("media", "conversion")) { Add-TopicHint $hints $hint } }
+            "desktop" { foreach ($hint in @("desktop-app", "windows")) { Add-TopicHint $hints $hint } }
+            "guides" { foreach ($hint in @("documentation", "guide")) { Add-TopicHint $hints $hint } }
+            "misc" { Add-TopicHint $hints "utility" }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$Entry.userscriptUrl) -or ([string]$Entry.downloadKind).ToLowerInvariant() -eq "userscript") {
+            Add-TopicHint $hints "userscript"
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$Entry.liveUrl)) {
+            Add-TopicHint $hints "web-app"
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$Entry.entrypoint)) {
+            Add-TopicHint $hints "script"
+        }
+        if ($Entry.currentlyBuilding -eq $true) {
+            Add-TopicHint $hints "active-development"
+        }
+    }
+
+    switch ((ConvertTo-TopicToken $Language)) {
+        "c-sharp" { Add-TopicHint $hints "csharp" }
+        "csharp" { Add-TopicHint $hints "csharp" }
+        "cplusplus" { Add-TopicHint $hints "cpp" }
+        "c" { Add-TopicHint $hints "cpp" }
+        default { Add-TopicHint $hints $Language }
+    }
+
+    $text = "$Repo $Description"
+    if ($text -match '(?i)\bad[- ]?block|hosts') { Add-TopicHint $hints "ad-blocking" }
+    if ($text -match '(?i)\bweather|hurricane|storm') { Add-TopicHint $hints "weather" }
+    if ($text -match '(?i)\bvideo|subtitle') { Add-TopicHint $hints "video" }
+    if ($text -match '(?i)\bimage|photo|icon|wallpaper') { Add-TopicHint $hints "image-tools" }
+    if ($text -match '(?i)\bpdf') { Add-TopicHint $hints "pdf" }
+    if ($text -match '(?i)\bfirewall|network|dns|vpn') { Add-TopicHint $hints "networking" }
+    if ($text -match '(?i)\bprivacy|portable') { Add-TopicHint $hints "privacy" }
+    if ($text -match '(?i)\bconvert|converter|conversion') { Add-TopicHint $hints "conversion" }
+    if ($hints.Count -eq 0) { Add-TopicHint $hints "utility" }
+
+    return @($hints | Select-Object -First 8)
+}
+
 function Test-MetadataHygiene {
-    param([object[]]$Repos)
+    param(
+        [object[]]$Repos,
+        [hashtable[]]$CatalogEntries = @()
+    )
 
     $missingTopics = New-Object System.Collections.Generic.List[object]
     $missingDescriptions = New-Object System.Collections.Generic.List[object]
+    $catalogLookup = New-CatalogEntryLookup -Entries $CatalogEntries
 
     foreach ($repo in @($Repos | Sort-Object name)) {
         $repoName = [string](Get-MemberValue -Object $repo -Name "name")
         if ([string]::IsNullOrWhiteSpace($repoName)) {
             continue
+        }
+        $catalogEntry = $null
+        $repoKey = $repoName.ToLowerInvariant()
+        if ($catalogLookup.ContainsKey($repoKey)) {
+            $catalogEntry = $catalogLookup[$repoKey]
         }
 
         $language = $null
@@ -1747,6 +1860,8 @@ function Test-MetadataHygiene {
                 repo = $repoName
                 language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
                 pushedAt = ConvertTo-IsoText (Get-MemberValue -Object $repo -Name "pushedAt")
+                category = if ($catalogEntry) { [string]$catalogEntry.category } else { $null }
+                topicHints = @(Get-TopicHints -Repo $repoName -Language $language -Entry $catalogEntry -Description ([string](Get-MemberValue -Object $repo -Name "description")))
             })
         }
 
@@ -1755,6 +1870,8 @@ function Test-MetadataHygiene {
             $missingDescriptions.Add([ordered]@{
                 repo = $repoName
                 language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
+                category = if ($catalogEntry) { [string]$catalogEntry.category } else { $null }
+                catalogDescription = if ($catalogEntry -and -not [string]::IsNullOrWhiteSpace([string]$catalogEntry.descriptionOverride)) { [string]$catalogEntry.descriptionOverride } else { $null }
             })
         }
     }
@@ -1762,6 +1879,11 @@ function Test-MetadataHygiene {
     return [ordered]@{
         missingTopicCount = $missingTopics.Count
         missingDescriptionCount = $missingDescriptions.Count
+        topicHintPolicy = [ordered]@{
+            mutatesRepositories = $false
+            applyModeAvailable = $false
+            requiresExplicitAllowlist = $true
+        }
         missingTopics = $missingTopics.ToArray()
         missingDescriptions = $missingDescriptions.ToArray()
     }
@@ -1947,7 +2069,7 @@ function Test-ProfileState {
     }
 
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
-    $metadataHygiene = Test-MetadataHygiene -Repos $Repos
+    $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $reportGeneratedAt = (Get-Date).ToString("o")
     $validationPerformance = [ordered]@{

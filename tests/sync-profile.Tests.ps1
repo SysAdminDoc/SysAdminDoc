@@ -162,18 +162,44 @@ Describe 'Test-LinkTargets batch reporting' {
 
 Describe 'Report schema depth helpers' {
     It 'reports repos missing topics or public descriptions' {
+        $noTopicsEntry = New-TestEntry -Repo 'NoTopics' -Category 'powershell' -Description 'Catalog Windows utility'
+        $noDescriptionEntry = New-TestEntry -Repo 'NoDescription' -Category 'web' -Description 'Catalog web dashboard'
         $repos = @(
             (New-TestRepoMeta -Name 'NoTopics' -Topics @() -Description 'has description'),
             (New-TestRepoMeta -Name 'NoDescription' -Topics @('windows') -Description ''),
             (New-TestRepoMeta -Name 'CompleteRepo' -Topics @('windows') -Description 'ready')
         )
 
-        $result = Test-MetadataHygiene -Repos $repos
+        $result = Test-MetadataHygiene -Repos $repos -CatalogEntries @($noTopicsEntry, $noDescriptionEntry)
 
         $result.missingTopicCount | Should -Be 1
         ($result.missingTopics | ForEach-Object { $_.repo }) | Should -Contain 'NoTopics'
+        $result.missingTopics[0].category | Should -Be 'powershell'
+        $result.missingTopics[0].topicHints | Should -Contain 'powershell'
+        $result.missingTopics[0].topicHints | Should -Contain 'windows'
+        $result.topicHintPolicy.requiresExplicitAllowlist | Should -BeTrue
+        $result.topicHintPolicy.mutatesRepositories | Should -BeFalse
         $result.missingDescriptionCount | Should -Be 1
         ($result.missingDescriptions | ForEach-Object { $_.repo }) | Should -Contain 'NoDescription'
+        $result.missingDescriptions[0].catalogDescription | Should -Be 'Catalog web dashboard'
+    }
+
+    It 'falls back to a generic topic hint when catalog and language signals are empty' {
+        $suppressedEntry = New-TestEntry -Repo 'NoSignals' -Category 'suppressed' -Description ''
+        $repos = @(
+            (New-TestRepoMeta -Name 'NoSignals' -Topics @() -Description '' -Language $null)
+        )
+
+        $result = Test-MetadataHygiene -Repos $repos -CatalogEntries @($suppressedEntry)
+
+        $result.missingTopics[0].topicHints | Should -Contain 'utility'
+    }
+
+    It 'normalizes C++ language topic hints to cpp' {
+        $hints = Get-TopicHints -Repo 'CppTool' -Language 'C++' -Entry $null -Description ''
+
+        $hints | Should -Contain 'cpp'
+        $hints | Should -Not -Contain 'cplusplus'
     }
 
     It 'reports release/download action drift from current catalog metadata' {
