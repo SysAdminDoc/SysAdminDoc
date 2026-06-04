@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 23 - 2026-06-04.
+> Last researched: Cycle 24 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 23 - 2026-06-04.
+Last researched: Cycle 24 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -966,6 +966,21 @@ helper option, not a duplicate of the helper itself.*
   - Verify: add a scratch `.github/actions/example/action.yml` change and confirm the workflow-security path filter would trigger; once actionlint/zizmor coverage is expanded, introduce a malformed action metadata fixture and confirm the guard reports it.
   - Complexity: S
 
+### Researcher Queue (Cycle 24 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass audited the public feed's suppressed
+rows for privacy posture. It is distinct from the README private/medical gate:
+the row is omitted from the README, but still exported through the public feed's
+`suppressed` array.*
+
+- [ ] P1 🤖 🔬 — Redact private suppression rows from the public feed
+  - Why: `projects.json` intentionally includes a `suppressed` array for non-featured public rows, but one current suppressed row is marked as private while still exporting its repo identifier, repo URL, primary action, include flags, and private suppression reason. Private repositories are intended to be accessible only to explicitly authorized users; the public feed should not preserve private repo identifiers unless they have been explicitly approved as public-safe.
+  - Evidence: parsing `projects.json` found 9 suppressed rows; one row has a suppression reason beginning "Repo is private" while still carrying `includeInReadme=true`, `includeInPortfolio=true`, `repoUrl`, and `primaryAction`; `scripts/sync-profile.ps1:1651-1739` emits all suppressed rows into the public feed; `scripts/sync-profile.ps1:3146-3185` enforces private/medical violations for README/profile inclusion but does not redact the feed's suppressed array; GitHub Docs describe private repositories as accessible only to explicitly shared users: https://docs.github.com/articles/limits-for-viewing-content-and-diffs-in-a-repository
+  - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, privacy/report validation), `schemas/profile-projects.v1.json`, generated `projects.json`, `reports/profile-sync-report.json`, and Pester fixtures for private suppressed rows.
+  - Acceptance: public `projects.json` either omits private suppressed rows entirely or emits only aggregate/redacted counts; suppression reasons that mention private state are not exported with repo identifiers; `-Check` fails or warns when a private/medical suppression row would be publicly named; public suppressed rows such as renamed or placeholder public repos can remain with public-safe reasons.
+  - Verify: regenerate with `scripts/sync-profile.ps1 -Write -Check` and confirm the private suppression row is absent or redacted from `projects.json`; add a fixture private suppressed row and confirm Pester catches any exported repo name/url/action; confirm public suppressed rows still support portfolio exclusion and stale-review reporting.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1009,6 +1024,7 @@ P1/P2 needing design or staged rollout:
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
 - [ ] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output.
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
+- [ ] P1 — Public-feed redaction for private suppression rows.
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.

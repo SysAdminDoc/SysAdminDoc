@@ -151,29 +151,30 @@ Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
 2. P1 - Add direct Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
-3. P1 - Add generated Markdown/text safety and URL-scheme validation for README/feed output.
-4. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
-5. P2 - Extend link validation to the hero/header and non-catalog URLs.
-6. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
-7. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
-8. P2 - Add userscript install trust metadata for raw `.user.js` actions.
-9. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
-10. P2 - Add a reduced-motion/static generated profile chrome guard.
-11. P2 - Add a generated profile PR validation handoff for automation-created branches.
-12. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
-13. P2 - Expand CODEOWNERS coverage for profile-contract files.
-14. P2 - Export per-project SPDX/license metadata in the generated feed and report.
-15. P2 - Report GitHub fork-parent drift against catalog attribution.
-16. P2 - Add a public-repo enumeration limit guard.
-17. P2 - Publish a JSON Schema for `profile-sync-report.json`.
-18. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
-19. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
-20. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-21. P3 - Add `.editorconfig` and generated README markdown linting.
-22. P3 - Validate all historical `CHANGELOG.md` release headings.
-23. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
-24. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
-25. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
+3. P1 - Redact private suppression rows from the public `projects.json` feed.
+4. P1 - Add generated Markdown/text safety and URL-scheme validation for README/feed output.
+5. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
+6. P2 - Extend link validation to the hero/header and non-catalog URLs.
+7. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
+8. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
+9. P2 - Add userscript install trust metadata for raw `.user.js` actions.
+10. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
+11. P2 - Add a reduced-motion/static generated profile chrome guard.
+12. P2 - Add a generated profile PR validation handoff for automation-created branches.
+13. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
+14. P2 - Expand CODEOWNERS coverage for profile-contract files.
+15. P2 - Export per-project SPDX/license metadata in the generated feed and report.
+16. P2 - Report GitHub fork-parent drift against catalog attribution.
+17. P2 - Add a public-repo enumeration limit guard.
+18. P2 - Publish a JSON Schema for `profile-sync-report.json`.
+19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
+20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
+21. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+22. P3 - Add `.editorconfig` and generated README markdown linting.
+23. P3 - Validate all historical `CHANGELOG.md` release headings.
+24. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+25. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+26. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
 
 ## Evidence Reviewed
 
@@ -1443,6 +1444,46 @@ path.
 - If the helper is implemented as a PowerShell script under `scripts/` instead,
   this item can be closed by documenting that no local action surface exists.
 
+## Cycle 24 Research Addendum — 2026-06-04
+
+This pass audited the public feed's suppressed rows for privacy posture. The
+README/private profile gate keeps suppressed rows out of the README, but the
+public `projects.json` feed still contains a `suppressed` array.
+
+### Evidence reviewed (cycle 24)
+
+- Parsing `projects.json` found 9 suppressed rows.
+- One suppressed row has a suppression reason beginning "Repo is private" while
+  still carrying include flags, a repo URL, and a primary action in the public
+  feed. The row name is intentionally not repeated here.
+- `scripts/sync-profile.ps1:1651-1739` emits all suppressed rows into
+  `projects.json`.
+- `scripts/sync-profile.ps1:3146-3185` enforces private/medical violations for
+  profile inclusion, but it does not redact private rows from the public
+  suppressed array.
+- GitHub Docs describe private repositories as accessible only to explicitly
+  shared users:
+  https://docs.github.com/articles/limits-for-viewing-content-and-diffs-in-a-repository
+
+### Finding (cycle 24)
+
+- **Major — the public feed can name private suppressed rows.** Suppression is
+  doing its job for the README, but exporting private suppression details in
+  `projects.json` weakens that boundary. Public suppressed rows can remain
+  useful for portfolio exclusion and stale-review reporting, but private or
+  medical/privacy-sensitive rows should be omitted or redacted before the feed is
+  committed.
+  → roadmap "Redact private suppression rows from the public feed". [Verified]
+
+### Standards note (cycle 24)
+
+- Treat private suppression redaction as a public-feed contract issue, not just
+  README hygiene. The portfolio consumes `projects.json`, and the raw feed is
+  directly accessible.
+- Keep public-safe suppression reasons for renamed, duplicate, placeholder, or
+  stale public repos. Only private/privacy-sensitive rows need redaction or
+  aggregate-only handling.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1482,6 +1523,8 @@ path.
 - If generated PR creation becomes a local composite action, should
   workflow-security audit `.github/actions/**` in the same job as workflows or
   through a separate local-action metadata lint step?
+- Should private/privacy-sensitive suppressed rows be omitted entirely from the
+  public feed, or represented only as aggregate redacted counts?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
