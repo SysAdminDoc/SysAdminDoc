@@ -1,7 +1,40 @@
 {
-  "generatedAt": "2026-06-04T03:37:37.6664184-04:00",
+  "generatedAt": "2026-06-04T03:58:55.4475014-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
+  "profileAssetsInSync": true,
+  "profileAssetChecks": [
+    {
+      "path": "assets/profile/activity-dark.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/activity-light.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/languages-dark.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/languages-light.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/stats-dark.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/stats-light.svg",
+      "exists": true,
+      "inSync": true
+    }
+  ],
   "publicRepoCount": 184,
   "catalogEntryCount": 187,
   "includedReadmeCount": 177,
@@ -84,7 +117,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-04T07:33:06.0000000Z",
+        "pushedAt": "2026-06-04T07:55:35.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -461,7 +494,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T07:26:57.0000000Z",
+        "pushedAt": "2026-06-04T07:48:54.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -967,7 +1000,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 4404,
+      "elapsedMs": 4289,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -983,7 +1016,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.47,
+      "ageDays": 2.49,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -993,7 +1026,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 4404,
+    "elapsedMs": 4289,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],
@@ -1007,6 +1040,7 @@
     "plainTextTagline": true,
     "meaningfulImageAltText": true,
     "genericImageAltTextCount": 0,
+    "thirdPartyMetricHostCount": 0,
     "featuredRows": 10,
     "featuredActionColumn": true,
     "currentlyBuildingRows": 5,

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="250" viewBox="0 0 820 250" role="img" aria-label="Language Mix">
+  <rect width="100%" height="100%" rx="0" fill="#ffffff"/>
+  <rect x="12" y="12" width="796" height="226" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="32" y="45" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">Language Mix</text>
+  <text x="32" y="70" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="13">Top visitor-facing project languages from the catalog</text>
+  <circle cx="32" cy="106" r="4" fill="#0969da"/>
+  <text x="46" y="112" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">50</text>
+  <text x="46" y="132" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">Python</text>
+  <text x="46" y="148" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">visitor-facing projects</text>
+  <circle cx="410" cy="106" r="4" fill="#0969da"/>
+  <text x="424" y="112" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">30</text>
+  <text x="424" y="132" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">PowerShell</text>
+  <text x="424" y="148" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">visitor-facing projects</text>
+  <circle cx="32" cy="160" r="4" fill="#0969da"/>
+  <text x="46" y="166" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">26</text>
+  <text x="46" y="186" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">JavaScript</text>
+  <text x="46" y="202" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">visitor-facing projects</text>
+  <circle cx="410" cy="160" r="4" fill="#0969da"/>
+  <text x="424" y="166" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">25</text>
+  <text x="424" y="186" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">HTML</text>
+  <text x="424" y="202" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">visitor-facing projects</text>
+  <circle cx="32" cy="214" r="4" fill="#0969da"/>
+  <text x="46" y="220" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">16</text>
+  <text x="46" y="240" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">Kotlin</text>
+  <text x="46" y="256" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">visitor-facing projects</text>
+  <circle cx="410" cy="214" r="4" fill="#0969da"/>
+  <text x="424" y="220" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">15</text>
+  <text x="424" y="240" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">C#</text>
+  <text x="424" y="256" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">visitor-facing projects</text>
+</svg>

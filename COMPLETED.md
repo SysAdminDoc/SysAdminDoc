@@ -25,6 +25,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Filled the four empty public GitHub repository descriptions from the reviewed `metadataHygiene.missingDescriptions` allowlist and regenerated the report to 0 missing descriptions (v4.9.10). — *Source: ROADMAP.md*
 - [x] Prepared a focused awesome-list submission shortlist with target lists, proposed entry text, and pre-submit gates, without opening external PRs (v4.9.11). — *Source: ROADMAP.md*
 - [x] Added release asset taxonomy from latest-release asset names, exported asset kinds/names in `projects.json`, corrected mismatched catalog labels, and regenerated to 0 release asset kind mismatches (v4.9.13). — *Source: ROADMAP.md*
+- [x] Added committed local SVG profile metric panels, asset sync/report checks, and a scheduled/manual asset-refresh workflow; removed komarev plus third-party stats/streak/activity hosts from the generated README (v4.9.14). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 
