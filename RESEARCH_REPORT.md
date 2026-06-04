@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.23
+Current version after this refresh: v4.9.24
 
 ## Verification Refresh — 2026-06-04
 
@@ -91,6 +91,15 @@ Current version after this refresh: v4.9.23
   `schemaValidation.passed=true`, `projectsExportInSync=true`, 0 metadata drift
   rows, 0 link failures, and 0 link warnings after REST fallback from a
   transient GitHub GraphQL 502.
+- The v4.9.24 batch closed the active P3 "Forge" naming-debt log item without
+  renaming live repositories. `ROADMAP.md` now records WinForge, FirewallForge,
+  NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge, and
+  MediaForge as retained live names to avoid breaking links, releases, stars,
+  and install snippets, while new repository names should avoid the pattern.
+  `scripts/sync-profile.ps1 -Write -Check` passed with
+  `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata
+  drift rows, 0 link failures, and 0 link warnings after REST fallback from a
+  transient GitHub GraphQL 502.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
@@ -142,10 +151,13 @@ Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
 2. P1 - Add direct Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
-3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
-4. P2 - Extend link validation to the hero/header and non-catalog URLs.
-5. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-6. P3 - Log the "Forge" naming debt without renaming live repositories.
+3. P1 - Add generated Markdown/text safety and URL-scheme validation for README/feed output.
+4. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
+5. P2 - Extend link validation to the hero/header and non-catalog URLs.
+6. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
+7. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
+8. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+9. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -603,6 +615,115 @@ This pass focused on workflow reliability budgets after profile validation, Scor
 
 - Use job-level budgets first, with step-level caps only for known live-network or package-install steps. The budgets should leave enough room for full link validation and release-asset refresh, but they should be short enough that a stall is clearly an infrastructure failure rather than an ambiguous validation result.
 
+## Cycle 7 Research Addendum — 2026-06-04
+
+This pass widened from the existing profile-sync queue into generated Markdown
+rendering safety, workflow lint coverage, Windows runtime verification for the
+setup bootstrapper, and release/download trust metadata. It intentionally did
+not add another visual profile-widget item: current competitor research shows
+that many profile generators lean on dynamic cards, visitors counters, live
+previews, and external stats services, while this repo's current philosophy is
+stronger as a committed-assets, public-safe, evidence-backed catalog surface.
+
+### Evidence reviewed (cycle 7)
+
+- Local generator paths: `Get-DisplayDescription` and downstream README/feed
+  renderers insert repo titles, descriptions, upstream attribution, and live
+  metadata into Markdown table/link contexts (`scripts/sync-profile.ps1:467`,
+  `:1221`, `:1243`, `:1313`, `:1683`).
+- Local workflow security path: `.github/workflows/workflow-security.yml:21-36`
+  installs and runs `zizmor`, with no `actionlint` or equivalent workflow
+  syntax/expression checker.
+- Local setup path: `README.md:118-130` advertises the one-paste setup and
+  inspect-before-install `-CheckOnly` command; `tests/sync-profile.Tests.ps1:345-357`
+  only inspects `setup.ps1` source text rather than executing the check-only
+  path.
+- Local release/download evidence: `reports/profile-sync-report.json:846-864`
+  reports 71 release-action rows and classifies APK/EXE/ZIP-like asset kinds,
+  but does not yet record checksum, signature, attestation, SBOM, or explicit
+  unverified status.
+- Live repository evidence: `gh pr list --repo SysAdminDoc/SysAdminDoc` still
+  shows Dependabot workflow-action PRs #5 and #6, which remains covered by the
+  existing Dependabot triage item instead of a new duplicate.
+- Competitor/analogous OSS reviewed through GitHub search/API on 2026-06-04:
+  `rahuldkjain/github-profile-readme-generator` (~24.2k stars, TypeScript,
+  updated 2026-06-04), `Open-Dev-Society/openreadme` (auto-updating bento image
+  generator, updated 2026-06-02), `anuraghazra/github-readme-stats` (~79.5k
+  stars, dynamic stats cards, updated 2026-06-04), `stats-organization/github-readme-stats-action`
+  (GitHub Action for generated stats cards), `abhisheknaiidu/awesome-github-profile-readme`
+  (~30.1k stars, curated profile list), and `durgeshsamariya/awesome-github-profile-readme-templates`
+  (~5.2k stars, template catalog).
+- Official and primary sources reviewed:
+  GitHub profile README docs: https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme
+  GitHub secure-use guidance for full-length SHA pinning and Dependabot action
+  updates: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+  GitHub script-injection docs: https://docs.github.com/en/actions/concepts/security/script-injections
+  GitHub-hosted Windows runner docs: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+  GitHub artifact attestation docs: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
+  GFM spec: https://github.github.com/gfm/
+  Unicode UTS #39: https://www.unicode.org/reports/tr39/
+  `actionlint` README: https://github.com/rhysd/actionlint
+  OpenSSF Scorecard docs/repo: https://github.com/ossf/scorecard
+
+### Harvested opportunities (cycle 7)
+
+- **Markdown/text safety gate** — verify generated public text by Markdown
+  context, not only JSON shape. This is a fit because the repo renders many
+  third-party/live metadata strings into GitHub Markdown and already has a
+  privacy/medical gate for public-surface trust.
+- **Workflow linting with `actionlint`** — add a syntax/expression/run-step
+  lint gate beside `zizmor`. This is a fit because workflow security is already
+  a first-class repo concern and `zizmor` does not replace workflow-language
+  linting.
+- **Windows setup smoke check** — execute `setup.ps1 -CheckOnly` on
+  `windows-latest` for setup-related PRs. This is a fit because the setup path
+  is explicitly for novice Windows users and current tests are source-only.
+- **Release/download trust metadata** — classify release-action rows by
+  checksum/signature/attestation/SBOM/unverified status. This is a fit because
+  the README routes visitors to many executable downloads and the report already
+  owns release asset taxonomy.
+- **Generated card/live preview expansion** — rejected for now. Competitors
+  emphasize it, but SysAdminDoc already has committed local SVG panels and a
+  separate searchable portfolio; more external dynamic cards would undermine
+  the current trust/privacy direction.
+
+### Findings (cycle 7)
+
+- **Major — Generated Markdown has no content-safety layer beyond shape and
+  privacy checks.** JSON Schema catches field shape, and the medical/private
+  gate catches sensitive categories, but generated Markdown still relies on
+  raw titles/descriptions being benign in table/link contexts. → roadmap "Add
+  generated Markdown/text safety and URL-scheme validation". [Verified]
+- **Minor — Workflow security lacks a workflow-language lint companion.**
+  `zizmor` is present and valuable, but the workflow has no `actionlint` pass
+  for syntax, expression, action-input, dependency, cron, and inline-script
+  mistakes. → roadmap "Add `actionlint` beside `zizmor`". [Verified]
+- **Minor — `setup.ps1 -CheckOnly` is advertised but not runtime-smoked on
+  Windows CI.** Pester checks source strings and README output, but not the
+  check-only runtime path users are told to execute. → roadmap "Add a Windows
+  runner smoke check for `setup.ps1 -CheckOnly`". [Verified]
+- **Major — Download trust is classified by asset kind, not by verifiable
+  release evidence.** The report distinguishes EXE/APK/ZIP/source-only rows,
+  but not whether visitor-facing binaries have checksums, signatures,
+  attestations, SBOMs, or a documented unverified status. → roadmap "Add
+  release/download trust metadata for visitor-facing binary rows". [Verified]
+
+### Standards notes (cycle 7)
+
+- Treat generated Markdown safety as a reportable gate, not a cosmetic linter:
+  some characters should be escaped by context, while bidi/control characters
+  and unknown URL schemes should fail validation before the README/feed is
+  written.
+- Keep `actionlint` and `zizmor` complementary: `zizmor` remains the security
+  audit lane; `actionlint` covers workflow-language correctness and common
+  injection-prone constructs.
+- Keep the Windows setup smoke job path-filtered. It should run when setup docs
+  or `setup.ps1` change, not on every unrelated catalog-only edit.
+- Start release trust as report-only warnings. Making missing signatures or
+  attestations fatal across dozens of historical repos would block useful
+  catalog maintenance before the build machine has had a chance to add evidence
+  to the highest-risk download rows.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -614,3 +735,12 @@ This pass focused on workflow reliability budgets after profile validation, Scor
 - Which checks should be required on every pull request versus only on path-filtered profile-pipeline changes if branch protection/rulesets are tightened?
 - Should profile-sync PR validation use a path-filtered workflow, an always-run workflow with internal no-op logic, or a pair of checks so branch protection never waits on skipped profile-sync runs?
 - What timeout budget should be treated as normal for full live profile validation once committed SVG asset refresh and release-asset checks both run in the same automation path?
+- Should generated Markdown content-safety failures be fatal for all current
+  sources, or should GitHub-derived descriptions start as warnings until the
+  existing catalog is cleaned?
+- Which release trust signals should count as sufficient for README-linked
+  EXE/APK/ZIP assets: checksums, signed binaries, GitHub artifact attestations,
+  SBOMs, or a documented unsigned status?
+- Should the Windows setup smoke check become a required PR check only for
+  setup-related paths, or should it remain a manually dispatched regression
+  check until runtime is proven stable?

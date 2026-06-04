@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.24] - 2026-06-04
+
+- Added: Recorded the "Forge" naming-debt log in `ROADMAP.md`, including WinForge, FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge, and the additionally identified MediaForge.
+- Decision: No live repositories were renamed because that would break links, releases, stars, and install snippets; new repository names should avoid the "Forge" pattern.
+- Verified: `scripts/sync-profile.ps1 -Write -Check` passed with `docVersionConsistency.passed=true`, `projectsExportInSync=true`, 0 metadata drift rows, 0 link failures, and 0 link warnings after REST fallback from a transient GitHub GraphQL 502.
+
 ## [v4.9.23] - 2026-06-04
 
 - Added: Catalog entries now support structured `forkOf` and `upstreamLicense` fields, and generated project feed rows now emit `forkOf`, `forkOfUrl`, and `upstreamLicense`.
