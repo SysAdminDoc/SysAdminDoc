@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T17:20:19.6857817-04:00",
+  "generatedAt": "2026-06-03T21:33:49.9166060-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "publicRepoCount": 184,
@@ -11,6 +11,15 @@
   "renamedRepoRedirects": [],
   "linkValidationSkipped": false,
   "linkValidationFailures": [],
+  "linkValidationWarnings": [
+    {
+      "repo": "Vigil",
+      "type": "release",
+      "url": "https://github.com/SysAdminDoc/Vigil/releases/latest",
+      "status": 502,
+      "error": "Response status code does not indicate success: 502 (Bad Gateway or Proxy Error)."
+    }
+  ],
   "readmeExperienceChecks": {
     "passed": true,
     "startHereSection": true,

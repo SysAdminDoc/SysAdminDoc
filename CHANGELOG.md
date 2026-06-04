@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.3] - 2026-06-04
+
+- Added: public-safe companion research and feature plan at `docs/research-feature-plan-2026-06-04.md`, focused on generated-profile drift enforcement, topic/description hygiene, portfolio search, accessibility, release taxonomy, and setup hardening.
+- Changed: Regenerated `README.md` and `projects.json` from `data/profile-catalog.json` plus live GitHub metadata after `scripts/sync-profile.ps1 -Check` detected stale generated star counts.
+- Verified: Full profile sync validation passes with 184 public repos, 187 catalog entries, 177 README entries, 9 suppressions, 0 missing public repos, 0 private visibility violations, 0 medical privacy violations, 0 fatal link failures, and passing README experience checks.
+- Noted: One transient nonfatal 502 warning was recorded for a `/releases/latest` redirect during validation.
+
 ## [v4.9.2] - 2026-06-01
 
 - Fixed: Replaced the first-viewport HTML two-column layout with full-width Markdown sections so **Proof Points** and **Currently Building** no longer render as cramped nested tables on the GitHub profile page.
@@ -113,7 +120,7 @@ All notable changes to SysAdminDoc will be documented in this file.
 - Changed: Update repo count 160+ to 170+ (173 total)
 - Changed: Refresh star counts (nvme-patcher 31, nomad 9, OpenCut 5, VideoSubtitleRemover 4)
 - Added: Astra-Deck (7 stars), StreamKeep, Discrub, GifText, GmailDownloader
-- Removed: 15 private/archived repos from public listings (bypassnro, Mavenwinutil, NeonNote, NexRay, MavenSort, DarkReaderLocal, CallShield, YTYT-Downloader, ScrollJumper, DiggSuite, gSearchTweaks, HNCC, NextDNSPanel, uScriptStash, DuplicateFF)
+- Removed: 15 private/archived repos from public listings.
 - Changed: Renamed InboxForge to GmailDownloader
 - Changed: Updated VaultBox language C++ to TypeScript
 - Changed: Updated all category counts

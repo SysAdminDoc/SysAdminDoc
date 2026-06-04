@@ -1,9 +1,9 @@
 # SysAdminDoc Profile Roadmap
 
-Last research refresh: 2026-05-17
-Evidence bundle: `.ai/research/2026-05-17/`
-Latest profile sync: 2026-06-01
-Current repo version: v4.9.2
+Last research refresh: 2026-06-04
+Evidence bundle: `docs/research-feature-plan-2026-06-04.md`
+Latest profile sync: 2026-06-04
+Current repo version: v4.9.3
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -24,6 +24,7 @@ Live GitHub metadata gathered on 2026-06-01 showed:
 - GitHub GraphQL metadata was returning HTTP 502 during the v4.9.0 pass; the sync script now retries and falls back to REST metadata.
 - The first-viewport profile copy now leads with healthcare IT, DICOM/PACS specialization, 16+ years of infrastructure experience, 10+ production platforms, and quantified proof points while avoiding private project and employer-specific names in the public README.
 - v4.9.2 removed the HTML two-column wrapper around the top content so the Proof Points and Currently Building tables render full-width instead of cramped inside a narrow GitHub profile column.
+- v4.9.3 refreshed generated star counts and the public `projects.json` feed from live GitHub metadata, added `docs/research-feature-plan-2026-06-04.md`, and confirmed full sync validation with zero fatal link failures.
 
 One prior roadmap idea needs correction: search boxes and filter chips cannot run inside the GitHub profile README because GitHub sanitizes rendered markup, including script tags and inline styles. Interactive search/filtering belongs in `sysadmindoc.github.io`; this profile README should remain generated static Markdown.
 
@@ -33,7 +34,7 @@ One prior roadmap idea needs correction: search boxes and filter chips cannot ru
   - Create `data/profile-catalog.json` or `data/profile-catalog.yml` with one row per public catalog entry.
   - Fields: `repo`, `category`, `includeInReadme`, `includeInPortfolio`, `branch`, `entrypoint`, `installKind`, `downloadKind`, `descriptionOverride`, `featured`, `currentlyBuilding`, `privateReason`, `notes`.
   - Seed it from the current README plus live GitHub metadata.
-  - Evidence: README drift counts above; existing clone-install-run standard in `CLAUDE.md`; GitHub REST/GraphQL metadata exposes name, description, topics, default branch, stars, releases, and visibility.
+  - Evidence: README drift counts above; existing clone-install-run standard; GitHub REST/GraphQL metadata exposes name, description, topics, default branch, stars, releases, and visibility.
 
 - [x] Implement `scripts/sync-profile.ps1`.
   - Read catalog data plus GitHub metadata using `gh`.
@@ -175,9 +176,9 @@ Before a generated README refresh is shipped:
 
 ## Source Index
 
-The full source register is `.ai/research/2026-05-17/SOURCE_REGISTER.md`. High-impact sources used in this roadmap include:
+High-impact sources used in this roadmap include:
 
-- Local: `README.md`, `CHANGELOG.md`, `CLAUDE.md`, previous `ROADMAP.md`, `setup.ps1`, `git log`, `gh repo view`, `gh repo list`.
+- Local: `README.md`, `CHANGELOG.md`, previous `ROADMAP.md`, `setup.ps1`, `git log`, `gh repo view`, `gh repo list`.
 - GitHub Docs: profile README requirements, repository README behavior, repository topics, Actions schedule and permissions, secure Actions use.
 - GitHub Markup: rendered README HTML is sanitized before display.
 - Microsoft Learn: WinGet install flags and PowerShell execution-policy behavior.
