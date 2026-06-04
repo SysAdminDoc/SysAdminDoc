@@ -27,6 +27,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added release asset taxonomy from latest-release asset names, exported asset kinds/names in `projects.json`, corrected mismatched catalog labels, and regenerated to 0 release asset kind mismatches (v4.9.13). — *Source: ROADMAP.md*
 - [x] Added committed local SVG profile metric panels, asset sync/report checks, and a scheduled/manual asset-refresh workflow; removed komarev plus third-party stats/streak/activity hosts from the generated README (v4.9.14). — *Source: ROADMAP.md*
 - [x] Removed redundant Shields follower/star image badges, moved total public stars into the local stats SVG, added badge/chrome-count report guards, and fixed duplicate generated stats chrome across repeated writes (v4.9.15). — *Source: ROADMAP.md*
+- [x] Verified the separate `sysadmindoc.github.io` Pagefind search implementation: `/search/`, Pagefind Component UI, build-time `dist/pagefind`, Category filter and Type metadata, and no-JS fallbacks; portfolio build indexed 198 pages / 18,774 words / 1 filter (v4.9.16). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 
