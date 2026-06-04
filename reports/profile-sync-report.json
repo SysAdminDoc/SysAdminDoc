@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T02:43:56.8019226-04:00",
+  "generatedAt": "2026-06-04T02:47:58.3241369-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "publicRepoCount": 184,
@@ -7,7 +7,7 @@
   "includedReadmeCount": 177,
   "metadataHygiene": {
     "missingTopicCount": 69,
-    "missingDescriptionCount": 4,
+    "missingDescriptionCount": 0,
     "topicHintPolicy": {
       "mutatesRepositories": false,
       "applyModeAvailable": false,
@@ -807,32 +807,7 @@
         ]
       }
     ],
-    "missingDescriptions": [
-      {
-        "repo": "AdapterLock",
-        "language": "PowerShell",
-        "category": "powershell",
-        "catalogDescription": "Per-adapter IP lockdown for Windows -- WPF GUI, CLI mode, policy export, and event-log auditing"
-      },
-      {
-        "repo": "facebook-exit-guide",
-        "language": "HTML",
-        "category": "guides",
-        "catalogDescription": "Guide for leaving Facebook"
-      },
-      {
-        "repo": "IMDb_Enhanced",
-        "language": "JavaScript",
-        "category": "extensions",
-        "catalogDescription": "IMDb enhancement userscript"
-      },
-      {
-        "repo": "SysAdminDoc",
-        "language": "PowerShell",
-        "category": null,
-        "catalogDescription": null
-      }
-    ]
+    "missingDescriptions": []
   },
   "releaseAssetDrift": {
     "checkedCatalogRows": 177,
@@ -915,7 +890,7 @@
       "skipped": false,
       "targetCount": 239,
       "throttleLimit": 16,
-      "elapsedMs": 5882,
+      "elapsedMs": 6812,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -931,7 +906,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.43,
+      "ageDays": 2.44,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -941,7 +916,7 @@
   "linkValidationSummary": {
     "targetCount": 239,
     "throttleLimit": 16,
-    "elapsedMs": 5882,
+    "elapsedMs": 6812,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

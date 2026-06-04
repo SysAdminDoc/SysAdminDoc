@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.10] - 2026-06-04
+
+- Changed: Filled the four empty public GitHub repository descriptions reported by `metadataHygiene` for `AdapterLock`, `facebook-exit-guide`, `IMDb_Enhanced`, and `SysAdminDoc`.
+- Changed: Regenerated `projects.json` and `reports/profile-sync-report.json` from the updated live metadata.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 28 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with 69 missing-topic rows, 0 missing-description rows, 239 link targets checked in 6812 ms, 0 link failures, and 0 link warnings.
+
 ## [v4.9.9] - 2026-06-04
 
 - Added: Non-mutating `topicHints` on `metadataHygiene.missingTopics`, derived from catalog category, language, install/download role, live URLs, and safe repo/description keywords.
