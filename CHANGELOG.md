@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.18] - 2026-06-04
+
+- Added: Implemented portfolio consumption of the live SysAdminDoc `projects.json` feed in `C:\Users\--\repos\sysadmindoc.github.io`.
+- Changed: The portfolio now uses build-time `profile-feed:sync` plus `src/data/portfolio.ts` to render catalog cards, project routes, feeds, language lanes, timeline, OG routes, and JSON indexes from the profile feed while preserving local featured/live-app overlays and fallback data.
+- Fixed: Suppressed and non-portfolio feed rows are excluded from generated routes; feed-omitted local-only rows such as `DuplicateFF` no longer render project pages.
+- Verified: Portfolio commit `9117f45 feat(data): render portfolio from profile feed` is pushed to GitHub; `npm run check`, `npm run build`, `npm test`, `rtk git diff --check`, build-output assertions, and focused Chrome CDP browser checks passed with 177 feed projects, 129 download rows, profile-feed metadata, no suppressed/local-only cards, `DuplicateFF` 404, and no mobile overflow at 390 px.
+
 ## [v4.9.17] - 2026-06-04
 
 - Added: Implemented the portfolio New, Recently updated, and Has download catalog views in `C:\Users\--\repos\sysadmindoc.github.io`.
