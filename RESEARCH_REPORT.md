@@ -159,8 +159,9 @@ Top opportunities, in priority order:
 8. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
 9. P2 - Add a reduced-motion/static generated profile chrome guard.
 10. P2 - Add a generated profile PR validation handoff for automation-created branches.
-11. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-12. P3 - Add `.editorconfig` and generated README markdown linting.
+11. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
+12. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+13. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -880,6 +881,55 @@ then receive validation.
   approval-required path or add an explicit `workflow_dispatch` /
   `repository_dispatch` handoff so generated PR validation evidence is visible.
 
+## Cycle 11 Research Addendum — 2026-06-04
+
+This pass focused on observability parity for the committed profile-assets
+refresh workflow. The existing profile-sync job-summary item still applies to
+the main profile-sync workflow; this pass covers the separate workflow that
+refreshes committed SVG assets and also runs the generator/report path.
+
+### Evidence reviewed (cycle 11)
+
+- `.github/workflows/assets-refresh.yml:28-62` runs
+  `./scripts/sync-profile.ps1 -Write -Check`, stages
+  `reports/profile-sync-report.json`, and opens a generated PR when files
+  change.
+- `rg` found no `actions/upload-artifact`, `retention-days`,
+  `GITHUB_STEP_SUMMARY`, `::warning`, or `::error` usage in
+  `.github/workflows/assets-refresh.yml`.
+- `.github/workflows/profile-sync.yml:37-49` runs
+  `./scripts/sync-profile.ps1 -Check` and uploads
+  `reports/profile-sync-report.json` as the `profile-sync-report` artifact.
+- The existing roadmap already has "Profile-sync Actions job summary from
+  reports/profile-sync-report.json"; this finding is about the asset-refresh
+  workflow being outside that named coverage.
+- GitHub artifact docs describe uploading workflow outputs for debugging and
+  custom `retention-days`:
+  https://docs.github.com/en/actions/tutorials/store-and-share-data
+- GitHub workflow-command docs describe job summaries and warning/error
+  annotations:
+  https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+
+### Finding (cycle 11)
+
+- **Minor — profile-assets refresh lacks structured run evidence when it is
+  no-op or fails before PR creation.** The workflow runs the same generator and
+  report-producing check as profile-sync, but it only commits the report when a
+  PR is created. No-op scheduled runs and failures leave maintainers with logs
+  instead of the structured `profile-sync-report.json`, report retention, and
+  high-signal summary fields. → roadmap "Add report artifact and summary parity
+  to profile-assets refresh". [Verified]
+
+### Standards note (cycle 11)
+
+- Keep summaries aggregate-first and public-safe, matching the profile-sync
+  summary work: sync status, profile asset check counts, fatal drift totals,
+  link warnings by host, and duration are useful; private/suppressed repo names
+  should not be printed into run summaries.
+- Prefer a shared report-summary helper if the build machine implements both
+  the profile-sync and asset-refresh observability items together, so future
+  report fields are not summarized differently by workflow.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -888,6 +938,8 @@ then receive validation.
   `pull_request` checks run automatically, keep `GITHUB_TOKEN` with a documented
   approval-required path, or explicitly dispatch the validation workflow after
   PR creation?
+- Should profile-sync and profile-assets refresh share one report-summary helper
+  so their job summaries and annotations cannot drift apart?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
