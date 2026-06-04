@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.12] - 2026-06-04
+
+- Added: Generated theme-aware `<picture>` chrome for the profile header, typing SVG, skill icons, stats cards, streak card, activity graph, and footer.
+- Added: Plain-text profile tagline and descriptive image alt text so the first viewport survives image-host failure and is clearer to assistive technology.
+- Added: README experience checks for theme-aware image chrome, plain-text tagline, meaningful image alt text, and generic-alt regression count.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 30 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with `themeAwareImageChrome=true`, `plainTextTagline=true`, `meaningfulImageAltText=true`, 0 generic image alt labels, 239 link targets checked in 6041 ms, 0 link failures, and 0 link warnings. The run used the REST metadata fallback after a transient GitHub GraphQL 502.
+
 ## [v4.9.11] - 2026-06-04
 
 - Added: Prepared an awesome-list submission candidate plan in `RESEARCH_REPORT.md`, using current catalog data plus live target-list checks.

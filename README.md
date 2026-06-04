@@ -1,13 +1,20 @@
-![Header](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52)
-
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell" alt="Typing SVG" />
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52"><source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=0969DA&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=57606a&descAlignY=52"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52" alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder" /></picture>
 </p>
 
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile Views" />
-  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb&labelColor=0d1117" alt="Followers" />
-  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&labelColor=0d1117&affiliations=OWNER" alt="Stars" />
+  <strong>Healthcare IT engineer and DICOM/PACS specialist</strong><br/>
+  16+ years in IT operations, 10+ production platforms, and public tools across Python, React, C++, C#, Go, Rust, Kotlin, and PowerShell.
+</p>
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"><source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=0969DA&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell" alt="Rotating focus lines for healthcare IT, DICOM/PACS, production platforms, and core languages" /></picture>
+</p>
+
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=SysAdminDoc&label=Profile+Views&color=1f6feb&style=flat" alt="Profile view count for SysAdminDoc" />
+  <img src="https://img.shields.io/github/followers/SysAdminDoc?label=Followers&style=flat&color=1f6feb" alt="GitHub follower count for SysAdminDoc" />
+  <img src="https://img.shields.io/github/stars/SysAdminDoc?label=Total+Stars&style=flat&color=1f6feb&affiliations=OWNER" alt="Total public stars for SysAdminDoc repositories" />
 </p>
 
 
@@ -49,23 +56,23 @@
 
 <p align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13" alt="Tech Stack" />
+    <picture><source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"><source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"><img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13" alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub" /></picture>
   </a>
 </p>
 
 ---
 
 <p align="center">
-  <img src="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=8b949e&ring_color=1f6feb" height="180" alt="GitHub Stats" />
-  <img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" height="180" alt="Top Languages" />
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=8b949e&ring_color=1f6feb"><source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=default&hide_border=true&bg_color=ffffff&title_color=0969da&icon_color=0969da&text_color=57606a&ring_color=0969da"><img src="https://github-readme-stats-sigma-five.vercel.app/api?username=SysAdminDoc&show_icons=true&include_all_commits=true&count_private=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&icon_color=1f6feb&text_color=8b949e&ring_color=1f6feb" alt="SysAdminDoc GitHub contribution and repository statistics" height="180" /></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8"><source media="(prefers-color-scheme: light)" srcset="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=default&hide_border=true&bg_color=ffffff&title_color=0969da&text_color=57606a&langs_count=8"><img src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=SysAdminDoc&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=58a6ff&text_color=8b949e&langs_count=8" alt="Most-used public repository languages for SysAdminDoc" height="180" /></picture>
 </p>
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0D1117&ring=1F6FEB&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=8B949E&dates=8B949E&stroke=30363D" alt="GitHub Streak" />
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0D1117&ring=1F6FEB&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=8B949E&dates=8B949E&stroke=30363D"><source media="(prefers-color-scheme: light)" srcset="https://streak-stats.demolab.com?user=SysAdminDoc&theme=default&hide_border=true&background=FFFFFF&ring=0969DA&fire=0969DA&currStreakLabel=0969DA&sideLabels=57606A&dates=57606A&stroke=d0d7de"><img src="https://streak-stats.demolab.com?user=SysAdminDoc&theme=github-dark-blue&hide_border=true&background=0D1117&ring=1F6FEB&fire=58A6FF&currStreakLabel=58A6FF&sideLabels=8B949E&dates=8B949E&stroke=30363D" alt="SysAdminDoc GitHub contribution streak summary" /></picture>
 </p>
 
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-dark&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb" width="98%" alt="Activity Graph" />
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-dark&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb"><source media="(prefers-color-scheme: light)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-light&hide_border=true&bg_color=ffffff&color=0969da&line=0969da&point=0969da&area=true&area_color=0969da"><img src="https://github-readme-activity-graph.vercel.app/graph?username=SysAdminDoc&theme=github-dark&hide_border=true&bg_color=0d1117&color=58a6ff&line=1f6feb&point=58a6ff&area=true&area_color=1f6feb" alt="SysAdminDoc GitHub contribution activity graph" width="98%" /></picture>
 </p>
 
 ---
@@ -726,4 +733,4 @@ Start with: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory
 </details>
 
 
-![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer)
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer"><source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=120&section=footer"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer" alt="Decorative footer wave for the SysAdminDoc profile" /></picture>

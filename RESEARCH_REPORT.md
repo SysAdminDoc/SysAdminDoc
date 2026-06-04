@@ -5,20 +5,26 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.11
+Current version after this refresh: v4.9.12
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 28/28 tests after the v4.9.9 topic/description drift guidance update.
+  passed 30/30 tests after the v4.9.12 theme-aware chrome update.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
   drift rows, `metadataHygiene` showing 69 missing-topic repos, generated
   `topicHints` on all missing-topic rows, and 0 missing descriptions,
-  `releaseAssetDrift` checking 177 visitor-facing rows, full link validation
-  enabled, 239 link targets checked in 6812 ms, 0 link failures, and 0 link
-  warnings. Raw `projectsExportInSync` remains a report signal;
+  `readmeExperienceChecks` showing theme-aware image chrome, plain-text tagline,
+  meaningful image alt text, and 0 generic image alt labels, `releaseAssetDrift`
+  checking 177 visitor-facing rows, full link validation enabled, 239 link
+  targets checked in 6041 ms, 0 link failures, and 0 link warnings. Raw
+  `projectsExportInSync` remains a report signal;
   info-only star/topic/`pushedAt` drift is now reported without failing the gate.
+- The v4.9.12 batch closed the active P1 theme-aware image chrome item by
+  generating dark/light `<picture>` sources for profile chrome, adding a
+  plain-text tagline, replacing generic image alt labels, and validating those
+  checks in `readmeExperienceChecks`.
 - The v4.9.10 batch closed the active P1 public-repo description item by filling
   the four-row `metadataHygiene.missingDescriptions` allowlist on GitHub and
   regenerating the report to 0 missing descriptions.
@@ -57,9 +63,9 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
-3. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
-4. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
+2. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
+3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
+4. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
 5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
 6. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
 7. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
@@ -214,7 +220,7 @@ Important integrations:
 - User value: prevents stale, private, renamed, broken, or malformed public profile links.
 - Entry point: `scripts/sync-profile.ps1 -Check`.
 - Main code: `Test-ProfileState`, `Test-ReadmeExperience`, `Test-LinkTargets`, `Test-HttpUrl`.
-- Current maturity: strong; final check passed with zero fatal link failures, zero link warnings, structured metadata drift detail, parallel link probes, non-mutating topic guidance, and zero missing public descriptions.
+- Current maturity: strong; final check passed with zero fatal link failures, zero link warnings, structured metadata drift detail, parallel link probes, non-mutating topic guidance, generated theme-aware chrome checks, and zero missing public descriptions.
 - Improvement opportunities: add doc-version consistency checks and a reviewed apply lane for topic cleanup.
 
 ### Public Project Feed
@@ -238,7 +244,7 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 5882 ms with zero warnings.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 6041 ms with zero warnings.
 - Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow
@@ -312,7 +318,6 @@ Important integrations:
 
 - Run generated metadata refresh whenever `-Check` reports `readmeInSync=false` or fatal `metadataDrift` rows; raw `projectsExportInSync=false` can now be informational when only star/topic/`pushedAt` metadata changed.
 - Review the generated topic hints before any cross-repo topic mutation.
-- Add real alt text and a plain-text tagline under the hero.
 - Add `#Requires -Version 5.1` and `-CheckOnly` to `setup.ps1`.
 - Add a Pester fixture for the nonfatal link-warning path.
 - Add a generated warning banner around generated README sections.
@@ -463,6 +468,26 @@ This pass focused on operator experience around the richer v4.9.8/v4.9.9 sync re
 
 - Keep the job summary public-safe and aggregate-first: counts, warning hosts, fatal drift totals, and generic hygiene summaries are useful; private/suppressed repo names should stay out of the run summary unless already public-safe in the committed report.
 
+## Cycle 4 Research Addendum — 2026-06-04
+
+This pass audited live repository governance settings rather than the generated catalog. The new finding is operator/admin-gated because it changes GitHub branch-protection or ruleset settings, not source code.
+
+### Evidence reviewed (cycle 4)
+
+- `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection --jq '{required_status_checks,required_pull_request_reviews,required_conversation_resolution,enforce_admins,allow_force_pushes,allow_deletions,required_linear_history,required_signatures}'` returned `required_status_checks=null` and `required_pull_request_reviews=null`, while `required_conversation_resolution.enabled=true`, `enforce_admins.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`.
+- `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returned an empty list, so no repository ruleset currently compensates for the missing required status checks.
+- Existing workflows already expose candidate checks: Pester, workflow security (`zizmor`), Scorecard, and Profile sync. The branch policy should require only stable, intentional check names to avoid blocking merges on ambiguous or path-skipped checks.
+- GitHub's protected-branch docs state that required status checks can require checks to pass before merging and note that duplicate job names can create ambiguous results: https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches/
+- GitHub ruleset docs describe rulesets as another way to control branch/tag interactions and require status checks, with evaluate/enforce modes and bypass options: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository
+
+### Finding (cycle 4)
+
+- **Major — Main branch checks are not enforced by branch policy.** The repo has useful validation workflows and partial branch protection, but live settings do not require those checks before merge. A generated-profile, Pester, or workflow-security regression can become a policy miss if a maintainer merges without manually reviewing checks. → roadmap "Require validation status checks on `main`". [Verified]
+
+### Standards note (cycle 4)
+
+- Prefer starting in an evaluated ruleset or a narrow branch-protection update if there is uncertainty about path-filtered workflows. Required checks should use unique, stable job names and should not require scheduled-only checks that do not run on pull requests.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -471,3 +496,4 @@ This pass focused on operator experience around the richer v4.9.8/v4.9.9 sync re
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
 - Should issue templates live only in this repo, or should the account-level `.github` community-health repo carry shared catalog/link templates for all public SysAdminDoc repositories?
+- Which checks should be required on every pull request versus only on path-filtered profile-pipeline changes if branch protection/rulesets are tightened?
