@@ -175,6 +175,7 @@ Top opportunities, in priority order:
 24. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
 25. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 26. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
+27. P3 - Stagger same-minute scheduled maintenance workflows.
 
 ## Evidence Reviewed
 
@@ -1484,6 +1485,40 @@ public `projects.json` feed still contains a `suppressed` array.
   stale public repos. Only private/privacy-sensitive rows need redaction or
   aggregate-only handling.
 
+## Cycle 25 Research Addendum — 2026-06-04
+
+This pass checked scheduled workflow cadence after the workflow and generated-PR
+guardrail items. It found a low-priority operations hygiene issue, not a failing
+validation path.
+
+### Evidence reviewed (cycle 25)
+
+- `.github/workflows/assets-refresh.yml` schedules `cron: "19 8 * * 3"`.
+- `.github/workflows/workflow-security.yml` schedules the same
+  `cron: "19 8 * * 3"`.
+- `profile-sync.yml` is staggered on Tuesday/Friday at `37 7 * * 2,5`.
+- `scorecard.yml` is staggered on Thursday at `43 8 * * 4`.
+- GitHub Actions docs note scheduled workflows can be delayed or dropped during
+  high-load periods and recommend scheduling at a different minute of the hour
+  to reduce delay risk:
+  https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+
+### Finding (cycle 25)
+
+- **Cosmetic — two independent scheduled maintenance workflows start in the same
+  minute.** `assets-refresh` and `workflow-security` do different work, but
+  running both at Wednesday 08:19 makes run triage noisier and can stack package
+  installs, GitHub API calls, and generated-output checks in the same
+  maintenance window.
+  → roadmap "Stagger same-minute scheduled maintenance workflows". [Verified]
+
+### Standards note (cycle 25)
+
+- Keep this as hygiene. The existing timeout-budget item remains the real
+  control for hung jobs; schedule staggering only improves attribution and
+  reduces avoidable overlap.
+- Preserve manual dispatch behavior and avoid top-of-hour cron values.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1525,6 +1560,8 @@ public `projects.json` feed still contains a `suppressed` array.
   through a separate local-action metadata lint step?
 - Should private/privacy-sensitive suppressed rows be omitted entirely from the
   public feed, or represented only as aggregate redacted counts?
+- Should the repo adopt a simple maintenance-window convention for scheduled
+  workflows, or only stagger accidental same-minute collisions as they appear?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
