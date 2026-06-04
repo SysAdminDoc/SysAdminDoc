@@ -164,8 +164,9 @@ Top opportunities, in priority order:
 13. P2 - Export per-project SPDX/license metadata in the generated feed and report.
 14. P2 - Report GitHub fork-parent drift against catalog attribution.
 15. P2 - Add a public-repo enumeration limit guard.
-16. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-17. P3 - Add `.editorconfig` and generated README markdown linting.
+16. P2 - Publish a JSON Schema for `profile-sync-report.json`.
+17. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+18. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -1103,6 +1104,48 @@ future-proofing guard rather than a current truncation failure.
   with the configured limit as suspicious, because an exact hit is more likely
   to indicate truncation than a naturally exact repository count.
 
+## Cycle 16 Research Addendum — 2026-06-04
+
+This pass focused on the committed sync report's machine-readable contract now
+that multiple queued workflow-summary, artifact, and report-consumer items
+depend on stable report fields.
+
+### Evidence reviewed (cycle 16)
+
+- `schemas/` currently contains only `profile-catalog.v1.json` and
+  `profile-projects.v1.json`.
+- `reports/profile-sync-report.json` has structured top-level fields including
+  `generatedAt`, `readmeInSync`, `projectsExportInSync`,
+  `profileAssetsInSync`, `metadataHygiene`, `releaseAssetDrift`,
+  `validationPerformance`, `readmeExperienceChecks`, `schemaValidation`, and
+  `docVersionConsistency`.
+- `reports/profile-sync-report.json` has no top-level `schema` or `$schema`
+  pointer.
+- `tests/sync-profile.Tests.ps1` validates catalog/feed schema contracts and
+  report helper behavior, but it does not validate the full sync-report document
+  against a versioned schema.
+- JSON Schema's official site describes the vocabulary as enabling JSON data
+  consistency, validation, documentation, and interoperability:
+  https://json-schema.org/
+
+### Finding (cycle 16)
+
+- **Minor — the sync report has no published schema contract.** The report is
+  already the central evidence artifact for generated-profile checks and will be
+  parsed by planned job summaries, artifacts, and report parity work, but its
+  fields are not described by a versioned schema the way catalog/feed fields are.
+  → roadmap "Publish a JSON Schema for profile-sync-report.json". [Verified]
+
+### Standards note (cycle 16)
+
+- Keep this schema pragmatic. The report contains arrays of diagnostic records
+  where strict item schemas are useful, but it should still allow additive fields
+  so future research/build cycles can extend report evidence without breaking
+  older consumers.
+- Avoid circular validation confusion: catalog/feed schema validation remains a
+  report field, while report-schema validation should be a separate generated
+  check or Pester assertion with a clear failure message.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1121,6 +1164,8 @@ future-proofing guard rather than a current truncation failure.
   `github-fork`, `continuation`, or `imported-fork`?
 - What public-repo count threshold should warn before the configured enumeration
   cap becomes a real truncation risk?
+- Should the sync-report schema be strict for all diagnostic arrays, or allow
+  additive fields so report consumers survive future validation sections?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
