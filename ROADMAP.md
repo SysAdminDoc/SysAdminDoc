@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 20 - 2026-06-04.
+> Last researched: Cycle 21 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 20 - 2026-06-04.
+Last researched: Cycle 21 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -921,6 +921,21 @@ versions with GitHub Releases or tags.*
   - Verify: run `scripts/sync-profile.ps1 -Check` and confirm a `repositoryReleaseConsistency` (or equivalent) section captures the current `v4.9.24` vs `v3.0.0` drift; publish/tag a scratch or real release and confirm the warning clears; simulate an older latest release in a fixture and confirm Pester catches the mismatch.
   - Complexity: M
 
+### Researcher Queue (Cycle 21 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass stayed on public planning-doc quality.
+It does not duplicate the v4.9.20 `docVersionConsistency` gate, which validates
+the latest changelog version/date; this item covers historical changelog heading
+shape.*
+
+- [ ] P3 🤖 🔬 — Validate all changelog release headings
+  - Why: `Test-DocVersionConsistency` validates the latest changelog heading, but older release headings can still carry malformed generated text. One historical `v3.0.0` heading currently contains `%Y->- (HEAD -> main, origin/main, origin/HEAD)`, which weakens the public changelog and can confuse release/tag automation.
+  - Evidence: `CHANGELOG.md:278` is `## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)`; a focused heading scan found that line as the only `## [version] - date` heading whose date does not match `YYYY-MM-DD`; `scripts/sync-profile.ps1:2580-2585` parses only the latest changelog version/date; Keep a Changelog examples use second-level version headings with ISO-style dates such as `## [1.1.1] - 2023-03-05`: https://keepachangelog.com/en/1.1.0/
+  - Touches: `scripts/sync-profile.ps1` (`Test-DocVersionConsistency`), `tests/sync-profile.Tests.ps1`, `CHANGELOG.md` cleanup by the build machine, and `reports/profile-sync-report.json`.
+  - Acceptance: `docVersionConsistency` or a sibling report block validates every `CHANGELOG.md` release heading for `## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD`; malformed historical headings are reported with line numbers; the existing `v3.0.0` heading is corrected or explicitly marked as legacy in a machine-readable exception.
+  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm no malformed changelog-heading warnings remain after cleanup; inject a bad historical heading in a fixture and confirm Pester fails or reports the exact line.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -948,6 +963,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
+- [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

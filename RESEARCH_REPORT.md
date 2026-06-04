@@ -169,8 +169,9 @@ Top opportunities, in priority order:
 18. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
 19. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 20. P3 - Add `.editorconfig` and generated README markdown linting.
-21. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
-22. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+21. P3 - Validate all historical `CHANGELOG.md` release headings.
+22. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+23. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 
 ## Evidence Reviewed
 
@@ -1321,6 +1322,44 @@ Releases and tags are behind that version series.
 - This should augment, not replace, `docVersionConsistency`: tracked docs can be
   internally aligned while still drifting from public release/tag state.
 
+## Cycle 21 Research Addendum — 2026-06-04
+
+This pass checked the public changelog beyond the latest heading already covered
+by `docVersionConsistency`. The current latest heading is valid, but historical
+release headings are not validated.
+
+### Evidence reviewed (cycle 21)
+
+- `CHANGELOG.md:278` is `## [v3.0.0] - %Y->- (HEAD -> main, origin/main,
+  origin/HEAD)`.
+- A focused scan of `CHANGELOG.md` release headings found that line as the only
+  heading whose date portion does not match `YYYY-MM-DD`.
+- `scripts/sync-profile.ps1:2580-2585` parses the latest changelog version/date
+  for cross-doc consistency, but it does not scan all release headings.
+- Pester coverage exercises matching latest versions and stale latest dates, but
+  not malformed historical headings.
+- Keep a Changelog examples use second-level version headings with ISO-style
+  dates such as `## [1.1.1] - 2023-03-05`:
+  https://keepachangelog.com/en/1.1.0/
+
+### Finding (cycle 21)
+
+- **Cosmetic — historical changelog release headings can be malformed without
+  failing checks.** The active doc-version gate is doing useful work for the
+  current version, but an older `v3.0.0` heading still contains leaked git/status
+  text instead of a date. The build machine should either clean the heading and
+  validate all historical release headings, or record a narrow legacy exception
+  if the original date cannot be recovered.
+  → roadmap "Validate all changelog release headings". [Verified]
+
+### Standards note (cycle 21)
+
+- Keep the heading rule simple and explainable: `## [vMAJOR.MINOR.PATCH] -
+  YYYY-MM-DD`. If historical dates are unknown, prefer a documented exception or
+  an "Unknown date" policy over allowing arbitrary shell output in headings.
+- This should be a docs-quality warning unless the malformed heading can break
+  downstream release tooling; the latest-heading mismatch should remain fatal.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1352,6 +1391,8 @@ Releases and tags are behind that version series.
 - Should `v4.9.x` planning versions produce matching GitHub Releases/tags, or
   should this repo document that changelog versions are internal profile-doc
   milestones and releases are intentionally sparse?
+- Should malformed historical changelog headings fail `-Check`, or start as
+  report warnings until the existing `v3.0.0` date can be recovered?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
