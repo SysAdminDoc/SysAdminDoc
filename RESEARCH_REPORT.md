@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.22
+Current version after this refresh: v4.9.23
 
 ## Verification Refresh — 2026-06-04
 
@@ -81,6 +81,16 @@ Current version after this refresh: v4.9.22
   `readmeInSync=true`, `projectsExportInSync=true`,
   `docVersionConsistency.passed=true`, 0 metadata drift rows, 0 link failures,
   and 0 link warnings.
+- The v4.9.23 batch closed the active P3 fork/continuation attribution item by
+  adding structured `forkOf` and `upstreamLicense` catalog fields, generated
+  `forkOf`, `forkOfUrl`, and `upstreamLicense` feed fields, and README
+  upstream/license rendering for featured, category, and currently-building
+  rows. AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser,
+  TabExplorer, Vigil, and TagStudio now carry explicit attribution metadata.
+  Pester passed 44/44 and `scripts/sync-profile.ps1 -Write -Check` passed with
+  `schemaValidation.passed=true`, `projectsExportInSync=true`, 0 metadata drift
+  rows, 0 link failures, and 0 link warnings after REST fallback from a
+  transient GitHub GraphQL 502.
 - The v4.9.14 batch closed the active P2 action-baked assets item by generating
   committed local SVG metric panels, validating them in the sync report, adding
   a scheduled/manual asset-refresh workflow, and removing komarev plus the
@@ -134,8 +144,8 @@ Top opportunities, in priority order:
 2. P1 - Add direct Pester coverage for the safety-critical `Test-ProfileState`, `Update-Header`, and medical-gate paths.
 3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
 4. P2 - Extend link validation to the hero/header and non-catalog URLs.
-5. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
-6. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+5. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+6. P3 - Log the "Forge" naming debt without renaming live repositories.
 
 ## Evidence Reviewed
 

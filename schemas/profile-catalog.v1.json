@@ -166,6 +166,12 @@
         "allowPublicMedical": {
           "type": "boolean"
         },
+        "forkOf": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "upstreamLicense": {
+          "$ref": "#/$defs/nullableString"
+        },
         "aliasOf": {
           "$ref": "#/$defs/nullableString"
         },

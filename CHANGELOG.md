@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.23] - 2026-06-04
+
+- Added: Catalog entries now support structured `forkOf` and `upstreamLicense` fields, and generated project feed rows now emit `forkOf`, `forkOfUrl`, and `upstreamLicense`.
+- Changed: Featured rows, category rows, and currently-building rows now render upstream repository and license attribution consistently for forked or continued projects.
+- Changed: Added upstream/license metadata for AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser, TabExplorer, Vigil, and TagStudio, removing ad hoc `(fork)`/license text from their descriptions.
+- Added: Updated catalog/projects JSON Schemas and Pester coverage for upstream attribution rendering and feed export fields.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passed 44/44; `scripts/sync-profile.ps1 -Write -Check` passed with `schemaValidation.passed=true`, `projectsExportInSync=true`, 0 metadata drift rows, 0 link failures, and 0 link warnings after REST fallback from a transient GitHub GraphQL 502.
+
 ## [v4.9.22] - 2026-06-04
 
 - Changed: Moved WolfPack out of Security & Networking and into Native Desktop Applications, adjacent to Vigil.
