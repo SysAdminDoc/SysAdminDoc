@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.10
+Current version after this refresh: v4.9.11
 
 ## Verification Refresh — 2026-06-04
 
@@ -22,6 +22,9 @@ Current version after this refresh: v4.9.10
 - The v4.9.10 batch closed the active P1 public-repo description item by filling
   the four-row `metadataHygiene.missingDescriptions` allowlist on GitHub and
   regenerating the report to 0 missing descriptions.
+- The v4.9.11 batch closed the active P1 awesome-list item by preparing a
+  small candidate shortlist with live target-list checks and proposed entry text;
+  no external pull requests were opened in this repo batch.
 - The v4.9.9 batch closed the active P1 topic/description drift reporting item
   by adding non-mutating topic hints, catalog categories, catalog-backed
   description suggestions, and an explicit allowlist-required apply policy.
@@ -54,9 +57,9 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
+2. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
 3. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
-4. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
+4. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
 5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
 6. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
 7. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
@@ -102,6 +105,45 @@ External sources reviewed:
 - skill-icons: https://github.com/tandpfun/skill-icons
 - OpenSSF Scorecard: https://github.com/ossf/scorecard
 - zizmor: https://docs.zizmor.sh/
+
+## Awesome-List Submission Candidate Plan — 2026-06-04
+
+Status: prepared candidate plan only. External pull requests were not opened in
+this repo batch; the lines below are ready for a separate cross-repository
+submission pass.
+
+Live target-list checks:
+
+- `awesome-foss/awesome-sysadmin` is active, public, and not archived; it is a
+  curated open-source sysadmin resource list and its README points additions to
+  the Contributing section. The repo contains a `.github/PULL_REQUEST_TEMPLATE.md`
+  and no root `CONTRIBUTING.md`.
+- `awesome-scripts/awesome-userscripts` is active, public, and not archived.
+  Its `CONTRIBUTING.md` says submissions should be noteworthy, fill a gap, use
+  one pull request per suggestion, and stay alphabetically sorted.
+- `abhisheknaiidu/awesome-github-profile-readme` is active, public, and not
+  archived. Its `contributing.md` asks for profile READMEs that stand out, one
+  pull request per suggestion, and names starting with a capital.
+- The archived `janikvonrotz/awesome-powershell` repo now points to Codeberg, so
+  it is not a GitHub PR target for this batch.
+
+Prepared shortlist:
+
+| Target list | Candidate | Fit | Proposed entry text | Pre-submit gate |
+|---|---|---|---|---|
+| `awesome-foss/awesome-sysadmin` | `Network_Security_Auditor` | Sysadmin security auditing; current repo has MIT license metadata, topics, release, and no broken profile links. | `[Network Security Auditor](https://github.com/SysAdminDoc/Network_Security_Auditor) - Windows security audit runner with compliance mappings and MITRE ATT&CK reporting. ([Source Code](https://github.com/SysAdminDoc/Network_Security_Auditor)) \`MIT\` \`PowerShell\`` | Confirm target section with maintainer convention; likely Monitoring & Status Pages or Miscellaneous. |
+| `awesome-foss/awesome-sysadmin` | `win11-nvme-driver-patcher` | Niche Windows storage-driver utility with strong stars, MIT license metadata, topics, and a release download. | `[Win11 NVMe Driver Patcher](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) - GUI tool to enable the experimental Windows Server 2025 NVMe storage driver on Windows 11. ([Source Code](https://github.com/SysAdminDoc/win11-nvme-driver-patcher)) \`MIT\` \`PowerShell\`` | Confirm the list accepts workstation-admin utilities; otherwise keep for a Windows-specific target. |
+| `awesome-scripts/awesome-userscripts` | `UserScript-Finder` | Userscript discovery tool with current topics, MIT license metadata, raw install action, and a gap-filling search use case. | `[UserScript Finder](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) - Discover userscripts for the current site across GreasyFork, SleazyFork, and GitHub. ([Source Code](https://github.com/SysAdminDoc/UserScript-Finder))` | Submit one PR only, alphabetize in the best matching Links or Navigation section, and verify no duplicate existing entry. |
+| `abhisheknaiidu/awesome-github-profile-readme` | `SysAdminDoc` profile README | Generated public catalog profile with current descriptions, drift checks, and live portfolio feed. | `[SysAdminDoc](https://github.com/SysAdminDoc/SysAdminDoc)` | Submit one PR, choose the best category after reviewing existing Dynamic Realtime / GitHub Actions examples, and keep display name capitalized. |
+
+Deferred candidates:
+
+- `AppManagerNG`, `NovaCut`, `DefenderControl`, `DisableDefender`, and
+  `OpenTasker` remain good future candidates, but they should wait until the
+  missing-topic report is applied or the target list has a better matching
+  category.
+- Browser-extension and Android-app lists are fragmented; no stronger active
+  target than the userscript/profile/sysadmin lists was identified in this pass.
 
 Areas not fully verified:
 

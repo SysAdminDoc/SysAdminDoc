@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.10
+Current repo version: v4.9.11
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -28,6 +28,13 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.11 refresh: the awesome-list batch prepared a curated
+submission plan in `RESEARCH_REPORT.md` using current catalog data, live target
+list metadata, and contribution-guideline checks. The prepared shortlist covers
+`Network_Security_Auditor`, `win11-nvme-driver-patcher`, `UserScript-Finder`,
+and the `SysAdminDoc` profile README. No external pull requests were opened in
+this repo batch.
 
 2026-06-04 v4.9.10 refresh: the four empty public GitHub repository
 descriptions reported by `metadataHygiene` were filled for `AdapterLock`,
@@ -166,10 +173,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.10 filled the four-row `metadataHygiene.missingDescriptions` allowlist on GitHub and regenerated the report to 0 missing descriptions.
   - Source: ROADMAP.md (P1)
 
-- [ ] P1 — Submit focused projects to relevant awesome lists after metadata is clean
+- [x] P1 — Submit focused projects to relevant awesome lists after metadata is clean
   - Why: clean taxonomy, stable descriptions, and link hygiene make selective awesome-list submissions worthwhile (sysadmin utilities, Android apps, browser extensions, local-first tools, profile/portfolio tooling).
   - Touches: external awesome-list PRs; candidate selection from the catalog.
   - Acceptance: a small, curated set of submissions is prepared only after topic/description hygiene lands.
+  - Completed: v4.9.11 prepared the candidate plan and submission lines in `RESEARCH_REPORT.md`; external PRs remain a separate cross-repository action.
   - Source: ROADMAP.md (P1)
 
 ### Accessibility and README chrome
@@ -329,8 +337,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.10`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.10`), `CHANGELOG.md:5` (`## [v4.9.10]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.11`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.11`), `CHANGELOG.md:5` (`## [v4.9.11]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
