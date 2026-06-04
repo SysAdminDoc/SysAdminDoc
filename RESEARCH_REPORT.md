@@ -158,8 +158,9 @@ Top opportunities, in priority order:
 7. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
 8. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
 9. P2 - Add a reduced-motion/static generated profile chrome guard.
-10. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-11. P3 - Add `.editorconfig` and generated README markdown linting.
+10. P2 - Add a generated profile PR validation handoff for automation-created branches.
+11. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+12. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -823,10 +824,70 @@ typing line.
   those items answer where images come from and whether URLs stay alive; this
   item answers whether generated chrome respects motion-sensitive users.
 
+## Cycle 10 Research Addendum — 2026-06-04
+
+This pass focused on generated PR workflow semantics. It does not replace the
+existing pull-request profile-sync check or branch-protection items; it covers
+the handoff case where a workflow itself creates the branch and PR that should
+then receive validation.
+
+### Evidence reviewed (cycle 10)
+
+- `.github/workflows/profile-sync.yml:67-101` sets `GH_TOKEN` to
+  `${{ github.token }}`, creates an `automation/profile-sync-*` branch, pushes
+  it with an x-access-token remote, and opens a PR with `gh pr create`.
+- `.github/workflows/assets-refresh.yml:31-62` uses the same default
+  `${{ github.token }}` pattern for `automation/profile-assets-*` PRs.
+- Both write paths correctly scope job permissions to `contents: write` and
+  `pull-requests: write`, and both checkout steps set `persist-credentials:
+  false`; the risk is not overbroad checkout credential persistence.
+- GitHub's workflow-trigger documentation says `GITHUB_TOKEN`-created
+  `pull_request` events for opened, synchronize, or reopened can create
+  workflow runs in an approval-required state, while other events such as push
+  do not create new workflow runs. The same page says a GitHub App installation
+  access token or PAT can be used when automation-created PRs should run
+  validation automatically:
+  https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow
+- GitHub's `GITHUB_TOKEN` authentication docs recommend least-required token
+  permissions and describe GitHub App/PAT tokens when additional permissions or
+  behavior are needed:
+  https://docs.github.com/en/actions/tutorials/authenticate-with-github_token
+- The open roadmap already contains "Run profile-sync validation on
+  profile/catalog pull requests" and "Require validation status checks on
+  main"; this finding is the missing generated-PR trigger path those items will
+  depend on.
+
+### Finding (cycle 10)
+
+- **Minor — generated profile PR validation may require manual approval or miss
+  push-only checks.** The manual/scheduled generated-PR jobs use `github.token`
+  to create the branch and pull request. Current GitHub behavior can create
+  approval-required `pull_request` runs for those PRs, but push-triggered
+  workflows remain suppressed. Unless the build machine chooses a
+  least-privilege GitHub App/PAT token, dispatches validation explicitly, or
+  documents the approval-required path, generated PRs can lack unattended
+  validation evidence when branch policy starts requiring checks. → roadmap
+  "Add a validation handoff for generated profile PRs". [Verified]
+
+### Standards note (cycle 10)
+
+- Treat token choice as part of the generated-PR contract, not as a generic
+  hardening cleanup. The current workflows already use narrow permissions and
+  disable checkout credential persistence; the missing control is proof that
+  generated PRs receive the same validation evidence as human-authored PRs.
+- Prefer a GitHub App installation token over a broad PAT if this repo gets a
+  durable automation identity. If secrets are not desired, document the
+  approval-required path or add an explicit `workflow_dispatch` /
+  `repository_dispatch` handoff so generated PR validation evidence is visible.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
 - Should low-risk generated metadata drift be auto-PR'd on schedule, or should scheduled jobs remain check-only with manual `write-pr`?
+- Should generated profile PRs use a GitHub App installation token/PAT so normal
+  `pull_request` checks run automatically, keep `GITHUB_TOKEN` with a documented
+  approval-required path, or explicitly dispatch the validation workflow after
+  PR creation?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?

@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 9 - 2026-06-04.
+> Last researched: Cycle 10 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 9 - 2026-06-04.
+Last researched: Cycle 10 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -762,6 +762,21 @@ specifically about auto-starting motion in the remaining hero/typing chrome.*
   - Verify: run `scripts/sync-profile.ps1 -Write -Check` and confirm `motionSafeChrome=true`; temporarily restore `repeat=true` or `animation=fadeIn` in the generator fixture and confirm Pester or `-Check` fails.
   - Complexity: S
 
+### Researcher Queue (Cycle 10 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass focused on generated PR workflow
+semantics. The existing branch-protection and pull-request profile-sync items
+remain valid; this item covers the separate handoff problem when a workflow
+itself creates the branch and PR.*
+
+- [ ] P2 🤖 🔬 — Add a validation handoff for generated profile PRs
+  - Why: the `write-pr` profile-sync path and the asset-refresh workflow both push automation branches and create pull requests with the default `github.token`. GitHub's current behavior can create `pull_request` runs for `GITHUB_TOKEN`-created PRs, but those runs are approval-required, and push-triggered workflows are still suppressed. Future PR profile-sync checks or required status checks can therefore wait on manual approval or miss push-only validation on the generated PRs that need them most.
+  - Evidence: `.github/workflows/profile-sync.yml:67-101` sets `GH_TOKEN: ${{ github.token }}`, pushes `automation/profile-sync-*`, and runs `gh pr create`; `.github/workflows/assets-refresh.yml:31-62` does the same for `automation/profile-assets-*`; GitHub's workflow-trigger documentation says `GITHUB_TOKEN`-created `pull_request` events for opened/synchronize/reopened can create workflow runs in an approval-required state, while other events such as push do not create new workflow runs, and recommends a GitHub App installation token or PAT when automation-created PRs should run validation automatically: https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow; GitHub's `GITHUB_TOKEN` authentication docs recommend least-required token permissions and GitHub App/PAT tokens when additional behavior is needed: https://docs.github.com/en/actions/tutorials/authenticate-with-github_token
+  - Touches: `.github/workflows/profile-sync.yml`, `.github/workflows/assets-refresh.yml`, optional GitHub App/PAT secret documentation, optional workflow-dispatch/repository-dispatch handoff, `RESEARCH_REPORT.md`.
+  - Acceptance: generated profile PR workflows either use a least-privilege GitHub App installation token/PAT that permits normal PR validation events, explicitly dispatch the required validation workflow after creating the PR, or document an intentional approval-required path; the PR body or job summary links to the validation run or approval step; the design prevents recursive PR churn and documents why default `GITHUB_TOKEN` alone is insufficient for unattended validation.
+  - Verify: run the manual `write-pr` path or asset-refresh path in a scratch/no-op branch and confirm the generated PR receives the intended Tests/Profile sync/workflow-security checks automatically or shows the expected approval-required state; inspect `gh run list --branch <automation-branch>` or the PR checks API for the expected runs; confirm no recursive generated PR is opened by the validation handoff.
+  - Complexity: M
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -773,6 +788,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
 - [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
+- [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
@@ -797,3 +813,4 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows.
 - [ ] P2 — Pinned CI validation-tool installs with a documented update path.
 - [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
+- [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
