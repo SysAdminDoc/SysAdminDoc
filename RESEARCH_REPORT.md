@@ -156,8 +156,9 @@ Top opportunities, in priority order:
 5. P2 - Extend link validation to the hero/header and non-catalog URLs.
 6. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
 7. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
-8. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-9. P3 - Add `.editorconfig` and generated README markdown linting.
+8. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
+9. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+10. P3 - Add `.editorconfig` and generated README markdown linting.
 
 ## Evidence Reviewed
 
@@ -724,6 +725,56 @@ stronger as a committed-assets, public-safe, evidence-backed catalog surface.
   catalog maintenance before the build machine has had a chance to add evidence
   to the highest-risk download rows.
 
+## Cycle 8 Research Addendum — 2026-06-04
+
+This pass focused on CI dependency/toolchain drift rather than another product
+surface. The repo already pins third-party GitHub Actions by SHA and has a
+Dependabot GitHub Actions update queue, but the validation tools installed from
+PyPI and PowerShell Gallery are still floating.
+
+### Evidence reviewed (cycle 8)
+
+- `.github/workflows/workflow-security.yml:32-36` installs `zizmor` with
+  `python -m pip install --upgrade zizmor`, so the workflow always takes the
+  latest available PyPI release at run time.
+- `.github/workflows/tests.yml:39-45` sets PSGallery as trusted and installs
+  Pester with `Install-Module Pester -MinimumVersion 5.5.0 -Force -Scope
+  CurrentUser`, so any compatible newer Pester release can change test-runner
+  behavior without a reviewed repository diff.
+- `rg` found no `requirements*.txt`, `pyproject.toml`, lock file,
+  `PSScriptAnalyzerSettings.psd1`, or CI tool-version manifest in the repo.
+- The current open Dependabot PRs cover GitHub Actions references, not
+  registry-installed runtime tools such as PyPI packages or PowerShell modules.
+- pip's repeatable-installs documentation recommends exact `==` pins for
+  dependencies and describes hash-checking as a stricter automated-install
+  option: https://pip.pypa.io/en/stable/topics/repeatable-installs/
+- pip's secure-installs documentation says default pip installs do not protect
+  against remote tampering and describes `--require-hashes` plus pinned
+  requirements as the stricter mode: https://pip.pypa.io/en/stable/topics/secure-installs/
+- Microsoft documents `Install-Module` version filters, including exact
+  `-RequiredVersion`, for installing a specific module version:
+  https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module
+- OpenSSF Scorecard's Pinned-Dependencies check treats unpinned build/release
+  dependencies as medium risk and recommends explicit versions/lock files plus
+  update tooling: https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies
+
+### Finding (cycle 8)
+
+- **Minor — CI validation tools are installed from floating registry versions.**
+  The repository has good SHA pinning for workflow actions, but `zizmor` and
+  Pester can still change under the same commit because they are installed from
+  live registries without exact pins or a lock/update process. → roadmap "Pin
+  and audit CI-installed validation tools". [Verified]
+
+### Standards note (cycle 8)
+
+- Keep this separate from Dependabot action triage. Action SHA updates and
+  package/module tool updates are different supply-chain channels and should
+  have different review paths.
+- Prefer exact pins first, then hashes where the package manager makes them
+  practical. A small documented update checklist is better than an unpinned
+  "latest" install that silently changes behavior.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -744,3 +795,8 @@ stronger as a committed-assets, public-safe, evidence-backed catalog surface.
 - Should the Windows setup smoke check become a required PR check only for
   setup-related paths, or should it remain a manually dispatched regression
   check until runtime is proven stable?
+- Should CI tool pins be updated manually in the same Dependabot review pass, or
+  should the repo add a lightweight updater such as Renovate only for non-Action
+  validation tools?
+- Should PyPI-installed CI tools use hash-checking immediately, or start with
+  exact version pins and add hashes once the update process is stable?
