@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 22 - 2026-06-04.
+> Last researched: Cycle 23 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 22 - 2026-06-04.
+Last researched: Cycle 23 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -952,6 +952,20 @@ URLs.*
   - Verify: run `scripts/sync-profile.ps1 -Check` and confirm a `userscriptInstallTrust` block reports all 11 current installs; remove `@version` or widen `@match` in a fixture and confirm the warning/failure appears; confirm release-asset trust checks still focus on release-backed downloads.
   - Complexity: M
 
+### Researcher Queue (Cycle 23 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked workflow-security coverage for
+future local composite actions. It is a follow-on guardrail for the generated PR
+helper option, not a duplicate of the helper itself.*
+
+- [ ] P3 🤖 🔬 — Cover local GitHub actions in workflow-security
+  - Why: the queued generated-PR helper may be implemented as `.github/actions/create-generated-profile-pr/action.yml`, but the current workflow-security trigger only runs on workflow, Dependabot, and CODEOWNERS changes, and the audit command only scans `.github/workflows`. A future local action could change generated-PR behavior without receiving the same security review path.
+  - Evidence: `.github/workflows/workflow-security.yml:6-9` path filters include `.github/workflows/**`, `.github/dependabot.yml`, and `.github/CODEOWNERS`, but not `.github/actions/**`; `.github/workflows/workflow-security.yml:36` runs `zizmor .github/workflows`; `.github/CODEOWNERS:1-7` owns `.github/workflows/` but not `.github/actions/`; current root check found no `.github/actions` directory; Cycle 19's generated-PR helper item lists `.github/actions/create-generated-profile-pr/action.yml` as an implementation option; GitHub Docs describe composite actions as repository files with action metadata consumed by workflows: https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
+  - Touches: `.github/workflows/workflow-security.yml`, `.github/CODEOWNERS`, optional `.github/actions/**` once a local action exists.
+  - Acceptance: if local actions are added, workflow-security runs on PRs touching `.github/actions/**`; the audit/lint commands cover local action metadata and any embedded scripts as far as the selected tools support; CODEOWNERS routes local action changes to the same owner as workflow changes; no-op behavior stays clean while the directory is absent.
+  - Verify: add a scratch `.github/actions/example/action.yml` change and confirm the workflow-security path filter would trigger; once actionlint/zizmor coverage is expanded, introduce a malformed action metadata fixture and confirm the guard reports it.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -981,6 +995,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
+- [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

@@ -173,6 +173,7 @@ Top opportunities, in priority order:
 22. P3 - Validate all historical `CHANGELOG.md` release headings.
 23. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
 24. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+25. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
 
 ## Evidence Reviewed
 
@@ -1402,6 +1403,46 @@ execute and update them from metadata in the script header.
 - Keep public summaries aggregate-first. Do not surface noisy match-pattern
   details in the README unless a specific script is flagged.
 
+## Cycle 23 Research Addendum — 2026-06-04
+
+This pass checked whether the repo's workflow-security coverage would include a
+future local composite action. There is no `.github/actions` directory today,
+but the generated PR helper roadmap item explicitly allows that implementation
+path.
+
+### Evidence reviewed (cycle 23)
+
+- `.github/workflows/workflow-security.yml` pull-request paths include
+  `.github/workflows/**`, `.github/dependabot.yml`, and `.github/CODEOWNERS`.
+- The workflow-security job runs `zizmor .github/workflows`, so its current
+  audit target is also workflow-only.
+- `.github/CODEOWNERS` owns `.github/workflows/`, but it does not own
+  `.github/actions/`.
+- A filesystem check found no current `.github/actions` directory.
+- Cycle 19's generated PR helper item lists
+  `.github/actions/create-generated-profile-pr/action.yml` as an implementation
+  option.
+- GitHub Docs describe composite actions as repository files with action
+  metadata consumed by workflows:
+  https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
+
+### Finding (cycle 23)
+
+- **Cosmetic — future local actions would sit outside workflow-security
+  coverage.** If the generated PR helper is implemented as a local composite
+  action, changes under `.github/actions/**` would not trigger the current
+  workflow-security PR path or CODEOWNERS review, and the audit command would
+  still inspect only `.github/workflows`.
+  → roadmap "Cover local GitHub actions in workflow-security". [Verified]
+
+### Standards note (cycle 23)
+
+- Keep this conditional. Do not add a placeholder `.github/actions` directory
+  just to satisfy coverage; update the trigger, owner patterns, and audit target
+  when the first local action lands.
+- If the helper is implemented as a PowerShell script under `scripts/` instead,
+  this item can be closed by documenting that no local action surface exists.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1438,6 +1479,9 @@ execute and update them from metadata in the script header.
 - Should raw userscript install rows stay branch-hosted for automatic updates,
   or should high-traffic scripts move toward release/tag-hosted install URLs
   with explicit update metadata?
+- If generated PR creation becomes a local composite action, should
+  workflow-security audit `.github/actions/**` in the same job as workflows or
+  through a separate local-action metadata lint step?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
