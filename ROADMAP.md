@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 30 - 2026-06-04.
+> Last researched: Cycle 31 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 30 - 2026-06-04.
+Last researched: Cycle 31 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -1065,6 +1065,20 @@ because these SVGs are also raw repository artifacts.*
   - Verify: regenerate with `scripts/sync-profile.ps1 -Write -Check`; grep all `assets/profile/*.svg` for `<title`, `<desc`, `aria-labelledby`, and `aria-describedby`; add a Pester assertion that `New-ProfilePanelSvg` emits the metadata and still escapes dynamic text.
   - Complexity: S
 
+### Researcher Queue (Cycle 31 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked public planning/history docs
+for stale catalog-field terminology that the version/date consistency gate does
+not cover.*
+
+- [ ] P3 🤖 🔬 — Refresh stale catalog field names in completed-work docs
+  - Why: `COMPLETED.md` is public project history and currently describes the canonical catalog row shape with a legacy `privateReason` field. The live catalog/schema no longer expose that name; they use `suppressionReason`, `allowPublicMedical`, `aliasOf`, and the newer upstream attribution fields. A stale field list can mislead future maintainers editing the catalog or validating generated docs.
+  - Evidence: `COMPLETED.md:9` lists `privateReason` in the canonical catalog row fields; `schemas/profile-catalog.v1.json` requires/properties include `allowPublicMedical`, `aliasOf`, and `suppressionReason` but no `privateReason`; `data/profile-catalog.json` rows use `suppressionReason`; `Test-DocVersionConsistency` validates planning version/date alignment but does not check stale field-name references.
+  - Touches: `COMPLETED.md`, optional `PROJECT_CONTEXT.md`/`RESEARCH_REPORT.md` terminology sweep, optional doc-consistency lint if the build machine wants a guard.
+  - Acceptance: public current-state/history docs no longer present `privateReason` as a current catalog field unless explicitly marked as a legacy term; catalog field lists either link to the schema or match the current schema names; generated checks still pass.
+  - Verify: `rg -n "privateReason" COMPLETED.md PROJECT_CONTEXT.md ROADMAP.md RESEARCH_REPORT.md` returns no unqualified current-field references; schema/catalog checks still pass through `scripts/sync-profile.ps1 -Check`.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1101,6 +1115,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Catalog-to-feed omitted-row accounting in the sync report.
 - [ ] P3 — Fail closed on unsupported custom JSON Schema validator keywords.
 - [ ] P3 — Internal title/description metadata for generated profile SVG panels.
+- [ ] P3 — Refresh stale catalog field names in completed-work docs.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

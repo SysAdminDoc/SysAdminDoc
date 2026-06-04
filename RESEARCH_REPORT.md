@@ -181,6 +181,7 @@ Top opportunities, in priority order:
 30. P2 - Report catalog rows omitted from both public feed arrays.
 31. P3 - Guard unsupported JSON Schema keywords in the custom validator.
 32. P3 - Add internal title/description metadata to generated profile SVG panels.
+33. P3 - Refresh stale catalog field names in completed-work docs.
 
 ## Evidence Reviewed
 
@@ -1713,6 +1714,41 @@ repository artifacts that can be opened or inspected outside the README wrapper.
 - Generate stable ids so the SVGs can use `aria-labelledby` and
   `aria-describedby` without fragile random output.
 
+## Cycle 31 Research Addendum — 2026-06-04
+
+This pass checked public planning/history docs for stale catalog-field
+terminology. It found a docs drift issue rather than a generator failure.
+
+### Evidence reviewed (cycle 31)
+
+- `COMPLETED.md:9` describes the canonical catalog row shape and includes
+  `privateReason`.
+- `schemas/profile-catalog.v1.json` defines current catalog fields including
+  `allowPublicMedical`, `aliasOf`, and `suppressionReason`; it has no
+  `privateReason`.
+- `data/profile-catalog.json` uses `suppressionReason` for suppression state.
+- The current version/date consistency gate keeps planning docs aligned by
+  version/date, but it does not catch stale field-name references in public
+  history docs.
+
+### Finding (cycle 31)
+
+- **Cosmetic — completed-work docs mention a stale catalog field name.**
+  `COMPLETED.md` is historical, but the line describes the canonical catalog
+  source file as a current shape. Keeping `privateReason` there can mislead
+  maintainers now that schema-backed catalog rows use `suppressionReason` plus
+  explicit public-safety fields.
+  → roadmap "Refresh stale catalog field names in completed-work docs".
+  [Verified]
+
+### Standards note (cycle 31)
+
+- Avoid rewriting broad project history. This is a terminology cleanup for
+  public current-shape descriptions, not a request to reframe every historical
+  implementation note.
+- Prefer pointing maintainers at `schemas/profile-catalog.v1.json` when a full
+  field list would drift quickly.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1746,6 +1782,9 @@ repository artifacts that can be opened or inspected outside the README wrapper.
   milestones and releases are intentionally sparse?
 - Should malformed historical changelog headings fail `-Check`, or start as
   report warnings until the existing `v3.0.0` date can be recovered?
+- Should completed-work docs preserve legacy field names as historical notes, or
+  normalize them to current public schema terms when they describe current
+  catalog shape?
 - Should raw userscript install rows stay branch-hosted for automatic updates,
   or should high-traffic scripts move toward release/tag-hosted install URLs
   with explicit update metadata?
