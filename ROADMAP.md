@@ -9,7 +9,7 @@ Current repo version: v4.9.24
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 29 - 2026-06-04.
+> Last researched: Cycle 30 - 2026-06-04.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,7 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 29 - 2026-06-04.
+Last researched: Cycle 30 - 2026-06-04.
 
 2026-06-04 v4.9.24 refresh: the "Forge" naming-debt item was logged as a
 documentation-only decision. Existing live repositories named WinForge,
@@ -1051,6 +1051,20 @@ current subset.*
   - Verify: add a scratch schema using `if`/`then` or `oneOf` that should reject a malformed payload; `Invoke-Pester -Path tests` must fail with an unsupported-keyword or real validation error instead of reporting `valid=true`; current catalog/feed schema validation still passes.
   - Complexity: S
 
+### Researcher Queue (Cycle 30 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked committed profile SVG panel
+accessibility metadata. It is separate from the completed README image-alt work
+because these SVGs are also raw repository artifacts.*
+
+- [ ] P3 🤖 🔬 — Add internal `<title>` and `<desc>` metadata to generated profile SVG panels
+  - Why: the generated SVG panels already render as useful visual summaries and the README embeds them with meaningful `<img alt>` text, but the raw committed SVGs themselves only expose `role="img"` plus a short `aria-label`. Adding internal `title`/`desc` metadata keeps the standalone SVG files and any future direct links/tooling exports self-describing without relying on the README wrapper.
+  - Evidence: `scripts/sync-profile.ps1:1355-1359` emits `<svg ... role="img" aria-label="...">` and visible text, but no `<title>` or `<desc>` elements; `assets/profile/stats-dark.svg:1-5` mirrors that structure; a scan of `assets/profile/*.svg` found no `<title>` or `<desc>` elements; W3C SVG Accessibility API Mappings describe `title`/`desc` and note current best practice for fallback support is linking them with `aria-labelledby`/`aria-describedby`: https://www.w3.org/TR/svg-aam-1.0/
+  - Touches: `scripts/sync-profile.ps1` (`New-ProfilePanelSvg`), generated `assets/profile/*.svg`, `tests/sync-profile.Tests.ps1`, optional `readmeExperienceChecks` field if the repo wants this tracked.
+  - Acceptance: generated SVG panels include stable `id` values, a concise `<title>`, a short `<desc>` summarizing the panel rows, and `aria-labelledby`/`aria-describedby` wiring; README `<img alt>` text remains unchanged and non-duplicative.
+  - Verify: regenerate with `scripts/sync-profile.ps1 -Write -Check`; grep all `assets/profile/*.svg` for `<title`, `<desc`, `aria-labelledby`, and `aria-describedby`; add a Pester assertion that `New-ProfilePanelSvg` emits the metadata and still escapes dynamic text.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -1086,6 +1100,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
 - [ ] P2 — Catalog-to-feed omitted-row accounting in the sync report.
 - [ ] P3 — Fail closed on unsupported custom JSON Schema validator keywords.
+- [ ] P3 — Internal title/description metadata for generated profile SVG panels.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

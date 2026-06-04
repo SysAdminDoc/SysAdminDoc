@@ -180,6 +180,7 @@ Top opportunities, in priority order:
 29. P3 - Group routine Dependabot GitHub Actions version updates.
 30. P2 - Report catalog rows omitted from both public feed arrays.
 31. P3 - Guard unsupported JSON Schema keywords in the custom validator.
+32. P3 - Add internal title/description metadata to generated profile SVG panels.
 
 ## Evidence Reviewed
 
@@ -1676,6 +1677,42 @@ simple enough for the validator, so this is a future-proofing guard.
 - If deeper schemas become central to downstream consumers, reassess whether a
   full JSON Schema implementation is better than maintaining a local subset.
 
+## Cycle 30 Research Addendum — 2026-06-04
+
+This pass checked committed profile SVG panel accessibility metadata. It is
+separate from the completed README image-alt work because the SVGs are also raw
+repository artifacts that can be opened or inspected outside the README wrapper.
+
+### Evidence reviewed (cycle 30)
+
+- `scripts/sync-profile.ps1:1355-1359` emits `<svg ... role="img"
+  aria-label="...">` plus visible text, but no internal `<title>` or `<desc>`.
+- `assets/profile/stats-dark.svg:1-5` mirrors that structure in the committed
+  artifact.
+- A scan of `assets/profile/*.svg` found no `<title>` or `<desc>` elements.
+- W3C SVG Accessibility API Mappings describe `title`/`desc` and note current
+  best practice for fallback support is linking them with `aria-labelledby` and
+  `aria-describedby`:
+  https://www.w3.org/TR/svg-aam-1.0/
+
+### Finding (cycle 30)
+
+- **Cosmetic — generated SVG panels lack standalone title/description metadata.**
+  The README embeds use meaningful `<img alt>` text, so the profile page is not
+  missing alt labels. The raw SVG artifacts themselves, however, only carry a
+  short `aria-label`; adding internal `title`/`desc` metadata would make direct
+  SVG links and tooling exports more self-describing.
+  → roadmap "Add internal `<title>` and `<desc>` metadata to generated profile
+  SVG panels". [Verified]
+
+### Standards note (cycle 30)
+
+- Keep README alt text concise. The SVG `desc` can summarize the panel rows, but
+  the outer `<img alt>` should remain the user-facing fallback for the profile
+  README.
+- Generate stable ids so the SVGs can use `aria-labelledby` and
+  `aria-describedby` without fragile random output.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -1727,6 +1764,8 @@ simple enough for the validator, so this is a future-proofing guard.
   a non-public aggregate count enough when `includeInPortfolio=false`?
 - Should the repo keep a small fail-closed custom JSON Schema validator, or adopt
   a full validator once report schemas need conditionals/combinators?
+- Should generated SVG panel descriptions enumerate all row values, or summarize
+  the panel purpose while leaving detailed counts to the visible text/README?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
