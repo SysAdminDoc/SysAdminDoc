@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.9] - 2026-06-04
+
+- Added: Non-mutating `topicHints` on `metadataHygiene.missingTopics`, derived from catalog category, language, install/download role, live URLs, and safe repo/description keywords.
+- Added: Catalog category and catalog-backed description suggestions to metadata hygiene rows where available.
+- Added: `topicHintPolicy` documenting that the report does not mutate repositories and any future apply mode requires an explicit allowlist.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 28 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with all 69 missing-topic rows carrying hints, 4 missing-description rows, 3 catalog-backed description suggestions, 239 link targets checked in 5882 ms, 0 link failures, and 0 link warnings.
+
 ## [v4.9.8] - 2026-06-04
 
 - Added: `metadataHygiene` in `reports/profile-sync-report.json`, including missing-topic and missing-description counts plus public repo rows for cleanup planning.

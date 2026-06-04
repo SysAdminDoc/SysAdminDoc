@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T02:25:02.1331019-04:00",
+  "generatedAt": "2026-06-04T02:43:56.8019226-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "publicRepoCount": 184,
@@ -8,369 +8,829 @@
   "metadataHygiene": {
     "missingTopicCount": 69,
     "missingDescriptionCount": 4,
+    "topicHintPolicy": {
+      "mutatesRepositories": false,
+      "applyModeAvailable": false,
+      "requiresExplicitAllowlist": true
+    },
     "missingTopics": [
       {
         "repo": "AdapterLock",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T20:17:35.0000000Z"
+        "pushedAt": "2026-04-26T20:17:35.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "AI-Usage_Tracker",
         "language": "JavaScript",
-        "pushedAt": "2026-05-26T18:41:46.0000000Z"
+        "pushedAt": "2026-05-26T18:41:46.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "javascript"
+        ]
       },
       {
         "repo": "AmazonEnhanced",
         "language": "JavaScript",
-        "pushedAt": "2026-04-26T02:16:22.0000000Z"
+        "pushedAt": "2026-04-26T02:16:22.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "javascript"
+        ]
       },
       {
         "repo": "android-debloat-list",
         "language": "PHP",
-        "pushedAt": "2026-05-18T23:31:07.0000000Z"
+        "pushedAt": "2026-05-18T23:31:07.0000000Z",
+        "category": "guides",
+        "topicHints": [
+          "documentation",
+          "guide",
+          "php"
+        ]
       },
       {
         "repo": "AndroidEmulatorPlus",
         "language": "C#",
-        "pushedAt": "2026-06-01T06:32:09.0000000Z"
+        "pushedAt": "2026-06-01T06:32:09.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "ApocalypseWatch",
         "language": "JavaScript",
-        "pushedAt": "2026-05-02T05:36:34.0000000Z"
+        "pushedAt": "2026-05-02T05:36:34.0000000Z",
+        "category": "web",
+        "topicHints": [
+          "web-app",
+          "javascript",
+          "github-pages"
+        ]
       },
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-04T06:23:19.0000000Z"
+        "pushedAt": "2026-06-04T06:34:16.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin",
+          "active-development",
+          "java"
+        ]
       },
       {
         "repo": "BillMinder",
         "language": "Kotlin",
-        "pushedAt": "2026-05-18T02:21:17.0000000Z"
+        "pushedAt": "2026-05-18T02:21:17.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "Brave-Portable-Updater",
         "language": "PowerShell",
-        "pushedAt": "2026-05-19T16:40:49.0000000Z"
+        "pushedAt": "2026-05-19T16:40:49.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script",
+          "privacy"
+        ]
       },
       {
         "repo": "CallShield",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T01:07:49.0000000Z"
+        "pushedAt": "2026-06-04T01:07:49.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "ClearGem",
         "language": "JavaScript",
-        "pushedAt": "2026-05-26T18:58:03.0000000Z"
+        "pushedAt": "2026-05-26T18:58:03.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "javascript",
+          "image-tools"
+        ]
       },
       {
         "repo": "Debloat-Win11",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:16:47.0000000Z"
+        "pushedAt": "2026-04-26T02:16:47.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "DefenderControl",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:53:24.0000000Z"
+        "pushedAt": "2026-05-26T18:53:24.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "DefenderShield",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:16:50.0000000Z"
+        "pushedAt": "2026-04-26T02:16:50.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script",
+          "networking"
+        ]
       },
       {
         "repo": "Devicer",
         "language": "C#",
-        "pushedAt": "2026-05-09T19:59:57.0000000Z"
+        "pushedAt": "2026-05-09T19:59:57.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "Disable-AdobeTelemetry",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:16:51.0000000Z"
+        "pushedAt": "2026-04-26T02:16:51.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "DisableDefender",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:53:27.0000000Z"
+        "pushedAt": "2026-05-26T18:53:27.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script",
+          "networking"
+        ]
       },
       {
         "repo": "Discrub",
         "language": "TypeScript",
-        "pushedAt": "2026-06-01T06:41:13.0000000Z"
+        "pushedAt": "2026-06-01T06:41:13.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "typescript"
+        ]
       },
       {
         "repo": "Droidsmith",
         "language": "Rust",
-        "pushedAt": "2026-06-02T04:02:40.0000000Z"
+        "pushedAt": "2026-06-02T04:02:40.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin",
+          "rust"
+        ]
       },
       {
         "repo": "facebook-exit-guide",
         "language": "HTML",
-        "pushedAt": "2026-04-26T02:19:55.0000000Z"
+        "pushedAt": "2026-04-26T02:19:55.0000000Z",
+        "category": "guides",
+        "topicHints": [
+          "documentation",
+          "guide",
+          "html"
+        ]
       },
       {
         "repo": "FirewallForge",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:17:06.0000000Z"
+        "pushedAt": "2026-04-26T02:17:06.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script",
+          "networking"
+        ]
       },
       {
         "repo": "FoxPort",
         "language": "Python",
-        "pushedAt": "2026-06-03T16:10:16.0000000Z"
+        "pushedAt": "2026-06-03T16:10:16.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows"
+        ]
       },
       {
         "repo": "FrameSnap",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:10.0000000Z"
+        "pushedAt": "2026-04-26T02:17:10.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script",
+          "video"
+        ]
       },
       {
         "repo": "GifText",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:18.0000000Z"
+        "pushedAt": "2026-04-26T02:17:18.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script"
+        ]
       },
       {
         "repo": "GmailDownloader",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:22.0000000Z"
+        "pushedAt": "2026-04-26T02:17:22.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script"
+        ]
       },
       {
         "repo": "HEICShift",
         "language": "Python",
-        "pushedAt": "2026-05-17T20:01:00.0000000Z"
+        "pushedAt": "2026-05-17T20:01:00.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script",
+          "conversion"
+        ]
       },
       {
         "repo": "HurricaneMap",
         "language": "JavaScript",
-        "pushedAt": "2026-05-26T18:58:53.0000000Z"
+        "pushedAt": "2026-05-26T18:58:53.0000000Z",
+        "category": "web",
+        "topicHints": [
+          "web-app",
+          "javascript",
+          "github-pages",
+          "weather"
+        ]
       },
       {
         "repo": "Images",
         "language": "C#",
-        "pushedAt": "2026-05-25T14:16:03.0000000Z"
+        "pushedAt": "2026-05-25T14:16:03.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp",
+          "image-tools"
+        ]
       },
       {
         "repo": "IMDb_Enhanced",
         "language": "JavaScript",
-        "pushedAt": "2026-06-01T08:15:59.0000000Z"
+        "pushedAt": "2026-06-01T08:15:59.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "javascript"
+        ]
       },
       {
         "repo": "iOSIconPack",
         "language": "Python",
-        "pushedAt": "2026-05-26T18:57:23.0000000Z"
+        "pushedAt": "2026-05-26T18:57:23.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin",
+          "python",
+          "image-tools"
+        ]
       },
       {
         "repo": "Keepr",
         "language": "TypeScript",
-        "pushedAt": "2026-05-27T09:50:54.0000000Z"
+        "pushedAt": "2026-05-27T09:50:54.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "typescript",
+          "privacy"
+        ]
       },
       {
         "repo": "kindred",
         "language": "HTML",
-        "pushedAt": "2026-04-26T02:25:38.0000000Z"
+        "pushedAt": "2026-04-26T02:25:38.0000000Z",
+        "category": "web",
+        "topicHints": [
+          "web-app",
+          "javascript",
+          "github-pages",
+          "html",
+          "privacy"
+        ]
       },
       {
         "repo": "LlamaLink",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:54.0000000Z"
+        "pushedAt": "2026-04-26T02:17:54.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script"
+        ]
       },
       {
         "repo": "LocalAndroidStore",
         "language": "Kotlin",
-        "pushedAt": "2026-05-18T02:21:22.0000000Z"
+        "pushedAt": "2026-05-18T02:21:22.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "LocalChromeStore",
         "language": "C#",
-        "pushedAt": "2026-05-31T07:54:51.0000000Z"
+        "pushedAt": "2026-05-31T07:54:51.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "LocalDesktopStore",
         "language": "C#",
-        "pushedAt": "2026-05-18T09:09:43.0000000Z"
+        "pushedAt": "2026-05-18T09:09:43.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "MyPortfolio",
         "language": "C#",
-        "pushedAt": "2026-04-26T02:10:57.0000000Z"
+        "pushedAt": "2026-04-26T02:10:57.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "NetForge",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:18:12.0000000Z"
+        "pushedAt": "2026-04-26T02:18:12.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script",
+          "networking"
+        ]
       },
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T06:16:28.0000000Z"
+        "pushedAt": "2026-06-04T06:37:03.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin",
+          "video"
+        ]
       },
       {
         "repo": "NuclearDellRemover",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:18:17.0000000Z"
+        "pushedAt": "2026-04-26T02:18:17.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "NukeMap",
         "language": "JavaScript",
-        "pushedAt": "2026-04-26T02:18:19.0000000Z"
+        "pushedAt": "2026-04-26T02:18:19.0000000Z",
+        "category": "web",
+        "topicHints": [
+          "web-app",
+          "javascript",
+          "github-pages"
+        ]
       },
       {
         "repo": "null",
         "language": null,
-        "pushedAt": "2026-05-26T19:01:18.0000000Z"
+        "pushedAt": "2026-05-26T19:01:18.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "utility"
+        ]
       },
       {
         "repo": "one-ui-home-clone",
         "language": "Kotlin",
-        "pushedAt": "2026-05-18T02:21:26.0000000Z"
+        "pushedAt": "2026-05-18T02:21:26.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "OpenLumen",
         "language": "Kotlin",
-        "pushedAt": "2026-06-03T05:06:03.0000000Z"
+        "pushedAt": "2026-06-03T05:06:03.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "OpenSwift",
         "language": "Kotlin",
-        "pushedAt": "2026-06-01T07:07:24.0000000Z"
+        "pushedAt": "2026-06-01T07:07:24.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "OpenTasker",
         "language": "Kotlin",
-        "pushedAt": "2026-05-06T14:14:13.0000000Z"
+        "pushedAt": "2026-05-06T14:14:13.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "OrganizeContacts",
         "language": "C#",
-        "pushedAt": "2026-05-18T02:22:50.0000000Z"
+        "pushedAt": "2026-05-18T02:22:50.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "PhoneFork",
         "language": "C#",
-        "pushedAt": "2026-05-18T23:53:38.0000000Z"
+        "pushedAt": "2026-05-18T23:53:38.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "active-development",
+          "csharp"
+        ]
       },
       {
         "repo": "project-nomad",
         "language": "TypeScript",
-        "pushedAt": "2026-05-18T23:53:57.0000000Z"
+        "pushedAt": "2026-05-18T23:53:57.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "typescript"
+        ]
       },
       {
         "repo": "PromptCompanion",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:18:30.0000000Z"
+        "pushedAt": "2026-04-26T02:18:30.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script"
+        ]
       },
       {
         "repo": "qBittorrent-Vanced",
         "language": "C++",
-        "pushedAt": "2026-05-26T19:05:11.0000000Z"
+        "pushedAt": "2026-05-26T19:05:11.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "cpp"
+        ]
       },
       {
         "repo": "QuotaGlass",
         "language": "C#",
-        "pushedAt": "2026-06-01T07:13:57.0000000Z"
+        "pushedAt": "2026-06-01T07:13:57.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "Restore-WindowsDefaults",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:18:43.0000000Z"
+        "pushedAt": "2026-04-26T02:18:43.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "SnapCrop",
         "language": "Kotlin",
-        "pushedAt": "2026-05-26T18:59:07.0000000Z"
+        "pushedAt": "2026-05-26T18:59:07.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
       },
       {
         "repo": "Snapture",
         "language": "C#",
-        "pushedAt": "2026-05-18T02:22:07.0000000Z"
+        "pushedAt": "2026-05-18T02:22:07.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
       },
       {
         "repo": "SoftwareScannerGUI",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:56:57.0000000Z"
+        "pushedAt": "2026-05-26T18:56:57.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "StreamKeep",
         "language": "Python",
-        "pushedAt": "2026-06-01T07:20:49.0000000Z"
+        "pushedAt": "2026-06-01T07:20:49.0000000Z",
+        "category": "media",
+        "topicHints": [
+          "media",
+          "conversion",
+          "script",
+          "python"
+        ]
       },
       {
         "repo": "SunoJump",
         "language": "Python",
-        "pushedAt": "2026-05-26T18:57:03.0000000Z"
+        "pushedAt": "2026-05-26T18:57:03.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script"
+        ]
       },
       {
         "repo": "SystemUpdatePro",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:19:16.0000000Z"
+        "pushedAt": "2026-04-26T02:19:16.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "TaskCopy",
         "language": "C#",
-        "pushedAt": "2026-06-01T07:27:03.0000000Z"
+        "pushedAt": "2026-06-01T07:27:03.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp",
+          "image-tools"
+        ]
       },
       {
         "repo": "TelemetrySlayer",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:19:20.0000000Z"
+        "pushedAt": "2026-04-26T02:19:20.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "TsunamiSimulator",
         "language": "Rust",
-        "pushedAt": "2026-06-02T05:17:50.0000000Z"
+        "pushedAt": "2026-06-02T05:17:50.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "rust"
+        ]
       },
       {
         "repo": "Tunerize",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:13:24.0000000Z"
+        "pushedAt": "2026-04-26T02:13:24.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script"
+        ]
       },
       {
         "repo": "uBlockVanced",
         "language": "JavaScript",
-        "pushedAt": "2026-05-19T00:03:52.0000000Z"
+        "pushedAt": "2026-05-19T00:03:52.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "javascript"
+        ]
       },
       {
         "repo": "Vertigo",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:11:19.0000000Z"
+        "pushedAt": "2026-04-26T02:11:19.0000000Z",
+        "category": "python",
+        "topicHints": [
+          "python",
+          "desktop-app",
+          "windows",
+          "script",
+          "video"
+        ]
       },
       {
         "repo": "Vigil",
         "language": "HTML",
-        "pushedAt": "2026-05-26T19:05:34.0000000Z"
+        "pushedAt": "2026-05-26T19:05:34.0000000Z",
+        "category": "misc",
+        "topicHints": [
+          "utility",
+          "html"
+        ]
       },
       {
         "repo": "WinForge",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:57:16.0000000Z"
+        "pushedAt": "2026-05-26T18:57:16.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script"
+        ]
       },
       {
         "repo": "WolfPack",
         "language": "Fluent",
-        "pushedAt": "2026-04-26T02:19:48.0000000Z"
+        "pushedAt": "2026-04-26T02:19:48.0000000Z",
+        "category": "security",
+        "topicHints": [
+          "security",
+          "networking",
+          "fluent",
+          "privacy"
+        ]
       },
       {
         "repo": "WURepair",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:57:19.0000000Z"
+        "pushedAt": "2026-05-26T18:57:19.0000000Z",
+        "category": "powershell",
+        "topicHints": [
+          "powershell",
+          "windows",
+          "sysadmin",
+          "script",
+          "networking"
+        ]
       }
     ],
     "missingDescriptions": [
       {
         "repo": "AdapterLock",
-        "language": "PowerShell"
+        "language": "PowerShell",
+        "category": "powershell",
+        "catalogDescription": "Per-adapter IP lockdown for Windows -- WPF GUI, CLI mode, policy export, and event-log auditing"
       },
       {
         "repo": "facebook-exit-guide",
-        "language": "HTML"
+        "language": "HTML",
+        "category": "guides",
+        "catalogDescription": "Guide for leaving Facebook"
       },
       {
         "repo": "IMDb_Enhanced",
-        "language": "JavaScript"
+        "language": "JavaScript",
+        "category": "extensions",
+        "catalogDescription": "IMDb enhancement userscript"
       },
       {
         "repo": "SysAdminDoc",
-        "language": "PowerShell"
+        "language": "PowerShell",
+        "category": null,
+        "catalogDescription": null
       }
     ]
   },
@@ -455,7 +915,7 @@
       "skipped": false,
       "targetCount": 239,
       "throttleLimit": 16,
-      "elapsedMs": 6801,
+      "elapsedMs": 5882,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -471,7 +931,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.42,
+      "ageDays": 2.43,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -481,7 +941,7 @@
   "linkValidationSummary": {
     "targetCount": 239,
     "throttleLimit": 16,
-    "elapsedMs": 6801,
+    "elapsedMs": 5882,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

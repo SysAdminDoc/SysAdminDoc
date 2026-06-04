@@ -21,6 +21,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Guarded the legacy README-to-catalog reverse parser behind explicit `-ForceSeedCatalog`, with lossy bootstrap warnings and seed-mode subprocess coverage (v4.9.6). — *Source: ROADMAP.md*
 - [x] Parallelized link validation with bounded probe batches, `linkValidationSummary`, `warningCountByHost`, and hermetic warning/failure host-summary coverage (v4.9.7). — *Source: ROADMAP.md*
 - [x] Expanded report schema with `metadataHygiene`, visitor-facing `releaseAssetDrift`, and `validationPerformance` sections plus Pester coverage (v4.9.8). — *Source: ROADMAP.md*
+- [x] Added non-mutating topic hints, catalog categories, and catalog-backed description suggestions to metadata hygiene reporting, with an allowlist-required apply policy (v4.9.9). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
 
@@ -55,5 +56,3 @@ Items consolidated from legacy planning documents on 2026-06-03.
 ## Stale / Obsolete Items
 
 - [STALE] In-README search boxes and filter chips. — *Reason: GitHub sanitizes rendered README markup (script tags and inline styles), so interactive search/filtering cannot run in the profile README; it belongs in `sysadmindoc.github.io`. The profile README remains generated static Markdown. Source: ROADMAP.md*
-</content>
-</invoke>

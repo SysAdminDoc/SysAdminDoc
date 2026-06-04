@@ -5,19 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.8
+Current version after this refresh: v4.9.9
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 26/26 tests after the v4.9.8 report-schema-depth update.
+  passed 28/28 tests after the v4.9.9 topic/description drift guidance update.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
-  drift rows, `metadataHygiene` showing 69 missing-topic repos and 4 missing
-  descriptions, `releaseAssetDrift` checking 177 visitor-facing rows, full link
-  validation enabled, 239 link targets checked in 6801 ms, 0 link failures, and
-  0 link warnings. Raw `projectsExportInSync` remains a report signal;
+  drift rows, `metadataHygiene` showing 69 missing-topic repos, generated
+  `topicHints` on all missing-topic rows, 4 missing descriptions, and 3
+  catalog-backed description suggestions, `releaseAssetDrift` checking 177
+  visitor-facing rows, full link validation enabled, 239 link targets checked in
+  5882 ms, 0 link failures, and 0 link warnings. Raw `projectsExportInSync` remains a report signal;
   info-only star/topic/`pushedAt` drift is now reported without failing the gate.
+- The v4.9.9 batch closed the active P1 topic/description drift reporting item
+  by adding non-mutating topic hints, catalog categories, catalog-backed
+  description suggestions, and an explicit allowlist-required apply policy.
 - The v4.9.8 batch closed the active P1 report-schema-depth item by adding
   `metadataHygiene`, visitor-facing `releaseAssetDrift`, and
   `validationPerformance` sections.
@@ -47,7 +51,7 @@ SysAdminDoc/SysAdminDoc is the public GitHub profile README repository for the S
 Top opportunities, in priority order:
 
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
-2. P1 - Add topic hints and public-description cleanup; live metadata still shows 69 active public repos with no topics and 4 public repos with empty descriptions.
+2. P1 - Apply reviewed topic/description cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 4 public repos with empty descriptions.
 3. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
 4. P1 - Make the image-heavy header and stats blocks theme-aware and accessible with real alt text and fallback text.
 5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
@@ -150,7 +154,7 @@ Important integrations:
 - Entry point: `data/profile-catalog.json`.
 - Main code: `Get-Catalog`, `ConvertTo-EntryHashtable`, `Get-RepoMeta`, `Get-PrimaryAction`.
 - Current maturity: complete and active.
-- Improvement opportunities: add `topicHints`, `forkOf`, `upstreamLicense`, `releaseAssetPolicy`, `stalePolicy`, and `descriptionOwner` fields.
+- Improvement opportunities: promote reviewed `topicHints` into catalog-managed hints if needed, then add `forkOf`, `upstreamLicense`, `releaseAssetPolicy`, `stalePolicy`, and `descriptionOwner` fields.
 
 ### README Generator
 
@@ -165,8 +169,8 @@ Important integrations:
 - User value: prevents stale, private, renamed, broken, or malformed public profile links.
 - Entry point: `scripts/sync-profile.ps1 -Check`.
 - Main code: `Test-ProfileState`, `Test-ReadmeExperience`, `Test-LinkTargets`, `Test-HttpUrl`.
-- Current maturity: strong; final check passed with zero fatal link failures, zero link warnings, structured metadata drift detail, and parallel link probes.
-- Improvement opportunities: add doc-version consistency checks and deeper topic/description remediation guidance.
+- Current maturity: strong; final check passed with zero fatal link failures, zero link warnings, structured metadata drift detail, parallel link probes, and non-mutating topic/description remediation guidance.
+- Improvement opportunities: add doc-version consistency checks and a reviewed apply lane for topic/description cleanup.
 
 ### Public Project Feed
 
@@ -174,7 +178,7 @@ Important integrations:
 - Entry point: `projects.json`.
 - Main code: `New-ProjectsExportJson`.
 - Current maturity: complete but underused until the portfolio consumes it.
-- Improvement opportunities: add sort keys, age buckets, release-asset taxonomy, topic-hint fields, and generated freshness flags.
+- Improvement opportunities: add sort keys, age buckets, release-asset taxonomy, public-safe topic-hint fields, and generated freshness flags.
 
 ### Privacy and Medical-Keyword Gate
 
@@ -189,7 +193,7 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 6801 ms with zero warnings.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 5882 ms with zero warnings.
 - Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow
@@ -262,7 +266,7 @@ Important integrations:
 ## Quick Wins
 
 - Run generated metadata refresh whenever `-Check` reports `readmeInSync=false` or fatal `metadataDrift` rows; raw `projectsExportInSync=false` can now be informational when only star/topic/`pushedAt` metadata changed.
-- Add a report section for empty descriptions and missing topics before adding any mutation script.
+- Review the generated topic hints and catalog-backed description suggestions before any cross-repo metadata mutation.
 - Add real alt text and a plain-text tagline under the hero.
 - Add `#Requires -Version 5.1` and `-CheckOnly` to `setup.ps1`.
 - Add a Pester fixture for the nonfatal link-warning path.
@@ -274,7 +278,7 @@ Important integrations:
 - Release asset taxonomy across all release-bearing repos.
 - Modularizing the PowerShell generator into fetch, model, render, validate, and report layers.
 - Action-baked or self-hosted profile image assets to reduce live third-party widget dependence.
-- Reviewed topic/description cleanup across public repos after report-only mode stabilizes.
+- Reviewed topic/description cleanup across public repos after an explicit allowlist is approved.
 
 ## Explicit Non-Goals
 
@@ -345,7 +349,7 @@ This is internal profile/portfolio tooling, so the bar is best-practice and plat
 
 ## Cycle 2 Research Addendum — 2026-06-04
 
-This addendum was researched while seed-guard work was still in flight and focused only on planning gaps not already covered by the then-open queue. The seed guard has since shipped as v4.9.6, and the report-schema depth item has since shipped as v4.9.8. The remaining promoted items below still describe future work unless separately checked off in `ROADMAP.md`.
+This addendum was researched while seed-guard work was still in flight and focused only on planning gaps not already covered by the then-open queue. The seed guard has since shipped as v4.9.6, report-schema depth shipped as v4.9.8, and topic/description drift guidance shipped as v4.9.9. The remaining promoted items below still describe future work unless separately checked off in `ROADMAP.md`.
 
 ### Executive summary (cycle 2)
 
@@ -397,7 +401,7 @@ External sources reviewed:
 
 ## Open Questions
 
-- Which repo-topic taxonomy should be the canonical source: catalog category only, GitHub language plus category, or a curated `topicHints` field?
+- Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
 - Should low-risk generated metadata drift be auto-PR'd on schedule, or should scheduled jobs remain check-only with manual `write-pr`?
 - Should `PROJECT_CONTEXT.md` stay tracked as public project documentation, or should it be reduced to public-safe status notes only?
 - What is the portfolio site's preferred schema contract for search and freshness fields from `projects.json`?
