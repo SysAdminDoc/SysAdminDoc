@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.13] - 2026-06-04
+
+- Added: Latest-release asset filename inspection with normalized `releaseAssetKinds` and `releaseAssetNames` in `projects.json`.
+- Added: Release/download drift checks that compare catalog `downloadKind` labels against uploaded asset kinds and keep source-only releases as `Repo` actions.
+- Changed: Corrected catalog labels for `ScriptVault` and `RumbleX`; `Vantage` is now source-only until it publishes installer assets.
+- Verified: `Invoke-Pester -Path tests -Output Detailed` passes 31 tests, and full `scripts/sync-profile.ps1 -Write -Check` passes with 141 inspected release rows, 71 release actions, 17 source-only release rows, 0 release asset kind mismatches, 0 release asset fetch failures, 185 link targets checked in 4404 ms, 0 link failures, and 0 link warnings. The run used the REST metadata fallback after a transient GitHub GraphQL 502.
+
 ## [v4.9.12] - 2026-06-04
 
 - Added: Generated theme-aware `<picture>` chrome for the profile header, typing SVG, skill icons, stats cards, streak card, activity graph, and footer.

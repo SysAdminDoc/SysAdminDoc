@@ -5,22 +5,28 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-04
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.12
+Current version after this refresh: v4.9.13
 
 ## Verification Refresh — 2026-06-04
 
 - `pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"`
-  passed 30/30 tests after the v4.9.12 theme-aware chrome update.
+  passed 31/31 tests after the v4.9.13 release taxonomy update.
 - `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check` completed
   successfully with `readmeInSync=true`, `projectsExportInSync=true`, 0 metadata
   drift rows, `metadataHygiene` showing 69 missing-topic repos, generated
   `topicHints` on all missing-topic rows, and 0 missing descriptions,
   `readmeExperienceChecks` showing theme-aware image chrome, plain-text tagline,
   meaningful image alt text, and 0 generic image alt labels, `releaseAssetDrift`
-  checking 177 visitor-facing rows, full link validation enabled, 239 link
-  targets checked in 6041 ms, 0 link failures, and 0 link warnings. Raw
-  `projectsExportInSync` remains a report signal;
+  checking 177 visitor-facing rows, 141 release-bearing rows, 141 inspected
+  release rows, 71 release-action rows, 17 source-only release rows, 0 release
+  asset kind mismatches, and 0 release asset fetch failures, full link
+  validation enabled, 185 link targets checked in 4404 ms, 0 link failures, and
+  0 link warnings. Raw `projectsExportInSync` remains a report signal;
   info-only star/topic/`pushedAt` drift is now reported without failing the gate.
+- The v4.9.13 batch closed the active P2 release taxonomy item by inspecting
+  latest-release asset names, exporting `releaseAssetKinds`/`releaseAssetNames`,
+  keeping source-only releases as `Repo` actions, and cleaning the current
+  catalog to 0 release asset kind mismatches.
 - The v4.9.12 batch closed the active P1 theme-aware image chrome item by
   generating dark/light `<picture>` sources for profile chrome, adding a
   plain-text tagline, replacing generic image alt labels, and validating those
@@ -65,8 +71,8 @@ Top opportunities, in priority order:
 1. P0 - Keep generated README/feed drift at zero by treating `scripts/sync-profile.ps1 -Check` as a required gate for every profile change.
 2. P1 - Move richer discovery to `sysadmindoc.github.io` using `projects.json`, Pagefind, and generated "new", "recently updated", and "has download" views.
 3. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
-4. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
-5. P2 - Add a release asset taxonomy so `downloadKind` is derived or audited from latest-release asset names, not only curated catalog fields.
+4. P1 - Publish or repoint the advertised JSON Schema URLs, then validate the feed against them.
+5. P1 - Add a self-contained version/date consistency gate across tracked planning docs.
 6. P2 - Harden `setup.ps1` with `#Requires -Version 5.1`, check-only diagnostics, transcript logging, and inspect-before-run documentation.
 7. P3 - Standardize fork/upstream/license attribution through explicit catalog fields.
 8. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
@@ -155,7 +161,7 @@ Areas not fully verified:
 
 - Rendered GitHub light-mode and mobile behavior were inferred from current image URLs and Markdown structure, not re-screenshotted in a browser.
 - Portfolio-site implementation details were not inspected in this repo because the portfolio is a separate repository.
-- Latest-release asset file names were not fully enumerated for all 147 release-bearing repos; that is the input to the proposed release taxonomy item.
+- Latest-release asset file names are now enumerated for the 141 visitor-facing release-bearing rows in the latest report; the remaining release work is reliability/cap handling for the REST fallback path.
 
 ## Current Product Map
 
@@ -244,7 +250,7 @@ Important integrations:
 - User value: avoids dead install, launch, userscript, entrypoint, and release links.
 - Entry point: `Test-LinkTargets`.
 - Main code: `Test-HttpUrl`, `ConvertTo-RawGitHubUrl`, `Get-ReleaseUrl`.
-- Current maturity: parallelized and tolerant of transient failures; latest report checked 239 targets in 6041 ms with zero warnings.
+- Current maturity: parallelized and tolerant of transient failures; latest report checked 185 targets in 4404 ms with zero warnings.
 - Improvement opportunities: shorter per-host timeout tuning, header/non-catalog URL validation, and cached validation in CI artifacts.
 
 ### First-Time Setup Flow
@@ -488,6 +494,25 @@ This pass audited live repository governance settings rather than the generated 
 
 - Prefer starting in an evaluated ruleset or a narrow branch-protection update if there is uncertainty about path-filtered workflows. Required checks should use unique, stable job names and should not require scheduled-only checks that do not run on pull requests.
 
+## Cycle 5 Research Addendum — 2026-06-04
+
+This pass checked whether generated-profile validation currently runs on pull requests. The new finding is a prerequisite for the branch-protection work: a status check can only be required safely if it is created on the pull requests where maintainers need it.
+
+### Evidence reviewed (cycle 5)
+
+- `.github/workflows/profile-sync.yml` currently has `workflow_dispatch` and the twice-weekly `schedule`, but no `pull_request` or `push` trigger for profile-pipeline changes.
+- `.github/workflows/tests.yml` runs on `pull_request` and `push`, but its path filters are limited to `scripts/**`, `tests/**`, and `.github/workflows/tests.yml`; they omit `data/profile-catalog.json`, `README.md`, `projects.json`, and `reports/profile-sync-report.json`.
+- `gh run list -R SysAdminDoc/SysAdminDoc --limit 10 --json workflowName,event,conclusion,status,createdAt` showed recent push-triggered `Tests` runs and Dependabot PR checks, but no push/PR-triggered `Profile sync` run.
+- GitHub's workflow syntax docs state that `push` and `pull_request` events can be filtered by changed paths and warn that skipped required checks remain pending, which matters if profile-sync becomes a required check: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+
+### Finding (cycle 5)
+
+- **Major — Generated-profile validation is not a PR check today.** The repo has a strong `scripts/sync-profile.ps1 -Check` gate, but it is only scheduled or manually dispatched for the profile-sync workflow. A PR can change the catalog, generated README, public feed, or committed report without automatically producing a profile-sync status. → roadmap "Run profile-sync validation on profile/catalog pull requests". [Verified]
+
+### Standards note (cycle 5)
+
+- Keep the PR trigger path-scoped but branch-policy-aware: either do not require the path-skipped check globally, or pair it with an always-running lightweight status that reports "not applicable" for unrelated changes. This avoids GitHub's pending skipped-check behavior while still gating profile-pipeline edits.
+
 ## Open Questions
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
@@ -497,3 +522,4 @@ This pass audited live repository governance settings rather than the generated 
 - Should `projects.json` provenance stop at hashes/source refs, or should a later generated-asset workflow emit GitHub artifact attestations if the repo starts publishing downloadable generated bundles?
 - Should issue templates live only in this repo, or should the account-level `.github` community-health repo carry shared catalog/link templates for all public SysAdminDoc repositories?
 - Which checks should be required on every pull request versus only on path-filtered profile-pipeline changes if branch protection/rulesets are tightened?
+- Should profile-sync PR validation use a path-filtered workflow, an always-run workflow with internal no-op logic, or a pair of checks so branch protection never waits on skipped profile-sync runs?

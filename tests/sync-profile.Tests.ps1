@@ -28,9 +28,11 @@ BeforeAll {
             [string]$Description = 'desc',
             [string[]]$Topics = @('utility'),
             [string]$Language = 'PowerShell',
-            [switch]$WithRelease
+            [switch]$WithRelease,
+            [string[]]$AssetNames = @()
         )
 
+        $assetKinds = if ($WithRelease) { @(Get-ReleaseAssetKinds -AssetNames $AssetNames) } else { @() }
         [pscustomobject]@{
             name = $Name
             description = $Description
@@ -41,6 +43,9 @@ BeforeAll {
                 [pscustomobject]@{
                     tagName = 'v1.0.0'
                     url = "https://github.com/SysAdminDoc/$Name/releases/tag/v1.0.0"
+                    releaseAssetNames = @($AssetNames)
+                    releaseAssetKinds = @($assetKinds)
+                    assetApiInspected = $true
                 }
             } else {
                 $null
@@ -211,24 +216,34 @@ Describe 'Report schema depth helpers' {
         $userscriptMissingUrl.downloadKind = 'userscript'
         $goodRelease = New-TestEntry -Repo 'GoodRelease' -Category 'android'
         $goodRelease.downloadKind = 'apk'
+        $mismatchRelease = New-TestEntry -Repo 'MismatchRelease' -Category 'android'
+        $mismatchRelease.downloadKind = 'exe'
+        $sourceArchiveRelease = New-TestEntry -Repo 'SourceArchiveRelease' -Category 'desktop'
+        $sourceArchiveRelease.downloadKind = 'zip'
 
         $repos = @(
             (New-TestRepoMeta -Name 'MissingRelease'),
             (New-TestRepoMeta -Name 'SourceOnly' -WithRelease),
             (New-TestRepoMeta -Name 'ScriptNoUrl'),
-            (New-TestRepoMeta -Name 'GoodRelease' -WithRelease)
+            (New-TestRepoMeta -Name 'GoodRelease' -WithRelease -AssetNames @('GoodRelease-v1.0.0.apk')),
+            (New-TestRepoMeta -Name 'MismatchRelease' -WithRelease -AssetNames @('MismatchRelease-v1.0.0.apk')),
+            (New-TestRepoMeta -Name 'SourceArchiveRelease' -WithRelease)
         )
         $lookup = ConvertTo-Lookup $repos
 
-        $result = Test-ReleaseAssetDrift -Entries @($missingRelease, $sourceOnly, $userscriptMissingUrl, $goodRelease) -RepoLookup $lookup
+        $result = Test-ReleaseAssetDrift -Entries @($missingRelease, $sourceOnly, $userscriptMissingUrl, $goodRelease, $mismatchRelease, $sourceArchiveRelease) -RepoLookup $lookup
 
-        $result.checkedCatalogRows | Should -Be 4
-        $result.releaseBearingRows | Should -Be 2
-        $result.releaseActionRows | Should -Be 1
+        $result.checkedCatalogRows | Should -Be 6
+        $result.releaseBearingRows | Should -Be 4
+        $result.releaseActionRows | Should -Be 2
+        $result.inspectedReleaseRows | Should -Be 4
         ($result.missingReleaseForDownloadKind | ForEach-Object { $_.repo }) | Should -Contain 'MissingRelease'
         ($result.sourceOnlyWithRelease | ForEach-Object { $_.repo }) | Should -Contain 'SourceOnly'
+        ($result.sourceOnlyWithRelease[0].releaseAssetKinds) | Should -Contain 'source-archive'
+        ($result.releaseAssetKindMismatches | ForEach-Object { $_.repo }) | Should -Contain 'MismatchRelease'
+        ($result.releaseAssetKindMismatches | ForEach-Object { $_.repo }) | Should -Contain 'SourceArchiveRelease'
         ($result.userscriptKindWithoutInstallUrl | ForEach-Object { $_.repo }) | Should -Contain 'ScriptNoUrl'
-        $result.assetApiInspected | Should -BeFalse
+        $result.assetApiInspected | Should -BeTrue
     }
 }
 
@@ -291,6 +306,31 @@ Describe 'New-ProjectsExportJson feed' {
         $repos | Should -Contain 'WinTool'
         $repos | Should -Not -Contain 'HiddenTool'
         ($json.suppressed | ForEach-Object { $_.repo }) | Should -Contain 'HiddenTool'
+    }
+
+    It 'exports release asset kinds and keeps source-only releases as repo actions' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $cat.entries[0].downloadKind = 'apk'
+        $cat.entries[1].downloadKind = 'zip'
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool-v1.0.0.apk')),
+            (New-TestRepoMeta -Name 'PyTool' -WithRelease),
+            (New-TestRepoMeta -Name 'HiddenTool' -WithRelease -AssetNames @('HiddenTool-InternalSetup.exe')),
+            (New-TestRepoMeta -Name 'WebTool')
+        )
+
+        $json = New-ProjectsExportJson -Catalog $cat -Repos $repos | ConvertFrom-Json
+        $winTool = $json.projects | Where-Object { $_.repo -eq 'WinTool' }
+        $pyTool = $json.projects | Where-Object { $_.repo -eq 'PyTool' }
+        $hiddenTool = $json.suppressed | Where-Object { $_.repo -eq 'HiddenTool' }
+
+        $winTool.releaseAssetKinds | Should -Contain 'apk'
+        $winTool.primaryAction.kind | Should -Be 'release'
+        $pyTool.releaseAssetKinds | Should -Contain 'source-archive'
+        $pyTool.primaryAction.kind | Should -Be 'repo'
+        $pyTool.hasDownload | Should -BeFalse
+        $hiddenTool.releaseAssetKinds | Should -Contain 'exe'
+        @($hiddenTool.releaseAssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count | Should -Be 0
     }
 }
 

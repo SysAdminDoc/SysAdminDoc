@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T03:13:56.3602836-04:00",
+  "generatedAt": "2026-06-04T03:37:37.6664184-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "publicRepoCount": 184,
@@ -84,7 +84,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-04T07:12:23.0000000Z",
+        "pushedAt": "2026-06-04T07:33:06.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -461,7 +461,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T06:51:05.0000000Z",
+        "pushedAt": "2026-06-04T07:26:57.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -812,85 +812,162 @@
   "releaseAssetDrift": {
     "checkedCatalogRows": 177,
     "releaseBearingRows": 141,
-    "releaseActionRows": 102,
+    "releaseActionRows": 71,
+    "assetApiInspected": true,
+    "inspectedReleaseRows": 141,
+    "releaseAssetKindCounts": [
+      {
+        "kind": "apk",
+        "count": 18
+      },
+      {
+        "kind": "crx",
+        "count": 5
+      },
+      {
+        "kind": "exe",
+        "count": 32
+      },
+      {
+        "kind": "other",
+        "count": 35
+      },
+      {
+        "kind": "script",
+        "count": 8
+      },
+      {
+        "kind": "source-archive",
+        "count": 58
+      },
+      {
+        "kind": "userscript",
+        "count": 3
+      },
+      {
+        "kind": "xpi",
+        "count": 2
+      },
+      {
+        "kind": "zip",
+        "count": 28
+      }
+    ],
     "sourceOnlyWithRelease": [
       {
         "repo": "AppManagerNG",
-        "latestReleaseTag": "v0.5.0"
+        "latestReleaseTag": "v0.5.0",
+        "releaseAssetKinds": [
+          "apk",
+          "other"
+        ]
       },
       {
         "repo": "BackgroundSearch",
-        "latestReleaseTag": "v2.1.0"
+        "latestReleaseTag": "v2.1.0",
+        "releaseAssetKinds": "source-archive"
       },
       {
         "repo": "BetterNext",
-        "latestReleaseTag": "v3.5.2"
+        "latestReleaseTag": "v3.5.2",
+        "releaseAssetKinds": "zip"
       },
       {
         "repo": "Devicer",
-        "latestReleaseTag": "v1.0.0"
+        "latestReleaseTag": "v1.0.0",
+        "releaseAssetKinds": [
+          "other",
+          "zip"
+        ]
       },
       {
         "repo": "FileExplorer",
-        "latestReleaseTag": "v1.2.0"
+        "latestReleaseTag": "v1.2.0",
+        "releaseAssetKinds": [
+          "apk",
+          "other"
+        ]
       },
       {
         "repo": "kindred",
-        "latestReleaseTag": "v2.5.1"
+        "latestReleaseTag": "v2.5.1",
+        "releaseAssetKinds": "source-archive"
       },
       {
         "repo": "NDNS",
-        "latestReleaseTag": "v3.4.0"
+        "latestReleaseTag": "v3.4.0",
+        "releaseAssetKinds": "source-archive"
       },
       {
         "repo": "OpenSwift",
-        "latestReleaseTag": "v0.3.0"
+        "latestReleaseTag": "v0.3.0",
+        "releaseAssetKinds": "apk"
       },
       {
         "repo": "OpenTasker",
-        "latestReleaseTag": "v0.2.59"
+        "latestReleaseTag": "v0.2.59",
+        "releaseAssetKinds": "apk"
       },
       {
         "repo": "OrganizeContacts",
-        "latestReleaseTag": "v0.3.1"
+        "latestReleaseTag": "v0.3.1",
+        "releaseAssetKinds": [
+          "other",
+          "zip"
+        ]
       },
       {
         "repo": "pfSenseSuite",
-        "latestReleaseTag": "v3.4.0"
+        "latestReleaseTag": "v3.4.0",
+        "releaseAssetKinds": "source-archive"
       },
       {
         "repo": "Scour",
-        "latestReleaseTag": "v0.3.0"
+        "latestReleaseTag": "v0.3.0",
+        "releaseAssetKinds": "source-archive"
       },
       {
         "repo": "Snapture",
-        "latestReleaseTag": "v0.6.0"
+        "latestReleaseTag": "v0.6.0",
+        "releaseAssetKinds": [
+          "other",
+          "zip"
+        ]
       },
       {
         "repo": "SwiftFloris",
-        "latestReleaseTag": "v1.8.172"
+        "latestReleaseTag": "v1.8.172",
+        "releaseAssetKinds": "apk"
       },
       {
         "repo": "sysadmindoc.github.io",
-        "latestReleaseTag": "v0.13.1"
+        "latestReleaseTag": "v0.13.1",
+        "releaseAssetKinds": "zip"
       },
       {
         "repo": "UniversalConverterX",
-        "latestReleaseTag": "v1.0.0"
+        "latestReleaseTag": "v1.0.0",
+        "releaseAssetKinds": "source-archive"
+      },
+      {
+        "repo": "Vantage",
+        "latestReleaseTag": "v1.1.0",
+        "releaseAssetKinds": "source-archive"
       }
     ],
     "missingReleaseForDownloadKind": [],
     "releaseActionLabelMismatches": [],
+    "releaseAssetKindMismatches": [],
+    "releaseAssetFetchFailures": [],
     "userscriptKindWithoutInstallUrl": [],
-    "assetApiInspected": false,
-    "note": "Release asset filename inspection is tracked by the release asset taxonomy roadmap item."
+    "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
   },
   "validationPerformance": {
     "linkValidation": {
       "skipped": false,
-      "targetCount": 239,
+      "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 6041,
+      "elapsedMs": 4404,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -906,7 +983,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 2.45,
+      "ageDays": 2.47,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -914,9 +991,9 @@
   },
   "linkValidationSkipped": false,
   "linkValidationSummary": {
-    "targetCount": 239,
+    "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 6041,
+    "elapsedMs": 4404,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

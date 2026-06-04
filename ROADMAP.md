@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-04
 Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
 Latest profile sync: 2026-06-04
-Current repo version: v4.9.12
+Current repo version: v4.9.13
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 4 - 2026-06-04.
+> Last researched: Cycle 5 - 2026-06-04.
 
 ## Implementer Instructions
 
@@ -28,6 +28,18 @@ P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 - Researcher-queue ownership tags: `🤖` means implementer-actionable, `🔧`
   means user/external/manual gated, `🔬` means researcher-added this cycle, and
   `✅` means implemented/closed by the build lane.
+
+2026-06-04 v4.9.13 refresh: release asset taxonomy now inspects uploaded
+latest-release asset names, exports `releaseAssetKinds` and `releaseAssetNames`
+in `projects.json`, compares catalog `downloadKind` labels against actual asset
+kinds, and keeps source-only latest releases as `Repo` actions. Catalog labels
+were corrected for `ScriptVault` and `RumbleX`; `Vantage` is source-only until
+installer assets are uploaded. Pester passed 31/31, and full
+`-Write -Check` passed with 141 inspected release rows, 71 release actions, 17
+source-only release rows, 0 release asset kind mismatches, 0 release asset fetch
+failures, 185 link targets checked in 4404 ms, 0 link failures, and 0 link
+warnings. The run used the REST metadata fallback after a transient GitHub
+GraphQL 502.
 
 2026-06-04 v4.9.12 refresh: theme-aware README chrome now renders through
 dark/light `<picture>` sources for the header, typing SVG, skill icons, stats,
@@ -201,10 +213,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
 
 ### Release/download taxonomy and third-party assets
 
-- [ ] P2 — Release asset taxonomy and drift checks
-  - Why: 147 public repos ship a latest release; `downloadKind`/action labels are curated and should be audited against actual release asset names (APK, EXE, ZIP, CRX, XPI, userscript, source-only, no-release).
+- [x] P2 — Release asset taxonomy and drift checks
+  - Why: the latest report shows 141 visitor-facing rows with a latest release; `downloadKind`/action labels are curated and should be audited against actual release asset names (APK, EXE, ZIP, CRX, XPI, userscript, source-only, no-release).
   - Touches: `scripts/sync-profile.ps1` (REST release-asset fetch, `Get-PrimaryAction`, `Get-DownloadLabel`, `New-ProjectsExportJson`), report schema.
   - Acceptance: report flags asset-label mismatches; `projects.json` exposes `releaseAssetKinds`; installer-less source archives remain "Repo"/source-only.
+  - Completed: v4.9.13 added latest-release asset inspection, exported `releaseAssetKinds`/`releaseAssetNames`, compared catalog `downloadKind` labels against actual asset kinds, corrected three catalog rows, and regenerated to 0 release asset kind mismatches.
   - Source: ROADMAP.md (P2 release taxonomy); docs/research-feature-plan-2026-06-04.md (P2)
 
 - [ ] P2 — Action-baked stat/snake SVGs (NF4)
@@ -348,8 +361,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Complexity: M
 
 - [ ] P1 — Add a self-contained version/date consistency gate across tracked planning docs
-  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.12`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
-  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.12`), `CHANGELOG.md:5` (`## [v4.9.12]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
+  - Why: `ROADMAP.md`, `CHANGELOG.md`, and `PROJECT_CONTEXT.md` each hand-type the current version (`v4.9.13`) and "latest sync" date; the existing "keep planning docs aligned" item is a manual discipline with no check. A single mismatched string ships silently. This is the *automated guard*, not the manual sync already planned.
+  - Evidence: `ROADMAP.md:8` (`Current repo version: v4.9.13`), `CHANGELOG.md:5` (`## [v4.9.13]`), `RESEARCH_REPORT.md:7`; `Test-ProfileState` checks README/feed drift but never reads the planning docs.
   - Touches: `scripts/sync-profile.ps1` (new `Test-DocVersionConsistency`), `reports/profile-sync-report.json`, Pester.
   - Acceptance: `-Check` fails when the version token in CHANGELOG, ROADMAP, and PROJECT_CONTEXT disagree, or when the latest CHANGELOG date is newer than the recorded sync date; report adds a `docVersionConsistency` block.
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
@@ -495,6 +508,18 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection --jq '.required_status_checks'` or the rulesets API shows required checks; a PR with a failing required check is blocked from merging.
   - Complexity: S
 
+### Researcher Queue (Cycle 5 - 2026-06-04)
+
+*Research conducted 2026-06-04. This pass checked whether generated-profile validation actually runs on pull requests before it can be made a required status check.*
+
+- [ ] P2 — Run profile-sync validation on profile/catalog pull requests
+  - Why: `profile-sync.yml` is scheduled/manual only, and `tests.yml` only runs on script/test/workflow changes. A pull request that changes `data/profile-catalog.json`, generated `README.md`, `projects.json`, or the committed sync report can miss `scripts/sync-profile.ps1 -Check` unless a maintainer runs the workflow manually. This also blocks the Cycle 4 branch-protection item from safely requiring generated-profile validation on relevant PRs.
+  - Evidence: `.github/workflows/profile-sync.yml` declares only `workflow_dispatch` and `schedule`; `.github/workflows/tests.yml` path filters omit `data/profile-catalog.json`, `README.md`, `projects.json`, and `reports/profile-sync-report.json`; `gh run list -R SysAdminDoc/SysAdminDoc --limit 10` showed recent push-triggered `Tests` runs but no push/PR-triggered `Profile sync` runs. GitHub workflow syntax docs state that `push` and `pull_request` events can use path filters, and warn that skipped required checks remain pending: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+  - Touches: `.github/workflows/profile-sync.yml`, optional `scripts/sync-profile.ps1` helper output if the PR check needs a shorter summary.
+  - Acceptance: a read-only `pull_request` check runs `scripts/sync-profile.ps1 -Check` for profile-pipeline paths such as `data/profile-catalog.json`, `scripts/sync-profile.ps1`, `README.md`, `projects.json`, `reports/profile-sync-report.json`, and `.github/workflows/profile-sync.yml`; unrelated PRs are not blocked by a skipped required check.
+  - Verify: open or simulate a PR touching `data/profile-catalog.json` and confirm `Profile sync / Check generated README` runs and fails on stale generated output; open or inspect an unrelated-doc PR and confirm branch policy does not wait on a skipped profile-sync status.
+  - Complexity: S
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
@@ -503,6 +528,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
+- [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
