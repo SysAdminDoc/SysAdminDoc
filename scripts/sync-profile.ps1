@@ -3111,6 +3111,38 @@ function Test-ReleaseAssetDrift {
     }
 }
 
+function Test-UrlScheme {
+    param([string]$Url)
+
+    if ([string]::IsNullOrWhiteSpace($Url)) { return $true }
+    try {
+        $uri = [System.Uri]::new($Url)
+        return $uri.Scheme -eq 'https'
+    } catch {
+        return $false
+    }
+}
+
+function Test-CatalogUrlSchemes {
+    param([hashtable[]]$Entries)
+
+    $violations = New-Object System.Collections.Generic.List[object]
+    foreach ($entry in $Entries) {
+        foreach ($field in @('liveUrl', 'userscriptUrl')) {
+            $url = [string]$entry[$field]
+            if (-not [string]::IsNullOrWhiteSpace($url) -and -not (Test-UrlScheme $url)) {
+                $violations.Add([ordered]@{
+                    repo = [string]$entry.repo
+                    field = $field
+                    url = $url
+                    reason = "only https: URLs are allowed in visitor-facing catalog fields"
+                })
+            }
+        }
+    }
+    return $violations.ToArray()
+}
+
 function Test-ProfileState {
     param(
         [hashtable]$Catalog,
@@ -3238,6 +3270,7 @@ function Test-ProfileState {
         }
     }
 
+    $urlSchemeViolations = @(Test-CatalogUrlSchemes -Entries $included)
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
@@ -3272,6 +3305,7 @@ function Test-ProfileState {
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations
         medicalPrivacyViolations = $medicalViolations
+        urlSchemeViolations = $urlSchemeViolations
         renamedRepoRedirects = $redirects
         metadataDrift = @($metadataDriftResult.metadataDrift)
         metadataDriftSummary = [ordered]@{
@@ -3294,6 +3328,7 @@ function Test-ProfileState {
         $missingPublic.Count -gt 0 -or
         $privateViolations.Count -gt 0 -or
         $medicalViolations.Count -gt 0 -or
+        $urlSchemeViolations.Count -gt 0 -or
         $redirects.Count -gt 0 -or
         $linkFailures.Count -gt 0 -or
         $experienceChecks["passed"] -ne $true -or
