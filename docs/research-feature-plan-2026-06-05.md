@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.27
+Current version observed: v4.9.28
 
 ## Executive Summary
 
@@ -13,7 +13,7 @@ Top opportunities, in priority order:
 
 1. P0 - Fix the failing OpenSSF Scorecard workflow by moving write permissions out of workflow-level permissions and matching Scorecard publish restrictions. Shipped in v4.9.26.
 2. P0 - Add a repeatable live GitHub-rendered profile smoke check with desktop/mobile screenshots and overflow assertions. Shipped in v4.9.27.
-3. P1 - Make generated-profile validation run automatically on pull requests that touch catalog, README, feed, report, SVG assets, schemas, setup, or workflow surfaces.
+3. P1 - Make generated-profile validation run automatically on pull requests that touch catalog, README, feed, report, SVG assets, schemas, setup, or workflow surfaces. Shipped in v4.9.28.
 4. P1 - Require the right status checks on `main` through branch protection or rulesets after the PR checks are always created.
 5. P1 - Add a public-safe `SECURITY.md`, issue forms, and PR template for broken links, profile corrections, workflow changes, and security reports.
 6. P1 - Account for every catalog row in the generated feed/report, including `VaultBox`, which is currently absent from both `projects` and `suppressed`.
@@ -454,12 +454,13 @@ Important integrations:
   - Verify: dispatch workflow and inspect artifacts plus summary.
   - Completed: v4.9.27 added `scripts/render-profile-smoke.ps1`, wired it into `profile-sync.yml`, ignored local smoke artifacts, and added offline Pester wiring coverage. Local smoke passed for desktop and 390px mobile with no missing sections, failed images, or overflow.
 
-- [ ] P1 - Run generated-profile validation on PRs
+- [x] P1 - Run generated-profile validation on PRs
   - Why: catalog/feed/schema/profile paths can change without an automatic full profile-sync status.
   - Evidence: `profile-sync.yml` is schedule/manual only; `tests.yml` path filters omit several generated-profile contract paths.
   - Touches: `.github/workflows/profile-sync.yml` or new `profile-contract.yml`.
   - Acceptance: PRs touching catalog, README, projects feed, schemas, reports, setup, profile assets, or profile workflows get a generated-profile validation check.
   - Verify: open a scratch PR touching each path class and confirm checks appear.
+  - Completed: v4.9.28 added a read-only `pull_request` trigger to `profile-sync.yml` for the generated profile contract surface and Pester coverage for the path list. A scratch PR remains the hosted end-to-end confirmation.
 
 - [ ] P1 - Require validated checks on `main`
   - Why: strong checks are not enforced by required status checks.
