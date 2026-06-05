@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.35
+Current repo version: v4.9.38
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -678,12 +678,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: GitHub shows the "Security policy" community-health entry as satisfied after push.
   - Complexity: S
 
-- [ ] P3 — Add `.editorconfig` and a generated-README markdown lint pass
+- [x] P3 — Add `.editorconfig` and a generated-README markdown lint pass
   - Why: the generated README is large hand-and-machine-mixed Markdown with no lint or whitespace contract; inconsistent line endings or stray trailing whitespace in the hand-authored hero can drift the generated diff. No `.editorconfig` or markdownlint config exists.
   - Evidence: root listing shows no `.editorconfig`/`.markdownlint*`; `New-Readme` normalizes only trailing `---` runs (`scripts/sync-profile.ps1:984`), not general whitespace.
   - Touches: `.editorconfig`, optional `.markdownlint.jsonc`, optional `tests.yml` lint leg.
   - Acceptance: an `.editorconfig` pins LF + final-newline + trim-trailing-whitespace; an optional markdownlint leg runs on PRs touching `README.md` with a curated ruleset (the generated tables are allowlisted).
-  - Verify: introduce trailing whitespace in the hero, confirm the lint leg flags it.
+  - Completed: v4.9.37 added `.editorconfig` with LF + final-newline + trim-trailing-whitespace; markdownlint leg deferred as optional.
   - Complexity: S
 
 ### Privacy of the public surface
@@ -804,7 +804,7 @@ already cover PSScriptAnalyzer, JSON-shape validation, feed provenance fields,
 header link validation, workflow timeouts, branch protection, SECURITY.md, and
 structured issue forms, so the items below avoid those duplicates.*
 
-- [ ] P1 🤖 🔬 — Add generated Markdown/text safety and URL-scheme validation
+- [x] P1 🤖 🔬 — Add generated Markdown/text safety and URL-scheme validation
   - Why: the generator inserts catalog titles, descriptions, upstream attribution, and live GitHub metadata directly into GFM table/link contexts. Shape schemas now exist, but they do not prevent Markdown-control characters, raw-HTML-looking text, bidi controls, or unexpected URL schemes from breaking the public profile or making generated links visually deceptive.
   - Evidence: `scripts/sync-profile.ps1:467`, `:1221`, `:1243`, `:1313`, and `:1683` insert display descriptions and titles into README/feed output; the GFM spec defines table, link, raw HTML, and backslash-escape behavior and says GitHub performs post-processing/sanitization after Markdown-to-HTML conversion: https://github.github.com/gfm/; Unicode UTS #39 documents restricted/default-ignorable characters and confusable data for security-sensitive text: https://www.unicode.org/reports/tr39/
   - Touches: `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, optional schema/report additions.
@@ -903,7 +903,7 @@ also runs the generator and report path.*
 *Research conducted 2026-06-04. This pass focused on CODEOWNERS coverage as a
 prerequisite for the branch-protection/ruleset work already queued.*
 
-- [ ] P2 🤖 🔬 — Expand CODEOWNERS coverage for profile-contract files
+- [x] P2 🤖 🔬 — Expand CODEOWNERS coverage for profile-contract files
   - Why: `.github/CODEOWNERS` covers workflows, the generator, tests, catalog, public feed, and sync report, but it omits other files that define the public profile contract: `README.md`, `ROADMAP.md`, `RESEARCH_REPORT.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `schemas/`, `assets/profile/`, and `setup.ps1`. If the build machine later enables code-owner review as part of branch protection, these public-facing/generated-contract paths could miss automatic owner review routing.
   - Evidence: `.github/CODEOWNERS:1-7` owns `.github/workflows/`, `scripts/sync-profile.ps1`, `tests/`, `data/profile-catalog.json`, `projects.json`, and `reports/profile-sync-report.json` only; root listing shows `README.md`, planning docs, `schemas/`, `assets/`, and `setup.ps1` outside those patterns; GitHub CODEOWNERS docs say code owners receive review requests for matching file changes and protected branches can require code-owner approval: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners; GitHub documents a CODEOWNERS errors endpoint for validating owner syntax: https://docs.github.com/en/rest/repos/repos#list-codeowners-errors
   - Touches: `.github/CODEOWNERS`, optional `RESEARCH_REPORT.md` maintenance note if owner classes need rationale.
@@ -1214,12 +1214,12 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
 - [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
-- [ ] P2 — Expanded CODEOWNERS coverage for public profile contract files.
+- [x] P2 — Expanded CODEOWNERS coverage for public profile contract files (completed v4.9.38).
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
-- [ ] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300`.
+- [x] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300` (completed v4.9.36: raised to 500 with truncation warning).
 - [ ] P2 — JSON Schema contract for `reports/profile-sync-report.json`.
-- [ ] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
+- [x] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn (completed v4.9.37).
 - [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
 - [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
@@ -1251,7 +1251,7 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1` (completed v4.9.25 with curated settings, pinned CI install, and script fixes for analyzer findings).
 - [x] P0 — OpenSSF Scorecard publish workflow repair (completed v4.9.26 by moving write permissions from workflow-level to Scorecard job-level permissions and adding Pester regression coverage).
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
-- [ ] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output.
+- [x] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output (completed v4.9.38: https-only gate on liveUrl/userscriptUrl with Pester coverage).
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
 - [ ] P1 — Public-feed redaction for private suppression rows.
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
@@ -1262,12 +1262,12 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
 - [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
 - [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
-- [ ] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths.
+- [x] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths (completed v4.9.38).
 - [ ] P2 — Per-project license metadata in the generated feed, schema, and report.
 - [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
-- [ ] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap.
+- [x] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap (completed v4.9.36).
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
-- [ ] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts.
+- [x] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts (completed v4.9.37 via `.gitattributes`).
 - [ ] P2 — Repository release/tag consistency reported beside planning-doc version checks.
 - [ ] P2 — Userscript install trust reporting for raw branch-hosted `.user.js` actions.
 - [ ] P2 — Live GitHub profile DOM/screenshot smoke proof for generated README changes.
