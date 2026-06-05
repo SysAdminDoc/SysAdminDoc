@@ -2399,6 +2399,65 @@ function Test-JsonSchemaNode {
     return $errors.ToArray()
 }
 
+$script:SupportedSchemaKeywords = @(
+    '$schema', '$id', '$ref', '$defs', 'definitions',
+    'title', 'description',
+    'type', 'const', 'enum', 'format', 'pattern',
+    'minimum', 'minItems', 'items',
+    'required', 'properties', 'additionalProperties'
+)
+
+function Test-SchemaKeywordCoverage {
+    param(
+        [object]$Schema,
+        [string]$Path = '$',
+        [object]$RootSchema = $null
+    )
+
+    if ($null -eq $RootSchema) { $RootSchema = $Schema }
+    $warnings = New-Object System.Collections.Generic.List[string]
+
+    foreach ($name in @(Get-ObjectPropertyNames $Schema)) {
+        if ($name -notin $script:SupportedSchemaKeywords) {
+            $warnings.Add("$Path uses unsupported schema keyword '$name' — validation may be incomplete")
+        }
+    }
+
+    $properties = Get-MemberValue -Object $Schema -Name "properties"
+    if ($properties) {
+        foreach ($propName in @(Get-ObjectPropertyNames $properties)) {
+            $propSchema = Get-MemberValue -Object $properties -Name $propName
+            if ($propSchema) {
+                foreach ($w in @(Test-SchemaKeywordCoverage -Schema $propSchema -Path "$Path.properties.$propName" -RootSchema $RootSchema)) {
+                    $warnings.Add($w)
+                }
+            }
+        }
+    }
+
+    $items = Get-MemberValue -Object $Schema -Name "items"
+    if ($items) {
+        foreach ($w in @(Test-SchemaKeywordCoverage -Schema $items -Path "$Path.items" -RootSchema $RootSchema)) {
+            $warnings.Add($w)
+        }
+    }
+
+    $defs = Get-MemberValue -Object $Schema -Name '$defs'
+    if (-not $defs) { $defs = Get-MemberValue -Object $Schema -Name 'definitions' }
+    if ($defs -and $Path -eq '$') {
+        foreach ($defName in @(Get-ObjectPropertyNames $defs)) {
+            $defSchema = Get-MemberValue -Object $defs -Name $defName
+            if ($defSchema) {
+                foreach ($w in @(Test-SchemaKeywordCoverage -Schema $defSchema -Path "`$defs.$defName" -RootSchema $RootSchema)) {
+                    $warnings.Add($w)
+                }
+            }
+        }
+    }
+
+    return $warnings.ToArray()
+}
+
 function Test-JsonSchemaContract {
     param(
         [object]$Value,
@@ -2418,10 +2477,12 @@ function Test-JsonSchemaContract {
         }
     }
 
+    $keywordWarnings = @()
     if ($schema) {
         foreach ($schemaError in @(Test-JsonSchemaNode -Value $Value -Schema $schema -Path '$' -RootSchema $schema)) {
             $errors.Add($schemaError)
         }
+        $keywordWarnings = @(Test-SchemaKeywordCoverage -Schema $schema)
     }
 
     $resolvedSchemaPath = Resolve-Path -LiteralPath $fullPath -ErrorAction SilentlyContinue
@@ -2436,6 +2497,7 @@ function Test-JsonSchemaContract {
         schemaId = if ($schema) { Get-MemberValue -Object $schema -Name '$id' } else { $null }
         valid = [bool]($errors.Count -eq 0)
         errors = $errors.ToArray()
+        unsupportedKeywords = $keywordWarnings
     }
 }
 
