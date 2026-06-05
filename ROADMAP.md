@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.34
+Current repo version: v4.9.35
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,13 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.35 refresh: Dependabot CodeQL action update applied. The
+Scorecard SARIF upload step now uses the Dependabot-reviewed
+`github/codeql-action/upload-sarif` 4.36.1 SHA
+`87557b9c84dde89fdd9b10e88954ac2f4248e463`. Pester coverage guards the reviewed
+SHA and rejects the older 3.35.5 SHA. With PR #5 and PR #6 both applied, the
+current Dependabot workflow-action triage item is complete.
 
 2026-06-05 v4.9.34 refresh: Dependabot checkout update applied. All pinned
 `actions/checkout` workflow uses now point to the Dependabot-reviewed 6.0.3 SHA
@@ -726,12 +733,13 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: `scripts/sync-profile.ps1 -Check` records the blocks; mock a missing/disabled field in a fixture and confirm the warning count changes.
   - Complexity: M
 
-- [ ] P2 — Triage current Dependabot workflow-action update PRs with a repeatable SHA-pin review path
+- [x] P2 — Triage current Dependabot workflow-action update PRs with a repeatable SHA-pin review path
   - Why: Dependabot has two open PRs updating SHA-pinned workflow actions, and both current check sets pass. The repo already values pinned actions, least-privilege permissions, and `zizmor`; the missing piece is a small repeatable merge/defer protocol so pinned actions do not go stale while still preserving review of major action/runtime changes.
   - Evidence: `gh pr list -R SysAdminDoc/SysAdminDoc` shows PR #5 (`actions/checkout` 4.3.1 -> 6.0.3) and PR #6 (`github/codeql-action` 3.35.5 -> 4.36.1); `gh pr checks 5` shows Pester and zizmor passing; `gh pr checks 6` shows zizmor passing; GitHub Dependabot action-update docs: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
   - Touches: `.github/workflows/*.yml`; optional `CONTRIBUTING.md` or `RESEARCH_REPORT.md` maintenance note.
   - Acceptance: PR #5 and PR #6 are merged or explicitly deferred with a reason; the review checklist records `gh pr checks`, `zizmor`, Pester/profile-sync relevance, `persist-credentials:false`, and permission diffs before merging future action-update PRs.
   - Progress: v4.9.34 applied PR #5's `actions/checkout` 6.0.3 SHA directly on current `main` after the hosted Tests run warned that the old checkout action used deprecated Node.js 20. PR #6 remains open for CodeQL review.
+  - Completed: v4.9.35 applied PR #6's `github/codeql-action/upload-sarif` 4.36.1 SHA directly on current `main`; both Dependabot workflow-action PRs have now been addressed and closed as stale duplicates.
   - Verify: `gh pr list -R SysAdminDoc/SysAdminDoc --state open --label github_actions` is empty or each remaining PR has a documented defer reason.
   - Complexity: S
 
@@ -1219,7 +1227,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
-- [ ] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 remains).
+- [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35).
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
