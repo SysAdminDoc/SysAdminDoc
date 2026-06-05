@@ -206,11 +206,12 @@ function Get-GitHubRepos {
         return @()
     }
 
+    $repoLimit = 500
     $ghArgs = @(
         "repo", "list", $Owner,
         "--visibility", "public",
         "--no-archived",
-        "--limit", "300",
+        "--limit", [string]$repoLimit,
         "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
     )
     $lastOutput = $null
@@ -224,6 +225,9 @@ function Get-GitHubRepos {
                 $repos = @($lastOutput | ConvertFrom-Json)
                 if ($repos.Count -eq 0) {
                     throw "GitHub returned an empty repository list."
+                }
+                if ($repos.Count -ge $repoLimit) {
+                    Write-Warning "gh repo list returned $($repos.Count) repos (limit $repoLimit); some public repos may be truncated."
                 }
                 return $repos
             } catch {
