@@ -129,7 +129,17 @@ function Invoke-RenderedSmoke {
     } | Out-Null
     $CommandId.Value++
     Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Page.navigate" -Params @{ url = $Url } | Out-Null
-    Start-Sleep -Seconds 8
+    $loadDeadline = [datetime]::UtcNow.AddSeconds(30)
+    while ([datetime]::UtcNow -lt $loadDeadline) {
+        Start-Sleep -Milliseconds 500
+        $CommandId.Value++
+        $readyState = Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Runtime.evaluate" -Params @{
+            expression = 'document.readyState'
+            returnByValue = $true
+        }
+        if ($readyState.result.value -eq 'complete') { break }
+    }
+    Start-Sleep -Seconds 2
 
     $expression = @'
 (() => {

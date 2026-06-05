@@ -446,6 +446,27 @@ Describe 'Feed JSON Schema contracts' {
         $result.valid | Should -BeFalse
         ($result.errors -join "`n") | Should -Match '\$\.projects\[0\]\.repo'
     }
+
+    It 'reports no unsupported keywords for the current schemas' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-FeedSchemaContracts -Catalog $cat -ProjectsJson $json
+
+        @($result.catalog.unsupportedKeywords) | Should -HaveCount 0
+        @($result.projects.unsupportedKeywords) | Should -HaveCount 0
+    }
+
+    It 'warns when a schema uses keywords the validator cannot check' {
+        $schemaPath = Join-Path $TestDrive 'unsupported.json'
+        Set-Content -LiteralPath $schemaPath -Value '{"type":"object","oneOf":[{"type":"string"}],"maxLength":10}' -Encoding utf8
+
+        $result = Test-JsonSchemaContract -Value @{} -SchemaPath $schemaPath
+
+        @($result.unsupportedKeywords).Count | Should -BeGreaterOrEqual 2
+        ($result.unsupportedKeywords -join "`n") | Should -Match 'oneOf'
+        ($result.unsupportedKeywords -join "`n") | Should -Match 'maxLength'
+    }
 }
 
 Describe 'Doc version consistency gate' {
@@ -822,6 +843,43 @@ Describe 'Public-safe intake files' {
         $template | Should -Match 'Public-Safety Check'
         $template | Should -Match 'data/profile-catalog.json'
         $template | Should -Match 'hand-edit generated README sections'
+    }
+}
+
+Describe 'Medical privacy gate in Test-ProfileState' {
+    It 'flags a catalog entry whose repo metadata contains medical keywords' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $medicalRepo = New-TestRepoMeta -Name 'WinTool' -Description 'A DICOM viewer for radiology'
+        $expectedReadme = New-Readme -Catalog $cat -Repos @($medicalRepo)
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @($medicalRepo)
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos @($medicalRepo) `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects $expectedProjects `
+            -SkipLinkValidation
+
+        $result.Failed | Should -BeTrue
+        @($result.Report.medicalPrivacyViolations).Count | Should -BeGreaterOrEqual 1
+        ($result.Report.medicalPrivacyViolations | ForEach-Object { $_.repo }) | Should -Contain 'WinTool'
+    }
+
+    It 'allows medical keywords when allowPublicMedical is set' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $cat.entries[0].allowPublicMedical = $true
+        $medicalRepo = New-TestRepoMeta -Name 'WinTool' -Description 'A DICOM viewer for radiology'
+        $expectedReadme = New-Readme -Catalog $cat -Repos @($medicalRepo)
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @($medicalRepo)
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos @($medicalRepo) `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects $expectedProjects `
+            -SkipLinkValidation
+
+        @($result.Report.medicalPrivacyViolations).Count | Should -Be 0
     }
 }
 
