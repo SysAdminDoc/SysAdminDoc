@@ -2,6 +2,33 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.38] - 2026-06-05
+
+- Added: URL-scheme validation gate rejects non-`https:` URLs in visitor-facing catalog fields (`liveUrl`, `userscriptUrl`), preventing `javascript:`/`data:` injection.
+- Added: `.editorconfig` for consistent indent and EOL across editors.
+- Changed: Expanded CODEOWNERS to cover schemas, assets, setup.ps1, scripts/, reports/, SECURITY.md, and PSScriptAnalyzer settings.
+- Added: 2 Pester tests for URL scheme validation.
+
+## [v4.9.37] - 2026-06-05
+
+- Added: `.gitattributes` marking generated files (`README.md`, `projects.json`, SVGs) as `linguist-generated` (collapses PR diffs, excludes from language stats) with LF line endings.
+- Fixed: Generated profile SVGs now include `<title>` and `<desc>` elements for screen reader accessibility (WCAG 1.1.1).
+- Added: Pester assertion for SVG accessibility elements.
+
+## [v4.9.36] - 2026-06-05
+
+- Fixed: `Test-ProfileState` now includes `$projectsInSync` in its failure check — `projects.json` could previously drift without failing CI.
+- Fixed: MemoryStream leak in CDP smoke test receive loop (never disposed on non-matching events).
+- Fixed: CDP receive now has a 60-second deadline and per-receive 30-second cancellation token, preventing infinite hangs.
+- Fixed: CI workflow `git push` replaced token-in-URL pattern with `extraheader` config to prevent credential logging.
+- Added: `#Requires -Version 7.0` to all scripts using PS 7 features.
+- Added: `--no-sandbox` to Chrome args for CI compatibility.
+- Fixed: `setup.ps1` captures `$LASTEXITCODE` immediately after winget and handles "binary already present" case.
+- Fixed: `write-profile-sync-summary.ps1` null-safety for partial reports.
+- Fixed: `releaseAssetKinds` schema enum now includes all values the code can produce (`jar`, `deb`, `rpm`, `dmg`).
+- Changed: `gh repo list` limit raised from 300 to 500 with truncation warning.
+- Added: Pester test for projects sync gate.
+
 ## [v4.9.35] - 2026-06-05
 
 - Changed: Updated the Scorecard SARIF upload step from `github/codeql-action` 3.35.5 to the pinned 4.36.1 SHA from Dependabot PR #6.
