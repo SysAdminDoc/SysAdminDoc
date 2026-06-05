@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-05T03:49:51.8568348-04:00",
+  "generatedAt": "2026-06-05T03:57:10.6862748-04:00",
   "readmeInSync": true,
   "projectsExportInSync": false,
   "profileAssetsInSync": true,
@@ -1013,28 +1013,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.32",
+    "expectedVersion": "v4.9.33",
     "expectedDate": "2026-06-05",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.32"
+        "value": "v4.9.33"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.32"
+        "value": "v4.9.33"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.32"
+        "value": "v4.9.33"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.32"
+        "value": "v4.9.33"
       }
     ],
     "dates": [
@@ -1067,7 +1067,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 9211,
+      "elapsedMs": 8687,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1134,7 +1134,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 9211,
+    "elapsedMs": 8687,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],
