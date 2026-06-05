@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.26
+Current version observed: v4.9.27
 
 ## Executive Summary
 
@@ -12,7 +12,7 @@ SysAdminDoc/SysAdminDoc is a public GitHub profile README repository that now op
 Top opportunities, in priority order:
 
 1. P0 - Fix the failing OpenSSF Scorecard workflow by moving write permissions out of workflow-level permissions and matching Scorecard publish restrictions. Shipped in v4.9.26.
-2. P0 - Add a repeatable live GitHub-rendered profile smoke check with desktop/mobile screenshots and overflow assertions.
+2. P0 - Add a repeatable live GitHub-rendered profile smoke check with desktop/mobile screenshots and overflow assertions. Shipped in v4.9.27.
 3. P1 - Make generated-profile validation run automatically on pull requests that touch catalog, README, feed, report, SVG assets, schemas, setup, or workflow surfaces.
 4. P1 - Require the right status checks on `main` through branch protection or rulesets after the PR checks are always created.
 5. P1 - Add a public-safe `SECURITY.md`, issue forms, and PR template for broken links, profile corrections, workflow changes, and security reports.
@@ -446,12 +446,13 @@ Important integrations:
   - Verify: `gh run view -R SysAdminDoc/SysAdminDoc <scorecard-run> --json conclusion,jobs`.
   - Completed: v4.9.26 moved workflow-level permissions to read-only, kept Scorecard publish/SARIF writes at job level, and added offline Pester regression coverage for the permission shape. A new GitHub Actions run is still needed to prove the hosted scheduled/manual workflow conclusion.
 
-- [ ] P0 - Add live GitHub-rendered profile smoke
+- [x] P0 - Add live GitHub-rendered profile smoke
   - Why: source checks do not prove GitHub.com mobile/desktop rendering.
   - Evidence: 2026-06-05 headless Chrome mobile screenshot showed horizontal scrollbar and clipped first-viewport README text.
   - Touches: new render-smoke script, `.github/workflows/profile-sync.yml`, `.github/workflows/assets-refresh.yml`, optional report JSON.
   - Acceptance: desktop and 390px mobile screenshots upload; README content has no horizontal overflow; key sections render in order.
   - Verify: dispatch workflow and inspect artifacts plus summary.
+  - Completed: v4.9.27 added `scripts/render-profile-smoke.ps1`, wired it into `profile-sync.yml`, ignored local smoke artifacts, and added offline Pester wiring coverage. Local smoke passed for desktop and 390px mobile with no missing sections, failed images, or overflow.
 
 - [ ] P1 - Run generated-profile validation on PRs
   - Why: catalog/feed/schema/profile paths can change without an automatic full profile-sync status.

@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.26
+Current repo version: v4.9.27
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,19 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.27 refresh: the live GitHub-rendered profile smoke shipped.
+`scripts/render-profile-smoke.ps1` now drives installed Chrome/Chromium through
+the DevTools protocol, verifies desktop and 390px mobile renderings of
+`https://github.com/SysAdminDoc`, captures screenshots, checks required profile
+sections, image load health, and README/document overflow, and writes
+`reports/rendered-profile-smoke.json`. `.github/workflows/profile-sync.yml`
+runs the smoke after generated-profile validation and uploads the JSON plus
+desktop/mobile PNGs as short-lived workflow artifacts. Local verification passed
+with no missing sections, failed images, root overflow, or document overflow.
+Next highest open item: run generated-profile validation automatically on PRs
+touching catalog, README, feed, report, SVG assets, schemas, setup, or workflow
+surfaces.
 
 2026-06-05 v4.9.26 refresh: the OpenSSF Scorecard publish workflow repair shipped.
 `.github/workflows/scorecard.yml` now keeps workflow-level permissions read-only
@@ -1138,7 +1151,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 - [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
 - [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
-- [ ] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts.
+- [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.

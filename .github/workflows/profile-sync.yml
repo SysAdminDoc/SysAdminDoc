@@ -40,6 +40,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: ./scripts/sync-profile.ps1 -Check
 
+      - name: Smoke live rendered profile
+        shell: pwsh
+        run: ./scripts/render-profile-smoke.ps1
+
       - name: Upload sync report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -47,6 +51,17 @@ jobs:
           name: profile-sync-report
           path: reports/profile-sync-report.json
           if-no-files-found: warn
+
+      - name: Upload rendered profile smoke artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: rendered-profile-smoke
+          path: |
+            reports/rendered-profile-smoke.json
+            reports/rendered-profile-smoke-*.png
+          if-no-files-found: warn
+          retention-days: 14
 
   write-pr:
     name: Open generated README PR
