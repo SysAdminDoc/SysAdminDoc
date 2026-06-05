@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.40] - 2026-06-05
+
+- Fixed: VaultBox catalog entry had `category: "suppressed"` but no `suppressionReason`, making it invisible in both `projects` and `suppressed` arrays of the feed.
+- Added: Orphaned-suppressed-entry gate in `Test-ProfileState` catches entries with `category: "suppressed"` but missing `suppressionReason`.
+- Added: `Update-Header` idempotency and repo-count update Pester tests (completes the P1 safety-critical coverage item).
+
 ## [v4.9.39] - 2026-06-05
 
 - Added: Schema keyword coverage audit (`Test-SchemaKeywordCoverage`) detects when schemas use keywords the custom validator cannot check, preventing silent validation gaps.

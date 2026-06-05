@@ -344,6 +344,52 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     }
 }
 
+Describe 'Update-Header idempotency' {
+    It 'produces identical output when run twice on the same input' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repoLookup = ConvertTo-Lookup @()
+        $entries = @($cat.entries | Where-Object {
+            $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+        })
+        $header = @(
+            '### Professional Focus'
+            ''
+            'Test engineer with 16+ years.'
+            ''
+            '**Currently Building**'
+            ''
+            '| Project | Focus | Action |'
+            '|:--------|:------|:------:|'
+            '| [**WinTool**](https://github.com/SysAdminDoc/WinTool) | A test PowerShell tool | [Repo](https://github.com/SysAdminDoc/WinTool) |'
+            ''
+            '---'
+        ) -join [Environment]::NewLine
+
+        $first = Update-Header -Header $header -PublicRepoCount 10 -Entries $entries -RepoLookup $repoLookup
+        $second = Update-Header -Header $first -PublicRepoCount 10 -Entries $entries -RepoLookup $repoLookup
+
+        $second | Should -Be $first
+    }
+
+    It 'updates the repo count in the portfolio line' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repoLookup = ConvertTo-Lookup @()
+        $entries = @($cat.entries | Where-Object {
+            $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+        })
+        $header = @(
+            '### Professional Focus'
+            ''
+            'Public portfolio: 100 active repos, 50 visitor-facing projects, stuff.'
+        ) -join [Environment]::NewLine
+
+        $result = Update-Header -Header $header -PublicRepoCount 200 -Entries $entries -RepoLookup $repoLookup
+
+        $result | Should -Match 'Public portfolio: 200 active repos'
+        $result | Should -Match "$($entries.Count) visitor-facing projects"
+    }
+}
+
 Describe 'setup.ps1 hardening contract' {
     BeforeAll {
         $script:setupSource = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'setup.ps1') -Raw

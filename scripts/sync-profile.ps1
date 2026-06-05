@@ -3218,6 +3218,9 @@ function Test-ProfileState {
     $repoLookup = ConvertTo-Lookup $Repos
     $entries = @($Catalog.entries)
     $included = @($entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })
+    $orphanedSuppressed = @($entries | Where-Object {
+        $_.category -eq 'suppressed' -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+    } | ForEach-Object { [ordered]@{ repo = [string]$_.repo; reason = "category is 'suppressed' but suppressionReason is missing" } })
     $handledNames = @{}
     foreach ($entry in $entries) {
         $handledNames[$entry.repo.ToLowerInvariant()] = $true
@@ -3368,6 +3371,7 @@ function Test-ProfileState {
         privateVisibilityViolations = $privateViolations
         medicalPrivacyViolations = $medicalViolations
         urlSchemeViolations = $urlSchemeViolations
+        orphanedSuppressedEntries = $orphanedSuppressed
         renamedRepoRedirects = $redirects
         metadataDrift = @($metadataDriftResult.metadataDrift)
         metadataDriftSummary = [ordered]@{
@@ -3391,6 +3395,7 @@ function Test-ProfileState {
         $privateViolations.Count -gt 0 -or
         $medicalViolations.Count -gt 0 -or
         $urlSchemeViolations.Count -gt 0 -or
+        $orphanedSuppressed.Count -gt 0 -or
         $redirects.Count -gt 0 -or
         $linkFailures.Count -gt 0 -or
         $experienceChecks["passed"] -ne $true -or

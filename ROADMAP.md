@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.39
+Current repo version: v4.9.40
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -1135,7 +1135,7 @@ after the public-feed privacy and schema-contract items. This is about source
 catalog rows in this repo, not the portfolio site's local overlay/fallback
 omission check from v4.9.18.*
 
-- [ ] P2 🤖 🔬 — Report catalog rows omitted from both public feed arrays
+- [x] P2 🤖 🔬 — Report catalog rows omitted from both public feed arrays
   - Why: the catalog can contain a non-portfolio row with no `suppressionReason`, which is then absent from both `projects.json.projects` and `projects.json.suppressed`. That may be intentional local-only catalog state, but today it is not counted, reported, or forced to carry a public-safe reason, so feed consumers and maintainers cannot distinguish an intentional omission from a catalog mistake.
   - Evidence: parsing `data/profile-catalog.json` and `projects.json` found 187 catalog entries, 177 exported `projects`, 9 exported `suppressed` rows, and 1 catalog row absent from both arrays (`VaultBox`); the row has `category: "suppressed"`, `includeInReadme: false`, `includeInPortfolio: false`, and `suppressionReason: null`; `scripts/sync-profile.ps1:1665` sets `suppressed` only from nonblank `suppressionReason`, and `scripts/sync-profile.ps1:1724-1728` exports only suppressed rows or `includeInPortfolio` rows.
   - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Test-ProfileState` report output), `reports/profile-sync-report.json`, optional `schemas/profile-projects.v1.json` or future sync-report schema if omitted rows become a formal report section.
