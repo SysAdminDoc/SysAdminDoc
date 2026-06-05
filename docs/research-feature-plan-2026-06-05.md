@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.25
+Current version observed: v4.9.26
 
 ## Executive Summary
 
@@ -11,7 +11,7 @@ SysAdminDoc/SysAdminDoc is a public GitHub profile README repository that now op
 
 Top opportunities, in priority order:
 
-1. P0 - Fix the failing OpenSSF Scorecard workflow by moving write permissions out of workflow-level permissions and matching Scorecard publish restrictions.
+1. P0 - Fix the failing OpenSSF Scorecard workflow by moving write permissions out of workflow-level permissions and matching Scorecard publish restrictions. Shipped in v4.9.26.
 2. P0 - Add a repeatable live GitHub-rendered profile smoke check with desktop/mobile screenshots and overflow assertions.
 3. P1 - Make generated-profile validation run automatically on pull requests that touch catalog, README, feed, report, SVG assets, schemas, setup, or workflow surfaces.
 4. P1 - Require the right status checks on `main` through branch protection or rulesets after the PR checks are always created.
@@ -438,12 +438,13 @@ Important integrations:
 
 ## Prioritized Roadmap
 
-- [ ] P0 - Repair the OpenSSF Scorecard workflow
+- [x] P0 - Repair the OpenSSF Scorecard workflow
   - Why: the latest scheduled Scorecard run failed, undermining the repository security signal.
   - Evidence: `scorecard.yml` has workflow-level write permissions; failed run log says Scorecard publish rejects workflow-level write permissions.
   - Touches: `.github/workflows/scorecard.yml`.
   - Acceptance: scheduled/manual Scorecard run completes successfully; SARIF upload still works or publish mode is intentionally disabled.
   - Verify: `gh run view -R SysAdminDoc/SysAdminDoc <scorecard-run> --json conclusion,jobs`.
+  - Completed: v4.9.26 moved workflow-level permissions to read-only, kept Scorecard publish/SARIF writes at job level, and added offline Pester regression coverage for the permission shape. A new GitHub Actions run is still needed to prove the hosted scheduled/manual workflow conclusion.
 
 - [ ] P0 - Add live GitHub-rendered profile smoke
   - Why: source checks do not prove GitHub.com mobile/desktop rendering.

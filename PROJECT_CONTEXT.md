@@ -1,6 +1,6 @@
 # SysAdminDoc Project Context
 
-Last consolidated: 2026-06-04
+Last consolidated: 2026-06-05
 Repository: `C:\Users\--\repos\SysAdminDoc`
 Remote: `https://github.com/SysAdminDoc/SysAdminDoc.git`
 
@@ -26,15 +26,15 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines; it now supports `-CheckOnly` diagnostics and best-effort `%TEMP%` transcript logging.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, setup bootstrapper hardening shipped as v4.9.21, WolfPack/Vigil desktop recategorization shipped as v4.9.22, fork/upstream attribution shipped as v4.9.23, the Forge naming-debt log shipped as v4.9.24, and the PSScriptAnalyzer CI lane shipped as v4.9.25.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, setup bootstrapper hardening shipped as v4.9.21, WolfPack/Vigil desktop recategorization shipped as v4.9.22, fork/upstream attribution shipped as v4.9.23, the Forge naming-debt log shipped as v4.9.24, the PSScriptAnalyzer CI lane shipped as v4.9.25, and the OpenSSF Scorecard publish-permissions repair shipped as v4.9.26.
 - Local working-note files are ignored by git.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
 ## Current Verified State
 
-Research run date: 2026-06-04
-Latest sync date: 2026-06-04
-Version: v4.9.25
+Research run date: 2026-06-05
+Latest sync date: 2026-06-05
+Version: v4.9.26
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -66,6 +66,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - Forked/continued rows now use structured upstream attribution; AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser, TabExplorer, Vigil, and TagStudio render upstream repo and license lines in the README and export the same metadata in `projects.json`.
 - Forge-name debt is explicitly logged in `ROADMAP.md`; retained live names are WinForge, FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge, and MediaForge, and new repository names should avoid that pattern.
 - PSScriptAnalyzer now runs in `tests.yml` with pinned version 1.25.0, curated settings, and 0 local findings against `scripts/sync-profile.ps1` plus `setup.ps1`.
+- OpenSSF Scorecard publish mode now keeps workflow-level permissions read-only and grants `security-events: write` plus `id-token: write` only at the Scorecard job level, with offline Pester coverage guarding the permission shape.
 - `README.md` now carries a generated-catalog hand-edit notice before the generated catalog block, and profile sync validation records `readmeExperienceChecks.generatedCatalogNotice`.
 - The manual generated-profile workflow uses `scripts/sync-profile.ps1 -Write -Check` in a single invocation so write and validation share one live metadata snapshot.
 - `-SeedCatalog` is guarded behind `-ForceSeedCatalog` and should only be used as a lossy one-shot bootstrap; routine updates must edit `data/profile-catalog.json` and run `-Write`/`-Check`.
@@ -76,7 +77,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - Local `zizmor .github/workflows` returned no findings after pinning workflow actions to commit SHAs and disabling checkout credential persistence.
 - The hand-authored hero section now matches the user's LinkedIn positioning while keeping private production project names and employer-specific details out of the public README.
 - The top hero content uses full-width Markdown sections rather than an HTML two-column wrapper, preventing the Proof Points and Currently Building tables from rendering too narrow on GitHub.
-- `docs/research-feature-plan-2026-06-04.md` is the current tracked companion research plan.
+- `docs/research-feature-plan-2026-06-05.md` is the current tracked companion research plan.
 
 ## Project Philosophy
 
@@ -113,4 +114,4 @@ As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub 
 
 ## Research Artifacts
 
-The current tracked companion plan is `docs/research-feature-plan-2026-06-04.md`.
+The current tracked companion plan is `docs/research-feature-plan-2026-06-05.md`.

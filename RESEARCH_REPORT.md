@@ -2,10 +2,10 @@
 
 Consolidated from legacy research and feature-planning documents on 2026-06-03. This is the canonical research home for the profile-catalog system; planned work derived from it lives in `ROADMAP.md`. The dated source bundle was archived to `docs/archive/research-feature-plan-2026-06-04.md`.
 
-Research refresh: 2026-06-04
+Research refresh: 2026-06-05
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.25
+Current version after this refresh: v4.9.26
 
 ## Verification Refresh — 2026-06-04
 

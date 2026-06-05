@@ -103,7 +103,7 @@
         "NovaCut-v3.73.2.apk"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T12:08:02.0000000Z",
+      "pushedAt": "2026-06-05T06:11:00.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -149,7 +149,7 @@
         "HostShield-v6.5.9-full-release.apk"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-05-26T19:01:02.0000000Z",
+      "pushedAt": "2026-06-05T05:15:00.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -202,7 +202,7 @@
         "Aura-v6.31.1.apk"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T12:06:08.0000000Z",
+      "pushedAt": "2026-06-05T05:39:51.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -419,7 +419,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Java",
-      "stars": 19,
+      "stars": 21,
       "latestReleaseTag": "v0.5.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppManagerNG/releases/tag/v0.5.0",
       "releaseAssetKinds": [
@@ -433,7 +433,7 @@
         "AppManagerNG-0.5.0-full-release.apk.sha256"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T11:52:32.0000000Z",
+      "pushedAt": "2026-06-05T06:15:03.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -481,7 +481,7 @@
         "CallShield-v1.7.11.apk.sha256"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T01:07:49.0000000Z",
+      "pushedAt": "2026-06-04T18:53:05.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -818,7 +818,7 @@
         "app-release.apk"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T12:05:51.0000000Z",
+      "pushedAt": "2026-06-05T05:47:17.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -863,7 +863,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 4,
+      "stars": 5,
       "latestReleaseTag": "v0.2.59",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.59",
       "releaseAssetKinds": [
@@ -1925,23 +1925,31 @@
       "installKind": null,
       "language": "JavaScript",
       "stars": 10,
-      "latestReleaseTag": "v4.5.2",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Astra-Deck/releases/tag/v4.5.2",
+      "latestReleaseTag": "v4.46.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Astra-Deck/releases/tag/v4.46.0",
       "releaseAssetKinds": [
         "crx",
+        "other",
         "userscript",
         "xpi",
         "zip"
       ],
       "releaseAssetNames": [
-        "astra-deck-chrome-v4.5.2.crx",
-        "astra-deck-chrome-v4.5.2.zip",
-        "astra-deck-firefox-v4.5.2.xpi",
-        "astra-deck-firefox-v4.5.2.zip",
-        "ytkit-v4.5.2.user.js"
+        "astra-deck-github-full-chrome-v4.46.0.crx",
+        "astra-deck-github-full-chrome-v4.46.0.zip",
+        "astra-deck-github-full-firefox-v4.46.0.xpi",
+        "astra-deck-github-full-firefox-v4.46.0.zip",
+        "astra-deck-npm-sbom.cdx.json",
+        "astra-deck-store-safe-chrome-v4.46.0.crx",
+        "astra-deck-store-safe-chrome-v4.46.0.zip",
+        "astra-deck-store-safe-firefox-v4.46.0.xpi",
+        "astra-deck-store-safe-firefox-v4.46.0.zip",
+        "release-manifest.json",
+        "SHA256SUMS",
+        "ytkit-v4.46.0.user.js"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T12:03:02.0000000Z",
+      "pushedAt": "2026-06-05T05:49:05.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -1993,7 +2001,7 @@
         "ScriptVault-v3.11.0.zip"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T11:59:31.0000000Z",
+      "pushedAt": "2026-06-05T06:15:16.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -3216,7 +3224,7 @@
         "sysadmindoc-portfolio-v0.13.1.zip"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T12:05:51.0000000Z",
+      "pushedAt": "2026-06-05T06:05:55.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -3921,7 +3929,7 @@
         "LibreSpot.ps1"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T11:35:15.0000000Z",
+      "pushedAt": "2026-06-04T17:34:00.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -6414,7 +6422,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 18,
+      "stars": 19,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -6428,7 +6436,7 @@
         "OpenCut-Setup-1.25.1.exe"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T11:59:29.0000000Z",
+      "pushedAt": "2026-06-05T05:58:58.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -8798,7 +8806,7 @@
       ],
       "releaseAssetNames": [],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-04T11:59:31.0000000Z",
+      "pushedAt": "2026-06-05T06:15:16.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
