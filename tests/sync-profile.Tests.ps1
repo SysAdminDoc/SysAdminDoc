@@ -631,6 +631,31 @@ Describe 'Rendered profile smoke wiring' {
     }
 }
 
+Describe 'Profile sync pull request validation trigger' {
+    BeforeAll {
+        $script:ProfileSyncWorkflowForTriggers = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
+    }
+
+    It 'runs generated-profile validation on pull requests touching contract paths' {
+        $script:ProfileSyncWorkflowForTriggers | Should -Match 'pull_request:'
+        foreach ($path in @(
+            'README.md',
+            'data/profile-catalog.json',
+            'projects.json',
+            'reports/profile-sync-report.json',
+            'schemas/**',
+            'assets/profile/**',
+            'scripts/sync-profile.ps1',
+            'scripts/render-profile-smoke.ps1',
+            'setup.ps1',
+            'tests/**',
+            '.github/workflows/profile-sync.yml'
+        )) {
+            $script:ProfileSyncWorkflowForTriggers | Should -Match ([regex]::Escape($path))
+        }
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks star drift informational and branch/release drift fatal' {
         $current = [ordered]@{

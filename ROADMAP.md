@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.27
+Current repo version: v4.9.28
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.28 refresh: generated-profile validation now runs on pull
+requests that touch the profile contract surface. `.github/workflows/profile-sync.yml`
+has a read-only `pull_request` path filter for `README.md`,
+`data/profile-catalog.json`, `projects.json`, `reports/profile-sync-report.json`,
+schemas, profile SVG assets, sync/render scripts, setup/test surfaces, and the
+workflow itself. Offline Pester coverage guards the trigger path list so future
+branch-protection work has a stable check to require on relevant PRs. Next
+highest open item: add public-safe intake files (`SECURITY.md`, issue forms, and
+PR template) before requiring status checks or changing repository rules.
 
 2026-06-05 v4.9.27 refresh: the live GitHub-rendered profile smoke shipped.
 `scripts/render-profile-smoke.ps1` now drives installed Chrome/Chromium through
@@ -1136,6 +1146,7 @@ P2/P3, each doable in well under an hour:
 
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
+- [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
 - [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.
 - [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.

@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.28] - 2026-06-05
+
+- Added: `profile-sync.yml` now runs generated-profile validation on pull requests touching the README, catalog, generated feed/report, schemas, profile SVG assets, sync/render scripts, setup script, tests, or the profile-sync workflow.
+- Added: Offline Pester coverage verifies that the generated-profile PR trigger includes the public contract paths needed before any future required-check policy.
+- Verified: Pester/static/profile checks were run for this release.
+
 ## [v4.9.27] - 2026-06-05
 
 - Added: `scripts/render-profile-smoke.ps1` runs a dependency-free Chrome/Chromium DevTools smoke against the live GitHub profile at desktop and 390px mobile widths.
