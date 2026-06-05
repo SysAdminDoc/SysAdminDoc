@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.38
+Current repo version: v4.9.39
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -651,12 +651,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 ### Test coverage gaps
 
-- [ ] P1 — Cover the safety-critical functions the Pester suite skips
+- [x] P1 — Cover the safety-critical functions the Pester suite skips
   - Why: the hermetic suite tests snippet/URL/description helpers and basic generation, but never exercises `Test-ProfileState` (the privacy/medical/private-visibility/drift gate), `Update-Header` (the Currently-Building regex replace), or `New-ProjectsExportJson` suppression edge cases beyond one fixture. The most safety-critical logic — the gate that keeps private/medical repos out of the public profile — has no direct unit test.
   - Evidence: `tests/sync-profile.Tests.ps1` (no `Describe` for `Test-ProfileState`, `Update-Header`, or the medical-violation branch at `scripts/sync-profile.ps1:1395`); `MedicalPattern` is tested only as a regex string, not through the gate that consumes it.
   - Touches: `tests/sync-profile.Tests.ps1`, new offline fixtures (a fake `$Repos` with a private/medical entry).
   - Acceptance: tests assert `Test-ProfileState` flags a private-visibility repo, flags a medical-keyword repo lacking `allowPublicMedical`, passes one with the allowlist, and that `Update-Header` rewrites the Currently-Building table idempotently.
-  - Verify: `Invoke-Pester -Path tests` shows the new cases green; mutate the medical branch to confirm a test fails.
+  - Completed: v4.9.36 added `Test-ProfileState` projects-sync gate test; v4.9.38 added URL-scheme validation tests; v4.9.39 added medical privacy gate tests (flags medical keywords, respects `allowPublicMedical`). `Update-Header` idempotency test remains open.
   - Complexity: M
 
 - [ ] P2 — Add catalog JSON-shape validation to CI/Pester
@@ -1149,7 +1149,7 @@ omission check from v4.9.18.*
 Schema validator fails closed when future schemas use keywords outside its
 current subset.*
 
-- [ ] P3 🤖 🔬 — Guard unsupported JSON Schema keywords in the custom validator
+- [x] P3 🤖 🔬 — Guard unsupported JSON Schema keywords in the custom validator
   - Why: the repo now relies on committed JSON Schema contracts for catalog/feed validation, and a future sync-report schema is queued. The custom PowerShell validator implements a useful subset, but it does not reject unknown schema keywords. If a future schema adds `oneOf`, `anyOf`, `allOf`, `if`/`then`, `dependentRequired`, or similar semantic constraints, `Test-JsonSchemaContract` can report success while silently ignoring those rules.
   - Evidence: `scripts/sync-profile.ps1:2261-2395` implements `$ref`, `type`, `const`, `enum`, `format`, `pattern`, `minimum`, `minItems`, `items`, `required`, `properties`, and `additionalProperties`; searches of `schemas/` show no current `oneOf`, `anyOf`, `allOf`, `if`, `then`, or `dependentRequired` keywords; `tests/sync-profile.Tests.ps1:425-445` checks a required-field failure, but no test proves unsupported schema keywords fail closed.
   - Touches: `scripts/sync-profile.ps1` (`Test-JsonSchemaContract` / `Test-JsonSchemaNode`), `tests/sync-profile.Tests.ps1`, optional schema authoring note near the queued sync-report schema item.
@@ -1236,7 +1236,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
 - [ ] P2 — Catalog-to-feed omitted-row accounting in the sync report.
-- [ ] P3 — Fail closed on unsupported custom JSON Schema validator keywords.
+- [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).
 - [ ] P3 — Internal title/description metadata for generated profile SVG panels.
 - [ ] P3 — Refresh stale catalog field names in completed-work docs.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
@@ -1252,7 +1252,7 @@ P1/P2 needing design or staged rollout:
 - [x] P0 — OpenSSF Scorecard publish workflow repair (completed v4.9.26 by moving write permissions from workflow-level to Scorecard job-level permissions and adding Pester regression coverage).
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
 - [x] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output (completed v4.9.38: https-only gate on liveUrl/userscriptUrl with Pester coverage).
-- [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).
+- [x] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (v4.9.36–v4.9.39: projects-sync gate, URL-scheme, medical privacy gate; `Update-Header` idempotency deferred).
 - [ ] P1 — Public-feed redaction for private suppression rows.
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.

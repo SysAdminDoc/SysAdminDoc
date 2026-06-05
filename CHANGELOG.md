@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.39] - 2026-06-05
+
+- Added: Schema keyword coverage audit (`Test-SchemaKeywordCoverage`) detects when schemas use keywords the custom validator cannot check, preventing silent validation gaps.
+- Added: Medical privacy gate functional tests in Pester verifying `Test-ProfileState` flags medical keywords and respects `allowPublicMedical`.
+- Changed: CDP smoke test replaces hard-coded 8-second sleep with `document.readyState` polling (500ms intervals, 30s deadline, 2s settle).
+- Added: Pester tests for schema keyword warnings (2 tests) and medical gate (2 tests).
+
 ## [v4.9.38] - 2026-06-05
 
 - Added: URL-scheme validation gate rejects non-`https:` URLs in visitor-facing catalog fields (`liveUrl`, `userscriptUrl`), preventing `javascript:`/`data:` injection.
