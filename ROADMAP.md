@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.28
+Current repo version: v4.9.29
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.29 refresh: public-safe intake files shipped. `SECURITY.md`
+now routes sensitive reports away from public issues, three issue forms collect
+broken catalog links, profile/catalog corrections, and workflow/validation
+problems with explicit privacy warnings, blank issues are disabled, and the PR
+template warns against hand-editing generated README sections. Offline Pester
+coverage checks the policy, forms, security-policy contact link, and generated
+profile PR guidance. Next highest open item: required status checks/rulesets now
+that generated-profile PR validation exists, with care around path-skipped checks.
 
 2026-06-05 v4.9.28 refresh: generated-profile validation now runs on pull
 requests that touch the profile contract surface. `.github/workflows/profile-sync.yml`
@@ -618,11 +627,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 ### Repository community health
 
-- [ ] P2 — Add SECURITY.md and a coordinated-disclosure path
+- [x] P2 — Add SECURITY.md and a coordinated-disclosure path
   - Why: the repo ships zizmor, OpenSSF Scorecard, CODEOWNERS, and pinned actions, but has no `SECURITY.md`. Scorecard explicitly scores the presence of a security policy, and a profile repo that runs supply-chain tooling should publish how to report an issue.
   - Evidence: root listing shows no `SECURITY.md`/`.github/SECURITY.md`; `scorecard.yml` runs the Scorecard action that checks for one.
   - Touches: `SECURITY.md` (or `.github/SECURITY.md`), public-safe contact only.
   - Acceptance: a concise security policy exists with a non-PII reporting channel; Scorecard's Security-Policy check stops flagging it.
+  - Completed: v4.9.29 added `SECURITY.md` plus issue chooser routing for sensitive reports; hosted Scorecard/community-profile confirmation remains a post-push check.
   - Verify: GitHub shows the "Security policy" community-health entry as satisfied after push.
   - Complexity: S
 
@@ -1145,7 +1155,7 @@ item makes that proof repeatable for generated-profile changes.*
 P2/P3, each doable in well under an hour:
 
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
-- [ ] P2 — SECURITY.md with a public-safe disclosure path (satisfies Scorecard's Security-Policy check).
+- [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
 - [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.

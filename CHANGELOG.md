@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.29] - 2026-06-05
+
+- Added: `SECURITY.md` now provides a public-safe vulnerability reporting policy for the profile README, generated catalog, setup snippets, and workflow automation.
+- Added: GitHub issue forms now guide broken-link, profile-correction, and workflow/validation reports while blocking blank issues and routing sensitive reports to the security policy.
+- Added: The pull request template now warns contributors not to hand-edit generated README sections and includes public-safety and generated-profile checks.
+- Verified: Pester coverage now checks the intake files and public-safety wording.
+
 ## [v4.9.28] - 2026-06-05
 
 - Added: `profile-sync.yml` now runs generated-profile validation on pull requests touching the README, catalog, generated feed/report, schemas, profile SVG assets, sync/render scripts, setup script, tests, or the profile-sync workflow.

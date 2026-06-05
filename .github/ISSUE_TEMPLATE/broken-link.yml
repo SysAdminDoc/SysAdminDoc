@@ -1,0 +1,52 @@
+name: Broken catalog link
+description: Report a public README, release, launch, install, or portfolio link that does not work.
+title: "Broken link: "
+labels:
+  - broken-link
+  - profile-catalog
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include private repository names, credentials, customer data, medical data, or other sensitive details."
+  - type: input
+    id: project
+    attributes:
+      label: Public project or section
+      description: Name the public project row or README section where the link appears.
+      placeholder: "Example: OpenCut, Start Here, PowerShell System Utilities"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Broken URL
+      description: Paste the public URL exactly as shown.
+      placeholder: "https://github.com/SysAdminDoc/example/releases/latest"
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Describe the status code, redirect, download problem, or browser error.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should the link open or download?
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - GitHub profile README
+        - Full portfolio site
+        - Release download
+        - Install snippet
+        - Other public surface
+    validations:
+      required: true
