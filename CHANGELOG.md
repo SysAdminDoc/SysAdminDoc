@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.31] - 2026-06-05
+
+- Added: `scripts/write-profile-sync-summary.ps1` writes public-safe aggregate Markdown summaries from `reports/profile-sync-report.json` and emits GitHub warning/error annotations for fatal drift, link failures, and transient link warnings.
+- Changed: Profile sync check/write-pr modes and profile-assets refresh now append report summaries and upload retained sync-report artifacts.
+- Verified: Pester coverage now exercises the summary helper and workflow wiring.
+
 ## [v4.9.30] - 2026-06-05
 
 - Changed: Required-check candidate workflows now create pull request and merge-queue checks for every PR instead of using path filters that could leave required checks pending.
