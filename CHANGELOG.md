@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.32] - 2026-06-05
+
+- Added: All GitHub Actions jobs now declare explicit timeout budgets, with longer caps for live profile generation and shorter caps for offline lint/test/security checks.
+- Added: Pester coverage now guards timeout presence and keeps workflow job budgets at 30 minutes or less.
+
 ## [v4.9.31] - 2026-06-05
 
 - Added: `scripts/write-profile-sync-summary.ps1` writes public-safe aggregate Markdown summaries from `reports/profile-sync-report.json` and emits GitHub warning/error annotations for fatal drift, link failures, and transient link warnings.

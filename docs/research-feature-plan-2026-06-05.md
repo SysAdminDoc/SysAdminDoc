@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.31
+Current version observed: v4.9.32
 
 ## Executive Summary
 
@@ -19,7 +19,7 @@ Top opportunities, in priority order:
 6. P1 - Account for every catalog row in the generated feed/report, including `VaultBox`, which is currently absent from both `projects` and `suppressed`.
 7. P2 - Add generated-feed provenance fields such as source commit, catalog hash, generator hash, and metadata snapshot time.
 8. P2 - Harden the custom JSON Schema validator so unsupported keywords fail closed before future schemas silently skip semantics.
-9. P2 - Improve workflow observability with job summaries, report artifacts, explicit artifact retention, and timeout budgets. v4.9.31 shipped report summaries/artifacts; timeout budgets remain open.
+9. P2 - Improve workflow observability with job summaries, report artifacts, explicit artifact retention, and timeout budgets. v4.9.31 shipped report summaries/artifacts; v4.9.32 shipped explicit timeout budgets.
 10. P3 - Finish documentation hygiene: replace stale `privateReason` wording, add internal SVG `title`/`desc`, add `.gitattributes` generated-artifact hints, and group routine Dependabot action updates.
 
 ## Evidence Reviewed
@@ -500,14 +500,14 @@ Important integrations:
   - Acceptance: unsupported constraint keywords fail clearly unless explicitly allowed as annotations.
   - Verify: Pester fixture with unsupported `oneOf` or `if` fails.
 
-- [ ] P2 - Add workflow summaries, artifacts, and timeouts
+- [x] P2 - Add workflow summaries, artifacts, and timeouts
   - Why: maintainers need high-signal workflow evidence without log digging or unbounded network waits.
   - Evidence: no `GITHUB_STEP_SUMMARY` usage and no `timeout-minutes` in workflows.
   - Touches: `.github/workflows/*.yml`, optional summary helper.
   - Acceptance: workflows show concise summaries, explicit timeouts, artifacts with retention, and warning/error annotations.
   - Verify: dispatch each workflow and inspect summaries/artifacts.
   - Progress: v4.9.31 added `scripts/write-profile-sync-summary.ps1`, profile-sync/profile-assets summary wiring, warning/error annotations, retained report artifacts, and Pester coverage.
-  - Remaining: explicit timeout budgets across workflows.
+  - Completed: v4.9.32 added explicit job-level timeout budgets across workflows with Pester coverage.
 
 - [ ] P2 - Add reviewed topic cleanup apply mode
   - Why: 69 public repos still lack topics.

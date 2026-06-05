@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-05T03:41:20.5426456-04:00",
+  "generatedAt": "2026-06-05T03:49:51.8568348-04:00",
   "readmeInSync": true,
   "projectsExportInSync": false,
   "profileAssetsInSync": true,
@@ -1013,28 +1013,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.31",
+    "expectedVersion": "v4.9.32",
     "expectedDate": "2026-06-05",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.31"
+        "value": "v4.9.32"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.31"
+        "value": "v4.9.32"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.31"
+        "value": "v4.9.32"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.31"
+        "value": "v4.9.32"
       }
     ],
     "dates": [
@@ -1067,7 +1067,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 5913,
+      "elapsedMs": 9211,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1082,7 +1082,7 @@
       "repo": "Astra-Deck",
       "field": "pushedAt",
       "oldValue": "2026-06-05T05:49:05Z",
-      "newValue": "2026-06-05T07:32:27Z",
+      "newValue": "2026-06-05T07:47:43Z",
       "severity": "info",
       "failing": false
     },
@@ -1124,7 +1124,7 @@
     "informationalCount": 5,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 3.47,
+      "ageDays": 3.48,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1134,7 +1134,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 5913,
+    "elapsedMs": 9211,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

@@ -2,14 +2,14 @@
 
 Assigned project: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
 Current pass: 2026-06-05
-Last completed cycle: 2026-06-05 v4.9.31 workflow report summaries
+Last completed cycle: 2026-06-05 v4.9.32 workflow timeout budgets
 
 ## Latest Result
 
-- Shipped: `scripts/write-profile-sync-summary.ps1`, profile-sync summary wiring, profile-assets refresh summary parity, and retained report artifacts.
-- Verified: Pester coverage exercises the summary helper and workflow wiring.
-- Still open: explicit workflow timeout budgets, actionlint CI integration, and CODEOWNERS coverage expansion.
+- Shipped: explicit `timeout-minutes` budgets for every GitHub Actions job.
+- Verified: Pester coverage guards timeout presence and keeps budgets at 30 minutes or less.
+- Still open: actionlint CI integration, CODEOWNERS coverage expansion, and branch-protection enforcement once delivery switches away from direct protected-branch pushes.
 
 ## Next Cycle
 
-Continue on this same assigned project. Prefer explicit workflow timeout budgets next; branch-protection enforcement remains gated by the direct-push loop.
+Continue on this same assigned project. Prefer actionlint CI integration or CODEOWNERS coverage expansion next; branch-protection enforcement remains gated by the direct-push loop.

@@ -24,6 +24,7 @@ jobs:
   psscriptanalyzer:
     name: PSScriptAnalyzer
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -49,6 +50,7 @@ jobs:
   pester:
     name: Pester (offline)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:

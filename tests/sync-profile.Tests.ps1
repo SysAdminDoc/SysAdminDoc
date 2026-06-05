@@ -697,6 +697,36 @@ Describe 'Profile sync report summaries' {
     }
 }
 
+Describe 'Workflow timeout budgets' {
+    BeforeAll {
+        $script:WorkflowTimeoutBudgets = [ordered]@{
+            '.github/workflows/assets-refresh.yml' = 1
+            '.github/workflows/profile-sync.yml' = 2
+            '.github/workflows/scorecard.yml' = 1
+            '.github/workflows/tests.yml' = 2
+            '.github/workflows/workflow-security.yml' = 1
+        }
+    }
+
+    It 'declares a timeout for every workflow job' {
+        foreach ($entry in $script:WorkflowTimeoutBudgets.GetEnumerator()) {
+            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $entry.Key) -Raw
+            $timeouts = [regex]::Matches($content, '(?m)^\s+timeout-minutes:\s+\d+\s*$')
+
+            $timeouts.Count | Should -Be $entry.Value
+        }
+    }
+
+    It 'keeps timeout budgets bounded for maintenance and validation jobs' {
+        foreach ($path in $script:WorkflowTimeoutBudgets.Keys) {
+            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $path) -Raw
+            foreach ($match in [regex]::Matches($content, '(?m)^\s+timeout-minutes:\s+(?<minutes>\d+)\s*$')) {
+                [int]$match.Groups['minutes'].Value | Should -BeLessOrEqual 30
+            }
+        }
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw
