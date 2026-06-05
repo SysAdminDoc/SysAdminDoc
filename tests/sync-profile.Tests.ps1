@@ -656,6 +656,45 @@ Describe 'Profile sync pull request validation trigger' {
     }
 }
 
+Describe 'Public-safe intake files' {
+    It 'publishes a security policy that avoids public sensitive disclosure' {
+        $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw
+
+        $securityPolicy | Should -Match 'private vulnerability reporting'
+        $securityPolicy | Should -Match 'Do not include secrets'
+        $securityPolicy | Should -Match 'private repository names'
+        $securityPolicy | Should -Match 'medical data'
+    }
+
+    It 'provides issue forms for broken links, profile corrections, and workflow problems' {
+        foreach ($file in @(
+            '.github/ISSUE_TEMPLATE/broken-link.yml',
+            '.github/ISSUE_TEMPLATE/profile-correction.yml',
+            '.github/ISSUE_TEMPLATE/workflow-ci.yml'
+        )) {
+            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $file) -Raw
+            $content | Should -Match 'validations:'
+            $content | Should -Match 'required: true'
+            $content | Should -Match 'Do not'
+        }
+    }
+
+    It 'routes sensitive issue reports to the security policy' {
+        $config = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/ISSUE_TEMPLATE/config.yml') -Raw
+
+        $config | Should -Match 'blank_issues_enabled: false'
+        $config | Should -Match 'security/policy'
+    }
+
+    It 'warns pull requests not to hand-edit generated README sections' {
+        $template = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/pull_request_template.md') -Raw
+
+        $template | Should -Match 'Public-Safety Check'
+        $template | Should -Match 'data/profile-catalog.json'
+        $template | Should -Match 'hand-edit generated README sections'
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks star drift informational and branch/release drift fatal' {
         $current = [ordered]@{

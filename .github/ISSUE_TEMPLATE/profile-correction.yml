@@ -1,0 +1,42 @@
+name: Profile or catalog correction
+description: Suggest a public-safe correction to profile copy, project metadata, category, or action labels.
+title: "Profile correction: "
+labels:
+  - profile-catalog
+  - correction
+body:
+  - type: markdown
+    attributes:
+      value: "This repo is public. Do not include private repo names, customer data, medical data, or employer-specific details."
+  - type: input
+    id: project
+    attributes:
+      label: Public project or section
+      placeholder: "Example: Vantage, Featured Projects, Catalog Snapshot"
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Current text or metadata
+      description: Paste the public text or describe the current catalog value.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed public-safe correction
+      description: Describe the exact correction, category, action, or wording change.
+    validations:
+      required: true
+  - type: dropdown
+    id: generated
+    attributes:
+      label: Is this in the generated catalog section?
+      description: Generated sections should be changed through `data/profile-catalog.json` and regenerated.
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
