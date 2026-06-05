@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.31
+Current repo version: v4.9.32
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -34,13 +34,18 @@ pass, the implementing machine should:
 
 Last researched: Cycle 32 - 2026-06-04.
 
+2026-06-05 v4.9.32 refresh: explicit workflow timeout budgets shipped. Every
+GitHub Actions job now declares `timeout-minutes`: 30 minutes for live
+profile-generation jobs, 20 minutes for Scorecard, and 15 minutes for offline
+test/lint/security jobs. Pester coverage guards that every workflow job has a
+timeout and that no configured budget exceeds 30 minutes.
+
 2026-06-05 v4.9.31 refresh: workflow report summaries shipped.
 `scripts/write-profile-sync-summary.ps1` now renders a public-safe aggregate
 Markdown summary from `reports/profile-sync-report.json` and emits GitHub
 warning/error annotations for fatal metadata drift, link failures, and transient
 link warnings. Profile sync check/write-pr modes and profile-assets refresh now
-call the helper and upload retained sync-report artifacts. Timeout budgets remain
-open as the next observability hardening step.
+call the helper and upload retained sync-report artifacts.
 
 2026-06-05 v4.9.30 refresh: required-check readiness shipped. The Tests,
 Profile sync, and Workflow security workflows now create pull request and
@@ -760,11 +765,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 *Research conducted 2026-06-04. This pass checked workflow runtime budgets after profile sync and asset refresh work expanded the number of live-network automation paths.*
 
-- [ ] P2 — Add explicit GitHub Actions timeout budgets
+- [x] P2 — Add explicit GitHub Actions timeout budgets
   - Why: the workflows currently rely on GitHub's default job timeout, which is much larger than any expected profile validation, Pester, workflow-security, Scorecard, or asset-refresh run. A hung package install, GitHub API fallback, third-party image fetch, link validation, or PR-create step can consume runner time and obscure whether the failure is validation drift or infrastructure stall.
   - Evidence: `rg -n "timeout-minutes" .github/workflows` returned no tracked workflow timeouts; the in-flight `assets-refresh.yml` also has no job or step timeout; GitHub workflow syntax docs state `jobs.<job_id>.timeout-minutes` defaults to 360 and `steps[*].timeout-minutes` can cap individual steps: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
   - Touches: `.github/workflows/profile-sync.yml`, `tests.yml`, `workflow-security.yml`, `scorecard.yml`, and any committed asset-refresh workflow; optional `scripts/sync-profile.ps1` messaging if a timeout-prone phase should emit clearer progress.
   - Acceptance: every workflow job has an explicit timeout sized to observed runtime plus margin, long live-network steps have step-level caps where useful, and timeout values are documented enough that future workflow additions copy the pattern.
+  - Completed: v4.9.32 added job-level `timeout-minutes` to all workflows and Pester coverage for presence plus a 30-minute maximum budget.
   - Verify: `rg -n "timeout-minutes" .github/workflows` shows coverage for each job; normal manual runs still complete; lowering a timeout on a test branch proves GitHub cancels the intended job/step instead of waiting for the default 360 minutes.
   - Complexity: S
 
@@ -1197,7 +1203,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; external enforcement remains gated by the direct-push loop).
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
-- [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
+- [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
 - [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.

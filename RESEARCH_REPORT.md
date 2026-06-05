@@ -5,7 +5,7 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-05
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.31
+Current version after this refresh: v4.9.32
 
 ## Verification Refresh — 2026-06-04
 
