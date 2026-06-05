@@ -600,6 +600,37 @@ Describe 'OpenSSF Scorecard workflow permissions' {
     }
 }
 
+Describe 'Rendered profile smoke wiring' {
+    BeforeAll {
+        $script:RenderSmokeScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1') -Raw
+        $script:ProfileSyncWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
+    }
+
+    It 'checks both desktop and 390px mobile viewports without committing screenshots' {
+        $script:RenderSmokeScript | Should -Match 'Width = 1280'
+        $script:RenderSmokeScript | Should -Match 'Width = 390'
+        $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-'
+        $script:RenderSmokeScript | Should -Match 'viewport\.Name'
+        $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
+    }
+
+    It 'asserts key rendered sections and overflow/image health' {
+        $script:RenderSmokeScript | Should -Match 'Professional Focus'
+        $script:RenderSmokeScript | Should -Match 'Currently Building'
+        $script:RenderSmokeScript | Should -Match 'Start Here'
+        $script:RenderSmokeScript | Should -Match 'rootOverflow'
+        $script:RenderSmokeScript | Should -Match 'failedImages'
+    }
+
+    It 'runs from profile-sync and uploads public-safe smoke artifacts' {
+        $script:ProfileSyncWorkflow | Should -Match 'Smoke live rendered profile'
+        $script:ProfileSyncWorkflow | Should -Match ([regex]::Escape('./scripts/render-profile-smoke.ps1'))
+        $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke[.]json'
+        $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke-[*][.]png'
+        $script:ProfileSyncWorkflow | Should -Match 'retention-days: 14'
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks star drift informational and branch/release drift fatal' {
         $current = [ordered]@{

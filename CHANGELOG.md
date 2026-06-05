@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.27] - 2026-06-05
+
+- Added: `scripts/render-profile-smoke.ps1` runs a dependency-free Chrome/Chromium DevTools smoke against the live GitHub profile at desktop and 390px mobile widths.
+- Added: The profile-sync workflow now runs the rendered smoke after generated-profile validation and uploads the JSON report plus desktop/mobile screenshots as 14-day workflow artifacts.
+- Added: Pester coverage guards the rendered-smoke script contract and profile-sync workflow artifact wiring; local smoke outputs are ignored so screenshots remain workflow evidence instead of committed churn.
+- Verified: Local rendered smoke passed with no missing sections, no failed images, and no document/root overflow; PSScriptAnalyzer completed with 0 findings; Pester passed 49/49.
+
 ## [v4.9.26] - 2026-06-05
 
 - Fixed: Moved OpenSSF Scorecard write permissions out of the workflow-level `permissions` block so `publish_results: true` satisfies Scorecard's workflow restrictions.

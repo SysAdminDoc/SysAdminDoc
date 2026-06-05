@@ -2,14 +2,14 @@
 
 Assigned project: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
 Current pass: 2026-06-05
-Last completed cycle: 2026-06-05 v4.9.26 Scorecard publish workflow repair
+Last completed cycle: 2026-06-05 v4.9.27 live rendered profile smoke
 
 ## Latest Result
 
-- Shipped: OpenSSF Scorecard workflow-level permissions are now read-only; Scorecard publish and SARIF upload write permissions stay scoped to the Scorecard job.
-- Verified: local Pester coverage was added for the workflow permission shape; full verification results are recorded in the changelog and commit.
-- Still open: live GitHub-rendered profile smoke is the next highest-value P0 item, followed by PR generated-profile validation and public-safe intake files.
+- Shipped: Live GitHub-rendered profile smoke now runs through Chrome/Chromium DevTools with desktop/mobile screenshots, section checks, image checks, and overflow checks.
+- Verified: local rendered smoke passed; PSScriptAnalyzer reported 0 findings; Pester passed 49/49.
+- Still open: generated-profile validation on PRs is the next highest-value item, followed by public-safe intake files and required status checks.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with the live GitHub-rendered profile smoke item unless a fresh pull introduces a higher-priority failing check.
+Continue on this same assigned project. Start with generated-profile validation on PRs unless a fresh pull introduces a higher-priority failing check.

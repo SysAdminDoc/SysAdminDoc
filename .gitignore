@@ -9,3 +9,5 @@ CODEX_CHANGELOG.md
 .ai/
 RESEARCH_FEATURE_PLAN.md
 TODO.md
+reports/rendered-profile-smoke*.json
+reports/rendered-profile-smoke*.png
