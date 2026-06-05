@@ -1,8 +1,4 @@
 <p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52"><source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=0969DA&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=57606a&descAlignY=52"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52" alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder" /></picture>
-</p>
-
-<p align="center">
   <strong>Healthcare IT engineer and DICOM/PACS specialist</strong><br/>
   16+ years in IT operations, 10+ production platforms, and public tools across Python, React, C++, C#, Go, Rust, Kotlin, and PowerShell.
 </p>
@@ -18,78 +14,10 @@
 
 - Primary technical engineer for PACS deployments, DR panel configurations, cloud migrations, and clinical support across domestic and international accounts
 - Independently built 10+ production-grade platforms, including a cloud PACS, lead intelligence engine, X-ray room compliance tool, document workflow system, RMM platform, and acquisition workstation software
-- Earlier career: PBS affiliate systems administration, MSP field operations, Windows Server, Cisco networking, Hyper-V, SCCM, Active Directory, and broadcast infrastructure
-- AI-augmented development is the force multiplier; the foundation is infrastructure, automation, and DICOM/PACS domain expertise
+- Earlier career: PBS affiliate systems administration, MSP field operations
 - Public portfolio: 184 active repos, 177 visitor-facing projects, and production work across Python, TypeScript/React, C++20, C#/.NET/WPF, Go, Rust, Kotlin, and PowerShell
 
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
-
-### Proof Points
-
-| Signal | Detail |
-|:--|:--|
-| IT operations | 16+ years |
-| Medical imaging | DICOM/PACS, DR panels, cloud migration |
-| Product delivery | 10+ production platforms |
-| Cloud PACS | 9-container Docker stack |
-| Lead intelligence | 350+ plugins, 1,678 tests |
-| Compliance tooling | 3D X-ray room planner, 2,216 tests |
-| Public catalog | 184 active repos, 13-language portfolio |
-
-**Currently Building**
-
-| Project | Focus | Action |
-|:--------|:------|:------:|
-| [**Vantage**](https://github.com/SysAdminDoc/Vantage) | Customizable new tab dashboard for Chromium *(JavaScript)* | [Repo](https://github.com/SysAdminDoc/Vantage) |
-| [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) | Native Windows file converter, 1000+ formats *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/UniversalConverterX) |
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) | Power-user Android package manager *(Kotlin)*<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
-| [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows *(C#/.NET 10)* | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
-| [**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) | AI-powered file organizer with WinUI 3 shell *(C#/Python)* | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/FileOrganizer/releases/latest) |
-
----
-
-<p align="center">
-  <a href="https://skillicons.dev">
-    <picture><source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"><source media="(prefers-color-scheme: light)" srcset="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"><img src="https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13" alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub" /></picture>
-  </a>
-</p>
-
----
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/stats-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/stats-light.svg"><img src="assets/profile/stats-dark.svg" alt="Generated SysAdminDoc public catalog statistics" width="48%" /></picture>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/languages-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/languages-light.svg"><img src="assets/profile/languages-dark.svg" alt="Generated SysAdminDoc public project language mix" width="48%" /></picture>
-</p>
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/activity-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/activity-light.svg"><img src="assets/profile/activity-dark.svg" alt="Generated SysAdminDoc release asset validation summary" width="98%" /></picture>
-</p>
-
----
-
-<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
-
-### Start Here
-
-| Need | Best path | Why |
-|:-----|:----------|:----|
-| A Windows utility you can run now | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Copy a branch-pinned command or use a release download when one exists. |
-| Browser tools and userscripts | [Extensions](#browser-extensions--userscripts) | Install links stay pointed at releases or raw userscript URLs. |
-| Android apps | [Android](#android-applications) | APK-ready projects show direct release actions; work-in-progress apps stay marked as repos. |
-| Live web tools | [Web](#web-applications) | Launch in-browser tools without local setup. |
-| The complete searchable catalog | [Full portfolio](https://sysadmindoc.github.io/) | Uses the generated project feed from this repo. |
-
-### Catalog Snapshot
-
-| Signal | Current state |
-|:-------|:--------------|
-| Public repos tracked | 184 |
-| README entries | 177 visitor-facing projects |
-| Primary actions | 71 downloads, 27 launch links, 11 userscript installs |
-| Active build queue | 5 projects linked from the first screen |
-| Trust gates | Public-only links, medical/X-ray privacy guard, branch-pinned install snippets |
-
----
 
 ### Featured Projects
 
@@ -729,6 +657,3 @@ Start with: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory
 | [**TagStudio**](https://github.com/SysAdminDoc/TagStudio) | User-focused photo & file management system<br/><sub>Upstream: [TagStudioDev/TagStudio](https://github.com/TagStudioDev/TagStudio); License: GPL-3.0</sub> |
 
 </details>
-
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer"><source media="(prefers-color-scheme: light)" srcset="https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=120&section=footer"><img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer" alt="Decorative footer wave for the SysAdminDoc profile" /></picture>
