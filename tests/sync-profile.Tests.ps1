@@ -825,6 +825,29 @@ Describe 'Public-safe intake files' {
     }
 }
 
+Describe 'URL scheme safety' {
+    It 'rejects non-https URLs in visitor-facing catalog fields' {
+        $entries = @(
+            (New-TestEntry -Repo 'Safe' -Category 'web'),
+            (New-TestEntry -Repo 'Unsafe' -Category 'web')
+        )
+        $entries[0].liveUrl = 'https://sysadmindoc.github.io/Safe/'
+        $entries[1].liveUrl = 'javascript:alert(1)'
+
+        $violations = @(Test-CatalogUrlSchemes -Entries $entries)
+
+        $violations | Should -HaveCount 1
+        $violations[0].repo | Should -Be 'Unsafe'
+        $violations[0].field | Should -Be 'liveUrl'
+    }
+
+    It 'accepts null and empty URLs without violation' {
+        $entry = New-TestEntry -Repo 'NoUrl' -Category 'powershell'
+        $violations = @(Test-CatalogUrlSchemes -Entries @($entry))
+        $violations | Should -HaveCount 0
+    }
+}
+
 Describe 'Test-ProfileState projects sync gate' {
     It 'fails when projects.json is out of sync with the expected feed' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
