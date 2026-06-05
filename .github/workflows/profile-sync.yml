@@ -132,8 +132,8 @@ jobs:
             exit 0
           }
           git commit -m "chore: sync generated profile"
-          $remote = "https://x-access-token:$env:GH_TOKEN@github.com/${{ github.repository }}.git"
-          git push $remote $branch
+          git config --local http.https://github.com/.extraheader "Authorization: basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$env:GH_TOKEN")))"
+          git push origin $branch
           gh pr create `
             --base main `
             --head $branch `

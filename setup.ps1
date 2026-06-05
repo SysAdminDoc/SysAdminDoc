@@ -89,12 +89,18 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
         return
     }
     Write-Step "Installing $display ($id)"
-    winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope machine 2>&1 |
-        Out-String | Write-Host
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warn2 "machine-scope install failed, retrying user-scope"
-        winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope user 2>&1 |
-            Out-String | Write-Host
+    $output = winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope machine 2>&1
+    $exitCode = $LASTEXITCODE
+    ($output | Out-String).Trim() | Write-Host
+    if ($exitCode -ne 0) {
+        Update-PathFromRegistry
+        if (Test-Cmd $probe) {
+            Write-Ok "$display installed (winget reported non-zero exit but binary is present)"
+            return
+        }
+        Write-Warn2 "machine-scope install failed (exit $exitCode), retrying user-scope"
+        $output = winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope user 2>&1
+        ($output | Out-String).Trim() | Write-Host
     }
     Update-PathFromRegistry
     if (Test-Cmd $probe) { Write-Ok "$display installed" }

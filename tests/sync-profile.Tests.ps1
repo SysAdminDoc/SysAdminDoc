@@ -823,6 +823,23 @@ Describe 'Public-safe intake files' {
     }
 }
 
+Describe 'Test-ProfileState projects sync gate' {
+    It 'fails when projects.json is out of sync with the expected feed' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos @() `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects '{"stale": true}' `
+            -SkipLinkValidation
+
+        $result.Failed | Should -BeTrue
+        $result.Report.projectsExportInSync | Should -BeFalse
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks star drift informational and branch/release drift fatal' {
         $current = [ordered]@{
