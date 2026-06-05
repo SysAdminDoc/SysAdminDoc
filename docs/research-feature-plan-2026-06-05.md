@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.29
+Current version observed: v4.9.30
 
 ## Executive Summary
 
@@ -14,7 +14,7 @@ Top opportunities, in priority order:
 1. P0 - Fix the failing OpenSSF Scorecard workflow by moving write permissions out of workflow-level permissions and matching Scorecard publish restrictions. Shipped in v4.9.26.
 2. P0 - Add a repeatable live GitHub-rendered profile smoke check with desktop/mobile screenshots and overflow assertions. Shipped in v4.9.27.
 3. P1 - Make generated-profile validation run automatically on pull requests that touch catalog, README, feed, report, SVG assets, schemas, setup, or workflow surfaces. Shipped in v4.9.28.
-4. P1 - Require the right status checks on `main` through branch protection or rulesets after the PR checks are always created.
+4. P1 - Require the right status checks on `main` through branch protection or rulesets after the PR checks are always created. v4.9.30 completed always-created PR/merge-queue check readiness; external enforcement remains gated by the direct-push loop.
 5. P1 - Add a public-safe `SECURITY.md`, issue forms, and PR template for broken links, profile corrections, workflow changes, and security reports. Shipped in v4.9.29.
 6. P1 - Account for every catalog row in the generated feed/report, including `VaultBox`, which is currently absent from both `projects` and `suppressed`.
 7. P2 - Add generated-feed provenance fields such as source commit, catalog hash, generator hash, and metadata snapshot time.
@@ -468,6 +468,8 @@ Important integrations:
   - Touches: GitHub branch protection/ruleset settings, optional docs.
   - Acceptance: required checks block bad PRs, and path-skipped checks do not leave required statuses pending.
   - Verify: branch protection or rulesets API shows required checks.
+  - Progress: v4.9.30 removed PR path filters from Tests, Profile sync, and Workflow security, added `merge_group` triggers, and added Pester coverage for always-created required-check candidates.
+  - Remaining blocker: live `main` protection has `enforce_admins=true`, and this autonomous loop currently pushes directly to `main`; required status-check enforcement would reject future direct pushes until delivery switches to PRs or a bypass is approved.
 
 - [x] P1 - Add public-safe intake files
   - Why: the repo has no security policy, issue template, PR template, or contributing file.

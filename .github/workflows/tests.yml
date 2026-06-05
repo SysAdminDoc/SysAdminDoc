@@ -3,12 +3,7 @@ name: Tests
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - "scripts/**"
-      - "setup.ps1"
-      - "PSScriptAnalyzerSettings.psd1"
-      - "tests/**"
-      - ".github/workflows/tests.yml"
+  merge_group:
   push:
     branches: [main]
     paths:

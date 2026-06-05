@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.29
+Current repo version: v4.9.30
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.30 refresh: required-check readiness shipped. The Tests,
+Profile sync, and Workflow security workflows now create pull request and
+merge-queue checks for every PR instead of relying on PR path filters that could
+leave required checks pending. Pester coverage guards the always-created
+`pull_request` and `merge_group` trigger shape. External branch-protection or
+ruleset enforcement remains open because live `main` protection has
+`enforce_admins=true` and this autonomous loop currently pushes directly to
+`main`; enabling required checks without switching to PR delivery or adding an
+approved bypass would reject future direct pushes.
 
 2026-06-05 v4.9.29 refresh: public-safe intake files shipped. `SECURITY.md`
 now routes sensitive reports away from public issues, three issue forms collect
@@ -720,6 +730,8 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection` returned `required_status_checks=null`, `required_pull_request_reviews=null`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returned no rulesets. GitHub protected-branch docs describe required status checks before merging: https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches/
   - Touches: GitHub repository branch-protection or ruleset settings; optional `.github/workflows/*.yml` job-name stabilization if required-check names need to be fixed.
   - Acceptance: the default branch requires the relevant validation checks before merge, at minimum Pester, workflow security, and generated profile sync for changes that affect the profile pipeline; any admin bypass or Dependabot bypass is documented.
+  - Progress: v4.9.30 removed PR path filters from Tests, Profile sync, and Workflow security, added `merge_group` triggers, and added Pester coverage that prevents required-check candidates from becoming path-filtered again.
+  - Remaining blocker: the live protected branch has `enforce_admins=true`, and this autonomous loop currently pushes directly to `main`; enabling required checks now would reject future direct pushes before checks can be created, so enforcement needs PR-based delivery or an approved bypass path first.
   - Verify: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection --jq '.required_status_checks'` or the rulesets API shows required checks; a PR with a failing required check is blocked from merging.
   - Complexity: S
 
@@ -1173,7 +1185,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
 - [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
-- [ ] P2 🔧 — Require branch protection/ruleset status checks on `main`.
+- [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; external enforcement remains gated by the direct-push loop).
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [ ] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs.
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.

@@ -2,14 +2,14 @@
 
 Assigned project: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
 Current pass: 2026-06-05
-Last completed cycle: 2026-06-05 v4.9.29 public-safe intake files
+Last completed cycle: 2026-06-05 v4.9.30 required-check readiness
 
 ## Latest Result
 
-- Shipped: `SECURITY.md`, guided issue forms, issue chooser security routing, and a generated-profile-aware PR template.
-- Verified: Pester coverage was added for the intake files; full verification results are recorded in the changelog and commit.
-- Still open: required status checks/rulesets are the next highest-value item, followed by workflow summaries and CODEOWNERS coverage expansion.
+- Shipped: Tests, Profile sync, and Workflow security now create always-present PR and merge-queue checks instead of path-filtered PR checks.
+- Verified: Pester coverage guards the required-check candidate trigger shape.
+- Still open: external branch-protection/ruleset enforcement remains gated because protected `main` has `enforce_admins=true` and this loop currently pushes directly to `main`; enabling required checks would reject future direct pushes without a PR/bypass path.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with required status checks/rulesets unless a fresh pull introduces a higher-priority failing check.
+Continue on this same assigned project. Prefer workflow summaries/artifacts next, or switch the loop to PR-based delivery before enabling required status checks on `main`.
