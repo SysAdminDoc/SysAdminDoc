@@ -942,12 +942,6 @@ function Test-ReleaseAssetKindMatch {
     return $true
 }
 
-function Get-CategoryDefinition {
-    param([string]$Slug)
-
-    return ($CategoryDefinitions | Where-Object { $_.Slug -eq $Slug } | Select-Object -First 1)
-}
-
 function Get-CategoryDisplayName {
     param([string]$Slug)
 
