@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.30
+Current repo version: v4.9.31
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,14 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.31 refresh: workflow report summaries shipped.
+`scripts/write-profile-sync-summary.ps1` now renders a public-safe aggregate
+Markdown summary from `reports/profile-sync-report.json` and emits GitHub
+warning/error annotations for fatal metadata drift, link failures, and transient
+link warnings. Profile sync check/write-pr modes and profile-assets refresh now
+call the helper and upload retained sync-report artifacts. Timeout budgets remain
+open as the next observability hardening step.
 
 2026-06-05 v4.9.30 refresh: required-check readiness shipped. The Tests,
 Profile sync, and Workflow security workflows now create pull request and
@@ -713,11 +721,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 *Research conducted 2026-06-04. This pass looked for workflow/operator-experience gaps after the v4.9.8 report schema expansion rather than adding more catalog features.*
 
-- [ ] P2 — Surface profile-sync results in GitHub Actions job summaries
+- [x] P2 — Surface profile-sync results in GitHub Actions job summaries
   - Why: `.github/workflows/profile-sync.yml` uploads `reports/profile-sync-report.json` as an artifact, but maintainers must download/open the JSON to see high-signal results. The report now includes metadata hygiene, release drift, validation performance, and link-warning summaries, and recent scheduled profile-sync runs show failures before the latest fixes. GitHub Actions supports Markdown job summaries through `$GITHUB_STEP_SUMMARY` and warning/error annotations through workflow commands.
   - Evidence: `.github/workflows/profile-sync.yml` only has the `Upload sync report` artifact step after `scripts/sync-profile.ps1 -Check`; `gh api repos/SysAdminDoc/SysAdminDoc/actions/runs` showed recent scheduled Profile sync runs concluding failure before the current v4.9.x fixes; GitHub workflow-command docs: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
   - Touches: `.github/workflows/profile-sync.yml`, optional `scripts/sync-profile.ps1` helper to render a concise summary from `reports/profile-sync-report.json`.
   - Acceptance: check and write-pr modes append a Markdown summary with readme/feed sync status, fatal metadata drift count, missing-topic/description counts, release-drift summary, link target count, warning count by host, and validation duration; fatal or warning conditions also emit GitHub annotations; the JSON artifact remains uploaded with an explicit retention period.
+  - Completed: v4.9.31 added `scripts/write-profile-sync-summary.ps1`, wired it into profile-sync check/write-pr paths, added retained report artifacts, and covered the helper/workflow wiring with Pester.
   - Verify: run the workflow manually or set `GITHUB_STEP_SUMMARY` to a temp file in a local dry run and confirm the summary contains the current report values without exposing private/suppressed repo names.
   - Complexity: S
 
@@ -852,11 +861,12 @@ the committed profile-assets refresh workflow. The existing profile-sync summary
 item remains useful; this item covers the separate asset-refresh workflow that
 also runs the generator and report path.*
 
-- [ ] P2 🤖 🔬 — Add report artifact and summary parity to profile-assets refresh
+- [x] P2 🤖 🔬 — Add report artifact and summary parity to profile-assets refresh
   - Why: `.github/workflows/assets-refresh.yml` runs `scripts/sync-profile.ps1 -Write -Check` and can create a PR containing `reports/profile-sync-report.json`, but the workflow does not upload that report as a run artifact or write a job summary when the scheduled/manual run has no changes or fails before PR creation. Maintainers would need to read logs instead of the same structured report used by profile sync.
   - Evidence: `.github/workflows/assets-refresh.yml:28-62` regenerates assets, stages `reports/profile-sync-report.json`, and opens a PR, but contains no `actions/upload-artifact`, `retention-days`, `$GITHUB_STEP_SUMMARY`, or annotation step; `.github/workflows/profile-sync.yml:37-49` runs `scripts/sync-profile.ps1 -Check` and uploads `reports/profile-sync-report.json` as `profile-sync-report`; GitHub artifact docs describe uploading workflow outputs for debugging and custom `retention-days`: https://docs.github.com/en/actions/tutorials/store-and-share-data; GitHub workflow-command docs describe job summaries and annotations: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
   - Touches: `.github/workflows/assets-refresh.yml`, optional shared summary/report helper used by `profile-sync.yml`, optional generated PR body text.
   - Acceptance: asset-refresh runs always upload `reports/profile-sync-report.json` with an explicit retention period after the generator step, even on failures that still produce a report; the workflow writes the same public-safe summary fields and warning/error annotations as profile-sync; generated asset PRs include a concise report synopsis or run-artifact link; private/suppressed repo names stay out of summaries.
+  - Completed: v4.9.31 wired profile-assets refresh through the shared summary helper and retained `profile-assets-sync-report` artifact.
   - Verify: dispatch `Profile assets refresh` in a no-op state and confirm the run has a report artifact and Markdown summary; force a harmless validation failure in a scratch branch and confirm `if: always()` still uploads the report when present; `rg -n "upload-artifact|retention-days|GITHUB_STEP_SUMMARY|::warning|::error" .github/workflows/assets-refresh.yml` shows the observability path.
   - Complexity: S
 
@@ -1169,13 +1179,13 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
-- [ ] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json`.
+- [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).
 - [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.
 - [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
 - [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
-- [ ] P2 — Profile-assets refresh report artifact and job summary parity.
+- [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
 - [ ] P2 — Expanded CODEOWNERS coverage for public profile contract files.
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.

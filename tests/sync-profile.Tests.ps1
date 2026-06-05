@@ -654,6 +654,49 @@ Describe 'Required status check readiness' {
     }
 }
 
+Describe 'Profile sync report summaries' {
+    BeforeAll {
+        $script:SummaryScriptPath = Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1'
+        $script:SummaryScript = Get-Content -LiteralPath $script:SummaryScriptPath -Raw
+        $script:ProfileSyncWorkflowForSummary = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
+        $script:AssetsRefreshWorkflowForSummary = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') -Raw
+    }
+
+    It 'writes a public-safe aggregate summary from the committed report' {
+        $summaryPath = New-TemporaryFile
+        try {
+            pwsh -NoProfile -File $script:SummaryScriptPath -SummaryPath $summaryPath.FullName -Context 'Pester summary test'
+            $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
+
+            $summary | Should -Match 'Pester summary test report'
+            $summary | Should -Match 'Fatal metadata drift'
+            $summary | Should -Match 'Missing topic hints'
+            $summary | Should -Match 'Link targets checked'
+            $summary | Should -Not -Match 'AppManagerNG'
+            $summary | Should -Not -Match 'VaultBox'
+        } finally {
+            Remove-Item -LiteralPath $summaryPath.FullName -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    It 'emits GitHub annotations and uses aggregate report sections only' {
+        $script:SummaryScript | Should -Match 'metadataDriftSummary'
+        $script:SummaryScript | Should -Match 'linkValidationSummary'
+        $script:SummaryScript | Should -Match '::warning::'
+        $script:SummaryScript | Should -Match '::error::'
+    }
+
+    It 'wires summaries and retained report artifacts into profile workflows' {
+        foreach ($workflow in @($script:ProfileSyncWorkflowForSummary, $script:AssetsRefreshWorkflowForSummary)) {
+            $workflow | Should -Match 'write-profile-sync-summary[.]ps1'
+            $workflow | Should -Match 'GITHUB_STEP_SUMMARY|Write sync report summary'
+            $workflow | Should -Match 'actions/upload-artifact@'
+            $workflow | Should -Match 'reports/profile-sync-report[.]json'
+            $workflow | Should -Match 'retention-days: 14'
+        }
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw

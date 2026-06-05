@@ -31,6 +31,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: ./scripts/sync-profile.ps1 -Write -Check
 
+      - name: Write sync report summary
+        if: always()
+        shell: pwsh
+        run: ./scripts/write-profile-sync-summary.ps1 -Context "Profile assets refresh" -AllowMissing
+
+      - name: Upload sync report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: profile-assets-sync-report
+          path: reports/profile-sync-report.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Create pull request
         shell: pwsh
         env:
