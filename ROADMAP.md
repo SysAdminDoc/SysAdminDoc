@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.33
+Current repo version: v4.9.34
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,13 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.34 refresh: Dependabot checkout update applied. All pinned
+`actions/checkout` workflow uses now point to the Dependabot-reviewed 6.0.3 SHA
+`df4cb1c069e1874edd31b4311f1884172cec0e10`, addressing the hosted Node.js 20
+deprecation warning observed on the v4.9.33 Tests run. Pester coverage guards
+the reviewed SHA and rejects the older 4.3.1 SHA. Dependabot PR #5 is addressed;
+PR #6 for `github/codeql-action` remains open for separate review.
 
 2026-06-05 v4.9.33 refresh: actionlint CI integration shipped. The workflow
 security lane now installs checksum-verified `actionlint` 1.7.12, lints all
@@ -724,6 +731,7 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Evidence: `gh pr list -R SysAdminDoc/SysAdminDoc` shows PR #5 (`actions/checkout` 4.3.1 -> 6.0.3) and PR #6 (`github/codeql-action` 3.35.5 -> 4.36.1); `gh pr checks 5` shows Pester and zizmor passing; `gh pr checks 6` shows zizmor passing; GitHub Dependabot action-update docs: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/keeping-your-actions-up-to-date-with-dependabot
   - Touches: `.github/workflows/*.yml`; optional `CONTRIBUTING.md` or `RESEARCH_REPORT.md` maintenance note.
   - Acceptance: PR #5 and PR #6 are merged or explicitly deferred with a reason; the review checklist records `gh pr checks`, `zizmor`, Pester/profile-sync relevance, `persist-credentials:false`, and permission diffs before merging future action-update PRs.
+  - Progress: v4.9.34 applied PR #5's `actions/checkout` 6.0.3 SHA directly on current `main` after the hosted Tests run warned that the old checkout action used deprecated Node.js 20. PR #6 remains open for CodeQL review.
   - Verify: `gh pr list -R SysAdminDoc/SysAdminDoc --state open --label github_actions` is empty or each remaining PR has a documented defer reason.
   - Complexity: S
 
@@ -1211,7 +1219,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
-- [ ] P2 — Current Dependabot workflow-action PR triage (#5 and #6).
+- [ ] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 remains).
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.

@@ -2,14 +2,14 @@
 
 Assigned project: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
 Current pass: 2026-06-05
-Last completed cycle: 2026-06-05 v4.9.33 actionlint CI integration
+Last completed cycle: 2026-06-05 v4.9.34 checkout 6.0.3 pinning
 
 ## Latest Result
 
-- Shipped: workflow-security now installs checksum-verified `actionlint` 1.7.12 and runs it before `zizmor`.
-- Verified: local actionlint passed and Pester coverage guards the pinned install and command wiring.
-- Still open: CODEOWNERS coverage expansion, Windows setup smoke, and branch-protection enforcement once delivery switches away from direct protected-branch pushes.
+- Shipped: all workflow checkout steps now use the pinned `actions/checkout` 6.0.3 SHA from Dependabot PR #5.
+- Verified: the v4.9.33 hosted Tests run exposed the Node.js 20 checkout deprecation; Pester coverage now rejects the older checkout 4.3.1 SHA.
+- Still open: Dependabot PR #6 for `github/codeql-action`, CODEOWNERS coverage expansion, and Windows setup smoke.
 
 ## Next Cycle
 
-Continue on this same assigned project. Prefer CODEOWNERS coverage expansion or Windows setup smoke next; branch-protection enforcement remains gated by the direct-push loop.
+Continue on this same assigned project. Prefer reviewing Dependabot PR #6 or CODEOWNERS coverage expansion next; branch-protection enforcement remains gated by the direct-push loop.

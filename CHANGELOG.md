@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.34] - 2026-06-05
+
+- Changed: Updated all pinned `actions/checkout` uses from 4.3.1 to the 6.0.3 commit SHA from Dependabot PR #5, addressing the hosted Node.js 20 action deprecation warning.
+- Added: Pester coverage now guards that workflow checkout steps use the reviewed 6.0.3 SHA and do not return to the older 4.3.1 SHA.
+
 ## [v4.9.33] - 2026-06-05
 
 - Added: Workflow security now installs checksum-verified `actionlint` 1.7.12 and lints all workflow YAML before running `zizmor`.

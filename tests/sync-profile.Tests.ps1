@@ -744,6 +744,30 @@ Describe 'Workflow security actionlint lane' {
     }
 }
 
+Describe 'Workflow checkout action pin' {
+    BeforeAll {
+        $script:WorkflowFilesForCheckout = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
+        $script:CheckoutV603Sha = 'df4cb1c069e1874edd31b4311f1884172cec0e10'
+        $script:CheckoutV431Sha = '34e114876b0b11c390a56381ad16ebd13914f8d5'
+    }
+
+    It 'uses the pinned checkout 6.0.3 action SHA everywhere checkout is needed' {
+        $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+        $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
+
+        $checkoutUses.Count | Should -Be 7
+        foreach ($match in $checkoutUses) {
+            $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
+        }
+    }
+
+    It 'does not use the older checkout 4.3.1 action SHA' {
+        foreach ($workflowFile in $script:WorkflowFilesForCheckout) {
+            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:CheckoutV431Sha
+        }
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw
