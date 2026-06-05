@@ -1,0 +1,12 @@
+# Generated artifacts — collapse in PR diffs, exclude from language stats.
+README.md              linguist-generated=true
+projects.json          linguist-generated=true
+assets/profile/*.svg   linguist-generated=true binary
+reports/*.json         linguist-generated=true
+
+# Ensure consistent line endings for generated text.
+*.md    text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.ps1   text eol=lf
+*.psd1  text eol=lf

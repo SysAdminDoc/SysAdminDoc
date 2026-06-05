@@ -1357,6 +1357,8 @@ function New-ProfilePanelSvg {
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"$(ConvertTo-SvgText $Title)`">")
+    $lines.Add("  <title>$(ConvertTo-SvgText $Title)</title>")
+    $lines.Add("  <desc>$(ConvertTo-SvgText $Subtitle)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
     $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
     $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $Title)</text>")
