@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.35] - 2026-06-05
+
+- Changed: Updated the Scorecard SARIF upload step from `github/codeql-action` 3.35.5 to the pinned 4.36.1 SHA from Dependabot PR #6.
+- Added: Pester coverage now guards the reviewed CodeQL upload-sarif SHA and rejects the older 3.35.5 SHA.
+
 ## [v4.9.34] - 2026-06-05
 
 - Changed: Updated all pinned `actions/checkout` uses from 4.3.1 to the 6.0.3 commit SHA from Dependabot PR #5, addressing the hosted Node.js 20 action deprecation warning.

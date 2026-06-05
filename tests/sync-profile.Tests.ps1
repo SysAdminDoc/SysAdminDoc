@@ -768,6 +768,22 @@ Describe 'Workflow checkout action pin' {
     }
 }
 
+Describe 'Workflow CodeQL upload action pin' {
+    BeforeAll {
+        $script:ScorecardWorkflowForCodeQl = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
+        $script:CodeQlV4361Sha = '87557b9c84dde89fdd9b10e88954ac2f4248e463'
+        $script:CodeQlV3355Sha = '458d36d7d4f47d0dd16ca424c1d3cda0060f1360'
+    }
+
+    It 'uses the pinned CodeQL upload-sarif 4.36.1 action SHA' {
+        $script:ScorecardWorkflowForCodeQl | Should -Match "github/codeql-action/upload-sarif@$script:CodeQlV4361Sha"
+    }
+
+    It 'does not use the older CodeQL upload-sarif 3.35.5 action SHA' {
+        $script:ScorecardWorkflowForCodeQl | Should -Not -Match $script:CodeQlV3355Sha
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw

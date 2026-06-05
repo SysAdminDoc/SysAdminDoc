@@ -2,14 +2,14 @@
 
 Assigned project: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
 Current pass: 2026-06-05
-Last completed cycle: 2026-06-05 v4.9.34 checkout 6.0.3 pinning
+Last completed cycle: 2026-06-05 v4.9.35 CodeQL upload-sarif pinning
 
 ## Latest Result
 
-- Shipped: all workflow checkout steps now use the pinned `actions/checkout` 6.0.3 SHA from Dependabot PR #5.
-- Verified: the v4.9.33 hosted Tests run exposed the Node.js 20 checkout deprecation; Pester coverage now rejects the older checkout 4.3.1 SHA.
-- Still open: Dependabot PR #6 for `github/codeql-action`, CODEOWNERS coverage expansion, and Windows setup smoke.
+- Shipped: Scorecard SARIF upload now uses the pinned `github/codeql-action/upload-sarif` 4.36.1 SHA from Dependabot PR #6.
+- Verified: Pester coverage guards the reviewed CodeQL action SHA and rejects the older 3.35.5 SHA.
+- Still open: CODEOWNERS coverage expansion, Windows setup smoke, and branch-protection enforcement once delivery switches away from direct protected-branch pushes.
 
 ## Next Cycle
 
-Continue on this same assigned project. Prefer reviewing Dependabot PR #6 or CODEOWNERS coverage expansion next; branch-protection enforcement remains gated by the direct-push loop.
+Continue on this same assigned project. Prefer CODEOWNERS coverage expansion or Windows setup smoke next; branch-protection enforcement remains gated by the direct-push loop.

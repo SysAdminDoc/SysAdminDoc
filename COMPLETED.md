@@ -59,6 +59,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added explicit timeout budgets to every GitHub Actions job, with Pester coverage for timeout presence and maximum duration (v4.9.32). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Added checksum-verified `actionlint` 1.7.12 to workflow-security beside `zizmor`, with Pester coverage for the pinned install and command wiring (v4.9.33). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Applied Dependabot PR #5's pinned `actions/checkout` 6.0.3 SHA across all workflow checkout steps, with Pester coverage against reverting to the older 4.3.1 SHA (v4.9.34). — *Source: ROADMAP.md; hosted Tests annotation*
+- [x] Applied Dependabot PR #6's pinned `github/codeql-action/upload-sarif` 4.36.1 SHA to the Scorecard SARIF upload step, with Pester coverage against reverting to the older 3.35.5 SHA (v4.9.35). — *Source: ROADMAP.md; Dependabot PR #6*
 - [x] Add markdown/link/install validation against GitHub metadata, raw userscript links against live default branches, and portfolio launch links, keeping clone-install-run snippets branch-pinned. — *Source: ROADMAP.md*
 - [x] Fixed the dead-code no-changes guard in `profile-sync.yml` where `if (git diff --quiet)` tested stdout instead of the exit code, causing clean scheduled runs to fail. — *Source: TODO.md*
 - [x] Link-validation de-flake: 12s timeout plus retry in `Test-HttpUrl`; only 404/410 are fatal, while transient 403/429/5xx/timeout become `linkValidationWarnings`. — *Source: TODO.md*

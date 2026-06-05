@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.34
+Current version observed: v4.9.35
 
 ## Executive Summary
 
@@ -21,7 +21,7 @@ Top opportunities, in priority order:
 8. P2 - Harden the custom JSON Schema validator so unsupported keywords fail closed before future schemas silently skip semantics.
 9. P2 - Improve workflow observability with job summaries, report artifacts, explicit artifact retention, and timeout budgets. v4.9.31 shipped report summaries/artifacts; v4.9.32 shipped explicit timeout budgets.
 10. P2 - Add actionlint beside zizmor for workflow syntax/expression linting. Shipped in v4.9.33.
-11. P2 - Triage current Dependabot workflow-action updates. PR #5 checkout 6.0.3 was applied in v4.9.34; PR #6 remains open for CodeQL review.
+11. P2 - Triage current Dependabot workflow-action updates. PR #5 checkout 6.0.3 was applied in v4.9.34; PR #6 CodeQL upload-sarif 4.36.1 was applied in v4.9.35.
 12. P3 - Finish documentation hygiene: replace stale `privateReason` wording, add internal SVG `title`/`desc`, add `.gitattributes` generated-artifact hints, and group routine Dependabot action updates.
 
 ## Evidence Reviewed
