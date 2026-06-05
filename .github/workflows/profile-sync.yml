@@ -12,19 +12,7 @@ on:
           - check
           - write-pr
   pull_request:
-    paths:
-      - "README.md"
-      - "data/profile-catalog.json"
-      - "projects.json"
-      - "reports/profile-sync-report.json"
-      - "schemas/**"
-      - "assets/profile/**"
-      - "scripts/sync-profile.ps1"
-      - "scripts/render-profile-smoke.ps1"
-      - "setup.ps1"
-      - "PSScriptAnalyzerSettings.psd1"
-      - "tests/**"
-      - ".github/workflows/profile-sync.yml"
+  merge_group:
   schedule:
     - cron: "37 7 * * 2,5"
 

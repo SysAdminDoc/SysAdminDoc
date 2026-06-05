@@ -3,10 +3,7 @@ name: Workflow security
 on:
   workflow_dispatch:
   pull_request:
-    paths:
-      - ".github/workflows/**"
-      - ".github/dependabot.yml"
-      - ".github/CODEOWNERS"
+  merge_group:
   schedule:
     - cron: "19 8 * * 3"
 

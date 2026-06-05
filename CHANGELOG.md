@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.30] - 2026-06-05
+
+- Changed: Required-check candidate workflows now create pull request and merge-queue checks for every PR instead of using path filters that could leave required checks pending.
+- Added: Pester coverage now guards that Tests, Profile sync, and Workflow security expose always-created `pull_request` and `merge_group` checks before branch-protection enforcement.
+- Deferred: External required-check enforcement remains open because the current protected `main` direct-push loop would be rejected once required checks are active without a PR/bypass path.
+- Verified: Pester, PSScriptAnalyzer, actionlint, and full profile sync checks were run for this release.
+
 ## [v4.9.29] - 2026-06-05
 
 - Added: `SECURITY.md` now provides a public-safe vulnerability reporting policy for the profile README, generated catalog, setup snippets, and workflow automation.

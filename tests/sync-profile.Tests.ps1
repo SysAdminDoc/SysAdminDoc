@@ -631,27 +631,25 @@ Describe 'Rendered profile smoke wiring' {
     }
 }
 
-Describe 'Profile sync pull request validation trigger' {
+Describe 'Required status check readiness' {
     BeforeAll {
-        $script:ProfileSyncWorkflowForTriggers = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
+        $script:RequiredCheckWorkflows = [ordered]@{
+            Tests = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
+            ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
+            WorkflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
+        }
     }
 
-    It 'runs generated-profile validation on pull requests touching contract paths' {
-        $script:ProfileSyncWorkflowForTriggers | Should -Match 'pull_request:'
-        foreach ($path in @(
-            'README.md',
-            'data/profile-catalog.json',
-            'projects.json',
-            'reports/profile-sync-report.json',
-            'schemas/**',
-            'assets/profile/**',
-            'scripts/sync-profile.ps1',
-            'scripts/render-profile-smoke.ps1',
-            'setup.ps1',
-            'tests/**',
-            '.github/workflows/profile-sync.yml'
-        )) {
-            $script:ProfileSyncWorkflowForTriggers | Should -Match ([regex]::Escape($path))
+    It 'creates candidate required checks for every pull request and merge queue run' {
+        foreach ($workflow in $script:RequiredCheckWorkflows.Values) {
+            $workflow | Should -Match '(?m)^  pull_request:\s*$'
+            $workflow | Should -Match '(?m)^  merge_group:\s*$'
+        }
+    }
+
+    It 'does not path-filter workflows that may become required status checks' {
+        foreach ($workflow in $script:RequiredCheckWorkflows.Values) {
+            $workflow | Should -Not -Match '(?ms)^  pull_request:\s*\r?\n\s+paths:'
         }
     }
 }
