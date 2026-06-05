@@ -336,6 +336,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $assets.Keys | Should -Contain 'assets/profile/languages-light.svg'
         $assets.Keys | Should -Contain 'assets/profile/activity-dark.svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
+        $assets['assets/profile/stats-dark.svg'] | Should -Match '<title>.*Catalog Stats</title>'
+        $assets['assets/profile/stats-dark.svg'] | Should -Match '<desc>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
