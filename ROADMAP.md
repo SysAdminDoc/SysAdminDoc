@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-05
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-05
-Current repo version: v4.9.32
+Current repo version: v4.9.33
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,11 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.33 refresh: actionlint CI integration shipped. The workflow
+security lane now installs checksum-verified `actionlint` 1.7.12, lints all
+workflow YAML, then runs `zizmor` as before. Pester coverage guards the pinned
+version, SHA-256 verification, actionlint command, and retained zizmor command.
 
 2026-06-05 v4.9.32 refresh: explicit workflow timeout budgets shipped. Every
 GitHub Actions job now declares `timeout-minutes`: 30 minutes for live
@@ -791,11 +796,12 @@ structured issue forms, so the items below avoid those duplicates.*
   - Verify: add a fixture description containing `|`, `](`, `<script>`, and a bidi control; `Invoke-Pester -Path tests` must fail before escaping/rejection and pass after the safety gate is applied. Run `scripts/sync-profile.ps1 -Check` and confirm `contentSafety.passed=true`.
   - Complexity: M
 
-- [ ] P2 🤖 🔬 — Add `actionlint` beside `zizmor` for workflow syntax/expression linting
+- [x] P2 🤖 🔬 — Add `actionlint` beside `zizmor` for workflow syntax/expression linting
   - Why: `workflow-security.yml` runs `zizmor`, which is useful for security posture, but no workflow validates GitHub Actions syntax, expression types, action inputs/outputs, `needs:` dependencies, cron syntax, or inline shell snippets. This is a complementary workflow-quality gate, not a replacement for `zizmor`.
   - Evidence: `.github/workflows/workflow-security.yml:21-36` installs and runs only `zizmor`; `actionlint` documents workflow syntax, expression, action-usage, ShellCheck/Pyflakes, and script-injection checks: https://github.com/rhysd/actionlint; GitHub's script-injection docs warn that attacker-controlled GitHub context values can be substituted into `run:` shell scripts before execution: https://docs.github.com/en/actions/concepts/security/script-injections
   - Touches: `.github/workflows/workflow-security.yml`, optional `.github/actionlint.yml` if the default rules need project-specific exclusions.
   - Acceptance: the workflow-security job runs both `zizmor` and `actionlint`; actionlint is pinned or installed through a repeatable versioned path; failures are blocking on workflow/security-file PRs; any project-specific ignores are documented.
+  - Completed: v4.9.33 installs checksum-verified `actionlint` 1.7.12, runs `actionlint .github/workflows/*.yml`, keeps `zizmor .github/workflows`, and adds Pester coverage for the wiring.
   - Verify: `actionlint .github/workflows/*.yml` passes locally or in CI; introduce an invalid expression or bad `needs:` reference in a scratch branch and confirm the workflow fails before merge.
   - Complexity: S
 
@@ -1186,7 +1192,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).
-- [ ] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor`.
+- [x] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor` (completed v4.9.33 with checksum-verified actionlint 1.7.12 and Pester wiring coverage).
 - [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
 - [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.

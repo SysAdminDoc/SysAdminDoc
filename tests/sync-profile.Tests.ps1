@@ -727,6 +727,23 @@ Describe 'Workflow timeout budgets' {
     }
 }
 
+Describe 'Workflow security actionlint lane' {
+    BeforeAll {
+        $script:WorkflowSecurityWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
+    }
+
+    It 'installs a pinned checksum-verified actionlint binary' {
+        $script:WorkflowSecurityWorkflow | Should -Match 'ACTIONLINT_VERSION: "1[.]7[.]12"'
+        $script:WorkflowSecurityWorkflow | Should -Match 'ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"'
+        $script:WorkflowSecurityWorkflow | Should -Match 'sha256sum -c -'
+    }
+
+    It 'runs actionlint and keeps zizmor in the same security lane' {
+        $script:WorkflowSecurityWorkflow | Should -Match 'actionlint [.]github/workflows/[*][.]yml'
+        $script:WorkflowSecurityWorkflow | Should -Match 'zizmor [.]github/workflows'
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw

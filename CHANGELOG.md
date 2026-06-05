@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.33] - 2026-06-05
+
+- Added: Workflow security now installs checksum-verified `actionlint` 1.7.12 and lints all workflow YAML before running `zizmor`.
+- Added: Pester coverage guards the pinned actionlint version, checksum verification, and workflow-security command wiring.
+
 ## [v4.9.32] - 2026-06-05
 
 - Added: All GitHub Actions jobs now declare explicit timeout budgets, with longer caps for live profile generation and shorter caps for offline lint/test/security checks.

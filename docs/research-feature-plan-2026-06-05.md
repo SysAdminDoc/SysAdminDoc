@@ -3,7 +3,7 @@
 Research refresh: 2026-06-05
 Repository: SysAdminDoc/SysAdminDoc
 Baseline: `06f02c9 docs(roadmap): add live profile render smoke research`
-Current version observed: v4.9.32
+Current version observed: v4.9.33
 
 ## Executive Summary
 
@@ -20,6 +20,7 @@ Top opportunities, in priority order:
 7. P2 - Add generated-feed provenance fields such as source commit, catalog hash, generator hash, and metadata snapshot time.
 8. P2 - Harden the custom JSON Schema validator so unsupported keywords fail closed before future schemas silently skip semantics.
 9. P2 - Improve workflow observability with job summaries, report artifacts, explicit artifact retention, and timeout budgets. v4.9.31 shipped report summaries/artifacts; v4.9.32 shipped explicit timeout budgets.
+10. P2 - Add actionlint beside zizmor for workflow syntax/expression linting. Shipped in v4.9.33.
 10. P3 - Finish documentation hygiene: replace stale `privateReason` wording, add internal SVG `title`/`desc`, add `.gitattributes` generated-artifact hints, and group routine Dependabot action updates.
 
 ## Evidence Reviewed
@@ -508,6 +509,14 @@ Important integrations:
   - Verify: dispatch each workflow and inspect summaries/artifacts.
   - Progress: v4.9.31 added `scripts/write-profile-sync-summary.ps1`, profile-sync/profile-assets summary wiring, warning/error annotations, retained report artifacts, and Pester coverage.
   - Completed: v4.9.32 added explicit job-level timeout budgets across workflows with Pester coverage.
+
+- [x] P2 - Add actionlint beside zizmor
+  - Why: workflow syntax and expression errors need a dedicated guard in addition to security scanning.
+  - Evidence: workflow-security previously installed and ran only `zizmor`.
+  - Touches: `.github/workflows/workflow-security.yml`, tests.
+  - Acceptance: workflow-security runs pinned/repeatable `actionlint` and `zizmor`.
+  - Verify: local and CI actionlint pass.
+  - Completed: v4.9.33 installs checksum-verified `actionlint` 1.7.12, runs it against all workflow YAML, and keeps `zizmor` in the same lane.
 
 - [ ] P2 - Add reviewed topic cleanup apply mode
   - Why: 69 public repos still lack topics.
