@@ -264,8 +264,12 @@
             "enum": [
               "apk",
               "crx",
+              "deb",
+              "dmg",
               "exe",
+              "jar",
               "other",
+              "rpm",
               "script",
               "source-archive",
               "userscript",
