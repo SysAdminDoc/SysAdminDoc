@@ -35,7 +35,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-05
 Latest sync date: 2026-06-05
-Version: v4.9.39
+Version: v4.9.40
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`

@@ -3723,7 +3723,7 @@
       "currentlyBuildingText": null,
       "allowPublicMedical": false,
       "aliasOf": null,
-      "suppressionReason": null,
+      "suppressionReason": "Not visitor-facing; early prototype not ready for the public catalog.",
       "notes": null
     },
     {
