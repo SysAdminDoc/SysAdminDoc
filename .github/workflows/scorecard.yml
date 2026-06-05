@@ -6,10 +6,7 @@ on:
     - cron: "43 8 * * 4"
   branch_protection_rule:
 
-permissions:
-  contents: read
-  security-events: write
-  id-token: write
+permissions: read-all
 
 jobs:
   scorecard:

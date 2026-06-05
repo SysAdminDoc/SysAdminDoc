@@ -2,10 +2,10 @@
 
 > Single source of truth for all planned work. Items above the --- are existing plans; items below are research conducted 2026-06-03.
 
-Last research refresh: 2026-06-04
-Evidence bundle: `RESEARCH_REPORT.md` (archived source: `docs/archive/research-feature-plan-2026-06-04.md`)
-Latest profile sync: 2026-06-04
-Current repo version: v4.9.25
+Last research refresh: 2026-06-05
+Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
+Latest profile sync: 2026-06-05
+Current repo version: v4.9.26
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 32 - 2026-06-04.
+
+2026-06-05 v4.9.26 refresh: the OpenSSF Scorecard publish workflow repair shipped.
+`.github/workflows/scorecard.yml` now keeps workflow-level permissions read-only
+and grants `security-events: write` plus `id-token: write` only inside the
+Scorecard job, matching the Scorecard action's publish-mode restriction. Offline
+Pester coverage now guards the permission shape so future workflow edits cannot
+silently reintroduce workflow-level write permissions. Next highest open item:
+add the live GitHub-rendered profile smoke with desktop/mobile screenshots and
+README-content overflow assertions.
 
 2026-06-04 v4.9.25 refresh: the PSScriptAnalyzer static-analysis lane shipped.
 `PSScriptAnalyzerSettings.psd1` now defines the curated warning/error gate with
@@ -1156,6 +1165,7 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — Publish the advertised JSON Schemas and validate the feed against them (completed v4.9.19 with committed raw-GitHub schemas and `schemaValidation`).
 - [x] P1 — Doc version/date consistency gate wired into `-Check` and CI (completed v4.9.20 with `docVersionConsistency` in the existing profile-sync check/report path).
 - [x] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1` (completed v4.9.25 with curated settings, pinned CI install, and script fixes for analyzer findings).
+- [x] P0 — OpenSSF Scorecard publish workflow repair (completed v4.9.26 by moving write permissions from workflow-level to Scorecard job-level permissions and adding Pester regression coverage).
 - [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
 - [ ] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output.
 - [ ] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (protects the privacy guard before any refactor).

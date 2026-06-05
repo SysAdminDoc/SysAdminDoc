@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.26] - 2026-06-05
+
+- Fixed: Moved OpenSSF Scorecard write permissions out of the workflow-level `permissions` block so `publish_results: true` satisfies Scorecard's workflow restrictions.
+- Added: Offline Pester coverage now guards that the Scorecard workflow keeps workflow-level permissions read-only while granting `security-events: write` and `id-token: write` only at the Scorecard job level.
+- Verified: External Scorecard action documentation still requires no workflow-level write permissions for publish mode; the latest scheduled Scorecard run (`26945062246`) was failing before this repair. Local Pester/profile checks were run for this release.
+
 ## [v4.9.25] - 2026-06-04
 
 - Added: `PSScriptAnalyzerSettings.psd1` defines the curated PowerShell static-analysis gate for `scripts/sync-profile.ps1` and `setup.ps1`, including documented exclusions for intentional CLI output, domain-specific helper names, UTF-8-without-BOM policy, and a runspace false positive.

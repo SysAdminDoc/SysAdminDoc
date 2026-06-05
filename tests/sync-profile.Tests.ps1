@@ -571,6 +571,35 @@ Describe 'Seed catalog guard' {
     }
 }
 
+Describe 'OpenSSF Scorecard workflow permissions' {
+    BeforeAll {
+        $script:ScorecardWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
+    }
+
+    It 'keeps workflow-level permissions read-only for Scorecard publish mode' {
+        $workflowPermissionBlock = [regex]::Match(
+            $script:ScorecardWorkflow,
+            "(?ms)^permissions:\s*(?<block>.*?)(?=^jobs:)"
+        )
+
+        $workflowPermissionBlock.Success | Should -BeTrue
+        $workflowPermissionBlock.Groups['block'].Value | Should -Not -Match ':\s*write\b'
+    }
+
+    It 'grants OIDC and SARIF upload writes only at the Scorecard job level' {
+        $scorecardJobBlock = [regex]::Match(
+            $script:ScorecardWorkflow,
+            "(?ms)^  scorecard:\s*(?<block>.*)"
+        )
+
+        $scorecardJobBlock.Success | Should -BeTrue
+        $scorecardJobBlock.Groups['block'].Value | Should -Match 'contents:\s*read'
+        $scorecardJobBlock.Groups['block'].Value | Should -Match 'security-events:\s*write'
+        $scorecardJobBlock.Groups['block'].Value | Should -Match 'id-token:\s*write'
+        $scorecardJobBlock.Groups['block'].Value | Should -Match 'publish_results:\s*true'
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks star drift informational and branch/release drift fatal' {
         $current = [ordered]@{

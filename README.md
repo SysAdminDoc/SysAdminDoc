@@ -96,7 +96,7 @@
 | Project | Category | Stars | Description | Action |
 |:--------|:---------|:-----:|:------------|:------:|
 | [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) | PowerShell | &#11088;41 | GUI to enable Windows Server 2025 NVMe driver on Win11 | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest) |
-| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | Python | &#11088;18 | AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest) |
+| [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) | Python | &#11088;19 | AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest) |
 | [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) | Python | &#11088;11 | Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest) |
 | [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) | PowerShell | &#11088;11 | Spotify customization — automates Spicetify, themes, extensions | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest) |
 | [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) | Media | &#11088;17 | Remove hardcoded subtitles from video | [<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest) |
@@ -418,7 +418,7 @@ $d="$env:TEMP\GmailDownloader"; if(Test-Path $d){git -C $d pull -q}else{git clon
 $d="$env:TEMP\UniversalCompiler"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/UniversalCompiler $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\UniversalCompiler.ps1"
 ```
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;18 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;19 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```
@@ -597,7 +597,7 @@ Start with: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**NovaCu
 | [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) &#11088;2 | iOS-style icon pack for Android — 6 iOS eras | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/iOSIconPack/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;3 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;5 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;19 | Power-user package manager — continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;21 | Power-user package manager — continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;3 | Spam call and text blocker — GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;2 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;1 | Personal Android-app catalog sourced from GitHub Releases — Android sibling of LocalChromeStore | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest) |
@@ -606,7 +606,7 @@ Start with: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**NovaCu
 | [**BillMinder**](https://github.com/SysAdminDoc/BillMinder) | Bill tracker with alarm-style reminders | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/BillMinder/releases/latest) |
 | [**OpenSwift**](https://github.com/SysAdminDoc/OpenSwift) &#11088;2 | SwiftKey-inspired Android keyboard — glide typing, prediction, themes, clipboard | [Repo](https://github.com/SysAdminDoc/OpenSwift) |
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;4 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
-| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;4 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
+| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;5 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
 | [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;3 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) &#11088;1 | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
 
