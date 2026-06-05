@@ -1,3 +1,4 @@
+#Requires -Version 7.0
 [CmdletBinding()]
 param(
     [string]$Url = "https://github.com/SysAdminDoc",
@@ -71,18 +72,28 @@ function Send-CdpCommand {
     ).GetAwaiter().GetResult() | Out-Null
 
     $buffer = New-Object byte[] 1048576
-    while ($true) {
+    $cdpDeadline = [datetime]::UtcNow.AddSeconds(60)
+    while ([datetime]::UtcNow -lt $cdpDeadline) {
         $stream = [System.IO.MemoryStream]::new()
-        do {
-            $segment = [ArraySegment[byte]]::new($buffer)
-            $result = $Socket.ReceiveAsync($segment, [Threading.CancellationToken]::None).GetAwaiter().GetResult()
-            if ($result.MessageType -eq [System.Net.WebSockets.WebSocketMessageType]::Close) {
-                throw "Chrome DevTools socket closed while waiting for $Method."
-            }
-            $stream.Write($buffer, 0, $result.Count)
-        } while (-not $result.EndOfMessage)
+        try {
+            do {
+                $cts = [Threading.CancellationTokenSource]::new([TimeSpan]::FromSeconds(30))
+                try {
+                    $segment = [ArraySegment[byte]]::new($buffer)
+                    $result = $Socket.ReceiveAsync($segment, $cts.Token).GetAwaiter().GetResult()
+                } finally {
+                    $cts.Dispose()
+                }
+                if ($result.MessageType -eq [System.Net.WebSockets.WebSocketMessageType]::Close) {
+                    throw "Chrome DevTools socket closed while waiting for $Method."
+                }
+                $stream.Write($buffer, 0, $result.Count)
+            } while (-not $result.EndOfMessage)
 
-        $message = [System.Text.Encoding]::UTF8.GetString($stream.ToArray())
+            $message = [System.Text.Encoding]::UTF8.GetString($stream.ToArray())
+        } finally {
+            $stream.Dispose()
+        }
         $response = $message | ConvertFrom-Json
         if (($response.PSObject.Properties.Name -contains "id") -and $response.id -eq $Id) {
             if ($response.PSObject.Properties.Name -contains "error") {
@@ -91,6 +102,7 @@ function Send-CdpCommand {
             return $response.result
         }
     }
+    throw "CDP $Method timed out waiting for response id $Id."
 }
 
 function Invoke-RenderedSmoke {
@@ -202,6 +214,7 @@ $chromeArgs = @(
     "--headless=new",
     "--disable-gpu",
     "--hide-scrollbars",
+    "--no-sandbox",
     "--remote-debugging-port=$Port",
     "--user-data-dir=$profileDir",
     "about:blank"

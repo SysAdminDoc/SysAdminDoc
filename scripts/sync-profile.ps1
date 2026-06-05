@@ -1,3 +1,4 @@
+#Requires -Version 7.0
 [CmdletBinding()]
 param(
     [switch]$SeedCatalog,
@@ -3279,7 +3280,20 @@ function Test-ProfileState {
         readmeExperienceChecks = $experienceChecks
     }
 
-    $failed = -not $readmeInSync -or -not $assetsInSync -or $metadataDriftResult.fatalCount -gt 0 -or $missingPublic.Count -gt 0 -or $privateViolations.Count -gt 0 -or $medicalViolations.Count -gt 0 -or $redirects.Count -gt 0 -or $linkFailures.Count -gt 0 -or $experienceChecks["passed"] -ne $true -or $schemaValidation.passed -ne $true -or $docVersionConsistency.passed -ne $true
+    $failed = (
+        -not $readmeInSync -or
+        -not $projectsInSync -or
+        -not $assetsInSync -or
+        $metadataDriftResult.fatalCount -gt 0 -or
+        $missingPublic.Count -gt 0 -or
+        $privateViolations.Count -gt 0 -or
+        $medicalViolations.Count -gt 0 -or
+        $redirects.Count -gt 0 -or
+        $linkFailures.Count -gt 0 -or
+        $experienceChecks["passed"] -ne $true -or
+        $schemaValidation.passed -ne $true -or
+        $docVersionConsistency.passed -ne $true
+    )
     return [ordered]@{
         Failed = $failed
         Report = $report

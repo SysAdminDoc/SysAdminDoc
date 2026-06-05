@@ -1,3 +1,4 @@
+#Requires -Version 7.0
 param(
     [string]$ReportPath = "reports/profile-sync-report.json",
     [string]$SummaryPath = $env:GITHUB_STEP_SUMMARY,
@@ -38,13 +39,13 @@ $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
 
-$missingTopicCount = Get-Count $metadataHygiene.missingTopics
-$missingDescriptionCount = Get-Count $metadataHygiene.missingDescriptions
-$fatalDriftCount = [int]$driftSummary.fatalCount
+$missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
+$missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
+$fatalDriftCount = if ($driftSummary) { [int]$driftSummary.fatalCount } else { 0 }
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
-$releaseRowsChecked = [int]$releaseDrift.checkedCatalogRows
-$validationElapsedMs = [int]$performance.linkValidation.elapsedMs
+$releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
+$validationElapsedMs = if ($performance -and $performance.linkValidation) { [int]$performance.linkValidation.elapsedMs } else { 0 }
 
 $summary = @"
 ### $Context report
