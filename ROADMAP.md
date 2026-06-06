@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.70
+Current repo version: v4.9.71
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,18 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.71 refresh: profile render-host decision recorded.
+`docs/decisions/2026-06-06-profile-render-hosts.md` now records that the
+current profile retains no live third-party render, metric, or badge hosts;
+the retained-host decision item is closed against the v4.9.47 local-SVG
+migration and current `readmeExperienceChecks` zero-host report fields. Any
+future external render-host reintroduction must document host purpose, visitor
+exposure, fallback, removal trigger, and generator/report allowlist. Pester
+guards the decision note against the current report state. Branch-protection/
+ruleset status-check enforcement remains external-gated while this loop pushes
+directly to `main`; continue with the next non-blocked research/maintenance
+item.
 
 2026-06-06 v4.9.70 refresh: repository formatting contract tightened.
 `.editorconfig` now applies LF, final-newline, and trailing-whitespace trimming
@@ -1007,12 +1019,13 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 ### Privacy of the public surface
 
-- [ ] P3 — Document/justify the third-party render-host privacy exposure inline
+- [x] P3 — Document/justify the third-party render-host privacy exposure inline
   - Why: distinct from the planned action-baked-SVG work, the komarev profile-view counter and the stats/streak/activity hosts each see every profile visitor's request through Camo's proxy origin; there is no public note that these are third-party and no documented decision record for keeping them. A short DECISION note makes the trade-off auditable and avoids re-litigating it each research pass.
-  - Evidence: `README.md:8` (komarev counter), `:59-68` (four render hosts); no decision record in tracked docs.
+  - Evidence: historical `README.md` render hosts were removed by v4.9.14/v4.9.47; current `reports/profile-sync-report.json.readmeExperienceChecks` reports 0 third-party render hosts, 0 metric hosts, 0 badge hosts, and `motionSafeChrome=true`.
   - Touches: a short note in `RESEARCH_REPORT.md` or a `docs/decisions/` entry; no code change.
   - Acceptance: a one-paragraph recorded decision states which hosts are retained, why, and what would trigger removal (tie-in to the action-baked-SVG item).
   - Verify: the note exists and is referenced from the action-baked-SVG roadmap item.
+  - Completed: v4.9.71 records that no live third-party render hosts are retained, defines the reintroduction/reopen criteria, and adds Pester coverage tying the decision note to the zero-host report fields.
   - Complexity: S
 
 ### Researcher Queue (Cycle 2 - 2026-06-04)
@@ -1740,7 +1753,7 @@ third-party render-host state of the generated GitHub profile chrome.*
   - Recommended implementation: replace the animated typing SVG with a static local text/SVG panel or plain Markdown line; remove `animation=fadeIn` from capsule URLs or replace the capsule header/footer with committed local SVGs; keep `skillicons.dev` only if a recorded decision says the static third-party icon host is acceptable, otherwise commit a local icon strip. Add `readmeExperienceChecks.motionSafeChrome` and `readmeExperienceChecks.thirdPartyRenderHosts` with an explicit allowlist.
   - Acceptance: generated README contains no `animation=`, `repeat=true`, or known typing/capsule auto-motion parameters; `readmeExperienceChecks.motionSafeChrome=true`; external render hosts are either zero or explicitly listed with reason, fallback, and failure behavior; live rendered smoke still passes desktop and 390px mobile with no failed images or overflow; image alt text remains meaningful.
   - Verify: run `rg -n "animation=|repeat=true|readme-typing-svg|capsule-render" README.md scripts/sync-profile.ps1`; run `scripts/sync-profile.ps1 -Write -Check`; run `scripts/render-profile-smoke.ps1`; confirm `reports/profile-sync-report.json.readmeExperienceChecks.motionSafeChrome` is true.
-  - Completed: v4.9.47 removes external capsule-render/readme-typing output from generated profile chrome, adds local static header/footer SVG assets, records third-party render hosts in `readmeExperienceChecks`, and reports zero render hosts for the current compact README.
+  - Completed: v4.9.47 removes external capsule-render/readme-typing output from generated profile chrome, adds local static header/footer SVG assets, records third-party render hosts in `readmeExperienceChecks`, and reports zero render hosts for the current compact README. v4.9.71 adds `docs/decisions/2026-06-06-profile-render-hosts.md` to keep the zero-retained-host decision explicit.
   - Complexity: M
 
 ### Researcher Queue (Cycle 45 - 2026-06-06)
@@ -1882,7 +1895,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Internal title/description metadata for generated profile SVG panels (completed v4.9.68 with stable SVG title/description IDs, row-summary descriptions, and Pester XML coverage).
 - [x] P3 — Refresh stale catalog field names in completed-work docs (completed v4.9.69 with a schema-backed completed-work summary and Pester terminology guard).
 - [x] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace (completed v4.9.70 with Markdown trim enforcement, LF pinning for formatting policy files, PR template cleanup, and Pester formatting-contract coverage).
-- [ ] P3 — Recorded decision note on the retained third-party render hosts.
+- [x] P3 — Recorded decision note on the retained third-party render hosts (completed v4.9.71 as a zero-retained-host decision with report-backed Pester coverage).
 
 ### Larger Bets
 

@@ -35,6 +35,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added committed local SVG profile metric panels, asset sync/report checks, and a scheduled/manual asset-refresh workflow; removed komarev plus third-party stats/streak/activity hosts from the generated README (v4.9.14). — *Source: ROADMAP.md*
 - [x] Made generated profile chrome motion-safe by replacing external capsule/typing motion with committed static header/footer SVG assets, adding `readmeExperienceChecks.motionSafeChrome` plus render-host reporting, and adding Pester/schema coverage (v4.9.47). — *Source: ROADMAP.md*
 - [x] Added stable `aria-labelledby`/`aria-describedby` wiring for generated profile SVG `<title>` and `<desc>` metadata, plus row-summary descriptions for the stats, language, and release-health panels (v4.9.68). — *Source: ROADMAP.md*
+- [x] Recorded the profile render-host decision: no live third-party render, metric, or badge hosts are retained in the current README, and any future reintroduction must document host purpose, visitor exposure, fallback, removal trigger, and generator/report allowlist (v4.9.71). — *Source: ROADMAP.md*
 - [x] Removed redundant Shields follower/star image badges, moved total public stars into the local stats SVG, added badge/chrome-count report guards, and fixed duplicate generated stats chrome across repeated writes (v4.9.15). — *Source: ROADMAP.md*
 - [x] Verified the separate `sysadmindoc.github.io` Pagefind search implementation: `/search/`, Pagefind Component UI, build-time `dist/pagefind`, Category filter and Type metadata, and no-JS fallbacks; portfolio build indexed 198 pages / 18,774 words / 1 filter (v4.9.16). — *Source: ROADMAP.md*
 - [x] Implemented the separate `sysadmindoc.github.io` New, Recently updated, and Has download catalog views with URL-backed `view=` state, NEW/DOWNLOAD chips, and focused browser/mobile verification (v4.9.17, portfolio commit `29c2b1d`). — *Source: ROADMAP.md*
@@ -114,6 +115,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added Pester coverage for Dependabot GitHub Actions grouping, including the `routine-actions` minor/patch group and a guard against routine major updates (v4.9.67). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for generated SVG metadata wiring, including XML-parsed title/description IDs, row-summary descriptions, and dynamic text escaping (v4.9.68). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for completed-work catalog terminology so `privateReason` is not presented as a current field and the schema-backed suppression/upstream fields remain named (v4.9.69). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for the profile render-host decision record and current zero-host report fields (v4.9.71). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 
