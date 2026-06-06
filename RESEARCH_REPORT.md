@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.67
+Current version after this refresh: v4.9.68
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.68 batch completed the generated profile SVG metadata wiring by
+  linking internal `<title>` and `<desc>` nodes to stable IDs through
+  `aria-labelledby` and `aria-describedby`.
+- Stats, language, and release-health panel `<desc>` content now summarizes the
+  generated row values while README `<img alt>` text remains unchanged.
+- Pester coverage now parses generated SVG XML and checks metadata ID wiring,
+  row-summary descriptions, and dynamic text escaping.
 - The v4.9.67 batch closed the routine Dependabot action-update grouping gap by
   adding a `routine-actions` group for GitHub Actions minor and patch updates.
 - Major action updates remain outside the routine group so permission,
@@ -440,7 +447,7 @@ Top opportunities, in priority order:
 30. P3 - Group routine Dependabot GitHub Actions version updates. [Completed v4.9.67]
 31. P2 - Report catalog rows omitted from both public feed arrays. [Completed v4.9.59]
 32. P3 - Guard unsupported JSON Schema keywords in the custom validator.
-33. P3 - Add internal title/description metadata to generated profile SVG panels.
+33. P3 - Add internal title/description metadata to generated profile SVG panels. [Completed v4.9.68]
 34. P3 - Refresh stale catalog field names in completed-work docs.
 
 ## Evidence Reviewed
@@ -1968,7 +1975,15 @@ repository artifacts that can be opened or inspected outside the README wrapper.
   short `aria-label`; adding internal `title`/`desc` metadata would make direct
   SVG links and tooling exports more self-describing.
   → roadmap "Add internal `<title>` and `<desc>` metadata to generated profile
-  SVG panels". [Verified]
+  SVG panels". [Closed v4.9.68]
+
+### Implementation note (cycle 30)
+
+- v4.9.68 wires every generated profile SVG root to stable `<title>` and
+  `<desc>` IDs through `aria-labelledby` and `aria-describedby`, and the
+  stats/language/activity panel descriptions now summarize their generated row
+  values. Pester parses the generated SVG XML and verifies ID wiring plus
+  dynamic text escaping.
 
 ### Standards note (cycle 30)
 

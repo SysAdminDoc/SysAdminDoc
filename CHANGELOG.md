@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.68] - 2026-06-06
+
+- Changed: Generated profile SVG assets now wire internal `<title>` and `<desc>` metadata through stable `aria-labelledby` and `aria-describedby` IDs.
+- Added: Profile panel `<desc>` content now summarizes generated row values, with Pester coverage for SVG metadata wiring and dynamic text escaping.
+
 ## [v4.9.67] - 2026-06-06
 
 - Changed: Dependabot now groups routine GitHub Actions minor and patch updates into `routine-actions` while leaving major action updates separate.

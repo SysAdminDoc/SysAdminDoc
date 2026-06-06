@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.67
+Current repo version: v4.9.68
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,14 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.68 refresh: generated profile SVG metadata wiring shipped.
+All generated profile SVG assets now use stable `<title>`/`<desc>` IDs wired
+through `aria-labelledby` and `aria-describedby`; stats/language/activity panel
+descriptions summarize their generated rows, and Pester coverage parses SVG XML
+to guard metadata wiring plus escaping. Branch-protection/ruleset status-check
+enforcement remains external-gated while this loop pushes directly to `main`;
+continue with stale catalog field names in completed-work docs.
 
 2026-06-06 v4.9.67 refresh: Dependabot routine action grouping shipped.
 `.github/dependabot.yml` now groups GitHub Actions minor and patch updates into
@@ -1474,12 +1482,13 @@ current subset.*
 accessibility metadata. It is separate from the completed README image-alt work
 because these SVGs are also raw repository artifacts.*
 
-- [ ] P3 🤖 🔬 — Add internal `<title>` and `<desc>` metadata to generated profile SVG panels
+- [x] P3 🤖 🔬 — Add internal `<title>` and `<desc>` metadata to generated profile SVG panels
   - Why: the generated SVG panels already render as useful visual summaries and the README embeds them with meaningful `<img alt>` text, but the raw committed SVGs themselves only expose `role="img"` plus a short `aria-label`. Adding internal `title`/`desc` metadata keeps the standalone SVG files and any future direct links/tooling exports self-describing without relying on the README wrapper.
   - Evidence: `scripts/sync-profile.ps1:1355-1359` emits `<svg ... role="img" aria-label="...">` and visible text, but no `<title>` or `<desc>` elements; `assets/profile/stats-dark.svg:1-5` mirrors that structure; a scan of `assets/profile/*.svg` found no `<title>` or `<desc>` elements; W3C SVG Accessibility API Mappings describe `title`/`desc` and note current best practice for fallback support is linking them with `aria-labelledby`/`aria-describedby`: https://www.w3.org/TR/svg-aam-1.0/
   - Touches: `scripts/sync-profile.ps1` (`New-ProfilePanelSvg`), generated `assets/profile/*.svg`, `tests/sync-profile.Tests.ps1`, optional `readmeExperienceChecks` field if the repo wants this tracked.
   - Acceptance: generated SVG panels include stable `id` values, a concise `<title>`, a short `<desc>` summarizing the panel rows, and `aria-labelledby`/`aria-describedby` wiring; README `<img alt>` text remains unchanged and non-duplicative.
   - Verify: regenerate with `scripts/sync-profile.ps1 -Write -Check`; grep all `assets/profile/*.svg` for `<title`, `<desc`, `aria-labelledby`, and `aria-describedby`; add a Pester assertion that `New-ProfilePanelSvg` emits the metadata and still escapes dynamic text.
+  - Completed: v4.9.68 wires all generated profile SVG assets through stable title/description IDs, expands stats/language/activity panel descriptions with generated row summaries, and adds SVG XML/Pester coverage for metadata wiring plus escaping.
   - Complexity: S
 
 ### Researcher Queue (Cycle 31 - 2026-06-04)
@@ -1851,7 +1860,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Dependabot routine GitHub Actions update grouping (completed v4.9.67 with a minor/patch `routine-actions` group and Pester coverage that keeps majors separate).
 - [x] P2 — Catalog-to-feed omitted-row accounting in the sync report (completed v4.9.59 with `catalogFeedAccounting`, public-safe unaccounted rows, fatal count mismatches, schema support, summary rows, and Pester coverage).
 - [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).
-- [ ] P3 — Internal title/description metadata for generated profile SVG panels.
+- [x] P3 — Internal title/description metadata for generated profile SVG panels (completed v4.9.68 with stable SVG title/description IDs, row-summary descriptions, and Pester XML coverage).
 - [ ] P3 — Refresh stale catalog field names in completed-work docs.
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.

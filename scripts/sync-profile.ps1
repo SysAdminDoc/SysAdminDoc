@@ -1679,6 +1679,53 @@ function ConvertTo-SvgText {
     return [System.Security.SecurityElement]::Escape([string]$Value)
 }
 
+function ConvertTo-SvgId {
+    param([string]$Value)
+
+    $slug = ([string]$Value).ToLowerInvariant() -replace '[^a-z0-9]+', '-'
+    $slug = $slug.Trim('-')
+    if ([string]::IsNullOrWhiteSpace($slug)) {
+        return "profile-svg"
+    }
+    return "profile-$slug"
+}
+
+function New-ProfilePanelDescription {
+    param(
+        [string]$Subtitle,
+        [object[]]$Rows
+    )
+
+    $parts = New-Object System.Collections.Generic.List[string]
+    if (-not [string]::IsNullOrWhiteSpace($Subtitle)) {
+        $parts.Add($Subtitle.Trim())
+    }
+
+    $rowSummaries = New-Object System.Collections.Generic.List[string]
+    foreach ($row in @($Rows)) {
+        $value = [string](Get-MemberValue -Object $row -Name "value")
+        $label = [string](Get-MemberValue -Object $row -Name "label")
+        $detail = [string](Get-MemberValue -Object $row -Name "detail")
+
+        if ([string]::IsNullOrWhiteSpace($value) -and [string]::IsNullOrWhiteSpace($label)) {
+            continue
+        }
+
+        $summary = @($value.Trim(), $label.Trim()) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        $summaryText = ($summary -join " ")
+        if (-not [string]::IsNullOrWhiteSpace($detail)) {
+            $summaryText = "$summaryText ($($detail.Trim()))"
+        }
+        $rowSummaries.Add($summaryText)
+    }
+
+    if ($rowSummaries.Count -gt 0) {
+        $parts.Add("Rows: $($rowSummaries -join '; ').")
+    }
+
+    return ($parts -join " ")
+}
+
 function New-ProfilePanelSvg {
     param(
         [string]$Title,
@@ -1696,10 +1743,15 @@ function New-ProfilePanelSvg {
         $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#0969da"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"
     }
 
+    $baseId = ConvertTo-SvgId "$Title $Theme"
+    $titleId = "$baseId-title"
+    $descId = "$baseId-desc"
+    $description = New-ProfilePanelDescription -Subtitle $Subtitle -Rows $Rows
+
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"$(ConvertTo-SvgText $Title)`">")
-    $lines.Add("  <title>$(ConvertTo-SvgText $Title)</title>")
-    $lines.Add("  <desc>$(ConvertTo-SvgText $Subtitle)</desc>")
+    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
+    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $Title)</title>")
+    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
     $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
     $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $Title)</text>")
@@ -1743,10 +1795,16 @@ function New-ProfileHeroSvg {
         $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#0969da"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"
     }
 
+    $title = "SysAdminDoc profile header"
+    $description = "Static profile header for a healthcare IT engineer, DICOM/PACS specialist, and product builder."
+    $baseId = ConvertTo-SvgId "$title $Theme"
+    $titleId = "$baseId-title"
+    $descId = "$baseId-desc"
+
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"SysAdminDoc profile header`">")
-    $lines.Add("  <title>SysAdminDoc profile header</title>")
-    $lines.Add("  <desc>Static profile header for a healthcare IT engineer, DICOM/PACS specialist, and product builder.</desc>")
+    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
+    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
+    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
     $lines.Add("  <rect x=`"16`" y=`"16`" width=`"$($Width - 32)`" height=`"$($Height - 32)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
     $lines.Add("  <rect x=`"16`" y=`"16`" width=`"8`" height=`"$($Height - 32)`" fill=`"$accent`"/>")
@@ -1771,10 +1829,16 @@ function New-ProfileFooterSvg {
         $bg = "#ffffff"; $waveOne = "#f6f8fa"; $waveTwo = "#dbeafe"; $line = "#d0d7de"
     }
 
+    $title = "Decorative footer wave for the SysAdminDoc profile"
+    $description = "Static footer divider used by the generated profile README."
+    $baseId = ConvertTo-SvgId "$title $Theme"
+    $titleId = "$baseId-title"
+    $descId = "$baseId-desc"
+
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"Decorative footer wave for the SysAdminDoc profile`">")
-    $lines.Add("  <title>Decorative footer wave for the SysAdminDoc profile</title>")
-    $lines.Add("  <desc>Static footer divider used by the generated profile README.</desc>")
+    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
+    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
+    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
     $lines.Add("  <path d=`"M0 74 C120 42 226 38 350 68 C482 100 610 94 820 48 L820 120 L0 120 Z`" fill=`"$waveOne`" stroke=`"$line`" stroke-width=`"1`"/>")
     $lines.Add("  <path d=`"M0 92 C156 56 282 58 420 84 C548 108 674 96 820 64 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.35`"/>")

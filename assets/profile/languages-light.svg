@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="820" height="250" viewBox="0 0 820 250" role="img" aria-label="Language Mix">
-  <title>Language Mix</title>
-  <desc>Top visitor-facing project languages from the catalog</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="250" viewBox="0 0 820 250" role="img" aria-labelledby="profile-language-mix-light-title" aria-describedby="profile-language-mix-light-desc">
+  <title id="profile-language-mix-light-title">Language Mix</title>
+  <desc id="profile-language-mix-light-desc">Top visitor-facing project languages from the catalog Rows: 50 Python (visitor-facing projects); 30 PowerShell (visitor-facing projects); 26 JavaScript (visitor-facing projects); 25 HTML (visitor-facing projects); 16 Kotlin (visitor-facing projects); 15 C# (visitor-facing projects).</desc>
   <rect width="100%" height="100%" rx="0" fill="#ffffff"/>
   <rect x="12" y="12" width="796" height="226" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
   <text x="32" y="45" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">Language Mix</text>
