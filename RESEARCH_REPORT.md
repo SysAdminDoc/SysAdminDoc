@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.58
+Current version after this refresh: v4.9.59
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.59 batch closed the catalog-to-feed omitted-row accounting gap by
+  adding public-safe `catalogFeedAccounting` reporting.
+- The current live report accounts for 187 catalog rows: 177 visitor-facing
+  projects, 10 redacted suppressions, 0 unaccounted rows, 0 count mismatches,
+  and 0 fatal accounting gaps.
+- The sync-report schema, summary helper, and Pester suite now cover aggregate
+  accounting, redacted unaccounted rows, feed count mismatches, and the
+  `Test-ProfileState` failure path.
 - The v4.9.58 batch closed the raw userscript install trust metadata gap by
   adding `userscriptInstallTrust` reporting for direct `.user.js` install
   actions.
@@ -364,7 +372,7 @@ Top opportunities, in priority order:
 28. P3 - Stagger same-minute scheduled maintenance workflows.
 29. P3 - Include schema-contract changes in the offline Tests workflow.
 30. P3 - Group routine Dependabot GitHub Actions version updates.
-31. P2 - Report catalog rows omitted from both public feed arrays.
+31. P2 - Report catalog rows omitted from both public feed arrays. [Completed v4.9.59]
 32. P3 - Guard unsupported JSON Schema keywords in the custom validator.
 33. P3 - Add internal title/description metadata to generated profile SVG panels.
 34. P3 - Refresh stale catalog field names in completed-work docs.

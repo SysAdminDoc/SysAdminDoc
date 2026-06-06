@@ -2269,6 +2269,117 @@ function New-ProjectsExportJson {
     return ($payload | ConvertTo-Json -Depth 20)
 }
 
+function New-CatalogFeedAccountingRow {
+    param(
+        [object]$Entry,
+        [int]$CatalogIndex,
+        [string]$ExportStatus,
+        [string]$ReasonCode,
+        [string]$PublicReason
+    )
+
+    return [ordered]@{
+        catalogId = "catalog-{0:D3}" -f $CatalogIndex
+        category = [string]$Entry.category
+        includeInReadme = [bool]$Entry.includeInReadme
+        includeInPortfolio = [bool]$Entry.includeInPortfolio
+        exportStatus = $ExportStatus
+        reasonCode = if ([string]::IsNullOrWhiteSpace($ReasonCode)) { $null } else { $ReasonCode }
+        publicReason = if ([string]::IsNullOrWhiteSpace($PublicReason)) { $null } else { $PublicReason }
+    }
+}
+
+function New-CatalogFeedAccountingMismatch {
+    param(
+        [string]$Field,
+        [int]$Expected,
+        [int]$Actual,
+        [string]$Message
+    )
+
+    return [ordered]@{
+        field = $Field
+        expected = $Expected
+        actual = $Actual
+        message = $Message
+    }
+}
+
+function Test-CatalogFeedAccounting {
+    param(
+        [hashtable]$Catalog,
+        [string]$ProjectsJson
+    )
+
+    $entries = @($Catalog.entries)
+    $payload = $null
+    try {
+        $payload = $ProjectsJson | ConvertFrom-Json
+    } catch {
+        $payload = $null
+    }
+
+    $feedProjectCount = if ($payload) { @((Get-MemberValue -Object $payload -Name "projects")).Count } else { 0 }
+    $feedSuppressedCount = if ($payload) { @((Get-MemberValue -Object $payload -Name "suppressed")).Count } else { 0 }
+    $visitorFacingEntries = @($entries | Where-Object {
+            $_.includeInPortfolio -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+        })
+    $suppressedEntries = @($entries | Where-Object {
+            -not [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+        })
+    $unaccountedRows = New-Object System.Collections.Generic.List[object]
+    $catalogIndex = 0
+    foreach ($entry in $entries) {
+        $catalogIndex++
+        $suppressionReason = [string]$entry.suppressionReason
+        if ($entry.includeInPortfolio -eq $false -and [string]::IsNullOrWhiteSpace($suppressionReason)) {
+            $unaccountedRows.Add((New-CatalogFeedAccountingRow `
+                        -Entry $entry `
+                        -CatalogIndex $catalogIndex `
+                        -ExportStatus "unaccounted" `
+                        -ReasonCode "missing-accounting-reason" `
+                        -PublicReason "Catalog row is excluded from the public feed without a public-safe suppression reason."))
+        }
+    }
+
+    $mismatches = New-Object System.Collections.Generic.List[object]
+    if ($feedProjectCount -ne $visitorFacingEntries.Count) {
+        $mismatches.Add((New-CatalogFeedAccountingMismatch `
+                    -Field "projectCount" `
+                    -Expected $visitorFacingEntries.Count `
+                    -Actual $feedProjectCount `
+                    -Message "Generated feed project count does not match visitor-facing catalog rows."))
+    }
+    if ($feedSuppressedCount -ne $suppressedEntries.Count) {
+        $mismatches.Add((New-CatalogFeedAccountingMismatch `
+                    -Field "suppressedCount" `
+                    -Expected $suppressedEntries.Count `
+                    -Actual $feedSuppressedCount `
+                    -Message "Generated feed suppressed count does not match catalog rows with suppression reasons."))
+    }
+
+    $unaccountedArray = @($unaccountedRows.ToArray())
+    $mismatchArray = @($mismatches.ToArray())
+    $fatalCount = $unaccountedArray.Count + $mismatchArray.Count
+
+    return [ordered]@{
+        passed = [bool]($fatalCount -eq 0)
+        catalogEntryCount = $entries.Count
+        visitorFacingCatalogCount = $visitorFacingEntries.Count
+        suppressedCatalogCount = $suppressedEntries.Count
+        exportedProjectCount = $feedProjectCount
+        exportedSuppressedCount = $feedSuppressedCount
+        projectCountMatches = [bool]($feedProjectCount -eq $visitorFacingEntries.Count)
+        suppressedCountMatches = [bool]($feedSuppressedCount -eq $suppressedEntries.Count)
+        unaccountedRowCount = $unaccountedArray.Count
+        mismatchCount = $mismatchArray.Count
+        fatalCount = $fatalCount
+        unaccountedRows = $unaccountedArray
+        mismatches = $mismatchArray
+        note = "Public-safe accounting confirms each catalog row is exported as a project, exported as a redacted suppression, or flagged without exposing omitted repo names."
+    }
+}
+
 function New-CatalogFromReadme {
     param([object[]]$Repos)
 
@@ -5164,6 +5275,7 @@ function Test-ProfileState {
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
+    $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
     $schemaValidation = [ordered]@{
@@ -5220,6 +5332,7 @@ function Test-ProfileState {
         forkParentDrift = $forkParentDrift
         releaseAssetDrift = $releaseAssetDrift
         userscriptInstallTrust = $userscriptInstallTrust
+        catalogFeedAccounting = $catalogFeedAccounting
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
         schemaValidation = $schemaValidation
@@ -5269,6 +5382,7 @@ function Test-ProfileState {
         $linkFailures.Count -gt 0 -or
         $experienceChecks["passed"] -ne $true -or
         $repositoryCommunityBaseline["communityHealth"]["fatalCount"] -gt 0 -or
+        $catalogFeedAccounting.fatalCount -gt 0 -or
         $schemaValidation.passed -ne $true -or
         $docVersionConsistency.passed -ne $true
     )

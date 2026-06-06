@@ -2,15 +2,15 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 66 - userscript install trust metadata
+Last completed roadmap cycle: Cycle 67 - catalog-to-feed omitted-row accounting
 
 ## Latest Result
 
-- Added `userscriptInstallTrust` to `reports/profile-sync-report.json`, inspecting raw `.user.js` metadata headers for install actions.
-- Current live report checks 11 userscript installs, all from raw GitHub branch URLs, with 11 metadata blocks, 0 missing versions, 2 missing update URLs, 2 missing download URLs, 3 broad-scope rows, and 7 warning rows.
-- Updated `schemas/profile-sync-report.v1.json`, `scripts/write-profile-sync-summary.ps1`, and Pester coverage for source provenance, metadata fields, scope counts, and warning rows.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.58.
+- Added `catalogFeedAccounting` to `reports/profile-sync-report.json`, proving every catalog row is exported as a public project, exported as a redacted suppression, or flagged as unaccounted.
+- Current live report accounts for 187 catalog rows: 177 visitor-facing projects, 10 redacted suppressions, 0 unaccounted rows, 0 count mismatches, and 0 fatal accounting gaps.
+- Updated `schemas/profile-sync-report.v1.json`, `scripts/write-profile-sync-summary.ps1`, and Pester coverage for aggregate accounting, redacted unaccounted rows, count mismatches, and the `Test-ProfileState` failure path.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.59.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with the next substantive P2 item: catalog-to-feed omitted-row accounting in the sync report.
+Continue on this same assigned project. Start by reconciling stale roadmap duplicate rows for already shipped profile validation and issue-form work, then proceed to the next remaining P2/P3 item.

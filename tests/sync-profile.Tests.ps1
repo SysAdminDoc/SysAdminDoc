@@ -887,6 +887,23 @@ Describe 'New-ProjectsExportJson feed' {
         $suppressedJson | Should -Not -Match 'HiddenTool|Should be excluded|github.com|repoUrl|primaryAction|description'
     }
 
+    It 'accounts for every fixture catalog row as exported or redacted' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-CatalogFeedAccounting -Catalog $cat -ProjectsJson $json
+
+        $result.passed | Should -BeTrue
+        $result.catalogEntryCount | Should -Be 4
+        $result.visitorFacingCatalogCount | Should -Be 3
+        $result.suppressedCatalogCount | Should -Be 1
+        $result.exportedProjectCount | Should -Be 3
+        $result.exportedSuppressedCount | Should -Be 1
+        $result.unaccountedRowCount | Should -Be 0
+        $result.fatalCount | Should -Be 0
+        $result.unaccountedRows | Should -BeNullOrEmpty
+    }
+
     It 'exports release asset kinds and keeps source-only releases as repo actions' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $cat.entries[0].downloadKind = 'apk'
@@ -929,6 +946,23 @@ Describe 'New-ProjectsExportJson feed' {
         $json.suppressed | Should -HaveCount $json.suppressedCount
         @($json.suppressed | Where-Object { $_.suppressed -ne $true }).Count | Should -Be 0
         $suppressedJson | Should -Not -Match 'VaultBox|improve-repo|RadAtlas|https://github.com|repoUrl|primaryAction|releaseAssetNames|description|title'
+    }
+
+    It 'reports the real catalog as fully accounted without exposing suppressed names' {
+        $cat = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-CatalogFeedAccounting -Catalog $cat -ProjectsJson $json
+        $accountingJson = $result | ConvertTo-Json -Depth 20
+
+        $result.passed | Should -BeTrue
+        $result.catalogEntryCount | Should -Be 187
+        $result.visitorFacingCatalogCount | Should -Be 177
+        $result.suppressedCatalogCount | Should -Be 10
+        $result.exportedProjectCount | Should -Be 177
+        $result.exportedSuppressedCount | Should -Be 10
+        $result.unaccountedRowCount | Should -Be 0
+        $accountingJson | Should -Not -Match 'VaultBox|improve-repo|RadAtlas|github.com/SysAdminDoc'
     }
 
     It 'exports structured upstream attribution fields' {
@@ -1386,6 +1420,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Missing project licenses'
             $summary | Should -Match 'Unknown project licenses'
             $summary | Should -Match 'Fork-parent warnings'
+            $summary | Should -Match 'Catalog rows accounted'
+            $summary | Should -Match 'Catalog accounting fatal gaps'
             $summary | Should -Match 'Profile release/tag warnings'
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
@@ -1406,6 +1442,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'forkParentDrift'
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
         $script:SummaryScript | Should -Match 'userscriptInstallTrust'
+        $script:SummaryScript | Should -Match 'catalogFeedAccounting'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'
@@ -1653,6 +1690,30 @@ Describe 'Test-ProfileState projects sync gate' {
 
         $result.Failed | Should -BeTrue
         $result.Report.projectsExportInSync | Should -BeFalse
+    }
+
+    It 'fails when a catalog row is excluded from both public feed arrays without a reason' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $localOnly = New-TestEntry -Repo 'LocalOnly' -Category 'misc'
+        $localOnly.includeInReadme = $false
+        $localOnly.includeInPortfolio = $false
+        $cat.entries = @($cat.entries + $localOnly)
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos @() `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects $expectedProjects `
+            -SkipLinkValidation
+
+        $result.Failed | Should -BeTrue
+        $result.Report.catalogFeedAccounting.passed | Should -BeFalse
+        $result.Report.catalogFeedAccounting.unaccountedRowCount | Should -Be 1
+        $result.Report.catalogFeedAccounting.unaccountedRows[0].catalogId | Should -Be 'catalog-005'
+        $result.Report.catalogFeedAccounting.unaccountedRows[0].exportStatus | Should -Be 'unaccounted'
+        ($result.Report.catalogFeedAccounting.unaccountedRows | ConvertTo-Json -Depth 20) | Should -Not -Match 'LocalOnly|github.com'
     }
 }
 

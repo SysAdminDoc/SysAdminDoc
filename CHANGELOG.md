@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.59] - 2026-06-06
+
+- Added: Profile sync reports now include `catalogFeedAccounting`, proving each catalog row is exported as a project, exported as a redacted suppression, or flagged as unaccounted.
+- Added: `-Check` now fails when a catalog row is excluded from both public feed arrays without a public-safe reason, or when feed project/suppression counts diverge from catalog accounting.
+- Added: Public-safe summary rows now include catalog rows accounted and catalog accounting fatal gaps.
+- Verified: Current live report accounts for 187 catalog rows: 177 visitor-facing projects, 10 redacted suppressions, 0 unaccounted rows, 0 count mismatches, and 0 fatal accounting gaps.
+
 ## [v4.9.58] - 2026-06-06
 
 - Added: Profile sync reports now include `userscriptInstallTrust`, parsing raw `.user.js` metadata headers for install actions.
