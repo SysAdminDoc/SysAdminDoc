@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.58
+Current repo version: v4.9.59
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.59 refresh: catalog-to-feed accounting shipped.
+Profile sync now reports `catalogFeedAccounting`, proving each catalog row is
+exported as a public project, exported as a redacted suppression, or flagged as
+unaccounted without exposing omitted repo names. The current live report accounts
+for 187 catalog rows: 177 visitor-facing projects, 10 redacted suppressions, 0
+unaccounted rows, 0 count mismatches, and 0 fatal accounting gaps. `-Check` now
+fails on unreasoned non-portfolio catalog rows or feed count mismatches.
+Next highest work: reconcile stale roadmap duplicate rows for already shipped
+profile validation and issue-form work, then continue down the remaining queue.
 
 2026-06-06 v4.9.58 refresh: userscript install trust metadata shipped.
 Profile sync now reports `userscriptInstallTrust` for direct raw `.user.js`
@@ -1346,6 +1356,7 @@ omission check from v4.9.18.*
   - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Test-ProfileState` report output), `reports/profile-sync-report.json`, optional `schemas/profile-projects.v1.json` or future sync-report schema if omitted rows become a formal report section.
   - Acceptance: every catalog entry is either exported as a public project, exported/redacted as a suppressed row under the Cycle 24 privacy rules, or counted in a public-safe `omittedCatalogRows`/`localOnlyRows` report section with an explicit reason; `-Check` warns or fails when a row is excluded from both feed arrays without an intentional reason.
   - Verify: run a local catalog/feed reconciliation command and confirm no unaccounted rows remain; add a fixture row with `includeInPortfolio=false` and no suppression/local-only reason and confirm Pester or `-Check` reports it; confirm intentionally omitted private/privacy rows still follow the Cycle 24 redaction policy.
+  - Completed: v4.9.59 adds `catalogFeedAccounting`, validates it through the sync-report schema, summarizes aggregate rows in Actions output, and fails `-Check` for unreasoned omitted rows or project/suppression count mismatches.
   - Complexity: S
 
 ### Researcher Queue (Cycle 29 - 2026-06-04)
@@ -1742,7 +1753,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
-- [ ] P2 — Catalog-to-feed omitted-row accounting in the sync report.
+- [x] P2 — Catalog-to-feed omitted-row accounting in the sync report (completed v4.9.59 with `catalogFeedAccounting`, public-safe unaccounted rows, fatal count mismatches, schema support, summary rows, and Pester coverage).
 - [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).
 - [ ] P3 — Internal title/description metadata for generated profile SVG panels.
 - [ ] P3 — Refresh stale catalog field names in completed-work docs.

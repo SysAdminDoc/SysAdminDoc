@@ -16,6 +16,7 @@
     "includedReadmeCount",
     "provenance",
     "catalogShape",
+    "catalogFeedAccounting",
     "metadataHygiene",
     "projectLicenseMetadata",
     "forkParentDrift",
@@ -79,6 +80,9 @@
     },
     "catalogShape": {
       "$ref": "#/$defs/catalogShape"
+    },
+    "catalogFeedAccounting": {
+      "$ref": "#/$defs/catalogFeedAccounting"
     },
     "metadataHygiene": {
       "$ref": "#/$defs/metadataHygiene"
@@ -367,6 +371,140 @@
           "$ref": "#/$defs/nullableString"
         },
         "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "catalogFeedAccounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "catalogEntryCount",
+        "visitorFacingCatalogCount",
+        "suppressedCatalogCount",
+        "exportedProjectCount",
+        "exportedSuppressedCount",
+        "projectCountMatches",
+        "suppressedCountMatches",
+        "unaccountedRowCount",
+        "mismatchCount",
+        "fatalCount",
+        "unaccountedRows",
+        "mismatches",
+        "note"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "catalogEntryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "visitorFacingCatalogCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedCatalogCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "exportedProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "exportedSuppressedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "projectCountMatches": {
+          "type": "boolean"
+        },
+        "suppressedCountMatches": {
+          "type": "boolean"
+        },
+        "unaccountedRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "mismatchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unaccountedRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/catalogFeedAccountingRow"
+          }
+        },
+        "mismatches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/catalogFeedAccountingMismatch"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "catalogFeedAccountingRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalogId",
+        "category",
+        "includeInReadme",
+        "includeInPortfolio",
+        "exportStatus",
+        "reasonCode",
+        "publicReason"
+      ],
+      "properties": {
+        "catalogId": {
+          "type": "string",
+          "pattern": "^catalog-[0-9]{3}$"
+        },
+        "category": {
+          "type": "string"
+        },
+        "includeInReadme": {
+          "type": "boolean"
+        },
+        "includeInPortfolio": {
+          "type": "boolean"
+        },
+        "exportStatus": {
+          "type": "string",
+          "enum": [
+            "unaccounted"
+          ]
+        },
+        "reasonCode": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "publicReason": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "catalogFeedAccountingMismatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "expected",
+        "actual",
+        "message"
+      ],
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "expected": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "actual": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "message": {
           "type": "string"
         }
       }

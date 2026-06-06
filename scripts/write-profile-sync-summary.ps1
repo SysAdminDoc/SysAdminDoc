@@ -44,6 +44,7 @@ $repositorySettings = $report.repositorySettings
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
+$catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -61,6 +62,12 @@ $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount 
 $profileReleaseWarningCount = if ($profileReleaseConsistency) { [int]$profileReleaseConsistency.warningCount } else { 0 }
 $userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
 $userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
+$catalogAccountedCount = if ($catalogFeedAccounting) {
+    [int]$catalogFeedAccounting.visitorFacingCatalogCount + [int]$catalogFeedAccounting.suppressedCatalogCount
+} else {
+    0
+}
+$catalogAccountingFatalCount = if ($catalogFeedAccounting) { [int]$catalogFeedAccounting.fatalCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -72,6 +79,8 @@ $summary = @"
 | Profile assets in sync | $($report.profileAssetsInSync) |
 | Schema validation passed | $($report.schemaValidation.passed) |
 | Planning docs aligned | $($report.docVersionConsistency.passed) |
+| Catalog rows accounted | $catalogAccountedCount |
+| Catalog accounting fatal gaps | $catalogAccountingFatalCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
@@ -101,6 +110,10 @@ if (-not [string]::IsNullOrWhiteSpace($SummaryPath)) {
 
 if ($fatalDriftCount -gt 0) {
     Write-Output "::error::Profile sync report has $fatalDriftCount fatal metadata drift row(s)."
+}
+
+if ($catalogAccountingFatalCount -gt 0) {
+    Write-Output "::error::Profile sync report has $catalogAccountingFatalCount catalog/feed accounting fatal gap(s)."
 }
 
 if ($linkFailureCount -gt 0) {
