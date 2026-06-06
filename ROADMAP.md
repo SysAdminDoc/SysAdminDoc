@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.65
+Current repo version: v4.9.66
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.66 refresh: schema-trigger coverage shipped.
+`tests.yml` now includes `schemas/**` in the push path filter for direct
+`main` updates, while pull-request and merge-queue Tests checks remain
+always-created. Pester now guards the schema path in the Tests push trigger and
+continues to reject PR path filters for required-check candidates. Next highest
+open item: branch-protection/ruleset status-check enforcement remains
+external-gated while this loop pushes directly to `main`; continue with routine
+Dependabot GitHub Actions update grouping.
 
 2026-06-06 v4.9.65 refresh: scheduled maintenance staggering shipped.
 `workflow-security.yml` now runs on Wednesday at `17 9 * * 3`, leaving
@@ -1397,12 +1406,13 @@ same-minute scheduled maintenance runs.*
 JSON Schema contracts are covered by the offline Tests workflow when schema
 files change.*
 
-- [ ] P3 🤖 🔬 — Include schema-contract changes in the offline Tests workflow
-  - Why: `tests/sync-profile.Tests.ps1` now includes feed/catalog JSON Schema contract tests, but `.github/workflows/tests.yml` only runs on PR/push changes to `scripts/**`, `tests/**`, and the workflow file itself. A schema-only PR can therefore skip the exact Pester lane that validates those schema contracts, leaving schema drift to manual review or later scheduled profile checks.
-  - Evidence: `.github/workflows/tests.yml:5-15` omits `schemas/**` from both `pull_request.paths` and `push.paths`; `tests/sync-profile.Tests.ps1:425-442` validates the fixture catalog/feed against `schemas/profile-projects.v1.json`; `schemas/profile-catalog.v1.json:3` and `schemas/profile-projects.v1.json:3` are the committed public schema contract IDs; GitHub workflow syntax docs state that `push`/`pull_request` path filters run based on changed file paths and that skipped required checks can remain pending: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+- [x] P3 🤖 🔬 — Include schema-contract changes in the offline Tests workflow
+  - Why: `tests/sync-profile.Tests.ps1` includes feed/catalog JSON Schema contract tests, and direct `main` pushes that touch schema files should create the same offline Tests workflow that validates those contracts.
+  - Evidence: before v4.9.66, `.github/workflows/tests.yml` omitted `schemas/**` from the `push.paths` filter; pull-request and merge-queue Tests checks are already always-created with no PR path filters; `tests/sync-profile.Tests.ps1` validates the fixture catalog/feed against `schemas/profile-projects.v1.json`; `schemas/profile-catalog.v1.json`, `schemas/profile-projects.v1.json`, and `schemas/profile-sync-report.v1.json` are committed public schema contracts; GitHub workflow syntax docs state that `push`/`pull_request` path filters run based on changed file paths and that skipped required checks can remain pending: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
   - Touches: `.github/workflows/tests.yml`; optional `.github/workflows/profile-sync.yml` PR path filter if schema edits should run full generated-profile validation as well.
   - Acceptance: schema contract changes under `schemas/**` trigger the offline Tests/Pester workflow on PRs and pushes; any future required-check policy either scopes this check safely or uses an always-created status so unrelated docs are not blocked by a skipped path-filtered workflow.
-  - Verify: open or simulate a PR touching only `schemas/profile-projects.v1.json` and confirm `Tests / Pester (offline)` runs; a scratch schema regression still fails the Pester contract case; unrelated planning-doc changes do not become blocked by a skipped required check.
+  - Verify: Pester guards `schemas/**` in the Tests push path filter and no `pull_request.paths` on required-check candidates; a scratch schema regression still fails the Pester contract case; unrelated planning-doc changes do not become blocked by a skipped required check.
+  - Completed: v4.9.66 adds `schemas/**` to the Tests push path filter and Pester coverage for schema-trigger inclusion while keeping PR/merge-queue Tests checks always-created.
   - Complexity: S
 
 ### Researcher Queue (Cycle 27 - 2026-06-04)
@@ -1827,7 +1837,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup (completed v4.9.63 with `docVersionConsistency.changelogHeadingValidation`, line-numbered malformed-heading reporting, impossible-date rejection, schema support, Pester coverage, and the `v3.0.0` date cleanup).
 - [x] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**` (completed v4.9.64 with strict `zizmor` collection for workflows plus local action metadata, always-created workflow-security trigger coverage, `/.github/` CODEOWNERS ownership, and Pester contract coverage).
 - [x] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules (completed v4.9.65 by moving workflow-security to `17 9 * * 3` and adding Pester schedule-uniqueness coverage).
-- [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
+- [x] P3 — Add `schemas/**` to the offline Tests workflow path filters (completed v4.9.66 with Tests push-path coverage and Pester trigger-shape guards).
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
 - [x] P2 — Catalog-to-feed omitted-row accounting in the sync report (completed v4.9.59 with `catalogFeedAccounting`, public-safe unaccounted rows, fatal count mismatches, schema support, summary rows, and Pester coverage).
 - [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).

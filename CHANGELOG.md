@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.66] - 2026-06-06
+
+- Changed: `tests.yml` push path filters now include `schemas/**`, so direct schema-contract pushes to `main` create the offline Tests workflow.
+- Added: Pester coverage guards the schema path in the Tests push trigger while preserving unfiltered pull-request and merge-queue checks.
+
 ## [v4.9.65] - 2026-06-06
 
 - Changed: `workflow-security.yml` now runs on Wednesday at `17 9 * * 3`, separating it from `assets-refresh.yml` at `19 8 * * 3` and generated-branch cleanup at `43 8 * * 3`.

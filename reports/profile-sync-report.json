@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T18:52:22.7257472-04:00",
+  "generatedAt": "2026-06-06T18:58:27.0252387-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "f8f85e6c351b7cf1443afe82411bc10d8846ef0e",
+    "sourceCommit": "6aaff095a02c68deeb29ca23db724c3c405a616e",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
     "generatorSha256": "846d61a887959bd16079de3c0536363d28baaedc00573f62a3d4d3778af36df3",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T18:50:32.5382893-04:00",
+    "metadataSnapshotAt": "2026-06-06T18:57:08.5274415-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T22:47:27.0000000Z",
+        "pushedAt": "2026-06-06T22:54:52.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,22 +892,16 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "count": 1
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
       },
       {
         "licenseSpdxId": "Apache-2.0",
         "licenseKey": "apache-2.0",
         "licenseName": "Apache License 2.0",
         "count": 2
-      },
-      {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -922,15 +916,21 @@
         "count": 1
       },
       {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
       },
       {
         "licenseSpdxId": "AGPL-3.0",
         "licenseKey": "agpl-3.0",
         "licenseName": "GNU Affero General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
       },
       {
@@ -2268,28 +2268,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.65",
+    "expectedVersion": "v4.9.66",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.65"
+        "value": "v4.9.66"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.65"
+        "value": "v4.9.66"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.65"
+        "value": "v4.9.66"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.65"
+        "value": "v4.9.66"
       }
     ],
     "dates": [
@@ -2316,7 +2316,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 77,
+      "headingCount": 78,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2326,14 +2326,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.65",
+    "expectedVersion": "v4.9.66",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.65",
+    "expectedTag": "v4.9.66",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2343,13 +2343,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.65",
+        "expectedVersion": "v4.9.66",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.65",
+        "expectedVersion": "v4.9.66",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2361,7 +2361,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3594,
+      "elapsedMs": 5615,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2390,7 +2390,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3594,
+    "elapsedMs": 5615,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },

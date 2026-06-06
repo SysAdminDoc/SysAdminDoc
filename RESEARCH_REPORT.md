@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.65
+Current version after this refresh: v4.9.66
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.66 batch closed the schema-trigger gap by adding `schemas/**` to
+  the Tests workflow push path filter.
+- Tests already run for all pull requests and merge-queue runs, so schema-only
+  PRs receive the offline Pester/schema-contract lane without adding PR path
+  filters.
+- Pester coverage now guards `schemas/**` in the Tests push trigger and keeps
+  required-check candidate PR triggers unfiltered.
 - The v4.9.65 batch closed the same-minute scheduled-maintenance gap by moving
   `workflow-security.yml` from Wednesday `19 8 * * 3` to `17 9 * * 3`.
 - Wednesday maintenance now separates assets refresh at `19 8 * * 3`,
@@ -423,7 +430,7 @@ Top opportunities, in priority order:
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
 27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership. [Completed v4.9.64]
 28. P3 - Stagger same-minute scheduled maintenance workflows. [Completed v4.9.65]
-29. P3 - Include schema-contract changes in the offline Tests workflow.
+29. P3 - Include schema-contract changes in the offline Tests workflow. [Completed v4.9.66]
 30. P3 - Group routine Dependabot GitHub Actions version updates.
 31. P2 - Report catalog rows omitted from both public feed arrays. [Completed v4.9.59]
 32. P3 - Guard unsupported JSON Schema keywords in the custom validator.
@@ -1784,9 +1791,10 @@ trigger gap rather than a missing test.
 
 ### Evidence reviewed (cycle 26)
 
-- `.github/workflows/tests.yml` runs on `pull_request` and `push`, but both path
-  filters include only `scripts/**`, `tests/**`, and
-  `.github/workflows/tests.yml`.
+- At the time of Cycle 26, `.github/workflows/tests.yml` path filters included
+  only `scripts/**`, `tests/**`, and `.github/workflows/tests.yml`.
+- Tests now run for all pull requests and merge-queue runs; the remaining
+  v4.9.66 gap was direct `main` pushes that changed only `schemas/**`.
 - The offline Pester suite contains `Feed JSON Schema contracts` cases that call
   `Test-FeedSchemaContracts` and validate a generated projects payload against
   `schemas/profile-projects.v1.json`.
@@ -1800,19 +1808,18 @@ trigger gap rather than a missing test.
 ### Finding (cycle 26)
 
 - **Cosmetic — schema-only contract edits can skip the schema-contract test
-  lane.** The tests exist, but the workflow path filters do not include
-  `schemas/**`. A PR that changes only a committed schema can therefore avoid the
-  offline Pester workflow that validates catalog/feed compatibility against
-  those schemas.
+  lane.** The tests exist, but the workflow push path filters did not include
+  `schemas/**`. A direct `main` update that changed only a committed schema
+  could therefore avoid the offline Pester workflow that validates catalog/feed
+  compatibility against those schemas.
   → roadmap "Include schema-contract changes in the offline Tests workflow".
-  [Verified]
+  [Closed v4.9.66]
 
 ### Standards note (cycle 26)
 
-- Keep this narrow. The heavier profile-sync PR-validation item can decide
-  whether schemas also require a live generated-profile check; this item only
-  ensures the existing offline schema-contract tests are created for schema
-  diffs.
+- Keep this narrow. v4.9.66 ensures the existing offline schema-contract tests
+  are created for schema diffs; the heavier profile-sync validation path can
+  remain a separate policy decision.
 - If Tests becomes a required check, account for GitHub's skipped-check behavior
   before relying on path filters globally.
 
@@ -2184,8 +2191,9 @@ evidence, and adjacent profile-README tooling:
 - For now, stagger accidental same-minute collisions as they appear; v4.9.65
   adds a duplicate-slot guard without adopting a broader maintenance-window
   convention.
-- Should schema changes trigger only the offline Pester contract lane, or also
-  the heavier profile-sync PR validation path?
+- Schema changes now trigger the offline Pester contract lane on direct pushes
+  and all PRs; whether they also need the heavier profile-sync validation path
+  remains a separate policy choice.
 - Should Dependabot group only minor/patch GitHub Actions updates, or keep
   separate PRs for security-sensitive actions such as checkout and CodeQL?
 - Should local-only catalog rows require their own explicit reason field, or is

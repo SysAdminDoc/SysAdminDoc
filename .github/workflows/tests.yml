@@ -10,6 +10,7 @@ on:
       - "scripts/**"
       - "setup.ps1"
       - "PSScriptAnalyzerSettings.psd1"
+      - "schemas/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
 
