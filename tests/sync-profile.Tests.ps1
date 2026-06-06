@@ -1368,6 +1368,7 @@ Describe 'Required status check readiness' {
 
 Describe 'Generated profile PR validation handoff' {
     BeforeAll {
+        $script:GeneratedPrHelper = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') -Raw
         $script:GeneratedPrWorkflows = [ordered]@{
             ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
             AssetsRefresh = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') -Raw
@@ -1377,17 +1378,33 @@ Describe 'Generated profile PR validation handoff' {
     It 'grants actions write only to generated PR jobs that dispatch validation' {
         foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
             $workflow | Should -Match '(?ms)permissions:\s*\r?\n\s+actions: write\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
-            $workflow | Should -Match 'gh workflow run profile-sync[.]yml --ref \$branch -f mode=check'
+            $workflow | Should -Match 'open-generated-profile-pr[.]ps1'
         }
+        $script:GeneratedPrHelper | Should -Match 'gh workflow run \$ValidationWorkflow --ref \$branch -f "mode=\$ValidationMode"'
     }
 
     It 'links the branch-scoped validation runs in the PR body and job summary' {
+        $script:GeneratedPrHelper | Should -Match 'Validation handoff: this workflow dispatches Profile sync in check mode'
+        $script:GeneratedPrHelper | Should -Match 'actions/workflows/\$ValidationWorkflow'
+        $script:GeneratedPrHelper | Should -Match '\[uri\]::EscapeDataString\("branch:\$branch"\)'
+        $script:GeneratedPrHelper | Should -Match 'GITHUB_STEP_SUMMARY'
+        $script:GeneratedPrHelper | Should -Match 'Generated profile PR validation handoff'
+    }
+
+    It 'centralizes branch creation, commit, push, pull request, and validation guards' {
+        $script:GeneratedPrHelper | Should -Match "\[ValidateSet\('automation/profile-sync-', 'automation/profile-assets-'\)\]"
+        $script:GeneratedPrHelper | Should -Match 'git diff --quiet'
+        $script:GeneratedPrHelper | Should -Match 'git diff --cached --quiet'
+        $script:GeneratedPrHelper | Should -Match 'git switch -c \$branch'
+        $script:GeneratedPrHelper | Should -Match 'git commit -m \$CommitMessage'
+        $script:GeneratedPrHelper | Should -Match 'gh pr create'
+
+        $script:GeneratedPrWorkflows.ProfileSync | Should -Match '-BranchPrefix "automation/profile-sync-"'
+        $script:GeneratedPrWorkflows.AssetsRefresh | Should -Match '-BranchPrefix "automation/profile-assets-"'
         foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
-            $workflow | Should -Match 'Validation handoff: this workflow dispatches Profile sync in check mode'
-            $workflow | Should -Match 'actions/workflows/profile-sync[.]yml[?]query='
-            $workflow | Should -Match '\[uri\]::EscapeDataString\("branch:\$branch"\)'
-            $workflow | Should -Match 'GITHUB_STEP_SUMMARY'
-            $workflow | Should -Match 'Generated profile PR validation handoff'
+            $workflow | Should -Not -Match 'git switch -c'
+            $workflow | Should -Not -Match 'git commit -m'
+            $workflow | Should -Not -Match 'gh pr create'
         }
     }
 
@@ -1396,7 +1413,7 @@ Describe 'Generated profile PR validation handoff' {
 
         $checkJob | Should -Match 'contents: read'
         $checkJob | Should -Not -Match 'actions: write'
-        $checkJob | Should -Not -Match 'gh workflow run'
+        $checkJob | Should -Not -Match 'open-generated-profile-pr[.]ps1'
     }
 }
 

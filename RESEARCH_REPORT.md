@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.61
+Current version after this refresh: v4.9.62
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.62 batch closed the shared generated PR helper gap by adding
+  `scripts/open-generated-profile-pr.ps1`.
+- `profile-sync.yml` and `assets-refresh.yml` now call the helper with explicit
+  branch prefix, commit message, PR title/body intro, and no-change messages
+  instead of carrying duplicated branch/commit/push/PR logic.
+- The helper preserves the `$LASTEXITCODE` no-change guards, explicit generated
+  artifact staging list, branch-scoped `profile-sync.yml` validation handoff,
+  and generated PR job-summary link output in one place.
+- Pester coverage now guards the helper contract, managed branch-prefix
+  allowlist, reduced workflow call sites, and read-only check-job isolation.
+- Local verification passed for Pester 120/120, ScriptAnalyzer over `scripts/`,
+  and strict `zizmor --strict-collection .github/workflows`.
 - The v4.9.61 batch closed the generated automation branch cleanup policy gap by
   adding `automation-branch-cleanup.yml`.
 - The cleanup workflow runs a weekly dry-run, supports manual deletion, and only
@@ -383,7 +395,7 @@ Top opportunities, in priority order:
 23. P3 - Add `.editorconfig` and generated README markdown linting.
 24. P3 - Validate all historical `CHANGELOG.md` release headings.
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
-26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
+26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
 27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
 28. P3 - Stagger same-minute scheduled maintenance workflows.
 29. P3 - Include schema-contract changes in the offline Tests workflow.

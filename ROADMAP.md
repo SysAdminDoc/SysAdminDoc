@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.61
+Current repo version: v4.9.62
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,20 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.62 refresh: shared generated PR helper shipped.
+`scripts/open-generated-profile-pr.ps1` now centralizes generated profile PR
+creation for `profile-sync.yml` and `assets-refresh.yml`. Both workflows pass
+their branch prefix, commit message, PR title/body intro, and no-change
+messages into the helper, while the helper owns the `$LASTEXITCODE` no-change
+guards, explicit generated-artifact staging list, branch-scoped validation
+handoff, and job-summary link output. Pester now guards the helper contract,
+branch-prefix allowlist, workflow call sites, and read-only check-job isolation.
+Current live re-check still shows `required_status_checks=null`, no repository
+rulesets, and `enforce_admins=true` on protected `main`.
+Next highest open item: branch-protection/ruleset status-check enforcement
+remains external-gated while this loop pushes directly to `main`; continue with
+historical `CHANGELOG.md` release-heading validation and cleanup.
 
 2026-06-06 v4.9.61 refresh: generated automation branch cleanup policy shipped.
 `automation-branch-cleanup.yml` now runs a weekly dry-run and offers a manual
@@ -1241,12 +1255,13 @@ requests. Existing token-handoff and branch-cleanup items cover separate
 runtime semantics; this item covers maintainability of the shared implementation
 path.*
 
-- [ ] P3 🤖 🔬 — Centralize generated PR creation logic
+- [x] P3 🤖 🔬 — Centralize generated PR creation logic
   - Why: `profile-sync.yml` and `assets-refresh.yml` both embed near-identical PowerShell for detecting changes, creating an `automation/*` branch, staging the same generated files, committing, pushing, and running `gh pr create`. The prior PowerShell `$LASTEXITCODE` guard comment only appears in one workflow, which shows how small fixes can diverge between the two copies.
   - Evidence: `.github/workflows/profile-sync.yml:71-101` and `.github/workflows/assets-refresh.yml:34-62` both define a `Create pull request` step with the same `git diff --quiet`, `git switch -c`, bot git identity, `git add README.md projects.json reports/profile-sync-report.json assets/profile/*.svg`, `git push`, and `gh pr create` flow; `rg -n "workflow_call|composite|\\.github/actions|uses: \\./\\.github/workflows" .github` found no reusable workflow or composite action in the repo; GitHub Docs describe reusable workflows for avoiding workflow duplication, and composite actions for collecting repeated steps into one action: https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows and https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
   - Touches: optional `scripts/create-generated-profile-pr.ps1`, or `.github/actions/create-generated-profile-pr/action.yml`, plus `.github/workflows/profile-sync.yml` and `.github/workflows/assets-refresh.yml`.
   - Acceptance: both generated-PR workflows call one shared helper with inputs for branch prefix, commit message, PR title/body, and no-change message; the helper preserves the `$LASTEXITCODE` no-change guards, stages only the intended generated profile files, uses the existing least-privilege token permissions, and makes future token-handoff/branch-cleanup/report-summary changes in one place.
   - Verify: run both workflows manually in no-op mode and confirm they exit cleanly without empty commits; force a harmless generated-file change in a scratch branch and confirm each caller opens the expected PR through the shared helper; run workflow-security/actionlint once available.
+  - Completed: v4.9.62 added `scripts/open-generated-profile-pr.ps1`, updated both generated-PR workflows to call it with explicit inputs, preserved the validation handoff and staged-file contract, and added Pester coverage for the helper and reduced workflow call sites.
   - Complexity: S
 
 ### Researcher Queue (Cycle 20 - 2026-06-04)
@@ -1772,7 +1787,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Structured issue forms for broken catalog links and profile corrections (duplicate row reconciled in v4.9.60; completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35).
 - [x] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches (completed v4.9.61 with scheduled dry-run/manual cleanup workflow, strict generated-branch prefixes, merged-PR gating, scoped write permissions, and Pester coverage).
-- [ ] P3 — Shared helper/composite action for generated profile PR creation.
+- [x] P3 — Shared helper/composite action for generated profile PR creation (completed v4.9.62 with `scripts/open-generated-profile-pr.ps1`, explicit workflow inputs, branch-prefix allowlist, no-change guard preservation, validation handoff, and Pester coverage).
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
 - [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
