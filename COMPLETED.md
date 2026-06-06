@@ -60,6 +60,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added a live GitHub-rendered profile smoke check with Chrome/Chromium DevTools automation, desktop/mobile screenshots, overflow/image/section assertions, profile-sync artifact upload, and offline wiring coverage (v4.9.27). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Aligned the rendered-profile smoke section assertions to the current generated README labels and added Pester coverage against the stale `Python Applications` expectation (v4.9.48). — *Source: live rendered-smoke follow-up*
 - [x] Added read-only generated-profile validation on pull requests that touch README/catalog/feed/report/schema/profile-asset/sync-script/setup/test/profile-workflow paths, with Pester coverage for the trigger surface (v4.9.28). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
+- [x] Added an explicit generated-PR validation handoff: profile-sync and profile-assets PR workflows dispatch `profile-sync.yml` in check mode on the generated branch, link the validation run search in PR bodies and summaries, and use scoped `actions: write` only in PR-creating jobs (v4.9.54). — *Source: ROADMAP.md*
 - [x] Added public-safe intake files: `SECURITY.md`, broken-link/profile-correction/workflow issue forms, issue chooser security routing, and a generated-profile-aware PR template with Pester coverage (v4.9.29). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Made required-check candidate workflows always create pull request and merge-queue checks by removing PR path filters from Tests, Profile sync, and Workflow security, with Pester coverage guarding the trigger shape (v4.9.30). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Added public-safe profile-sync report summaries and retained report artifacts to profile-sync and profile-assets refresh workflows, with Pester coverage for the helper and wiring (v4.9.31). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
@@ -81,6 +82,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added a hermetic Pester v5 suite (`tests/`, 16 tests) plus a `tests.yml` CI job and a dot-source test seam. — *Source: TODO.md*
 - [x] Added catalog-shape validation for duplicate repos, missing repo values, unknown categories, and unknown `downloadKind` values, with report/schema support and Pester coverage (v4.9.52). — *Source: ROADMAP.md*
 - [x] Added repository settings/community-health fixture coverage for enabled/disabled live-shaped settings, missing required local intake files, and unavailable API state (v4.9.53). — *Source: ROADMAP.md*
+- [x] Added workflow coverage for generated-PR validation dispatch permissions, branch-scoped validation links, summary text, and read-only check-job isolation (v4.9.54). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 
