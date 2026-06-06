@@ -1387,6 +1387,13 @@ Describe 'Required status check readiness' {
         }
     }
 
+    It 'runs offline tests for schema contract changes pushed to main' {
+        $pushBlock = [regex]::Match($script:RequiredCheckWorkflows.Tests, '(?ms)^  push:\s*\r?\n(?<block>.*?)(?=^\S|\z)').Groups['block'].Value
+
+        $pushBlock | Should -Match '(?m)^\s+paths:\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "schemas/[*][*]"\s*$'
+    }
+
     It 'keeps the Windows setup smoke check always created for PRs and merge queue runs' {
         $testsWorkflow = $script:RequiredCheckWorkflows.Tests
 
