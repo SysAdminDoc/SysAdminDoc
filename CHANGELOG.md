@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.69] - 2026-06-06
+
+- Changed: `COMPLETED.md` now describes the current profile catalog row contract through `schemas/profile-catalog.v1.json` instead of a stale legacy field list.
+- Added: Pester coverage rejects reintroducing `privateReason` as a current completed-work catalog field and verifies the current suppression/upstream attribution field names.
+
 ## [v4.9.68] - 2026-06-06
 
 - Changed: Generated profile SVG assets now wire internal `<title>` and `<desc>` metadata through stable `aria-labelledby` and `aria-describedby` IDs.

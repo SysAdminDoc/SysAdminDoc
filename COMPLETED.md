@@ -6,7 +6,8 @@ Items consolidated from legacy planning documents on 2026-06-03.
 
 ### Catalog truth and generation pipeline
 
-- [x] Build a canonical catalog source file (`data/profile-catalog.json`) with one row per public catalog entry (repo, category, includeInReadme, includeInPortfolio, branch, entrypoint, installKind, downloadKind, descriptionOverride, featured, currentlyBuilding, privateReason, notes), seeded from the README plus live GitHub metadata. — *Source: ROADMAP.md*
+- [x] Build a canonical catalog source file (`data/profile-catalog.json`) with one schema-backed row per public catalog entry. The current row contract is defined by `schemas/profile-catalog.v1.json` and includes inclusion flags, branch/entrypoint/install/download fields, description and featured/currently-building metadata, `allowPublicMedical`, `aliasOf`, `forkOf`, `upstreamLicense`, `suppressionReason`, and `notes`. — *Source: ROADMAP.md*
+- [x] Refreshed completed-work catalog field terminology to point at `schemas/profile-catalog.v1.json` and the current `suppressionReason`, public-medical, alias, and fork/upstream attribution fields instead of the legacy `privateReason` name (v4.9.69). — *Source: ROADMAP.md*
 - [x] Implement `scripts/sync-profile.ps1` to read catalog data plus GitHub metadata via `gh` and regenerate README project sections, category counts, star counts, featured rankings, release links, and branch-pinned install snippets, preserving manual description overrides and refusing to include private repos. — *Source: ROADMAP.md*
 - [x] Add a strict validation mode (`scripts/sync-profile.ps1 -Check`) that exits non-zero on stale stars, missing public repos, private/renamed/deleted repo links, branch mismatches, missing release links, and count drift, keeping a JSON report artifact. — *Source: ROADMAP.md*
 - [x] Ship a v4.8.0 catalog refresh from the generated output: resolve the EspressoMonkey→ScriptVault alias, add or intentionally suppress newly public repos with explicit reasons, refresh star counts and featured ordering, and recalculate the public-project claim from the live active-public count. — *Source: ROADMAP.md*
@@ -111,6 +112,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added Pester coverage for Tests workflow schema-trigger readiness, including `schemas/**` in push paths and unfiltered PR/merge-queue checks (v4.9.66). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for Dependabot GitHub Actions grouping, including the `routine-actions` minor/patch group and a guard against routine major updates (v4.9.67). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for generated SVG metadata wiring, including XML-parsed title/description IDs, row-summary descriptions, and dynamic text escaping (v4.9.68). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for completed-work catalog terminology so `privateReason` is not presented as a current field and the schema-backed suppression/upstream fields remain named (v4.9.69). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 
