@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.48
+Current version after this refresh: v4.9.49
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.49 batch closed the header/non-catalog link-validation gap by adding
+  generated README targets for the portfolio link and both `setup.ps1` raw/source
+  links.
+- External image URLs found in generated README image markup now use non-fatal
+  link targets grouped under `linkValidationSummary.headerHostWarnings`; current
+  compact output has 0 header-host warning groups.
+- `schemas/profile-sync-report.v1.json` and validation-performance reporting now
+  cover `headerHostWarnings` and `headerWarningHostCount`, and Pester proves
+  profile/setup 404s fail while image-host 404s remain warnings.
 - The v4.9.48 batch fixed rendered-profile smoke drift discovered during live
   post-push verification. The script now checks `Python Desktop Applications`
   and `Browser Extensions & Userscripts`, matching the current generated README.
@@ -589,7 +598,7 @@ Top addendum opportunities (one line each):
 - **Major — Dangling feed contract.** `projects.json`/catalog advertise `schema` URLs that 404. Consumers following the contract get a dead link; the feed shape is unenforceable. → roadmap "Publish (or stop referencing) the JSON Schema URLs". `scripts/sync-profile.ps1:1086,1264`. [Closed v4.9.19]
 - **Major — Unguarded planning-doc version drift.** Version/date are hand-typed in three tracked docs with no check; the existing alignment item is manual only. → "self-contained version/date consistency gate". [Closed v4.9.20]
 - **Major — Privacy gate is untested.** `Test-ProfileState` (private-visibility + medical-keyword + drift) has no direct unit test; only the regex string is tested. A regression in the gate that keeps private/medical repos off the public profile would pass CI. → "Cover the safety-critical functions". `scripts/sync-profile.ps1:1324-1442`, `tests/sync-profile.Tests.ps1`. [Verified]
-- **Minor — Hero links unvalidated.** The link gate iterates only catalog entries, so the portfolio link, the `setup.ps1` blob link, and seven third-party image hosts are never probed. → "Extend link validation to hero/header". `scripts/sync-profile.ps1:476-528`. [Verified]
+- **Minor — Hero links unvalidated.** The link gate used to iterate only catalog entries, so the portfolio link, the `setup.ps1` blob link, and third-party image hosts were not probed. → "Extend link validation to hero/header". [Closed v4.9.49]
 - **Minor — REST fallback N+1.** Per-repo `gh api releases/latest` in the fallback (~184 calls) with no rate-limit handling; a partial fetch yields a silently incomplete feed. → "Cap and authenticate the REST release-fallback". `scripts/sync-profile.ps1:148-162`. [Verified]
 - **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` swallows an unrecognized `downloadKind`; no catalog-shape validation catches the typo. → "Add catalog JSON-shape validation". `scripts/sync-profile.ps1:546`. [Verified]
 - **Minor — No size budget.** ~72 KB generated README with no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Verified]

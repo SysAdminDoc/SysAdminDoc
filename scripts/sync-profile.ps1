@@ -782,14 +782,27 @@ function New-LinkValidationTarget {
     param(
         [hashtable]$Entry,
         [string]$Type,
-        [string]$Url
+        [string]$Url,
+        [string]$Repo = $null,
+        [bool]$FatalOnFailure = $true,
+        [string]$Group = "catalog"
     )
 
+    $targetRepo = if (-not [string]::IsNullOrWhiteSpace($Repo)) {
+        $Repo
+    } elseif ($Entry -and -not [string]::IsNullOrWhiteSpace([string]$Entry.repo)) {
+        [string]$Entry.repo
+    } else {
+        $Owner
+    }
+
     return [ordered]@{
-        repo = [string]$Entry.repo
+        repo = $targetRepo
         type = $Type
         url = $Url
         host = Get-LinkHost $Url
+        fatalOnFailure = [bool]$FatalOnFailure
+        group = $Group
     }
 }
 
@@ -830,6 +843,53 @@ function Get-LinkValidationTargets {
     return $targets.ToArray()
 }
 
+function Add-LinkValidationTarget {
+    param(
+        [System.Collections.Generic.List[object]]$Targets,
+        [System.Collections.Generic.HashSet[string]]$SeenUrls,
+        [string]$Type,
+        [string]$Url,
+        [bool]$FatalOnFailure,
+        [string]$Group = "readme-header"
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Url) -or -not $Url.StartsWith("https://", [StringComparison]::OrdinalIgnoreCase)) {
+        return
+    }
+
+    if ($SeenUrls.Add($Url)) {
+        $Targets.Add((New-LinkValidationTarget -Repo $Owner -Type $Type -Url $Url -FatalOnFailure $FatalOnFailure -Group $Group))
+    }
+}
+
+function Get-ReadmeHeaderLinkValidationTargets {
+    param([string]$ExpectedReadme)
+
+    $targets = New-Object System.Collections.Generic.List[object]
+    $seenUrls = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+
+    $criticalLinks = @(
+        [ordered]@{ type = "profile-portfolio"; url = "https://sysadmindoc.github.io/" },
+        [ordered]@{ type = "setup-raw"; url = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1" },
+        [ordered]@{ type = "setup-source"; url = "https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1" }
+    )
+    foreach ($link in $criticalLinks) {
+        if ($ExpectedReadme.Contains([string]$link.url)) {
+            Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type ([string]$link.type) -Url ([string]$link.url) -FatalOnFailure $true
+        }
+    }
+
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\b(?:src|srcset)="(?<url>https://[^"]+)"')) {
+        Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type "header-image" -Url $match.Groups['url'].Value -FatalOnFailure $false
+    }
+
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)!\[[^\]]*\]\((?<url>https://[^\s)]+)[^)]*\)')) {
+        Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type "header-image" -Url $match.Groups['url'].Value -FatalOnFailure $false
+    }
+
+    return $targets.ToArray()
+}
+
 function Invoke-LinkProbeBatch {
     param(
         [object[]]$Targets,
@@ -854,6 +914,13 @@ function Invoke-LinkProbeBatch {
     if ($ProbeScript) {
         $probeRows = foreach ($target in $targetList) {
             $result = & $ProbeScript $target
+            $targetFatalOnFailure = if ($target -is [System.Collections.IDictionary] -and $target.Contains('fatalOnFailure')) {
+                [bool]$target['fatalOnFailure']
+            } elseif ($target.PSObject.Properties.Name -contains 'fatalOnFailure') {
+                [bool]$target.fatalOnFailure
+            } else {
+                $true
+            }
             [ordered]@{
                 repo = $target.repo
                 type = $target.type
@@ -862,7 +929,7 @@ function Invoke-LinkProbeBatch {
                 ok = [bool]$result.ok
                 status = $result.status
                 error = $result.error
-                fatal = [bool]$result.fatal
+                fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
             }
         }
     } else {
@@ -900,6 +967,13 @@ function Invoke-LinkProbeBatch {
 
             $target = $_
             $result = Test-ParallelHttpUrl -Url $target.url
+            $targetFatalOnFailure = if ($target -is [System.Collections.IDictionary] -and $target.Contains('fatalOnFailure')) {
+                [bool]$target['fatalOnFailure']
+            } elseif ($target.PSObject.Properties.Name -contains 'fatalOnFailure') {
+                [bool]$target.fatalOnFailure
+            } else {
+                $true
+            }
             [ordered]@{
                 repo = $target.repo
                 type = $target.type
@@ -908,7 +982,7 @@ function Invoke-LinkProbeBatch {
                 ok = [bool]$result.ok
                 status = $result.status
                 error = $result.error
-                fatal = [bool]$result.fatal
+                fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
             }
         } -ThrottleLimit $throttle
     }
@@ -926,11 +1000,12 @@ function Test-LinkTargets {
     param(
         [hashtable[]]$Included,
         [hashtable]$RepoLookup,
+        [object[]]$ExtraTargets = @(),
         [int]$ThrottleLimit = $LinkValidationThrottle,
         [scriptblock]$ProbeScript = $null
     )
 
-    $targets = @(Get-LinkValidationTargets -Included $Included -RepoLookup $RepoLookup)
+    $targets = @((Get-LinkValidationTargets -Included $Included -RepoLookup $RepoLookup) + @($ExtraTargets))
     $probeBatch = Invoke-LinkProbeBatch -Targets $targets -ThrottleLimit $ThrottleLimit -ProbeScript $ProbeScript
     $failures = New-Object System.Collections.Generic.List[object]
     $warnings = New-Object System.Collections.Generic.List[object]
@@ -958,11 +1033,24 @@ function Test-LinkTargets {
                 }
             }
     )
+    $headerHostWarnings = @(
+        $warnings |
+            Where-Object { $_.type -eq "header-image" } |
+            Group-Object { $_.host } |
+            Sort-Object Name |
+            ForEach-Object {
+                [ordered]@{
+                    host = if ([string]::IsNullOrWhiteSpace([string]$_.Name)) { $null } else { [string]$_.Name }
+                    count = $_.Count
+                }
+            }
+    )
 
     return [ordered]@{
         failures = $failures.ToArray()
         warnings = $warnings.ToArray()
         warningCountByHost = $warningCountByHost
+        headerHostWarnings = $headerHostWarnings
         targetCount = $probeBatch.targetCount
         throttleLimit = $probeBatch.throttleLimit
         elapsedMs = $probeBatch.elapsedMs
@@ -3737,9 +3825,11 @@ function Test-ProfileState {
         throttleLimit = $LinkValidationThrottle
         elapsedMs = 0
         warningCountByHost = @()
+        headerHostWarnings = @()
     }
     if (-not $Offline -and -not $SkipLinkValidation) {
-        $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup
+        $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
+        $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets $readmeHeaderTargets
         $linkFailures = @($linkResult.failures)
         $linkWarnings = @($linkResult.warnings)
         $linkValidationSummary = [ordered]@{
@@ -3747,6 +3837,7 @@ function Test-ProfileState {
             throttleLimit = $linkResult.throttleLimit
             elapsedMs = $linkResult.elapsedMs
             warningCountByHost = @($linkResult.warningCountByHost)
+            headerHostWarnings = @($linkResult.headerHostWarnings)
         }
     }
 
@@ -3785,6 +3876,7 @@ function Test-ProfileState {
             failureCount = @($linkFailures).Count
             warningCount = @($linkWarnings).Count
             warningHostCount = @($linkValidationSummary.warningCountByHost).Count
+            headerWarningHostCount = @($linkValidationSummary.headerHostWarnings).Count
         }
     }
     $report = [ordered]@{

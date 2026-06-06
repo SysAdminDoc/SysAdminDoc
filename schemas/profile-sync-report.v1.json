@@ -829,7 +829,8 @@
         "elapsedMs",
         "failureCount",
         "warningCount",
-        "warningHostCount"
+        "warningHostCount",
+        "headerWarningHostCount"
       ],
       "properties": {
         "skipped": {
@@ -851,6 +852,9 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningHostCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "headerWarningHostCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         }
       }
@@ -943,7 +947,8 @@
         "targetCount",
         "throttleLimit",
         "elapsedMs",
-        "warningCountByHost"
+        "warningCountByHost",
+        "headerHostWarnings"
       ],
       "properties": {
         "targetCount": {
@@ -956,6 +961,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCountByHost": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hostWarningCount"
+          }
+        },
+        "headerHostWarnings": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/hostWarningCount"

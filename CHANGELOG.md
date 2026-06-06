@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.49] - 2026-06-06
+
+- Added: Link validation now folds in generated README header/non-catalog targets, including the portfolio link and both `setup.ps1` raw/source links.
+- Added: Per-target fatal policy keeps portfolio/setup 404s as fatal failures while treating external image-host outages as non-fatal warnings grouped in `linkValidationSummary.headerHostWarnings`.
+- Added: `schemas/profile-sync-report.v1.json` and validation-performance reporting cover `headerHostWarnings` and `headerWarningHostCount`.
+- Added: Pester coverage proves profile/setup 404s fail and image-host 404s remain warnings.
+
 ## [v4.9.48] - 2026-06-06
 
 - Fixed: `scripts/render-profile-smoke.ps1` now asserts the current generated section names, including `Python Desktop Applications` and `Browser Extensions & Userscripts`.
