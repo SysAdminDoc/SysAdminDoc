@@ -2494,6 +2494,53 @@ function Test-ReadmeSizeBudget {
     }
 }
 
+function Test-CatalogShape {
+    param([hashtable]$Catalog)
+
+    $issues = New-Object System.Collections.Generic.List[object]
+    $allowedCategories = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($definition in $CategoryDefinitions) {
+        [void]$allowedCategories.Add([string]$definition.Slug)
+    }
+    [void]$allowedCategories.Add("suppressed")
+
+    $allowedDownloadKinds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($kind in @("apk", "crx", "crx-xpi", "download", "exe", "repo", "userscript", "zip", "zip-xpi")) {
+        [void]$allowedDownloadKinds.Add($kind)
+    }
+
+    $seenRepos = @{}
+    foreach ($entry in @($Catalog.entries)) {
+        $repo = [string]$entry.repo
+        if ([string]::IsNullOrWhiteSpace($repo)) {
+            $issues.Add([ordered]@{ repo = $null; field = "repo"; value = $repo; reason = "repo is required" })
+        } else {
+            $key = $repo.ToLowerInvariant()
+            if ($seenRepos.ContainsKey($key)) {
+                $issues.Add([ordered]@{ repo = $repo; field = "repo"; value = $repo; reason = "duplicate repo also appears as $($seenRepos[$key])" })
+            } else {
+                $seenRepos[$key] = $repo
+            }
+        }
+
+        $category = [string]$entry.category
+        if ([string]::IsNullOrWhiteSpace($category) -or -not $allowedCategories.Contains($category)) {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "category"; value = $category; reason = "unknown category" })
+        }
+
+        $downloadKind = [string]$entry.downloadKind
+        if (-not [string]::IsNullOrWhiteSpace($downloadKind) -and -not $allowedDownloadKinds.Contains($downloadKind)) {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "downloadKind"; value = $downloadKind; reason = "unknown downloadKind" })
+        }
+    }
+
+    return [ordered]@{
+        passed = ($issues.Count -eq 0)
+        issueCount = $issues.Count
+        issues = $issues.ToArray()
+    }
+}
+
 function Get-MemberValue {
     param(
         [object]$Object,
@@ -3804,6 +3851,7 @@ function Test-ProfileState {
 
     $repoLookup = ConvertTo-Lookup $Repos
     $entries = @($Catalog.entries)
+    $catalogShape = Test-CatalogShape -Catalog $Catalog
     $included = @($entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })
     $orphanedSuppressed = @($entries | Where-Object {
         $_.category -eq 'suppressed' -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
@@ -3975,6 +4023,7 @@ function Test-ProfileState {
         catalogEntryCount = $entries.Count
         includedReadmeCount = $included.Count
         provenance = $feedProvenance
+        catalogShape = $catalogShape
         metadataHygiene = $metadataHygiene
         releaseAssetDrift = $releaseAssetDrift
         schemaValidation = $schemaValidation
@@ -4012,6 +4061,7 @@ function Test-ProfileState {
         -not $readmeInSync -or
         -not $projectsInSync -or
         -not $assetsInSync -or
+        $catalogShape.passed -ne $true -or
         $metadataDriftResult.fatalCount -gt 0 -or
         $missingPublic.Count -gt 0 -or
         $privateViolations.Count -gt 0 -or

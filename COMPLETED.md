@@ -78,6 +78,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 ### Tests and reliability
 
 - [x] Added a hermetic Pester v5 suite (`tests/`, 16 tests) plus a `tests.yml` CI job and a dot-source test seam. — *Source: TODO.md*
+- [x] Added catalog-shape validation for duplicate repos, missing repo values, unknown categories, and unknown `downloadKind` values, with report/schema support and Pester coverage (v4.9.52). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 
