@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.64
+Current version after this refresh: v4.9.65
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.65 batch closed the same-minute scheduled-maintenance gap by moving
+  `workflow-security.yml` from Wednesday `19 8 * * 3` to `17 9 * * 3`.
+- Wednesday maintenance now separates assets refresh at `19 8 * * 3`,
+  generated-branch cleanup at `43 8 * * 3`, and workflow security at
+  `17 9 * * 3`, with manual dispatch behavior unchanged.
+- Pester coverage now guards the intended Wednesday spacing and detects
+  duplicate day/hour/minute slots across independent maintenance workflows.
 - The v4.9.64 batch closed the workflow-security local action coverage gap by
   changing the audit command to `zizmor --strict-collection --collect=workflows
   --collect=actions .github`.
@@ -415,7 +422,7 @@ Top opportunities, in priority order:
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
 27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership. [Completed v4.9.64]
-28. P3 - Stagger same-minute scheduled maintenance workflows.
+28. P3 - Stagger same-minute scheduled maintenance workflows. [Completed v4.9.65]
 29. P3 - Include schema-contract changes in the offline Tests workflow.
 30. P3 - Group routine Dependabot GitHub Actions version updates.
 31. P2 - Report catalog rows omitted from both public feed arrays. [Completed v4.9.59]
@@ -1742,9 +1749,10 @@ validation path.
 
 ### Evidence reviewed (cycle 25)
 
-- `.github/workflows/assets-refresh.yml` schedules `cron: "19 8 * * 3"`.
-- `.github/workflows/workflow-security.yml` schedules the same
+- At the time of Cycle 25, `.github/workflows/assets-refresh.yml` scheduled
   `cron: "19 8 * * 3"`.
+- At the time of Cycle 25, `.github/workflows/workflow-security.yml` scheduled
+  the same `cron: "19 8 * * 3"`.
 - `profile-sync.yml` is staggered on Tuesday/Friday at `37 7 * * 2,5`.
 - `scorecard.yml` is staggered on Thursday at `43 8 * * 4`.
 - GitHub Actions docs note scheduled workflows can be delayed or dropped during
@@ -1759,13 +1767,13 @@ validation path.
   running both at Wednesday 08:19 makes run triage noisier and can stack package
   installs, GitHub API calls, and generated-output checks in the same
   maintenance window.
-  → roadmap "Stagger same-minute scheduled maintenance workflows". [Verified]
+  → roadmap "Stagger same-minute scheduled maintenance workflows". [Closed v4.9.65]
 
 ### Standards note (cycle 25)
 
-- Keep this as hygiene. The existing timeout-budget item remains the real
-  control for hung jobs; schedule staggering only improves attribution and
-  reduces avoidable overlap.
+- Keep this as hygiene. v4.9.65 changes only the workflow-security cron slot
+  and adds a source guard for future schedule distinctness; the existing
+  timeout-budget item remains the real control for hung jobs.
 - Preserve manual dispatch behavior and avoid top-of-hour cron values.
 
 ## Cycle 26 Research Addendum — 2026-06-04
@@ -2173,8 +2181,9 @@ evidence, and adjacent profile-README tooling:
   `zizmor` job as workflows.
 - Should private/privacy-sensitive suppressed rows be omitted entirely from the
   public feed, or represented only as aggregate redacted counts?
-- Should the repo adopt a simple maintenance-window convention for scheduled
-  workflows, or only stagger accidental same-minute collisions as they appear?
+- For now, stagger accidental same-minute collisions as they appear; v4.9.65
+  adds a duplicate-slot guard without adopting a broader maintenance-window
+  convention.
 - Should schema changes trigger only the offline Pester contract lane, or also
   the heavier profile-sync PR validation path?
 - Should Dependabot group only minor/patch GitHub Actions updates, or keep

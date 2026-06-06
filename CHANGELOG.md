@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.65] - 2026-06-06
+
+- Changed: `workflow-security.yml` now runs on Wednesday at `17 9 * * 3`, separating it from `assets-refresh.yml` at `19 8 * * 3` and generated-branch cleanup at `43 8 * * 3`.
+- Added: Pester coverage verifies independent maintenance workflows do not share day/hour/minute schedule slots.
+
 ## [v4.9.64] - 2026-06-06
 
 - Changed: `workflow-security.yml` now runs `zizmor --strict-collection --collect=workflows --collect=actions .github` so future local action metadata is collected with workflow files.
