@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.68
+Current repo version: v4.9.69
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.69 refresh: completed-work catalog field terminology shipped.
+`COMPLETED.md` now points the catalog row contract at
+`schemas/profile-catalog.v1.json` and names the current suppression, public
+medical allowlist, alias, fork/upstream, and notes fields instead of the legacy
+`privateReason` field. Pester guards the completed-work summary against
+reintroducing that stale current-field wording. Branch-protection/ruleset
+status-check enforcement remains external-gated while this loop pushes directly
+to `main`; continue with `.editorconfig` pinning for LF/final-newline/trailing
+whitespace policy.
 
 2026-06-06 v4.9.68 refresh: generated profile SVG metadata wiring shipped.
 All generated profile SVG assets now use stable `<title>`/`<desc>` IDs wired
@@ -1497,12 +1507,13 @@ because these SVGs are also raw repository artifacts.*
 for stale catalog-field terminology that the version/date consistency gate does
 not cover.*
 
-- [ ] P3 🤖 🔬 — Refresh stale catalog field names in completed-work docs
+- [x] P3 🤖 🔬 — Refresh stale catalog field names in completed-work docs
   - Why: `COMPLETED.md` is public project history and currently describes the canonical catalog row shape with a legacy `privateReason` field. The live catalog/schema no longer expose that name; they use `suppressionReason`, `allowPublicMedical`, `aliasOf`, and the newer upstream attribution fields. A stale field list can mislead future maintainers editing the catalog or validating generated docs.
   - Evidence: `COMPLETED.md:9` lists `privateReason` in the canonical catalog row fields; `schemas/profile-catalog.v1.json` requires/properties include `allowPublicMedical`, `aliasOf`, and `suppressionReason` but no `privateReason`; `data/profile-catalog.json` rows use `suppressionReason`; `Test-DocVersionConsistency` validates planning version/date alignment but does not check stale field-name references.
   - Touches: `COMPLETED.md`, optional `PROJECT_CONTEXT.md`/`RESEARCH_REPORT.md` terminology sweep, optional doc-consistency lint if the build machine wants a guard.
   - Acceptance: public current-state/history docs no longer present `privateReason` as a current catalog field unless explicitly marked as a legacy term; catalog field lists either link to the schema or match the current schema names; generated checks still pass.
   - Verify: `rg -n "privateReason" COMPLETED.md PROJECT_CONTEXT.md ROADMAP.md RESEARCH_REPORT.md` returns no unqualified current-field references; schema/catalog checks still pass through `scripts/sync-profile.ps1 -Check`.
+  - Completed: v4.9.69 updates the completed-work current catalog field summary to reference `schemas/profile-catalog.v1.json`, replaces the stale `privateReason` field list with current schema fields, and adds a Pester terminology guard.
   - Complexity: S
 
 ### Researcher Queue (Cycle 32 - 2026-06-04)
@@ -1861,7 +1872,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Catalog-to-feed omitted-row accounting in the sync report (completed v4.9.59 with `catalogFeedAccounting`, public-safe unaccounted rows, fatal count mismatches, schema support, summary rows, and Pester coverage).
 - [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).
 - [x] P3 — Internal title/description metadata for generated profile SVG panels (completed v4.9.68 with stable SVG title/description IDs, row-summary descriptions, and Pester XML coverage).
-- [ ] P3 — Refresh stale catalog field names in completed-work docs.
+- [x] P3 — Refresh stale catalog field names in completed-work docs (completed v4.9.69 with a schema-backed completed-work summary and Pester terminology guard).
 - [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 

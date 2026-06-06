@@ -1250,6 +1250,21 @@ Describe 'Doc version consistency gate' {
     }
 }
 
+Describe 'Public planning document terminology' {
+    It 'does not present privateReason as a current catalog field in completed work' {
+        $completed = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'COMPLETED.md')
+        $catalogLine = @($completed -split "`r?`n" | Where-Object { $_ -match 'Build a canonical catalog source file' })[0]
+
+        $catalogLine | Should -Not -Match 'privateReason'
+        $catalogLine | Should -Match ([regex]::Escape('schemas/profile-catalog.v1.json'))
+        $catalogLine | Should -Match 'suppressionReason'
+        $catalogLine | Should -Match 'allowPublicMedical'
+        $catalogLine | Should -Match 'aliasOf'
+        $catalogLine | Should -Match 'forkOf'
+        $catalogLine | Should -Match 'upstreamLicense'
+    }
+}
+
 Describe 'Profile release/tag consistency' {
     It 'warns when the latest profile release and tag are behind the planning version' {
         $doc = [ordered]@{ expectedVersion = 'v4.9.57' }

@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.68
+Current version after this refresh: v4.9.69
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.69 batch closed the completed-work catalog-field terminology gap by
+  replacing the stale current-field list with a schema-backed summary.
+- `COMPLETED.md` now points maintainers at `schemas/profile-catalog.v1.json`
+  and names the current `suppressionReason`, public-medical, alias, and
+  fork/upstream attribution fields instead of `privateReason`.
+- Pester coverage now rejects presenting `privateReason` as a current
+  completed-work catalog field.
 - The v4.9.68 batch completed the generated profile SVG metadata wiring by
   linking internal `<title>` and `<desc>` nodes to stable IDs through
   `aria-labelledby` and `aria-describedby`.
@@ -448,7 +455,7 @@ Top opportunities, in priority order:
 31. P2 - Report catalog rows omitted from both public feed arrays. [Completed v4.9.59]
 32. P3 - Guard unsupported JSON Schema keywords in the custom validator.
 33. P3 - Add internal title/description metadata to generated profile SVG panels. [Completed v4.9.68]
-34. P3 - Refresh stale catalog field names in completed-work docs.
+34. P3 - Refresh stale catalog field names in completed-work docs. [Completed v4.9.69]
 
 ## Evidence Reviewed
 
@@ -2018,7 +2025,15 @@ terminology. It found a docs drift issue rather than a generator failure.
   maintainers now that schema-backed catalog rows use `suppressionReason` plus
   explicit public-safety fields.
   → roadmap "Refresh stale catalog field names in completed-work docs".
-  [Verified]
+  [Closed v4.9.69]
+
+### Implementation note (cycle 31)
+
+- v4.9.69 updates `COMPLETED.md` to reference
+  `schemas/profile-catalog.v1.json` for the current catalog row contract and
+  names the current suppression, public-medical allowlist, alias, fork/upstream
+  attribution, and notes fields. Pester now guards that completed-work summary
+  against reintroducing `privateReason` as a current field.
 
 ### Standards note (cycle 31)
 
