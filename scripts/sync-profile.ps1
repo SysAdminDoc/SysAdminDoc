@@ -3738,6 +3738,214 @@ function Test-DocVersionConsistency {
     }
 }
 
+function ConvertTo-ProfileVersion {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $null
+    }
+
+    $match = [regex]::Match($Value.Trim(), '^v?(\d+)\.(\d+)\.(\d+)$')
+    if (-not $match.Success) {
+        return $null
+    }
+
+    return [version]::new(
+        [int]$match.Groups[1].Value,
+        [int]$match.Groups[2].Value,
+        [int]$match.Groups[3].Value
+    )
+}
+
+function Get-ProfileRepositoryTagRef {
+    param(
+        [string]$TagName,
+        [string]$Repository = "$Owner/$Owner"
+    )
+
+    $result = [ordered]@{
+        checked = $false
+        exists = $null
+        tagName = if ([string]::IsNullOrWhiteSpace($TagName)) { $null } else { [string]$TagName }
+        url = $null
+        sha = $null
+        unavailableReason = $null
+    }
+
+    if ([string]::IsNullOrWhiteSpace($TagName)) {
+        $result.unavailableReason = "expected version is missing"
+        return $result
+    }
+
+    if ($Offline) {
+        $result.unavailableReason = "offline mode"
+        return $result
+    }
+
+    $tagJson = & gh api "repos/$Repository/git/ref/tags/$TagName" 2>&1
+    $tagOutput = (($tagJson | Out-String).Trim())
+    if ($LASTEXITCODE -eq 0) {
+        $tag = $tagOutput | ConvertFrom-Json
+        $result.checked = $true
+        $result.exists = $true
+        $result.url = "https://github.com/$Repository/releases/tag/$TagName"
+        $result.sha = [string](Get-NestedMemberValue -Object $tag -Path "object.sha")
+        return $result
+    }
+
+    if (Test-GhApiNotFound -Output $tagOutput) {
+        $result.checked = $true
+        $result.exists = $false
+        return $result
+    }
+
+    $result.unavailableReason = $tagOutput
+    return $result
+}
+
+function Test-ProfileReleaseConsistency {
+    param(
+        [object[]]$Repos,
+        [object]$DocVersionConsistency,
+        [object]$TagRef = $null
+    )
+
+    $repository = "$Owner/$Owner"
+    $expectedVersion = [string](Get-MemberValue -Object $DocVersionConsistency -Name "expectedVersion")
+    if ([string]::IsNullOrWhiteSpace($expectedVersion)) {
+        $expectedVersion = $null
+    }
+
+    $warnings = New-Object System.Collections.Generic.List[object]
+    $profileRepo = $Repos | Where-Object { [string](Get-MemberValue -Object $_ -Name "name") -eq $Owner } | Select-Object -First 1
+    $latestRelease = if ($profileRepo) { Get-MemberValue -Object $profileRepo -Name "latestRelease" } else { $null }
+    $latestReleaseTag = if ($latestRelease) { [string](Get-MemberValue -Object $latestRelease -Name "tagName") } else { $null }
+    $latestReleaseUrl = if ($latestRelease) { [string](Get-MemberValue -Object $latestRelease -Name "url") } else { $null }
+    $latestReleasePublishedAt = if ($latestRelease) { ConvertTo-IsoText (Get-MemberValue -Object $latestRelease -Name "publishedAt") } else { $null }
+    $versionRelation = "unavailable"
+    $latestMatchesExpected = $false
+    $latestAtLeastExpected = $false
+
+    if (-not $profileRepo) {
+        $warnings.Add([ordered]@{
+            kind = "profile-repo-metadata-unavailable"
+            expectedVersion = $expectedVersion
+            actualVersion = $null
+            message = "Profile repository metadata was not available in the public repo list."
+        })
+    } elseif ([string]::IsNullOrWhiteSpace($expectedVersion)) {
+        $warnings.Add([ordered]@{
+            kind = "expected-version-missing"
+            expectedVersion = $null
+            actualVersion = $latestReleaseTag
+            message = "Planning docs did not expose a current version for release/tag comparison."
+        })
+    } elseif ([string]::IsNullOrWhiteSpace($latestReleaseTag)) {
+        $versionRelation = "missing-release"
+        $warnings.Add([ordered]@{
+            kind = "latest-release-missing"
+            expectedVersion = $expectedVersion
+            actualVersion = $null
+            message = "Profile repository has no latest release to compare with the planning version."
+        })
+    } else {
+        $latestMatchesExpected = ([string]$latestReleaseTag -eq [string]$expectedVersion)
+        $expectedParsed = ConvertTo-ProfileVersion -Value $expectedVersion
+        $latestParsed = ConvertTo-ProfileVersion -Value $latestReleaseTag
+
+        if ($latestMatchesExpected) {
+            $versionRelation = "matching"
+            $latestAtLeastExpected = $true
+        } elseif ($expectedParsed -and $latestParsed) {
+            $comparison = $latestParsed.CompareTo($expectedParsed)
+            if ($comparison -lt 0) {
+                $versionRelation = "behind"
+                $warnings.Add([ordered]@{
+                    kind = "latest-release-behind"
+                    expectedVersion = $expectedVersion
+                    actualVersion = $latestReleaseTag
+                    message = "Latest profile release is older than the planning-doc version."
+                })
+            } elseif ($comparison -gt 0) {
+                $versionRelation = "ahead"
+                $latestAtLeastExpected = $true
+                $warnings.Add([ordered]@{
+                    kind = "latest-release-ahead"
+                    expectedVersion = $expectedVersion
+                    actualVersion = $latestReleaseTag
+                    message = "Latest profile release is newer than the planning-doc version."
+                })
+            }
+        } else {
+            $versionRelation = "unparseable"
+            $warnings.Add([ordered]@{
+                kind = "release-version-unparseable"
+                expectedVersion = $expectedVersion
+                actualVersion = $latestReleaseTag
+                message = "Release tag or planning version did not match vMAJOR.MINOR.PATCH."
+            })
+        }
+    }
+
+    if ($null -eq $TagRef) {
+        $TagRef = [ordered]@{
+            checked = $false
+            exists = $null
+            tagName = $expectedVersion
+            url = $null
+            sha = $null
+            unavailableReason = "tag ref not checked"
+        }
+    }
+
+    $tagRefChecked = [bool](Get-MemberValue -Object $TagRef -Name "checked")
+    $tagRefExistsValue = Get-MemberValue -Object $TagRef -Name "exists"
+    $tagRefExists = if ($null -eq $tagRefExistsValue) { $null } else { [bool]$tagRefExistsValue }
+    $tagRefUnavailableReason = [string](Get-MemberValue -Object $TagRef -Name "unavailableReason")
+    if ([string]::IsNullOrWhiteSpace($tagRefUnavailableReason)) {
+        $tagRefUnavailableReason = $null
+    }
+
+    if ($expectedVersion) {
+        if (-not $tagRefChecked) {
+            $warnings.Add([ordered]@{
+                kind = "expected-version-tag-unavailable"
+                expectedVersion = $expectedVersion
+                actualVersion = $null
+                message = "Expected profile tag could not be checked: $tagRefUnavailableReason"
+            })
+        } elseif ($tagRefExists -ne $true) {
+            $warnings.Add([ordered]@{
+                kind = "expected-version-tag-missing"
+                expectedVersion = $expectedVersion
+                actualVersion = $null
+                message = "Expected profile tag is not published on GitHub."
+            })
+        }
+    }
+
+    return [ordered]@{
+        passed = [bool]($warnings.Count -eq 0)
+        repository = $repository
+        expectedVersion = $expectedVersion
+        latestReleaseTag = if ([string]::IsNullOrWhiteSpace($latestReleaseTag)) { $null } else { $latestReleaseTag }
+        latestReleaseUrl = if ([string]::IsNullOrWhiteSpace($latestReleaseUrl)) { $null } else { $latestReleaseUrl }
+        latestReleasePublishedAt = if ([string]::IsNullOrWhiteSpace($latestReleasePublishedAt)) { $null } else { $latestReleasePublishedAt }
+        versionRelation = $versionRelation
+        latestReleaseMatchesExpected = [bool]$latestMatchesExpected
+        latestReleaseAtLeastExpected = [bool]$latestAtLeastExpected
+        expectedTag = $expectedVersion
+        expectedTagRefChecked = [bool]$tagRefChecked
+        expectedTagExists = $tagRefExists
+        expectedTagUrl = if ([string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $TagRef -Name "url"))) { $null } else { [string](Get-MemberValue -Object $TagRef -Name "url") }
+        expectedTagSha = if ([string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $TagRef -Name "sha"))) { $null } else { [string](Get-MemberValue -Object $TagRef -Name "sha") }
+        expectedTagUnavailableReason = $tagRefUnavailableReason
+        warningCount = $warnings.Count
+        warnings = $warnings.ToArray()
+        note = "Warning-only comparison of the planning-doc version against the profile repository's latest GitHub release and matching tag ref."
+    }
+}
+
 function New-MetadataRowIndex {
     param([object]$ProjectsPayload)
 
@@ -4658,6 +4866,10 @@ function Test-ProfileState {
         }
     }
     $docVersionConsistency = Test-DocVersionConsistency
+    $profileReleaseConsistency = Test-ProfileReleaseConsistency `
+        -Repos $Repos `
+        -DocVersionConsistency $docVersionConsistency `
+        -TagRef (Get-ProfileRepositoryTagRef -TagName ([string]$docVersionConsistency.expectedVersion))
     $reportGeneratedAt = (Get-Date).ToString("o")
     $feedProvenance = $null
     try {
@@ -4698,6 +4910,7 @@ function Test-ProfileState {
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
         schemaValidation = $schemaValidation
         docVersionConsistency = $docVersionConsistency
+        profileReleaseConsistency = $profileReleaseConsistency
         validationPerformance = $validationPerformance
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations

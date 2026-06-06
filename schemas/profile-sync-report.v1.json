@@ -24,6 +24,7 @@
     "communityHealth",
     "schemaValidation",
     "docVersionConsistency",
+    "profileReleaseConsistency",
     "validationPerformance",
     "missingPublicRepos",
     "privateVisibilityViolations",
@@ -101,6 +102,9 @@
     },
     "docVersionConsistency": {
       "$ref": "#/$defs/docVersionConsistency"
+    },
+    "profileReleaseConsistency": {
+      "$ref": "#/$defs/profileReleaseConsistency"
     },
     "validationPerformance": {
       "$ref": "#/$defs/validationPerformance"
@@ -1468,6 +1472,121 @@
         },
         "warnings": {
           "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "profileReleaseConsistency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "repository",
+        "expectedVersion",
+        "latestReleaseTag",
+        "latestReleaseUrl",
+        "latestReleasePublishedAt",
+        "versionRelation",
+        "latestReleaseMatchesExpected",
+        "latestReleaseAtLeastExpected",
+        "expectedTag",
+        "expectedTagRefChecked",
+        "expectedTagExists",
+        "expectedTagUrl",
+        "expectedTagSha",
+        "expectedTagUnavailableReason",
+        "warningCount",
+        "warnings",
+        "note"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "expectedVersion": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReleaseUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "latestReleasePublishedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "versionRelation": {
+          "type": "string",
+          "enum": [
+            "matching",
+            "behind",
+            "ahead",
+            "missing-release",
+            "unparseable",
+            "unavailable"
+          ]
+        },
+        "latestReleaseMatchesExpected": {
+          "type": "boolean"
+        },
+        "latestReleaseAtLeastExpected": {
+          "type": "boolean"
+        },
+        "expectedTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "expectedTagRefChecked": {
+          "type": "boolean"
+        },
+        "expectedTagExists": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "expectedTagUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "expectedTagSha": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "expectedTagUnavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/profileReleaseWarning"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "profileReleaseWarning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "expectedVersion",
+        "actualVersion",
+        "message"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "expectedVersion": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "actualVersion": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "message": {
+          "type": "string"
         }
       }
     },

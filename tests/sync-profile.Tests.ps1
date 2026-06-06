@@ -33,6 +33,7 @@ BeforeAll {
             [object]$Parent = $null,
             [string]$ForkParentFetchError = $null,
             [switch]$WithRelease,
+            [string]$ReleaseTag = 'v1.0.0',
             [string[]]$AssetNames = @()
         )
 
@@ -45,8 +46,9 @@ BeforeAll {
             defaultBranchRef = [pscustomobject]@{ name = 'main' }
             latestRelease = if ($WithRelease) {
                 [pscustomobject]@{
-                    tagName = 'v1.0.0'
-                    url = "https://github.com/SysAdminDoc/$Name/releases/tag/v1.0.0"
+                    tagName = $ReleaseTag
+                    url = "https://github.com/SysAdminDoc/$Name/releases/tag/$ReleaseTag"
+                    publishedAt = '2026-06-04T00:00:00Z'
                     releaseAssetNames = @($AssetNames)
                     releaseAssetKinds = @($assetKinds)
                     assetApiInspected = $true
@@ -1096,6 +1098,53 @@ Describe 'Doc version consistency gate' {
     }
 }
 
+Describe 'Profile release/tag consistency' {
+    It 'warns when the latest profile release and tag are behind the planning version' {
+        $doc = [ordered]@{ expectedVersion = 'v4.9.57' }
+        $repo = New-TestRepoMeta -Name 'SysAdminDoc' -WithRelease -ReleaseTag 'v4.9.20'
+        $tagRef = [ordered]@{
+            checked = $true
+            exists = $false
+            tagName = 'v4.9.57'
+            url = $null
+            sha = $null
+            unavailableReason = $null
+        }
+
+        $result = Test-ProfileReleaseConsistency -Repos @($repo) -DocVersionConsistency $doc -TagRef $tagRef
+
+        $result.passed | Should -BeFalse
+        $result.versionRelation | Should -Be 'behind'
+        $result.latestReleaseTag | Should -Be 'v4.9.20'
+        $result.expectedTagExists | Should -BeFalse
+        $result.warningCount | Should -Be 2
+        ($result.warnings | ForEach-Object { $_.kind }) | Should -Contain 'latest-release-behind'
+        ($result.warnings | ForEach-Object { $_.kind }) | Should -Contain 'expected-version-tag-missing'
+    }
+
+    It 'passes when the latest profile release and tag match the planning version' {
+        $doc = [ordered]@{ expectedVersion = 'v4.9.57' }
+        $repo = New-TestRepoMeta -Name 'SysAdminDoc' -WithRelease -ReleaseTag 'v4.9.57'
+        $tagRef = [ordered]@{
+            checked = $true
+            exists = $true
+            tagName = 'v4.9.57'
+            url = 'https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.57'
+            sha = 'abc123'
+            unavailableReason = $null
+        }
+
+        $result = Test-ProfileReleaseConsistency -Repos @($repo) -DocVersionConsistency $doc -TagRef $tagRef
+
+        $result.passed | Should -BeTrue
+        $result.versionRelation | Should -Be 'matching'
+        $result.latestReleaseMatchesExpected | Should -BeTrue
+        $result.latestReleaseAtLeastExpected | Should -BeTrue
+        $result.expectedTagExists | Should -BeTrue
+        $result.warningCount | Should -Be 0
+    }
+}
+
 Describe 'Seed catalog guard' {
     It 'requires ForceSeedCatalog for the lossy legacy parser' {
         $blocked = Test-SeedCatalogGuard -SeedRequested $true -ForceRequested $false
@@ -1286,6 +1335,7 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Missing project licenses'
             $summary | Should -Match 'Unknown project licenses'
             $summary | Should -Match 'Fork-parent warnings'
+            $summary | Should -Match 'Profile release/tag warnings'
             $summary | Should -Match 'Link targets checked'
             $summary | Should -Match 'Repository setting warnings'
             $summary | Should -Match 'Community-health fatal gaps'
@@ -1301,6 +1351,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'linkValidationSummary'
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'forkParentDrift'
+        $script:SummaryScript | Should -Match 'profileReleaseConsistency'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

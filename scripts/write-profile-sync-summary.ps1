@@ -42,6 +42,7 @@ $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
 $communityHealth = $report.communityHealth
+$profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -56,6 +57,7 @@ $validationElapsedMs = if ($performance -and $performance.linkValidation) { [int
 $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.warningCount } else { 0 }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
+$profileReleaseWarningCount = if ($profileReleaseConsistency) { [int]$profileReleaseConsistency.warningCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -67,6 +69,7 @@ $summary = @"
 | Profile assets in sync | $($report.profileAssetsInSync) |
 | Schema validation passed | $($report.schemaValidation.passed) |
 | Planning docs aligned | $($report.docVersionConsistency.passed) |
+| Profile release/tag warnings | $profileReleaseWarningCount |
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
 | Missing descriptions | $missingDescriptionCount |
@@ -113,6 +116,10 @@ if ($unknownLicenseCount -gt 0) {
 
 if ($forkParentWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $forkParentWarningCount fork-parent attribution warning(s)."
+}
+
+if ($profileReleaseWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $profileReleaseWarningCount profile release/tag warning(s)."
 }
 
 if ($repositoryWarningCount -gt 0) {
