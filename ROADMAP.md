@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.62
+Current repo version: v4.9.63
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,17 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.63 refresh: historical changelog heading validation shipped.
+`docVersionConsistency.changelogHeadingValidation` now scans every
+`CHANGELOG.md` release heading for strict `## [vMAJOR.MINOR.PATCH] -
+YYYY-MM-DD` shape, reports malformed headings with line numbers/offending text,
+and rejects impossible dates. The malformed historical `v3.0.0` heading is now
+corrected to the confirmed GitHub release date, `2026-04-13`, and Pester covers
+both malformed-heading and bad-date fixtures. Next highest open item:
+branch-protection/ruleset status-check enforcement remains external-gated while
+this loop pushes directly to `main`; continue with workflow-security
+trigger/audit coverage for future `.github/actions/**`.
 
 2026-06-06 v4.9.62 refresh: shared generated PR helper shipped.
 `scripts/open-generated-profile-pr.ps1` now centralizes generated profile PR
@@ -1287,11 +1298,12 @@ It does not duplicate the v4.9.20 `docVersionConsistency` gate, which validates
 the latest changelog version/date; this item covers historical changelog heading
 shape.*
 
-- [ ] P3 🤖 🔬 — Validate all changelog release headings
-  - Why: `Test-DocVersionConsistency` validates the latest changelog heading, but older release headings can still carry malformed generated text. One historical `v3.0.0` heading currently contains `%Y->- (HEAD -> main, origin/main, origin/HEAD)`, which weakens the public changelog and can confuse release/tag automation.
-  - Evidence: `CHANGELOG.md:278` is `## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)`; a focused heading scan found that line as the only `## [version] - date` heading whose date does not match `YYYY-MM-DD`; `scripts/sync-profile.ps1:2580-2585` parses only the latest changelog version/date; Keep a Changelog examples use second-level version headings with ISO-style dates such as `## [1.1.1] - 2023-03-05`: https://keepachangelog.com/en/1.1.0/
+- [x] P3 🤖 🔬 — Validate all changelog release headings
+  - Why: `Test-DocVersionConsistency` validates the latest changelog heading, but older release headings can still carry malformed generated text. One historical `v3.0.0` heading previously contained `%Y->- (HEAD -> main, origin/main, origin/HEAD)`, which weakened the public changelog and could confuse release/tag automation.
+  - Evidence: the pre-fix `v3.0.0` heading was `## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)`; a focused heading scan found that line as the only `## [version] - date` heading whose date did not match `YYYY-MM-DD`; GitHub release `v3.0.0` was published on 2026-04-13; Keep a Changelog examples use second-level version headings with ISO-style dates such as `## [1.1.1] - 2023-03-05`: https://keepachangelog.com/en/1.1.0/
   - Touches: `scripts/sync-profile.ps1` (`Test-DocVersionConsistency`), `tests/sync-profile.Tests.ps1`, `CHANGELOG.md` cleanup by the build machine, and `reports/profile-sync-report.json`.
   - Acceptance: `docVersionConsistency` or a sibling report block validates every `CHANGELOG.md` release heading for `## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD`; malformed historical headings are reported with line numbers; the existing `v3.0.0` heading is corrected or explicitly marked as legacy in a machine-readable exception.
+  - Completed: v4.9.63 added `docVersionConsistency.changelogHeadingValidation`, report-schema support, malformed-heading line-number reporting, impossible-date rejection, Pester coverage, and corrected the historical `v3.0.0` heading to `2026-04-13`.
   - Verify: run `scripts/sync-profile.ps1 -Check` and confirm no malformed changelog-heading warnings remain after cleanup; inject a bad historical heading in a fixture and confirm Pester fails or reports the exact line.
   - Complexity: S
 
@@ -1788,7 +1800,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35).
 - [x] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches (completed v4.9.61 with scheduled dry-run/manual cleanup workflow, strict generated-branch prefixes, merged-PR gating, scoped write permissions, and Pester coverage).
 - [x] P3 — Shared helper/composite action for generated profile PR creation (completed v4.9.62 with `scripts/open-generated-profile-pr.ps1`, explicit workflow inputs, branch-prefix allowlist, no-change guard preservation, validation handoff, and Pester coverage).
-- [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
+- [x] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup (completed v4.9.63 with `docVersionConsistency.changelogHeadingValidation`, line-numbered malformed-heading reporting, impossible-date rejection, schema support, Pester coverage, and the `v3.0.0` date cleanup).
 - [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.

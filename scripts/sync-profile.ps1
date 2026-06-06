@@ -3779,6 +3779,49 @@ function Test-IsoDateText {
     )
 }
 
+function Test-ChangelogReleaseHeadings {
+    param([object]$Document)
+
+    $malformedHeadings = New-Object System.Collections.Generic.List[object]
+    $headingCount = 0
+    $headingPattern = '^## \[v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\] - (\d{4}-\d{2}-\d{2})\s*$'
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Document.text)) {
+        $lines = ([string]$Document.text) -split "\r?\n"
+        for ($index = 0; $index -lt $lines.Count; $index++) {
+            $line = [string]$lines[$index]
+            if ($line -notmatch '^## \[') {
+                continue
+            }
+
+            $headingCount++
+            $reason = $null
+            $match = [regex]::Match($line, $headingPattern)
+            if (-not $match.Success) {
+                $reason = "heading must match '## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD'"
+            } elseif (-not (Test-IsoDateText -Value $match.Groups[4].Value)) {
+                $reason = "release date is not a valid yyyy-MM-dd date"
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace([string]$reason)) {
+                $malformedHeadings.Add([ordered]@{
+                        path = $Document.path
+                        lineNumber = [int]($index + 1)
+                        text = $line
+                        reason = $reason
+                    })
+            }
+        }
+    }
+
+    return [ordered]@{
+        passed = [bool]($malformedHeadings.Count -eq 0)
+        headingCount = [int]$headingCount
+        malformedCount = [int]$malformedHeadings.Count
+        malformedHeadings = $malformedHeadings.ToArray()
+    }
+}
+
 function Test-DocVersionConsistency {
     param(
         [string]$RoadmapPath = (Join-Path $RepoRoot "ROADMAP.md"),
@@ -3796,6 +3839,11 @@ function Test-DocVersionConsistency {
     $changelog = Read-DocConsistencyFile -Path $ChangelogPath -Errors $errors
     $projectContext = Read-DocConsistencyFile -Path $ProjectContextPath -Errors $errors
     $researchReport = Read-DocConsistencyFile -Path $ResearchReportPath -Errors $errors
+
+    $changelogHeadingValidation = Test-ChangelogReleaseHeadings -Document $changelog
+    foreach ($malformedHeading in @($changelogHeadingValidation.malformedHeadings)) {
+        $errors.Add("$($malformedHeading.path) release heading at line $($malformedHeading.lineNumber) is invalid: $($malformedHeading.reason)")
+    }
 
     $changelogVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $changelog -Field "latestChangelogVersion" -Pattern '^## \[(v\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}\s*$' -MissingMessage "latest changelog version heading"
     $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $roadmap -Field "currentRepoVersion" -Pattern '^Current repo version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current repo version"
@@ -3844,6 +3892,7 @@ function Test-DocVersionConsistency {
         expectedDate = if ([string]::IsNullOrWhiteSpace([string]$changelogDate)) { $null } else { [string]$changelogDate }
         versions = $versions.ToArray()
         dates = $dates.ToArray()
+        changelogHeadingValidation = $changelogHeadingValidation
         errors = $errors.ToArray()
         warnings = $warnings.ToArray()
     }

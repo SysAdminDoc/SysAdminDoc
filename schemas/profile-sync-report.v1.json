@@ -1786,6 +1786,7 @@
         "expectedDate",
         "versions",
         "dates",
+        "changelogHeadingValidation",
         "errors",
         "warnings"
       ],
@@ -1813,11 +1814,66 @@
             "$ref": "#/$defs/docFieldValue"
           }
         },
+        "changelogHeadingValidation": {
+          "$ref": "#/$defs/changelogHeadingValidation"
+        },
         "errors": {
           "$ref": "#/$defs/stringArray"
         },
         "warnings": {
           "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "changelogHeadingValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "headingCount",
+        "malformedCount",
+        "malformedHeadings"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "headingCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "malformedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "malformedHeadings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/changelogHeadingIssue"
+          }
+        }
+      }
+    },
+    "changelogHeadingIssue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "lineNumber",
+        "text",
+        "reason"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "lineNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
         }
       }
     },

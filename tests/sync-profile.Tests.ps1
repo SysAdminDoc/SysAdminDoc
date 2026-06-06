@@ -1109,7 +1109,8 @@ Describe 'Doc version consistency gate' {
                 [string]$ChangelogDate = $Date,
                 [string]$RoadmapDate = $Date,
                 [string]$ProjectContextDate = $Date,
-                [string]$ResearchRefreshDate = $Date
+                [string]$ResearchRefreshDate = $Date,
+                [string[]]$ChangelogExtraLines = @()
             )
 
             $root = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
@@ -1127,13 +1128,14 @@ Describe 'Doc version consistency gate' {
                 "Latest profile sync: $RoadmapDate"
                 "Current repo version: $RoadmapVersion"
             ) -Encoding utf8
-            Set-Content -LiteralPath $paths.ChangelogPath -Value @(
+            $changelogLines = @(
                 '# Changelog'
                 ''
                 "## [$Version] - $ChangelogDate"
                 ''
                 '- Changed: test.'
-            ) -Encoding utf8
+            ) + $ChangelogExtraLines
+            Set-Content -LiteralPath $paths.ChangelogPath -Value $changelogLines -Encoding utf8
             Set-Content -LiteralPath $paths.ProjectContextPath -Value @(
                 '# Project Context'
                 ''
@@ -1159,6 +1161,9 @@ Describe 'Doc version consistency gate' {
         $result.passed | Should -BeTrue
         $result.expectedVersion | Should -Be 'v4.9.20'
         $result.expectedDate | Should -Be '2026-06-04'
+        $result.changelogHeadingValidation.passed | Should -BeTrue
+        $result.changelogHeadingValidation.headingCount | Should -Be 1
+        $result.changelogHeadingValidation.malformedCount | Should -Be 0
         @($result.errors) | Should -HaveCount 0
     }
 
@@ -1180,6 +1185,34 @@ Describe 'Doc version consistency gate' {
         $result.passed | Should -BeFalse
         ($result.errors -join "`n") | Should -Match 'ROADMAP\.md'
         ($result.errors -join "`n") | Should -Match 'older than CHANGELOG latest date'
+    }
+
+    It 'reports malformed historical changelog release headings with line numbers' {
+        $paths = New-TestPlanningDocSet -ChangelogExtraLines @(
+            '## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)'
+        )
+
+        $result = Test-DocVersionConsistency @paths
+
+        $result.passed | Should -BeFalse
+        $result.changelogHeadingValidation.passed | Should -BeFalse
+        $result.changelogHeadingValidation.headingCount | Should -Be 2
+        $result.changelogHeadingValidation.malformedCount | Should -Be 1
+        $result.changelogHeadingValidation.malformedHeadings[0].lineNumber | Should -Be 6
+        $result.changelogHeadingValidation.malformedHeadings[0].text | Should -Be '## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)'
+        ($result.errors -join "`n") | Should -Match 'CHANGELOG\.md release heading at line 6 is invalid'
+    }
+
+    It 'rejects impossible historical changelog release dates' {
+        $paths = New-TestPlanningDocSet -ChangelogExtraLines @(
+            '## [v3.0.0] - 2026-99-99'
+        )
+
+        $result = Test-DocVersionConsistency @paths
+
+        $result.passed | Should -BeFalse
+        $result.changelogHeadingValidation.passed | Should -BeFalse
+        $result.changelogHeadingValidation.malformedHeadings[0].reason | Should -Be 'release date is not a valid yyyy-MM-dd date'
     }
 }
 
