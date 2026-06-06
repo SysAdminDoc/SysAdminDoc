@@ -72,6 +72,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Centralized generated profile PR creation in `scripts/open-generated-profile-pr.ps1`, with profile-sync and profile-assets refresh workflows passing explicit branch prefix, commit message, PR title/body intro, and no-change messages into the shared helper (v4.9.62). — *Source: ROADMAP.md*
 - [x] Staggered Wednesday maintenance schedules so workflow-security runs at `17 9 * * 3`, assets-refresh remains at `19 8 * * 3`, and generated-branch cleanup remains at `43 8 * * 3` (v4.9.65). — *Source: ROADMAP.md*
 - [x] Added `schemas/**` to the Tests workflow push path filters so direct schema-contract updates on `main` create the offline Tests/Pester lane (v4.9.66). — *Source: ROADMAP.md*
+- [x] Added a Dependabot `routine-actions` group for GitHub Actions minor/patch updates while leaving major action updates separately reviewable (v4.9.67). — *Source: ROADMAP.md*
 - [x] Added public-safe intake files: `SECURITY.md`, broken-link/profile-correction/workflow issue forms, issue chooser security routing, and a generated-profile-aware PR template with Pester coverage (v4.9.29). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Made required-check candidate workflows always create pull request and merge-queue checks by removing PR path filters from Tests, Profile sync, and Workflow security, with Pester coverage guarding the trigger shape (v4.9.30). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Added public-safe profile-sync report summaries and retained report artifacts to profile-sync and profile-assets refresh workflows, with Pester coverage for the helper and wiring (v4.9.31). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
@@ -107,6 +108,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added Pester coverage for workflow-security local action readiness, including strict workflows/actions `zizmor` collection, no PR path filters, and `/.github/` CODEOWNERS coverage (v4.9.64). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for independent maintenance schedule uniqueness, including the Wednesday `assets-refresh`, `workflow-security`, and generated-branch cleanup spacing (v4.9.65). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for Tests workflow schema-trigger readiness, including `schemas/**` in push paths and unfiltered PR/merge-queue checks (v4.9.66). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for Dependabot GitHub Actions grouping, including the `routine-actions` minor/patch group and a guard against routine major updates (v4.9.67). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 

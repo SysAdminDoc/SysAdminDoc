@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.66
+Current repo version: v4.9.67
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.67 refresh: Dependabot routine action grouping shipped.
+`.github/dependabot.yml` now groups GitHub Actions minor and patch updates into
+`routine-actions` while leaving major action updates separate for individual
+review. Pester guards the grouping shape and rejects accidental inclusion of
+major updates in the routine group. Next highest open item:
+branch-protection/ruleset status-check enforcement remains external-gated while
+this loop pushes directly to `main`; continue with internal title/description
+metadata for generated profile SVG panels.
 
 2026-06-06 v4.9.66 refresh: schema-trigger coverage shipped.
 `tests.yml` now includes `schemas/**` in the push path filter for direct
@@ -1420,12 +1429,13 @@ files change.*
 *Research conducted 2026-06-04. This pass checked future Dependabot workflow
 update queue shape, separate from the existing current-PR triage item.*
 
-- [ ] P3 🤖 🔬 — Group routine Dependabot GitHub Actions version updates
+- [x] P3 🤖 🔬 — Group routine Dependabot GitHub Actions version updates
   - Why: the repo intentionally lets Dependabot maintain SHA-pinned workflow actions, but `.github/dependabot.yml` has no `groups` rule, so routine action updates arrive as one PR per dependency. That is manageable for the two current major PRs, but future minor/patch action bumps can consume review attention that should stay focused on permission, action-identity, and `persist-credentials` changes.
-  - Evidence: `.github/dependabot.yml:3-10` has one `github-actions` update block with `open-pull-requests-limit: 5` and no `groups`; live `gh pr list -R SysAdminDoc/SysAdminDoc --state open` currently shows two separate Dependabot GitHub Actions PRs (#5 for `actions/checkout`, #6 for `github/codeql-action`); GitHub's Dependabot options reference says Dependabot opens one PR per dependency by default and `groups` can combine matching updates into fewer targeted PRs with `patterns` and `update-types`: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+  - Evidence: before v4.9.67, `.github/dependabot.yml:3-10` had one `github-actions` update block with `open-pull-requests-limit: 5` and no `groups`; v4.9.67 adds a `routine-actions` group with `patterns: ["*"]` and `update-types: ["minor", "patch"]`; the earlier major Dependabot PRs for `actions/checkout` and `github/codeql-action` were already addressed in v4.9.34 and v4.9.35; GitHub's Dependabot options reference says Dependabot opens one PR per dependency by default and `groups` can combine matching updates into fewer targeted PRs with `patterns` and `update-types`: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
   - Touches: `.github/dependabot.yml`; optional maintenance note in the action-update review checklist.
   - Acceptance: Dependabot groups low-risk GitHub Actions version updates into a named routine-actions group while keeping major or permission-sensitive action updates individually reviewable, or documents why separate PRs are preferred for every SHA-pinned action bump.
-  - Verify: run Dependabot's next scheduled check or a manual Dependabot job and confirm eligible minor/patch action updates use the grouped branch/title; current major action PRs remain triaged through the existing review path.
+  - Verify: run Dependabot's next scheduled check or a manual Dependabot job and confirm eligible minor/patch action updates use the grouped branch/title; future major action PRs remain triaged through the existing review path; Pester guards the group shape and rejects routine major grouping.
+  - Completed: v4.9.67 adds the `routine-actions` Dependabot group for GitHub Actions minor/patch updates and Pester coverage that keeps major updates out of the routine group.
   - Complexity: S
 
 ### Researcher Queue (Cycle 28 - 2026-06-04)
@@ -1838,7 +1848,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**` (completed v4.9.64 with strict `zizmor` collection for workflows plus local action metadata, always-created workflow-security trigger coverage, `/.github/` CODEOWNERS ownership, and Pester contract coverage).
 - [x] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules (completed v4.9.65 by moving workflow-security to `17 9 * * 3` and adding Pester schedule-uniqueness coverage).
 - [x] P3 — Add `schemas/**` to the offline Tests workflow path filters (completed v4.9.66 with Tests push-path coverage and Pester trigger-shape guards).
-- [ ] P3 — Dependabot routine GitHub Actions update grouping.
+- [x] P3 — Dependabot routine GitHub Actions update grouping (completed v4.9.67 with a minor/patch `routine-actions` group and Pester coverage that keeps majors separate).
 - [x] P2 — Catalog-to-feed omitted-row accounting in the sync report (completed v4.9.59 with `catalogFeedAccounting`, public-safe unaccounted rows, fatal count mismatches, schema support, summary rows, and Pester coverage).
 - [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).
 - [ ] P3 — Internal title/description metadata for generated profile SVG panels.

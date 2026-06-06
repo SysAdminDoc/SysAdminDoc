@@ -1674,6 +1674,19 @@ Describe 'CI validation tool pins' {
     }
 }
 
+Describe 'Dependabot GitHub Actions update grouping' {
+    BeforeAll {
+        $script:DependabotConfig = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') -Raw
+    }
+
+    It 'groups routine minor and patch action updates while leaving majors separate' {
+        $script:DependabotConfig | Should -Match 'package-ecosystem: "github-actions"'
+        $script:DependabotConfig | Should -Match 'open-pull-requests-limit: 5'
+        $script:DependabotConfig | Should -Match '(?ms)groups:\s*\r?\n\s+routine-actions:\s*\r?\n\s+patterns:\s*\r?\n\s+- "[*]"\s*\r?\n\s+update-types:\s*\r?\n\s+- "minor"\s*\r?\n\s+- "patch"'
+        $script:DependabotConfig | Should -Not -Match '(?m)^\s+- "major"\s*$'
+    }
+}
+
 Describe 'Workflow checkout action pin' {
     BeforeAll {
         $script:WorkflowFilesForCheckout = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File

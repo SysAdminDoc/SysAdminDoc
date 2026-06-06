@@ -5,10 +5,16 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.66
+Current version after this refresh: v4.9.67
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.67 batch closed the routine Dependabot action-update grouping gap by
+  adding a `routine-actions` group for GitHub Actions minor and patch updates.
+- Major action updates remain outside the routine group so permission,
+  action-identity, and runtime changes stay individually reviewable.
+- Pester coverage now guards the Dependabot group shape and rejects accidental
+  routine grouping of major action updates.
 - The v4.9.66 batch closed the schema-trigger gap by adding `schemas/**` to
   the Tests workflow push path filter.
 - Tests already run for all pull requests and merge-queue runs, so schema-only
@@ -431,7 +437,7 @@ Top opportunities, in priority order:
 27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership. [Completed v4.9.64]
 28. P3 - Stagger same-minute scheduled maintenance workflows. [Completed v4.9.65]
 29. P3 - Include schema-contract changes in the offline Tests workflow. [Completed v4.9.66]
-30. P3 - Group routine Dependabot GitHub Actions version updates.
+30. P3 - Group routine Dependabot GitHub Actions version updates. [Completed v4.9.67]
 31. P2 - Report catalog rows omitted from both public feed arrays. [Completed v4.9.59]
 32. P3 - Guard unsupported JSON Schema keywords in the custom validator.
 33. P3 - Add internal title/description metadata to generated profile SVG panels.
@@ -1830,12 +1836,12 @@ from the existing item that triages the currently open major action-update PRs.
 
 ### Evidence reviewed (cycle 27)
 
-- `.github/dependabot.yml` has one `github-actions` update block, a weekly
-  Tuesday schedule, and `open-pull-requests-limit: 5`.
-- The Dependabot config has no `groups` rule.
-- Live `gh pr list -R SysAdminDoc/SysAdminDoc --state open` currently shows two
-  separate Dependabot GitHub Actions PRs: #5 for `actions/checkout` and #6 for
-  `github/codeql-action`.
+- At the time of Cycle 27, `.github/dependabot.yml` had one `github-actions`
+  update block, a weekly Tuesday schedule, and `open-pull-requests-limit: 5`.
+- At the time of Cycle 27, the Dependabot config had no `groups` rule.
+- The earlier separate major Dependabot GitHub Actions PRs for
+  `actions/checkout` and `github/codeql-action` were addressed in v4.9.34 and
+  v4.9.35.
 - GitHub's Dependabot options reference says Dependabot opens one PR per
   dependency by default, while `groups` can combine matching updates into fewer
   targeted PRs with `patterns` and `update-types`:
@@ -1849,13 +1855,13 @@ from the existing item that triages the currently open major action-update PRs.
   group rule can reduce review queue noise without weakening major-action or
   permission-sensitive review.
   → roadmap "Group routine Dependabot GitHub Actions version updates".
-  [Verified]
+  [Closed v4.9.67]
 
 ### Standards note (cycle 27)
 
-- Do not group major action updates blindly. Major updates and any action that
-  changes requested permissions, credential persistence, or workflow semantics
-  should stay individually reviewable.
+- v4.9.67 groups only minor and patch action updates. Major updates and any
+  action that changes requested permissions, credential persistence, or workflow
+  semantics should stay individually reviewable.
 - Keep this subordinate to the existing action-update triage process; grouping
   helps queue shape, not trust evaluation.
 
@@ -2194,8 +2200,8 @@ evidence, and adjacent profile-README tooling:
 - Schema changes now trigger the offline Pester contract lane on direct pushes
   and all PRs; whether they also need the heavier profile-sync validation path
   remains a separate policy choice.
-- Should Dependabot group only minor/patch GitHub Actions updates, or keep
-  separate PRs for security-sensitive actions such as checkout and CodeQL?
+- Dependabot now groups minor/patch GitHub Actions updates only; major updates
+  and security-sensitive action changes remain separate review items.
 - Should local-only catalog rows require their own explicit reason field, or is
   a non-public aggregate count enough when `includeInPortfolio=false`?
 - Should the repo keep a small fail-closed custom JSON Schema validator, or adopt

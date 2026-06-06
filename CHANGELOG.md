@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.67] - 2026-06-06
+
+- Changed: Dependabot now groups routine GitHub Actions minor and patch updates into `routine-actions` while leaving major action updates separate.
+- Added: Pester coverage guards the Dependabot grouping shape and rejects major updates being included in the routine group.
+
 ## [v4.9.66] - 2026-06-06
 
 - Changed: `tests.yml` push path filters now include `schemas/**`, so direct schema-contract pushes to `main` create the offline Tests workflow.
