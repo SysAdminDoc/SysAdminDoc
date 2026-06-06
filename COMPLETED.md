@@ -44,6 +44,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Privacy scrub: untracked the local research bundle, gitignored local working files, and scrubbed private medical repo names from `CHANGELOG.md` and `ROADMAP.md`. — *Source: TODO.md*
 - [x] Anchored the medical-keyword pattern to word boundaries so "dose" no longer matches inside "glucose" and similar false positives. — *Source: TODO.md*
 - [x] Forced `[Console]::OutputEncoding` to UTF-8 so `gh` JSON output is not mojibake'd on legacy Windows consoles; refreshed feed. — *Source: TODO.md*
+- [x] Redacted all public `projects.json.suppressed` rows into dedicated suppression records so suppressed repo names, URLs, descriptions, primary actions, release fields, topics, and notes are not exported in the public feed (v4.9.42). — *Source: ROADMAP.md*
 
 ### Automation and CI
 

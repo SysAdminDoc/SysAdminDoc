@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-06T14:20:28.6355071-04:00",
+  "generatedAt": "2026-06-06T14:32:45.5974222-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -117,7 +117,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T18:17:35.0000000Z",
+        "pushedAt": "2026-06-06T18:23:29.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1015,28 +1015,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.41",
+    "expectedVersion": "v4.9.42",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.41"
+        "value": "v4.9.42"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.41"
+        "value": "v4.9.42"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.41"
+        "value": "v4.9.42"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.41"
+        "value": "v4.9.42"
       }
     ],
     "dates": [
@@ -1069,7 +1069,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 4407,
+      "elapsedMs": 12490,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1087,7 +1087,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.92,
+      "ageDays": 4.93,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1097,7 +1097,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 4407,
+    "elapsedMs": 12490,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

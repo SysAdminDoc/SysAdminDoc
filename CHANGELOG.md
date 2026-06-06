@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.42] - 2026-06-06
+
+- Changed: `projects.json.suppressed` now emits redacted suppression records instead of full project rows, removing suppressed repo names, URLs, descriptions, primary actions, release fields, topics, and notes from the public feed.
+- Added: `schemas/profile-projects.v1.json` now defines a dedicated `suppressedProject` object with `suppressedId`, `reasonCode`, `publicReason`, `category`, and `visibilityClass`.
+- Added: Offline Pester coverage rejects suppressed feed rows that expose project identifiers and checks the real catalog suppressions for known private/sensitive names.
+- Changed: Metadata drift now compares redacted suppressed rows by `suppressedId`, while stale full suppressed rows still surface as fatal feed drift.
+
 ## [v4.9.41] - 2026-06-06
 
 - Fixed: `setup.ps1 -CheckOnly` now parses and runs under Windows PowerShell 5.1 by keeping the public bootstrapper ASCII-only.
