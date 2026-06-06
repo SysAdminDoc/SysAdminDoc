@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.52
+Current repo version: v4.9.53
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.53 refresh: repository settings/community-health baseline shipped.
+Profile sync now records public-safe `repositorySettings` and `communityHealth`
+blocks with live setting availability, aggregate warnings, community-profile
+health, local required intake-file checks, and unavailable reasons for offline
+or unauthenticated runs. The current live baseline reports 4 repository-setting
+warnings, 3 community-health warnings, and 0 fatal local intake-file gaps. The
+report schema, summary helper, and Pester suite cover the new sections.
+Next highest open item: generated profile PR validation handoff using a
+least-privilege token or explicit dispatch.
 
 2026-06-06 v4.9.52 refresh: catalog shape validation shipped.
 Profile sync now reports `catalogShape` and fails `-Check` when catalog rows
@@ -866,11 +876,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: GitHub's community profile shows an issue-template check; opening `/issues/new/choose` shows the forms; a PR touching `README.md` presents the template.
   - Complexity: S
 
-- [ ] P2 — Add a read-only repository settings and community-health baseline to the sync report
+- [x] P2 — Add a read-only repository settings and community-health baseline to the sync report
   - Why: `scripts/sync-profile.ps1 -Check` validates generated files, but file checks miss drift in GitHub-hosted settings and community-health state. Live metadata currently shows secret scanning and push protection enabled, but non-provider/generic detection disabled, Dependabot security updates disabled, Projects/Wiki enabled, and missing issue/contributing templates. These should be visible as public-safe report fields before they become silent trust regressions.
   - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc --jq '{has_issues,has_projects,has_wiki,security_and_analysis}'`; `gh api repos/SysAdminDoc/SysAdminDoc/community/profile`; GitHub secret-scanning docs: https://docs.github.com/en/code-security/secret-scanning/enabling-secret-scanning-features
   - Touches: `scripts/sync-profile.ps1` (new read-only repository/community metadata probe), `reports/profile-sync-report.json`, optional Pester fixture for report shape.
   - Acceptance: the sync report includes `repositorySettings` and `communityHealth` blocks with non-sensitive statuses; disabled push protection or missing planned community files are warnings; no settings are mutated by the check.
+  - Completed: v4.9.53 added read-only `repositorySettings` and `communityHealth` report blocks, unavailable-state handling, local required intake-file fatal gaps, summary-helper aggregate rows, schema support, and Pester coverage.
   - Verify: `scripts/sync-profile.ps1 -Check` records the blocks; mock a missing/disabled field in a fixture and confirm the warning count changes.
   - Complexity: M
 
@@ -1462,7 +1473,7 @@ catalog timestamp, not a metadata snapshot timestamp.*
 settings and the local community-health files that shipped in recent profile
 hardening work.*
 
-- [ ] P2 - Add repository settings and community-health baseline reporting
+- [x] P2 - Add repository settings and community-health baseline reporting
   - Why: the repo now has public-safe intake files and CODEOWNERS, but those files are only one layer of the trust posture. The sync report should also show whether live repository settings actually support the intended public profile workflow.
   - Evidence: local `.github/ISSUE_TEMPLATE/` contains `broken-link.yml`, `profile-correction.yml`, `workflow-ci.yml`, and `config.yml`; `.github/pull_request_template.md` has public-safety and generated-profile checklists; `.github/CODEOWNERS` owns `.github/`, `scripts/`, `tests/`, `schemas/`, `data/profile-catalog.json`, `projects.json`, `reports/`, `assets/profile/`, `setup.ps1`, `SECURITY.md`, and `PSScriptAnalyzerSettings.psd1`. Live `gh api repos/SysAdminDoc/SysAdminDoc/community/profile` returned `health_percentage=71`, detected `README.md`, `LICENSE`, and the PR template, but returned `code_of_conduct=null`, `contributing=null`, and `issue_template=null`. Live repo settings returned `has_issues=true`, `has_discussions=true`, `has_projects=true`, `has_wiki=true`, `delete_branch_on_merge=false`, `allow_forking=true`, `web_commit_signoff_required=false`, `secret_scanning=enabled`, `secret_scanning_push_protection=enabled`, and `dependabot_security_updates=disabled`. Live branch protection still has no required status checks or required PR review object, while conversation resolution, admin enforcement, force-push blocking, and deletion blocking are enabled. Live rulesets returned `[]`.
   - Source notes: GitHub's community profile API exposes health percentage and detected files: https://docs.github.com/en/rest/metrics/community. GitHub issue forms are YAML files in `/.github/ISSUE_TEMPLATE`: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms. GitHub CODEOWNERS only becomes merge enforcement when branch protection requires code-owner review, and GitHub recommends owning the `.github` CODEOWNERS file or directory itself: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners. GitHub recommends Dependabot alerts, secret scanning, push protection, and code scanning as minimum public-repository security settings: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository.
@@ -1470,6 +1481,7 @@ hardening work.*
   - Proposed report fields: `repositorySettings.repository`, `repositorySettings.visibility`, `repositorySettings.features.hasIssues`, `hasDiscussions`, `hasProjects`, `hasWiki`, `repositorySettings.security.secretScanning`, `secretScanningPushProtection`, `dependabotSecurityUpdates`, `codeScanningConfigured`, `repositorySettings.branchProtection.requiredStatusChecks`, `requiredPullRequestReviews`, `requiredCodeOwnerReviews`, `requiredConversationResolution`, `enforceAdmins`, `allowForcePushes`, `allowDeletions`, `repositorySettings.rulesets.count`, and `communityHealth.files`.
   - Recommended behavior: keep this report informational until PR-based delivery or a documented bypass is approved. Treat missing public-safe intake files as fatal because they are local repo contract files; treat disabled live repository settings as warnings with exact remediation notes.
   - Acceptance: `-Check` records the live settings when `gh` is authenticated and a public-safe `unavailable` reason when offline or unauthenticated; Actions summary includes aggregate status without dumping sensitive settings; tests cover parsing fixture responses for enabled/disabled settings; no tokens, owner email addresses, alert details, or security alert contents are written to the report.
+  - Completed: v4.9.53 records live settings when available, records public-safe unavailable reasons offline/unauthenticated, summarizes aggregate warning/fatal counts in Actions output, and keeps local public-safe intake-file misses as fatal report gaps.
   - Risks: live settings are mutable outside git; branch-protection changes can block this autonomous direct-push loop while `enforce_admins=true`; the community profile API may not recognize YAML issue forms as `issue_template`, so the report should separately check local `.github/ISSUE_TEMPLATE/*.yml`.
   - Verify: run `gh api repos/SysAdminDoc/SysAdminDoc/community/profile`; run `gh api repos/SysAdminDoc/SysAdminDoc --jq '{has_issues,has_discussions,security_and_analysis}'`; run branch protection and rulesets checks; run `scripts/sync-profile.ps1 -Check` and confirm the report contains the expected aggregate booleans.
   - Complexity: M
@@ -1699,7 +1711,7 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output (completed v4.9.38: https-only gate on liveUrl/userscriptUrl with Pester coverage).
 - [x] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (v4.9.36–v4.9.39: projects-sync gate, URL-scheme, medical privacy gate; `Update-Header` idempotency deferred).
 - [x] P1 — Public-feed redaction for private suppression rows (completed v4.9.42 with dedicated redacted `suppressedProject` feed rows).
-- [ ] P2 — Repository settings/community-health baseline in the sync report.
+- [x] P2 — Repository settings/community-health baseline in the sync report (completed v4.9.53 with public-safe `repositorySettings`/`communityHealth`, local required-file fatal gaps, unavailable-state handling, summary rows, schema support, and Pester coverage).
 - [x] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort (completed v4.9.50 with paginated REST enumeration, authenticated/capped release fetches, non-404 abort behavior, and fallback guard coverage).
 - [x] P2 — Header/non-catalog link validation folded into the existing link gate (completed v4.9.49 with fatal portfolio/setup probes, non-fatal image-host warnings, report/schema fields, and Pester coverage).
 - [x] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows (completed v4.9.44 with feed `releaseTrust`, schema coverage, trust-level counts, checksum-gap reporting, and debug artifact reporting).

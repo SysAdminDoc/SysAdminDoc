@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.53] - 2026-06-06
+
+- Added: Profile sync reports now include public-safe `repositorySettings` and `communityHealth` blocks with live settings status, unavailable reasons, warning counts, and required local community-file fatal gaps.
+- Added: `scripts/write-profile-sync-summary.ps1` now summarizes repository-setting and community-health warning/fatal counts without dumping sensitive settings or alert details.
+- Added: `schemas/profile-sync-report.v1.json` and Pester coverage validate the new report sections and fixture disabled/missing/unavailable cases.
+- Verified: Current live baseline records 4 repository-setting warnings, 3 community-health warnings, and 0 fatal local intake-file gaps.
+
 ## [v4.9.52] - 2026-06-06
 
 - Added: Profile sync now reports `catalogShape` and fails `-Check` when catalog rows have missing repo names, duplicate repo keys, unknown categories, or unknown `downloadKind` values.

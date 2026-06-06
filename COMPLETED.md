@@ -63,6 +63,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added public-safe intake files: `SECURITY.md`, broken-link/profile-correction/workflow issue forms, issue chooser security routing, and a generated-profile-aware PR template with Pester coverage (v4.9.29). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Made required-check candidate workflows always create pull request and merge-queue checks by removing PR path filters from Tests, Profile sync, and Workflow security, with Pester coverage guarding the trigger shape (v4.9.30). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Added public-safe profile-sync report summaries and retained report artifacts to profile-sync and profile-assets refresh workflows, with Pester coverage for the helper and wiring (v4.9.31). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
+- [x] Added read-only repository settings and community-health baseline reporting with public-safe `repositorySettings`/`communityHealth` sections, local required intake-file fatal gaps, summary rows, schema support, and Pester fixture coverage (v4.9.53). — *Source: ROADMAP.md*
 - [x] Added explicit timeout budgets to every GitHub Actions job, with Pester coverage for timeout presence and maximum duration (v4.9.32). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Added checksum-verified `actionlint` 1.7.12 to workflow-security beside `zizmor`, with Pester coverage for the pinned install and command wiring (v4.9.33). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Pinned CI-installed validation tools by installing Pester 5.7.1 with `-RequiredVersion`, installing `zizmor` 1.25.2 from hash-checked `requirements-ci.txt`, documenting the reviewed update path, and adding Pester source guards (v4.9.46). — *Source: ROADMAP.md*
@@ -79,6 +80,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 
 - [x] Added a hermetic Pester v5 suite (`tests/`, 16 tests) plus a `tests.yml` CI job and a dot-source test seam. — *Source: TODO.md*
 - [x] Added catalog-shape validation for duplicate repos, missing repo values, unknown categories, and unknown `downloadKind` values, with report/schema support and Pester coverage (v4.9.52). — *Source: ROADMAP.md*
+- [x] Added repository settings/community-health fixture coverage for enabled/disabled live-shaped settings, missing required local intake files, and unavailable API state (v4.9.53). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 

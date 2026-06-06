@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.52
+Current version after this refresh: v4.9.53
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.53 batch closed the repository settings/community-health reporting
+  gap by adding public-safe `repositorySettings` and `communityHealth` blocks to
+  the sync report.
+- Current live baseline data is available and records 4 repository-setting
+  warnings, 3 community-health warnings, GitHub community health 71, and 0 fatal
+  local required intake-file gaps.
+- The summary helper now emits aggregate setting/community warning and fatal
+  counts only; the report schema and Pester fixtures cover live-shaped disabled
+  settings, missing local files, and unavailable metadata.
 - The v4.9.52 batch closed the catalog JSON-shape validation gap by adding
   `Test-CatalogShape` plus `catalogShape` report output and `-Check` failure
   wiring.
@@ -592,7 +601,7 @@ This addendum is a fresh, code-first pass after the planning-doc consolidation. 
 
 ### Executive summary (addendum)
 
-A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, and the planning-doc version/date consistency gate was closed in v4.9.20. Remaining automated-guard gaps include repository/community-health reporting and raw userscript trust metadata; the previously identified hero-link validation, REST release-fallback, generated-README size-budget, and catalog-shape validation gaps are now closed.
+A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, and the planning-doc version/date consistency gate was closed in v4.9.20. Remaining automated-guard gaps include raw userscript trust metadata; the previously identified hero-link validation, REST release-fallback, generated-README size-budget, catalog-shape validation, and repository/community-health reporting gaps are now closed.
 
 Top addendum opportunities (one line each):
 
@@ -657,7 +666,7 @@ Top cycle 2 opportunities:
 1. P1 — Run PSScriptAnalyzer in CI for `scripts/sync-profile.ps1` and `setup.ps1`. [Verified]
 2. P1 — Add public-safe feed provenance fields such as source ref, catalog hash, generator hash, and metadata snapshot time. [Verified]
 3. P2 — Add issue forms and PR/contribution templates for broken catalog links and profile corrections. [Verified]
-4. P2 — Report repository settings and community-health status alongside generated-profile checks. [Verified]
+4. P2 — Report repository settings and community-health status alongside generated-profile checks. [Closed v4.9.53]
 5. P2 — Triage current Dependabot workflow-action update PRs #5 and #6 with a repeatable SHA-pin review path. [Verified]
 
 ### Evidence reviewed (cycle 2)
@@ -685,7 +694,7 @@ External sources reviewed:
 - **Major — No static PowerShell analysis.** The repo's critical behavior lives in two `.ps1` files, but CI only runs Pester. Microsoft documents PSScriptAnalyzer as a static checker with `-EnableExit` for CI, making this a low-risk guard before future generator/setup refactors. → roadmap "Add a PowerShell static-analysis lane". [Verified]
 - **Major — Feed provenance is too thin for downstream debugging.** `projects.json` tells consumers when it was generated but not what source tree, catalog file hash, or generator script hash produced it. The separate portfolio will consume this feed, so a bad cache or stale generated artifact is hard to diagnose without rerunning the generator. → roadmap "Add generated-feed provenance fields". [Verified]
 - **Minor — Public issue intake is unstructured.** The repo has Issues enabled and a long visitor-facing catalog, but no issue forms for broken install snippets, stale release links, or profile corrections. GitHub's template docs support structured forms and PR templates that can steer users away from generated-section hand edits. → roadmap "Add structured issue/support intake". [Verified]
-- **Minor — GitHub-hosted settings are invisible to `-Check`.** Secret scanning and push protection are currently enabled, but this trust state is not captured in the sync report and can drift independently of tracked files. Community-health status is also absent from the report. → roadmap "Add a read-only repository settings and community-health baseline". [Verified]
+- **Minor — GitHub-hosted settings are invisible to `-Check`.** Secret scanning and push protection are currently enabled, but this trust state is not captured in the sync report and can drift independently of tracked files. Community-health status is also absent from the report. → roadmap "Add a read-only repository settings and community-health baseline". [Closed v4.9.53]
 - **Minor — Open workflow-action update PRs need a repeatable review path.** Dependabot is doing its job for pinned actions, but #5 and #6 remain open. The repo should merge or defer them with a standard checklist covering checks, `zizmor`, permissions, and `persist-credentials:false`. → roadmap "Triage current Dependabot workflow-action update PRs". [Verified]
 - **Covered, not duplicated — Setup script trust.** Microsoft `about_Signing` reinforces the existing setup hardening row: the inspect-before-run path is the near-term improvement, with Authenticode signing or checksum publication as optional future trust depth if the user chooses a signing certificate path. No separate roadmap item was added to avoid duplicating `setup.ps1` hardening.
 

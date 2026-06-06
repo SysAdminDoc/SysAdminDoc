@@ -18,6 +18,8 @@
     "catalogShape",
     "metadataHygiene",
     "releaseAssetDrift",
+    "repositorySettings",
+    "communityHealth",
     "schemaValidation",
     "docVersionConsistency",
     "validationPerformance",
@@ -79,6 +81,12 @@
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
+    },
+    "repositorySettings": {
+      "$ref": "#/$defs/repositorySettings"
+    },
+    "communityHealth": {
+      "$ref": "#/$defs/communityHealth"
     },
     "schemaValidation": {
       "$ref": "#/$defs/schemaValidation"
@@ -184,6 +192,12 @@
     "nullableInteger": {
       "type": [
         "integer",
+        "null"
+      ]
+    },
+    "nullableBoolean": {
+      "type": [
+        "boolean",
         "null"
       ]
     },
@@ -743,6 +757,309 @@
         },
         "error": {
           "type": "string"
+        }
+      }
+    },
+    "repositorySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "unavailableReason",
+        "repository",
+        "visibility",
+        "features",
+        "security",
+        "branchProtection",
+        "rulesets",
+        "warningCount",
+        "warnings"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "visibility": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "features": {
+          "$ref": "#/$defs/repositoryFeatureSettings"
+        },
+        "security": {
+          "$ref": "#/$defs/repositorySecuritySettings"
+        },
+        "branchProtection": {
+          "$ref": "#/$defs/branchProtectionSettings"
+        },
+        "rulesets": {
+          "$ref": "#/$defs/repositoryRulesets"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "repositoryFeatureSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hasIssues",
+        "hasDiscussions",
+        "hasProjects",
+        "hasWiki",
+        "allowForking",
+        "deleteBranchOnMerge",
+        "webCommitSignoffRequired"
+      ],
+      "properties": {
+        "hasIssues": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "hasDiscussions": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "hasProjects": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "hasWiki": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "allowForking": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "deleteBranchOnMerge": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "webCommitSignoffRequired": {
+          "$ref": "#/$defs/nullableBoolean"
+        }
+      }
+    },
+    "repositorySecuritySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "secretScanning",
+        "secretScanningPushProtection",
+        "secretScanningNonProviderPatterns",
+        "secretScanningValidityChecks",
+        "dependabotSecurityUpdates",
+        "codeScanning"
+      ],
+      "properties": {
+        "secretScanning": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "secretScanningPushProtection": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "secretScanningNonProviderPatterns": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "secretScanningValidityChecks": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "dependabotSecurityUpdates": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "codeScanning": {
+          "$ref": "#/$defs/codeScanningStatus"
+        }
+      }
+    },
+    "codeScanningStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "recommendation",
+        "languagesInspected"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "recommendation": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "languagesInspected": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "branchProtectionSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "unavailableReason",
+        "requiredStatusChecks",
+        "requiredPullRequestReviews",
+        "requiredCodeOwnerReviews",
+        "requiredConversationResolution",
+        "enforceAdmins",
+        "allowForcePushes",
+        "allowDeletions"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "requiredStatusChecks": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "requiredPullRequestReviews": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "requiredCodeOwnerReviews": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "requiredConversationResolution": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "enforceAdmins": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "allowForcePushes": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "allowDeletions": {
+          "$ref": "#/$defs/nullableBoolean"
+        }
+      }
+    },
+    "repositoryRulesets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "unavailableReason",
+        "count"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "communityHealth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "unavailableReason",
+        "healthPercentage",
+        "providerFiles",
+        "localFiles",
+        "localRequiredMissingCount",
+        "warningCount",
+        "warnings",
+        "fatalCount",
+        "errors"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "healthPercentage": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "providerFiles": {
+          "$ref": "#/$defs/communityProviderFiles"
+        },
+        "localFiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/communityLocalFileStatus"
+          }
+        },
+        "localRequiredMissingCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "communityProviderFiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readme",
+        "license",
+        "issueTemplate",
+        "pullRequestTemplate",
+        "contributing",
+        "codeOfConduct"
+      ],
+      "properties": {
+        "readme": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "license": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "issueTemplate": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "pullRequestTemplate": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "contributing": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "codeOfConduct": {
+          "$ref": "#/$defs/nullableBoolean"
+        }
+      }
+    },
+    "communityLocalFileStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "required",
+        "exists"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "exists": {
+          "type": "boolean"
         }
       }
     },
