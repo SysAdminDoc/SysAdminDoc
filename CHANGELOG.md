@@ -2,6 +2,15 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.41] - 2026-06-06
+
+- Fixed: `setup.ps1 -CheckOnly` now parses and runs under Windows PowerShell 5.1 by keeping the public bootstrapper ASCII-only.
+- Fixed: Setup transcript filenames now include the process ID so concurrent diagnostics do not reuse the same temp log path.
+- Changed: Profile sync now preserves the minimal public README header from the latest remote update instead of reintroducing the older personal-profile chrome, Start Here, Catalog Snapshot, or Currently Building sections.
+- Changed: Rendered-profile smoke checks now validate the current compact catalog sections rather than the removed personal-profile sections.
+- Added: Offline Pester coverage rejects non-ASCII bytes in `setup.ps1` before they can break the advertised inspect-before-install path.
+- Added: Tests workflow now has an always-created `Windows setup smoke` job that parses `setup.ps1` with Windows PowerShell and runs the check-only diagnostics.
+
 ## [v4.9.40] - 2026-06-05
 
 - Fixed: VaultBox catalog entry had `category: "suppressed"` but no `suppressionReason`, making it invisible in both `projects` and `suppressed` arrays of the feed.

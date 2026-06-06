@@ -265,8 +265,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'PyTool'
         $script:rendered | Should -Not -Match 'HiddenTool'
     }
-    It 'includes the generated catalog hand-edit notice' {
-        $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
+    It 'omits the generated catalog notice when the current README uses the compact header' {
+        $script:rendered | Should -Not -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
     It 'renders setup inspect-before-run and check-only guidance' {
         $script:rendered | Should -Match 'Inspect before installing'
@@ -287,43 +287,38 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
 
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -BeGreaterOrEqual 2
     }
-    It 'emits theme-aware profile chrome with plain text and descriptive alt text' {
-        $script:rendered | Should -Match '<picture>'
-        $script:rendered | Should -Match '\(prefers-color-scheme: dark\)'
-        $script:rendered | Should -Match '\(prefers-color-scheme: light\)'
-        $script:rendered | Should -Match 'assets/profile/stats-light\.svg'
-        $script:rendered | Should -Match 'assets/profile/languages-light\.svg'
-        $script:rendered | Should -Match 'assets/profile/activity-light\.svg'
-        $script:rendered | Should -Match 'Healthcare IT engineer and DICOM/PACS specialist'
-        $script:rendered | Should -Match 'alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"'
-        $script:rendered | Should -Not -Match 'alt="(Header|Typing SVG|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
+    It 'preserves the minimal public profile header without adding personal chrome' {
+        $script:rendered.TrimStart() | Should -Match '^\*\*\[View my full portfolio'
+        $script:rendered | Should -Not -Match '### Professional Focus'
+        $script:rendered | Should -Not -Match 'Healthcare IT engineer and DICOM/PACS specialist'
+        $script:rendered | Should -Not -Match 'Currently Building'
+        $script:rendered | Should -Not -Match 'https://skillicons\.dev'
+        $script:rendered | Should -Not -Match 'assets/profile/(stats|languages|activity)-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
         $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
-    It 'places stats chrome after the profile body and before the generated catalog' {
-        $focusIndex = $script:rendered.IndexOf('### Professional Focus', [StringComparison]::Ordinal)
-        $statsIndex = $script:rendered.IndexOf('https://skillicons.dev/icons', [StringComparison]::Ordinal)
-        $noticeIndex = $script:rendered.IndexOf($GeneratedCatalogNotice, [StringComparison]::Ordinal)
-
-        ($focusIndex -ge 0) | Should -BeTrue
-        ($statsIndex -gt $focusIndex) | Should -BeTrue
-        ($statsIndex -lt $noticeIndex) | Should -BeTrue
-        $script:rendered.Substring(0, $focusIndex) | Should -Not -Match 'skillicons\.dev'
-        $script:rendered | Should -Not -Match '(?s)\*\*Currently Building\*\*.*?\r?\n---\r?\n\r?\n---\r?\n\r?\n<p align="center">\s*<a href="https://skillicons\.dev">'
-        [regex]::Matches($script:rendered, '<a href="https://skillicons\.dev">').Count | Should -Be 1
-        [regex]::Matches($script:rendered, 'alt="Generated SysAdminDoc release asset validation summary"').Count | Should -Be 1
+    It 'keeps the generated catalog compact when the README omits the discovery block' {
+        $script:rendered | Should -Not -Match ([regex]::Escape($GeneratedCatalogNotice))
+        $script:rendered | Should -Not -Match '### Start Here'
+        $script:rendered | Should -Not -Match '### Catalog Snapshot'
+        $script:rendered | Should -Match '### Featured Projects'
     }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
-        $result.generatedCatalogNotice | Should -BeTrue
+        $result.generatedCatalogNotice | Should -BeFalse
+        $result.startHereSection | Should -BeFalse
+        $result.catalogSnapshotSection | Should -BeFalse
         $result.setupInspectPath | Should -BeTrue
-        $result.themeAwareImageChrome | Should -BeTrue
-        $result.plainTextTagline | Should -BeTrue
-        $result.meaningfulImageAltText | Should -BeTrue
+        $result.themeAwareImageChrome | Should -BeFalse
+        $result.plainTextTagline | Should -BeFalse
+        $result.meaningfulImageAltText | Should -BeFalse
+        $result.minimalProfileHeader | Should -BeTrue
+        $result.richProfileHeader | Should -BeFalse
         $result.genericImageAltTextCount | Should -Be 0
         $result.thirdPartyMetricHostCount | Should -Be 0
         $result.thirdPartyBadgeHostCount | Should -Be 0
-        $result.profileStatsChromeCount | Should -Be 1
+        $result.profileStatsChromeCount | Should -Be 0
+        $result.currentlyBuildingActionColumn | Should -BeTrue
         $result.passed | Should -BeTrue
     }
 
@@ -392,11 +387,18 @@ Describe 'Update-Header idempotency' {
 
 Describe 'setup.ps1 hardening contract' {
     BeforeAll {
-        $script:setupSource = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'setup.ps1') -Raw
+        $script:setupPath = Join-Path $script:RepoRoot 'setup.ps1'
+        $script:setupSource = Get-Content -LiteralPath $script:setupPath -Raw
     }
 
     It 'declares the supported Windows PowerShell floor' {
         $script:setupSource | Should -Match '(?m)^#Requires -Version 5\.1\s*$'
+    }
+
+    It 'keeps the public bootstrapper ASCII-only for Windows PowerShell 5.1' {
+        $nonAsciiBytes = @([System.IO.File]::ReadAllBytes($script:setupPath) | Where-Object { $_ -gt 0x7f })
+
+        $nonAsciiBytes | Should -HaveCount 0
     }
 
     It 'supports check-only diagnostics without installation' {
@@ -407,7 +409,8 @@ Describe 'setup.ps1 hardening contract' {
 
     It 'writes a best-effort setup transcript under temp' {
         $script:setupSource | Should -Match 'Start-Transcript'
-        $script:setupSource | Should -Match 'SysAdminDoc-setup-\{0\}\.log'
+        $script:setupSource | Should -Match 'SysAdminDoc-setup-\{0\}-\{1\}\.log'
+        $script:setupSource | Should -Match '\$PID'
         $script:setupSource | Should -Match 'Stop-Transcript'
     }
 }
@@ -684,9 +687,9 @@ Describe 'Rendered profile smoke wiring' {
     }
 
     It 'asserts key rendered sections and overflow/image health' {
-        $script:RenderSmokeScript | Should -Match 'Professional Focus'
-        $script:RenderSmokeScript | Should -Match 'Currently Building'
-        $script:RenderSmokeScript | Should -Match 'Start Here'
+        $script:RenderSmokeScript | Should -Match 'Featured Projects'
+        $script:RenderSmokeScript | Should -Match 'First-time setup'
+        $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'
         $script:RenderSmokeScript | Should -Match 'rootOverflow'
         $script:RenderSmokeScript | Should -Match 'failedImages'
     }
@@ -720,6 +723,17 @@ Describe 'Required status check readiness' {
         foreach ($workflow in $script:RequiredCheckWorkflows.Values) {
             $workflow | Should -Not -Match '(?ms)^  pull_request:\s*\r?\n\s+paths:'
         }
+    }
+
+    It 'keeps the Windows setup smoke check always created for PRs and merge queue runs' {
+        $testsWorkflow = $script:RequiredCheckWorkflows.Tests
+
+        $testsWorkflow | Should -Match '(?m)^  windows-setup-smoke:\s*$'
+        $testsWorkflow | Should -Match '(?m)^    name: Windows setup smoke\s*$'
+        $testsWorkflow | Should -Match '(?m)^    runs-on: windows-latest\s*$'
+        $testsWorkflow | Should -Match '(?m)^        shell: powershell\s*$'
+        $testsWorkflow | Should -Match 'System\.Management\.Automation\.Language\.Parser'
+        $testsWorkflow | Should -Match '-CheckOnly'
     }
 }
 
@@ -772,7 +786,7 @@ Describe 'Workflow timeout budgets' {
             '.github/workflows/assets-refresh.yml' = 1
             '.github/workflows/profile-sync.yml' = 2
             '.github/workflows/scorecard.yml' = 1
-            '.github/workflows/tests.yml' = 2
+            '.github/workflows/tests.yml' = 3
             '.github/workflows/workflow-security.yml' = 1
         }
     }
@@ -824,7 +838,7 @@ Describe 'Workflow checkout action pin' {
         $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
 
-        $checkoutUses.Count | Should -Be 7
+        $checkoutUses.Count | Should -Be 8
         foreach ($match in $checkoutUses) {
             $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
         }

@@ -4,7 +4,7 @@
   "source": "SysAdminDoc/SysAdminDoc data/profile-catalog.json",
   "publicRepoCount": 184,
   "projectCount": 177,
-  "suppressedCount": 9,
+  "suppressedCount": 10,
   "projects": [
     {
       "repo": "ZeusWatch",
@@ -139,7 +139,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 7,
+      "stars": 8,
       "latestReleaseTag": "v6.5.9",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/HostShield/releases/tag/v6.5.9",
       "releaseAssetKinds": [
@@ -202,7 +202,7 @@
         "Aura-v6.31.1.apk"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T05:39:51.0000000Z",
+      "pushedAt": "2026-06-06T18:14:52.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -433,7 +433,7 @@
         "AppManagerNG-0.5.0-full-release.apk.sha256"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T06:15:03.0000000Z",
+      "pushedAt": "2026-06-06T18:17:35.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -818,7 +818,7 @@
         "app-release.apk"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T05:47:17.0000000Z",
+      "pushedAt": "2026-06-06T17:31:33.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -863,7 +863,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 5,
+      "stars": 6,
       "latestReleaseTag": "v0.2.59",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.59",
       "releaseAssetKinds": [
@@ -1309,7 +1309,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "C#",
-      "stars": 2,
+      "stars": 3,
       "latestReleaseTag": "v1.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UniversalConverterX/releases/tag/v1.0.0",
       "releaseAssetKinds": [
@@ -1949,7 +1949,7 @@
         "ytkit-v4.46.0.user.js"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T05:49:05.0000000Z",
+      "pushedAt": "2026-06-06T18:14:32.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -2001,7 +2001,7 @@
         "ScriptVault-v3.11.0.zip"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T06:15:16.0000000Z",
+      "pushedAt": "2026-06-06T18:13:30.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -3224,7 +3224,7 @@
         "sysadmindoc-portfolio-v0.13.1.zip"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T06:05:55.0000000Z",
+      "pushedAt": "2026-06-06T18:15:46.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -3467,7 +3467,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 17,
+      "stars": 18,
       "latestReleaseTag": "v3.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.16.0",
       "releaseAssetKinds": [
@@ -6436,7 +6436,7 @@
         "OpenCut-Setup-1.25.1.exe"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T05:58:58.0000000Z",
+      "pushedAt": "2026-06-06T18:18:27.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -6853,7 +6853,7 @@
         "BookmarkOrganizerPro.exe"
       ],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-05-27T09:51:17.0000000Z",
+      "pushedAt": "2026-06-06T18:12:35.0000000Z",
       "topics": [
         "ai",
         "bookmarks",
@@ -8806,7 +8806,7 @@
       ],
       "releaseAssetNames": [],
       "releaseAssetInspected": true,
-      "pushedAt": "2026-06-05T06:15:16.0000000Z",
+      "pushedAt": "2026-06-06T18:13:30.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -9186,6 +9186,48 @@
         "system-administration",
         "windows"
       ],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "VaultBox",
+      "title": "VaultBox",
+      "category": "suppressed",
+      "includeInReadme": false,
+      "includeInPortfolio": false,
+      "suppressed": true,
+      "suppressionReason": "Not visitor-facing; early prototype not ready for the public catalog.",
+      "description": "Offline Bitwarden password manager — zero server contact, local vault",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "repoUrl": "https://github.com/SysAdminDoc/VaultBox",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": null,
+      "downloadKind": "exe",
+      "primaryAction": {
+        "kind": "repo",
+        "label": "Repo",
+        "url": "https://github.com/SysAdminDoc/VaultBox"
+      },
+      "hasDownload": false,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "C++",
+      "stars": null,
+      "latestReleaseTag": null,
+      "latestReleaseUrl": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
+      "releaseAssetInspected": false,
+      "pushedAt": null,
+      "topics": [],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,

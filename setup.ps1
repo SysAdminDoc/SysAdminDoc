@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# SysAdminDoc setup.ps1 — installs Python 3 and Git via winget so the
+# SysAdminDoc setup.ps1 - installs Python 3 and Git via winget so the
 # README install one-liners work on a fresh machine.
 #
 # Usage (paste into PowerShell):
@@ -18,7 +18,7 @@ function Write-Skip  ([string]$m) { Write-Host "  = $m" -ForegroundColor DarkGra
 function Write-Warn2 ([string]$m) { Write-Host "  ! $m" -ForegroundColor Yellow }
 
 $script:TranscriptStarted = $false
-$script:TranscriptPath = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-setup-{0}.log" -f (Get-Date -Format 'yyyyMMdd-HHmmss'))
+$script:TranscriptPath = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-setup-{0}-{1}.log" -f (Get-Date -Format 'yyyyMMdd-HHmmss'), $PID)
 
 function Test-Cmd([string]$name) {
     [bool](Get-Command $name -ErrorAction SilentlyContinue)
@@ -104,12 +104,12 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
     }
     Update-PathFromRegistry
     if (Test-Cmd $probe) { Write-Ok "$display installed" }
-    else { Write-Warn2 "$display not on PATH yet — close and reopen PowerShell, then re-run." }
+    else { Write-Warn2 "$display not on PATH yet - close and reopen PowerShell, then re-run." }
 }
 
 try {
     Write-Host ""
-    Write-Host "SysAdminDoc setup — Python 3 + Git" -ForegroundColor White
+    Write-Host "SysAdminDoc setup - Python 3 + Git" -ForegroundColor White
     Write-Host "------------------------------------" -ForegroundColor White
     Start-SetupTranscript
 

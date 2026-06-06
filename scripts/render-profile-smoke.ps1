@@ -146,7 +146,7 @@ function Invoke-RenderedSmoke {
   const text = document.body.innerText || "";
   const article = document.querySelector("article.markdown-body") || document.querySelector(".markdown-body");
   const root = article || document.body;
-  const sections = ["Professional Focus", "Proof Points", "Currently Building", "Start Here", "Catalog Snapshot", "Featured Projects"];
+  const sections = ["Featured Projects", "First-time setup", "PowerShell System Utilities", "Python Applications", "Browser Extensions"];
   const sectionResults = Object.fromEntries(sections.map((name) => [name, text.includes(name)]));
   const rootOverflow = root.scrollWidth > root.clientWidth + 2;
   const documentOverflow = document.documentElement.scrollWidth > window.innerWidth + 2;

@@ -69,3 +69,30 @@ jobs:
           $config.Run.Throw = $true
           $config.Output.Verbosity = 'Detailed'
           Invoke-Pester -Configuration $config
+
+  windows-setup-smoke:
+    name: Windows setup smoke
+    runs-on: windows-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+
+      - name: Parse setup.ps1 with Windows PowerShell
+        shell: powershell
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path .\setup.ps1), [ref]$tokens, [ref]$errors) > $null
+          if ($errors) {
+            $errors | Format-List * -Force
+            throw "setup.ps1 has $($errors.Count) Windows PowerShell parser error(s)."
+          }
+
+      - name: Run setup check-only diagnostics
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly
