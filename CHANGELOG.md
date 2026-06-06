@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.55] - 2026-06-06
+
+- Added: Visitor-facing `projects.json` rows now export each repository's detected `licenseKey`, `licenseName`, and `licenseSpdxId` separately from upstream/fork attribution.
+- Added: Profile sync reports now include `projectLicenseMetadata` with detected, missing, non-standard, and per-license aggregate counts.
+- Added: The profile projects feed schema and sync-report schema validate the new license metadata fields.
+- Added: Pester coverage verifies project license export, missing/non-standard license reporting, and public-safe summary rows.
+- Verified: Current live report checks 177 visitor-facing projects, detects 174 project licenses, records 3 missing license rows, and records 9 non-standard GitHub `other` rows.
+
 ## [v4.9.54] - 2026-06-06
 
 - Added: Generated profile PR workflows now dispatch `profile-sync.yml` in check mode on the generated automation branch after creating the pull request.

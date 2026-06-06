@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.54
+Current repo version: v4.9.55
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -34,15 +34,24 @@ pass, the implementing machine should:
 
 Last researched: Cycle 48 - 2026-06-06.
 
+2026-06-06 v4.9.55 refresh: per-project SPDX/license metadata shipped.
+Generated project rows now include `licenseKey`, `licenseName`, and
+`licenseSpdxId` from live GitHub metadata, separate from `upstreamLicense`.
+The sync report now records `projectLicenseMetadata` with detected, missing,
+non-standard, and per-license aggregate counts; the current live report checks
+177 visitor-facing projects, detects 174 licenses, and records 12 warning rows
+for 3 missing and 9 non-standard licenses. The projects/feed schemas, report
+schema, summary helper, and Pester suite cover the new fields. The duplicate
+profile-assets report-summary row is reconciled as already completed in v4.9.31.
+Next highest open item: GitHub fork-parent drift report for catalog `forkOf`
+attribution.
+
 2026-06-06 v4.9.54 refresh: generated profile PR validation handoff shipped.
 Both generated-PR workflows now grant `actions: write` only to their
 PR-creating jobs, create a branch-scoped validation-runs URL in the PR body and
 job summary, and explicitly dispatch `profile-sync.yml` in check mode on the
 generated automation branch. Pester coverage guards the dispatch command,
 handoff links, summary text, and read-only check-job permissions.
-Next highest open item: profile-assets refresh report artifact/public-safe
-summary parity appears as a duplicate of v4.9.31 and should be reconciled before
-moving to per-project SPDX/license metadata.
 
 2026-06-06 v4.9.53 refresh: repository settings/community-health baseline shipped.
 Profile sync now records public-safe `repositorySettings` and `communityHealth`
@@ -1083,12 +1092,13 @@ metadata in the generated feed and report. Existing fork/upstream attribution
 work covers upstream origins; this item covers each SysAdminDoc project's own
 GitHub-detected license.*
 
-- [ ] P2 🤖 🔬 — Export per-project SPDX/license metadata in the feed
+- [x] P2 🤖 🔬 — Export per-project SPDX/license metadata in the feed
   - Why: the generated feed exposes each project's language, stars, releases, topics, upstream fork info, and upstream license, but it does not expose the repository's own detected license. Awesome-list submissions, portfolio consumers, and visitor trust checks need machine-readable license status without querying GitHub again.
   - Evidence: `gh repo view SysAdminDoc/Network_Security_Auditor --json licenseInfo` returns `MIT License`/`mit`; `scripts/sync-profile.ps1:210-213` requests live repo fields without `licenseInfo`, and the REST fallback at `scripts/sync-profile.ps1:187-196` also omits license metadata; `projects.json` rows include `upstreamLicense` but no row-level `licenseKey`, `licenseName`, or `licenseSpdxId`; `schemas/profile-projects.v1.json` has no project license fields beyond fork/upstream attribution. GitHub's license REST docs expose detected license `key`, `name`, and `spdx_id`: https://docs.github.com/rest/reference/licenses; the SPDX License List exists to provide stable identifiers for licenses: https://spdx.org/licenses/
   - Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, generated `projects.json`, `reports/profile-sync-report.json`, optional README/license microcopy if the build machine wants visitor-visible labels.
   - Acceptance: generated project rows include public-safe license fields such as `licenseKey`, `licenseName`, and `licenseSpdxId` when GitHub detects a license; the schema validates those fields; the sync report summarizes detected/missing/unknown license counts and warns on visitor-facing projects without a license; upstream-license attribution remains separate from the project's own license.
   - Verify: run `scripts/sync-profile.ps1 -Write -Check`; confirm `Network_Security_Auditor` and another MIT-licensed row emit SPDX/license fields; temporarily remove or null a fixture license and confirm the report records a missing-license warning without breaking unrelated rows.
+  - Completed: v4.9.55 exports `licenseKey`, `licenseName`, and `licenseSpdxId` in `projects.json`, records `projectLicenseMetadata` warning/aggregate counts in the sync report, and validates both artifacts through schemas and Pester coverage.
   - Complexity: M
 
 ### Researcher Queue (Cycle 14 - 2026-06-04)
@@ -1683,7 +1693,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches (completed v4.9.54 with branch-scoped `profile-sync.yml` check dispatch from generated PR workflows).
 - [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
 - [x] P2 — Expanded CODEOWNERS coverage for public profile contract files (completed v4.9.38).
-- [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
+- [x] P2 — Per-project SPDX/license fields in `projects.json` and the sync report (completed v4.9.55 with visitor-facing `licenseKey`/`licenseName`/`licenseSpdxId`, report aggregates, schema validation, and Pester coverage).
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
 - [x] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300` (completed v4.9.36: raised to 500 with truncation warning).
 - [x] P2 — JSON Schema contract for `reports/profile-sync-report.json` (completed v4.9.45 with `schemas/profile-sync-report.v1.json`, report `schema`, `schemaValidation.report`, `-Check` failure wiring, and Pester malformed-report coverage).
@@ -1729,9 +1739,9 @@ P1/P2 needing design or staged rollout:
 - [x] P2 — Pinned CI validation-tool installs with a documented update path (completed v4.9.46 with exact Pester/PSScriptAnalyzer versions, hash-checked `zizmor`, and `docs/ci-toolchain.md`).
 - [x] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate (completed v4.9.47 with generated report/schema fields and failure coverage for reintroduced motion patterns).
 - [x] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch (completed v4.9.54 with scoped `actions: write`, PR body/summary validation links, and explicit `profile-sync.yml` check dispatch on generated branches).
-- [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
+- [x] P2 — Profile-assets refresh report artifact and public-safe summary parity (duplicate row reconciled in v4.9.55; completed v4.9.31 with shared public-safe summary helper and retained report artifacts).
 - [x] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths (completed v4.9.38).
-- [ ] P2 — Per-project license metadata in the generated feed, schema, and report.
+- [x] P2 — Per-project license metadata in the generated feed, schema, and report (completed v4.9.55 with project license fields, sync-report aggregates, schema support, and Pester coverage).
 - [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
 - [x] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap (completed v4.9.36).
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.

@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T16:35:51.6306249-04:00",
+  "generatedAt": "2026-06-06T16:53:49.8324405-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "342122298b3727f1935d387798343dcea9ab02a7",
+    "sourceCommit": "73fe635b4cd32af19bdf336c0c4fa625382ae812",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "3e2fc37edc23daa779f43f07ac122884a5395e4ab0facdf56710f24012ec5ece",
-    "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T16:34:29.3390678-04:00",
+    "generatorSha256": "a8a11d426046dbf5e817165b5ef385a6105e5b33e094a861fd3389860e06c09b",
+    "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
+    "metadataSnapshotAt": "2026-06-06T16:52:25.5720299-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T20:33:40.0000000Z",
+        "pushedAt": "2026-06-06T20:47:48.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -883,6 +883,142 @@
       }
     ],
     "missingDescriptions": []
+  },
+  "projectLicenseMetadata": {
+    "checkedCount": 177,
+    "detectedCount": 174,
+    "missingCount": 3,
+    "unknownCount": 9,
+    "warningCount": 12,
+    "licenseCounts": [
+      {
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
+      },
+      {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
+      },
+      {
+        "licenseSpdxId": "NOASSERTION",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "count": 9
+      },
+      {
+        "licenseSpdxId": "Apache-2.0",
+        "licenseKey": "apache-2.0",
+        "licenseName": "Apache License 2.0",
+        "count": 2
+      },
+      {
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "LGPL-3.0",
+        "licenseKey": "lgpl-3.0",
+        "licenseName": "GNU Lesser General Public License v3.0",
+        "count": 1
+      }
+    ],
+    "missingLicenses": [
+      {
+        "repo": "AI_Realism",
+        "reason": "GitHub did not report a detected repository license"
+      },
+      {
+        "repo": "IMDb_Enhanced",
+        "reason": "GitHub did not report a detected repository license"
+      },
+      {
+        "repo": "SPECTRE",
+        "reason": "GitHub did not report a detected repository license"
+      }
+    ],
+    "unknownLicenses": [
+      {
+        "repo": "ApocalypseWatch",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "AppManagerNG",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "Astra-Deck",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "kindred",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "LTSC-MicrosoftStore",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "NovaCut",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "OpenLumen",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "PromptCompanion",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "TsunamiSimulator",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      }
+    ]
   },
   "releaseAssetDrift": {
     "checkedCatalogRows": 177,
@@ -1708,28 +1844,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.54",
+    "expectedVersion": "v4.9.55",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.54"
+        "value": "v4.9.55"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.54"
+        "value": "v4.9.55"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.54"
+        "value": "v4.9.55"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.54"
+        "value": "v4.9.55"
       }
     ],
     "dates": [
@@ -1762,7 +1898,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3661,
+      "elapsedMs": 3397,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -1781,7 +1917,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.01,
+      "ageDays": 5.02,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1791,7 +1927,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3661,
+    "elapsedMs": 3397,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },

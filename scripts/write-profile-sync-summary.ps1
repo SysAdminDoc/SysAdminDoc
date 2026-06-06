@@ -34,6 +34,7 @@ if (-not (Test-Path -LiteralPath $ReportPath)) {
 $report = Get-Content -LiteralPath $ReportPath -Raw | ConvertFrom-Json
 
 $metadataHygiene = $report.metadataHygiene
+$projectLicenseMetadata = if ($report.PSObject.Properties.Name -contains 'projectLicenseMetadata') { $report.projectLicenseMetadata } else { $null }
 $releaseDrift = $report.releaseAssetDrift
 $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
@@ -43,6 +44,8 @@ $communityHealth = $report.communityHealth
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
+$missingLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.missingCount } else { 0 }
+$unknownLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.unknownCount } else { 0 }
 $fatalDriftCount = if ($driftSummary) { [int]$driftSummary.fatalCount } else { 0 }
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
@@ -65,6 +68,8 @@ $summary = @"
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
 | Missing descriptions | $missingDescriptionCount |
+| Missing project licenses | $missingLicenseCount |
+| Unknown project licenses | $unknownLicenseCount |
 | Release rows checked | $releaseRowsChecked |
 | Link targets checked | $($linkSummary.targetCount) |
 | Link failures | $linkFailureCount |
@@ -93,6 +98,14 @@ if ($linkFailureCount -gt 0) {
 
 if ($linkWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $linkWarningCount transient link warning(s)."
+}
+
+if ($missingLicenseCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $missingLicenseCount visitor-facing project(s) without detected license metadata."
+}
+
+if ($unknownLicenseCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $unknownLicenseCount visitor-facing project(s) with non-standard license metadata."
 }
 
 if ($repositoryWarningCount -gt 0) {

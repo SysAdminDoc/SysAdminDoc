@@ -27,6 +27,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Prepared a focused awesome-list submission shortlist with target lists, proposed entry text, and pre-submit gates, without opening external PRs (v4.9.11). — *Source: ROADMAP.md*
 - [x] Added release asset taxonomy from latest-release asset names, exported asset kinds/names in `projects.json`, corrected mismatched catalog labels, and regenerated to 0 release asset kind mismatches (v4.9.13). — *Source: ROADMAP.md*
 - [x] Added release/download trust metadata to visitor-facing feed rows, including checksum/signature/SBOM/attestation/debug/source-only filename evidence, schema validation, trust-level counts, checksum-gap reporting, and debug artifact reporting (v4.9.44). — *Source: ROADMAP.md*
+- [x] Added per-project repository license metadata to visitor-facing feed rows with `licenseKey`, `licenseName`, and `licenseSpdxId`, plus sync-report detected/missing/non-standard/license-count aggregates (v4.9.55). — *Source: ROADMAP.md*
 - [x] Added committed local SVG profile metric panels, asset sync/report checks, and a scheduled/manual asset-refresh workflow; removed komarev plus third-party stats/streak/activity hosts from the generated README (v4.9.14). — *Source: ROADMAP.md*
 - [x] Made generated profile chrome motion-safe by replacing external capsule/typing motion with committed static header/footer SVG assets, adding `readmeExperienceChecks.motionSafeChrome` plus render-host reporting, and adding Pester/schema coverage (v4.9.47). — *Source: ROADMAP.md*
 - [x] Removed redundant Shields follower/star image badges, moved total public stars into the local stats SVG, added badge/chrome-count report guards, and fixed duplicate generated stats chrome across repeated writes (v4.9.15). — *Source: ROADMAP.md*
@@ -83,6 +84,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added catalog-shape validation for duplicate repos, missing repo values, unknown categories, and unknown `downloadKind` values, with report/schema support and Pester coverage (v4.9.52). — *Source: ROADMAP.md*
 - [x] Added repository settings/community-health fixture coverage for enabled/disabled live-shaped settings, missing required local intake files, and unavailable API state (v4.9.53). — *Source: ROADMAP.md*
 - [x] Added workflow coverage for generated-PR validation dispatch permissions, branch-scoped validation links, summary text, and read-only check-job isolation (v4.9.54). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for project license export, missing/non-standard license reporting, report summary rows, and schema validation (v4.9.55). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 

@@ -28,6 +28,7 @@ BeforeAll {
             [string]$Description = 'desc',
             [string[]]$Topics = @('utility'),
             [string]$Language = 'PowerShell',
+            [object]$LicenseInfo = $null,
             [switch]$WithRelease,
             [string[]]$AssetNames = @()
         )
@@ -52,6 +53,7 @@ BeforeAll {
             }
             stargazerCount = 0
             pushedAt = '2026-06-04T00:00:00Z'
+            licenseInfo = $LicenseInfo
             visibility = 'PUBLIC'
             isPrivate = $false
         }
@@ -459,6 +461,30 @@ Describe 'Report schema depth helpers' {
         $result.missingTopics[0].topicHints | Should -Contain 'utility'
     }
 
+    It 'summarizes visitor-facing project license metadata gaps' {
+        $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
+        $pyTool = New-TestEntry -Repo 'PyTool' -Category 'python'
+        $webTool = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -LicenseInfo ([pscustomobject]@{ key = 'mit'; name = 'MIT License' })),
+            (New-TestRepoMeta -Name 'PyTool' -LicenseInfo $null),
+            (New-TestRepoMeta -Name 'WebTool' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' }))
+        )
+        $lookup = ConvertTo-Lookup $repos
+
+        $result = Test-ProjectLicenseMetadata -Entries @($winTool, $pyTool, $webTool) -RepoLookup $lookup
+
+        $result.checkedCount | Should -Be 3
+        $result.detectedCount | Should -Be 2
+        $result.missingCount | Should -Be 1
+        $result.unknownCount | Should -Be 1
+        $result.warningCount | Should -Be 2
+        ($result.missingLicenses | ForEach-Object { $_.repo }) | Should -Contain 'PyTool'
+        ($result.unknownLicenses | ForEach-Object { $_.repo }) | Should -Contain 'WebTool'
+        ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'MIT' }).count | Should -Be 1
+        ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).licenseKey | Should -Be 'other'
+    }
+
     It 'normalizes C++ language topic hints to cpp' {
         $hints = Get-TopicHints -Repo 'CppTool' -Language 'C++' -Entry $null -Description ''
 
@@ -823,6 +849,22 @@ Describe 'New-ProjectsExportJson feed' {
         $winTool.forkOf | Should -Be 'UpstreamOrg/WinTool'
         $winTool.forkOfUrl | Should -Be 'https://github.com/UpstreamOrg/WinTool'
         $winTool.upstreamLicense | Should -Be 'MIT'
+    }
+
+    It 'exports project license metadata separately from upstream attribution' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $cat.entries[0].upstreamLicense = 'GPL-3.0'
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -LicenseInfo ([pscustomobject]@{ key = 'mit'; name = 'MIT License' }))
+        )
+
+        $json = New-ProjectsExportJson -Catalog $cat -Repos $repos | ConvertFrom-Json
+        $winTool = $json.projects | Where-Object { $_.repo -eq 'WinTool' }
+
+        $winTool.upstreamLicense | Should -Be 'GPL-3.0'
+        $winTool.licenseKey | Should -Be 'mit'
+        $winTool.licenseName | Should -Be 'MIT License'
+        $winTool.licenseSpdxId | Should -Be 'MIT'
     }
 }
 
@@ -1200,6 +1242,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Pester summary test report'
             $summary | Should -Match 'Fatal metadata drift'
             $summary | Should -Match 'Missing topic hints'
+            $summary | Should -Match 'Missing project licenses'
+            $summary | Should -Match 'Unknown project licenses'
             $summary | Should -Match 'Link targets checked'
             $summary | Should -Match 'Repository setting warnings'
             $summary | Should -Match 'Community-health fatal gaps'
@@ -1213,6 +1257,7 @@ Describe 'Profile sync report summaries' {
     It 'emits GitHub annotations and uses aggregate report sections only' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
         $script:SummaryScript | Should -Match 'linkValidationSummary'
+        $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

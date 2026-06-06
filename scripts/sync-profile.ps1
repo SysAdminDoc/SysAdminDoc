@@ -200,6 +200,7 @@ function Get-GitHubReposFromRest {
             stargazerCount = [int]$repo.stargazers_count
             defaultBranchRef = [pscustomobject]@{ name = $repo.default_branch }
             latestRelease = $release
+            licenseInfo = $repo.license
             isPrivate = [bool]$repo.private
             visibility = "PUBLIC"
             isArchived = [bool]$repo.archived
@@ -284,7 +285,7 @@ function Get-GitHubRepos {
         "--visibility", "public",
         "--no-archived",
         "--limit", [string]$repoLimit,
-        "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
+        "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,licenseInfo,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
     )
     $lastOutput = $null
 
@@ -2094,6 +2095,7 @@ function New-ProjectsExportJson {
         if (-not $isSuppressed -and $meta -and $meta.latestRelease) {
             $releaseAssetNames = @(Get-ReleaseAssetNamesFromMeta -Meta $meta)
         }
+        $licenseMetadata = Get-LicenseMetadata -Meta $meta
         $releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
         $releaseTrust = New-ReleaseTrust `
             -AssetKinds $releaseAssetKinds `
@@ -2113,6 +2115,9 @@ function New-ProjectsExportJson {
             forkOf = if ([string]::IsNullOrWhiteSpace([string]$entry.forkOf)) { $null } else { [string]$entry.forkOf }
             forkOfUrl = Get-UpstreamUrl -ForkOf ([string]$entry.forkOf)
             upstreamLicense = if ([string]::IsNullOrWhiteSpace([string]$entry.upstreamLicense)) { $null } else { [string]$entry.upstreamLicense }
+            licenseKey = $licenseMetadata["licenseKey"]
+            licenseName = $licenseMetadata["licenseName"]
+            licenseSpdxId = $licenseMetadata["licenseSpdxId"]
             repoUrl = $repoUrl
             liveUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) { $null } else { [string]$entry.liveUrl }
             installUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) { $null } else { [string]$entry.userscriptUrl }
@@ -2631,6 +2636,63 @@ function Get-PublicSafeGhError {
         return "gh api failed"
     }
     return (($firstLine[0] -replace '^gh:\s*', '').Trim())
+}
+
+function Convert-LicenseKeyToSpdxId {
+    param([string]$Key)
+
+    if ([string]::IsNullOrWhiteSpace($Key)) {
+        return $null
+    }
+
+    $map = @{
+        "agpl-3.0" = "AGPL-3.0"
+        "apache-2.0" = "Apache-2.0"
+        "bsd-2-clause" = "BSD-2-Clause"
+        "bsd-3-clause" = "BSD-3-Clause"
+        "cc0-1.0" = "CC0-1.0"
+        "gpl-2.0" = "GPL-2.0"
+        "gpl-3.0" = "GPL-3.0"
+        "isc" = "ISC"
+        "lgpl-2.1" = "LGPL-2.1"
+        "lgpl-3.0" = "LGPL-3.0"
+        "mit" = "MIT"
+        "mpl-2.0" = "MPL-2.0"
+        "unlicense" = "Unlicense"
+    }
+    $normalized = $Key.ToLowerInvariant()
+    if ($map.ContainsKey($normalized)) {
+        return $map[$normalized]
+    }
+    if ($normalized -eq "other") {
+        return "NOASSERTION"
+    }
+    return $Key
+}
+
+function Get-LicenseMetadata {
+    param([object]$Meta)
+
+    $license = Get-MemberValue -Object $Meta -Name "licenseInfo"
+    if ($null -eq $license) {
+        $license = Get-MemberValue -Object $Meta -Name "license"
+    }
+
+    $key = [string](Get-MemberValue -Object $license -Name "key")
+    $name = [string](Get-MemberValue -Object $license -Name "name")
+    $spdxId = [string](Get-MemberValue -Object $license -Name "spdxId")
+    if ([string]::IsNullOrWhiteSpace($spdxId)) {
+        $spdxId = [string](Get-MemberValue -Object $license -Name "spdx_id")
+    }
+    if ([string]::IsNullOrWhiteSpace($spdxId)) {
+        $spdxId = Convert-LicenseKeyToSpdxId -Key $key
+    }
+
+    return [ordered]@{
+        licenseKey = if ([string]::IsNullOrWhiteSpace($key)) { $null } else { $key }
+        licenseName = if ([string]::IsNullOrWhiteSpace($name)) { $null } else { $name }
+        licenseSpdxId = if ([string]::IsNullOrWhiteSpace($spdxId)) { $null } else { $spdxId }
+    }
 }
 
 function Invoke-GhApiJsonSafe {
@@ -3983,6 +4045,75 @@ function Test-MetadataHygiene {
     }
 }
 
+function Test-ProjectLicenseMetadata {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $missingLicenses = New-Object System.Collections.Generic.List[object]
+    $unknownLicenses = New-Object System.Collections.Generic.List[object]
+    $licenseCounts = @{}
+    $checkedCount = 0
+    $detectedCount = 0
+
+    foreach ($entry in @($Entries | Sort-Object repo)) {
+        $checkedCount++
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $license = Get-LicenseMetadata -Meta $meta
+        $licenseKey = [string]$license["licenseKey"]
+        $licenseName = [string]$license["licenseName"]
+        $licenseSpdxId = [string]$license["licenseSpdxId"]
+
+        if ([string]::IsNullOrWhiteSpace($licenseKey) -and [string]::IsNullOrWhiteSpace($licenseName) -and [string]::IsNullOrWhiteSpace($licenseSpdxId)) {
+            $missingLicenses.Add([ordered]@{
+                repo = [string]$entry.repo
+                reason = "GitHub did not report a detected repository license"
+            })
+            continue
+        }
+
+        $detectedCount++
+        if ($licenseKey -eq "other" -or $licenseSpdxId -eq "NOASSERTION") {
+            $unknownLicenses.Add([ordered]@{
+                repo = [string]$entry.repo
+                licenseKey = if ([string]::IsNullOrWhiteSpace($licenseKey)) { $null } else { $licenseKey }
+                licenseName = if ([string]::IsNullOrWhiteSpace($licenseName)) { $null } else { $licenseName }
+                licenseSpdxId = if ([string]::IsNullOrWhiteSpace($licenseSpdxId)) { $null } else { $licenseSpdxId }
+                reason = "GitHub reported an unrecognized or non-standard license"
+            })
+        }
+
+        $countKey = if (-not [string]::IsNullOrWhiteSpace($licenseSpdxId)) {
+            $licenseSpdxId
+        } elseif (-not [string]::IsNullOrWhiteSpace($licenseKey)) {
+            $licenseKey
+        } else {
+            "unknown"
+        }
+        if (-not $licenseCounts.ContainsKey($countKey)) {
+            $licenseCounts[$countKey] = [ordered]@{
+                licenseSpdxId = if ([string]::IsNullOrWhiteSpace($licenseSpdxId)) { $null } else { $licenseSpdxId }
+                licenseKey = if ([string]::IsNullOrWhiteSpace($licenseKey)) { $null } else { $licenseKey }
+                licenseName = if ([string]::IsNullOrWhiteSpace($licenseName)) { $null } else { $licenseName }
+                count = 0
+            }
+        }
+        $licenseCounts[$countKey]["count"] = [int]$licenseCounts[$countKey]["count"] + 1
+    }
+
+    return [ordered]@{
+        checkedCount = $checkedCount
+        detectedCount = $detectedCount
+        missingCount = $missingLicenses.Count
+        unknownCount = $unknownLicenses.Count
+        warningCount = $missingLicenses.Count + $unknownLicenses.Count
+        licenseCounts = @($licenseCounts.Values | Sort-Object licenseSpdxId, licenseKey)
+        missingLicenses = $missingLicenses.ToArray()
+        unknownLicenses = $unknownLicenses.ToArray()
+    }
+}
+
 function Test-ReleaseAssetDrift {
     param(
         [hashtable[]]$Entries,
@@ -4317,6 +4448,7 @@ function Test-ProfileState {
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $readmeSizeBudget = Test-ReadmeSizeBudget -ExpectedReadme $ExpectedReadme
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
+    $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
@@ -4366,6 +4498,7 @@ function Test-ProfileState {
         provenance = $feedProvenance
         catalogShape = $catalogShape
         metadataHygiene = $metadataHygiene
+        projectLicenseMetadata = $projectLicenseMetadata
         releaseAssetDrift = $releaseAssetDrift
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
