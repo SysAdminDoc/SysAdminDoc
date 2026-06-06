@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.57
+Current version after this refresh: v4.9.58
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.58 batch closed the raw userscript install trust metadata gap by
+  adding `userscriptInstallTrust` reporting for direct `.user.js` install
+  actions.
+- The current live report checks 11 userscript installs, all from raw GitHub
+  branch URLs, records 11 metadata blocks, 0 missing-version rows, 2
+  missing-update-URL rows, 2 missing-download-URL rows, 3 broad-scope rows, and
+  7 warning rows.
+- The sync-report schema, summary helper, and Pester suite now cover userscript
+  source provenance, metadata fields, scope counts, and warning aggregates.
 - The v4.9.57 batch closed the profile repository release/tag consistency gap by
   adding warning-only `profileReleaseConsistency` reporting beside
   `docVersionConsistency`.
@@ -333,7 +342,7 @@ Top opportunities, in priority order:
 6. P2 - Extend link validation to the hero/header and non-catalog URLs.
 7. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
 8. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows. [Completed v4.9.44]
-9. P2 - Add userscript install trust metadata for raw `.user.js` actions.
+9. P2 - Add userscript install trust metadata for raw `.user.js` actions. [Completed v4.9.58]
 10. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
 11. P2 - Add a reduced-motion/static generated profile chrome guard.
 12. P2 - Add a generated profile PR validation handoff for automation-created branches. [Completed v4.9.54]
@@ -634,7 +643,7 @@ This addendum is a fresh, code-first pass after the planning-doc consolidation. 
 
 ### Executive summary (addendum)
 
-A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, and the planning-doc version/date consistency gate was closed in v4.9.20. Remaining automated-guard gaps include raw userscript trust metadata; the previously identified hero-link validation, REST release-fallback, generated-README size-budget, catalog-shape validation, and repository/community-health reporting gaps are now closed.
+A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, the planning-doc version/date consistency gate was closed in v4.9.20, and the raw userscript trust metadata gap was closed in v4.9.58. The previously identified hero-link validation, REST release-fallback, generated-README size-budget, catalog-shape validation, and repository/community-health reporting gaps are now closed.
 
 Top addendum opportunities (one line each):
 

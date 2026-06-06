@@ -20,6 +20,7 @@
     "projectLicenseMetadata",
     "forkParentDrift",
     "releaseAssetDrift",
+    "userscriptInstallTrust",
     "repositorySettings",
     "communityHealth",
     "schemaValidation",
@@ -90,6 +91,9 @@
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
+    },
+    "userscriptInstallTrust": {
+      "$ref": "#/$defs/userscriptInstallTrust"
     },
     "repositorySettings": {
       "$ref": "#/$defs/repositorySettings"
@@ -876,6 +880,210 @@
           }
         },
         "note": {
+          "type": "string"
+        }
+      }
+    },
+    "userscriptInstallTrust": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skipped",
+        "skipReason",
+        "checkedCount",
+        "installActionCount",
+        "rawGitHubCount",
+        "branchSourceCount",
+        "tagOrCommitSourceCount",
+        "metadataBlockCount",
+        "missingMetadataBlockCount",
+        "missingVersionCount",
+        "missingUpdateUrlCount",
+        "missingDownloadUrlCount",
+        "broadScopeCount",
+        "warningCount",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "skipped": {
+          "type": "boolean"
+        },
+        "skipReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "checkedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "installActionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rawGitHubCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "branchSourceCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "tagOrCommitSourceCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "metadataBlockCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingMetadataBlockCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingVersionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingUpdateUrlCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingDownloadUrlCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "broadScopeCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/userscriptTrustRow"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "userscriptTrustRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "url",
+        "sourceHost",
+        "sourceRepository",
+        "sourceRef",
+        "sourceRefType",
+        "sourcePath",
+        "rawGitHub",
+        "fetchSucceeded",
+        "fetchStatusCode",
+        "metadataBlockPresent",
+        "metadataBlockClosed",
+        "name",
+        "version",
+        "updateUrl",
+        "downloadUrl",
+        "matchCount",
+        "includeCount",
+        "grantCount",
+        "connectCount",
+        "requireCount",
+        "broadScope",
+        "warningCount",
+        "warnings"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "url": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "sourceHost": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sourceRepository": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sourceRef": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sourceRefType": {
+          "type": "string",
+          "enum": [
+            "branch",
+            "tag",
+            "commit",
+            "unknown"
+          ]
+        },
+        "sourcePath": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "rawGitHub": {
+          "type": "boolean"
+        },
+        "fetchSucceeded": {
+          "type": "boolean"
+        },
+        "fetchStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "metadataBlockPresent": {
+          "type": "boolean"
+        },
+        "metadataBlockClosed": {
+          "type": "boolean"
+        },
+        "name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "version": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "updateUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "downloadUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "matchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "includeCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "grantCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "connectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "requireCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "broadScope": {
+          "type": "boolean"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/userscriptTrustWarning"
+          }
+        }
+      }
+    },
+    "userscriptTrustWarning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "message"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "message": {
           "type": "string"
         }
       }

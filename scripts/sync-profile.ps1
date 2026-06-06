@@ -4678,6 +4678,318 @@ function Test-ReleaseAssetDrift {
     }
 }
 
+function Get-RawGitHubSourceInfo {
+    param([string]$Url)
+
+    $info = [ordered]@{
+        sourceHost = $null
+        sourceRepository = $null
+        sourceRef = $null
+        sourceRefType = "unknown"
+        sourcePath = $null
+        rawGitHub = $false
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Url)) {
+        return $info
+    }
+
+    try {
+        $uri = [Uri]$Url
+        $info.sourceHost = $uri.Host
+        if ($uri.Host -ne "raw.githubusercontent.com") {
+            return $info
+        }
+
+        $match = [regex]::Match($uri.AbsolutePath, '^/(?<owner>[^/]+)/(?<repo>[^/]+)/(?<ref>[^/]+)/(?<path>.+)$')
+        if (-not $match.Success) {
+            return $info
+        }
+
+        $ref = [Uri]::UnescapeDataString($match.Groups["ref"].Value)
+        $info.rawGitHub = $true
+        $info.sourceRepository = "$([Uri]::UnescapeDataString($match.Groups["owner"].Value))/$([Uri]::UnescapeDataString($match.Groups["repo"].Value))"
+        $info.sourceRef = $ref
+        $info.sourcePath = [Uri]::UnescapeDataString($match.Groups["path"].Value)
+        $info.sourceRefType = if ($ref -match '^[a-f0-9]{40}$') {
+            "commit"
+        } elseif ($ref -match '^v?\d+(\.\d+){1,3}([.-].*)?$') {
+            "tag"
+        } else {
+            "branch"
+        }
+    } catch {
+        $info.sourceHost = $null
+    }
+
+    return $info
+}
+
+function Get-UserscriptMetadata {
+    param([string]$Content)
+
+    $metadata = @{}
+    $inBlock = $false
+    $closed = $false
+
+    foreach ($line in @(([string]$Content) -split "`r?`n")) {
+        if (-not $inBlock) {
+            if ($line -match '^\s*//\s*==UserScript==\s*$') {
+                $inBlock = $true
+            }
+            continue
+        }
+
+        if ($line -match '^\s*//\s*==/UserScript==\s*$') {
+            $closed = $true
+            break
+        }
+
+        $match = [regex]::Match($line, '^\s*//\s*@(?<key>[A-Za-z][\w:-]*)\s*(?<value>.*)$')
+        if (-not $match.Success) {
+            continue
+        }
+
+        $key = $match.Groups["key"].Value
+        $value = $match.Groups["value"].Value.Trim()
+        if (-not $metadata.ContainsKey($key)) {
+            $metadata[$key] = New-Object System.Collections.Generic.List[string]
+        }
+        $metadata[$key].Add($value)
+    }
+
+    return [ordered]@{
+        metadataBlockPresent = $inBlock
+        metadataBlockClosed = [bool]($inBlock -and $closed)
+        metadata = $metadata
+    }
+}
+
+function Get-UserscriptMetadataValues {
+    param(
+        [hashtable]$Metadata,
+        [string]$Key
+    )
+
+    if ($null -eq $Metadata -or -not $Metadata.ContainsKey($Key)) {
+        return @()
+    }
+    return @($Metadata[$Key] | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+}
+
+function Get-FirstUserscriptMetadataValue {
+    param(
+        [hashtable]$Metadata,
+        [string]$Key
+    )
+
+    $values = @(Get-UserscriptMetadataValues -Metadata $Metadata -Key $Key)
+    if ($values.Count -eq 0) {
+        return $null
+    }
+    return [string]$values[0]
+}
+
+function Test-UserscriptBroadScope {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $false
+    }
+
+    $normalized = (([string]$Value).Trim() -replace '\s+', '')
+    return $normalized -in @(
+        "*",
+        "*://*",
+        "*://*/*",
+        "http://*/*",
+        "https://*/*",
+        "http*://*/*"
+    )
+}
+
+function Get-UserscriptContent {
+    param([string]$Url)
+
+    try {
+        $response = Invoke-WebRequest -Uri $Url -Method Get -TimeoutSec 20 -MaximumRedirection 5 -UseBasicParsing
+        return [ordered]@{
+            succeeded = $true
+            content = [string]$response.Content
+            statusCode = if ($response.BaseResponse) { [int]$response.BaseResponse.StatusCode } else { $null }
+            error = $null
+        }
+    } catch {
+        $statusCode = $null
+        if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+            $statusCode = [int]$_.Exception.Response.StatusCode
+        }
+        return [ordered]@{
+            succeeded = $false
+            content = $null
+            statusCode = $statusCode
+            error = $_.Exception.Message
+        }
+    }
+}
+
+function New-UserscriptTrustWarning {
+    param(
+        [string]$Kind,
+        [string]$Message
+    )
+
+    return [ordered]@{
+        kind = $Kind
+        message = $Message
+    }
+}
+
+function Test-UserscriptInstallTrust {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$ContentByUrl = @{},
+        [switch]$Skip
+    )
+
+    $userscriptEntries = @($Entries | Where-Object {
+            -not [string]::IsNullOrWhiteSpace([string]$_.userscriptUrl) -or
+            ([string]$_.downloadKind).ToLowerInvariant() -eq "userscript"
+        } | Sort-Object repo)
+
+    if ($Skip) {
+        return [ordered]@{
+            skipped = $true
+            skipReason = if ($Offline) { "offline mode" } else { "link validation skipped" }
+            checkedCount = 0
+            installActionCount = $userscriptEntries.Count
+            rawGitHubCount = 0
+            branchSourceCount = 0
+            tagOrCommitSourceCount = 0
+            metadataBlockCount = 0
+            missingMetadataBlockCount = 0
+            missingVersionCount = 0
+            missingUpdateUrlCount = 0
+            missingDownloadUrlCount = 0
+            broadScopeCount = 0
+            warningCount = 0
+            rows = @()
+            note = "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
+        }
+    }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    foreach ($entry in $userscriptEntries) {
+        $url = if ([string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) { $null } else { [string]$entry.userscriptUrl }
+        $source = Get-RawGitHubSourceInfo -Url $url
+        $warnings = New-Object System.Collections.Generic.List[object]
+        $fetchStatus = [ordered]@{ succeeded = $false; content = $null; statusCode = $null; error = $null }
+
+        if ([string]::IsNullOrWhiteSpace($url)) {
+            $warnings.Add((New-UserscriptTrustWarning -Kind "userscript-url-missing" -Message "Catalog marks this row as a userscript but has no userscriptUrl."))
+        } elseif ($ContentByUrl.ContainsKey($url)) {
+            $fetchStatus.succeeded = $true
+            $fetchStatus.content = [string]$ContentByUrl[$url]
+        } else {
+            $fetchStatus = Get-UserscriptContent -Url $url
+        }
+
+        $metadataResult = Get-UserscriptMetadata -Content ([string]$fetchStatus.content)
+        $metadata = [hashtable]$metadataResult.metadata
+        $name = Get-FirstUserscriptMetadataValue -Metadata $metadata -Key "name"
+        $version = Get-FirstUserscriptMetadataValue -Metadata $metadata -Key "version"
+        $updateUrl = Get-FirstUserscriptMetadataValue -Metadata $metadata -Key "updateURL"
+        $downloadUrl = Get-FirstUserscriptMetadataValue -Metadata $metadata -Key "downloadURL"
+        $matchValues = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "match")
+        $includes = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "include")
+        $grants = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "grant")
+        $connects = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "connect")
+        $requires = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "require")
+        $scopeValues = @($matchValues + $includes)
+        $broadScopes = @($scopeValues | Where-Object { Test-UserscriptBroadScope -Value ([string]$_) })
+
+        if (-not $fetchStatus.succeeded) {
+            $warnings.Add((New-UserscriptTrustWarning -Kind "userscript-fetch-failed" -Message "Could not fetch the raw userscript for metadata inspection."))
+        } elseif (-not [bool]$metadataResult.metadataBlockPresent) {
+            $warnings.Add((New-UserscriptTrustWarning -Kind "metadata-block-missing" -Message "Userscript metadata block is missing."))
+        } else {
+            if (-not [bool]$metadataResult.metadataBlockClosed) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "metadata-block-unclosed" -Message "Userscript metadata block is not closed."))
+            }
+            if ([string]::IsNullOrWhiteSpace($name)) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "name-missing" -Message "Userscript metadata is missing @name."))
+            }
+            if ([string]::IsNullOrWhiteSpace($version)) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "version-missing" -Message "Userscript metadata is missing @version, which userscript managers use for update checks."))
+            }
+            if ($scopeValues.Count -eq 0) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "scope-missing" -Message "Userscript metadata is missing @match or @include scope."))
+            }
+            if ($broadScopes.Count -gt 0) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "scope-broad" -Message "Userscript metadata includes an all-sites @match or @include scope."))
+            }
+            if ([string]::IsNullOrWhiteSpace($updateUrl)) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-missing" -Message "Userscript metadata is missing an explicit @updateURL."))
+            }
+            if ([string]::IsNullOrWhiteSpace($downloadUrl)) {
+                $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-missing" -Message "Userscript metadata is missing an explicit @downloadURL."))
+            }
+        }
+
+        $rows.Add([ordered]@{
+            repo = [string]$entry.repo
+            url = $url
+            sourceHost = $source.sourceHost
+            sourceRepository = $source.sourceRepository
+            sourceRef = $source.sourceRef
+            sourceRefType = $source.sourceRefType
+            sourcePath = $source.sourcePath
+            rawGitHub = [bool]$source.rawGitHub
+            fetchSucceeded = [bool]$fetchStatus.succeeded
+            fetchStatusCode = $fetchStatus.statusCode
+            metadataBlockPresent = [bool]$metadataResult.metadataBlockPresent
+            metadataBlockClosed = [bool]$metadataResult.metadataBlockClosed
+            name = if ([string]::IsNullOrWhiteSpace($name)) { $null } else { $name }
+            version = if ([string]::IsNullOrWhiteSpace($version)) { $null } else { $version }
+            updateUrl = if ([string]::IsNullOrWhiteSpace($updateUrl)) { $null } else { $updateUrl }
+            downloadUrl = if ([string]::IsNullOrWhiteSpace($downloadUrl)) { $null } else { $downloadUrl }
+            matchCount = $matchValues.Count
+            includeCount = $includes.Count
+            grantCount = $grants.Count
+            connectCount = $connects.Count
+            requireCount = $requires.Count
+            broadScope = [bool]($broadScopes.Count -gt 0)
+            warningCount = $warnings.Count
+            warnings = $warnings.ToArray()
+        })
+    }
+
+    $rowArray = @($rows.ToArray())
+    $warningTotal = 0
+    foreach ($row in $rowArray) {
+        $warningTotal += [int]$row.warningCount
+    }
+
+    return [ordered]@{
+        skipped = $false
+        skipReason = $null
+        checkedCount = $rowArray.Count
+        installActionCount = $userscriptEntries.Count
+        rawGitHubCount = @($rowArray | Where-Object { $_.rawGitHub }).Count
+        branchSourceCount = @($rowArray | Where-Object { $_.sourceRefType -eq "branch" }).Count
+        tagOrCommitSourceCount = @($rowArray | Where-Object { $_.sourceRefType -in @("tag", "commit") }).Count
+        metadataBlockCount = @($rowArray | Where-Object { $_.metadataBlockPresent }).Count
+        missingMetadataBlockCount = @($rowArray | Where-Object { -not $_.metadataBlockPresent }).Count
+        missingVersionCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.version) }).Count
+        missingUpdateUrlCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.updateUrl) }).Count
+        missingDownloadUrlCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.downloadUrl) }).Count
+        broadScopeCount = @($rowArray | Where-Object { $_.broadScope }).Count
+        warningCount = [int]$warningTotal
+        rows = $rowArray
+        note = "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
+    }
+}
+
 function Test-UrlScheme {
     param([string]$Url)
 
@@ -4851,6 +5163,7 @@ function Test-ProfileState {
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
+    $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
     $schemaValidation = [ordered]@{
@@ -4906,6 +5219,7 @@ function Test-ProfileState {
         projectLicenseMetadata = $projectLicenseMetadata
         forkParentDrift = $forkParentDrift
         releaseAssetDrift = $releaseAssetDrift
+        userscriptInstallTrust = $userscriptInstallTrust
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
         schemaValidation = $schemaValidation

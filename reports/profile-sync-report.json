@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T17:18:28.6874848-04:00",
+  "generatedAt": "2026-06-06T17:38:21.6923639-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "0d080e14b257fbeb2e69fd0aed8eea74f944b168",
-    "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "816b0ec9a56bb845eb17673fb542095e9fc2df8e8f764e3d50de2939b281a496",
+    "sourceCommit": "ebe2ceb788e634372f5c01077cac2cdd0817b368",
+    "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
+    "generatorSha256": "f7e19c132e6836a3e898135b364b73c771bbd4f88224049b44604a3df0c2bee5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T17:17:09.2843390-04:00",
+    "metadataSnapshotAt": "2026-06-06T17:36:57.1383756-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T21:16:55.0000000Z",
+        "pushedAt": "2026-06-06T21:34:44.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,10 +892,16 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "LGPL-3.0",
+        "licenseKey": "lgpl-3.0",
+        "licenseName": "GNU Lesser General Public License v3.0",
+        "count": 1
       },
       {
         "licenseSpdxId": "Apache-2.0",
@@ -904,28 +910,10 @@
         "count": 2
       },
       {
-        "licenseSpdxId": "AGPL-3.0",
-        "licenseKey": "agpl-3.0",
-        "licenseName": "GNU Affero General Public License v3.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "count": 1
-      },
-      {
         "licenseSpdxId": "NOASSERTION",
         "licenseKey": "other",
         "licenseName": "Other",
         "count": 9
-      },
-      {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
       },
       {
         "licenseSpdxId": "MPL-2.0",
@@ -934,10 +922,22 @@
         "count": 1
       },
       {
-        "licenseSpdxId": "LGPL-3.0",
-        "licenseKey": "lgpl-3.0",
-        "licenseName": "GNU Lesser General Public License v3.0",
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
+      },
+      {
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
+      },
+      {
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
       }
     ],
     "missingLicenses": [
@@ -1757,6 +1757,344 @@
     "userscriptKindWithoutInstallUrl": [],
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
   },
+  "userscriptInstallTrust": {
+    "skipped": false,
+    "skipReason": null,
+    "checkedCount": 11,
+    "installActionCount": 11,
+    "rawGitHubCount": 11,
+    "branchSourceCount": 11,
+    "tagOrCommitSourceCount": 0,
+    "metadataBlockCount": 11,
+    "missingMetadataBlockCount": 0,
+    "missingVersionCount": 0,
+    "missingUpdateUrlCount": 2,
+    "missingDownloadUrlCount": 2,
+    "broadScopeCount": 3,
+    "warningCount": 7,
+    "rows": [
+      {
+        "repo": "Chapterizer",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/Chapterizer",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "Chapterizer.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "Chapterizer",
+        "version": "3.0.0",
+        "updateUrl": null,
+        "downloadUrl": null,
+        "matchCount": 2,
+        "includeCount": 0,
+        "grantCount": 6,
+        "connectCount": 1,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 2,
+        "warnings": [
+          {
+            "kind": "update-url-missing",
+            "message": "Userscript metadata is missing an explicit @updateURL."
+          },
+          {
+            "kind": "download-url-missing",
+            "message": "Userscript metadata is missing an explicit @downloadURL."
+          }
+        ]
+      },
+      {
+        "repo": "Claude-Ultimate-Enhancer",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/Claude-Ultimate-Enhancer",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "Claude Ultimate Enhancer.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "Claude Ultimate Enhancer",
+        "version": "1.1.0",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
+        "matchCount": 1,
+        "includeCount": 0,
+        "grantCount": 3,
+        "connectCount": 0,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "repo": "ClearGem",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/ClearGem",
+        "sourceRef": "master",
+        "sourceRefType": "branch",
+        "sourcePath": "cleargem.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "ClearGem",
+        "version": "1.0.2",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js",
+        "matchCount": 2,
+        "includeCount": 0,
+        "grantCount": 2,
+        "connectCount": 2,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "repo": "DarkModer",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/DarkModer",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "DarkModer.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "DarkModer",
+        "version": "3.0.0",
+        "updateUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
+        "downloadUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
+        "matchCount": 1,
+        "includeCount": 0,
+        "grantCount": 6,
+        "connectCount": 2,
+        "requireCount": 0,
+        "broadScope": true,
+        "warningCount": 1,
+        "warnings": [
+          {
+            "kind": "scope-broad",
+            "message": "Userscript metadata includes an all-sites @match or @include scope."
+          }
+        ]
+      },
+      {
+        "repo": "Doordash-Enhanced",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/Doordash-Enhanced",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "DoorDashEnhanced.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "DoorDash Enhanced",
+        "version": "2.6.1",
+        "updateUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
+        "downloadUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
+        "matchCount": 2,
+        "includeCount": 0,
+        "grantCount": 4,
+        "connectCount": 0,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "repo": "GeminiBuddy",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/GeminiBuddy",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "GeminiBuddy.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "GeminiBuddy",
+        "version": "42",
+        "updateUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
+        "downloadUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
+        "matchCount": 1,
+        "includeCount": 0,
+        "grantCount": 4,
+        "connectCount": 3,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "repo": "IMDb_Enhanced",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/IMDb_Enhanced",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "IMDb_Enhanced.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "IMDb Enhanced",
+        "version": "2.3.1",
+        "updateUrl": null,
+        "downloadUrl": null,
+        "matchCount": 10,
+        "includeCount": 0,
+        "grantCount": 7,
+        "connectCount": 8,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 2,
+        "warnings": [
+          {
+            "kind": "update-url-missing",
+            "message": "Userscript metadata is missing an explicit @updateURL."
+          },
+          {
+            "kind": "download-url-missing",
+            "message": "Userscript metadata is missing an explicit @downloadURL."
+          }
+        ]
+      },
+      {
+        "repo": "MediaDL",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/MediaDL",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "MediaDL.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "MediaDL - Universal Media Downloader",
+        "version": "4.0.0",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
+        "matchCount": 1,
+        "includeCount": 0,
+        "grantCount": 5,
+        "connectCount": 2,
+        "requireCount": 0,
+        "broadScope": true,
+        "warningCount": 1,
+        "warnings": [
+          {
+            "kind": "scope-broad",
+            "message": "Userscript metadata includes an all-sites @match or @include scope."
+          }
+        ]
+      },
+      {
+        "repo": "Reddit-Enhancement-Continued",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/Reddit-Enhancement-Continued",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "RedditEnhancementContinued.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "Reddit Enhancement Continued",
+        "version": "2.8.1",
+        "updateUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
+        "downloadUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
+        "matchCount": 3,
+        "includeCount": 0,
+        "grantCount": 7,
+        "connectCount": 12,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "repo": "UserScript-Finder",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/UserScript-Finder",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "UserScript-Finder.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "UserScript Finder",
+        "version": "1.0.0",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
+        "matchCount": 1,
+        "includeCount": 0,
+        "grantCount": 8,
+        "connectCount": 4,
+        "requireCount": 0,
+        "broadScope": true,
+        "warningCount": 1,
+        "warnings": [
+          {
+            "kind": "scope-broad",
+            "message": "Userscript metadata includes an all-sites @match or @include scope."
+          }
+        ]
+      },
+      {
+        "repo": "YoutubeAdblock",
+        "url": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
+        "sourceHost": "raw.githubusercontent.com",
+        "sourceRepository": "SysAdminDoc/YoutubeAdblock",
+        "sourceRef": "main",
+        "sourceRefType": "branch",
+        "sourcePath": "YoutubeAdblock.user.js",
+        "rawGitHub": true,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "YoutubeAdblock",
+        "version": "0.4.1",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
+        "matchCount": 7,
+        "includeCount": 0,
+        "grantCount": 5,
+        "connectCount": 7,
+        "requireCount": 0,
+        "broadScope": false,
+        "warningCount": 0,
+        "warnings": []
+      }
+    ],
+    "note": "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
+  },
   "repositorySettings": {
     "available": true,
     "unavailableReason": null,
@@ -1914,28 +2252,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.57",
+    "expectedVersion": "v4.9.58",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.57"
+        "value": "v4.9.58"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.57"
+        "value": "v4.9.58"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.57"
+        "value": "v4.9.58"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.57"
+        "value": "v4.9.58"
       }
     ],
     "dates": [
@@ -1966,14 +2304,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.57",
+    "expectedVersion": "v4.9.58",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.57",
+    "expectedTag": "v4.9.58",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -1983,13 +2321,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.57",
+        "expectedVersion": "v4.9.58",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.57",
+        "expectedVersion": "v4.9.58",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2001,7 +2339,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3366,
+      "elapsedMs": 3534,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2020,7 +2358,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.04,
+      "ageDays": 5.05,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2030,14 +2368,14 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3366,
+    "elapsedMs": 3534,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 65900,
+    "byteCount": 65903,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
