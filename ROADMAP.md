@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.48
+Current repo version: v4.9.49
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.49 refresh: header/non-catalog link validation shipped.
+Profile sync now validates the generated README's portfolio link plus the
+advertised `setup.ps1` raw/source links alongside catalog links. Image-host
+URLs found in generated README image markup are probed as non-fatal warnings
+and grouped under `linkValidationSummary.headerHostWarnings`, while portfolio
+and setup 404s stay fatal. The report schema, validation-performance summary,
+and Pester coverage now cover the new target policy.
+Next highest open item: REST release-fallback request cap and authentication
+guard.
 
 2026-06-06 v4.9.48 refresh: rendered-profile smoke section drift fixed.
 The live rendered-profile smoke script now asserts the current generated README
@@ -724,11 +734,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: deliberately bump one doc's version, run `-Check`, observe non-zero exit and the new report field.
   - Complexity: M
 
-- [ ] P2 — Extend link validation to hero/header and non-catalog URLs
+- [x] P2 — Extend link validation to hero/header and non-catalog URLs
   - Why: `Test-LinkTargets` only probes catalog-derived entrypoint/userscript/live/release URLs. The hand-authored hero — the portfolio link `https://sysadmindoc.github.io/`, the `setup.ps1` blob link, and the remaining third-party image hosts (capsule-render, readme-typing-svg, skill-icons, shields.io) — is never checked. A dead portfolio link or a retired image host would pass the gate.
   - Evidence: `scripts/sync-profile.ps1:476-528` (`Test-LinkTargets` iterates only `$Included` catalog entries); `README.md:1-68` (hero/header links and image hosts, none catalog-derived).
   - Touches: `scripts/sync-profile.ps1` (`Test-LinkTargets` plus a static header-URL extractor), report schema.
   - Acceptance: the portfolio link and `setup.ps1` blob link are probed as fatal-on-404; image hosts are probed as non-fatal warnings grouped under `headerHostWarnings`; results land in the report.
+  - Completed: v4.9.49 added README header/non-catalog targets for the portfolio and setup links, non-fatal external image-host targets, `linkValidationSummary.headerHostWarnings`, validation-performance counts, report-schema coverage, and Pester acceptance coverage.
   - Verify: temporarily point the portfolio link at a 404 in a scratch copy and confirm a fatal failure; confirm image-host outages stay non-fatal.
   - Complexity: M
 
@@ -1662,7 +1673,7 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — Public-feed redaction for private suppression rows (completed v4.9.42 with dedicated redacted `suppressedProject` feed rows).
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
-- [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
+- [x] P2 — Header/non-catalog link validation folded into the existing link gate (completed v4.9.49 with fatal portfolio/setup probes, non-fatal image-host warnings, report/schema fields, and Pester coverage).
 - [x] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows (completed v4.9.44 with feed `releaseTrust`, schema coverage, trust-level counts, checksum-gap reporting, and debug artifact reporting).
 - [x] P2 — Pinned CI validation-tool installs with a documented update path (completed v4.9.46 with exact Pester/PSScriptAnalyzer versions, hash-checked `zizmor`, and `docs/ci-toolchain.md`).
 - [x] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate (completed v4.9.47 with generated report/schema fields and failure coverage for reintroduced motion patterns).

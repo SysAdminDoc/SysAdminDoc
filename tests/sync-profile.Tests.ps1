@@ -162,6 +162,48 @@ Describe 'Test-LinkTargets batch reporting' {
         $rawHost = @($result.warningCountByHost | Where-Object { $_.host -eq 'raw.githubusercontent.com' })
         $rawHost | Should -HaveCount 1
         $rawHost[0].count | Should -Be 2
+        @($result.headerHostWarnings) | Should -HaveCount 0
+    }
+
+    It 'adds non-catalog profile links and keeps image-host outages nonfatal' {
+        $readme = @'
+**[View my full portfolio](https://sysadmindoc.github.io/)**
+
+```powershell
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
+```
+
+[`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1)
+
+<picture><source srcset="https://skillicons.dev/icons?i=powershell&theme=dark"><img src="https://skillicons.dev/icons?i=powershell&theme=dark" /></picture>
+![Stars](https://img.shields.io/github/stars/SysAdminDoc/SysAdminDoc)
+'@
+        $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme)
+        $probe = {
+            param($target)
+
+            return [ordered]@{ ok = $false; status = 404; error = 'missing'; fatal = $true }
+        }
+
+        $result = Test-LinkTargets -Included @() -RepoLookup @{} -ExtraTargets $targets -ProbeScript $probe -ThrottleLimit 2
+
+        $targets | Should -HaveCount 5
+        ($targets | Where-Object { $_.type -eq 'profile-portfolio' }).url | Should -Be 'https://sysadmindoc.github.io/'
+        ($targets | Where-Object { $_.type -eq 'setup-raw' }).url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'
+        ($targets | Where-Object { $_.type -eq 'setup-source' }).url | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1'
+        @($targets | Where-Object { $_.type -eq 'header-image' }) | Should -HaveCount 2
+
+        @($result.failures) | Should -HaveCount 3
+        @($result.warnings) | Should -HaveCount 2
+        ($result.failures | ForEach-Object { $_.type }) | Should -Contain 'profile-portfolio'
+        ($result.failures | ForEach-Object { $_.type }) | Should -Contain 'setup-raw'
+        ($result.failures | ForEach-Object { $_.type }) | Should -Contain 'setup-source'
+        ($result.warnings | ForEach-Object { $_.type } | Sort-Object -Unique) | Should -Be 'header-image'
+
+        $headerWarnings = @($result.headerHostWarnings)
+        $headerWarnings | Should -HaveCount 2
+        ($headerWarnings | Where-Object { $_.host -eq 'skillicons.dev' }).count | Should -Be 1
+        ($headerWarnings | Where-Object { $_.host -eq 'img.shields.io' }).count | Should -Be 1
     }
 }
 

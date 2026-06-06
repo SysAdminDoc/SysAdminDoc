@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T15:42:20.6420604-04:00",
+  "generatedAt": "2026-06-06T15:54:13.4450363-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "72ef104df21138292937e4a8a0a52759f6b0e121",
+    "sourceCommit": "ce2bee0e5e4c5bafcc0010924c2ddb773a41fde6",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "cd6b134b39054c5c81075e8327f05f45d972846561baff1e14b42a2c4edf6fe2",
+    "generatorSha256": "6b493d5f0341e00ea3d1ce082601e6dbb03a719f3e4fe9b386ca8dd75a1445c7",
     "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T15:41:07.2133223-04:00",
+    "metadataSnapshotAt": "2026-06-06T15:53:00.1844780-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -153,7 +153,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T19:32:54.0000000Z",
+        "pushedAt": "2026-06-06T19:52:33.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1572,28 +1572,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.48",
+    "expectedVersion": "v4.9.49",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.48"
+        "value": "v4.9.49"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.48"
+        "value": "v4.9.49"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.48"
+        "value": "v4.9.49"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.48"
+        "value": "v4.9.49"
       }
     ],
     "dates": [
@@ -1624,12 +1624,13 @@
   "validationPerformance": {
     "linkValidation": {
       "skipped": false,
-      "targetCount": 185,
+      "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3540,
+      "elapsedMs": 2936,
       "failureCount": 0,
       "warningCount": 0,
-      "warningHostCount": 0
+      "warningHostCount": 0,
+      "headerWarningHostCount": 0
     }
   },
   "missingPublicRepos": [],
@@ -1644,7 +1645,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.97,
+      "ageDays": 4.98,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1652,10 +1653,11 @@
   },
   "linkValidationSkipped": false,
   "linkValidationSummary": {
-    "targetCount": 185,
+    "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3540,
-    "warningCountByHost": []
+    "elapsedMs": 2936,
+    "warningCountByHost": [],
+    "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],

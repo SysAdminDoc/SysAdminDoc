@@ -20,6 +20,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added structured metadata-drift reporting with fatal/informational severities, stale generated-feed age warnings, and Pester coverage for branch/release/star/stale-age behavior (v4.9.5). — *Source: ROADMAP.md*
 - [x] Guarded the legacy README-to-catalog reverse parser behind explicit `-ForceSeedCatalog`, with lossy bootstrap warnings and seed-mode subprocess coverage (v4.9.6). — *Source: ROADMAP.md*
 - [x] Parallelized link validation with bounded probe batches, `linkValidationSummary`, `warningCountByHost`, and hermetic warning/failure host-summary coverage (v4.9.7). — *Source: ROADMAP.md*
+- [x] Extended link validation to generated README header/non-catalog links, with fatal portfolio/setup probes, non-fatal image-host warnings grouped under `headerHostWarnings`, report-schema fields, and Pester coverage (v4.9.49). — *Source: ROADMAP.md*
 - [x] Expanded report schema with `metadataHygiene`, visitor-facing `releaseAssetDrift`, and `validationPerformance` sections plus Pester coverage (v4.9.8). — *Source: ROADMAP.md*
 - [x] Added non-mutating topic hints, catalog categories, and catalog-backed description suggestions to metadata hygiene reporting, with an allowlist-required apply policy (v4.9.9). — *Source: ROADMAP.md*
 - [x] Filled the four empty public GitHub repository descriptions from the reviewed `metadataHygiene.missingDescriptions` allowlist and regenerated the report to 0 missing descriptions (v4.9.10). — *Source: ROADMAP.md*
