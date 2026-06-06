@@ -166,6 +166,30 @@ Describe 'Test-LinkTargets batch reporting' {
 }
 
 Describe 'Report schema depth helpers' {
+    It 'classifies release trust metadata from asset filenames' {
+        $assetNames = @(
+            'Tool-v1.0.0.exe',
+            'Tool-v1.0.0.exe.sha256',
+            'Tool-v1.0.0.exe.sig',
+            'Tool-v1.0.0-debug.apk',
+            'sbom.spdx.json',
+            'Tool-v1.0.0.intoto.jsonl'
+        )
+
+        $assetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
+        $trust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $true -AssetInspected $true
+
+        $trust.checksumAssets | Should -Contain 'Tool-v1.0.0.exe.sha256'
+        $trust.signatureAssets | Should -Contain 'Tool-v1.0.0.exe.sig'
+        $trust.sbomAssets | Should -Contain 'sbom.spdx.json'
+        $trust.attestationAvailable | Should -BeTrue
+        $trust.debugArtifactPresent | Should -BeTrue
+        $trust.hasChecksumForEveryExecutable | Should -BeFalse
+        $trust.executableAssetKinds | Should -Contain 'exe'
+        $trust.executableAssetKinds | Should -Contain 'apk'
+        $trust.trustLevel | Should -Be 'signed-and-attested'
+    }
+
     It 'reports repos missing topics or public descriptions' {
         $noTopicsEntry = New-TestEntry -Repo 'NoTopics' -Category 'powershell' -Description 'Catalog Windows utility'
         $noDescriptionEntry = New-TestEntry -Repo 'NoDescription' -Category 'web' -Description 'Catalog web dashboard'
@@ -225,7 +249,7 @@ Describe 'Report schema depth helpers' {
             (New-TestRepoMeta -Name 'MissingRelease'),
             (New-TestRepoMeta -Name 'SourceOnly' -WithRelease),
             (New-TestRepoMeta -Name 'ScriptNoUrl'),
-            (New-TestRepoMeta -Name 'GoodRelease' -WithRelease -AssetNames @('GoodRelease-v1.0.0.apk')),
+            (New-TestRepoMeta -Name 'GoodRelease' -WithRelease -AssetNames @('GoodRelease-v1.0.0.apk', 'GoodRelease-v1.0.0.apk.sha256')),
             (New-TestRepoMeta -Name 'MismatchRelease' -WithRelease -AssetNames @('MismatchRelease-v1.0.0.apk')),
             (New-TestRepoMeta -Name 'SourceArchiveRelease' -WithRelease)
         )
@@ -243,6 +267,9 @@ Describe 'Report schema depth helpers' {
         ($result.releaseAssetKindMismatches | ForEach-Object { $_.repo }) | Should -Contain 'MismatchRelease'
         ($result.releaseAssetKindMismatches | ForEach-Object { $_.repo }) | Should -Contain 'SourceArchiveRelease'
         ($result.userscriptKindWithoutInstallUrl | ForEach-Object { $_.repo }) | Should -Contain 'ScriptNoUrl'
+        ($result.executableDownloadsMissingChecksums | ForEach-Object { $_.repo }) | Should -Contain 'MismatchRelease'
+        ($result.executableDownloadsMissingChecksums | ForEach-Object { $_.repo }) | Should -Not -Contain 'GoodRelease'
+        ($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) | Should -Contain 'checksum'
         $result.assetApiInspected | Should -BeTrue
     }
 }
@@ -468,7 +495,7 @@ Describe 'New-ProjectsExportJson feed' {
         $cat.entries[0].downloadKind = 'apk'
         $cat.entries[1].downloadKind = 'zip'
         $repos = @(
-            (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool-v1.0.0.apk')),
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool-v1.0.0.apk', 'WinTool-v1.0.0.apk.sha256')),
             (New-TestRepoMeta -Name 'PyTool' -WithRelease),
             (New-TestRepoMeta -Name 'HiddenTool' -WithRelease -AssetNames @('HiddenTool-InternalSetup.exe')),
             (New-TestRepoMeta -Name 'WebTool')
@@ -480,8 +507,12 @@ Describe 'New-ProjectsExportJson feed' {
         $suppressedRow = $json.suppressed | Select-Object -First 1
 
         $winTool.releaseAssetKinds | Should -Contain 'apk'
+        $winTool.releaseTrust.checksumAssets | Should -Contain 'WinTool-v1.0.0.apk.sha256'
+        $winTool.releaseTrust.hasChecksumForEveryExecutable | Should -BeTrue
+        $winTool.releaseTrust.trustLevel | Should -Be 'checksum'
         $winTool.primaryAction.kind | Should -Be 'release'
         $pyTool.releaseAssetKinds | Should -Contain 'source-archive'
+        $pyTool.releaseTrust.sourceOnlyRelease | Should -BeTrue
         $pyTool.primaryAction.kind | Should -Be 'repo'
         $pyTool.hasDownload | Should -BeFalse
         $suppressedRow.reasonCode | Should -Be 'not-visitor-facing'

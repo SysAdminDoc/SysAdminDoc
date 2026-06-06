@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.43
+Current version after this refresh: v4.9.44
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.44 batch closed the release/download trust metadata item by adding
+  `releaseTrust` to visitor-facing `projects.json` rows and requiring it in the
+  project-feed schema. The object records filename-derived checksum, signature,
+  SBOM, attestation, debug-artifact, source-only, executable-kind, trust-level,
+  and public-note fields.
+- `reports/profile-sync-report.json.releaseAssetDrift` now reports trust-level
+  counts, executable download rows missing complete checksum coverage, and debug
+  artifact rows. The latest run reports 23 checksum-classified rows, 118
+  metadata-only rows, 36 unknown rows, 55 checksum-coverage gaps, and 3 debug
+  artifact rows.
+- Local verification passed for Pester, PSScriptAnalyzer, and
+  `scripts/sync-profile.ps1 -Write -Check`; Pester coverage now includes trust
+  classification, checksum sidecars, source-only releases, schema validation,
+  and checksum-gap reporting.
 - The v4.9.43 batch closed the generated-feed provenance backlog by adding a
   public-safe `projects.json.provenance` object with source repository,
   generation-base commit, catalog/generator/schema SHA-256 hashes,
@@ -206,7 +220,7 @@ Top opportunities, in priority order:
 5. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
 6. P2 - Extend link validation to the hero/header and non-catalog URLs.
 7. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
-8. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows.
+8. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows. [Completed v4.9.44]
 9. P2 - Add userscript install trust metadata for raw `.user.js` actions.
 10. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
 11. P2 - Add a reduced-motion/static generated profile chrome guard.
@@ -777,11 +791,11 @@ stronger as a committed-assets, public-safe, evidence-backed catalog surface.
   Windows CI.** Pester checks source strings and README output, but not the
   check-only runtime path users are told to execute. → roadmap "Add a Windows
   runner smoke check for `setup.ps1 -CheckOnly`". [Verified]
-- **Major — Download trust is classified by asset kind, not by verifiable
+- **Major — Download trust was classified by asset kind, not by verifiable
   release evidence.** The report distinguishes EXE/APK/ZIP/source-only rows,
   but not whether visitor-facing binaries have checksums, signatures,
   attestations, SBOMs, or a documented unverified status. → roadmap "Add
-  release/download trust metadata for visitor-facing binary rows". [Verified]
+  release/download trust metadata for visitor-facing binary rows". [Completed v4.9.44]
 
 ### Standards notes (cycle 7)
 

@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.43
+Current repo version: v4.9.44
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,23 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.44 refresh: release/download trust metadata shipped.
+`projects.json` visitor-facing rows now include a `releaseTrust` object derived
+from latest-release asset filenames. It records checksum sidecars, whether every
+executable asset appears covered by a matching checksum or checksums bundle,
+signature/SBOM/attestation filename evidence, debug artifact presence,
+source-only release status, executable asset kinds, trust level, and a public
+note that binaries are not downloaded or verified. The sync report now includes
+`releaseTrustLevelCounts`, `executableDownloadsMissingChecksums`, and
+`debugArtifactRows`; the latest live run reports 23 checksum-classified rows,
+118 metadata-only rows, 36 unknown rows, 55 executable download rows missing
+complete checksum coverage, and 3 debug artifact rows. Schema validation now
+requires `releaseTrust`, and Pester covers trust classification, source-only
+releases, checksum sidecars, and checksum-gap reporting. Latest local
+verification passed Pester, ScriptAnalyzer, and
+`scripts/sync-profile.ps1 -Write -Check`. Next highest open feed item:
+report-schema contract for the sync report.
 
 2026-06-06 v4.9.43 refresh: deterministic feed provenance shipped.
 `projects.json` now includes a public-safe `provenance` object with
@@ -868,11 +885,12 @@ structured issue forms, so the items below avoid those duplicates.*
   - Verify: open a scratch PR touching `setup.ps1`; confirm the Windows smoke job runs and passes. Temporarily make `-CheckOnly` call the install path and confirm the job fails.
   - Complexity: S
 
-- [ ] P2 🤖 🔬 — Add release/download trust metadata for visitor-facing binary rows
+- [x] P2 🤖 🔬 — Add release/download trust metadata for visitor-facing binary rows
   - Why: the profile now routes visitors to many executable release assets, but the generated report only classifies asset kinds. It does not tell visitors or the build machine whether release rows have checksums, signatures, attestations, SBOMs, or a documented "unsigned/unattested" status.
   - Evidence: `reports/profile-sync-report.json:846-864` shows 71 release-action rows, including APK and EXE kinds; OpenSSF Scorecard includes a `Signed-Releases` check and related security posture checks: https://github.com/ossf/scorecard; GitHub artifact attestations establish where and how artifacts were built and can be verified with `gh attestation verify`: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
   - Touches: `scripts/sync-profile.ps1` report generation, optional README trust microcopy, optional per-repo release checklist outside this profile repo.
   - Acceptance: `reports/profile-sync-report.json` includes a `releaseTrust` section summarizing, per release-action row, whether latest assets expose checksum/signature/attestation/SBOM evidence or are explicitly `unverified`; the README can keep UI minimal, but the report gives the build machine a prioritized list for high-traffic EXE/APK rows.
+  - Completed: v4.9.44 adds filename-derived `releaseTrust` to `projects.json`, requires it in the project-feed schema, and expands `releaseAssetDrift` with trust-level counts, checksum-coverage gaps, and debug-artifact rows.
   - Verify: run `scripts/sync-profile.ps1 -Check`; confirm the report counts EXE/APK rows by trust status and flags missing evidence as warnings, not fatal failures. For one repo with an attestation/checksum, verify the report recognizes it.
   - Complexity: M
 
@@ -1391,7 +1409,7 @@ project row schema.*
 *Research conducted 2026-06-06. This pass inspected release/download rows and
 the trust metadata currently available to visitors for executable assets.*
 
-- [ ] P2 - Add release/download trust metadata for executable assets
+- [x] P2 - Add release/download trust metadata for executable assets
   - Why: the README and portfolio route visitors to many EXE, APK, ZIP, CRX, XPI, script, and source release assets. The current feed can say what kind of file exists, but it cannot communicate whether the artifact has checksums, signatures, SBOMs, attestations, release/debug channel classification, or verification guidance.
   - Evidence: `reports/profile-sync-report.json.releaseAssetDriftSummary` checks 177 catalog rows, 141 release-bearing rows, and 71 release-action rows; current asset kind counts include 18 `apk`, 32 `exe`, 28 `zip`, 5 `crx`, 2 `xpi`, 8 `script`, 3 `userscript`, and 58 `source-archive`. `projects.json` has 71 `hasDownload=true` rows and 58 download rows whose release assets include `exe`, `apk`, or `zip`; only 17 of those 58 have asset names matching `sha256|checksum|sums`, 3 have `debug` in a downloadable asset name, 1 has an `sbom` asset name, and 0 have asset names matching signature patterns such as `.sig` or `.asc`. `schemas/profile-projects.v1.json:260-286` only models `releaseAssetKinds` and `releaseAssetNames`; there is no field for `releaseTrust`, checksum coverage, signing status, attestation status, SBOM status, or channel classification.
   - Source notes: GitHub artifact attestations can establish build provenance for binaries and can also attest SBOMs, with verification through `gh attestation verify`: https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations. SLSA notes that provenance should be bound to artifacts rather than only to releases, because releases can contain multiple platform-specific artifacts and may gain artifacts over time: https://slsa.dev/spec/draft/distributing-provenance. Microsoft Authenticode identifies the publisher of signed software and verifies that signed software has not changed since publication: https://learn.microsoft.com/en-us/windows-hardware/drivers/install/authenticode. Android's `apksigner` supports signing APKs and verifying APK signatures, including printing certificate information: https://developer.android.com/tools/apksigner.
@@ -1399,6 +1417,7 @@ the trust metadata currently available to visitors for executable assets.*
   - Proposed feed fields: `releaseTrust.checksumAssets`, `releaseTrust.hasChecksumForEveryExecutable`, `releaseTrust.signatureAssets`, `releaseTrust.hasAuthenticodeSignature` (when known), `releaseTrust.apkSignatureVerified` (when locally verifiable), `releaseTrust.sbomAssets`, `releaseTrust.attestationAvailable`, `releaseTrust.debugArtifactPresent`, `releaseTrust.sourceOnlyRelease`, `releaseTrust.trustLevel` (`unknown`, `metadata-only`, `checksum`, `signed`, `attested`, `signed-and-attested`), and `releaseTrust.notesPublic`.
   - Recommended staged rollout: first derive filename-based metadata from release assets without downloading binaries; next add optional artifact download and local verification for a small allowlist of executable rows; finally add build-workflow guidance for sibling repos to publish checksums, SBOMs, and GitHub artifact attestations consistently.
   - Acceptance: the sync report warns when visitor-facing executable downloads lack checksum assets; debug APKs are flagged separately from release APKs; schema requires the `releaseTrust` object for rows with latest releases; README/portfolio can display a small public trust summary without implying stronger guarantees than verified; source-only releases remain valid repo actions but are counted distinctly.
+  - Completed: v4.9.44 adds `releaseTrust` to every visitor-facing project row, records checksum/signature/SBOM/attestation/debug/source-only filename evidence, reports 55 executable download rows missing complete checksum coverage, reports 3 debug artifact rows, and validates the object through schema and Pester coverage.
   - Verify: run feed generation and confirm all 58 executable/archive download rows have `releaseTrust`; add a fixture release with `.sha256`, `.sig`, `sbom`, and `debug.apk` assets and confirm classification; use `gh attestation verify` on an attested fixture artifact when available; run `scripts/sync-profile.ps1 -Write -Check` and portfolio feed tests.
   - Complexity: M-L
 
@@ -1593,7 +1612,7 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
-- [ ] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows.
+- [x] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows (completed v4.9.44 with feed `releaseTrust`, schema coverage, trust-level counts, checksum-gap reporting, and debug artifact reporting).
 - [ ] P2 — Pinned CI validation-tool installs with a documented update path.
 - [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
 - [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
