@@ -1,0 +1,100 @@
+name: Automation branch cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Log matching merged generated branches without deleting them."
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+  schedule:
+    - cron: "43 8 * * 3"
+
+concurrency:
+  group: automation-branch-cleanup-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Cleanup merged generated branches
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Delete merged generated PR branches
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run == 'true' }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $repo = "${{ github.repository }}"
+          $allowedPrefixes = @(
+            "automation/profile-sync-",
+            "automation/profile-assets-"
+          )
+          $dryRun = [System.Convert]::ToBoolean($env:DRY_RUN)
+          $deleted = New-Object System.Collections.Generic.List[string]
+          $skipped = New-Object System.Collections.Generic.List[string]
+
+          $refsJson = gh api "repos/$repo/git/matching-refs/heads/automation/" --paginate
+          $refs = @($refsJson | ConvertFrom-Json)
+          foreach ($ref in $refs) {
+            $refName = [string]$ref.ref
+            $branch = $refName -replace '^refs/heads/', ''
+            if ([string]::IsNullOrWhiteSpace($branch)) {
+              continue
+            }
+
+            $isAllowed = $false
+            foreach ($prefix in $allowedPrefixes) {
+              if ($branch.StartsWith($prefix, [StringComparison]::Ordinal)) {
+                $isAllowed = $true
+                break
+              }
+            }
+            if (-not $isAllowed) {
+              $skipped.Add("$branch (prefix not managed)")
+              continue
+            }
+
+            $prs = @(gh pr list --repo $repo --state all --head "SysAdminDoc:$branch" --json number,state,mergedAt,headRefName --limit 10 | ConvertFrom-Json)
+            $mergedPr = @($prs | Where-Object {
+              $_.headRefName -eq $branch -and
+              $_.state -eq "MERGED" -and
+              -not [string]::IsNullOrWhiteSpace([string]$_.mergedAt)
+            } | Select-Object -First 1)
+            if ($mergedPr.Count -eq 0) {
+              $skipped.Add("$branch (no merged pull request)")
+              continue
+            }
+
+            if ($dryRun) {
+              Write-Host "[dry-run] Would delete $branch for merged PR #$($mergedPr[0].number)."
+              $skipped.Add("$branch (dry run)")
+              continue
+            }
+
+            gh api -X DELETE "repos/$repo/git/refs/heads/$branch"
+            Write-Host "Deleted $branch for merged PR #$($mergedPr[0].number)."
+            $deleted.Add($branch)
+          }
+
+          if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+            @(
+              "### Automation branch cleanup"
+              ""
+              "- Dry run: $dryRun"
+              "- Deleted: $($deleted.Count)"
+              "- Skipped: $($skipped.Count)"
+            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          }

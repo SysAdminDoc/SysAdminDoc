@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.60
+Current repo version: v4.9.61
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,18 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.61 refresh: generated automation branch cleanup policy shipped.
+`automation-branch-cleanup.yml` now runs a weekly dry-run and offers a manual
+delete mode for merged generated PR branches. The workflow only manages
+`automation/profile-sync-*` and `automation/profile-assets-*` refs, requires a
+matching merged pull request before deletion, and keeps write permissions scoped
+to the cleanup job. Workflow-security's `zizmor` install line is now YAML-safe
+for strict workflow collection. Current live remote check found no existing
+`automation/*` branches to delete.
+Next highest open item: branch-protection/ruleset status-check enforcement
+remains external-gated while this loop pushes directly to `main`; continue with
+the shared generated-PR helper/composite-action item.
 
 2026-06-06 v4.9.60 refresh: stale roadmap duplicate rows reconciled.
 The roadmap now marks duplicate open rows for pull-request profile-sync
@@ -1759,7 +1771,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [x] P2 — Structured issue forms for broken catalog links and profile corrections (duplicate row reconciled in v4.9.60; completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35).
-- [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
+- [x] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches (completed v4.9.61 with scheduled dry-run/manual cleanup workflow, strict generated-branch prefixes, merged-PR gating, scoped write permissions, and Pester coverage).
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
 - [ ] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup.
 - [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
