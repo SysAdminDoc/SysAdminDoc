@@ -754,12 +754,46 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $assets.Keys | Should -Contain 'assets/profile/footer-light.svg'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
-        $assets['assets/profile/stats-dark.svg'] | Should -Match '<title>.*Catalog Stats</title>'
-        $assets['assets/profile/stats-dark.svg'] | Should -Match '<desc>'
+        $assets['assets/profile/stats-dark.svg'] | Should -Match '<title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
         $assets['assets/profile/footer-light.svg'] | Should -Match 'Static footer divider'
+
+        foreach ($asset in $assets.GetEnumerator()) {
+            [xml]$assetXml = $asset.Value
+            $root = $assetXml.DocumentElement
+            $labelledBy = $root.GetAttribute('aria-labelledby')
+            $describedBy = $root.GetAttribute('aria-describedby')
+            $titleNode = $root.GetElementsByTagName('title')[0]
+            $descNode = $root.GetElementsByTagName('desc')[0]
+
+            $root.GetAttribute('role') | Should -Be 'img'
+            $root.GetAttribute('aria-label') | Should -Be ''
+            $labelledBy | Should -Not -BeNullOrEmpty
+            $describedBy | Should -Not -BeNullOrEmpty
+            $titleNode.GetAttribute('id') | Should -Be $labelledBy
+            $descNode.GetAttribute('id') | Should -Be $describedBy
+            $titleNode.InnerText | Should -Not -BeNullOrEmpty
+            $descNode.InnerText | Should -Not -BeNullOrEmpty
+        }
+
+        [xml]$statsXml = $assets['assets/profile/stats-dark.svg']
+        $statsRoot = $statsXml.DocumentElement
+        $statsRoot.GetAttribute('aria-labelledby') | Should -Be 'profile-sysadmindoc-catalog-stats-dark-title'
+        $statsRoot.GetAttribute('aria-describedby') | Should -Be 'profile-sysadmindoc-catalog-stats-dark-desc'
+        $statsDesc = $statsRoot.GetElementsByTagName('desc')[0].InnerText
+        $statsDesc | Should -Match ([regex]::Escape('Rows: 1 active public repositories'))
+        $statsDesc | Should -Match ([regex]::Escape('7 total public stars'))
+
+        $escapedSvg = New-ProfilePanelSvg -Title 'A&B <Stats>' -Subtitle 'Summary & status' -Rows @(
+            [ordered]@{ label = 'stars <public>'; value = '7 & 8'; detail = 'live > stale' }
+        ) -Theme dark
+        [xml]$escapedXml = $escapedSvg
+        $escapedRoot = $escapedXml.DocumentElement
+        $escapedRoot.GetAttribute('aria-labelledby') | Should -Be 'profile-a-b-stats-dark-title'
+        $escapedSvg | Should -Match 'A&amp;B &lt;Stats&gt;'
+        $escapedRoot.GetElementsByTagName('desc')[0].InnerText | Should -Be 'Summary & status Rows: 7 & 8 stars <public> (live > stale).'
     }
 }
 
