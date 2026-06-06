@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T17:49:16.3767815-04:00",
+  "generatedAt": "2026-06-06T17:57:17.2028851-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "c5ce7cae8163e84a2981c8501834a33a2d9d46c9",
+    "sourceCommit": "29329d6c78ea5d3c02ce1b892cc3bd84a8cb5318",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
     "generatorSha256": "409ed59093381a03ff8d98906ef71b750b36795ebb4ddefb9cdc93fb544a7699",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T17:47:56.9943457-04:00",
+    "metadataSnapshotAt": "2026-06-06T17:55:58.2373980-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T21:45:00.0000000Z",
+        "pushedAt": "2026-06-06T21:55:44.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -898,10 +898,16 @@
         "count": 1
       },
       {
-        "licenseSpdxId": "MPL-2.0",
-        "licenseKey": "mpl-2.0",
-        "licenseName": "Mozilla Public License 2.0",
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
         "count": 1
+      },
+      {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
       },
       {
         "licenseSpdxId": "MIT",
@@ -916,16 +922,10 @@
         "count": 9
       },
       {
-        "licenseSpdxId": "AGPL-3.0",
-        "licenseKey": "agpl-3.0",
-        "licenseName": "GNU Affero General Public License v3.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
+        "licenseSpdxId": "Apache-2.0",
+        "licenseKey": "apache-2.0",
+        "licenseName": "Apache License 2.0",
+        "count": 2
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -934,10 +934,10 @@
         "count": 1
       },
       {
-        "licenseSpdxId": "Apache-2.0",
-        "licenseKey": "apache-2.0",
-        "licenseName": "Apache License 2.0",
-        "count": 2
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
+        "count": 1
       }
     ],
     "missingLicenses": [
@@ -2268,28 +2268,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.59",
+    "expectedVersion": "v4.9.60",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.59"
+        "value": "v4.9.60"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.59"
+        "value": "v4.9.60"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.59"
+        "value": "v4.9.60"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.59"
+        "value": "v4.9.60"
       }
     ],
     "dates": [
@@ -2320,14 +2320,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.59",
+    "expectedVersion": "v4.9.60",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.59",
+    "expectedTag": "v4.9.60",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2337,13 +2337,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.59",
+        "expectedVersion": "v4.9.60",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.59",
+        "expectedVersion": "v4.9.60",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2355,7 +2355,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 4101,
+      "elapsedMs": 3524,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2374,7 +2374,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.06,
+      "ageDays": 5.07,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2384,7 +2384,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 4101,
+    "elapsedMs": 3524,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
