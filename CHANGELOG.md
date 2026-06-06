@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.44] - 2026-06-06
+
+- Added: `projects.json` visitor-facing rows now include `releaseTrust` metadata derived from latest-release asset filenames, including checksum, signature, SBOM, attestation, debug-artifact, source-only, executable-kind, and public-note fields.
+- Added: `reports/profile-sync-report.json.releaseAssetDrift` now reports trust-level counts, executable download rows missing checksum coverage, and debug artifact rows.
+- Changed: Checksum coverage is conservative: a checksum sidecar must match each executable asset name, or a generic checksums file must be present, before `hasChecksumForEveryExecutable` is true.
+- Added: The project-feed schema now requires `releaseTrust`, and Pester coverage validates trust classification, source-only releases, checksum sidecars, schema validation, and checksum-gap reporting.
+
 ## [v4.9.43] - 2026-06-06
 
 - Added: `projects.json` now includes a public-safe `provenance` object with source repository, generation-base commit, catalog/generator/schema SHA-256 hashes, metadata snapshot time, metadata provider, and repository enumeration status.

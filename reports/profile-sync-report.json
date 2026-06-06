@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-06T14:45:34.4098985-04:00",
+  "generatedAt": "2026-06-06T15:05:20.8029815-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -41,11 +41,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a4825fddd1fb3dd6a505dbded567f180a101331f",
+    "sourceCommit": "97c58e2ee066e7a3c02e9ab67e52ba32800b13e9",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "84ce25a5f6354c0776ab850006044483b4681439b71b6dd93ebba8ed0b6c39e5",
-    "projectSchemaSha256": "ccdb6230dcb12f46b0465935fc374c743f0a54b415bca13bdc434091e533e2f5",
-    "metadataSnapshotAt": "2026-06-06T14:44:13.2966161-04:00",
+    "generatorSha256": "a4fde03e114eb7f1dbeee670376342d87759bdf1fa498f52a19959f46940c72c",
+    "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
+    "metadataSnapshotAt": "2026-06-06T15:02:49.8482329-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -132,7 +132,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T18:40:12.0000000Z",
+        "pushedAt": "2026-06-06T18:51:36.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -902,6 +902,496 @@
         "count": 28
       }
     ],
+    "releaseTrustLevelCounts": [
+      {
+        "trustLevel": "checksum",
+        "count": 23
+      },
+      {
+        "trustLevel": "metadata-only",
+        "count": 118
+      },
+      {
+        "trustLevel": "unknown",
+        "count": 36
+      }
+    ],
+    "executableDownloadsMissingChecksums": [
+      {
+        "repo": "AI-Usage_Tracker",
+        "latestReleaseTag": "v0.1.5",
+        "executableAssetKinds": [
+          "userscript",
+          "xpi",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "AmazonEnhanced",
+        "latestReleaseTag": "v2.0.4",
+        "executableAssetKinds": [
+          "crx",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Astra-Deck",
+        "latestReleaseTag": "v4.46.0",
+        "executableAssetKinds": [
+          "crx",
+          "userscript",
+          "xpi",
+          "zip"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "Aura",
+        "latestReleaseTag": "v6.31.1",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "BillMinder",
+        "latestReleaseTag": "v2.1.1",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Bookmark-Organizer-Pro",
+        "latestReleaseTag": "v6.0.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "DeepPurge",
+        "latestReleaseTag": "v0.9.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "DefenderControl",
+        "latestReleaseTag": "v3.2.1",
+        "executableAssetKinds": [
+          "script"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "DisableDefender",
+        "latestReleaseTag": "v0.0.4",
+        "executableAssetKinds": [
+          "script"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Discrub",
+        "latestReleaseTag": "v2.10.0",
+        "executableAssetKinds": [
+          "crx"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Droidsmith",
+        "latestReleaseTag": "v0.1.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "EXTRACTORX",
+        "latestReleaseTag": "v2.3.1",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "FileOrganizer",
+        "latestReleaseTag": "v8.4.0",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "FrameSnap",
+        "latestReleaseTag": "v2.1.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "HEICShift",
+        "latestReleaseTag": "v2.8.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "HostsFileGet",
+        "latestReleaseTag": "v2.10.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "HostShield",
+        "latestReleaseTag": "v6.5.9",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "iOSIconPack",
+        "latestReleaseTag": "v1.1.9",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "JDownloader-2-Ultimate-Manager",
+        "latestReleaseTag": "v13.5.0",
+        "executableAssetKinds": [
+          "exe",
+          "script"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Keepr",
+        "latestReleaseTag": "v0.16.2",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Lawnchair-Lite",
+        "latestReleaseTag": "v2.20.1",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "LlamaLink",
+        "latestReleaseTag": "v0.4.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Mattpad",
+        "latestReleaseTag": "v.2.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "MonitorControl",
+        "latestReleaseTag": "v3.0.0",
+        "executableAssetKinds": [
+          "script"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Network_Security_Auditor",
+        "latestReleaseTag": "v4.1.0",
+        "executableAssetKinds": [
+          "script"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "NovaCut",
+        "latestReleaseTag": "v3.73.2",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "NuclearDellRemover",
+        "latestReleaseTag": "v1.4.2",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "one-ui-home-clone",
+        "latestReleaseTag": "v0.2.0",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "OpenCut",
+        "latestReleaseTag": "v1.25.1",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "OpenLumen",
+        "latestReleaseTag": "v0.5.1",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "PathForge",
+        "latestReleaseTag": "v3.0.0",
+        "executableAssetKinds": [
+          "script"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "project-nomad-desktop",
+        "latestReleaseTag": "v7.32.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "PromptCompanion",
+        "latestReleaseTag": "v0.5.3",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "qBittorrent-Vanced",
+        "latestReleaseTag": "v1.0.0",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "QuickFind",
+        "latestReleaseTag": "v0.7.1",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "QuotaGlass",
+        "latestReleaseTag": "v0.10.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Qwen3-TTS-Studio",
+        "latestReleaseTag": "v1.0.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "RumbleX",
+        "latestReleaseTag": "v3.26.0",
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "ScriptVault",
+        "latestReleaseTag": "v3.11.0",
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "SnapCrop",
+        "latestReleaseTag": "v6.7.3",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "StyleCraft",
+        "latestReleaseTag": "v1.6.0",
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "StyleKit",
+        "latestReleaseTag": "v1.1.0",
+        "executableAssetKinds": [
+          "crx",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "SunoJump",
+        "latestReleaseTag": "v1.5.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "SwiftShot",
+        "latestReleaseTag": "v2.6.5",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "TaskCopy",
+        "latestReleaseTag": "v0.5.12",
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "TsunamiSimulator",
+        "latestReleaseTag": "v0.4.0",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "uBlock-Stylus-Converter",
+        "latestReleaseTag": "v2.0.0",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "uBlockVanced",
+        "latestReleaseTag": "0.2.6",
+        "executableAssetKinds": [
+          "crx"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "UniFile",
+        "latestReleaseTag": "v9.3.15",
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Vertigo",
+        "latestReleaseTag": "v0.11.1",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "VideoSubtitleRemover",
+        "latestReleaseTag": "v3.16.0",
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "win11-nvme-driver-patcher",
+        "latestReleaseTag": "v4.6.1",
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "Wingetter",
+        "latestReleaseTag": "v6.1.0",
+        "executableAssetKinds": [
+          "exe",
+          "script"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "WolfPack",
+        "latestReleaseTag": "v1.4.0",
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "ZeusWatch",
+        "latestReleaseTag": "v1.21.1",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "checksum"
+      }
+    ],
+    "debugArtifactRows": [
+      {
+        "repo": "Aura",
+        "latestReleaseTag": "v6.31.1",
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "LocalAndroidStore",
+        "latestReleaseTag": "v0.2.3",
+        "trustLevel": "checksum"
+      },
+      {
+        "repo": "one-ui-home-clone",
+        "latestReleaseTag": "v0.2.0",
+        "trustLevel": "metadata-only"
+      }
+    ],
     "sourceOnlyWithRelease": [
       {
         "repo": "AppManagerNG",
@@ -1030,28 +1520,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.43",
+    "expectedVersion": "v4.9.44",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.43"
+        "value": "v4.9.44"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.43"
+        "value": "v4.9.44"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.43"
+        "value": "v4.9.44"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.43"
+        "value": "v4.9.44"
       }
     ],
     "dates": [
@@ -1084,7 +1574,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 3945,
+      "elapsedMs": 9148,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1102,7 +1592,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.94,
+      "ageDays": 4.95,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1112,7 +1602,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 3945,
+    "elapsedMs": 9148,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

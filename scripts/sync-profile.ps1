@@ -613,6 +613,99 @@ function Test-HasDownloadableReleaseAsset {
     return @($AssetKinds | Where-Object { $_ -ne "source-archive" }).Count -gt 0
 }
 
+function Get-ExecutableReleaseAssetKinds {
+    param([string[]]$AssetKinds)
+
+    $executableKinds = @("apk", "crx", "deb", "dmg", "exe", "jar", "rpm", "script", "userscript", "xpi", "zip")
+    return @($AssetKinds | Where-Object { $_ -in $executableKinds } | Sort-Object -Unique)
+}
+
+function Test-ChecksumCoverageForExecutableAssets {
+    param(
+        [string[]]$ExecutableAssetNames,
+        [string[]]$ChecksumAssets
+    )
+
+    $executables = @($ExecutableAssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    if ($executables.Count -eq 0 -or $ChecksumAssets.Count -eq 0) {
+        return $false
+    }
+
+    $checksums = @($ChecksumAssets | ForEach-Object { ([string]$_).ToLowerInvariant() })
+    if (@($checksums | Where-Object { $_ -match '(^|[-_.])(checksums?|sums)([-_.]|$)' }).Count -gt 0) {
+        return $true
+    }
+
+    foreach ($asset in $executables) {
+        $assetLower = ([string]$asset).ToLowerInvariant()
+        $stemLower = [System.IO.Path]::GetFileNameWithoutExtension($assetLower)
+        $matched = @($checksums | Where-Object { $_.Contains($assetLower) -or (-not [string]::IsNullOrWhiteSpace($stemLower) -and $_.Contains($stemLower)) }).Count -gt 0
+        if (-not $matched) {
+            return $false
+        }
+    }
+
+    return $true
+}
+
+function New-ReleaseTrust {
+    param(
+        [string[]]$AssetKinds,
+        [string[]]$AssetNames,
+        [bool]$HasRelease,
+        [bool]$AssetInspected
+    )
+
+    $names = @($AssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    $checksumAssets = @($names | Where-Object { $_ -match '(?i)(sha256|sha512|checksum|checksums|sums|\.sha256|\.sha512)' } | Sort-Object)
+    $signatureAssets = @($names | Where-Object { $_ -match '(?i)(\.sig$|\.asc$|signature|signatures)' } | Sort-Object)
+    $sbomAssets = @($names | Where-Object { $_ -match '(?i)(sbom|spdx|cyclonedx)' } | Sort-Object)
+    $attestationAssets = @($names | Where-Object { $_ -match '(?i)(attestation|intoto|in-toto|\.att$)' } | Sort-Object)
+    $debugArtifactPresent = [bool](@($names | Where-Object { $_ -match '(?i)(^|[-_.])debug([-_.]|$)' }).Count)
+    $executableAssetKinds = @(Get-ExecutableReleaseAssetKinds -AssetKinds $AssetKinds)
+    $executableAssetNames = @(
+        $names |
+            Where-Object {
+                $assetKind = @(Get-ReleaseAssetKinds -AssetNames @([string]$_))
+                @(Get-ExecutableReleaseAssetKinds -AssetKinds $assetKind).Count -gt 0
+            }
+    )
+    $hasChecksumForEveryExecutable = Test-ChecksumCoverageForExecutableAssets -ExecutableAssetNames $executableAssetNames -ChecksumAssets $checksumAssets
+    $sourceOnlyRelease = [bool]($HasRelease -and $AssetInspected -and @($AssetKinds).Count -eq 1 -and $AssetKinds[0] -eq "source-archive")
+
+    $trustLevel = "unknown"
+    if ($HasRelease -and $AssetInspected) {
+        $trustLevel = "metadata-only"
+        if ($checksumAssets.Count -gt 0) {
+            $trustLevel = "checksum"
+        }
+        if ($signatureAssets.Count -gt 0) {
+            $trustLevel = "signed"
+        }
+        if ($attestationAssets.Count -gt 0) {
+            $trustLevel = "attested"
+        }
+        if ($signatureAssets.Count -gt 0 -and $attestationAssets.Count -gt 0) {
+            $trustLevel = "signed-and-attested"
+        }
+    }
+
+    return [ordered]@{
+        checksumAssets = @($checksumAssets)
+        hasChecksumForEveryExecutable = $hasChecksumForEveryExecutable
+        signatureAssets = @($signatureAssets)
+        hasAuthenticodeSignature = $null
+        apkSignatureVerified = $null
+        sbomAssets = @($sbomAssets)
+        attestationAvailable = [bool]($attestationAssets.Count -gt 0)
+        debugArtifactPresent = $debugArtifactPresent
+        sourceOnlyRelease = $sourceOnlyRelease
+        executableAssetKinds = @($executableAssetKinds)
+        trustLevel = $trustLevel
+        notesPublic = if ($HasRelease -and $AssetInspected) { "Derived from release asset filenames; binaries were not downloaded or verified." } else { $null }
+    }
+}
+
 function ConvertTo-IsoText {
     param([object]$Value)
 
@@ -1798,6 +1891,12 @@ function New-ProjectsExportJson {
         if (-not $isSuppressed -and $meta -and $meta.latestRelease) {
             $releaseAssetNames = @(Get-ReleaseAssetNamesFromMeta -Meta $meta)
         }
+        $releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
+        $releaseTrust = New-ReleaseTrust `
+            -AssetKinds $releaseAssetKinds `
+            -AssetNames $releaseAssetNames `
+            -HasRelease ([bool]($meta -and $meta.latestRelease)) `
+            -AssetInspected $releaseAssetInspected
 
         $row = [ordered]@{
             repo = [string]$entry.repo
@@ -1839,7 +1938,8 @@ function New-ProjectsExportJson {
             latestReleaseUrl = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.url } else { $null }
             releaseAssetKinds = @($releaseAssetKinds)
             releaseAssetNames = @($releaseAssetNames)
-            releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
+            releaseAssetInspected = $releaseAssetInspected
+            releaseTrust = $releaseTrust
             pushedAt = if ($meta -and $meta.pushedAt) { ConvertTo-IsoText $meta.pushedAt } else { $null }
             topics = @($topics)
             featured = [bool]$entry.featured
@@ -3032,6 +3132,7 @@ function Test-MetadataDrift {
             "releaseAssetKinds",
             "releaseAssetNames",
             "releaseAssetInspected",
+            "releaseTrust",
             "pushedAt",
             "topics",
             "visibility",
@@ -3268,7 +3369,10 @@ function Test-ReleaseAssetDrift {
     $releaseAssetKindMismatches = New-Object System.Collections.Generic.List[object]
     $releaseAssetFetchFailures = New-Object System.Collections.Generic.List[object]
     $userscriptKindWithoutInstallUrl = New-Object System.Collections.Generic.List[object]
+    $executableDownloadsMissingChecksums = New-Object System.Collections.Generic.List[object]
+    $debugArtifactRows = New-Object System.Collections.Generic.List[object]
     $releaseAssetKindCounts = @{}
+    $trustLevelCounts = @{}
     $releaseBearingRows = 0
     $releaseActionRows = 0
     $inspectedReleaseRows = 0
@@ -3282,6 +3386,12 @@ function Test-ReleaseAssetDrift {
         $assetKinds = if ($hasRelease) { @(Get-ReleaseAssetKindsFromMeta -Meta $meta) } else { @() }
         $assetNames = if ($hasRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
         $assetInspected = (Test-ReleaseAssetMetadataInspected -Meta $meta)
+        $releaseTrust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $hasRelease -AssetInspected $assetInspected
+        $trustLevel = [string]$releaseTrust.trustLevel
+        if (-not $trustLevelCounts.ContainsKey($trustLevel)) {
+            $trustLevelCounts[$trustLevel] = 0
+        }
+        $trustLevelCounts[$trustLevel]++
 
         if ($hasRelease) {
             $releaseBearingRows++
@@ -3314,6 +3424,21 @@ function Test-ReleaseAssetDrift {
                     downloadKind = if ([string]::IsNullOrWhiteSpace($downloadKind)) { $null } else { $downloadKind }
                     expectedLabel = [string]$expectedLabel
                     actualLabel = [string]$action["label"]
+                })
+            }
+            if (@($releaseTrust.executableAssetKinds).Count -gt 0 -and $releaseTrust.hasChecksumForEveryExecutable -ne $true) {
+                $executableDownloadsMissingChecksums.Add([ordered]@{
+                    repo = [string]$entry.repo
+                    latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
+                    executableAssetKinds = @($releaseTrust.executableAssetKinds)
+                    trustLevel = [string]$releaseTrust.trustLevel
+                })
+            }
+            if ($releaseTrust.debugArtifactPresent) {
+                $debugArtifactRows.Add([ordered]@{
+                    repo = [string]$entry.repo
+                    latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
+                    trustLevel = [string]$releaseTrust.trustLevel
                 })
             }
         }
@@ -3365,6 +3490,16 @@ function Test-ReleaseAssetDrift {
                 }
             }
     )
+    $trustCounts = @(
+        $trustLevelCounts.GetEnumerator() |
+            Sort-Object Name |
+            ForEach-Object {
+                [ordered]@{
+                    trustLevel = [string]$_.Key
+                    count = [int]$_.Value
+                }
+            }
+    )
 
     return [ordered]@{
         checkedCatalogRows = @($Entries).Count
@@ -3373,6 +3508,9 @@ function Test-ReleaseAssetDrift {
         assetApiInspected = ($inspectedReleaseRows -gt 0)
         inspectedReleaseRows = $inspectedReleaseRows
         releaseAssetKindCounts = $kindCounts
+        releaseTrustLevelCounts = $trustCounts
+        executableDownloadsMissingChecksums = $executableDownloadsMissingChecksums.ToArray()
+        debugArtifactRows = $debugArtifactRows.ToArray()
         sourceOnlyWithRelease = $sourceOnlyWithRelease.ToArray()
         missingReleaseForDownloadKind = $missingReleaseForDownloadKind.ToArray()
         releaseActionLabelMismatches = $releaseActionLabelMismatches.ToArray()

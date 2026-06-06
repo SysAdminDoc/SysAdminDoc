@@ -80,6 +80,12 @@
       ],
       "pattern": "^[a-f0-9]{40}$"
     },
+    "nullableBoolean": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "repoEnumeration": {
       "type": "object",
       "additionalProperties": false,
@@ -177,6 +183,95 @@
         "url": {
           "type": "string",
           "format": "uri"
+        }
+      }
+    },
+    "releaseTrust": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checksumAssets",
+        "hasChecksumForEveryExecutable",
+        "signatureAssets",
+        "hasAuthenticodeSignature",
+        "apkSignatureVerified",
+        "sbomAssets",
+        "attestationAvailable",
+        "debugArtifactPresent",
+        "sourceOnlyRelease",
+        "executableAssetKinds",
+        "trustLevel",
+        "notesPublic"
+      ],
+      "properties": {
+        "checksumAssets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hasChecksumForEveryExecutable": {
+          "type": "boolean"
+        },
+        "signatureAssets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hasAuthenticodeSignature": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "apkSignatureVerified": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "sbomAssets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "attestationAvailable": {
+          "type": "boolean"
+        },
+        "debugArtifactPresent": {
+          "type": "boolean"
+        },
+        "sourceOnlyRelease": {
+          "type": "boolean"
+        },
+        "executableAssetKinds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "apk",
+              "crx",
+              "deb",
+              "dmg",
+              "exe",
+              "jar",
+              "rpm",
+              "script",
+              "userscript",
+              "xpi",
+              "zip"
+            ]
+          }
+        },
+        "trustLevel": {
+          "type": "string",
+          "enum": [
+            "attested",
+            "checksum",
+            "metadata-only",
+            "signed",
+            "signed-and-attested",
+            "unknown"
+          ]
+        },
+        "notesPublic": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
@@ -279,6 +374,7 @@
         "releaseAssetKinds",
         "releaseAssetNames",
         "releaseAssetInspected",
+        "releaseTrust",
         "pushedAt",
         "topics",
         "featured",
@@ -439,6 +535,9 @@
         },
         "releaseAssetInspected": {
           "type": "boolean"
+        },
+        "releaseTrust": {
+          "$ref": "#/$defs/releaseTrust"
         },
         "pushedAt": {
           "type": [
