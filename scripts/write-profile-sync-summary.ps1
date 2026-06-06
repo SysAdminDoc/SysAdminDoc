@@ -35,6 +35,7 @@ $report = Get-Content -LiteralPath $ReportPath -Raw | ConvertFrom-Json
 
 $metadataHygiene = $report.metadataHygiene
 $projectLicenseMetadata = if ($report.PSObject.Properties.Name -contains 'projectLicenseMetadata') { $report.projectLicenseMetadata } else { $null }
+$forkParentDrift = if ($report.PSObject.Properties.Name -contains 'forkParentDrift') { $report.forkParentDrift } else { $null }
 $releaseDrift = $report.releaseAssetDrift
 $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
@@ -46,6 +47,7 @@ $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopic
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
 $missingLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.missingCount } else { 0 }
 $unknownLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.unknownCount } else { 0 }
+$forkParentWarningCount = if ($forkParentDrift) { [int]$forkParentDrift.warningCount } else { 0 }
 $fatalDriftCount = if ($driftSummary) { [int]$driftSummary.fatalCount } else { 0 }
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
@@ -70,6 +72,7 @@ $summary = @"
 | Missing descriptions | $missingDescriptionCount |
 | Missing project licenses | $missingLicenseCount |
 | Unknown project licenses | $unknownLicenseCount |
+| Fork-parent warnings | $forkParentWarningCount |
 | Release rows checked | $releaseRowsChecked |
 | Link targets checked | $($linkSummary.targetCount) |
 | Link failures | $linkFailureCount |
@@ -106,6 +109,10 @@ if ($missingLicenseCount -gt 0) {
 
 if ($unknownLicenseCount -gt 0) {
     Write-Output "::warning::Profile sync report has $unknownLicenseCount visitor-facing project(s) with non-standard license metadata."
+}
+
+if ($forkParentWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $forkParentWarningCount fork-parent attribution warning(s)."
 }
 
 if ($repositoryWarningCount -gt 0) {

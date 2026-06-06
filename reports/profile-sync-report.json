@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T16:53:49.8324405-04:00",
+  "generatedAt": "2026-06-06T17:05:00.4452613-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "73fe635b4cd32af19bdf336c0c4fa625382ae812",
+    "sourceCommit": "63fc356c072f1ae485d231df6d5527c7c3194885",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "a8a11d426046dbf5e817165b5ef385a6105e5b33e094a861fd3389860e06c09b",
+    "generatorSha256": "fccb243a313c2ba20c9a3c387cbd6d3f4e07bdf86146f2bc735759e5286a5ce8",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T16:52:25.5720299-04:00",
+    "metadataSnapshotAt": "2026-06-06T17:03:35.3028282-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T20:47:48.0000000Z",
+        "pushedAt": "2026-06-06T20:59:54.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,39 +892,15 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
-      },
-      {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
-      },
-      {
-        "licenseSpdxId": "NOASSERTION",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "count": 9
-      },
-      {
         "licenseSpdxId": "Apache-2.0",
         "licenseKey": "apache-2.0",
         "licenseName": "Apache License 2.0",
         "count": 2
       },
       {
-        "licenseSpdxId": "AGPL-3.0",
-        "licenseKey": "agpl-3.0",
-        "licenseName": "GNU Affero General Public License v3.0",
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
       },
       {
@@ -934,10 +910,34 @@
         "count": 1
       },
       {
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
+      },
+      {
         "licenseSpdxId": "LGPL-3.0",
         "licenseKey": "lgpl-3.0",
         "licenseName": "GNU Lesser General Public License v3.0",
         "count": 1
+      },
+      {
+        "licenseSpdxId": "NOASSERTION",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "count": 9
+      },
+      {
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
       }
     ],
     "missingLicenses": [
@@ -1019,6 +1019,76 @@
         "reason": "GitHub reported an unrecognized or non-standard license"
       }
     ]
+  },
+  "forkParentDrift": {
+    "checkedCount": 10,
+    "githubForkCount": 8,
+    "catalogForkOfCount": 7,
+    "matchingGitHubForkCount": 5,
+    "catalogContinuationCount": 2,
+    "missingCatalogAttributionCount": 3,
+    "parentMismatchCount": 0,
+    "parentUnavailableCount": 0,
+    "warningCount": 3,
+    "matchingGitHubForks": [
+      {
+        "repo": "LTSC-MicrosoftStore",
+        "catalogForkOf": "minihub/LTSC-Add-MicrosoftStore",
+        "githubParent": "minihub/LTSC-Add-MicrosoftStore"
+      },
+      {
+        "repo": "RcloneBrowser",
+        "catalogForkOf": "kapitainsky/RcloneBrowser",
+        "githubParent": "kapitainsky/RcloneBrowser"
+      },
+      {
+        "repo": "TabExplorer",
+        "catalogForkOf": "derceg/explorerplusplus",
+        "githubParent": "derceg/explorerplusplus"
+      },
+      {
+        "repo": "TagStudio",
+        "catalogForkOf": "TagStudioDev/TagStudio",
+        "githubParent": "TagStudioDev/TagStudio"
+      },
+      {
+        "repo": "Vigil",
+        "catalogForkOf": "ungoogled-software/ungoogled-chromium-windows",
+        "githubParent": "ungoogled-software/ungoogled-chromium-windows"
+      }
+    ],
+    "catalogContinuations": [
+      {
+        "repo": "AppManagerNG",
+        "catalogForkOf": "MuntashirAkon/AppManager",
+        "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
+      },
+      {
+        "repo": "uBlockVanced",
+        "catalogForkOf": "gorhill/uBlock",
+        "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
+      }
+    ],
+    "missingCatalogAttribution": [
+      {
+        "repo": "android-debloat-list",
+        "githubParent": "MuntashirAkon/android-debloat-list",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "mnamer",
+        "githubParent": "jkwill87/mnamer",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "project-nomad",
+        "githubParent": "Crosstalk-Solutions/project-nomad",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      }
+    ],
+    "parentMismatches": [],
+    "parentUnavailable": [],
+    "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
   },
   "releaseAssetDrift": {
     "checkedCatalogRows": 177,
@@ -1844,28 +1914,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.55",
+    "expectedVersion": "v4.9.56",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.55"
+        "value": "v4.9.56"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.55"
+        "value": "v4.9.56"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.55"
+        "value": "v4.9.56"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.55"
+        "value": "v4.9.56"
       }
     ],
     "dates": [
@@ -1898,7 +1968,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3397,
+      "elapsedMs": 3294,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -1917,7 +1987,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.02,
+      "ageDays": 5.03,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1927,7 +1997,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3397,
+    "elapsedMs": 3294,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },

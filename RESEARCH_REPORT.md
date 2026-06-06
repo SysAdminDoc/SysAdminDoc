@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.55
+Current version after this refresh: v4.9.56
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.56 batch closed the GitHub fork-parent drift reporting gap by adding
+  live `isFork` collection, REST parent enrichment for GitHub forks, and a
+  `forkParentDrift` sync-report section.
+- The current live report records 8 GitHub forks, 7 catalog `forkOf` rows, 5
+  matching GitHub forks, 2 catalog continuations/imports, 3 missing
+  catalog-attribution warnings, and 0 parent mismatches.
+- The sync-report schema, summary helper, and Pester suite now cover matching
+  forks, catalog continuations, missing attribution, parent mismatches, and
+  unavailable parent metadata.
 - The v4.9.55 batch closed the per-project SPDX/license metadata gap by adding
   `licenseKey`, `licenseName`, and `licenseSpdxId` to visitor-facing
   `projects.json` rows.
@@ -323,7 +332,7 @@ Top opportunities, in priority order:
 13. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
 14. P2 - Expand CODEOWNERS coverage for profile-contract files.
 15. P2 - Export per-project SPDX/license metadata in the generated feed and report. [Completed v4.9.55]
-16. P2 - Report GitHub fork-parent drift against catalog attribution.
+16. P2 - Report GitHub fork-parent drift against catalog attribution. [Completed v4.9.56]
 17. P2 - Add a public-repo enumeration limit guard.
 18. P2 - Publish a JSON Schema for `profile-sync-report.json`. [Completed v4.9.45]
 19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
@@ -1206,14 +1215,16 @@ fork/continuation attribution already shipped in v4.9.23.
 
 ### Evidence reviewed (cycle 14)
 
-- `gh repo view SysAdminDoc/RcloneBrowser --json isFork,parent,licenseInfo`
-  reports `isFork=true` with parent `kapitainsky/RcloneBrowser`, matching the
-  catalog `forkOf` entry and upstream MIT attribution.
-- `gh repo view SysAdminDoc/uBlockVanced --json isFork,parent,licenseInfo`
-  reports `isFork=false` with no GitHub parent, while the catalog intentionally
-  records `forkOf=gorhill/uBlock` and `upstreamLicense=GPL-3.0`.
+- `gh repo list SysAdminDoc --json isFork,parent` exposes fork status but, in the
+  current CLI shape, returned null parent details for fork rows.
+- `gh api repos/SysAdminDoc/RcloneBrowser --jq .parent.full_name` reports
+  `kapitainsky/RcloneBrowser`, matching the catalog `forkOf` entry and upstream
+  MIT attribution.
+- `gh api repos/SysAdminDoc/uBlockVanced` reports `fork=false` with no GitHub
+  parent, while the catalog intentionally records `forkOf=gorhill/uBlock` and
+  `upstreamLicense=GPL-3.0`.
 - `scripts/sync-profile.ps1:210-213` requests `gh repo list` fields without
-  `isFork` or `parent`.
+  `isFork` or parent enrichment.
 - The REST fallback metadata shape at `scripts/sync-profile.ps1:187-196`
   includes stars, default branch, latest release, visibility, archive/private
   status, pushed date, URL, and primary language, but no fork-parent metadata.
@@ -1225,12 +1236,12 @@ fork/continuation attribution already shipped in v4.9.23.
 
 ### Finding (cycle 14)
 
-- **Minor — fork/continuation attribution is not checked against live GitHub
+- **Minor — fork/continuation attribution was not checked against live GitHub
   parent metadata.** Manual `forkOf` fields now make attribution visible, but
   the report cannot distinguish a true GitHub fork with a matching parent from a
   continuation/import that intentionally records an upstream without being a
   GitHub fork. → roadmap "Report GitHub fork-parent drift against catalog
-  attribution". [Verified]
+  attribution". [Closed v4.9.56]
 
 ### Standards note (cycle 14)
 

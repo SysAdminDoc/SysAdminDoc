@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.55
+Current repo version: v4.9.56
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -34,6 +34,17 @@ pass, the implementing machine should:
 
 Last researched: Cycle 48 - 2026-06-06.
 
+2026-06-06 v4.9.56 refresh: fork-parent drift reporting shipped.
+Profile sync now collects live `isFork` metadata, enriches GitHub fork parent
+names through REST when bulk repo metadata omits them, and reports
+`forkParentDrift` in `reports/profile-sync-report.json`. The current live report
+records 8 GitHub forks, 7 catalog `forkOf` rows, 5 matching GitHub forks, 2
+catalog continuations/imports, 3 missing catalog-attribution warnings, and 0
+parent mismatches. The report schema, summary helper, and Pester suite cover the
+new section.
+Next highest open item: profile repo release/tag consistency check for tracked
+`v4.9.x` planning versions.
+
 2026-06-06 v4.9.55 refresh: per-project SPDX/license metadata shipped.
 Generated project rows now include `licenseKey`, `licenseName`, and
 `licenseSpdxId` from live GitHub metadata, separate from `upstreamLicense`.
@@ -43,8 +54,6 @@ non-standard, and per-license aggregate counts; the current live report checks
 for 3 missing and 9 non-standard licenses. The projects/feed schemas, report
 schema, summary helper, and Pester suite cover the new fields. The duplicate
 profile-assets report-summary row is reconciled as already completed in v4.9.31.
-Next highest open item: GitHub fork-parent drift report for catalog `forkOf`
-attribution.
 
 2026-06-06 v4.9.54 refresh: generated profile PR validation handoff shipped.
 Both generated-PR workflows now grant `actions: write` only to their
@@ -1106,12 +1115,13 @@ GitHub-detected license.*
 *Research conducted 2026-06-04. This pass focused on live GitHub fork-parent
 metadata versus the manual fork/continuation attribution already shipped.*
 
-- [ ] P2 🤖 🔬 — Report GitHub fork-parent drift against catalog attribution
+- [x] P2 🤖 🔬 — Report GitHub fork-parent drift against catalog attribution
   - Why: `forkOf`/`upstreamLicense` now make fork and continuation attribution visible, but the generator does not record whether GitHub itself marks a repository as a fork or which parent GitHub reports. True GitHub forks can drift from manual `forkOf`, while continuation/import rows such as `uBlockVanced` need to stay explicitly allowed as non-GitHub forks.
-  - Evidence: `gh repo view SysAdminDoc/RcloneBrowser --json isFork,parent` reports `isFork=true` with parent owner/name `kapitainsky/RcloneBrowser`, matching its catalog `forkOf`; `gh repo view SysAdminDoc/uBlockVanced --json isFork,parent` reports `isFork=false` while the catalog intentionally records `forkOf=gorhill/uBlock`; `scripts/sync-profile.ps1:210-213` does not request `isFork` or `parent`, and the REST fallback metadata at `scripts/sync-profile.ps1:187-196` omits fork-parent metadata; GitHub CLI documents `isFork` and `parent` as `gh repo view --json` fields: https://cli.github.com/manual/gh_repo_view
+  - Evidence: `gh repo list SysAdminDoc --json isFork,parent` exposes fork status but returned null parent details for current fork rows, while `gh api repos/SysAdminDoc/RcloneBrowser --jq .parent.full_name` reports `kapitainsky/RcloneBrowser`, matching its catalog `forkOf`; `gh api repos/SysAdminDoc/uBlockVanced` reports `fork=false` while the catalog intentionally records `forkOf=gorhill/uBlock`; `scripts/sync-profile.ps1:210-213` did not request `isFork` or enrich parent metadata, and the REST fallback metadata at `scripts/sync-profile.ps1:187-196` omitted fork-parent metadata; GitHub CLI documents `isFork` and `parent` as JSON fields: https://cli.github.com/manual/gh_repo_view
   - Touches: `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, generated `projects.json` if the build machine wants feed fields such as `isFork`/`forkParent`, optional schema additions.
   - Acceptance: the sync report distinguishes true GitHub forks, catalog-declared continuations/imports, and mismatches; a GitHub fork with no matching `forkOf` is a warning, a GitHub parent that disagrees with catalog `forkOf` is a warning or fatal based on severity, and catalog-declared non-GitHub continuations remain allowed with an explicit `forkAttributionKind` or equivalent field.
   - Verify: run `scripts/sync-profile.ps1 -Check`; confirm `RcloneBrowser` is reported as a matching GitHub fork and `uBlockVanced` as a catalog-declared continuation/import rather than a false failure; alter a fixture parent or remove `forkOf` for a known GitHub fork and confirm the report flags the mismatch.
+  - Completed: v4.9.56 adds live fork-parent enrichment, `forkParentDrift` report/schema/summary support, and Pester coverage for matches, continuations, missing attribution, mismatches, and unavailable parents.
   - Complexity: M
 
 ### Researcher Queue (Cycle 15 - 2026-06-04)
@@ -1694,7 +1704,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
 - [x] P2 — Expanded CODEOWNERS coverage for public profile contract files (completed v4.9.38).
 - [x] P2 — Per-project SPDX/license fields in `projects.json` and the sync report (completed v4.9.55 with visitor-facing `licenseKey`/`licenseName`/`licenseSpdxId`, report aggregates, schema validation, and Pester coverage).
-- [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
+- [x] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution (completed v4.9.56 with live `isFork` collection, REST parent enrichment, warning-only drift rows, schema support, summary rows, and Pester coverage).
 - [x] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300` (completed v4.9.36: raised to 500 with truncation warning).
 - [x] P2 — JSON Schema contract for `reports/profile-sync-report.json` (completed v4.9.45 with `schemas/profile-sync-report.v1.json`, report `schema`, `schemaValidation.report`, `-Check` failure wiring, and Pester malformed-report coverage).
 - [x] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn (completed v4.9.37).
@@ -1742,7 +1752,7 @@ P1/P2 needing design or staged rollout:
 - [x] P2 — Profile-assets refresh report artifact and public-safe summary parity (duplicate row reconciled in v4.9.55; completed v4.9.31 with shared public-safe summary helper and retained report artifacts).
 - [x] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths (completed v4.9.38).
 - [x] P2 — Per-project license metadata in the generated feed, schema, and report (completed v4.9.55 with project license fields, sync-report aggregates, schema support, and Pester coverage).
-- [ ] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations.
+- [x] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations (completed v4.9.56 with `forkParentDrift` report classification and public-safe warnings).
 - [x] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap (completed v4.9.36).
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
 - [x] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts (completed v4.9.37 via `.gitattributes`).

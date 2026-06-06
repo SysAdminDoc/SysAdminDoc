@@ -18,6 +18,7 @@
     "catalogShape",
     "metadataHygiene",
     "projectLicenseMetadata",
+    "forkParentDrift",
     "releaseAssetDrift",
     "repositorySettings",
     "communityHealth",
@@ -82,6 +83,9 @@
     },
     "projectLicenseMetadata": {
       "$ref": "#/$defs/projectLicenseMetadata"
+    },
+    "forkParentDrift": {
+      "$ref": "#/$defs/forkParentDrift"
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
@@ -507,6 +511,193 @@
         },
         "reason": {
           "type": "string"
+        }
+      }
+    },
+    "forkParentDrift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkedCount",
+        "githubForkCount",
+        "catalogForkOfCount",
+        "matchingGitHubForkCount",
+        "catalogContinuationCount",
+        "missingCatalogAttributionCount",
+        "parentMismatchCount",
+        "parentUnavailableCount",
+        "warningCount",
+        "matchingGitHubForks",
+        "catalogContinuations",
+        "missingCatalogAttribution",
+        "parentMismatches",
+        "parentUnavailable",
+        "note"
+      ],
+      "properties": {
+        "checkedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "githubForkCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "catalogForkOfCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "matchingGitHubForkCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "catalogContinuationCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingCatalogAttributionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "parentMismatchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "parentUnavailableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "matchingGitHubForks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/forkParentMatch"
+          }
+        },
+        "catalogContinuations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/forkCatalogContinuation"
+          }
+        },
+        "missingCatalogAttribution": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/forkMissingCatalogAttribution"
+          }
+        },
+        "parentMismatches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/forkParentMismatch"
+          }
+        },
+        "parentUnavailable": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/forkParentUnavailable"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "forkParentMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "catalogForkOf",
+        "githubParent"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "catalogForkOf": {
+          "type": "string"
+        },
+        "githubParent": {
+          "type": "string"
+        }
+      }
+    },
+    "forkCatalogContinuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "catalogForkOf",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "catalogForkOf": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "forkMissingCatalogAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "githubParent",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "githubParent": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "forkParentMismatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "catalogForkOf",
+        "githubParent",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "catalogForkOf": {
+          "type": "string"
+        },
+        "githubParent": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "forkParentUnavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "reason",
+        "error"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "error": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
