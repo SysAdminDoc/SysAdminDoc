@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.53
+Current version after this refresh: v4.9.54
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.54 batch closed the generated-profile PR validation handoff gap by
+  explicitly dispatching `profile-sync.yml` in check mode on generated
+  profile/assets PR branches.
+- The PR-creating jobs now have scoped `actions: write` permission, while
+  read-only check jobs remain `contents: read`; generated PR bodies and job
+  summaries include branch-scoped validation-run links.
+- Pester coverage guards the dispatch command, validation-run links, summary
+  text, and permission isolation.
 - The v4.9.53 batch closed the repository settings/community-health reporting
   gap by adding public-safe `repositorySettings` and `communityHealth` blocks to
   the sync report.
@@ -303,7 +311,7 @@ Top opportunities, in priority order:
 9. P2 - Add userscript install trust metadata for raw `.user.js` actions.
 10. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
 11. P2 - Add a reduced-motion/static generated profile chrome guard.
-12. P2 - Add a generated profile PR validation handoff for automation-created branches.
+12. P2 - Add a generated profile PR validation handoff for automation-created branches. [Completed v4.9.54]
 13. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
 14. P2 - Expand CODEOWNERS coverage for profile-contract files.
 15. P2 - Export per-project SPDX/license metadata in the generated feed and report.
@@ -1032,7 +1040,7 @@ then receive validation.
   least-privilege GitHub App/PAT token, dispatches validation explicitly, or
   documents the approval-required path, generated PRs can lack unattended
   validation evidence when branch policy starts requiring checks. → roadmap
-  "Add a validation handoff for generated profile PRs". [Verified]
+  "Add a validation handoff for generated profile PRs". [Closed v4.9.54]
 
 ### Standards note (cycle 10)
 

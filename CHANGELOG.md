@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.54] - 2026-06-06
+
+- Added: Generated profile PR workflows now dispatch `profile-sync.yml` in check mode on the generated automation branch after creating the pull request.
+- Added: Generated PR bodies and job summaries now include a branch-scoped validation-runs link so maintainers can find the handoff run.
+- Changed: The PR-creating jobs have `actions: write` in addition to `contents: write` and `pull-requests: write`; read-only check jobs remain `contents: read`.
+- Added: Pester coverage guards the dispatch command, branch-scoped validation link, summary text, and scoped workflow permissions.
+
 ## [v4.9.53] - 2026-06-06
 
 - Added: Profile sync reports now include public-safe `repositorySettings` and `communityHealth` blocks with live settings status, unavailable reasons, warning counts, and required local community-file fatal gaps.

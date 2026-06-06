@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.53
+Current repo version: v4.9.54
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.54 refresh: generated profile PR validation handoff shipped.
+Both generated-PR workflows now grant `actions: write` only to their
+PR-creating jobs, create a branch-scoped validation-runs URL in the PR body and
+job summary, and explicitly dispatch `profile-sync.yml` in check mode on the
+generated automation branch. Pester coverage guards the dispatch command,
+handoff links, summary text, and read-only check-job permissions.
+Next highest open item: profile-assets refresh report artifact/public-safe
+summary parity appears as a duplicate of v4.9.31 and should be reconciled before
+moving to per-project SPDX/license metadata.
 
 2026-06-06 v4.9.53 refresh: repository settings/community-health baseline shipped.
 Profile sync now records public-safe `repositorySettings` and `communityHealth`
@@ -1028,11 +1038,12 @@ semantics. The existing branch-protection and pull-request profile-sync items
 remain valid; this item covers the separate handoff problem when a workflow
 itself creates the branch and PR.*
 
-- [ ] P2 🤖 🔬 — Add a validation handoff for generated profile PRs
+- [x] P2 🤖 🔬 — Add a validation handoff for generated profile PRs
   - Why: the `write-pr` profile-sync path and the asset-refresh workflow both push automation branches and create pull requests with the default `github.token`. GitHub's current behavior can create `pull_request` runs for `GITHUB_TOKEN`-created PRs, but those runs are approval-required, and push-triggered workflows are still suppressed. Future PR profile-sync checks or required status checks can therefore wait on manual approval or miss push-only validation on the generated PRs that need them most.
   - Evidence: `.github/workflows/profile-sync.yml:67-101` sets `GH_TOKEN: ${{ github.token }}`, pushes `automation/profile-sync-*`, and runs `gh pr create`; `.github/workflows/assets-refresh.yml:31-62` does the same for `automation/profile-assets-*`; GitHub's workflow-trigger documentation says `GITHUB_TOKEN`-created `pull_request` events for opened/synchronize/reopened can create workflow runs in an approval-required state, while other events such as push do not create new workflow runs, and recommends a GitHub App installation token or PAT when automation-created PRs should run validation automatically: https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow; GitHub's `GITHUB_TOKEN` authentication docs recommend least-required token permissions and GitHub App/PAT tokens when additional behavior is needed: https://docs.github.com/en/actions/tutorials/authenticate-with-github_token
   - Touches: `.github/workflows/profile-sync.yml`, `.github/workflows/assets-refresh.yml`, optional GitHub App/PAT secret documentation, optional workflow-dispatch/repository-dispatch handoff, `RESEARCH_REPORT.md`.
   - Acceptance: generated profile PR workflows either use a least-privilege GitHub App installation token/PAT that permits normal PR validation events, explicitly dispatch the required validation workflow after creating the PR, or document an intentional approval-required path; the PR body or job summary links to the validation run or approval step; the design prevents recursive PR churn and documents why default `GITHUB_TOKEN` alone is insufficient for unattended validation.
+  - Completed: v4.9.54 grants `actions: write` only to generated-PR jobs, adds branch-scoped validation-run links to PR bodies and job summaries, and dispatches `profile-sync.yml` in check mode on generated profile/assets branches after PR creation.
   - Verify: run the manual `write-pr` path or asset-refresh path in a scratch/no-op branch and confirm the generated PR receives the intended Tests/Profile sync/workflow-security checks automatically or shows the expected approval-required state; inspect `gh run list --branch <automation-branch>` or the PR checks API for the expected runs; confirm no recursive generated PR is opened by the validation handoff.
   - Complexity: M
 
@@ -1669,7 +1680,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes (completed v4.9.41 with an always-created `Windows setup smoke` job).
 - [x] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools (completed v4.9.46 with Pester 5.7.1 `-RequiredVersion`, hash-checked `zizmor` 1.25.2 requirements, toolchain docs, and Pester coverage).
 - [x] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome (completed v4.9.47 with static local header/footer SVGs, `motionSafeChrome`, render-host reporting, schema updates, and Pester regression coverage).
-- [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
+- [x] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches (completed v4.9.54 with branch-scoped `profile-sync.yml` check dispatch from generated PR workflows).
 - [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
 - [x] P2 — Expanded CODEOWNERS coverage for public profile contract files (completed v4.9.38).
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
@@ -1717,7 +1728,7 @@ P1/P2 needing design or staged rollout:
 - [x] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows (completed v4.9.44 with feed `releaseTrust`, schema coverage, trust-level counts, checksum-gap reporting, and debug artifact reporting).
 - [x] P2 — Pinned CI validation-tool installs with a documented update path (completed v4.9.46 with exact Pester/PSScriptAnalyzer versions, hash-checked `zizmor`, and `docs/ci-toolchain.md`).
 - [x] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate (completed v4.9.47 with generated report/schema fields and failure coverage for reintroduced motion patterns).
-- [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
+- [x] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch (completed v4.9.54 with scoped `actions: write`, PR body/summary validation links, and explicit `profile-sync.yml` check dispatch on generated branches).
 - [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
 - [x] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths (completed v4.9.38).
 - [ ] P2 — Per-project license metadata in the generated feed, schema, and report.

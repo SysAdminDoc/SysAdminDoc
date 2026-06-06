@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
+      actions: write
       contents: write
       pull-requests: write
     steps:
@@ -70,8 +71,26 @@ jobs:
           git commit -m "chore: refresh profile assets"
           git config --local http.https://github.com/.extraheader "Authorization: basic $([Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("x-access-token:$env:GH_TOKEN")))"
           git push origin $branch
-          gh pr create `
+          $validationQuery = [uri]::EscapeDataString("branch:$branch")
+          $validationRunsUrl = "https://github.com/${{ github.repository }}/actions/workflows/profile-sync.yml?query=$validationQuery"
+          $prBody = @"
+          Regenerates committed profile SVG assets, README, project feed, and sync report from data/profile-catalog.json plus live GitHub metadata.
+
+          Validation handoff: this workflow dispatches Profile sync in check mode on the generated branch after opening the pull request.
+          Validation runs: $validationRunsUrl
+          "@
+          $prUrl = gh pr create `
             --base main `
             --head $branch `
             --title "chore: refresh profile assets" `
-            --body "Regenerates committed profile SVG assets, README, project feed, and sync report from data/profile-catalog.json plus live GitHub metadata."
+            --body $prBody
+          gh workflow run profile-sync.yml --ref $branch -f mode=check
+          if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+            @(
+              "### Generated profile PR validation handoff"
+              ""
+              "- Pull request: $prUrl"
+              "- Dispatched: Profile sync check on `$branch`"
+              "- Validation runs: $validationRunsUrl"
+            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          }

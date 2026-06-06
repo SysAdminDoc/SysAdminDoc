@@ -1149,6 +1149,40 @@ Describe 'Required status check readiness' {
     }
 }
 
+Describe 'Generated profile PR validation handoff' {
+    BeforeAll {
+        $script:GeneratedPrWorkflows = [ordered]@{
+            ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
+            AssetsRefresh = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') -Raw
+        }
+    }
+
+    It 'grants actions write only to generated PR jobs that dispatch validation' {
+        foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
+            $workflow | Should -Match '(?ms)permissions:\s*\r?\n\s+actions: write\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
+            $workflow | Should -Match 'gh workflow run profile-sync[.]yml --ref \$branch -f mode=check'
+        }
+    }
+
+    It 'links the branch-scoped validation runs in the PR body and job summary' {
+        foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
+            $workflow | Should -Match 'Validation handoff: this workflow dispatches Profile sync in check mode'
+            $workflow | Should -Match 'actions/workflows/profile-sync[.]yml[?]query='
+            $workflow | Should -Match '\[uri\]::EscapeDataString\("branch:\$branch"\)'
+            $workflow | Should -Match 'GITHUB_STEP_SUMMARY'
+            $workflow | Should -Match 'Generated profile PR validation handoff'
+        }
+    }
+
+    It 'keeps validation dispatch out of the read-only check job' {
+        $checkJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  check:.*?^  write-pr:').Value
+
+        $checkJob | Should -Match 'contents: read'
+        $checkJob | Should -Not -Match 'actions: write'
+        $checkJob | Should -Not -Match 'gh workflow run'
+    }
+}
+
 Describe 'Profile sync report summaries' {
     BeforeAll {
         $script:SummaryScriptPath = Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1'
