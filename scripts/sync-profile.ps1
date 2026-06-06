@@ -1651,6 +1651,65 @@ function New-Readme {
     return ($blocks -join [Environment]::NewLine)
 }
 
+function Get-SuppressionReasonCode {
+    param([string]$Reason)
+
+    if ([string]::IsNullOrWhiteSpace($Reason)) {
+        return "other"
+    }
+
+    $normalized = $Reason.ToLowerInvariant()
+    if ($normalized -match '\b(private|medical|x-ray|xray|dicom|pacs|radiology)\b') {
+        return "private-or-sensitive"
+    }
+    if ($normalized -match '\b(duplicate|renamed|superseded|fork)\b') {
+        return "duplicate-or-superseded"
+    }
+    if ($normalized -match '\bplaceholder\b') {
+        return "placeholder"
+    }
+    if ($normalized -match '\b(not visitor-facing|not ready|omitted|keep out|not included)\b') {
+        return "not-visitor-facing"
+    }
+
+    return "other"
+}
+
+function Get-PublicSuppressionReason {
+    param([string]$ReasonCode)
+
+    switch ($ReasonCode) {
+        "private-or-sensitive" { return "Private or sensitive project omitted from the public feed." }
+        "duplicate-or-superseded" { return "Duplicate or superseded project omitted from the public feed." }
+        "placeholder" { return "Placeholder project omitted from the public feed." }
+        "not-visitor-facing" { return "Project omitted because it is not visitor-facing." }
+        default { return "Project omitted from the public feed." }
+    }
+}
+
+function New-SuppressedProjectExportRow {
+    param(
+        [object]$Entry,
+        [int]$SuppressedIndex
+    )
+
+    $reasonCode = Get-SuppressionReasonCode -Reason ([string]$Entry.suppressionReason)
+    $visibilityClass = if ($reasonCode -eq "private-or-sensitive") {
+        "private-or-sensitive"
+    } else {
+        "suppressed"
+    }
+
+    return [ordered]@{
+        suppressedId = "suppressed-{0:D3}" -f $SuppressedIndex
+        suppressed = $true
+        category = [string]$Entry.category
+        reasonCode = $reasonCode
+        publicReason = Get-PublicSuppressionReason -ReasonCode $reasonCode
+        visibilityClass = $visibilityClass
+    }
+}
+
 function New-ProjectsExportJson {
     param(
         [hashtable]$Catalog,
@@ -1661,6 +1720,7 @@ function New-ProjectsExportJson {
     $entries = @($Catalog.entries | Sort-Object category, @{ Expression = { [int]$_.order } }, repo)
     $projects = New-Object System.Collections.Generic.List[object]
     $suppressed = New-Object System.Collections.Generic.List[object]
+    $suppressedIndex = 0
 
     foreach ($entry in $entries) {
         $meta = Get-RepoMeta $entry $repoLookup
@@ -1734,7 +1794,8 @@ function New-ProjectsExportJson {
         }
 
         if ($row.suppressed) {
-            $suppressed.Add($row)
+            $suppressedIndex++
+            $suppressed.Add((New-SuppressedProjectExportRow -Entry $entry -SuppressedIndex $suppressedIndex))
         } elseif ($row.includeInPortfolio) {
             $projects.Add($row)
         }
@@ -2720,13 +2781,25 @@ function New-MetadataRowIndex {
     param([object]$ProjectsPayload)
 
     $index = @{}
-    foreach ($collectionName in @("projects", "suppressed")) {
-        $collection = Get-MemberValue -Object $ProjectsPayload -Name $collectionName
-        foreach ($row in @($collection)) {
-            $repo = Get-MemberValue -Object $row -Name "repo"
-            if (-not [string]::IsNullOrWhiteSpace([string]$repo)) {
-                $index[([string]$repo).ToLowerInvariant()] = $row
-            }
+    $projects = Get-MemberValue -Object $ProjectsPayload -Name "projects"
+    foreach ($row in @($projects)) {
+        $repo = Get-MemberValue -Object $row -Name "repo"
+        if (-not [string]::IsNullOrWhiteSpace([string]$repo)) {
+            $index["project:$(([string]$repo).ToLowerInvariant())"] = $row
+        }
+    }
+
+    $suppressed = Get-MemberValue -Object $ProjectsPayload -Name "suppressed"
+    foreach ($row in @($suppressed)) {
+        $suppressedId = Get-MemberValue -Object $row -Name "suppressedId"
+        if (-not [string]::IsNullOrWhiteSpace([string]$suppressedId)) {
+            $index["suppressed:$(([string]$suppressedId).ToLowerInvariant())"] = $row
+            continue
+        }
+
+        $repo = Get-MemberValue -Object $row -Name "repo"
+        if (-not [string]::IsNullOrWhiteSpace([string]$repo)) {
+            $index["suppressed-repo:$(([string]$repo).ToLowerInvariant())"] = $row
         }
     }
     return $index
@@ -2818,12 +2891,15 @@ function Test-MetadataDrift {
         $rowKeys = @(@($currentRows.Keys) + @($expectedRows.Keys) | Sort-Object -Unique)
         $infoFields = @("stars", "pushedAt", "topics")
         $rowFields = @(
+            "suppressedId",
             "title",
             "category",
             "includeInReadme",
             "includeInPortfolio",
             "suppressed",
             "suppressionReason",
+            "reasonCode",
+            "publicReason",
             "description",
             "repoUrl",
             "liveUrl",
@@ -2849,6 +2925,7 @@ function Test-MetadataDrift {
             "pushedAt",
             "topics",
             "visibility",
+            "visibilityClass",
             "featured",
             "featuredRank",
             "currentlyBuilding",

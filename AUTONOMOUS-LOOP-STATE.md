@@ -2,18 +2,18 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 49 - Windows PowerShell setup smoke
+Last completed roadmap cycle: Cycle 50 - suppressed feed redaction
 
 ## Latest Result
 
-- Inherited uncommitted Cycle 48 roadmap/state research and preserved it while shipping the highest-priority setup failure.
-- Fixed the advertised `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` path for Windows PowerShell 5.1 by replacing non-ASCII punctuation in `setup.ps1`.
-- Added Pester coverage that rejects non-ASCII bytes in `setup.ps1`.
-- Added an always-created `Windows setup smoke` job in `.github/workflows/tests.yml`; it uses `shell: powershell`, parses `setup.ps1`, and runs `-CheckOnly`.
-- Preserved the compact portfolio-first README header from the latest remote privacy edit by updating profile sync and rendered smoke checks to stop expecting the removed personal-profile sections.
-- Verified Windows PowerShell `5.1.26100.7920` parser/runtime, `pwsh` check-only runtime, PSScriptAnalyzer, and 77 offline Pester tests.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `RESEARCH_REPORT.md`, and `CLAUDE.md` to v4.9.41.
+- Replaced full public `projects.json.suppressed` project rows with redacted suppression records carrying only `suppressedId`, `suppressed`, `category`, `reasonCode`, `publicReason`, and `visibilityClass`.
+- Updated `schemas/profile-projects.v1.json` with a dedicated `suppressedProject` object so suppressed rows cannot validate with repo names, URLs, descriptions, actions, release fields, topics, or notes.
+- Updated metadata drift indexing so redacted suppressed rows compare by `suppressedId`, while stale full suppressed rows still appear as fatal drift.
+- Added offline Pester coverage for fixture redaction, real-catalog known-name redaction, and schema rejection of suppressed row identifiers.
+- Regenerated `projects.json` and `reports/profile-sync-report.json`; the latest feed has 177 visible projects and 10 redacted suppressions with `projectsExportInSync=true`.
+- Verified Pester, PSScriptAnalyzer, and `scripts/sync-profile.ps1 -Write -Check`.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `RESEARCH_REPORT.md`, and `CLAUDE.md` to v4.9.42.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with the next open P1 feed/privacy item from `ROADMAP.md`: generated-feed provenance fields and suppressed-row public-feed redaction are both ready, with downstream portfolio compatibility tests queued before feed-shape changes.
+Continue on this same assigned project. Start with the next open feed/trust item from `ROADMAP.md`: generated-feed provenance fields are the highest-value P1 follow-up, and release/download trust metadata is the next P2 feed-contract expansion.

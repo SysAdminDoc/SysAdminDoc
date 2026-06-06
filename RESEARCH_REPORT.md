@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.41
+Current version after this refresh: v4.9.42
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.42 batch closed the public suppressed-feed row leak by replacing
+  full `projects.json.suppressed` project rows with redacted suppression records
+  that carry only `suppressedId`, `suppressed`, `category`, `reasonCode`,
+  `publicReason`, and `visibilityClass`.
+- The projects feed schema now validates suppressed rows through a dedicated
+  `suppressedProject` object, and offline Pester coverage rejects any suppressed
+  feed row that exposes `repo`, `repoUrl`, `description`, `primaryAction`,
+  `releaseAssetNames`, or known private/sensitive identifiers.
+- Local verification passed for Pester, PSScriptAnalyzer, and
+  `scripts/sync-profile.ps1 -Write -Check`; the latest report records
+  `projectsExportInSync=true`, `schemaValidation.passed=true`, 177 public
+  portfolio projects, and 10 redacted suppressions.
 - The v4.9.41 batch closed the Windows PowerShell setup parser failure found in
   Cycle 33/Cycle 36 by replacing typographic punctuation in `setup.ps1` with
   ASCII hyphens and adding a Pester guard that rejects future non-ASCII bytes in

@@ -14,7 +14,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 - `README.md` is the rendered public profile.
 - `data/profile-catalog.json` is the canonical profile catalog, suppression list, and upstream attribution source (`forkOf`, `upstreamLicense`) for forked/continued projects.
-- `projects.json` is the generated public project feed for portfolio consumption, including structured upstream attribution fields (`forkOf`, `forkOfUrl`, `upstreamLicense`).
+- `projects.json` is the generated public project feed for portfolio consumption, including structured upstream attribution fields (`forkOf`, `forkOfUrl`, `upstreamLicense`) and redacted suppression records for rows omitted from the public catalog.
 - `scripts/sync-profile.ps1` seeds, writes, and validates the generated README from catalog data plus live GitHub metadata, including parallel entrypoint/userscript/launch/release-link checks, README experience checks, compact public-header preservation, committed local SVG profile asset generation, structured metadata-drift checks, metadata hygiene reporting with non-mutating topic hints and catalog-backed description suggestions, release/download drift reporting, JSON Schema contract validation, planning-doc version/date consistency validation, and validation-performance reporting.
 - `scripts/write-profile-sync-summary.ps1` renders public-safe GitHub Actions job summaries and annotations from `reports/profile-sync-report.json`.
 - `PSScriptAnalyzerSettings.psd1` defines the curated PowerShell static-analysis gate for `scripts/sync-profile.ps1` and `setup.ps1`.
@@ -27,7 +27,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `.github/CODEOWNERS` and `.github/dependabot.yml` guard workflow/catalog changes and monitor action updates.
 - `setup.ps1` is a novice bootstrapper that installs Python 3.12 and Git through WinGet so README install snippets work on fresh Windows machines; it now supports `-CheckOnly` diagnostics, best-effort `%TEMP%` transcript logging, and an ASCII-only source contract for Windows PowerShell 5.1 compatibility.
 - `CHANGELOG.md` records profile/catalog releases.
-- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, setup bootstrapper hardening shipped as v4.9.21, WolfPack/Vigil desktop recategorization shipped as v4.9.22, fork/upstream attribution shipped as v4.9.23, the Forge naming-debt log shipped as v4.9.24, the PSScriptAnalyzer CI lane shipped as v4.9.25, the OpenSSF Scorecard publish-permissions repair shipped as v4.9.26, the live GitHub-rendered profile smoke shipped as v4.9.27, generated-profile PR validation shipped as v4.9.28, public-safe intake files shipped as v4.9.29, required-check readiness shipped as v4.9.30, workflow report summaries shipped as v4.9.31, workflow timeout budgets shipped as v4.9.32, actionlint CI integration shipped as v4.9.33, checkout 6.0.3 pinning shipped as v4.9.34, CodeQL upload-sarif 4.36.1 pinning shipped as v4.9.35, v4.9.36-v4.9.40 reliability/catalog safety fixes shipped, and Windows PowerShell setup smoke plus compact-header preservation shipped as v4.9.41.
+- `ROADMAP.md` is the tracked roadmap; P0 catalog truth/privacy work shipped as v4.8.0, the generated premium README/action pass shipped as v4.9.0, the LinkedIn-aligned hero/profile copy shipped as v4.9.1, the top-table layout fix shipped as v4.9.2, the generated metadata refresh plus public research plan shipped as v4.9.3, the generated drift-lockout marker/workflow batch shipped as v4.9.4, the structured metadata-drift report shipped as v4.9.5, the guarded legacy seed mode shipped as v4.9.6, parallel link validation shipped as v4.9.7, report schema depth shipped as v4.9.8, topic/description drift guidance shipped as v4.9.9, the four-row public repo description cleanup shipped as v4.9.10, the awesome-list candidate plan shipped as v4.9.11, theme-aware profile chrome shipped as v4.9.12, release asset taxonomy shipped as v4.9.13, committed local profile SVG assets shipped as v4.9.14, redundant dependency/status badge cleanup shipped as v4.9.15, portfolio Pagefind search verification shipped as v4.9.16, portfolio freshness/download views shipped as v4.9.17, portfolio live feed consumption shipped as v4.9.18, feed JSON Schema contracts shipped as v4.9.19, planning-doc version/date consistency checks shipped as v4.9.20, setup bootstrapper hardening shipped as v4.9.21, WolfPack/Vigil desktop recategorization shipped as v4.9.22, fork/upstream attribution shipped as v4.9.23, the Forge naming-debt log shipped as v4.9.24, the PSScriptAnalyzer CI lane shipped as v4.9.25, the OpenSSF Scorecard publish-permissions repair shipped as v4.9.26, the live GitHub-rendered profile smoke shipped as v4.9.27, generated-profile PR validation shipped as v4.9.28, public-safe intake files shipped as v4.9.29, required-check readiness shipped as v4.9.30, workflow report summaries shipped as v4.9.31, workflow timeout budgets shipped as v4.9.32, actionlint CI integration shipped as v4.9.33, checkout 6.0.3 pinning shipped as v4.9.34, CodeQL upload-sarif 4.36.1 pinning shipped as v4.9.35, v4.9.36-v4.9.40 reliability/catalog safety fixes shipped, Windows PowerShell setup smoke plus compact-header preservation shipped as v4.9.41, and public suppressed-feed redaction shipped as v4.9.42.
 - Local working-note files are ignored by git.
 - `.github/` contains workflow, CODEOWNERS, Scorecard, and Dependabot automation for profile sync and workflow safety.
 
@@ -35,7 +35,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-06
 Latest sync date: 2026-06-06
-Version: v4.9.41
+Version: v4.9.42
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -47,7 +47,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - 184 active public repositories under `SysAdminDoc`.
 - 187 catalog entries total.
 - 177 entries included in the README.
-- 9 entries explicitly suppressed with reasons.
+- 10 entries explicitly suppressed with public-safe redacted feed records.
 - 0 missing public repos.
 - 0 private visibility violations.
 - 0 medical-imaging privacy violations in the generated public README.
@@ -60,8 +60,9 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - 0 link validation failures across install entrypoints, raw userscripts, launch URLs, and release redirects.
 - `linkValidationSummary` reports 185 URL targets checked with throttle 16 in 5217 ms and 0 warning host groups.
 - `readmeExperienceChecks` pass for the compact public header: featured action column, setup inspect-before-run guidance, category anchors, primary-action coverage, labeled download buttons, 0 third-party metric hosts, 0 third-party badge hosts, and no reintroduced personal-profile chrome.
-- `projects.json` contains 177 public portfolio-ready projects plus 9 explicit suppressions, with structured primary-action metadata and release asset taxonomy (`releaseAssetKinds`, `releaseAssetNames`, `releaseAssetInspected`) for downstream portfolio rendering. The raw `projectsExportInSync` boolean remains in the report, but v4.9.5 adds row-level drift details so exact feed drift can be separated into fatal structural drift and informational metadata drift.
+- `projects.json` contains 177 public portfolio-ready projects plus 10 redacted suppression records, with structured primary-action metadata and release asset taxonomy (`releaseAssetKinds`, `releaseAssetNames`, `releaseAssetInspected`) for visible downstream portfolio rendering. Suppressed feed rows no longer export repo names, URLs, descriptions, primary actions, release fields, topics, or notes.
 - `schemaValidation.passed=true`; the normalized catalog and generated projects feed validate against `schemas/profile-catalog.v1.json` and `schemas/profile-projects.v1.json`.
+- `schemas/profile-projects.v1.json` now defines `suppressedProject` separately from visitor-facing `project` rows, and Pester coverage rejects suppressed feed rows that expose project identifiers.
 - `docVersionConsistency.passed=true`; `ROADMAP.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` align to the latest planning version/date, and `-Check` fails if a planning sync date falls behind the latest changelog date.
 - WolfPack and Vigil now render together in Native Desktop Applications; generated category counts are Security & Networking 3, Native Desktop Applications 19, and Misc & Forks 5.
 - Forked/continued rows now use structured upstream attribution; AppManagerNG, uBlockVanced, LTSC-MicrosoftStore, RcloneBrowser, TabExplorer, Vigil, and TagStudio render upstream repo and license lines in the README and export the same metadata in `projects.json`.
@@ -113,13 +114,13 @@ The README should be:
 
 The README is now generated static Markdown. The catalog file is the source of truth for visitor-facing inclusion, suppression decisions, install snippets, release-link labels, featured rows, category placement, and currently-building rows. The sync script joins that catalog with live GitHub metadata for stars, default branches, releases, visibility, descriptions, topics, and primary languages. The old README-to-catalog reverse parser is retained only for forced one-shot bootstrap recovery.
 
-As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub REST metadata when GraphQL returns transient 502 errors. The README keeps a compact portfolio-first header, a generated Featured Projects table, setup guidance, category anchors, category previews, and action links. The generated project feed includes `primaryAction`, `hasDownload`, `hasLiveDemo`, `hasDirectInstall`, `releaseAssetKinds`, `releaseAssetNames`, and `releaseAssetInspected`.
+As of v4.9.0, the sync script retries GraphQL metadata and falls back to GitHub REST metadata when GraphQL returns transient 502 errors. The README keeps a compact portfolio-first header, a generated Featured Projects table, setup guidance, category anchors, category previews, and action links. The generated project feed includes `primaryAction`, `hasDownload`, `hasLiveDemo`, `hasDirectInstall`, `releaseAssetKinds`, `releaseAssetNames`, and `releaseAssetInspected` for visible projects, while suppressed feed rows are reduced to public-safe placeholder records.
 
 ## Recommended Next Implementation
 
 1. Add generated-feed provenance fields for downstream consumers.
-2. Add downstream portfolio compatibility tests before changing feed shape.
-3. Add generated README/feed size and render-budget reporting.
+2. Add release/download trust metadata for executable assets.
+3. Promote `profile-sync-report.json` to a versioned schema contract.
 
 ## Research Artifacts
 

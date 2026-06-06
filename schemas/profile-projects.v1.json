@@ -47,7 +47,7 @@
     "suppressed": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/project"
+        "$ref": "#/$defs/suppressedProject"
       }
     }
   },
@@ -89,6 +89,71 @@
         "url": {
           "type": "string",
           "format": "uri"
+        }
+      }
+    },
+    "suppressedProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suppressedId",
+        "suppressed",
+        "category",
+        "reasonCode",
+        "publicReason",
+        "visibilityClass"
+      ],
+      "properties": {
+        "suppressedId": {
+          "type": "string",
+          "pattern": "^suppressed-[0-9]{3}$"
+        },
+        "suppressed": {
+          "type": "boolean",
+          "const": true
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "android",
+            "desktop",
+            "extensions",
+            "guides",
+            "media",
+            "misc",
+            "powershell",
+            "python",
+            "security",
+            "suppressed",
+            "web"
+          ]
+        },
+        "reasonCode": {
+          "type": "string",
+          "enum": [
+            "duplicate-or-superseded",
+            "not-visitor-facing",
+            "other",
+            "placeholder",
+            "private-or-sensitive"
+          ]
+        },
+        "publicReason": {
+          "type": "string",
+          "enum": [
+            "Duplicate or superseded project omitted from the public feed.",
+            "Private or sensitive project omitted from the public feed.",
+            "Placeholder project omitted from the public feed.",
+            "Project omitted because it is not visitor-facing.",
+            "Project omitted from the public feed."
+          ]
+        },
+        "visibilityClass": {
+          "type": "string",
+          "enum": [
+            "private-or-sensitive",
+            "suppressed"
+          ]
         }
       }
     },

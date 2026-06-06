@@ -430,7 +430,15 @@ Describe 'New-ProjectsExportJson feed' {
         $repos = $json.projects | ForEach-Object { $_.repo }
         $repos | Should -Contain 'WinTool'
         $repos | Should -Not -Contain 'HiddenTool'
-        ($json.suppressed | ForEach-Object { $_.repo }) | Should -Contain 'HiddenTool'
+        $json.suppressed | Should -HaveCount 1
+        $json.suppressed[0].suppressedId | Should -Be 'suppressed-001'
+        $json.suppressed[0].category | Should -Be 'misc'
+        $json.suppressed[0].reasonCode | Should -Be 'not-visitor-facing'
+        $json.suppressed[0].publicReason | Should -Be 'Project omitted because it is not visitor-facing.'
+        $json.suppressed[0].visibilityClass | Should -Be 'suppressed'
+
+        $suppressedJson = $json.suppressed | ConvertTo-Json -Depth 20
+        $suppressedJson | Should -Not -Match 'HiddenTool|Should be excluded|github.com|repoUrl|primaryAction|description'
     }
 
     It 'exports release asset kinds and keeps source-only releases as repo actions' {
@@ -447,15 +455,30 @@ Describe 'New-ProjectsExportJson feed' {
         $json = New-ProjectsExportJson -Catalog $cat -Repos $repos | ConvertFrom-Json
         $winTool = $json.projects | Where-Object { $_.repo -eq 'WinTool' }
         $pyTool = $json.projects | Where-Object { $_.repo -eq 'PyTool' }
-        $hiddenTool = $json.suppressed | Where-Object { $_.repo -eq 'HiddenTool' }
+        $suppressedRow = $json.suppressed | Select-Object -First 1
 
         $winTool.releaseAssetKinds | Should -Contain 'apk'
         $winTool.primaryAction.kind | Should -Be 'release'
         $pyTool.releaseAssetKinds | Should -Contain 'source-archive'
         $pyTool.primaryAction.kind | Should -Be 'repo'
         $pyTool.hasDownload | Should -BeFalse
-        $hiddenTool.releaseAssetKinds | Should -Contain 'exe'
-        @($hiddenTool.releaseAssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count | Should -Be 0
+        $suppressedRow.reasonCode | Should -Be 'not-visitor-facing'
+        $suppressedRow.PSObject.Properties.Name | Should -Not -Contain 'repo'
+        $suppressedRow.PSObject.Properties.Name | Should -Not -Contain 'releaseAssetKinds'
+        $suppressedRow.PSObject.Properties.Name | Should -Not -Contain 'releaseAssetNames'
+
+        $suppressedJson = $json.suppressed | ConvertTo-Json -Depth 20
+        $suppressedJson | Should -Not -Match 'HiddenTool|InternalSetup|releaseAssetNames'
+    }
+
+    It 'redacts real catalog suppressed rows from project identifiers' {
+        $cat = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $suppressedJson = $json.suppressed | ConvertTo-Json -Depth 20
+
+        $json.suppressed | Should -HaveCount $json.suppressedCount
+        @($json.suppressed | Where-Object { $_.suppressed -ne $true }).Count | Should -Be 0
+        $suppressedJson | Should -Not -Match 'VaultBox|improve-repo|RadAtlas|https://github.com|repoUrl|primaryAction|releaseAssetNames|description|title'
     }
 
     It 'exports structured upstream attribution fields' {
@@ -494,6 +517,19 @@ Describe 'Feed JSON Schema contracts' {
 
         $result.valid | Should -BeFalse
         ($result.errors -join "`n") | Should -Match '\$\.projects\[0\]\.repo'
+    }
+
+    It 'rejects suppressed feed rows that expose project identifiers' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $payload.suppressed[0] | Add-Member -NotePropertyName repo -NotePropertyValue 'HiddenTool'
+        $payload.suppressed[0] | Add-Member -NotePropertyName repoUrl -NotePropertyValue 'https://github.com/SysAdminDoc/HiddenTool'
+
+        $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
+
+        $result.valid | Should -BeFalse
+        ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repo'
+        ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repoUrl'
     }
 
     It 'reports no unsupported keywords for the current schemas' {

@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.41
+Current repo version: v4.9.42
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,19 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.42 refresh: suppressed public-feed row redaction shipped.
+`projects.json.suppressed` now emits only redacted suppression records with
+`suppressedId`, `reasonCode`, `publicReason`, `category`, and
+`visibilityClass`; it no longer exposes suppressed repo names, repo URLs,
+descriptions, primary actions, release fields, topics, or notes. The projects
+feed schema now has a dedicated `suppressedProject` object, metadata drift
+indexes redacted suppressions by placeholder ID, and Pester rejects any
+suppressed feed row that reintroduces direct project identifiers or known
+private/sensitive names. Latest local verification passed Pester, ScriptAnalyzer,
+and `scripts/sync-profile.ps1 -Write -Check` with `projectsExportInSync=true`.
+Next highest open item: generated-feed provenance fields for downstream
+consumer debugging.
 
 2026-06-06 v4.9.41 refresh: Windows PowerShell setup smoke shipped. The
 advertised `setup.ps1 -CheckOnly` inspect-before-install path now parses and
@@ -1346,7 +1359,7 @@ hardening work.*
 suppression surface and found that suppressed rows currently reuse the full
 project row schema.*
 
-- [ ] P1 - Redact suppressed rows in the public project feed
+- [x] P1 - Redact suppressed rows in the public project feed
   - Why: the public feed is consumed by the portfolio and can be read directly from raw GitHub. Suppression exists specifically because a row should not be visitor-facing, so exporting the full row for suppressed projects weakens the privacy and visitor-safety contract.
   - Evidence: `projects.json` currently has `suppressedCount=9` and every suppressed row contains `repoUrl`, `description`, and `primaryAction`; the feed exposes suppressed rows such as `improve-repo` with reason `Repo is private; public profile links would 404 for visitors`, plus a direct `https://github.com/SysAdminDoc/improve-repo` URL. `data/profile-catalog.json` currently has 10 entries with `suppressionReason`, including `VaultBox`; committed `projects.json` has only 9 suppressed rows and `reports/profile-sync-report.json` currently has `projectsExportInSync=false`, so suppressed-feed accounting is already difficult to reason about. `schemas/profile-projects.v1.json:47-50` points `suppressed.items` to the same `#/$defs/project` schema as public projects; `scripts/sync-profile.ps1:1671-1718` builds the full row before adding it to `$suppressed` at lines 1720-1721; `tests/sync-profile.Tests.ps1:744-745` already asserts the public Actions summary does not include `AppManagerNG` or `VaultBox`, but no comparable test guards `projects.json.suppressed`.
   - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Test-MetadataDrift`, privacy gates), `schemas/profile-projects.v1.json`, `projects.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`, downstream `sysadmindoc.github.io` feed importer.
@@ -1354,6 +1367,7 @@ project row schema.*
   - Suggested `reasonCode` values: `private-repo`, `medical-privacy`, `duplicate-rename`, `placeholder`, `superseded`, `not-visitor-facing`, `third-party-fork-review`, and `documentation-only`. Map old free-text reasons to stable codes while preserving a sanitized `publicReason`.
   - Drift rules: `suppressedCount` and reason-code counts are fatal if current and expected feeds disagree; opaque IDs are fatal only when the underlying catalog suppression set changes; row-level private names and URLs must never appear in committed feed output.
   - Acceptance: no suppressed feed row contains a GitHub repository URL, direct project name, install/download/live action, release tag, release asset name, topics, or notes; schema defines a dedicated `suppressedProject` object; tests fail if suppressed rows include `repo`, `repoUrl`, `description`, `primaryAction`, `releaseAssetNames`, or private known names like `VaultBox`; downstream portfolio still excludes suppressed rows and only uses aggregate suppression counts.
+  - Completed: v4.9.42 redacts all suppressed feed rows into dedicated `suppressedProject` records, updates metadata drift to compare redacted placeholders, and adds Pester/schema coverage that rejects project identifiers in the public `suppressed` array.
   - Verify: run a local JSON assertion over `projects.json.suppressed`; run `scripts/sync-profile.ps1 -Write -Check`; confirm `projectsExportInSync=true`; confirm portfolio feed import still produces 177 visible projects and no suppressed/local-only routes.
   - Complexity: M
 
