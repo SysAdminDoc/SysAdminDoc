@@ -46,5 +46,5 @@ jobs:
           python -m pip install --disable-pip-version-check --no-deps
           --require-hashes --only-binary=:all: -r requirements-ci.txt
 
-      - name: Audit workflows
-        run: zizmor .github/workflows
+      - name: Audit workflows and local actions
+        run: zizmor --strict-collection --collect=workflows --collect=actions .github

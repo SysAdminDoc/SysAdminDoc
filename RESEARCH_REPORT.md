@@ -5,10 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.63
+Current version after this refresh: v4.9.64
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.64 batch closed the workflow-security local action coverage gap by
+  changing the audit command to `zizmor --strict-collection --collect=workflows
+  --collect=actions .github`.
+- `workflow-security.yml` already has no pull-request path filters, and
+  `.github/CODEOWNERS` owns `/.github/`, so future local action definitions
+  under `.github/actions/**` receive the same always-created check and owner
+  coverage as workflow files.
+- Pester coverage now guards the actionlint workflow command, expanded
+  workflows/actions `zizmor` collection, no workflow-security PR path filters,
+  and the `/.github/` CODEOWNERS rule.
 - The v4.9.63 batch closed the historical changelog-heading validation gap by
   adding `docVersionConsistency.changelogHeadingValidation` to the sync report.
 - The new validation scans every `CHANGELOG.md` release heading for strict
@@ -404,7 +414,7 @@ Top opportunities, in priority order:
 24. P3 - Validate all historical `CHANGELOG.md` release headings. [Completed v4.9.63]
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
-27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
+27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership. [Completed v4.9.64]
 28. P3 - Stagger same-minute scheduled maintenance workflows.
 29. P3 - Include schema-contract changes in the offline Tests workflow.
 30. P3 - Group routine Dependabot GitHub Actions version updates.
@@ -1646,19 +1656,20 @@ execute and update them from metadata in the script header.
 ## Cycle 23 Research Addendum — 2026-06-04
 
 This pass checked whether the repo's workflow-security coverage would include a
-future local composite action. There is no `.github/actions` directory today,
-but the generated PR helper roadmap item explicitly allows that implementation
-path.
+future local composite action. There was no `.github/actions` directory at the
+time, but the generated PR helper roadmap item explicitly allowed that
+implementation path.
 
 ### Evidence reviewed (cycle 23)
 
-- `.github/workflows/workflow-security.yml` pull-request paths include
+- At the time of Cycle 23, `.github/workflows/workflow-security.yml`
+  pull-request paths included
   `.github/workflows/**`, `.github/dependabot.yml`, and `.github/CODEOWNERS`.
-- The workflow-security job runs `zizmor .github/workflows`, so its current
-  audit target is also workflow-only.
-- `.github/CODEOWNERS` owns `.github/workflows/`, but it does not own
+- The workflow-security job then ran `zizmor .github/workflows`, so its audit
+  target was also workflow-only.
+- `.github/CODEOWNERS` then owned `.github/workflows/`, but it did not own
   `.github/actions/`.
-- A filesystem check found no current `.github/actions` directory.
+- A filesystem check found no `.github/actions` directory.
 - Cycle 19's generated PR helper item lists
   `.github/actions/create-generated-profile-pr/action.yml` as an implementation
   option.
@@ -1670,18 +1681,18 @@ path.
 
 - **Cosmetic — future local actions would sit outside workflow-security
   coverage.** If the generated PR helper is implemented as a local composite
-  action, changes under `.github/actions/**` would not trigger the current
+  action, changes under `.github/actions/**` would not trigger the then-current
   workflow-security PR path or CODEOWNERS review, and the audit command would
   still inspect only `.github/workflows`.
-  → roadmap "Cover local GitHub actions in workflow-security". [Verified]
+  → roadmap "Cover local GitHub actions in workflow-security". [Closed v4.9.64]
 
 ### Standards note (cycle 23)
 
 - Keep this conditional. Do not add a placeholder `.github/actions` directory
-  just to satisfy coverage; update the trigger, owner patterns, and audit target
-  when the first local action lands.
-- If the helper is implemented as a PowerShell script under `scripts/` instead,
-  this item can be closed by documenting that no local action surface exists.
+  just to satisfy coverage.
+- v4.9.64 closed the gap without adding a local action: workflow-security now
+  has no PR path filters, `/.github/` is owned in CODEOWNERS, and `zizmor`
+  strict-collects workflows plus action definitions under `.github`.
 
 ## Cycle 24 Research Addendum — 2026-06-04
 
@@ -2146,8 +2157,8 @@ evidence, and adjacent profile-README tooling:
 - Should generated branch cleanup use the repository-wide auto-delete setting,
   or a scoped workflow/admin cleanup that only removes merged `automation/*`
   branches?
-- Should shared generated-PR logic live as a PowerShell helper under `scripts/`,
-  or as a local composite action under `.github/actions/`?
+- Shared generated-PR logic now lives as `scripts/open-generated-profile-pr.ps1`;
+  no local composite action is present as of v4.9.64.
 - Should `v4.9.x` planning versions produce matching GitHub Releases/tags, or
   should this repo document that changelog versions are internal profile-doc
   milestones and releases are intentionally sparse?
@@ -2157,9 +2168,9 @@ evidence, and adjacent profile-README tooling:
 - Should raw userscript install rows stay branch-hosted for automatic updates,
   or should high-traffic scripts move toward release/tag-hosted install URLs
   with explicit update metadata?
-- If generated PR creation becomes a local composite action, should
-  workflow-security audit `.github/actions/**` in the same job as workflows or
-  through a separate local-action metadata lint step?
+- If generated PR creation later becomes a local composite action,
+  workflow-security already strict-collects local action definitions in the same
+  `zizmor` job as workflows.
 - Should private/privacy-sensitive suppressed rows be omitted entirely from the
   public feed, or represented only as aggregate redacted counts?
 - Should the repo adopt a simple maintenance-window convention for scheduled

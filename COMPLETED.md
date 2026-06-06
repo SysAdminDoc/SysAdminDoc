@@ -78,6 +78,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added checksum-verified `actionlint` 1.7.12 to workflow-security beside `zizmor`, with Pester coverage for the pinned install and command wiring (v4.9.33). — *Source: ROADMAP.md; docs/research-feature-plan-2026-06-05.md*
 - [x] Pinned CI-installed validation tools by installing Pester 5.7.1 with `-RequiredVersion`, installing `zizmor` 1.25.2 from hash-checked `requirements-ci.txt`, documenting the reviewed update path, and adding Pester source guards (v4.9.46). — *Source: ROADMAP.md*
 - [x] Made the workflow-security `zizmor` install command YAML-safe for strict workflow collection by using `--only-binary=:all:` and updating the pinned-tool guard (v4.9.61). — *Source: verification follow-up*
+- [x] Expanded workflow-security `zizmor` collection to workflows plus local action definitions under `.github` with strict collection and Pester ownership/trigger coverage (v4.9.64). — *Source: ROADMAP.md*
 - [x] Applied Dependabot PR #5's pinned `actions/checkout` 6.0.3 SHA across all workflow checkout steps, with Pester coverage against reverting to the older 4.3.1 SHA (v4.9.34). — *Source: ROADMAP.md; hosted Tests annotation*
 - [x] Applied Dependabot PR #6's pinned `github/codeql-action/upload-sarif` 4.36.1 SHA to the Scorecard SARIF upload step, with Pester coverage against reverting to the older 3.35.5 SHA (v4.9.35). — *Source: ROADMAP.md; Dependabot PR #6*
 - [x] Fixed the advertised Windows PowerShell `setup.ps1 -CheckOnly` path by keeping `setup.ps1` ASCII-only, adding source-level Pester coverage, and adding an always-created `Windows setup smoke` workflow job that parses and runs the bootstrapper with Windows PowerShell (v4.9.41). — *Source: ROADMAP.md*
@@ -101,6 +102,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added Pester coverage for generated automation branch cleanup dry-run defaults, strict branch prefixes, merged-PR checks, scoped write permissions, and workflow timeout accounting (v4.9.61). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for the shared generated PR helper contract, branch-prefix allowlist, `$LASTEXITCODE` no-change guards, validation handoff, reduced workflow call sites, and read-only check-job isolation (v4.9.62). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for historical changelog heading validation, including malformed release-heading text and impossible ISO-style release dates (v4.9.63). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for workflow-security local action readiness, including strict workflows/actions `zizmor` collection, no PR path filters, and `/.github/` CODEOWNERS coverage (v4.9.64). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 

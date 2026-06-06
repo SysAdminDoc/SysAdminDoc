@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.64] - 2026-06-06
+
+- Changed: `workflow-security.yml` now runs `zizmor --strict-collection --collect=workflows --collect=actions .github` so future local action metadata is collected with workflow files.
+- Added: Pester coverage guards local-action `zizmor` collection, all-PR workflow-security trigger behavior, and existing `.github/` CODEOWNERS ownership for local action paths.
+
 ## [v4.9.63] - 2026-06-06
 
 - Added: `docVersionConsistency.changelogHeadingValidation` now validates every `CHANGELOG.md` release heading for strict `## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD` shape.
