@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.70
+Current version after this refresh: v4.9.71
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.71 batch closed the retained render-host decision gap by recording
+  that the current README retains no live third-party render, metric, or badge
+  hosts.
+- `docs/decisions/2026-06-06-profile-render-hosts.md` defines the reopen
+  criteria for any future external render-host reintroduction, including host
+  purpose, visitor exposure, fallback, removal trigger, and generator/report
+  allowlist.
+- Pester coverage now ties the decision note to the zero-host
+  `readmeExperienceChecks` fields in the committed profile sync report.
 - The v4.9.70 batch tightened the repository formatting contract by removing
   the Markdown trailing-whitespace exception from `.editorconfig`.
 - `.gitattributes` now pins itself plus `.editorconfig` to LF, the pull-request
@@ -750,7 +759,7 @@ Top addendum opportunities (one line each):
 7. P2 — No generated-README size budget (file is ~72 KB and grows unbounded). [Closed v4.9.51]
 8. P2 — No SECURITY.md though Scorecard scores its presence. [Verified]
 9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [EditorConfig closed v4.9.70; markdownlint optional remains]
-10. P3 — Third-party render-host privacy exposure is undocumented as a decision. [Likely]
+10. P3 — Third-party render-host privacy exposure is undocumented as a decision. [Closed v4.9.71]
 
 ### Evidence reviewed (addendum)
 
@@ -772,7 +781,7 @@ Top addendum opportunities (one line each):
 - **Minor — No size budget.** ~72 KB generated README had no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Closed v4.9.51]
 - **Minor — No SECURITY.md.** Repo runs Scorecard/zizmor but lacks a security policy Scorecard scores. → "Add SECURITY.md". [Verified]
 - **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [EditorConfig closed v4.9.70; markdownlint optional remains]
-- **Cosmetic — Undocumented render-host exposure.** komarev counter + four stats hosts see every visitor via Camo; no recorded decision. → "Document/justify the third-party render-host privacy exposure". [Likely]
+- **Cosmetic — Undocumented render-host exposure.** komarev counter + four stats hosts see every visitor via Camo; no recorded decision. → "Document/justify the third-party render-host privacy exposure". [Closed v4.9.71 as a zero-retained-host decision]
 
 ### Competitive & standards notes (addendum)
 
@@ -783,6 +792,16 @@ This is internal profile/portfolio tooling, so the bar is best-practice and plat
 - **GitHub community-health files** — `SECURITY.md`, and optionally `CITATION.cff`, are the documented community-standards set GitHub surfaces; a flagship profile repo benefits from completing the checklist. Avoid: adding PII as a disclosure contact.
 - **GitHub anonymized image URLs (Camo)** — confirms third-party README images are proxied, which mitigates but does not eliminate the host-availability and decision-record concerns; pairs with the planned action-baked-SVG work.
 - **EditorConfig / markdownlint** — standard whitespace and Markdown contracts for repos with hand-edited Markdown; cheap to add, prevents diff noise in a generated file.
+
+### Decision note (cycle 33)
+
+- v4.9.71 records the current render-host posture in
+  `docs/decisions/2026-06-06-profile-render-hosts.md`: no live third-party
+  render, metric, or badge hosts are retained in the README while
+  `readmeExperienceChecks` reports zero host counts and `motionSafeChrome=true`.
+- The older research finding is historical because v4.9.14/v4.9.47 moved the
+  profile chrome and metric panels to committed local SVG assets. The decision
+  remains useful as a reintroduction gate for any future live render host.
 
 ### Open questions raised by the addendum
 
@@ -2060,6 +2079,22 @@ terminology. It found a docs drift issue rather than a generator failure.
   policy plus tracked Markdown trailing-whitespace state.
 - The markdownlint portion remains optional because the immediate drift source
   was whitespace policy rather than Markdown structural rules.
+
+## Cycle 33 Research Addendum — 2026-06-06
+
+- **Cosmetic — retained render-host decision item is stale after local SVG
+  migration.** The open roadmap item asked for a decision on retained live
+  render hosts, but the current generated report shows
+  `thirdPartyRenderHostCount=0`, `thirdPartyMetricHostCount=0`,
+  `thirdPartyBadgeHostCount=0`, and `motionSafeChrome=true`.
+  → roadmap "Record a zero-retained-host decision note". [Closed v4.9.71]
+
+### Implementation note (cycle 33)
+
+- The decision record now states that no live third-party render hosts are
+  retained in the current GitHub profile README, and it lists the exact evidence
+  required before any future reintroduction. Pester ties that decision to the
+  committed sync report so the note does not drift from the generated checks.
 
 ## Cycle 32 Research Addendum — 2026-06-04
 

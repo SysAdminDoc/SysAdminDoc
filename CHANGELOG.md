@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.71] - 2026-06-06
+
+- Added: `docs/decisions/2026-06-06-profile-render-hosts.md` records that the current profile retains no live third-party render, metric, or badge hosts.
+- Added: Pester coverage ties the render-host decision record to the current zero-host `readmeExperienceChecks` report fields.
+- Changed: Roadmap and research notes now close the stale retained-render-host decision item against the v4.9.47 local-SVG migration evidence.
+
 ## [v4.9.70] - 2026-06-06
 
 - Changed: `.editorconfig` now applies trailing-whitespace trimming to Markdown instead of exempting `*.md` files, while retaining LF endings and final-newline policy.

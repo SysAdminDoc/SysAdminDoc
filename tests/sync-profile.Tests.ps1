@@ -1295,6 +1295,23 @@ Describe 'Repository formatting contract' {
     }
 }
 
+Describe 'Profile render-host decision record' {
+    It 'records that no live third-party profile render hosts are retained' {
+        $decision = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-profile-render-hosts.md')
+        $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
+
+        $decision | Should -Match 'Do not retain live third-party render hosts'
+        $decision | Should -Match 'thirdPartyRenderHostCount=0'
+        $decision | Should -Match 'thirdPartyMetricHostCount=0'
+        $decision | Should -Match 'thirdPartyBadgeHostCount=0'
+        $decision | Should -Match 'motionSafeChrome=true'
+        $report.readmeExperienceChecks.thirdPartyRenderHostCount | Should -Be 0
+        $report.readmeExperienceChecks.thirdPartyMetricHostCount | Should -Be 0
+        $report.readmeExperienceChecks.thirdPartyBadgeHostCount | Should -Be 0
+        $report.readmeExperienceChecks.motionSafeChrome | Should -BeTrue
+    }
+}
+
 Describe 'Profile release/tag consistency' {
     It 'warns when the latest profile release and tag are behind the planning version' {
         $doc = [ordered]@{ expectedVersion = 'v4.9.57' }
