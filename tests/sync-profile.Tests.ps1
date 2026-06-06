@@ -848,6 +848,9 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'Featured Projects'
         $script:RenderSmokeScript | Should -Match 'First-time setup'
         $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'
+        $script:RenderSmokeScript | Should -Match 'Python Desktop Applications'
+        $script:RenderSmokeScript | Should -Match 'Browser Extensions & Userscripts'
+        $script:RenderSmokeScript | Should -Not -Match 'Python Applications'
         $script:RenderSmokeScript | Should -Match 'rootOverflow'
         $script:RenderSmokeScript | Should -Match 'failedImages'
     }

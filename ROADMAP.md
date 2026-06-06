@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.47
+Current repo version: v4.9.48
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.48 refresh: rendered-profile smoke section drift fixed.
+The live rendered-profile smoke script now asserts the current generated README
+section labels (`Python Desktop Applications` and `Browser Extensions &
+Userscripts`) instead of the stale `Python Applications` label. Pester guards
+the section-name contract, and live desktop/mobile smoke passed after the
+update.
+Next highest open item: header/non-catalog link validation folded into the
+existing link gate.
 
 2026-06-06 v4.9.47 refresh: motion-safe profile chrome shipped.
 Generated profile chrome now uses committed static header/footer SVG assets,
