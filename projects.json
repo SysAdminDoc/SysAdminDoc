@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "73fe635b4cd32af19bdf336c0c4fa625382ae812",
+    "sourceCommit": "63fc356c072f1ae485d231df6d5527c7c3194885",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "a8a11d426046dbf5e817165b5ef385a6105e5b33e094a861fd3389860e06c09b",
+    "generatorSha256": "fccb243a313c2ba20c9a3c387cbd6d3f4e07bdf86146f2bc735759e5286a5ce8",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T16:52:25.5720299-04:00",
+    "metadataSnapshotAt": "2026-06-06T17:03:35.3028282-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -223,7 +223,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-05T05:15:00.0000000Z",
+      "pushedAt": "2026-06-06T20:54:36.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -295,7 +295,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T20:46:58.0000000Z",
+      "pushedAt": "2026-06-06T20:57:23.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -607,7 +607,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T20:47:48.0000000Z",
+      "pushedAt": "2026-06-06T20:59:54.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2814,7 +2814,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T20:42:02.0000000Z",
+      "pushedAt": "2026-06-06T21:02:01.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -8868,7 +8868,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T20:36:57.0000000Z",
+      "pushedAt": "2026-06-06T20:57:36.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -9429,7 +9429,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T20:48:44.0000000Z",
+      "pushedAt": "2026-06-06T21:01:44.0000000Z",
       "topics": [
         "ai",
         "bookmarks",

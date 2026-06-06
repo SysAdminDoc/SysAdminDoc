@@ -201,6 +201,15 @@ function Get-GitHubReposFromRest {
             defaultBranchRef = [pscustomobject]@{ name = $repo.default_branch }
             latestRelease = $release
             licenseInfo = $repo.license
+            isFork = [bool]$repo.fork
+            parent = if ($repo.parent) {
+                [pscustomobject]@{
+                    nameWithOwner = $repo.parent.full_name
+                    url = $repo.parent.html_url
+                }
+            } else {
+                $null
+            }
             isPrivate = [bool]$repo.private
             visibility = "PUBLIC"
             isArchived = [bool]$repo.archived
@@ -285,7 +294,7 @@ function Get-GitHubRepos {
         "--visibility", "public",
         "--no-archived",
         "--limit", [string]$repoLimit,
-        "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,licenseInfo,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
+        "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
     )
     $lastOutput = $null
 
@@ -354,6 +363,87 @@ function Add-ReleaseAssetMetadata {
         Set-MemberValue -Object $release -Name "releaseAssetNames" -Value $assetNames
         Set-MemberValue -Object $release -Name "releaseAssetKinds" -Value @(Get-ReleaseAssetKinds -AssetNames $assetNames)
         Set-MemberValue -Object $release -Name "assetApiInspected" -Value $true
+    }
+
+    return @($Repos)
+}
+
+function ConvertTo-BooleanValue {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $false
+    }
+    if ($Value -is [bool]) {
+        return [bool]$Value
+    }
+    return ([string]$Value).ToLowerInvariant() -eq "true"
+}
+
+function Get-RepoNameWithOwner {
+    param([object]$Repo)
+
+    foreach ($field in @("nameWithOwner", "full_name", "fullName")) {
+        $value = Get-MemberValue -Object $Repo -Name $field
+        if (-not [string]::IsNullOrWhiteSpace([string]$value)) {
+            return [string]$value
+        }
+    }
+
+    $owner = Get-MemberValue -Object $Repo -Name "owner"
+    $ownerLogin = Get-MemberValue -Object $owner -Name "login"
+    $name = Get-MemberValue -Object $Repo -Name "name"
+    if (-not [string]::IsNullOrWhiteSpace([string]$ownerLogin) -and -not [string]::IsNullOrWhiteSpace([string]$name)) {
+        return "$ownerLogin/$name"
+    }
+
+    return $null
+}
+
+function Get-ForkParentNameWithOwner {
+    param([object]$Meta)
+
+    return Get-RepoNameWithOwner -Repo (Get-MemberValue -Object $Meta -Name "parent")
+}
+
+function Add-ForkParentMetadata {
+    param([object[]]$Repos)
+
+    if ($Offline) {
+        return @($Repos)
+    }
+
+    foreach ($repo in @($Repos | Sort-Object name)) {
+        if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $repo -Name "isFork"))) {
+            continue
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string](Get-ForkParentNameWithOwner -Meta $repo))) {
+            continue
+        }
+
+        $repoName = Get-MemberValue -Object $repo -Name "name"
+        if ([string]::IsNullOrWhiteSpace([string]$repoName)) {
+            continue
+        }
+
+        $repoJson = & gh api "repos/$Owner/$repoName" 2>&1
+        $repoOutput = (($repoJson | Out-String).Trim())
+        if ($LASTEXITCODE -ne 0) {
+            Set-MemberValue -Object $repo -Name "forkParentFetchError" -Value $repoOutput
+            continue
+        }
+
+        $repoData = $repoOutput | ConvertFrom-Json
+        $parent = Get-MemberValue -Object $repoData -Name "parent"
+        $parentName = Get-RepoNameWithOwner -Repo $parent
+        if (-not [string]::IsNullOrWhiteSpace([string]$parentName)) {
+            Set-MemberValue -Object $repo -Name "parent" -Value ([pscustomobject]@{
+                nameWithOwner = [string]$parentName
+                url = Get-MemberValue -Object $parent -Name "html_url"
+            })
+        } else {
+            Set-MemberValue -Object $repo -Name "forkParentFetchError" -Value "GitHub reported this repository as a fork, but REST repository metadata did not include a parent."
+        }
     }
 
     return @($Repos)
@@ -4114,6 +4204,108 @@ function Test-ProjectLicenseMetadata {
     }
 }
 
+function Test-ForkParentDrift {
+    param(
+        [object[]]$Repos,
+        [hashtable[]]$CatalogEntries = @()
+    )
+
+    $catalogLookup = New-CatalogEntryLookup -Entries $CatalogEntries
+    $matchingGitHubForks = New-Object System.Collections.Generic.List[object]
+    $catalogContinuations = New-Object System.Collections.Generic.List[object]
+    $missingCatalogAttribution = New-Object System.Collections.Generic.List[object]
+    $parentMismatches = New-Object System.Collections.Generic.List[object]
+    $parentUnavailable = New-Object System.Collections.Generic.List[object]
+    $checkedCount = 0
+    $githubForkCount = 0
+    $catalogForkOfCount = 0
+
+    foreach ($repo in @($Repos | Sort-Object name)) {
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        if ([string]::IsNullOrWhiteSpace($repoName) -or $repoName -eq $Owner) {
+            continue
+        }
+
+        $entry = $null
+        $repoKey = $repoName.ToLowerInvariant()
+        if ($catalogLookup.ContainsKey($repoKey)) {
+            $entry = $catalogLookup[$repoKey]
+        }
+        $catalogForkOf = if ($entry -and -not [string]::IsNullOrWhiteSpace([string]$entry.forkOf)) { [string]$entry.forkOf } else { $null }
+        $isFork = ConvertTo-BooleanValue (Get-MemberValue -Object $repo -Name "isFork")
+        $githubParent = Get-ForkParentNameWithOwner -Meta $repo
+        $fetchError = Get-MemberValue -Object $repo -Name "forkParentFetchError"
+
+        if (-not [string]::IsNullOrWhiteSpace($catalogForkOf)) {
+            $catalogForkOfCount++
+        }
+        if (-not $isFork -and [string]::IsNullOrWhiteSpace($catalogForkOf)) {
+            continue
+        }
+
+        $checkedCount++
+        if ($isFork) {
+            $githubForkCount++
+            if ([string]::IsNullOrWhiteSpace([string]$githubParent)) {
+                $parentUnavailable.Add([ordered]@{
+                    repo = $repoName
+                    reason = "GitHub marks this repository as a fork, but parent metadata was unavailable"
+                    error = if ([string]::IsNullOrWhiteSpace([string]$fetchError)) { $null } else { [string]$fetchError }
+                })
+            }
+            if ([string]::IsNullOrWhiteSpace($catalogForkOf)) {
+                $missingCatalogAttribution.Add([ordered]@{
+                    repo = $repoName
+                    githubParent = if ([string]::IsNullOrWhiteSpace([string]$githubParent)) { $null } else { [string]$githubParent }
+                    reason = "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+                })
+                continue
+            }
+            if (-not [string]::IsNullOrWhiteSpace([string]$githubParent) -and $catalogForkOf.ToLowerInvariant() -ne ([string]$githubParent).ToLowerInvariant()) {
+                $parentMismatches.Add([ordered]@{
+                    repo = $repoName
+                    catalogForkOf = $catalogForkOf
+                    githubParent = [string]$githubParent
+                    reason = "catalog forkOf does not match GitHub fork parent"
+                })
+                continue
+            }
+            if (-not [string]::IsNullOrWhiteSpace([string]$githubParent)) {
+                $matchingGitHubForks.Add([ordered]@{
+                    repo = $repoName
+                    catalogForkOf = $catalogForkOf
+                    githubParent = [string]$githubParent
+                })
+            }
+            continue
+        }
+
+        $catalogContinuations.Add([ordered]@{
+            repo = $repoName
+            catalogForkOf = $catalogForkOf
+            reason = "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
+        })
+    }
+
+    return [ordered]@{
+        checkedCount = $checkedCount
+        githubForkCount = $githubForkCount
+        catalogForkOfCount = $catalogForkOfCount
+        matchingGitHubForkCount = $matchingGitHubForks.Count
+        catalogContinuationCount = $catalogContinuations.Count
+        missingCatalogAttributionCount = $missingCatalogAttribution.Count
+        parentMismatchCount = $parentMismatches.Count
+        parentUnavailableCount = $parentUnavailable.Count
+        warningCount = $missingCatalogAttribution.Count + $parentMismatches.Count + $parentUnavailable.Count
+        matchingGitHubForks = $matchingGitHubForks.ToArray()
+        catalogContinuations = $catalogContinuations.ToArray()
+        missingCatalogAttribution = $missingCatalogAttribution.ToArray()
+        parentMismatches = $parentMismatches.ToArray()
+        parentUnavailable = $parentUnavailable.ToArray()
+        note = "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
+    }
+}
+
 function Test-ReleaseAssetDrift {
     param(
         [hashtable[]]$Entries,
@@ -4449,6 +4641,7 @@ function Test-ProfileState {
     $readmeSizeBudget = Test-ReadmeSizeBudget -ExpectedReadme $ExpectedReadme
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
+    $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
@@ -4499,6 +4692,7 @@ function Test-ProfileState {
         catalogShape = $catalogShape
         metadataHygiene = $metadataHygiene
         projectLicenseMetadata = $projectLicenseMetadata
+        forkParentDrift = $forkParentDrift
         releaseAssetDrift = $releaseAssetDrift
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
@@ -4570,7 +4764,7 @@ if ($SeedCatalog) {
     Write-Warning "LOSSY LEGACY SEED MODE: $($seedGuard.message -replace '^-SeedCatalog is a ', '')"
 }
 
-$repos = if ($Offline) { @() } else { Add-ReleaseAssetMetadata -Repos (Get-GitHubRepos) }
+$repos = if ($Offline) { @() } else { Add-ReleaseAssetMetadata -Repos (Add-ForkParentMetadata -Repos (Get-GitHubRepos)) }
 
 if ($SeedCatalog) {
     $catalog = New-CatalogFromReadme -Repos $repos

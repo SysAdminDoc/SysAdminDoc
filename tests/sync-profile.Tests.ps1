@@ -29,6 +29,9 @@ BeforeAll {
             [string[]]$Topics = @('utility'),
             [string]$Language = 'PowerShell',
             [object]$LicenseInfo = $null,
+            [bool]$IsFork = $false,
+            [object]$Parent = $null,
+            [string]$ForkParentFetchError = $null,
             [switch]$WithRelease,
             [string[]]$AssetNames = @()
         )
@@ -54,6 +57,9 @@ BeforeAll {
             stargazerCount = 0
             pushedAt = '2026-06-04T00:00:00Z'
             licenseInfo = $LicenseInfo
+            isFork = $IsFork
+            parent = $Parent
+            forkParentFetchError = $ForkParentFetchError
             visibility = 'PUBLIC'
             isPrivate = $false
         }
@@ -483,6 +489,41 @@ Describe 'Report schema depth helpers' {
         ($result.unknownLicenses | ForEach-Object { $_.repo }) | Should -Contain 'WebTool'
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'MIT' }).count | Should -Be 1
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).licenseKey | Should -Be 'other'
+    }
+
+    It 'classifies GitHub fork parents against catalog attribution' {
+        $match = New-TestEntry -Repo 'MatchingFork' -Category 'desktop'
+        $match.forkOf = 'Upstream/MatchingFork'
+        $continuation = New-TestEntry -Repo 'ContinuationOnly' -Category 'extensions'
+        $continuation.forkOf = 'Upstream/ContinuationOnly'
+        $missing = New-TestEntry -Repo 'MissingAttribution' -Category 'guides'
+        $mismatch = New-TestEntry -Repo 'MismatchedFork' -Category 'desktop'
+        $mismatch.forkOf = 'Catalog/WrongParent'
+        $unavailable = New-TestEntry -Repo 'ParentUnavailable' -Category 'desktop'
+        $repos = @(
+            (New-TestRepoMeta -Name 'MatchingFork' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'Upstream/MatchingFork' })),
+            (New-TestRepoMeta -Name 'ContinuationOnly' -IsFork $false),
+            (New-TestRepoMeta -Name 'MissingAttribution' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'Upstream/MissingAttribution' })),
+            (New-TestRepoMeta -Name 'MismatchedFork' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'GitHub/ActualParent' })),
+            (New-TestRepoMeta -Name 'ParentUnavailable' -IsFork $true -ForkParentFetchError 'api unavailable')
+        )
+
+        $result = Test-ForkParentDrift -Repos $repos -CatalogEntries @($match, $continuation, $missing, $mismatch, $unavailable)
+
+        $result.checkedCount | Should -Be 5
+        $result.githubForkCount | Should -Be 4
+        $result.catalogForkOfCount | Should -Be 3
+        $result.matchingGitHubForkCount | Should -Be 1
+        $result.catalogContinuationCount | Should -Be 1
+        $result.missingCatalogAttributionCount | Should -Be 2
+        $result.parentMismatchCount | Should -Be 1
+        $result.parentUnavailableCount | Should -Be 1
+        $result.warningCount | Should -Be 4
+        ($result.matchingGitHubForks | ForEach-Object { $_.repo }) | Should -Contain 'MatchingFork'
+        ($result.catalogContinuations | ForEach-Object { $_.repo }) | Should -Contain 'ContinuationOnly'
+        ($result.missingCatalogAttribution | ForEach-Object { $_.repo }) | Should -Contain 'MissingAttribution'
+        ($result.parentMismatches | ForEach-Object { $_.repo }) | Should -Contain 'MismatchedFork'
+        ($result.parentUnavailable | ForEach-Object { $_.repo }) | Should -Contain 'ParentUnavailable'
     }
 
     It 'normalizes C++ language topic hints to cpp' {
@@ -1244,6 +1285,7 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Missing topic hints'
             $summary | Should -Match 'Missing project licenses'
             $summary | Should -Match 'Unknown project licenses'
+            $summary | Should -Match 'Fork-parent warnings'
             $summary | Should -Match 'Link targets checked'
             $summary | Should -Match 'Repository setting warnings'
             $summary | Should -Match 'Community-health fatal gaps'
@@ -1258,6 +1300,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
         $script:SummaryScript | Should -Match 'linkValidationSummary'
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
+        $script:SummaryScript | Should -Match 'forkParentDrift'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

@@ -41,6 +41,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Hardened `setup.ps1` with `#Requires -Version 5.1`, `-CheckOnly` diagnostics, best-effort `%TEMP%` transcript logging, generated inspect-before-install README guidance, and `readmeExperienceChecks.setupInspectPath` coverage (v4.9.21). — *Source: ROADMAP.md*
 - [x] Recategorized WolfPack and Vigil into Native Desktop Applications, tightening Security & Networking to 3 repos and grouping the privacy/browser packaging rows together (v4.9.22). — *Source: ROADMAP.md*
 - [x] Standardized fork/continuation attribution with catalog `forkOf`/`upstreamLicense` fields, generated feed `forkOf`/`forkOfUrl`/`upstreamLicense` fields, README upstream/license rendering, schema updates, and Pester coverage (v4.9.23). — *Source: ROADMAP.md*
+- [x] Added fork-parent drift reporting that compares live GitHub forks against catalog `forkOf`, classifies catalog continuations/imports, and summarizes missing/mismatched/unavailable parent warnings without failing validation (v4.9.56). — *Source: ROADMAP.md*
 - [x] Logged "Forge" naming debt for WinForge, FirewallForge, NetForge, PathForge, GitForge, ImageForge, ClipForge, IconForge, and MediaForge, retaining live names to avoid broken links/releases/stars/install snippets while avoiding the pattern for new repositories (v4.9.24). — *Source: ROADMAP.md*
 
 ### Privacy, safety, and supply-chain hardening
@@ -85,6 +86,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added repository settings/community-health fixture coverage for enabled/disabled live-shaped settings, missing required local intake files, and unavailable API state (v4.9.53). — *Source: ROADMAP.md*
 - [x] Added workflow coverage for generated-PR validation dispatch permissions, branch-scoped validation links, summary text, and read-only check-job isolation (v4.9.54). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for project license export, missing/non-standard license reporting, report summary rows, and schema validation (v4.9.55). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for fork-parent drift matches, catalog continuations, missing catalog attribution, parent mismatches, unavailable parents, report schema validation, and summary rows (v4.9.56). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 

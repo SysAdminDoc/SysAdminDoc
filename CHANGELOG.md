@@ -2,6 +2,14 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.56] - 2026-06-06
+
+- Added: Profile sync reports now include `forkParentDrift`, comparing live GitHub fork metadata against catalog `forkOf` attribution.
+- Added: The sync metadata path now collects `isFork` and enriches fork parent names through REST when the bulk GitHub list omits parent details.
+- Added: Public-safe summary rows now include fork-parent warning counts.
+- Added: The sync-report schema and Pester coverage validate matching GitHub forks, catalog continuations/imports, missing catalog attribution, parent mismatches, and unavailable parent metadata.
+- Verified: Current live report records 8 GitHub forks, 7 catalog `forkOf` rows, 5 matching GitHub forks, 2 catalog continuations, 3 missing catalog-attribution warnings, and 0 parent mismatches.
+
 ## [v4.9.55] - 2026-06-06
 
 - Added: Visitor-facing `projects.json` rows now export each repository's detected `licenseKey`, `licenseName`, and `licenseSpdxId` separately from upstream/fork attribution.
