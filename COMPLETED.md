@@ -72,6 +72,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Add markdown/link/install validation against GitHub metadata, raw userscript links against live default branches, and portfolio launch links, keeping clone-install-run snippets branch-pinned. — *Source: ROADMAP.md*
 - [x] Fixed the dead-code no-changes guard in `profile-sync.yml` where `if (git diff --quiet)` tested stdout instead of the exit code, causing clean scheduled runs to fail. — *Source: TODO.md*
 - [x] Link-validation de-flake: 12s timeout plus retry in `Test-HttpUrl`; only 404/410 are fatal, while transient 403/429/5xx/timeout become `linkValidationWarnings`. — *Source: TODO.md*
+- [x] Hardened the REST metadata fallback with paginated repo enumeration, authenticated/capped latest-release fetches, non-404 partial-data aborts, live fallback verification, and Pester coverage (v4.9.50). — *Source: ROADMAP.md*
 
 ### Tests and reliability
 

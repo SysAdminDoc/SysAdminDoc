@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.49
+Current repo version: v4.9.50
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.50 refresh: REST release fallback hardening shipped.
+The REST repo metadata fallback now uses `gh api --paginate --slurp` for repo
+enumeration, enforces authenticated `gh` access above the unauthenticated
+release-request budget, caps latest-release fetches, treats release 404s as
+expected no-release rows, and aborts on non-404 release fetch failures so
+partial release metadata cannot be written silently. A forced REST fallback
+exercise returned 184 public repos and 147 inspected releases.
+Next highest open item: generated README size budget guard.
 
 2026-06-06 v4.9.49 refresh: header/non-catalog link validation shipped.
 Profile sync now validates the generated README's portfolio link plus the
@@ -745,11 +754,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 ### Reliability and performance
 
-- [ ] P2 — Cap and authenticate the REST release-fallback N+1
+- [x] P2 — Cap and authenticate the REST release-fallback N+1
   - Why: when the GraphQL path fails three times, `Get-GitHubReposFromRest` issues one `gh api .../releases/latest` per public repo — ~184 sequential calls. Unauthenticated that blows the 60 req/hr limit; even authenticated it is slow and can partially fail mid-run, silently yielding a feed with missing release tags.
   - Evidence: `scripts/sync-profile.ps1:148-162` (per-repo `gh api releases/latest` loop inside the fallback).
   - Touches: `scripts/sync-profile.ps1` (`Get-GitHubReposFromRest`): batch via a single GraphQL-less paginated call where possible, add `--paginate`, surface a rate-limit/partial-fetch warning, and fail loudly rather than emitting a half-populated catalog.
   - Acceptance: fallback completes within a bounded request budget, logs a warning when any per-repo release fetch fails, and never writes a feed where release data is partially missing without flagging it.
+  - Completed: v4.9.50 switched repo enumeration to `gh api --paginate --slurp`, added authenticated/bounded release-request policy, treats 404 latest-release responses as no-release rows, aborts on non-404 release fetch errors, and added Pester coverage for the guard behavior.
   - Verify: force the GraphQL path to fail (simulate), run `-Write`, confirm the run either completes cleanly or aborts with a clear partial-data warning.
   - Complexity: M
 
@@ -1672,7 +1682,7 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (v4.9.36–v4.9.39: projects-sync gate, URL-scheme, medical privacy gate; `Update-Header` idempotency deferred).
 - [x] P1 — Public-feed redaction for private suppression rows (completed v4.9.42 with dedicated redacted `suppressedProject` feed rows).
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
-- [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
+- [x] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort (completed v4.9.50 with paginated REST enumeration, authenticated/capped release fetches, non-404 abort behavior, and fallback guard coverage).
 - [x] P2 — Header/non-catalog link validation folded into the existing link gate (completed v4.9.49 with fatal portfolio/setup probes, non-fatal image-host warnings, report/schema fields, and Pester coverage).
 - [x] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows (completed v4.9.44 with feed `releaseTrust`, schema coverage, trust-level counts, checksum-gap reporting, and debug artifact reporting).
 - [x] P2 — Pinned CI validation-tool installs with a documented update path (completed v4.9.46 with exact Pester/PSScriptAnalyzer versions, hash-checked `zizmor`, and `docs/ci-toolchain.md`).

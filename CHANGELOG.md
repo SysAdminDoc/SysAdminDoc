@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.50] - 2026-06-06
+
+- Changed: REST repo metadata fallback now enumerates repos through `gh api --paginate --slurp` instead of manual page loops.
+- Added: REST fallback latest-release fetches now require authenticated `gh` access above the unauthenticated request budget and enforce a configured release-request cap.
+- Fixed: REST fallback now treats latest-release 404s as expected "no release" cases, but warns and aborts on non-404 release fetch failures to avoid writing partial release metadata.
+- Added: Pester coverage for paginated REST parsing, release-request budget policy, and 404/rate-limit classification.
+
 ## [v4.9.49] - 2026-06-06
 
 - Added: Link validation now folds in generated README header/non-catalog targets, including the portfolio link and both `setup.ps1` raw/source links.
