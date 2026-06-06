@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.70] - 2026-06-06
+
+- Changed: `.editorconfig` now applies trailing-whitespace trimming to Markdown instead of exempting `*.md` files, while retaining LF endings and final-newline policy.
+- Changed: `.gitattributes` now pins itself plus `.editorconfig` to LF so both formatting policy files are checked out consistently.
+- Fixed: The pull-request template no longer carries trailing-space placeholder bullets.
+- Added: Pester coverage guards the repository formatting contract and rejects tracked Markdown trailing whitespace.
+
 ## [v4.9.69] - 2026-06-06
 
 - Changed: `COMPLETED.md` now describes the current profile catalog row contract through `schemas/profile-catalog.v1.json` instead of a stale legacy field list.

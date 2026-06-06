@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T19:27:15.9941819-04:00",
+  "generatedAt": "2026-06-06T19:39:49.2611351-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "afc419b2cdc6d90fd4d6bab39cec734e1af2ceeb",
+    "sourceCommit": "d9546106aa4424509b82a945711317b9ab593393",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
     "generatorSha256": "f5ff90be137d90412c4917e651ea0466a2eb8b46ae9c727429f0ed0df4265e74",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T19:25:58.5973839-04:00",
+    "metadataSnapshotAt": "2026-06-06T19:38:31.0158230-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T23:25:11.0000000Z",
+        "pushedAt": "2026-06-06T23:36:34.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,28 +892,10 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "MPL-2.0",
-        "licenseKey": "mpl-2.0",
-        "licenseName": "Mozilla Public License 2.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
-      },
-      {
-        "licenseSpdxId": "LGPL-3.0",
-        "licenseKey": "lgpl-3.0",
-        "licenseName": "GNU Lesser General Public License v3.0",
-        "count": 1
+        "licenseSpdxId": "Apache-2.0",
+        "licenseKey": "apache-2.0",
+        "licenseName": "Apache License 2.0",
+        "count": 2
       },
       {
         "licenseSpdxId": "MIT",
@@ -922,10 +904,16 @@
         "count": 156
       },
       {
-        "licenseSpdxId": "Apache-2.0",
-        "licenseKey": "apache-2.0",
-        "licenseName": "Apache License 2.0",
-        "count": 2
+        "licenseSpdxId": "LGPL-3.0",
+        "licenseKey": "lgpl-3.0",
+        "licenseName": "GNU Lesser General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
+        "count": 1
       },
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -938,6 +926,18 @@
         "licenseKey": "other",
         "licenseName": "Other",
         "count": 9
+      },
+      {
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
       }
     ],
     "missingLicenses": [
@@ -2268,28 +2268,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.69",
+    "expectedVersion": "v4.9.70",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.69"
+        "value": "v4.9.70"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.69"
+        "value": "v4.9.70"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.69"
+        "value": "v4.9.70"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.69"
+        "value": "v4.9.70"
       }
     ],
     "dates": [
@@ -2316,7 +2316,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 81,
+      "headingCount": 82,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2326,14 +2326,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.69",
+    "expectedVersion": "v4.9.70",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.69",
+    "expectedTag": "v4.9.70",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2343,13 +2343,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.69",
+        "expectedVersion": "v4.9.70",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.69",
+        "expectedVersion": "v4.9.70",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2361,7 +2361,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3424,
+      "elapsedMs": 4607,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2380,7 +2380,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.13,
+      "ageDays": 5.14,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2390,7 +2390,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3424,
+    "elapsedMs": 4607,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },

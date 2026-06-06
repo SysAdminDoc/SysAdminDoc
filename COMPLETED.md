@@ -96,6 +96,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 ### Tests and reliability
 
 - [x] Added a hermetic Pester v5 suite (`tests/`, 16 tests) plus a `tests.yml` CI job and a dot-source test seam. — *Source: TODO.md*
+- [x] Added Pester coverage for the repository formatting contract so `.editorconfig` keeps LF endings, final newlines, and trailing-whitespace trimming enabled, `.gitattributes` pins both formatting policy files to LF, and tracked Markdown stays free of trailing whitespace (v4.9.70). — *Source: ROADMAP.md*
 - [x] Added catalog-shape validation for duplicate repos, missing repo values, unknown categories, and unknown `downloadKind` values, with report/schema support and Pester coverage (v4.9.52). — *Source: ROADMAP.md*
 - [x] Added repository settings/community-health fixture coverage for enabled/disabled live-shaped settings, missing required local intake files, and unavailable API state (v4.9.53). — *Source: ROADMAP.md*
 - [x] Added workflow coverage for generated-PR validation dispatch permissions, branch-scoped validation links, summary text, and read-only check-job isolation (v4.9.54). — *Source: ROADMAP.md*

@@ -5,6 +5,8 @@ assets/profile/*.svg   linguist-generated=true binary
 reports/*.json         linguist-generated=true
 
 # Ensure consistent line endings for generated text.
+.gitattributes text eol=lf
+.editorconfig text eol=lf
 *.md    text eol=lf
 *.json  text eol=lf
 *.yml   text eol=lf

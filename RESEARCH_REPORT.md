@@ -5,10 +5,16 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.69
+Current version after this refresh: v4.9.70
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.70 batch tightened the repository formatting contract by removing
+  the Markdown trailing-whitespace exception from `.editorconfig`.
+- `.gitattributes` now pins itself plus `.editorconfig` to LF, the pull-request
+  template placeholder bullets no longer carry trailing spaces, and Pester now
+  guards the LF/final-newline/trailing-whitespace EditorConfig policy plus
+  tracked Markdown trailing-whitespace state.
 - The v4.9.69 batch closed the completed-work catalog-field terminology gap by
   replacing the stale current-field list with a schema-backed summary.
 - `COMPLETED.md` now points maintainers at `schemas/profile-catalog.v1.json`
@@ -444,7 +450,7 @@ Top opportunities, in priority order:
 20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions. [Completed v4.9.57]
 21. P2 - Add a live GitHub-rendered profile smoke check. [Completed v4.9.27; refreshed v4.9.48]
 22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
-23. P3 - Add `.editorconfig` and generated README markdown linting.
+23. P3 - Add `.editorconfig` and generated README markdown linting. [EditorConfig completed v4.9.70; markdownlint optional remains]
 24. P3 - Validate all historical `CHANGELOG.md` release headings. [Completed v4.9.63]
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
@@ -743,7 +749,7 @@ Top addendum opportunities (one line each):
 6. P2 — No catalog JSON-shape validation; unknown `downloadKind` silently defaults. [Closed v4.9.52]
 7. P2 — No generated-README size budget (file is ~72 KB and grows unbounded). [Closed v4.9.51]
 8. P2 — No SECURITY.md though Scorecard scores its presence. [Verified]
-9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [Verified]
+9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [EditorConfig closed v4.9.70; markdownlint optional remains]
 10. P3 — Third-party render-host privacy exposure is undocumented as a decision. [Likely]
 
 ### Evidence reviewed (addendum)
@@ -765,7 +771,7 @@ Top addendum opportunities (one line each):
 - **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` used to swallow an unrecognized `downloadKind`; catalog-shape validation now catches the typo. → "Add catalog JSON-shape validation". [Closed v4.9.52]
 - **Minor — No size budget.** ~72 KB generated README had no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Closed v4.9.51]
 - **Minor — No SECURITY.md.** Repo runs Scorecard/zizmor but lacks a security policy Scorecard scores. → "Add SECURITY.md". [Verified]
-- **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [Verified]
+- **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [EditorConfig closed v4.9.70; markdownlint optional remains]
 - **Cosmetic — Undocumented render-host exposure.** komarev counter + four stats hosts see every visitor via Camo; no recorded decision. → "Document/justify the third-party render-host privacy exposure". [Likely]
 
 ### Competitive & standards notes (addendum)
@@ -2042,6 +2048,18 @@ terminology. It found a docs drift issue rather than a generator failure.
   implementation note.
 - Prefer pointing maintainers at `schemas/profile-catalog.v1.json` when a full
   field list would drift quickly.
+
+## Cycle 32 Formatting Addendum — 2026-06-06
+
+- The root `.editorconfig` existed from the earlier reliability batch, but the
+  Markdown-specific override still disabled trailing-whitespace trimming for the
+  files with the highest hand-edit churn.
+- v4.9.70 removes that override, pins `.gitattributes` and `.editorconfig` to
+  LF, cleans the pull-request template's trailing placeholder
+  spaces, and adds Pester coverage for the LF/final-newline/trailing whitespace
+  policy plus tracked Markdown trailing-whitespace state.
+- The markdownlint portion remains optional because the immediate drift source
+  was whitespace policy rather than Markdown structural rules.
 
 ## Cycle 32 Research Addendum — 2026-06-04
 

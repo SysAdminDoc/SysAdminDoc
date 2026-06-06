@@ -1265,6 +1265,36 @@ Describe 'Public planning document terminology' {
     }
 }
 
+Describe 'Repository formatting contract' {
+    It 'pins LF endings, final newlines, and trailing-whitespace trimming in EditorConfig' {
+        $editorConfig = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.editorconfig')
+        $gitAttributes = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.gitattributes')
+
+        $editorConfig | Should -Match '(?m)^root\s*=\s*true\s*$'
+        $editorConfig | Should -Match '(?m)^end_of_line\s*=\s*lf\s*$'
+        $editorConfig | Should -Match '(?m)^insert_final_newline\s*=\s*true\s*$'
+        $editorConfig | Should -Match '(?m)^trim_trailing_whitespace\s*=\s*true\s*$'
+        $editorConfig | Should -Not -Match '(?m)^trim_trailing_whitespace\s*=\s*false\s*$'
+        $gitAttributes | Should -Match '(?m)^\.gitattributes\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^\.editorconfig\s+text\s+eol=lf\s*$'
+    }
+
+    It 'keeps tracked Markdown free of trailing whitespace' {
+        $markdownPaths = & git -C $script:RepoRoot ls-files '*.md'
+        $violations = foreach ($relativePath in $markdownPaths) {
+            $path = Join-Path $script:RepoRoot $relativePath
+            $lines = Get-Content -LiteralPath $path
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+                if ($lines[$i] -match '[ \t]+$') {
+                    '{0}:{1}' -f $relativePath, ($i + 1)
+                }
+            }
+        }
+
+        @($violations) | Should -HaveCount 0
+    }
+}
+
 Describe 'Profile release/tag consistency' {
     It 'warns when the latest profile release and tag are behind the planning version' {
         $doc = [ordered]@{ expectedVersion = 'v4.9.57' }

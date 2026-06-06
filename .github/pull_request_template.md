@@ -1,6 +1,6 @@
 ## Summary
 
-- 
+-
 
 ## Public-Safety Check
 
@@ -15,4 +15,4 @@
 
 ## Verification
 
-- 
+-
