@@ -2,18 +2,19 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 50 - suppressed feed redaction
+Last completed roadmap cycle: Cycle 51 - deterministic feed provenance
 
 ## Latest Result
 
-- Replaced full public `projects.json.suppressed` project rows with redacted suppression records carrying only `suppressedId`, `suppressed`, `category`, `reasonCode`, `publicReason`, and `visibilityClass`.
-- Updated `schemas/profile-projects.v1.json` with a dedicated `suppressedProject` object so suppressed rows cannot validate with repo names, URLs, descriptions, actions, release fields, topics, or notes.
-- Updated metadata drift indexing so redacted suppressed rows compare by `suppressedId`, while stale full suppressed rows still appear as fatal drift.
-- Added offline Pester coverage for fixture redaction, real-catalog known-name redaction, and schema rejection of suppressed row identifiers.
-- Regenerated `projects.json` and `reports/profile-sync-report.json`; the latest feed has 177 visible projects and 10 redacted suppressions with `projectsExportInSync=true`.
+- Added `projects.json.provenance` with source repository, generation-base commit, catalog/generator/schema SHA-256 hashes, metadata snapshot time, metadata provider, and repository enumeration status.
+- Added matching `reports/profile-sync-report.json.provenance` output for operator diagnostics.
+- Updated the project-feed schema to require the `provenance` object and reject unexpected fields.
+- Updated metadata drift so stable provenance mismatches are fatal and volatile `sourceCommit` / `metadataSnapshotAt` differences are informational.
+- Added offline Pester coverage for provenance shape, public-safe contents, schema validation, sync-comparison normalization, and drift severity.
+- Regenerated `projects.json` and `reports/profile-sync-report.json`; latest provenance has `metadataProvider=graphql`, `returnedCount=184`, `requestedLimit=500`, and `truncated=false`.
 - Verified Pester, PSScriptAnalyzer, and `scripts/sync-profile.ps1 -Write -Check`.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `RESEARCH_REPORT.md`, and `CLAUDE.md` to v4.9.42.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `RESEARCH_REPORT.md`, and `CLAUDE.md` to v4.9.43.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with the next open feed/trust item from `ROADMAP.md`: generated-feed provenance fields are the highest-value P1 follow-up, and release/download trust metadata is the next P2 feed-contract expansion.
+Continue on this same assigned project. Start with the next open feed/trust item from `ROADMAP.md`: release/download trust metadata for executable assets. The report-schema contract and pinned CI validation-tool installs are the next follow-up candidates after that.

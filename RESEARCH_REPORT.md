@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.42
+Current version after this refresh: v4.9.43
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.43 batch closed the generated-feed provenance backlog by adding a
+  public-safe `projects.json.provenance` object with source repository,
+  generation-base commit, catalog/generator/schema SHA-256 hashes,
+  `metadataSnapshotAt`, `metadataProvider`, and repository enumeration status.
+- `reports/profile-sync-report.json` now mirrors the feed provenance; stable
+  provenance mismatches are fatal drift, while `sourceCommit` and
+  `metadataSnapshotAt` are informational because committed files cannot embed
+  the hash of the commit that contains themselves.
+- Local verification passed for Pester, PSScriptAnalyzer, and
+  `scripts/sync-profile.ps1 -Write -Check`; the latest provenance reports
+  `metadataProvider=graphql`, `returnedCount=184`, `requestedLimit=500`, and
+  `truncated=false`.
 - The v4.9.42 batch closed the public suppressed-feed row leak by replacing
   full `projects.json.suppressed` project rows with redacted suppression records
   that carry only `suppressedId`, `suppressed`, `category`, `reasonCode`,

@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.42
+Current repo version: v4.9.43
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,18 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.43 refresh: deterministic feed provenance shipped.
+`projects.json` now includes a public-safe `provenance` object with
+`sourceRepository`, generation-base `sourceCommit`, SHA-256 hashes for the
+catalog, generator, and project schema, `metadataSnapshotAt`, `metadataProvider`,
+and repository enumeration status. `reports/profile-sync-report.json` summarizes
+the same provenance. Schema validation requires the new object, metadata drift
+treats stable provenance mismatches as fatal, and volatile `sourceCommit` /
+`metadataSnapshotAt` differences are informational so a committed feed does not
+fail on self-referential commit timing. Latest local verification passed Pester,
+ScriptAnalyzer, and `scripts/sync-profile.ps1 -Write -Check`. Next highest open
+feed item: release/download trust metadata for executable assets.
 
 2026-06-06 v4.9.42 refresh: suppressed public-feed row redaction shipped.
 `projects.json.suppressed` now emits only redacted suppression records with
@@ -735,11 +747,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Verify: `pwsh -NoProfile -Command '$findings = @(Invoke-ScriptAnalyzer -Path scripts -Recurse -Settings ./PSScriptAnalyzerSettings.psd1; Invoke-ScriptAnalyzer -Path setup.ps1 -Settings ./PSScriptAnalyzerSettings.psd1); if ($findings.Count -gt 0) { throw "PSScriptAnalyzer reported $($findings.Count) finding(s)." }'`
   - Complexity: M
 
-- [ ] P1 — Add generated-feed provenance fields for downstream consumers
+- [x] P1 — Add generated-feed provenance fields for downstream consumers
   - Why: `projects.json` exposes `schema`, `generatedAt`, and a generic `source`, but does not identify the source tree, catalog hash, generator hash/version, or metadata snapshot that produced the feed. The portfolio cannot distinguish a stale cache from a freshly generated feed with unchanged timestamps, and debugging feed drift requires rerunning local context.
   - Evidence: `projects.json:2-5`; `New-ProjectsExportJson` currently emits top-level `schema`, `generatedAt`, `source`, and counts; GitHub artifact-attestation docs frame provenance as "where and how" artifacts were built: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
   - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, report writer), `projects.json`, `reports/profile-sync-report.json`, optional portfolio consumer handling.
   - Acceptance: feed metadata includes a stable schema version plus public-safe provenance such as `sourceRef`, `catalogSha256`, `generatorSha256`, and `metadataSnapshotAt`; `-Check` reports or fails on mismatched provenance when generated files are stale.
+  - Completed: v4.9.43 added `projects.json.provenance` and report provenance with source repository, generation-base commit, content hashes, metadata provider, metadata snapshot, and repository enumeration status.
   - Verify: run `scripts/sync-profile.ps1 -Write -Check`; compare the reported catalog/generator hashes to the current files; alter one provenance field and confirm `-Check` catches the mismatch.
   - Complexity: M
 
@@ -1249,11 +1262,12 @@ provenance item into a concrete feed/report contract. It inspected the export
 payload, schema, metadata-drift comparison, and official provenance/commit
 references.*
 
-- [ ] P1 🤖 🔬 — Add deterministic generated-feed provenance fields
+- [x] P1 🤖 🔬 — Add deterministic generated-feed provenance fields
   - Why: `projects.json` is now an external portfolio feed, but consumers can only see `generatedAt` and a static `source` string. They cannot tell which commit, generator file, catalog file, schema file, or metadata snapshot produced a feed, nor whether a stale committed feed came from GraphQL or REST fallback metadata.
   - Evidence: `scripts/sync-profile.ps1:1727-1735` emits only `schema`, `generatedAt`, `source`, counts, `projects`, and `suppressed`; `schemas/profile-projects.v1.json:7-16` requires the same top-level fields and has no provenance object; `scripts/sync-profile.ps1:2777-2785` treats only `schema`, `source`, and counts as top-level fatal drift fields; current HEAD is `8c8aac4643b57514a364d0dfb3aaddf98d638023`. GitHub's commits API exposes commit SHAs and commit metadata for repository references: https://docs.github.com/en/rest/commits. GitHub artifact-attestation docs frame provenance as evidence of where and how an artifact was built, which is the same trust model this public feed needs even if it starts with lightweight in-file metadata: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds.
   - Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, generated `projects.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`, optional portfolio consumer notes.
   - Acceptance: `projects.json` includes a public-safe `provenance` object with at least `sourceRepository`, `sourceCommit`, `catalogSha256`, `generatorSha256`, `projectSchemaSha256`, `metadataSnapshotAt`, `metadataProvider` (`graphql` or `rest-fallback`), and repository enumeration counts/limit/truncation status; the schema validates the object; metadata drift treats provenance mismatches as fatal except for intentionally volatile `metadataSnapshotAt`; no absolute local paths or private repo names are emitted.
+  - Completed: v4.9.43 implements the public-safe provenance object, schema contract, report summary, metadata drift severity, and Pester coverage. `sourceCommit` is reported as informational drift because a file cannot embed the hash of the commit that contains itself; content hashes remain fatal drift.
   - Verify: regenerate twice without source changes and confirm file hashes are stable except the snapshot timestamp; edit `data/profile-catalog.json` and confirm `catalogSha256` changes; edit `scripts/sync-profile.ps1` and confirm `generatorSha256` changes; simulate REST fallback and confirm `metadataProvider=rest-fallback` appears in the report/feed.
   - Complexity: M
 
@@ -1310,13 +1324,14 @@ pending-check traps.*
 field-level implementation requirements tied to the current feed generator,
 schema, and drift gate.*
 
-- [ ] P1 🤖 🔬 — Implement a versioned `projects.json.provenance` contract
+- [x] P1 🤖 🔬 — Implement a versioned `projects.json.provenance` contract
   - Why: downstream portfolio consumers need to debug whether a feed came from the expected commit, catalog, generator, schema, and metadata provider. The current feed is structurally valid but cannot explain its build inputs.
   - Evidence: root `projects.json:1-7` has `schema`, `generatedAt`, `source`, and counts only; `scripts/sync-profile.ps1:1727-1735` emits the same payload shape; `schemas/profile-projects.v1.json:7-16` requires only the legacy top-level fields; `Test-MetadataDrift` only treats `schema`, `source`, and counts as top-level fatal fields at `scripts/sync-profile.ps1:2777-2785`; local git object IDs are available now for `data/profile-catalog.json` (`80e8b64ffe477f91f45e5220e47839d82765ff00`), `scripts/sync-profile.ps1` (`ac24d72dfe5af1426d521d02ab5dfc8b69570303`), `schemas/profile-projects.v1.json` (`affa705e61ba82541832c7fc8c4d7a00a03b5128`), and HEAD (`8c8aac4643b57514a364d0dfb3aaddf98d638023`).
   - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Get-GitHubRepos`, REST fallback, `Test-MetadataDrift`, `Test-FeedSchemaContracts`), `schemas/profile-projects.v1.json`, `projects.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`.
   - Proposed fields: `provenance.version`, `provenance.sourceRepository`, `provenance.sourceCommit`, `provenance.catalogPath`, `provenance.catalogGitBlob`, `provenance.generatorPath`, `provenance.generatorGitBlob`, `provenance.projectSchemaPath`, `provenance.projectSchemaGitBlob`, `provenance.metadataSnapshotAt`, `provenance.metadataProvider`, `provenance.repoEnumeration.requestedLimit`, `provenance.repoEnumeration.returnedCount`, and `provenance.repoEnumeration.truncated`.
   - Drift rules: `sourceRepository`, `sourceCommit`, path names, blob IDs, provider, and enumeration status are fatal when committed and expected feed disagree; `metadataSnapshotAt` is informational/staleness-only; row-level star/topic/pushedAt behavior stays informational; no absolute local path should appear.
   - Acceptance: schema requires the `provenance` object and disallows extra fields; generated feed includes deterministic blob IDs from `git hash-object` or equivalent content hashing; REST fallback can mark `metadataProvider=rest-fallback`; reports summarize provenance and expose stale or mismatched provenance as actionable drift.
+  - Completed: v4.9.43 requires `provenance` in the project-feed schema, emits SHA-256 content hashes, records `metadataProvider=graphql` or `rest-fallback`, records enumeration count/limit/truncation, and reports provenance in `profile-sync-report.json`.
   - Verify: run `scripts/sync-profile.ps1 -Write -Check`; edit only a catalog row and confirm `catalogGitBlob` changes; edit only the generator and confirm `generatorGitBlob` changes; compare expected/current feed and confirm provenance mismatches are surfaced at top level.
   - Complexity: M
 
@@ -1571,10 +1586,10 @@ P1/P2 needing design or staged rollout:
 - [x] P1 — Doc version/date consistency gate wired into `-Check` and CI (completed v4.9.20 with `docVersionConsistency` in the existing profile-sync check/report path).
 - [x] P1 — PSScriptAnalyzer static-analysis lane for `scripts/` and `setup.ps1` (completed v4.9.25 with curated settings, pinned CI install, and script fixes for analyzer findings).
 - [x] P0 — OpenSSF Scorecard publish workflow repair (completed v4.9.26 by moving write permissions from workflow-level to Scorecard job-level permissions and adding Pester regression coverage).
-- [ ] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot).
+- [x] P1 — Generated-feed provenance fields (`sourceRef`, catalog/generator hashes, metadata snapshot) (completed v4.9.43 with `projects.json.provenance`, report provenance, schema validation, and drift coverage).
 - [x] P1 — Generated Markdown/text safety and URL-scheme validation for README/feed output (completed v4.9.38: https-only gate on liveUrl/userscriptUrl with Pester coverage).
 - [x] P1 — Pester coverage for `Test-ProfileState`/`Update-Header`/medical-gate (v4.9.36–v4.9.39: projects-sync gate, URL-scheme, medical privacy gate; `Update-Header` idempotency deferred).
-- [ ] P1 — Public-feed redaction for private suppression rows.
+- [x] P1 — Public-feed redaction for private suppression rows (completed v4.9.42 with dedicated redacted `suppressedProject` feed rows).
 - [ ] P2 — Repository settings/community-health baseline in the sync report.
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.

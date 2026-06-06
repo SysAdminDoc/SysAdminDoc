@@ -8,6 +8,7 @@
     "schema",
     "generatedAt",
     "source",
+    "provenance",
     "publicRepoCount",
     "projectCount",
     "suppressedCount",
@@ -25,6 +26,9 @@
     "source": {
       "type": "string",
       "const": "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
     },
     "publicRepoCount": {
       "type": "integer",
@@ -64,6 +68,90 @@
         "null"
       ],
       "format": "uri"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "nullableCommitSha": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "repoEnumeration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedLimit",
+        "returnedCount",
+        "truncated"
+      ],
+      "properties": {
+        "requestedLimit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "returnedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "sourceRepository",
+        "sourceCommit",
+        "catalogSha256",
+        "generatorSha256",
+        "projectSchemaSha256",
+        "metadataSnapshotAt",
+        "metadataProvider",
+        "repoEnumeration"
+      ],
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sourceRepository": {
+          "type": "string",
+          "const": "SysAdminDoc/SysAdminDoc"
+        },
+        "sourceCommit": {
+          "$ref": "#/$defs/nullableCommitSha"
+        },
+        "catalogSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "generatorSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "projectSchemaSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "metadataSnapshotAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadataProvider": {
+          "type": "string",
+          "enum": [
+            "graphql",
+            "rest-fallback"
+          ]
+        },
+        "repoEnumeration": {
+          "$ref": "#/$defs/repoEnumeration"
+        }
+      }
     },
     "primaryAction": {
       "type": "object",

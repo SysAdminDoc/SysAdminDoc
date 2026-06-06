@@ -49,6 +49,10 @@ $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
 $CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
 $ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
+$script:RepositoryMetadataProvider = "graphql"
+$script:RepositoryEnumerationRequestedLimit = 500
+$script:RepositoryEnumerationTruncated = $false
+$script:MetadataSnapshotAt = (Get-Date).ToString("o")
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -198,6 +202,9 @@ function Get-GitHubReposFromRest {
         })
     }
 
+    $script:RepositoryMetadataProvider = "rest-fallback"
+    $script:RepositoryEnumerationRequestedLimit = 0
+    $script:RepositoryEnumerationTruncated = $false
     return $mapped.ToArray()
 }
 
@@ -229,6 +236,9 @@ function Get-GitHubRepos {
                 if ($repos.Count -ge $repoLimit) {
                     Write-Warning "gh repo list returned $($repos.Count) repos (limit $repoLimit); some public repos may be truncated."
                 }
+                $script:RepositoryMetadataProvider = "graphql"
+                $script:RepositoryEnumerationRequestedLimit = $repoLimit
+                $script:RepositoryEnumerationTruncated = [bool]($repos.Count -ge $repoLimit)
                 return $repos
             } catch {
                 $lastOutput = $_.Exception.Message
@@ -1710,6 +1720,51 @@ function New-SuppressedProjectExportRow {
     }
 }
 
+function Get-RepoFileSha256 {
+    param([string]$RelativePath)
+
+    $fullPath = Join-Path $RepoRoot $RelativePath
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        return $null
+    }
+
+    return (Get-FileHash -LiteralPath $fullPath -Algorithm SHA256).Hash.ToLowerInvariant()
+}
+
+function Get-GitHeadCommit {
+    $head = & git -C $RepoRoot rev-parse HEAD 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        return $null
+    }
+
+    $commit = (($head | Out-String).Trim()).ToLowerInvariant()
+    if ($commit -notmatch '^[a-f0-9]{40}$') {
+        return $null
+    }
+
+    return $commit
+}
+
+function New-ProjectsProvenance {
+    param([object[]]$Repos)
+
+    return [ordered]@{
+        version = 1
+        sourceRepository = "$Owner/$Owner"
+        sourceCommit = Get-GitHeadCommit
+        catalogSha256 = Get-RepoFileSha256 -RelativePath "data/profile-catalog.json"
+        generatorSha256 = Get-RepoFileSha256 -RelativePath "scripts/sync-profile.ps1"
+        projectSchemaSha256 = Get-RepoFileSha256 -RelativePath "schemas/profile-projects.v1.json"
+        metadataSnapshotAt = $script:MetadataSnapshotAt
+        metadataProvider = [string]$script:RepositoryMetadataProvider
+        repoEnumeration = [ordered]@{
+            requestedLimit = [int]$script:RepositoryEnumerationRequestedLimit
+            returnedCount = [int]@($Repos).Count
+            truncated = [bool]$script:RepositoryEnumerationTruncated
+        }
+    }
+}
+
 function New-ProjectsExportJson {
     param(
         [hashtable]$Catalog,
@@ -1805,6 +1860,7 @@ function New-ProjectsExportJson {
         schema = $ProjectsSchemaUrl
         generatedAt = ConvertTo-IsoText $Catalog.generatedAt
         source = "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
+        provenance = New-ProjectsProvenance -Repos $Repos
         publicRepoCount = $Repos.Count
         projectCount = $projects.Count
         suppressedCount = $suppressed.Count
@@ -2224,6 +2280,33 @@ function ConvertFrom-JsonPreservingArrays {
         return ConvertFrom-JsonElementValue -Element $document.RootElement
     } finally {
         $document.Dispose()
+    }
+}
+
+function ConvertTo-ProjectsSyncComparableJson {
+    param([string]$Json)
+
+    if ([string]::IsNullOrWhiteSpace($Json)) {
+        return ""
+    }
+
+    try {
+        $payload = ConvertFrom-JsonPreservingArrays -Json $Json
+        $generatedAt = Get-MemberValue -Object $payload -Name "generatedAt"
+        if (-not [string]::IsNullOrWhiteSpace([string]$generatedAt)) {
+            $parsedGeneratedAt = [datetimeoffset]::MinValue
+            if ([datetimeoffset]::TryParse([string]$generatedAt, [ref]$parsedGeneratedAt)) {
+                Set-MemberValue -Object $payload -Name "generatedAt" -Value ($parsedGeneratedAt.ToString("o"))
+            }
+        }
+        $provenance = Get-MemberValue -Object $payload -Name "provenance"
+        if ($provenance) {
+            Set-MemberValue -Object $provenance -Name "metadataSnapshotAt" -Value $null
+            Set-MemberValue -Object $provenance -Name "sourceCommit" -Value $null
+        }
+        return ConvertTo-ComparableJson $payload
+    } catch {
+        return (($Json -replace "`r`n", "`n").TrimEnd())
     }
 }
 
@@ -2886,6 +2969,33 @@ function Test-MetadataDrift {
             }
         }
 
+        $provenanceFatalFields = @(
+            "provenance.version",
+            "provenance.sourceRepository",
+            "provenance.catalogSha256",
+            "provenance.generatorSha256",
+            "provenance.projectSchemaSha256",
+            "provenance.metadataProvider",
+            "provenance.repoEnumeration.requestedLimit",
+            "provenance.repoEnumeration.returnedCount",
+            "provenance.repoEnumeration.truncated"
+        )
+        foreach ($field in $provenanceFatalFields) {
+            $oldValue = Get-NestedMemberValue -Object $current -Path $field
+            $newValue = Get-NestedMemberValue -Object $expected -Path $field
+            if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
+            }
+        }
+
+        foreach ($field in @("provenance.sourceCommit", "provenance.metadataSnapshotAt")) {
+            $oldValue = Get-NestedMemberValue -Object $current -Path $field
+            $newValue = Get-NestedMemberValue -Object $expected -Path $field
+            if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "info"))
+            }
+        }
+
         $currentRows = New-MetadataRowIndex -ProjectsPayload $current
         $expectedRows = New-MetadataRowIndex -ProjectsPayload $expected
         $rowKeys = @(@($currentRows.Keys) + @($expectedRows.Keys) | Sort-Object -Unique)
@@ -3396,7 +3506,7 @@ function Test-ProfileState {
         return (($Text -replace "`r`n", "`n").TrimEnd())
     }
     $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
-    $projectsInSync = (& $normalize $currentProjects) -eq (& $normalize $ExpectedProjects)
+    $projectsInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -eq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
     $assetChecks = New-Object System.Collections.Generic.List[object]
     foreach ($assetPath in @($ExpectedAssets.Keys | Sort-Object)) {
         $fullPath = Join-Path $RepoRoot $assetPath
@@ -3442,6 +3552,13 @@ function Test-ProfileState {
     $schemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $docVersionConsistency = Test-DocVersionConsistency
     $reportGeneratedAt = (Get-Date).ToString("o")
+    $feedProvenance = $null
+    try {
+        $expectedProjectsPayload = ConvertFrom-JsonPreservingArrays -Json $ExpectedProjects
+        $feedProvenance = Get-MemberValue -Object $expectedProjectsPayload -Name "provenance"
+    } catch {
+        $feedProvenance = $null
+    }
     $validationPerformance = [ordered]@{
         linkValidation = [ordered]@{
             skipped = [bool]($Offline -or $SkipLinkValidation)
@@ -3462,6 +3579,7 @@ function Test-ProfileState {
         publicRepoCount = $Repos.Count
         catalogEntryCount = $entries.Count
         includedReadmeCount = $included.Count
+        provenance = $feedProvenance
         metadataHygiene = $metadataHygiene
         releaseAssetDrift = $releaseAssetDrift
         schemaValidation = $schemaValidation
