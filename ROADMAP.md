@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.69
+Current repo version: v4.9.70
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -34,6 +34,15 @@ pass, the implementing machine should:
 
 Last researched: Cycle 48 - 2026-06-06.
 
+2026-06-06 v4.9.70 refresh: repository formatting contract tightened.
+`.editorconfig` now applies LF, final-newline, and trailing-whitespace trimming
+across Markdown too; `.gitattributes` pins itself plus `.editorconfig` to LF,
+the pull-request template no longer uses trailing-space placeholder bullets,
+and Pester guards both the formatting contract and tracked Markdown
+trailing-whitespace state. Branch-protection/ruleset status-check enforcement
+remains external-gated while this loop pushes directly to `main`; continue with
+the retained third-party render-host decision note.
+
 2026-06-06 v4.9.69 refresh: completed-work catalog field terminology shipped.
 `COMPLETED.md` now points the catalog row contract at
 `schemas/profile-catalog.v1.json` and names the current suppression, public
@@ -41,8 +50,7 @@ medical allowlist, alias, fork/upstream, and notes fields instead of the legacy
 `privateReason` field. Pester guards the completed-work summary against
 reintroducing that stale current-field wording. Branch-protection/ruleset
 status-check enforcement remains external-gated while this loop pushes directly
-to `main`; continue with `.editorconfig` pinning for LF/final-newline/trailing
-whitespace policy.
+to `main`.
 
 2026-06-06 v4.9.68 refresh: generated profile SVG metadata wiring shipped.
 All generated profile SVG assets now use stable `<title>`/`<desc>` IDs wired
@@ -994,7 +1002,7 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Evidence: root listing shows no `.editorconfig`/`.markdownlint*`; `New-Readme` normalizes only trailing `---` runs (`scripts/sync-profile.ps1:984`), not general whitespace.
   - Touches: `.editorconfig`, optional `.markdownlint.jsonc`, optional `tests.yml` lint leg.
   - Acceptance: an `.editorconfig` pins LF + final-newline + trim-trailing-whitespace; an optional markdownlint leg runs on PRs touching `README.md` with a curated ruleset (the generated tables are allowlisted).
-  - Completed: v4.9.37 added `.editorconfig` with LF + final-newline + trim-trailing-whitespace; markdownlint leg deferred as optional.
+  - Completed: v4.9.37 added `.editorconfig`; v4.9.70 removed the Markdown trailing-whitespace exception, pinned `.gitattributes` and `.editorconfig` to LF, cleaned the PR template placeholders, and added Pester coverage for the LF/final-newline/trailing-whitespace contract. The markdownlint leg remains optional.
   - Complexity: S
 
 ### Privacy of the public surface
@@ -1873,7 +1881,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Fail closed on unsupported custom JSON Schema validator keywords (completed v4.9.39: Test-SchemaKeywordCoverage warns on unsupported keywords with Pester coverage).
 - [x] P3 — Internal title/description metadata for generated profile SVG panels (completed v4.9.68 with stable SVG title/description IDs, row-summary descriptions, and Pester XML coverage).
 - [x] P3 — Refresh stale catalog field names in completed-work docs (completed v4.9.69 with a schema-backed completed-work summary and Pester terminology guard).
-- [ ] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace.
+- [x] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace (completed v4.9.70 with Markdown trim enforcement, LF pinning for formatting policy files, PR template cleanup, and Pester formatting-contract coverage).
 - [ ] P3 — Recorded decision note on the retained third-party render hosts.
 
 ### Larger Bets
