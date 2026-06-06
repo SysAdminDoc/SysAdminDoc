@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T15:37:40.8777369-04:00",
+  "generatedAt": "2026-06-06T15:42:20.6420604-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "10a2ac16bfb9ebca7bfe07aac691035fff02a240",
+    "sourceCommit": "72ef104df21138292937e4a8a0a52759f6b0e121",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
     "generatorSha256": "cd6b134b39054c5c81075e8327f05f45d972846561baff1e14b42a2c4edf6fe2",
     "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T15:36:28.9086358-04:00",
+    "metadataSnapshotAt": "2026-06-06T15:41:07.2133223-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1572,28 +1572,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.47",
+    "expectedVersion": "v4.9.48",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.47"
+        "value": "v4.9.48"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.47"
+        "value": "v4.9.48"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.47"
+        "value": "v4.9.48"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.47"
+        "value": "v4.9.48"
       }
     ],
     "dates": [
@@ -1626,7 +1626,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 3215,
+      "elapsedMs": 3540,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1654,7 +1654,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 3215,
+    "elapsedMs": 3540,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

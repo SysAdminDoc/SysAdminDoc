@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.48] - 2026-06-06
+
+- Fixed: `scripts/render-profile-smoke.ps1` now asserts the current generated section names, including `Python Desktop Applications` and `Browser Extensions & Userscripts`.
+- Added: Pester coverage rejects the stale `Python Applications` smoke expectation so live rendered-profile smoke checks stay aligned with the generated README.
+- Verified: Live rendered-profile smoke passed for desktop and 390px mobile after the section-name update.
+
 ## [v4.9.47] - 2026-06-06
 
 - Changed: Generated profile chrome now uses committed static header/footer SVG assets instead of external capsule-render or typing-SVG motion.

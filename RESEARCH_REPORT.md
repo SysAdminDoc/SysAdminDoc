@@ -5,10 +5,16 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.47
+Current version after this refresh: v4.9.48
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.48 batch fixed rendered-profile smoke drift discovered during live
+  post-push verification. The script now checks `Python Desktop Applications`
+  and `Browser Extensions & Userscripts`, matching the current generated README.
+- Focused Pester coverage now rejects the stale `Python Applications` smoke
+  expectation, and live rendered-profile smoke passed for desktop and 390px
+  mobile after the fix.
 - The v4.9.47 batch closed the motion-safe profile chrome item by replacing
   generated capsule/typing motion with committed static header/footer SVG
   assets and local footer rendering in the compact README.
