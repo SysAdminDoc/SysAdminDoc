@@ -1577,6 +1577,7 @@ Describe 'Workflow timeout budgets' {
 Describe 'Workflow security actionlint lane' {
     BeforeAll {
         $script:WorkflowSecurityWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
+        $script:WorkflowSecurityCodeowners = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/CODEOWNERS') -Raw
     }
 
     It 'installs a pinned checksum-verified actionlint binary' {
@@ -1585,9 +1586,15 @@ Describe 'Workflow security actionlint lane' {
         $script:WorkflowSecurityWorkflow | Should -Match 'sha256sum -c -'
     }
 
-    It 'runs actionlint and keeps zizmor in the same security lane' {
+    It 'runs actionlint and collects workflows plus local actions for zizmor' {
         $script:WorkflowSecurityWorkflow | Should -Match 'actionlint [.]github/workflows/[*][.]yml'
-        $script:WorkflowSecurityWorkflow | Should -Match 'zizmor [.]github/workflows'
+        $script:WorkflowSecurityWorkflow | Should -Match 'zizmor --strict-collection --collect=workflows --collect=actions [.]github'
+        $script:WorkflowSecurityWorkflow | Should -Not -Match 'zizmor [.]github/workflows'
+    }
+
+    It 'keeps local action changes covered by trigger and ownership rules' {
+        $script:WorkflowSecurityWorkflow | Should -Not -Match '(?ms)^  pull_request:\s*\r?\n\s+paths:'
+        $script:WorkflowSecurityCodeowners | Should -Match '(?m)^/[.]github/\s+@SysAdminDoc\s*$'
     }
 }
 

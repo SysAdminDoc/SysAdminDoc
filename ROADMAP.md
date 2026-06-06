@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.63
+Current repo version: v4.9.64
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -34,6 +34,19 @@ pass, the implementing machine should:
 
 Last researched: Cycle 48 - 2026-06-06.
 
+2026-06-06 v4.9.64 refresh: workflow-security local action coverage shipped.
+`workflow-security.yml` now runs `zizmor --strict-collection
+--collect=workflows --collect=actions .github`, so future local action metadata
+is collected with workflow files while no-op behavior stays clean without a
+`.github/actions` directory. The workflow already has no pull-request path
+filters, and `.github/CODEOWNERS` already owns `/.github/`, so local action
+changes receive the same always-created check and ownership path as workflow
+changes. Pester now guards the actionlint command, expanded zizmor collection,
+no `pull_request` path filters, and `/.github/` owner rule. Next highest open
+item: branch-protection/ruleset status-check enforcement remains external-gated
+while this loop pushes directly to `main`; continue with staggered Wednesday
+maintenance schedules for `assets-refresh` and `workflow-security`.
+
 2026-06-06 v4.9.63 refresh: historical changelog heading validation shipped.
 `docVersionConsistency.changelogHeadingValidation` now scans every
 `CHANGELOG.md` release heading for strict `## [vMAJOR.MINOR.PATCH] -
@@ -42,8 +55,8 @@ and rejects impossible dates. The malformed historical `v3.0.0` heading is now
 corrected to the confirmed GitHub release date, `2026-04-13`, and Pester covers
 both malformed-heading and bad-date fixtures. Next highest open item:
 branch-protection/ruleset status-check enforcement remains external-gated while
-this loop pushes directly to `main`; continue with workflow-security
-trigger/audit coverage for future `.github/actions/**`.
+this loop pushes directly to `main`; continue with workflow-security local
+action coverage.
 
 2026-06-06 v4.9.62 refresh: shared generated PR helper shipped.
 `scripts/open-generated-profile-pr.ps1` now centralizes generated profile PR
@@ -1330,12 +1343,13 @@ URLs.*
 future local composite actions. It is a follow-on guardrail for the generated PR
 helper option, not a duplicate of the helper itself.*
 
-- [ ] P3 🤖 🔬 — Cover local GitHub actions in workflow-security
-  - Why: the queued generated-PR helper may be implemented as `.github/actions/create-generated-profile-pr/action.yml`, but the current workflow-security trigger only runs on workflow, Dependabot, and CODEOWNERS changes, and the audit command only scans `.github/workflows`. A future local action could change generated-PR behavior without receiving the same security review path.
-  - Evidence: `.github/workflows/workflow-security.yml:6-9` path filters include `.github/workflows/**`, `.github/dependabot.yml`, and `.github/CODEOWNERS`, but not `.github/actions/**`; `.github/workflows/workflow-security.yml:36` runs `zizmor .github/workflows`; `.github/CODEOWNERS:1-7` owns `.github/workflows/` but not `.github/actions/`; current root check found no `.github/actions` directory; Cycle 19's generated-PR helper item lists `.github/actions/create-generated-profile-pr/action.yml` as an implementation option; GitHub Docs describe composite actions as repository files with action metadata consumed by workflows: https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
+- [x] P3 🤖 🔬 — Cover local GitHub actions in workflow-security
+  - Why: the queued generated-PR helper may be implemented as `.github/actions/create-generated-profile-pr/action.yml`, but local action metadata must receive the same security-review path as workflow files if that surface is introduced.
+  - Evidence: `workflow-security.yml` currently has no pull-request path filters, `.github/CODEOWNERS` owns `/.github/`, and v4.9.64 changes the audit command from workflow-only `zizmor .github/workflows` to `zizmor --strict-collection --collect=workflows --collect=actions .github`; current root check found no `.github/actions` directory; Cycle 19's generated-PR helper item lists `.github/actions/create-generated-profile-pr/action.yml` as an implementation option; GitHub Docs describe composite actions as repository files with action metadata consumed by workflows: https://docs.github.com/en/actions/tutorials/create-actions/create-a-composite-action
   - Touches: `.github/workflows/workflow-security.yml`, `.github/CODEOWNERS`, optional `.github/actions/**` once a local action exists.
   - Acceptance: if local actions are added, workflow-security runs on PRs touching `.github/actions/**`; the audit/lint commands cover local action metadata and any embedded scripts as far as the selected tools support; CODEOWNERS routes local action changes to the same owner as workflow changes; no-op behavior stays clean while the directory is absent.
-  - Verify: add a scratch `.github/actions/example/action.yml` change and confirm the workflow-security path filter would trigger; once actionlint/zizmor coverage is expanded, introduce a malformed action metadata fixture and confirm the guard reports it.
+  - Verify: run `zizmor --strict-collection --collect=workflows --collect=actions .github`; Pester guards no workflow-security PR path filters, the expanded zizmor command, and `/.github/` CODEOWNERS coverage for future local action paths.
+  - Completed: v4.9.64 updates workflow-security to strict-collect workflows and local action definitions under `.github`, keeps actionlint on workflow YAML, confirms `/.github/` CODEOWNERS covers future local actions, and adds Pester coverage for the trigger/ownership/audit contract.
   - Complexity: S
 
 ### Researcher Queue (Cycle 24 - 2026-06-04)
@@ -1801,7 +1815,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches (completed v4.9.61 with scheduled dry-run/manual cleanup workflow, strict generated-branch prefixes, merged-PR gating, scoped write permissions, and Pester coverage).
 - [x] P3 — Shared helper/composite action for generated profile PR creation (completed v4.9.62 with `scripts/open-generated-profile-pr.ps1`, explicit workflow inputs, branch-prefix allowlist, no-change guard preservation, validation handoff, and Pester coverage).
 - [x] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup (completed v4.9.63 with `docVersionConsistency.changelogHeadingValidation`, line-numbered malformed-heading reporting, impossible-date rejection, schema support, Pester coverage, and the `v3.0.0` date cleanup).
-- [ ] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**`.
+- [x] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**` (completed v4.9.64 with strict `zizmor` collection for workflows plus local action metadata, always-created workflow-security trigger coverage, `/.github/` CODEOWNERS ownership, and Pester contract coverage).
 - [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
