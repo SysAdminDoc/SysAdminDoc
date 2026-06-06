@@ -38,6 +38,8 @@ $releaseDrift = $report.releaseAssetDrift
 $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
+$repositorySettings = $report.repositorySettings
+$communityHealth = $report.communityHealth
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -46,6 +48,9 @@ $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
 $validationElapsedMs = if ($performance -and $performance.linkValidation) { [int]$performance.linkValidation.elapsedMs } else { 0 }
+$repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.warningCount } else { 0 }
+$communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
+$communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -64,6 +69,9 @@ $summary = @"
 | Link targets checked | $($linkSummary.targetCount) |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
+| Repository setting warnings | $repositoryWarningCount |
+| Community-health warnings | $communityWarningCount |
+| Community-health fatal gaps | $communityFatalCount |
 | Link validation elapsed ms | $validationElapsedMs |
 
 Report generated at $($report.generatedAt).
@@ -85,4 +93,16 @@ if ($linkFailureCount -gt 0) {
 
 if ($linkWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $linkWarningCount transient link warning(s)."
+}
+
+if ($repositoryWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $repositoryWarningCount repository setting warning(s)."
+}
+
+if ($communityWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $communityWarningCount community-health warning(s)."
+}
+
+if ($communityFatalCount -gt 0) {
+    Write-Output "::error::Profile sync report has $communityFatalCount required community-health gap(s)."
 }

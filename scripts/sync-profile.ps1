@@ -2603,6 +2603,346 @@ function Get-NestedMemberValue {
     return $value
 }
 
+function Get-NullableBool {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    return [bool]$Value
+}
+
+function Get-PublicSafeGhError {
+    param([string]$Output)
+
+    if ([string]::IsNullOrWhiteSpace($Output)) {
+        return "gh api failed without output"
+    }
+    if (Test-GhApiNotFound -Output $Output) {
+        return "not found"
+    }
+    if ($Output -match '(?i)(needs|requires).*(scope|permission)') {
+        return "required GitHub API scope is unavailable"
+    }
+
+    $firstLine = @($Output -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1)
+    if ($firstLine.Count -eq 0) {
+        return "gh api failed"
+    }
+    return (($firstLine[0] -replace '^gh:\s*', '').Trim())
+}
+
+function Invoke-GhApiJsonSafe {
+    param([string]$Path)
+
+    $output = & gh api $Path 2>&1
+    $text = (($output | Out-String).Trim())
+    if ($LASTEXITCODE -ne 0) {
+        return [ordered]@{
+            ok = $false
+            value = $null
+            error = Get-PublicSafeGhError -Output $text
+        }
+    }
+
+    try {
+        return [ordered]@{
+            ok = $true
+            value = ($text | ConvertFrom-Json)
+            error = $null
+        }
+    } catch {
+        return [ordered]@{
+            ok = $false
+            value = $null
+            error = "gh api returned malformed JSON"
+        }
+    }
+}
+
+function Get-CommunityLocalFileStatus {
+    $checks = @(
+        [ordered]@{ path = "README.md"; required = $true },
+        [ordered]@{ path = "LICENSE"; required = $true },
+        [ordered]@{ path = "SECURITY.md"; required = $true },
+        [ordered]@{ path = ".github/CODEOWNERS"; required = $true },
+        [ordered]@{ path = ".github/pull_request_template.md"; required = $true },
+        [ordered]@{ path = ".github/ISSUE_TEMPLATE/broken-link.yml"; required = $true },
+        [ordered]@{ path = ".github/ISSUE_TEMPLATE/profile-correction.yml"; required = $true },
+        [ordered]@{ path = ".github/ISSUE_TEMPLATE/workflow-ci.yml"; required = $true },
+        [ordered]@{ path = ".github/ISSUE_TEMPLATE/config.yml"; required = $true },
+        [ordered]@{ path = "CONTRIBUTING.md"; required = $false },
+        [ordered]@{ path = "CODE_OF_CONDUCT.md"; required = $false }
+    )
+
+    return @($checks | ForEach-Object {
+        $path = [string]$_["path"]
+        [ordered]@{
+            path = $path
+            required = [bool]$_["required"]
+            exists = [bool](Test-Path -LiteralPath (Join-Path $RepoRoot $path))
+        }
+    })
+}
+
+function Test-RepositoryCommunityBaseline {
+    param(
+        [object]$Repository,
+        [object]$CommunityProfile,
+        [object]$BranchProtection,
+        [object[]]$Rulesets = @(),
+        [object]$Languages,
+        [object[]]$LocalFiles = @(),
+        [string]$RepositoryUnavailableReason,
+        [string]$CommunityUnavailableReason,
+        [string]$BranchProtectionUnavailableReason,
+        [string]$RulesetsUnavailableReason,
+        [string]$LanguagesUnavailableReason
+    )
+
+    $repoWarnings = New-Object System.Collections.Generic.List[string]
+    $communityWarnings = New-Object System.Collections.Generic.List[string]
+    $communityErrors = New-Object System.Collections.Generic.List[string]
+
+    $repoAvailable = ($null -ne $Repository -and [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason))
+    $communityAvailable = ($null -ne $CommunityProfile -and [string]::IsNullOrWhiteSpace($CommunityUnavailableReason))
+    $branchProtectionAvailable = ($null -ne $BranchProtection -and [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason))
+    $rulesetsAvailable = ($null -ne $Rulesets -and [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason))
+    $languagesAvailable = ($null -ne $Languages -and [string]::IsNullOrWhiteSpace($LanguagesUnavailableReason))
+
+    if (-not $repoAvailable -and -not [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason)) {
+        $repoWarnings.Add("Repository settings unavailable: $RepositoryUnavailableReason.")
+    }
+    if (-not $communityAvailable -and -not [string]::IsNullOrWhiteSpace($CommunityUnavailableReason)) {
+        $communityWarnings.Add("GitHub community profile unavailable: $CommunityUnavailableReason.")
+    }
+
+    $secretScanning = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning.status"
+    $secretScanningPushProtection = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_push_protection.status"
+    $secretScanningNonProviderPatterns = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_non_provider_patterns.status"
+    $secretScanningValidityChecks = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_validity_checks.status"
+    $dependabotSecurityUpdates = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.dependabot_security_updates.status"
+
+    if ($repoAvailable) {
+        if ($secretScanning -ne "enabled") {
+            $repoWarnings.Add("Secret scanning is not enabled.")
+        }
+        if ($secretScanningPushProtection -ne "enabled") {
+            $repoWarnings.Add("Secret scanning push protection is not enabled.")
+        }
+        if ($dependabotSecurityUpdates -ne "enabled") {
+            $repoWarnings.Add("Dependabot security updates are not enabled.")
+        }
+    }
+
+    $requiredStatusChecks = $null
+    $requiredPullRequestReviews = $null
+    $requiredCodeOwnerReviews = $null
+    $requiredConversationResolution = $null
+    $enforceAdmins = $null
+    $allowForcePushes = $null
+    $allowDeletions = $null
+    if ($branchProtectionAvailable) {
+        $requiredStatusChecks = $null -ne (Get-MemberValue -Object $BranchProtection -Name "required_status_checks")
+        $pullRequestReviewObject = Get-MemberValue -Object $BranchProtection -Name "required_pull_request_reviews"
+        $requiredPullRequestReviews = $null -ne $pullRequestReviewObject
+        $requiredCodeOwnerReviews = if ($pullRequestReviewObject) { [bool](Get-MemberValue -Object $pullRequestReviewObject -Name "require_code_owner_reviews") } else { $false }
+        $requiredConversationResolution = [bool](Get-NestedMemberValue -Object $BranchProtection -Path "required_conversation_resolution.enabled")
+        $enforceAdmins = [bool](Get-NestedMemberValue -Object $BranchProtection -Path "enforce_admins.enabled")
+        $allowForcePushes = [bool](Get-NestedMemberValue -Object $BranchProtection -Path "allow_force_pushes.enabled")
+        $allowDeletions = [bool](Get-NestedMemberValue -Object $BranchProtection -Path "allow_deletions.enabled")
+
+        if (-not $requiredStatusChecks) {
+            $repoWarnings.Add("Branch protection does not require status checks.")
+        }
+        if (-not $requiredPullRequestReviews) {
+            $repoWarnings.Add("Branch protection does not require pull request reviews.")
+        }
+        if (-not $requiredCodeOwnerReviews) {
+            $repoWarnings.Add("Branch protection does not require code owner reviews.")
+        }
+    } elseif (-not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
+        $repoWarnings.Add("Branch protection unavailable: $BranchProtectionUnavailableReason.")
+    }
+
+    $rulesetCount = if ($rulesetsAvailable) { @($Rulesets).Count } else { 0 }
+    if ($rulesetsAvailable -and $rulesetCount -eq 0) {
+        $repoWarnings.Add("No repository rulesets are configured.")
+    } elseif (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
+        $repoWarnings.Add("Repository rulesets unavailable: $RulesetsUnavailableReason.")
+    }
+
+    $languageNames = @()
+    if ($languagesAvailable) {
+        $languageNames = @($Languages.PSObject.Properties.Name)
+    }
+    $codeqlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
+    $hasCodeqlSupportedLanguage = @($languageNames | Where-Object { $codeqlSupportedLanguages -contains $_ }).Count -gt 0
+    $codeScanningStatus = if ($languagesAvailable -and -not $hasCodeqlSupportedLanguage) {
+        "not-applicable"
+    } elseif ($languagesAvailable) {
+        "needs-live-validation"
+    } else {
+        "unavailable"
+    }
+    $codeScanningRecommendation = if ($codeScanningStatus -eq "not-applicable") {
+        "no-codeql-supported-languages-detected"
+    } elseif ($codeScanningStatus -eq "needs-live-validation") {
+        "verify-code-scanning-for-supported-languages"
+    } else {
+        $LanguagesUnavailableReason
+    }
+
+    foreach ($file in @($LocalFiles)) {
+        if ((Get-MemberValue -Object $file -Name "required") -eq $true -and (Get-MemberValue -Object $file -Name "exists") -ne $true) {
+            $communityErrors.Add("Required community file is missing: $((Get-MemberValue -Object $file -Name "path")).")
+        }
+    }
+
+    $communityFiles = Get-MemberValue -Object $CommunityProfile -Name "files"
+    $communityReadme = $null -ne (Get-MemberValue -Object $communityFiles -Name "readme")
+    $communityLicense = $null -ne (Get-MemberValue -Object $communityFiles -Name "license")
+    $communityIssueTemplate = $null -ne (Get-MemberValue -Object $communityFiles -Name "issue_template")
+    $communityPullRequestTemplate = $null -ne (Get-MemberValue -Object $communityFiles -Name "pull_request_template")
+    $communityContributing = $null -ne (Get-MemberValue -Object $communityFiles -Name "contributing")
+    $communityCodeOfConduct = $null -ne (Get-MemberValue -Object $communityFiles -Name "code_of_conduct")
+
+    $localIssueForms = @($LocalFiles | Where-Object {
+        ([string](Get-MemberValue -Object $_ -Name "path")).StartsWith(".github/ISSUE_TEMPLATE/", [StringComparison]::OrdinalIgnoreCase) -and
+            (Get-MemberValue -Object $_ -Name "exists") -eq $true
+    }).Count
+    if ($communityAvailable) {
+        if (-not $communityIssueTemplate -and $localIssueForms -gt 0) {
+            $communityWarnings.Add("GitHub community profile does not report issue-template detection even though local issue forms are present.")
+        }
+        if (-not $communityContributing) {
+            $communityWarnings.Add("GitHub community profile does not report contributing guidelines.")
+        }
+        if (-not $communityCodeOfConduct) {
+            $communityWarnings.Add("GitHub community profile does not report a code of conduct.")
+        }
+    }
+
+    $repositorySettings = [ordered]@{
+        available = [bool]$repoAvailable
+        unavailableReason = if ($repoAvailable) { $null } else { $RepositoryUnavailableReason }
+        repository = "$Owner/$Owner"
+        visibility = if ($repoAvailable) { [string](Get-MemberValue -Object $Repository -Name "visibility") } else { $null }
+        features = [ordered]@{
+            hasIssues = Get-NullableBool (Get-MemberValue -Object $Repository -Name "has_issues")
+            hasDiscussions = Get-NullableBool (Get-MemberValue -Object $Repository -Name "has_discussions")
+            hasProjects = Get-NullableBool (Get-MemberValue -Object $Repository -Name "has_projects")
+            hasWiki = Get-NullableBool (Get-MemberValue -Object $Repository -Name "has_wiki")
+            allowForking = Get-NullableBool (Get-MemberValue -Object $Repository -Name "allow_forking")
+            deleteBranchOnMerge = Get-NullableBool (Get-MemberValue -Object $Repository -Name "delete_branch_on_merge")
+            webCommitSignoffRequired = Get-NullableBool (Get-MemberValue -Object $Repository -Name "web_commit_signoff_required")
+        }
+        security = [ordered]@{
+            secretScanning = $secretScanning
+            secretScanningPushProtection = $secretScanningPushProtection
+            secretScanningNonProviderPatterns = $secretScanningNonProviderPatterns
+            secretScanningValidityChecks = $secretScanningValidityChecks
+            dependabotSecurityUpdates = $dependabotSecurityUpdates
+            codeScanning = [ordered]@{
+                status = $codeScanningStatus
+                recommendation = $codeScanningRecommendation
+                languagesInspected = @($languageNames)
+            }
+        }
+        branchProtection = [ordered]@{
+            available = [bool]$branchProtectionAvailable
+            unavailableReason = if ($branchProtectionAvailable) { $null } else { $BranchProtectionUnavailableReason }
+            requiredStatusChecks = Get-NullableBool $requiredStatusChecks
+            requiredPullRequestReviews = Get-NullableBool $requiredPullRequestReviews
+            requiredCodeOwnerReviews = Get-NullableBool $requiredCodeOwnerReviews
+            requiredConversationResolution = Get-NullableBool $requiredConversationResolution
+            enforceAdmins = Get-NullableBool $enforceAdmins
+            allowForcePushes = Get-NullableBool $allowForcePushes
+            allowDeletions = Get-NullableBool $allowDeletions
+        }
+        rulesets = [ordered]@{
+            available = [bool]$rulesetsAvailable
+            unavailableReason = if ($rulesetsAvailable) { $null } else { $RulesetsUnavailableReason }
+            count = [int]$rulesetCount
+        }
+        warningCount = $repoWarnings.Count
+        warnings = $repoWarnings.ToArray()
+    }
+
+    $communityHealth = [ordered]@{
+        available = [bool]$communityAvailable
+        unavailableReason = if ($communityAvailable) { $null } else { $CommunityUnavailableReason }
+        healthPercentage = if ($communityAvailable) { [int](Get-MemberValue -Object $CommunityProfile -Name "health_percentage") } else { $null }
+        providerFiles = [ordered]@{
+            readme = Get-NullableBool $communityReadme
+            license = Get-NullableBool $communityLicense
+            issueTemplate = Get-NullableBool $communityIssueTemplate
+            pullRequestTemplate = Get-NullableBool $communityPullRequestTemplate
+            contributing = Get-NullableBool $communityContributing
+            codeOfConduct = Get-NullableBool $communityCodeOfConduct
+        }
+        localFiles = @($LocalFiles)
+        localRequiredMissingCount = $communityErrors.Count
+        warningCount = $communityWarnings.Count
+        warnings = $communityWarnings.ToArray()
+        fatalCount = $communityErrors.Count
+        errors = $communityErrors.ToArray()
+    }
+
+    return [ordered]@{
+        repositorySettings = $repositorySettings
+        communityHealth = $communityHealth
+    }
+}
+
+function Get-RepositoryCommunityBaseline {
+    $localFiles = @(Get-CommunityLocalFileStatus)
+    if ($Offline) {
+        return Test-RepositoryCommunityBaseline `
+            -LocalFiles $localFiles `
+            -RepositoryUnavailableReason "offline" `
+            -CommunityUnavailableReason "offline" `
+            -BranchProtectionUnavailableReason "offline" `
+            -RulesetsUnavailableReason "offline" `
+            -LanguagesUnavailableReason "offline"
+    }
+    if (-not (Test-GitHubCliAuthenticated)) {
+        return Test-RepositoryCommunityBaseline `
+            -LocalFiles $localFiles `
+            -RepositoryUnavailableReason "gh authentication unavailable" `
+            -CommunityUnavailableReason "gh authentication unavailable" `
+            -BranchProtectionUnavailableReason "gh authentication unavailable" `
+            -RulesetsUnavailableReason "gh authentication unavailable" `
+            -LanguagesUnavailableReason "gh authentication unavailable"
+    }
+
+    $repositoryResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner"
+    $communityResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/community/profile"
+    $branchProtectionResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/branches/main/protection"
+    $rulesetsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rulesets"
+    $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
+
+    $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
+    $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
+    $branchProtectionValue = if ($branchProtectionResult["ok"]) { $branchProtectionResult["value"] } else { $null }
+    $rulesetsValue = if ($rulesetsResult["ok"]) { @($rulesetsResult["value"]) } else { @() }
+    $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
+
+    return Test-RepositoryCommunityBaseline `
+        -Repository $repositoryValue `
+        -CommunityProfile $communityValue `
+        -BranchProtection $branchProtectionValue `
+        -Rulesets $rulesetsValue `
+        -Languages $languagesValue `
+        -LocalFiles $localFiles `
+        -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
+        -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
+        -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
+        -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
+        -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] })
+}
+
 function ConvertTo-ComparableJson {
     param([object]$Value)
 
@@ -3979,6 +4319,7 @@ function Test-ProfileState {
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
+    $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
     $schemaValidation = [ordered]@{
         passed = [bool]$feedSchemaValidation.passed
         catalog = $feedSchemaValidation.catalog
@@ -4026,6 +4367,8 @@ function Test-ProfileState {
         catalogShape = $catalogShape
         metadataHygiene = $metadataHygiene
         releaseAssetDrift = $releaseAssetDrift
+        repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
+        communityHealth = $repositoryCommunityBaseline["communityHealth"]
         schemaValidation = $schemaValidation
         docVersionConsistency = $docVersionConsistency
         validationPerformance = $validationPerformance
@@ -4071,6 +4414,7 @@ function Test-ProfileState {
         $redirects.Count -gt 0 -or
         $linkFailures.Count -gt 0 -or
         $experienceChecks["passed"] -ne $true -or
+        $repositoryCommunityBaseline["communityHealth"]["fatalCount"] -gt 0 -or
         $schemaValidation.passed -ne $true -or
         $docVersionConsistency.passed -ne $true
     )

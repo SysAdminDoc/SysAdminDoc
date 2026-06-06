@@ -179,6 +179,109 @@ Describe 'Catalog shape validation' {
     }
 }
 
+Describe 'Repository settings and community-health baseline' {
+    BeforeAll {
+        $script:LocalCommunityFilesOk = @(
+            [ordered]@{ path = 'README.md'; required = $true; exists = $true },
+            [ordered]@{ path = 'LICENSE'; required = $true; exists = $true },
+            [ordered]@{ path = 'SECURITY.md'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/CODEOWNERS'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/pull_request_template.md'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/ISSUE_TEMPLATE/broken-link.yml'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/ISSUE_TEMPLATE/profile-correction.yml'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/ISSUE_TEMPLATE/workflow-ci.yml'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/ISSUE_TEMPLATE/config.yml'; required = $true; exists = $true }
+        )
+    }
+
+    It 'summarizes live-shaped settings without leaking alert details' {
+        $repository = [pscustomobject]@{
+            visibility = 'public'
+            has_issues = $true
+            has_discussions = $true
+            has_projects = $true
+            has_wiki = $true
+            allow_forking = $true
+            delete_branch_on_merge = $false
+            web_commit_signoff_required = $false
+            security_and_analysis = [pscustomobject]@{
+                secret_scanning = [pscustomobject]@{ status = 'enabled' }
+                secret_scanning_push_protection = [pscustomobject]@{ status = 'enabled' }
+                secret_scanning_non_provider_patterns = [pscustomobject]@{ status = 'disabled' }
+                secret_scanning_validity_checks = [pscustomobject]@{ status = 'disabled' }
+                dependabot_security_updates = [pscustomobject]@{ status = 'disabled' }
+            }
+        }
+        $community = [pscustomobject]@{
+            health_percentage = 71
+            files = [pscustomobject]@{
+                readme = [pscustomobject]@{}
+                license = [pscustomobject]@{}
+                issue_template = $null
+                pull_request_template = [pscustomobject]@{}
+                contributing = $null
+                code_of_conduct = $null
+            }
+        }
+        $branchProtection = [pscustomobject]@{
+            required_status_checks = $null
+            required_pull_request_reviews = $null
+            required_conversation_resolution = [pscustomobject]@{ enabled = $true }
+            enforce_admins = [pscustomobject]@{ enabled = $true }
+            allow_force_pushes = [pscustomobject]@{ enabled = $false }
+            allow_deletions = [pscustomobject]@{ enabled = $false }
+        }
+        $languages = [pscustomobject]@{ PowerShell = 210925 }
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -Languages $languages -LocalFiles $script:LocalCommunityFilesOk
+        $repoSettings = $result['repositorySettings']
+        $communityHealth = $result['communityHealth']
+
+        $repoSettings.available | Should -BeTrue
+        $repoSettings.security.secretScanning | Should -Be 'enabled'
+        $repoSettings.security.secretScanningPushProtection | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityUpdates | Should -Be 'disabled'
+        $repoSettings.security.codeScanning.status | Should -Be 'not-applicable'
+        $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
+        $repoSettings.rulesets.count | Should -Be 0
+        $repoSettings.warningCount | Should -BeGreaterThan 0
+        ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
+        ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
+        ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'alert|secret_value|token'
+
+        $communityHealth.available | Should -BeTrue
+        $communityHealth.healthPercentage | Should -Be 71
+        $communityHealth.providerFiles.issueTemplate | Should -BeFalse
+        $communityHealth.localRequiredMissingCount | Should -Be 0
+        $communityHealth.fatalCount | Should -Be 0
+        ($communityHealth.warnings -join ' ') | Should -Match 'issue-template'
+    }
+
+    It 'marks missing required local intake files fatal' {
+        $localFiles = @(
+            [ordered]@{ path = 'SECURITY.md'; required = $true; exists = $false },
+            [ordered]@{ path = 'CONTRIBUTING.md'; required = $false; exists = $false }
+        )
+
+        $result = Test-RepositoryCommunityBaseline -LocalFiles $localFiles -RepositoryUnavailableReason 'offline' -CommunityUnavailableReason 'offline' -BranchProtectionUnavailableReason 'offline' -RulesetsUnavailableReason 'offline' -LanguagesUnavailableReason 'offline'
+        $communityHealth = $result['communityHealth']
+
+        $communityHealth.fatalCount | Should -Be 1
+        $communityHealth.localRequiredMissingCount | Should -Be 1
+        ($communityHealth.errors -join ' ') | Should -Match 'SECURITY.md'
+    }
+
+    It 'records unavailable live metadata without failing local-file checks' {
+        $result = Test-RepositoryCommunityBaseline -LocalFiles $script:LocalCommunityFilesOk -RepositoryUnavailableReason 'gh authentication unavailable' -CommunityUnavailableReason 'gh authentication unavailable' -BranchProtectionUnavailableReason 'gh authentication unavailable' -RulesetsUnavailableReason 'gh authentication unavailable' -LanguagesUnavailableReason 'gh authentication unavailable'
+
+        $result['repositorySettings'].available | Should -BeFalse
+        $result['repositorySettings'].unavailableReason | Should -Be 'gh authentication unavailable'
+        $result['repositorySettings'].warningCount | Should -BeGreaterThan 0
+        $result['communityHealth'].available | Should -BeFalse
+        $result['communityHealth'].fatalCount | Should -Be 0
+    }
+}
+
 Describe 'REST fallback release request guard' {
     It 'parses slurped paginated repo arrays from gh api' {
         $json = @'
@@ -1064,6 +1167,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Fatal metadata drift'
             $summary | Should -Match 'Missing topic hints'
             $summary | Should -Match 'Link targets checked'
+            $summary | Should -Match 'Repository setting warnings'
+            $summary | Should -Match 'Community-health fatal gaps'
             $summary | Should -Not -Match 'AppManagerNG'
             $summary | Should -Not -Match 'VaultBox'
         } finally {
@@ -1074,6 +1179,8 @@ Describe 'Profile sync report summaries' {
     It 'emits GitHub annotations and uses aggregate report sections only' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
         $script:SummaryScript | Should -Match 'linkValidationSummary'
+        $script:SummaryScript | Should -Match 'repositorySettings'
+        $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'
         $script:SummaryScript | Should -Match '::error::'
     }
