@@ -424,6 +424,28 @@ Describe 'New-ProjectsExportJson feed' {
         $json.schema | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json'
     }
 
+    It 'exports public-safe feed provenance fields' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $rawJson = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $json = $rawJson | ConvertFrom-Json
+        $provenanceJson = $json.provenance | ConvertTo-Json -Depth 20
+
+        $json.provenance.version | Should -Be 1
+        $json.provenance.sourceRepository | Should -Be 'SysAdminDoc/SysAdminDoc'
+        if ($null -ne $json.provenance.sourceCommit) {
+            $json.provenance.sourceCommit | Should -Match '^[a-f0-9]{40}$'
+        }
+        $json.provenance.catalogSha256 | Should -Match '^[a-f0-9]{64}$'
+        $json.provenance.generatorSha256 | Should -Match '^[a-f0-9]{64}$'
+        $json.provenance.projectSchemaSha256 | Should -Match '^[a-f0-9]{64}$'
+        $rawJson | Should -Match '"metadataSnapshotAt":\s*"\d{4}-\d{2}-\d{2}T'
+        $json.provenance.metadataProvider | Should -Be 'graphql'
+        $json.provenance.repoEnumeration.requestedLimit | Should -BeGreaterOrEqual 0
+        $json.provenance.repoEnumeration.returnedCount | Should -Be 0
+        $json.provenance.repoEnumeration.truncated | Should -BeFalse
+        $provenanceJson | Should -Not -Match 'C:\\|/Users/|repos\\\\|VaultBox|RadAtlas|improve-repo'
+    }
+
     It 'excludes suppressed entries and includes portfolio entries' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
@@ -530,6 +552,21 @@ Describe 'Feed JSON Schema contracts' {
         $result.valid | Should -BeFalse
         ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repo'
         ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repoUrl'
+    }
+
+    It 'ignores volatile provenance fields in projects sync comparison' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $current = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $expectedPayload = $current | ConvertFrom-Json
+        $expectedPayload.provenance.metadataSnapshotAt = '2026-06-06T00:00:00Z'
+        $expectedPayload.provenance.sourceCommit = '0000000000000000000000000000000000000000'
+        $expected = $expectedPayload | ConvertTo-Json -Depth 20
+
+        (ConvertTo-ProjectsSyncComparableJson -Json $current) | Should -Be (ConvertTo-ProjectsSyncComparableJson -Json $expected)
+
+        $expectedPayload.provenance.catalogSha256 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        $changed = $expectedPayload | ConvertTo-Json -Depth 20
+        (ConvertTo-ProjectsSyncComparableJson -Json $current) | Should -Not -Be (ConvertTo-ProjectsSyncComparableJson -Json $changed)
     }
 
     It 'reports no unsupported keywords for the current schemas' {
@@ -1120,5 +1157,56 @@ Describe 'Test-MetadataDrift report' {
         $result.generatedAt.ageDays | Should -BeGreaterThan 33
         $result.generatedAt.warning | Should -Match 'older than 7 days'
         $result.fatalCount | Should -Be 0
+    }
+
+    It 'marks stable provenance drift fatal and volatile provenance drift informational' {
+        $current = [ordered]@{
+            schema = 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json'
+            generatedAt = '2026-06-04T00:00:00Z'
+            source = 'SysAdminDoc/SysAdminDoc data/profile-catalog.json'
+            provenance = [ordered]@{
+                version = 1
+                sourceRepository = 'SysAdminDoc/SysAdminDoc'
+                sourceCommit = '1111111111111111111111111111111111111111'
+                catalogSha256 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+                generatorSha256 = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+                projectSchemaSha256 = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'
+                metadataSnapshotAt = '2026-06-06T00:00:00Z'
+                metadataProvider = 'graphql'
+                repoEnumeration = [ordered]@{
+                    requestedLimit = 500
+                    returnedCount = 1
+                    truncated = $false
+                }
+            }
+            publicRepoCount = 1
+            projectCount = 0
+            suppressedCount = 0
+            projects = @()
+            suppressed = @()
+        }
+        $expected = $current | ConvertTo-Json -Depth 20 | ConvertFrom-Json -AsHashtable
+        $expected.provenance.sourceCommit = '2222222222222222222222222222222222222222'
+        $expected.provenance.catalogSha256 = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'
+        $expected.provenance.metadataSnapshotAt = '2026-06-06T01:00:00Z'
+
+        $result = Test-MetadataDrift `
+            -CurrentProjectsJson ($current | ConvertTo-Json -Depth 20) `
+            -ExpectedProjectsJson ($expected | ConvertTo-Json -Depth 20)
+
+        $catalogHash = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.catalogSha256' })
+        $catalogHash | Should -HaveCount 1
+        $catalogHash[0].severity | Should -Be 'fatal'
+
+        $sourceCommit = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.sourceCommit' })
+        $sourceCommit | Should -HaveCount 1
+        $sourceCommit[0].severity | Should -Be 'info'
+
+        $snapshot = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.metadataSnapshotAt' })
+        $snapshot | Should -HaveCount 1
+        $snapshot[0].severity | Should -Be 'info'
+
+        $result.fatalCount | Should -Be 1
+        $result.informationalCount | Should -Be 2
     }
 }

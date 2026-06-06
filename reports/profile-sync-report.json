@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-06T14:32:45.5974222-04:00",
+  "generatedAt": "2026-06-06T14:45:34.4098985-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -38,6 +38,21 @@
   "publicRepoCount": 184,
   "catalogEntryCount": 187,
   "includedReadmeCount": 177,
+  "provenance": {
+    "version": 1,
+    "sourceRepository": "SysAdminDoc/SysAdminDoc",
+    "sourceCommit": "a4825fddd1fb3dd6a505dbded567f180a101331f",
+    "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
+    "generatorSha256": "84ce25a5f6354c0776ab850006044483b4681439b71b6dd93ebba8ed0b6c39e5",
+    "projectSchemaSha256": "ccdb6230dcb12f46b0465935fc374c743f0a54b415bca13bdc434091e533e2f5",
+    "metadataSnapshotAt": "2026-06-06T14:44:13.2966161-04:00",
+    "metadataProvider": "graphql",
+    "repoEnumeration": {
+      "requestedLimit": 500,
+      "returnedCount": 184,
+      "truncated": false
+    }
+  },
   "metadataHygiene": {
     "missingTopicCount": 69,
     "missingDescriptionCount": 0,
@@ -117,7 +132,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T18:23:29.0000000Z",
+        "pushedAt": "2026-06-06T18:40:12.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1015,28 +1030,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.42",
+    "expectedVersion": "v4.9.43",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.42"
+        "value": "v4.9.43"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.42"
+        "value": "v4.9.43"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.42"
+        "value": "v4.9.43"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.42"
+        "value": "v4.9.43"
       }
     ],
     "dates": [
@@ -1069,7 +1084,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 12490,
+      "elapsedMs": 3945,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1087,7 +1102,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.93,
+      "ageDays": 4.94,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1097,7 +1112,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 12490,
+    "elapsedMs": 3945,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

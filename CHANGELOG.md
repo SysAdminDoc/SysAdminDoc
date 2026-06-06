@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.43] - 2026-06-06
+
+- Added: `projects.json` now includes a public-safe `provenance` object with source repository, generation-base commit, catalog/generator/schema SHA-256 hashes, metadata snapshot time, metadata provider, and repository enumeration status.
+- Added: `reports/profile-sync-report.json` now summarizes the same feed provenance for operator diagnostics.
+- Changed: Metadata drift treats stable provenance fields as fatal drift, while volatile `sourceCommit` and `metadataSnapshotAt` are informational so clean committed feeds do not fail on self-referential commit timing.
+- Added: Pester coverage validates provenance shape, schema support, volatile-field sync normalization, and provenance drift severity.
+
 ## [v4.9.42] - 2026-06-06
 
 - Changed: `projects.json.suppressed` now emits redacted suppression records instead of full project rows, removing suppressed repo names, URLs, descriptions, primary actions, release fields, topics, and notes from the public feed.
