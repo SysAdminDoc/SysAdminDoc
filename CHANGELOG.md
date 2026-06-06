@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.62] - 2026-06-06
+
+- Added: `scripts/open-generated-profile-pr.ps1` centralizes generated profile PR creation for profile-sync and profile-assets refresh workflows.
+- Changed: `profile-sync.yml` and `assets-refresh.yml` now pass branch prefix, commit message, PR title/body text, and no-change messages into the shared helper instead of duplicating branch/commit/push/PR logic.
+- Added: Pester coverage now guards the shared helper contract, branch-prefix allowlist, no-change guards, validation handoff, and the reduced workflow call sites.
+- Verified: Pester passes 120/120, ScriptAnalyzer reports no findings for `scripts/`, and strict local `zizmor` reports no workflow findings.
+
 ## [v4.9.61] - 2026-06-06
 
 - Added: `automation-branch-cleanup.yml` now provides a scheduled dry-run and manual delete path for merged generated PR branches.
