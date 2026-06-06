@@ -2,16 +2,15 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 64 - fork-parent drift reporting
+Last completed roadmap cycle: Cycle 65 - profile release/tag consistency reporting
 
 ## Latest Result
 
-- Added live `isFork` collection and REST parent enrichment for GitHub forks whose bulk metadata omits parent details.
-- Added `forkParentDrift` to `reports/profile-sync-report.json`, with matching GitHub forks, catalog continuations/imports, missing catalog attribution, parent mismatches, and unavailable parent rows.
-- Current live report records 8 GitHub forks, 7 catalog `forkOf` rows, 5 matching GitHub forks, 2 catalog continuations/imports, 3 missing catalog-attribution warnings, and 0 parent mismatches.
-- Updated `schemas/profile-sync-report.v1.json`, `scripts/write-profile-sync-summary.ps1`, and Pester coverage for fork-parent drift report shape and summary rows.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.56.
+- Added warning-only `profileReleaseConsistency` to `reports/profile-sync-report.json`, comparing planning-doc version against the profile repository's latest GitHub release and expected tag ref.
+- Current live report records latest profile release `v3.0.0`, expected planning version `v4.9.57`, missing expected tag `v4.9.57`, and 2 warning-only release/tag rows.
+- Updated `schemas/profile-sync-report.v1.json`, `scripts/write-profile-sync-summary.ps1`, and Pester coverage for missing, behind, and matching release/tag states.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.57.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with the next substantive P2 item: profile repository release/tag consistency reporting beside planning-doc version checks.
+Continue on this same assigned project. Start with the next substantive P2 item: userscript install trust metadata for raw `.user.js` actions.

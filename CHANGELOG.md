@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.57] - 2026-06-06
+
+- Added: Profile sync reports now include `profileReleaseConsistency`, comparing the planning-doc version against the profile repository's latest GitHub release and matching tag ref.
+- Added: Public-safe summary rows now include profile release/tag warning counts.
+- Added: The sync-report schema and Pester coverage validate missing, behind, and matching release/tag states.
+- Verified: Current live report records latest profile release `v3.0.0`, expected planning version `v4.9.57`, a missing `v4.9.57` tag ref, and 2 warning-only release/tag rows.
+
 ## [v4.9.56] - 2026-06-06
 
 - Added: Profile sync reports now include `forkParentDrift`, comparing live GitHub fork metadata against catalog `forkOf` attribution.

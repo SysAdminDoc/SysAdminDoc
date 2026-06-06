@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.56
+Current repo version: v4.9.57
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -34,6 +34,15 @@ pass, the implementing machine should:
 
 Last researched: Cycle 48 - 2026-06-06.
 
+2026-06-06 v4.9.57 refresh: profile release/tag consistency reporting shipped.
+Profile sync now reports `profileReleaseConsistency` beside planning-doc
+version/date checks. The current live report compares expected planning version
+`v4.9.57` against latest GitHub release `v3.0.0`, confirms the expected
+`v4.9.57` tag ref is missing, and surfaces both gaps as warning-only rows. The
+report schema, summary helper, and Pester suite cover the new section.
+Next highest open item: userscript install trust metadata for raw `.user.js`
+actions.
+
 2026-06-06 v4.9.56 refresh: fork-parent drift reporting shipped.
 Profile sync now collects live `isFork` metadata, enriches GitHub fork parent
 names through REST when bulk repo metadata omits them, and reports
@@ -42,8 +51,6 @@ records 8 GitHub forks, 7 catalog `forkOf` rows, 5 matching GitHub forks, 2
 catalog continuations/imports, 3 missing catalog-attribution warnings, and 0
 parent mismatches. The report schema, summary helper, and Pester suite cover the
 new section.
-Next highest open item: profile repo release/tag consistency check for tracked
-`v4.9.x` planning versions.
 
 2026-06-06 v4.9.55 refresh: per-project SPDX/license metadata shipped.
 Generated project rows now include `licenseKey`, `licenseName`, and
@@ -1205,12 +1212,13 @@ trust for the profile repository itself. The existing `docVersionConsistency`
 gate keeps tracked planning documents aligned, but it does not compare those
 versions with GitHub Releases or tags.*
 
-- [ ] P2 🤖 🔬 — Add a profile-repo release/tag consistency check
+- [x] P2 🤖 🔬 — Add a profile-repo release/tag consistency check
   - Why: tracked docs say the current repo version is `v4.9.24`, but the public GitHub Releases surface still reports `v3.0.0` as the latest release and no `v4.9.*` tags exist locally. Visitors, downstream consumers, and future schema/provenance work can see a stale release history even while CHANGELOG/ROADMAP/PROJECT_CONTEXT advance.
-  - Evidence: `CHANGELOG.md:5` and `ROADMAP.md:8` report `v4.9.24`; `PROJECT_CONTEXT.md:35` reports `Version: v4.9.24`; `gh repo view SysAdminDoc/SysAdminDoc --json latestRelease --jq .latestRelease` returned tag `v3.0.0`, published 2026-04-13; `git tag --list "v4.9.*"` returned no tags; current `reports/profile-sync-report.json` has `docVersionConsistency` but no GitHub release/tag comparison; GitHub Docs describe releases as deployable project iterations based on tags: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+  - Evidence: `CHANGELOG.md:5` and `ROADMAP.md:8` reported `v4.9.24`; `PROJECT_CONTEXT.md:35` reported `Version: v4.9.24`; `gh repo view SysAdminDoc/SysAdminDoc --json latestRelease --jq .latestRelease` returned tag `v3.0.0`, published 2026-04-13; `git tag --list "v4.9.*"` returned no tags; `reports/profile-sync-report.json` had `docVersionConsistency` but no GitHub release/tag comparison; GitHub Docs describe releases as deployable project iterations based on tags: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
   - Touches: `scripts/sync-profile.ps1` (`Test-DocVersionConsistency` or a new release-consistency probe), `reports/profile-sync-report.json`, optional Pester fixture, and the release/tag process for this repo.
   - Acceptance: the report records the latest tracked version, latest GitHub release tag/date, whether the matching tag exists, and whether the public release is intentionally behind; `-Check` warns or fails when the tracked version is ahead of the latest release without an explicit policy; the build machine either publishes a matching release/tag or documents that this repo uses changelog-only internal versions.
-  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm a `repositoryReleaseConsistency` (or equivalent) section captures the current `v4.9.24` vs `v3.0.0` drift; publish/tag a scratch or real release and confirm the warning clears; simulate an older latest release in a fixture and confirm Pester catches the mismatch.
+  - Completed: v4.9.57 adds warning-only `profileReleaseConsistency`, latest-release comparison, GitHub tag-ref checks, schema/summary support, and Pester coverage for missing, behind, and matching release/tag states.
+  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm `profileReleaseConsistency` captures the current `v4.9.57` vs `v3.0.0` drift and missing `v4.9.57` tag; publish/tag a scratch or real release and confirm the warning clears; simulate an older latest release in a fixture and confirm Pester catches the mismatch.
   - Complexity: M
 
 ### Researcher Queue (Cycle 21 - 2026-06-04)
@@ -1708,7 +1716,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300` (completed v4.9.36: raised to 500 with truncation warning).
 - [x] P2 — JSON Schema contract for `reports/profile-sync-report.json` (completed v4.9.45 with `schemas/profile-sync-report.v1.json`, report `schema`, `schemaValidation.report`, `-Check` failure wiring, and Pester malformed-report coverage).
 - [x] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn (completed v4.9.37).
-- [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
+- [x] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions (completed v4.9.57 with `profileReleaseConsistency`, warning-only latest-release/tag drift rows, schema support, summary rows, and Pester coverage).
 - [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; external enforcement remains gated by the direct-push loop).
@@ -1756,6 +1764,6 @@ P1/P2 needing design or staged rollout:
 - [x] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap (completed v4.9.36).
 - [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
 - [x] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts (completed v4.9.37 via `.gitattributes`).
-- [ ] P2 — Repository release/tag consistency reported beside planning-doc version checks.
+- [x] P2 — Repository release/tag consistency reported beside planning-doc version checks (completed v4.9.57 with `profileReleaseConsistency` warning-only reporting for latest release `v3.0.0` versus planning version `v4.9.57` and the missing `v4.9.57` tag ref).
 - [ ] P2 — Userscript install trust reporting for raw branch-hosted `.user.js` actions.
 - [ ] P2 — Live GitHub profile DOM/screenshot smoke proof for generated README changes.

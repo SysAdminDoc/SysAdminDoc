@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.56
+Current version after this refresh: v4.9.57
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.57 batch closed the profile repository release/tag consistency gap by
+  adding warning-only `profileReleaseConsistency` reporting beside
+  `docVersionConsistency`.
+- The current live report compares expected planning version `v4.9.57` against
+  latest GitHub release `v3.0.0`, records the missing `v4.9.57` tag ref, and
+  surfaces 2 warning-only release/tag rows.
+- The sync-report schema, summary helper, and Pester suite now cover missing,
+  behind, and matching release/tag states.
 - The v4.9.56 batch closed the GitHub fork-parent drift reporting gap by adding
   live `isFork` collection, REST parent enrichment for GitHub forks, and a
   `forkParentDrift` sync-report section.
@@ -336,7 +344,7 @@ Top opportunities, in priority order:
 17. P2 - Add a public-repo enumeration limit guard.
 18. P2 - Publish a JSON Schema for `profile-sync-report.json`. [Completed v4.9.45]
 19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
-20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
+20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions. [Completed v4.9.57]
 21. P2 - Add a live GitHub-rendered profile smoke check.
 22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 23. P3 - Add `.editorconfig` and generated README markdown linting.
@@ -1493,7 +1501,7 @@ Releases and tags are behind that version series.
   public trust/version surface, the report should catch this drift; if they are
   not, the repo should document that the changelog version is the canonical
   profile-doc version and releases are intentionally sparse.
-  → roadmap "Add a profile-repo release/tag consistency check". [Verified]
+  → roadmap "Add a profile-repo release/tag consistency check". [Closed v4.9.57]
 
 ### Standards note (cycle 20)
 
