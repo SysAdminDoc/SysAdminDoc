@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.46] - 2026-06-06
+
+- Changed: The Tests workflow now installs Pester 5.7.1 with `-RequiredVersion`, keeping the PSScriptAnalyzer 1.25.0 lane on an exact reviewed module version.
+- Added: `requirements-ci.txt` pins `zizmor` 1.25.2 with PyPI distribution hashes, and Workflow security installs it with `--require-hashes`, `--only-binary :all:`, and `--no-deps`.
+- Added: `docs/ci-toolchain.md` records the reviewed validation-tool pins and update process.
+- Added: Pester coverage now rejects floating Pester and `zizmor` install commands and verifies the reviewed toolchain documentation.
+
 ## [v4.9.45] - 2026-06-06
 
 - Added: `schemas/profile-sync-report.v1.json` now publishes a versioned JSON Schema contract for `reports/profile-sync-report.json`.

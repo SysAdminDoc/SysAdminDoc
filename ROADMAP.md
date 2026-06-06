@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.45
+Current repo version: v4.9.46
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,17 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.46 refresh: CI validation tool pins shipped.
+The Tests workflow now installs Pester 5.7.1 through
+`Install-Module -RequiredVersion`, retaining the exact PSScriptAnalyzer 1.25.0
+pin. Workflow security now installs `zizmor` 1.25.2 from
+`requirements-ci.txt` with PyPI distribution hashes, `--require-hashes`,
+`--only-binary :all:`, and `--no-deps`. `docs/ci-toolchain.md` records the
+reviewed pins and update process, and Pester coverage rejects future floating
+Pester or `zizmor` installs.
+Next highest open item: reduced-motion/static guard for profile hero and typing
+SVG chrome.
 
 2026-06-06 v4.9.45 refresh: sync-report JSON Schema contract shipped.
 `reports/profile-sync-report.json` now advertises
@@ -1311,12 +1322,13 @@ against the current workflows after action SHA pinning and actionlint hardening.
 The remaining drift source is live validation-tool installation, not GitHub
 Action identity.*
 
-- [ ] P2 🤖 🔬 — Pin CI validation tools with a reviewed update path
+- [x] P2 🤖 🔬 — Pin CI validation tools with a reviewed update path
   - Why: workflow actions are pinned to commit SHAs, but runtime validation tools still float. Pester uses `Install-Module Pester -MinimumVersion 5.5.0`, which can select a newer unreviewed version, and `zizmor` is installed with `python -m pip install --upgrade zizmor`. A new registry release can change CI behavior without a Dependabot PR or human review.
   - Evidence: `.github/workflows/tests.yml:65-66` installs Pester by minimum version; `.github/workflows/workflow-security.yml:44-48` installs latest `zizmor` before auditing workflows; `.github/dependabot.yml:3-10` only monitors `github-actions`, so PSGallery/PyPI tool changes do not create reviewable update PRs. Microsoft documents `Install-Module -RequiredVersion` for exact module selection: https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module. The Pester installation docs describe explicit installation paths and versions for CI usage: https://pester.dev/docs/introduction/installation.
   - Touches: `.github/workflows/tests.yml`, `.github/workflows/workflow-security.yml`, optional `requirements-ci.txt`/tool-version manifest, Pester tests that assert pinned install commands.
   - Acceptance: Pester and `zizmor` installs use exact reviewed versions; Python package installation uses a lock or hash-checked requirement where practical; the version-update process is documented near Dependabot/action-update guidance; workflow-security continues to show actionlint version plus checksum verification.
   - Verify: run `rg -n "Install-Module Pester|pip install.*zizmor|RequiredVersion|--require-hashes" .github/workflows tests scripts`; CI logs show the intended exact versions; a future version bump changes one manifest/workflow line and is reviewed like action SHA updates.
+  - Completed: v4.9.46 pins Pester 5.7.1 with `-RequiredVersion`, installs `zizmor` 1.25.2 from hash-checked `requirements-ci.txt`, documents the reviewed update process in `docs/ci-toolchain.md`, and adds Pester source guards against floating validation-tool installs.
   - Complexity: S
 
 ### Researcher Queue (Cycle 36 - 2026-06-06)
@@ -1581,7 +1593,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).
 - [x] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor` (completed v4.9.33 with checksum-verified actionlint 1.7.12 and Pester wiring coverage).
 - [x] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes (completed v4.9.41 with an always-created `Windows setup smoke` job).
-- [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
+- [x] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools (completed v4.9.46 with Pester 5.7.1 `-RequiredVersion`, hash-checked `zizmor` 1.25.2 requirements, toolchain docs, and Pester coverage).
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
 - [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
