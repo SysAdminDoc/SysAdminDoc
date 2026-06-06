@@ -1543,6 +1543,45 @@ Describe 'Profile sync report summaries' {
     }
 }
 
+Describe 'Maintenance workflow schedules' {
+    BeforeAll {
+        $script:MaintenanceScheduleWorkflows = [ordered]@{
+            AssetsRefresh = '.github/workflows/assets-refresh.yml'
+            WorkflowSecurity = '.github/workflows/workflow-security.yml'
+            AutomationBranchCleanup = '.github/workflows/automation-branch-cleanup.yml'
+            ProfileSync = '.github/workflows/profile-sync.yml'
+            Scorecard = '.github/workflows/scorecard.yml'
+        }
+    }
+
+    It 'stagger independent Wednesday maintenance workflows' {
+        $assetsRefresh = Get-Content -LiteralPath (Join-Path $script:RepoRoot $script:MaintenanceScheduleWorkflows.AssetsRefresh) -Raw
+        $workflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot $script:MaintenanceScheduleWorkflows.WorkflowSecurity) -Raw
+        $automationCleanup = Get-Content -LiteralPath (Join-Path $script:RepoRoot $script:MaintenanceScheduleWorkflows.AutomationBranchCleanup) -Raw
+
+        $assetsRefresh | Should -Match 'cron: "19 8 [*] [*] 3"'
+        $automationCleanup | Should -Match 'cron: "43 8 [*] [*] 3"'
+        $workflowSecurity | Should -Match 'cron: "17 9 [*] [*] 3"'
+        $workflowSecurity | Should -Not -Match 'cron: "19 8 [*] [*] 3"'
+    }
+
+    It 'does not duplicate day-hour-minute schedule slots across maintenance workflows' {
+        $slots = foreach ($path in $script:MaintenanceScheduleWorkflows.Values) {
+            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $path) -Raw
+            foreach ($match in [regex]::Matches($content, 'cron:\s+"(?<cron>[^"]+)"')) {
+                $parts = $match.Groups['cron'].Value -split '\s+'
+                foreach ($day in ($parts[4] -split ',')) {
+                    '{0} {1} {2}' -f $parts[0], $parts[1], $day
+                }
+            }
+        }
+
+        $duplicates = $slots | Group-Object | Where-Object { $_.Count -gt 1 }
+
+        $duplicates | Should -BeNullOrEmpty
+    }
+}
+
 Describe 'Workflow timeout budgets' {
     BeforeAll {
         $script:WorkflowTimeoutBudgets = [ordered]@{

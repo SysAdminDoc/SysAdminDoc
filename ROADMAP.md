@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.64
+Current repo version: v4.9.65
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,15 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.65 refresh: scheduled maintenance staggering shipped.
+`workflow-security.yml` now runs on Wednesday at `17 9 * * 3`, leaving
+`assets-refresh.yml` at `19 8 * * 3` and generated-branch cleanup at
+`43 8 * * 3`. Pester now guards the intended Wednesday spacing and checks
+independent maintenance workflows for duplicate day/hour/minute schedule slots.
+Next highest open item: branch-protection/ruleset status-check enforcement
+remains external-gated while this loop pushes directly to `main`; continue with
+adding `schemas/**` to the offline Tests workflow path filters.
 
 2026-06-06 v4.9.64 refresh: workflow-security local action coverage shipped.
 `workflow-security.yml` now runs `zizmor --strict-collection
@@ -1373,12 +1382,13 @@ the row is omitted from the README, but still exported through the public feed's
 It does not duplicate the explicit timeout-budget item; this is about avoiding
 same-minute scheduled maintenance runs.*
 
-- [ ] P3 🤖 🔬 — Stagger same-minute scheduled maintenance workflows
+- [x] P3 🤖 🔬 — Stagger same-minute scheduled maintenance workflows
   - Why: `assets-refresh.yml` and `workflow-security.yml` are both scheduled for Wednesday at `19 8 * * 3`. They run different maintenance checks, but same-minute starts make run triage noisier and can stack package installs, GitHub API calls, and generated-output checks in the same window. Staggering them costs little and makes scheduled failures easier to attribute.
-  - Evidence: `.github/workflows/assets-refresh.yml:5-6` and `.github/workflows/workflow-security.yml:10-11` both use `cron: "19 8 * * 3"`; `profile-sync.yml` already uses a different Tuesday/Friday schedule (`37 7 * * 2,5`), and `scorecard.yml` uses Thursday at `43 8 * * 4`; GitHub Actions docs note that scheduled workflows can be delayed or dropped during high-load periods and recommend scheduling at a different minute of the hour to reduce delay risk: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+  - Evidence: before v4.9.65, `.github/workflows/assets-refresh.yml:5-6` and `.github/workflows/workflow-security.yml:10-11` both used `cron: "19 8 * * 3"`; v4.9.65 leaves assets refresh at `19 8 * * 3`, keeps generated-branch cleanup at `43 8 * * 3`, and moves workflow security to `17 9 * * 3`; `profile-sync.yml` already uses a different Tuesday/Friday schedule (`37 7 * * 2,5`), and `scorecard.yml` uses Thursday at `43 8 * * 4`; GitHub Actions docs note that scheduled workflows can be delayed or dropped during high-load periods and recommend scheduling at a different minute of the hour to reduce delay risk: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
   - Touches: `.github/workflows/assets-refresh.yml`, `.github/workflows/workflow-security.yml`, optional docs note if the repo wants a maintenance-window convention.
   - Acceptance: scheduled maintenance workflows no longer share the same day+minute unless they intentionally coordinate through concurrency; the chosen minutes avoid the top of the hour and leave enough spacing for the short jobs to finish; manual dispatch behavior is unchanged.
-  - Verify: `rg -n "cron:" .github/workflows` shows no accidental duplicate schedule for independent maintenance jobs; the next scheduled run history shows separate start times.
+  - Verify: `rg -n "cron:" .github/workflows` shows no accidental duplicate schedule for independent maintenance jobs; Pester guards the Wednesday spacing and duplicate day/hour/minute schedule slots; the next scheduled run history should show separate start times.
+  - Completed: v4.9.65 moves workflow-security to `17 9 * * 3`, keeps manual dispatch unchanged, and adds Pester coverage for independent maintenance schedule uniqueness.
   - Complexity: S
 
 ### Researcher Queue (Cycle 26 - 2026-06-04)
@@ -1816,7 +1826,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Shared helper/composite action for generated profile PR creation (completed v4.9.62 with `scripts/open-generated-profile-pr.ps1`, explicit workflow inputs, branch-prefix allowlist, no-change guard preservation, validation handoff, and Pester coverage).
 - [x] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup (completed v4.9.63 with `docVersionConsistency.changelogHeadingValidation`, line-numbered malformed-heading reporting, impossible-date rejection, schema support, Pester coverage, and the `v3.0.0` date cleanup).
 - [x] P3 — Workflow-security trigger/audit coverage for future `.github/actions/**` (completed v4.9.64 with strict `zizmor` collection for workflows plus local action metadata, always-created workflow-security trigger coverage, `/.github/` CODEOWNERS ownership, and Pester contract coverage).
-- [ ] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules.
+- [x] P3 — Stagger `assets-refresh` and `workflow-security` Wednesday schedules (completed v4.9.65 by moving workflow-security to `17 9 * * 3` and adding Pester schedule-uniqueness coverage).
 - [ ] P3 — Add `schemas/**` to the offline Tests workflow path filters.
 - [ ] P3 — Dependabot routine GitHub Actions update grouping.
 - [x] P2 — Catalog-to-feed omitted-row accounting in the sync report (completed v4.9.59 with `catalogFeedAccounting`, public-safe unaccounted rows, fatal count mismatches, schema support, summary rows, and Pester coverage).
