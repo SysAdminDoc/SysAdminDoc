@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.63] - 2026-06-06
+
+- Added: `docVersionConsistency.changelogHeadingValidation` now validates every `CHANGELOG.md` release heading for strict `## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD` shape.
+- Added: malformed historical changelog headings are reported with line numbers, offending text, and reason strings in `reports/profile-sync-report.json`.
+- Fixed: corrected the historical `v3.0.0` changelog heading date to the confirmed GitHub release date, `2026-04-13`.
+- Added: Pester coverage rejects malformed historical headings and impossible ISO-style dates.
+
 ## [v4.9.62] - 2026-06-06
 
 - Added: `scripts/open-generated-profile-pr.ps1` centralizes generated profile PR creation for profile-sync and profile-assets refresh workflows.
@@ -536,7 +543,7 @@ All notable changes to SysAdminDoc will be documented in this file.
 - Changed: Updated VaultBox language C++ to TypeScript
 - Changed: Updated all category counts
 
-## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)
+## [v3.0.0] - 2026-04-13
 
 - Changed: Update profile README with 27 new repos, refreshed stars, and updated sections
 - Changed: Update profile README with 25 new repos (150+ total)

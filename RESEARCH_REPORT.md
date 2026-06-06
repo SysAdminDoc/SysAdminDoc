@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.62
+Current version after this refresh: v4.9.63
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.63 batch closed the historical changelog-heading validation gap by
+  adding `docVersionConsistency.changelogHeadingValidation` to the sync report.
+- The new validation scans every `CHANGELOG.md` release heading for strict
+  `## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD` shape, reports malformed headings with
+  line numbers and offending text, and rejects impossible ISO-style dates.
+- The historical `v3.0.0` heading is corrected to the confirmed GitHub release
+  date, `2026-04-13`.
+- Pester coverage now rejects malformed historical headings and bad dates.
 - The v4.9.62 batch closed the shared generated PR helper gap by adding
   `scripts/open-generated-profile-pr.ps1`.
 - `profile-sync.yml` and `assets-refresh.yml` now call the helper with explicit
@@ -393,7 +401,7 @@ Top opportunities, in priority order:
 21. P2 - Add a live GitHub-rendered profile smoke check. [Completed v4.9.27; refreshed v4.9.48]
 22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 23. P3 - Add `.editorconfig` and generated README markdown linting.
-24. P3 - Validate all historical `CHANGELOG.md` release headings.
+24. P3 - Validate all historical `CHANGELOG.md` release headings. [Completed v4.9.63]
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
 27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
@@ -1584,7 +1592,7 @@ release headings are not validated.
   text instead of a date. The build machine should either clean the heading and
   validate all historical release headings, or record a narrow legacy exception
   if the original date cannot be recovered.
-  → roadmap "Validate all changelog release headings". [Verified]
+  → roadmap "Validate all changelog release headings". [Closed v4.9.63]
 
 ### Standards note (cycle 21)
 
@@ -2143,8 +2151,6 @@ evidence, and adjacent profile-README tooling:
 - Should `v4.9.x` planning versions produce matching GitHub Releases/tags, or
   should this repo document that changelog versions are internal profile-doc
   milestones and releases are intentionally sparse?
-- Should malformed historical changelog headings fail `-Check`, or start as
-  report warnings until the existing `v3.0.0` date can be recovered?
 - Should completed-work docs preserve legacy field names as historical notes, or
   normalize them to current public schema terms when they describe current
   catalog shape?
