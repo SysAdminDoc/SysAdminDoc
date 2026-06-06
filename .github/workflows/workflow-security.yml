@@ -42,7 +42,7 @@ jobs:
         run: actionlint .github/workflows/*.yml
 
       - name: Install zizmor
-        run: python -m pip install --upgrade zizmor
+        run: python -m pip install --disable-pip-version-check --no-deps --require-hashes --only-binary :all: -r requirements-ci.txt
 
       - name: Audit workflows
         run: zizmor .github/workflows

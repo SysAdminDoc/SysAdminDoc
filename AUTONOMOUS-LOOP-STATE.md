@@ -2,18 +2,18 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 53 - sync-report schema contract
+Last completed roadmap cycle: Cycle 54 - CI validation tool pinning
 
 ## Latest Result
 
-- Added `schemas/profile-sync-report.v1.json` as the versioned JSON Schema contract for `reports/profile-sync-report.json`.
-- Added a top-level report `schema` URL and `schemaValidation.report` result.
-- Wired `scripts/sync-profile.ps1 -Check` to fail when the generated report does not validate against the report schema.
-- Fixed single-value `releaseAssetDrift.sourceOnlyWithRelease.releaseAssetKinds` and release-asset mismatch arrays so report arrays stay array-shaped.
-- Added Pester coverage for the committed report schema, unsupported schema keywords, and a malformed report missing a required section.
-- Verified Pester, PSScriptAnalyzer, and schema-gated generation.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `RESEARCH_REPORT.md`, and `CLAUDE.md` to v4.9.45.
+- Pinned Pester to 5.7.1 in `.github/workflows/tests.yml` with `Install-Module -RequiredVersion`.
+- Kept PSScriptAnalyzer pinned at 1.25.0 and documented the reviewed validation-tool pins.
+- Added `requirements-ci.txt` with `zizmor` 1.25.2 and PyPI distribution hashes.
+- Changed Workflow security to install `zizmor` with `--require-hashes`, `--only-binary :all:`, and `--no-deps`.
+- Added Pester coverage that rejects floating Pester and `zizmor` install commands.
+- Verified pip hash dry-run, Pester 88/88, PSScriptAnalyzer, full profile sync/write/check, and whitespace diff checks.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, `RESEARCH_REPORT.md`, and `CLAUDE.md` to v4.9.46.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start with the next open CI/tooling item from `ROADMAP.md`: pin and audit CI-installed validation tools. Userscript install trust metadata and repository/community-health reporting are the next follow-up candidates after that.
+Continue on this same assigned project. Start with the next open profile-experience item from `ROADMAP.md`: reduced-motion/static guard for profile hero and typing SVG chrome. Userscript install trust metadata and repository/community-health reporting remain follow-up candidates after that.

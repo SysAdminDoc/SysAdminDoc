@@ -959,6 +959,36 @@ Describe 'Workflow security actionlint lane' {
     }
 }
 
+Describe 'CI validation tool pins' {
+    BeforeAll {
+        $script:TestsWorkflowForToolPins = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
+        $script:WorkflowSecurityForToolPins = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
+        $script:CiRequirements = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'requirements-ci.txt') -Raw
+        $script:CiToolchainDoc = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/ci-toolchain.md') -Raw
+    }
+
+    It 'installs exact PowerShell validation module versions' {
+        $script:TestsWorkflowForToolPins | Should -Match 'Install-Module PSScriptAnalyzer -RequiredVersion 1[.]25[.]0'
+        $script:TestsWorkflowForToolPins | Should -Match 'Install-Module Pester -RequiredVersion 5[.]7[.]1'
+        $script:TestsWorkflowForToolPins | Should -Not -Match 'Install-Module Pester -MinimumVersion'
+    }
+
+    It 'installs zizmor from hash-checked pinned requirements' {
+        $script:WorkflowSecurityForToolPins | Should -Match 'python -m pip install --disable-pip-version-check --no-deps --require-hashes --only-binary :all: -r requirements-ci[.]txt'
+        $script:WorkflowSecurityForToolPins | Should -Not -Match 'pip install --upgrade zizmor'
+        $script:CiRequirements | Should -Match '(?m)^zizmor==1[.]25[.]2\s+\\'
+        $script:CiRequirements | Should -Match '--hash=sha256:c4246f1344d8dbeffc044d7bb11b131773a7db7eb57d9073c45942dfd3543a1f'
+        $script:CiRequirements | Should -Match '--hash=sha256:f26ffeb16659c8922c7b08203ca5a4f8bf5e1a7e8d190734961c40877cf778ea'
+    }
+
+    It 'documents the reviewed update path' {
+        $script:CiToolchainDoc | Should -Match 'Pester\s+\| `.github/workflows/tests[.]yml`\s+\| `5[.]7[.]1`'
+        $script:CiToolchainDoc | Should -Match 'zizmor\s+\| `.github/workflows/workflow-security[.]yml`\s+\| `1[.]25[.]2`'
+        $script:CiToolchainDoc | Should -Match 'Update Process'
+        $script:CiToolchainDoc | Should -Match 'requirements-ci[.]txt'
+    }
+}
+
 Describe 'Workflow checkout action pin' {
     BeforeAll {
         $script:WorkflowFilesForCheckout = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File

@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T15:18:04.6441311-04:00",
+  "generatedAt": "2026-06-06T15:26:41.7860423-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -42,11 +42,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "47e473e40730daa17c38a80b50c5109964f63178",
+    "sourceCommit": "413708fa4de3da05c1861fb1e9a83f874b40f25f",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
     "generatorSha256": "5cb4b31012b361ef6ac098e9b57856a019a61556eb47805933e5c2609bbef67d",
     "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T15:16:48.2080260-04:00",
+    "metadataSnapshotAt": "2026-06-06T15:25:29.5255040-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -133,7 +133,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T19:08:52.0000000Z",
+        "pushedAt": "2026-06-06T19:25:13.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1552,28 +1552,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.45",
+    "expectedVersion": "v4.9.46",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.45"
+        "value": "v4.9.46"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.45"
+        "value": "v4.9.46"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.45"
+        "value": "v4.9.46"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.45"
+        "value": "v4.9.46"
       }
     ],
     "dates": [
@@ -1606,7 +1606,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 3830,
+      "elapsedMs": 3269,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1634,7 +1634,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 3830,
+    "elapsedMs": 3269,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

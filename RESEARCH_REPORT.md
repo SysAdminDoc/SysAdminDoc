@@ -5,10 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.45
+Current version after this refresh: v4.9.46
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.46 batch closed the CI validation-tool pinning item by replacing
+  floating Pester and `zizmor` installs with exact reviewed versions.
+- `.github/workflows/tests.yml` now installs Pester 5.7.1 with
+  `Install-Module -RequiredVersion`, retaining the PSScriptAnalyzer 1.25.0 pin.
+- `.github/workflows/workflow-security.yml` now installs `zizmor` 1.25.2 from
+  `requirements-ci.txt` with PyPI distribution hashes, `--require-hashes`,
+  `--only-binary :all:`, and `--no-deps`; `docs/ci-toolchain.md` documents the
+  reviewed update process.
+- Local verification passed for pip hash dry-run, Pester 88/88,
+  PSScriptAnalyzer, full profile sync/write/check, and whitespace diff checks.
 - The v4.9.45 batch closed the sync-report schema contract item by adding
   `schemas/profile-sync-report.v1.json`, a top-level report `schema` URL, and
   `schemaValidation.report`.
