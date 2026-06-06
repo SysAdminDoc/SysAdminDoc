@@ -5,10 +5,15 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.59
+Current version after this refresh: v4.9.60
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.60 batch reconciled stale duplicate roadmap rows for pull-request
+  profile-sync validation, public-safe issue forms, the sync-report schema
+  contract, and live rendered-profile smoke proof against their shipped evidence.
+- The active roadmap queue now leaves branch-protection/ruleset enforcement as
+  external-gated and keeps the true P3 automation/doc-hygiene follow-ups open.
 - The v4.9.59 batch closed the catalog-to-feed omitted-row accounting gap by
   adding public-safe `catalogFeedAccounting` reporting.
 - The current live report accounts for 187 catalog rows: 177 visitor-facing
@@ -348,21 +353,21 @@ Top opportunities, in priority order:
 4. P1 - Add generated Markdown/text safety and URL-scheme validation for README/feed output.
 5. P1 - Apply reviewed topic cleanup from the non-mutating report; live metadata still shows 69 active public repos with no topics and 0 public repos with empty descriptions.
 6. P2 - Extend link validation to the hero/header and non-catalog URLs.
-7. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting.
+7. P2 - Add `actionlint` beside `zizmor` for workflow syntax/expression linting. [Completed v4.9.33]
 8. P2 - Add release/download trust metadata for EXE/APK/ZIP visitor-facing rows. [Completed v4.9.44]
 9. P2 - Add userscript install trust metadata for raw `.user.js` actions. [Completed v4.9.58]
-10. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester.
-11. P2 - Add a reduced-motion/static generated profile chrome guard.
+10. P2 - Pin and audit CI-installed validation tools such as `zizmor` and Pester. [Completed v4.9.46]
+11. P2 - Add a reduced-motion/static generated profile chrome guard. [Completed v4.9.47]
 12. P2 - Add a generated profile PR validation handoff for automation-created branches. [Completed v4.9.54]
-13. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
-14. P2 - Expand CODEOWNERS coverage for profile-contract files.
+13. P2 - Add report artifact and summary parity to the profile-assets refresh workflow. [Completed v4.9.31]
+14. P2 - Expand CODEOWNERS coverage for profile-contract files. [Completed v4.9.38]
 15. P2 - Export per-project SPDX/license metadata in the generated feed and report. [Completed v4.9.55]
 16. P2 - Report GitHub fork-parent drift against catalog attribution. [Completed v4.9.56]
-17. P2 - Add a public-repo enumeration limit guard.
+17. P2 - Add a public-repo enumeration limit guard. [Completed v4.9.36]
 18. P2 - Publish a JSON Schema for `profile-sync-report.json`. [Completed v4.9.45]
-19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
+19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn. [Completed v4.9.37]
 20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions. [Completed v4.9.57]
-21. P2 - Add a live GitHub-rendered profile smoke check.
+21. P2 - Add a live GitHub-rendered profile smoke check. [Completed v4.9.27; refreshed v4.9.48]
 22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 23. P3 - Add `.editorconfig` and generated README markdown linting.
 24. P3 - Validate all historical `CHANGELOG.md` release headings.
@@ -715,7 +720,7 @@ Top cycle 2 opportunities:
 
 1. P1 — Run PSScriptAnalyzer in CI for `scripts/sync-profile.ps1` and `setup.ps1`. [Verified]
 2. P1 — Add public-safe feed provenance fields such as source ref, catalog hash, generator hash, and metadata snapshot time. [Verified]
-3. P2 — Add issue forms and PR/contribution templates for broken catalog links and profile corrections. [Verified]
+3. P2 — Add issue forms and PR/contribution templates for broken catalog links and profile corrections. [Closed v4.9.29]
 4. P2 — Report repository settings and community-health status alongside generated-profile checks. [Closed v4.9.53]
 5. P2 — Triage current Dependabot workflow-action update PRs #5 and #6 with a repeatable SHA-pin review path. [Verified]
 
@@ -743,7 +748,7 @@ External sources reviewed:
 
 - **Major — No static PowerShell analysis.** The repo's critical behavior lives in two `.ps1` files, but CI only runs Pester. Microsoft documents PSScriptAnalyzer as a static checker with `-EnableExit` for CI, making this a low-risk guard before future generator/setup refactors. → roadmap "Add a PowerShell static-analysis lane". [Verified]
 - **Major — Feed provenance is too thin for downstream debugging.** `projects.json` tells consumers when it was generated but not what source tree, catalog file hash, or generator script hash produced it. The separate portfolio will consume this feed, so a bad cache or stale generated artifact is hard to diagnose without rerunning the generator. → roadmap "Add generated-feed provenance fields". [Verified]
-- **Minor — Public issue intake is unstructured.** The repo has Issues enabled and a long visitor-facing catalog, but no issue forms for broken install snippets, stale release links, or profile corrections. GitHub's template docs support structured forms and PR templates that can steer users away from generated-section hand edits. → roadmap "Add structured issue/support intake". [Verified]
+- **Minor — Public issue intake is unstructured.** The repo has Issues enabled and a long visitor-facing catalog, but no issue forms for broken install snippets, stale release links, or profile corrections. GitHub's template docs support structured forms and PR templates that can steer users away from generated-section hand edits. → roadmap "Add structured issue/support intake". [Closed v4.9.29]
 - **Minor — GitHub-hosted settings are invisible to `-Check`.** Secret scanning and push protection are currently enabled, but this trust state is not captured in the sync report and can drift independently of tracked files. Community-health status is also absent from the report. → roadmap "Add a read-only repository settings and community-health baseline". [Closed v4.9.53]
 - **Minor — Open workflow-action update PRs need a repeatable review path.** Dependabot is doing its job for pinned actions, but #5 and #6 remain open. The repo should merge or defer them with a standard checklist covering checks, `zizmor`, permissions, and `persist-credentials:false`. → roadmap "Triage current Dependabot workflow-action update PRs". [Verified]
 - **Covered, not duplicated — Setup script trust.** Microsoft `about_Signing` reinforces the existing setup hardening row: the inspect-before-run path is the near-term improvement, with Authenticode signing or checksum publication as optional future trust depth if the user chooses a signing certificate path. No separate roadmap item was added to avoid duplicating `setup.ps1` hardening.
@@ -800,14 +805,14 @@ This pass checked whether generated-profile validation currently runs on pull re
 
 ### Evidence reviewed (cycle 5)
 
-- `.github/workflows/profile-sync.yml` currently has `workflow_dispatch` and the twice-weekly `schedule`, but no `pull_request` or `push` trigger for profile-pipeline changes.
-- `.github/workflows/tests.yml` runs on `pull_request` and `push`, but its path filters are limited to `scripts/**`, `tests/**`, and `.github/workflows/tests.yml`; they omit `data/profile-catalog.json`, `README.md`, `projects.json`, and `reports/profile-sync-report.json`.
+- At research time, `.github/workflows/profile-sync.yml` had `workflow_dispatch` and the twice-weekly `schedule`, but no `pull_request` or `push` trigger for profile-pipeline changes.
+- At research time, `.github/workflows/tests.yml` ran on `pull_request` and `push`, but its path filters were limited to `scripts/**`, `tests/**`, and `.github/workflows/tests.yml`; they omitted `data/profile-catalog.json`, `README.md`, `projects.json`, and `reports/profile-sync-report.json`.
 - `gh run list -R SysAdminDoc/SysAdminDoc --limit 10 --json workflowName,event,conclusion,status,createdAt` showed recent push-triggered `Tests` runs and Dependabot PR checks, but no push/PR-triggered `Profile sync` run.
 - GitHub's workflow syntax docs state that `push` and `pull_request` events can be filtered by changed paths and warn that skipped required checks remain pending, which matters if profile-sync becomes a required check: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
 
 ### Finding (cycle 5)
 
-- **Major — Generated-profile validation is not a PR check today.** The repo has a strong `scripts/sync-profile.ps1 -Check` gate, but it is only scheduled or manually dispatched for the profile-sync workflow. A PR can change the catalog, generated README, public feed, or committed report without automatically producing a profile-sync status. → roadmap "Run profile-sync validation on profile/catalog pull requests". [Verified]
+- **Major — Generated-profile validation is not a PR check today.** The repo has a strong `scripts/sync-profile.ps1 -Check` gate, but it was only scheduled or manually dispatched for the profile-sync workflow at research time. A PR could change the catalog, generated README, public feed, or committed report without automatically producing a profile-sync status. → roadmap "Run profile-sync validation on profile/catalog pull requests". [Closed v4.9.28]
 
 ### Standards note (cycle 5)
 

@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.60] - 2026-06-06
+
+- Changed: Reconciled stale duplicate roadmap rows for pull-request profile-sync validation, public-safe issue forms, the sync-report schema contract, and live rendered-profile smoke proof.
+- Changed: Historical research notes now mark the profile-sync PR validation and rendered-smoke findings as shipped while preserving their original evidence context.
+- Verified: The active roadmap queue now leaves external branch-protection/ruleset enforcement and true P3 automation/doc-hygiene follow-ups as the next open work.
+
 ## [v4.9.59] - 2026-06-06
 
 - Added: Profile sync reports now include `catalogFeedAccounting`, proving each catalog row is exported as a project, exported as a redacted suppression, or flagged as unaccounted.

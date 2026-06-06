@@ -2,15 +2,14 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 67 - catalog-to-feed omitted-row accounting
+Last completed roadmap cycle: Cycle 68 - stale roadmap duplicate reconciliation
 
 ## Latest Result
 
-- Added `catalogFeedAccounting` to `reports/profile-sync-report.json`, proving every catalog row is exported as a public project, exported as a redacted suppression, or flagged as unaccounted.
-- Current live report accounts for 187 catalog rows: 177 visitor-facing projects, 10 redacted suppressions, 0 unaccounted rows, 0 count mismatches, and 0 fatal accounting gaps.
-- Updated `schemas/profile-sync-report.v1.json`, `scripts/write-profile-sync-summary.ps1`, and Pester coverage for aggregate accounting, redacted unaccounted rows, count mismatches, and the `Test-ProfileState` failure path.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.59.
+- Reconciled stale duplicate roadmap rows for pull-request profile-sync validation, public-safe issue forms, the sync-report schema contract, and live rendered-profile smoke proof.
+- Preserved the historical research evidence while marking those rows complete with shipped v4.9.27/v4.9.28/v4.9.29/v4.9.45 evidence.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.60.
 
 ## Next Cycle
 
-Continue on this same assigned project. Start by reconciling stale roadmap duplicate rows for already shipped profile validation and issue-form work, then proceed to the next remaining P2/P3 item.
+Continue on this same assigned project. Start by auditing the external-gated branch-protection/ruleset status-check item without enabling enforcement while direct pushes remain the delivery path, then implement or document the generated `automation/*` branch cleanup policy.

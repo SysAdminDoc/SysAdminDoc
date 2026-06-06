@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.59
+Current repo version: v4.9.60
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,17 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.60 refresh: stale roadmap duplicate rows reconciled.
+The roadmap now marks duplicate open rows for pull-request profile-sync
+validation, public-safe issue forms, the sync-report schema contract, and live
+rendered-profile smoke proof as complete with their shipped evidence from
+v4.9.28, v4.9.29, v4.9.45, and v4.9.27/v4.9.48. The open queue now preserves
+the external-gated branch-protection/ruleset enforcement row and true P3
+automation/doc-hygiene follow-ups.
+Next highest open item: audit branch-protection/ruleset status-check enforcement
+constraints, then continue with the generated `automation/*` branch cleanup
+policy.
 
 2026-06-06 v4.9.59 refresh: catalog-to-feed accounting shipped.
 Profile sync now reports `catalogFeedAccounting`, proving each catalog row is
@@ -981,11 +992,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
 
 *Research conducted 2026-06-04. This pass checked whether generated-profile validation actually runs on pull requests before it can be made a required status check.*
 
-- [ ] P2 — Run profile-sync validation on profile/catalog pull requests
-  - Why: `profile-sync.yml` is scheduled/manual only, and `tests.yml` only runs on script/test/workflow changes. A pull request that changes `data/profile-catalog.json`, generated `README.md`, `projects.json`, or the committed sync report can miss `scripts/sync-profile.ps1 -Check` unless a maintainer runs the workflow manually. This also blocks the Cycle 4 branch-protection item from safely requiring generated-profile validation on relevant PRs.
-  - Evidence: `.github/workflows/profile-sync.yml` declares only `workflow_dispatch` and `schedule`; `.github/workflows/tests.yml` path filters omit `data/profile-catalog.json`, `README.md`, `projects.json`, and `reports/profile-sync-report.json`; `gh run list -R SysAdminDoc/SysAdminDoc --limit 10` showed recent push-triggered `Tests` runs but no push/PR-triggered `Profile sync` runs. GitHub workflow syntax docs state that `push` and `pull_request` events can use path filters, and warn that skipped required checks remain pending: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+- [x] P2 — Run profile-sync validation on profile/catalog pull requests
+  - Why: At research time, `profile-sync.yml` was scheduled/manual only, and `tests.yml` only ran on script/test/workflow changes. A pull request that changed `data/profile-catalog.json`, generated `README.md`, `projects.json`, or the committed sync report could miss `scripts/sync-profile.ps1 -Check` unless a maintainer ran the workflow manually. This also blocked the Cycle 4 branch-protection item from safely requiring generated-profile validation on relevant PRs.
+  - Evidence: At research time, `.github/workflows/profile-sync.yml` declared only `workflow_dispatch` and `schedule`; `.github/workflows/tests.yml` path filters omitted `data/profile-catalog.json`, `README.md`, `projects.json`, and `reports/profile-sync-report.json`; `gh run list -R SysAdminDoc/SysAdminDoc --limit 10` showed recent push-triggered `Tests` runs but no push/PR-triggered `Profile sync` runs. GitHub workflow syntax docs state that `push` and `pull_request` events can use path filters, and warn that skipped required checks remain pending: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
   - Touches: `.github/workflows/profile-sync.yml`, optional `scripts/sync-profile.ps1` helper output if the PR check needs a shorter summary.
   - Acceptance: a read-only `pull_request` check runs `scripts/sync-profile.ps1 -Check` for profile-pipeline paths such as `data/profile-catalog.json`, `scripts/sync-profile.ps1`, `README.md`, `projects.json`, `reports/profile-sync-report.json`, and `.github/workflows/profile-sync.yml`; unrelated PRs are not blocked by a skipped required check.
+  - Completed: v4.9.28 added read-only generated-profile validation on pull requests that touch README/catalog/feed/report/schema/profile-asset/sync-script/setup/test/profile-workflow paths, with Pester coverage for the trigger surface.
   - Verify: open or simulate a PR touching `data/profile-catalog.json` and confirm `Profile sync / Check generated README` runs and fails on stale generated output; open or inspect an unrelated-doc PR and confirm branch policy does not wait on a skipped profile-sync status.
   - Complexity: S
 
@@ -1408,11 +1420,12 @@ generated Markdown checks and the live GitHub profile renderer. The existing
 verification standard already calls for a markdown render smoke after push; this
 item makes that proof repeatable for generated-profile changes.*
 
-- [ ] P2 🤖 🔬 — Add a live GitHub-rendered profile smoke check
+- [x] P2 🤖 🔬 — Add a live GitHub-rendered profile smoke check
   - Why: `scripts/sync-profile.ps1 -Check` and `Test-ReadmeExperience` verify generated Markdown strings, links, assets, schemas, and report state, but they do not load the actual `https://github.com/SysAdminDoc` profile with GitHub.com CSS, sanitizer output, responsive table behavior, image loading, or theme handling. The repo already had a top-table layout failure class, and `RESEARCH_REPORT.md` still records rendered light/mobile behavior as inferred rather than browser-screenshotted.
   - Evidence: `ROADMAP.md:503` lists "markdown render smoke check on GitHub after push" as a release proof but no workflow or script currently captures it; `scripts/sync-profile.ps1:1923-2011` only inspects README text patterns inside `Test-ReadmeExperience`; `tests/sync-profile.Tests.ps1:250-330` exercises offline generated Markdown rather than GitHub.com rendering; `.github/workflows/profile-sync.yml:23-48` and `.github/workflows/assets-refresh.yml:23-62` run generator/report checks but no browser smoke or screenshot upload; the live profile currently renders the README at `https://github.com/SysAdminDoc`; GitHub docs state username-matching public repo READMEs appear on the profile and use GitHub Flavored Markdown: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes; GitHub's Markdown REST API can render Markdown HTML but GitHub Markup notes sanitization and the rest of the GitHub.com pipeline happen outside the markup library: https://docs.github.com/en/rest/markdown/markdown and https://github.com/github/markup; Playwright supports screenshot assertions for rendered pages: https://playwright.dev/docs/test-snapshots
   - Touches: optional `tests/rendered-profile-smoke.*` or `scripts/render-profile-smoke.*`, `.github/workflows/profile-sync.yml`, `.github/workflows/assets-refresh.yml`, optional scheduled/manual workflow, screenshot artifacts, `reports/profile-sync-report.json` or job summary fields.
   - Acceptance: a manual/scheduled and PR-safe smoke path loads the live profile or GitHub-rendered README after generated-profile changes, checks 390 px mobile and desktop widths for no horizontal overflow, confirms the first viewport contains the hero, Professional Focus, Proof Points, and Currently Building content in readable order, verifies profile SVG and typing/skill images resolved or reports host failures, and uploads light/dark or viewport screenshots plus a concise job summary without private repository names.
+  - Completed: v4.9.27 added `scripts/render-profile-smoke.ps1`, desktop/mobile screenshot/report artifacts, profile-sync workflow upload wiring, and Pester coverage; v4.9.48 refreshed the assertions to the current generated section names.
   - Verify: run the smoke workflow or script after a no-op profile sync; confirm screenshots are uploaded as artifacts with explicit retention, the job summary links the artifacts, DOM assertions pass for `https://github.com/SysAdminDoc`, and an intentionally broken scratch README layout fails before merge or before a generated PR is accepted.
   - Complexity: M
 
@@ -1742,9 +1755,9 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Userscript install trust metadata for raw `.user.js` actions (completed v4.9.58 with `userscriptInstallTrust`, schema support, summary rows, live report counts, and Pester coverage).
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
 - [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; external enforcement remains gated by the direct-push loop).
-- [ ] P2 — Pull-request profile-sync validation for catalog/profile changes.
+- [x] P2 — Pull-request profile-sync validation for catalog/profile changes (duplicate row reconciled in v4.9.60; completed v4.9.28 with read-only pull-request profile-sync validation and trigger-surface Pester coverage).
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
-- [ ] P2 — Structured issue forms for broken catalog links and profile corrections.
+- [x] P2 — Structured issue forms for broken catalog links and profile corrections (duplicate row reconciled in v4.9.60; completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35).
 - [ ] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches.
 - [ ] P3 — Shared helper/composite action for generated profile PR creation.
@@ -1784,8 +1797,8 @@ P1/P2 needing design or staged rollout:
 - [x] P2 — Per-project license metadata in the generated feed, schema, and report (completed v4.9.55 with project license fields, sync-report aggregates, schema support, and Pester coverage).
 - [x] P2 — Fork-parent drift reporting for GitHub forks versus catalog continuations (completed v4.9.56 with `forkParentDrift` report classification and public-safe warnings).
 - [x] P2 — Public repository enumeration completeness guard as the account approaches the `gh repo list` cap (completed v4.9.36).
-- [ ] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check`.
+- [x] P2 — Versioned sync-report JSON Schema with validation in Pester/`-Check` (duplicate row reconciled in v4.9.60; completed v4.9.45 with `schemas/profile-sync-report.v1.json`, report schema output, `-Check` validation, and malformed-report Pester coverage).
 - [x] P2 — GitHub diff/language handling for fully generated feed, report, and profile SVG artifacts (completed v4.9.37 via `.gitattributes`).
 - [x] P2 — Repository release/tag consistency reported beside planning-doc version checks (completed v4.9.57 with `profileReleaseConsistency` warning-only reporting for latest release `v3.0.0` versus planning version `v4.9.57` and the missing `v4.9.57` tag ref).
 - [x] P2 — Userscript install trust reporting for raw branch-hosted `.user.js` actions (completed v4.9.58 with metadata field, source-provenance, and warning-count reporting).
-- [ ] P2 — Live GitHub profile DOM/screenshot smoke proof for generated README changes.
+- [x] P2 — Live GitHub profile DOM/screenshot smoke proof for generated README changes (duplicate row reconciled in v4.9.60; completed v4.9.27 with the rendered smoke script, profile-sync artifacts, and Pester wiring coverage).
