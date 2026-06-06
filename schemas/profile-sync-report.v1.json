@@ -32,6 +32,7 @@
     "linkValidationSummary",
     "linkValidationFailures",
     "linkValidationWarnings",
+    "readmeSizeBudget",
     "readmeExperienceChecks"
   ],
   "properties": {
@@ -146,6 +147,9 @@
       "items": {
         "$ref": "#/$defs/linkValidationRow"
       }
+    },
+    "readmeSizeBudget": {
+      "$ref": "#/$defs/readmeSizeBudget"
     },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
@@ -856,6 +860,30 @@
         },
         "headerWarningHostCount": {
           "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "readmeSizeBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "byteCount",
+        "softLimitBytes",
+        "overSoftLimit",
+        "warning"
+      ],
+      "properties": {
+        "byteCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "softLimitBytes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "overSoftLimit": {
+          "type": "boolean"
+        },
+        "warning": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },

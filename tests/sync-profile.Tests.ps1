@@ -420,6 +420,22 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match '### Catalog Snapshot'
         $script:rendered | Should -Match '### Featured Projects'
     }
+    It 'reports generated README byte size under the default soft budget' {
+        $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
+
+        $budget.byteCount | Should -Be ([System.Text.Encoding]::UTF8.GetByteCount($script:rendered))
+        $budget.softLimitBytes | Should -Be 98304
+        $budget.overSoftLimit | Should -BeFalse
+        $budget.warning | Should -BeNullOrEmpty
+    }
+    It 'warns when generated README output exceeds the soft budget' {
+        $budget = Test-ReadmeSizeBudget -ExpectedReadme '0123456789' -SoftLimitBytes 5
+
+        $budget.byteCount | Should -Be 10
+        $budget.softLimitBytes | Should -Be 5
+        $budget.overSoftLimit | Should -BeTrue
+        $budget.warning | Should -Match 'consider collapsing low-traffic categories'
+    }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeFalse

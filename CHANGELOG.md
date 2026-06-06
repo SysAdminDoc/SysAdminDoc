@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.51] - 2026-06-06
+
+- Added: Profile sync reports now include `readmeSizeBudget` with generated README byte count, the configured 96 KiB soft limit, over-limit state, and warning text.
+- Added: `schemas/profile-sync-report.v1.json` requires and validates the new README size budget section.
+- Added: Pester coverage for UTF-8 byte counting and over-budget warning behavior.
+- Verified: Current generated README is 65,900 bytes, below the 98,304-byte soft limit.
+
 ## [v4.9.50] - 2026-06-06
 
 - Changed: REST repo metadata fallback now enumerates repos through `gh api --paginate --slurp` instead of manual page loops.

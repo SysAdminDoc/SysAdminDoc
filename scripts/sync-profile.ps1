@@ -46,6 +46,7 @@ $SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. dat
 $LinkValidationThrottle = 16
 $RestFallbackMaxReleaseFetches = 240
 $RestFallbackUnauthenticatedReleaseFetchLimit = 50
+$ReadmeSoftLimitBytes = 96KB
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
@@ -2472,6 +2473,27 @@ function Test-ReadmeExperience {
     }
 }
 
+function Test-ReadmeSizeBudget {
+    param(
+        [string]$ExpectedReadme,
+        [int]$SoftLimitBytes = $ReadmeSoftLimitBytes
+    )
+
+    $byteCount = [System.Text.Encoding]::UTF8.GetByteCount($ExpectedReadme)
+    $overSoftLimit = $byteCount -gt $SoftLimitBytes
+
+    return [ordered]@{
+        byteCount = $byteCount
+        softLimitBytes = $SoftLimitBytes
+        overSoftLimit = [bool]$overSoftLimit
+        warning = if ($overSoftLimit) {
+            "Generated README is $byteCount bytes, above the $SoftLimitBytes byte soft limit; consider collapsing low-traffic categories."
+        } else {
+            $null
+        }
+    }
+}
+
 function Get-MemberValue {
     param(
         [object]$Object,
@@ -3905,6 +3927,7 @@ function Test-ProfileState {
 
     $urlSchemeViolations = @(Test-CatalogUrlSchemes -Entries $included)
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
+    $readmeSizeBudget = Test-ReadmeSizeBudget -ExpectedReadme $ExpectedReadme
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
@@ -3973,6 +3996,7 @@ function Test-ProfileState {
         linkValidationSummary = $linkValidationSummary
         linkValidationFailures = @($linkFailures)
         linkValidationWarnings = @($linkWarnings)
+        readmeSizeBudget = $readmeSizeBudget
         readmeExperienceChecks = $experienceChecks
     }
     $reportSchemaValidation = Test-JsonSchemaContract -Value $report -SchemaPath $ReportSchemaPath
