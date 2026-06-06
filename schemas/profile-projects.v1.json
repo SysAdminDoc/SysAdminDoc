@@ -355,6 +355,9 @@
         "forkOf",
         "forkOfUrl",
         "upstreamLicense",
+        "licenseKey",
+        "licenseName",
+        "licenseSpdxId",
         "repoUrl",
         "liveUrl",
         "installUrl",
@@ -428,6 +431,15 @@
           "$ref": "#/$defs/nullableUri"
         },
         "upstreamLicense": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseKey": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseName": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseSpdxId": {
           "$ref": "#/$defs/nullableString"
         },
         "repoUrl": {

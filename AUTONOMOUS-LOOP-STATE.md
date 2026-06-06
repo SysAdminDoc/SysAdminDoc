@@ -2,17 +2,17 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 62 - generated profile PR validation handoff
+Last completed roadmap cycle: Cycle 63 - per-project license metadata
 
 ## Latest Result
 
-- Added explicit generated-PR validation handoff to `profile-sync.yml` and `assets-refresh.yml`.
-- Both generated-PR workflows now dispatch `profile-sync.yml` in check mode on the generated automation branch after opening the pull request.
-- PR bodies and job summaries include branch-scoped validation-run links for the dispatched check workflow.
-- Scoped `actions: write` to the PR-creating jobs while keeping the read-only profile check job at `contents: read`.
-- Added Pester coverage for the dispatch command, validation-run links, summary text, and permission isolation.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.54.
+- Added per-project repository license metadata to live GitHub metadata collection, the generated `projects.json` feed, and the REST fallback shape.
+- Visitor-facing feed rows now expose `licenseKey`, `licenseName`, and `licenseSpdxId` separately from `upstreamLicense`.
+- `reports/profile-sync-report.json` now includes `projectLicenseMetadata` detected/missing/non-standard/license-count aggregates; the current live report checks 177 rows, detects 174 licenses, and records 12 warning rows.
+- Updated `schemas/profile-projects.v1.json`, `schemas/profile-sync-report.v1.json`, `scripts/write-profile-sync-summary.ps1`, and Pester coverage for license metadata export/reporting.
+- Reconciled the duplicate profile-assets summary roadmap row as already completed in v4.9.31.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.55.
 
 ## Next Cycle
 
-Continue on this same assigned project. Reconcile the duplicate open profile-assets report-summary row in `ROADMAP.md` if it is still open, then continue to the next substantive P2 item: per-project SPDX/license metadata in `projects.json` and the sync report.
+Continue on this same assigned project. Start with the next substantive P2 item: GitHub fork-parent drift reporting for catalog `forkOf` attribution.

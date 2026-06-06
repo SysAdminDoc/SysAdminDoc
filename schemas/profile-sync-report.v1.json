@@ -17,6 +17,7 @@
     "provenance",
     "catalogShape",
     "metadataHygiene",
+    "projectLicenseMetadata",
     "releaseAssetDrift",
     "repositorySettings",
     "communityHealth",
@@ -78,6 +79,9 @@
     },
     "metadataHygiene": {
       "$ref": "#/$defs/metadataHygiene"
+    },
+    "projectLicenseMetadata": {
+      "$ref": "#/$defs/projectLicenseMetadata"
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
@@ -386,6 +390,123 @@
           "items": {
             "$ref": "#/$defs/missingDescriptionRow"
           }
+        }
+      }
+    },
+    "projectLicenseMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkedCount",
+        "detectedCount",
+        "missingCount",
+        "unknownCount",
+        "warningCount",
+        "licenseCounts",
+        "missingLicenses",
+        "unknownLicenses"
+      ],
+      "properties": {
+        "checkedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detectedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unknownCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "licenseCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/projectLicenseCount"
+          }
+        },
+        "missingLicenses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/missingProjectLicense"
+          }
+        },
+        "unknownLicenses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/unknownProjectLicense"
+          }
+        }
+      }
+    },
+    "projectLicenseCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "licenseSpdxId",
+        "licenseKey",
+        "licenseName",
+        "count"
+      ],
+      "properties": {
+        "licenseSpdxId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseKey": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseName": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "missingProjectLicense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "unknownProjectLicense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "licenseKey",
+        "licenseName",
+        "licenseSpdxId",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "licenseKey": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseName": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "licenseSpdxId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reason": {
+          "type": "string"
         }
       }
     },

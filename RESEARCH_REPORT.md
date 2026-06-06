@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.54
+Current version after this refresh: v4.9.55
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.55 batch closed the per-project SPDX/license metadata gap by adding
+  `licenseKey`, `licenseName`, and `licenseSpdxId` to visitor-facing
+  `projects.json` rows.
+- The sync report now includes `projectLicenseMetadata`; the current live report
+  checks 177 visitor-facing rows, detects 174 project licenses, records 3
+  missing-license rows, and records 9 non-standard GitHub `other` rows.
+- The projects feed schema, sync-report schema, summary helper, and Pester suite
+  now cover the new project-license fields and warning aggregates.
 - The v4.9.54 batch closed the generated-profile PR validation handoff gap by
   explicitly dispatching `profile-sync.yml` in check mode on generated
   profile/assets PR branches.
@@ -314,7 +322,7 @@ Top opportunities, in priority order:
 12. P2 - Add a generated profile PR validation handoff for automation-created branches. [Completed v4.9.54]
 13. P2 - Add report artifact and summary parity to the profile-assets refresh workflow.
 14. P2 - Expand CODEOWNERS coverage for profile-contract files.
-15. P2 - Export per-project SPDX/license metadata in the generated feed and report.
+15. P2 - Export per-project SPDX/license metadata in the generated feed and report. [Completed v4.9.55]
 16. P2 - Report GitHub fork-parent drift against catalog attribution.
 17. P2 - Add a public-repo enumeration limit guard.
 18. P2 - Publish a JSON Schema for `profile-sync-report.json`. [Completed v4.9.45]
@@ -1175,11 +1183,11 @@ own detected license.
 
 ### Finding (cycle 13)
 
-- **Minor — generated project rows omit the repository's own license metadata.**
+- **Minor — generated project rows omitted the repository's own license metadata.**
   The feed is already rich enough for portfolio search, release availability,
   and fork/upstream attribution, but consumers still cannot tell whether a
   project is MIT, GPL, unlicensed, or unknown without another GitHub query. →
-  roadmap "Export per-project SPDX/license metadata in the feed". [Verified]
+  roadmap "Export per-project SPDX/license metadata in the feed". [Closed v4.9.55]
 
 ### Standards note (cycle 13)
 
@@ -2050,16 +2058,10 @@ evidence, and adjacent profile-README tooling:
 
 - Should generated `topicHints` stay report-only, or should reviewed hints be promoted into catalog-managed metadata?
 - Should low-risk generated metadata drift be auto-PR'd on schedule, or should scheduled jobs remain check-only with manual `write-pr`?
-- Should generated profile PRs use a GitHub App installation token/PAT so normal
-  `pull_request` checks run automatically, keep `GITHUB_TOKEN` with a documented
-  approval-required path, or explicitly dispatch the validation workflow after
-  PR creation?
-- Should profile-sync and profile-assets refresh share one report-summary helper
-  so their job summaries and annotations cannot drift apart?
 - Should CODEOWNERS cover all public planning docs, or only files that directly
   affect generated README/feed output and setup/install trust?
-- Should per-project license metadata be feed/report-only, or should README rows
-  display compact SPDX labels for download/action-heavy projects?
+- Should project SPDX labels remain feed/report-only, or should README rows
+  eventually display compact license labels for download/action-heavy projects?
 - Should catalog `forkOf` rows gain an explicit attribution kind such as
   `github-fork`, `continuation`, or `imported-fork`?
 - What public-repo count threshold should warn before the configured enumeration
