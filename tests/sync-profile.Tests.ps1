@@ -603,11 +603,39 @@ Describe 'Feed JSON Schema contracts' {
     It 'reports no unsupported keywords for the current schemas' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
 
         $result = Test-FeedSchemaContracts -Catalog $cat -ProjectsJson $json
+        $reportResult = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
 
         @($result.catalog.unsupportedKeywords) | Should -HaveCount 0
         @($result.projects.unsupportedKeywords) | Should -HaveCount 0
+        @($reportResult.unsupportedKeywords) | Should -HaveCount 0
+    }
+
+    It 'validates the committed profile sync report contract' {
+        $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
+
+        $result = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
+
+        $report.schema | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json'
+        $report.schemaValidation.report.schemaPath | Should -Be 'schemas/profile-sync-report.v1.json'
+        $report.schemaValidation.report.valid | Should -BeTrue
+        $result.valid | Should -BeTrue
+    }
+
+    It 'rejects profile sync reports missing a required section' {
+        $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
+        if ($report -is [System.Collections.IDictionary]) {
+            $report.Remove('releaseAssetDrift')
+        } else {
+            $report.PSObject.Properties.Remove('releaseAssetDrift')
+        }
+
+        $result = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
+
+        $result.valid | Should -BeFalse
+        ($result.errors -join "`n") | Should -Match '\$\.releaseAssetDrift is required'
     }
 
     It 'warns when a schema uses keywords the validator cannot check' {

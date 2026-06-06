@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.45] - 2026-06-06
+
+- Added: `schemas/profile-sync-report.v1.json` now publishes a versioned JSON Schema contract for `reports/profile-sync-report.json`.
+- Added: Sync reports now include a top-level `schema` URL and `schemaValidation.report` result, and `scripts/sync-profile.ps1 -Check` fails when the report violates its schema.
+- Fixed: `releaseAssetDrift.sourceOnlyWithRelease.releaseAssetKinds` and release asset mismatch arrays now serialize as arrays even when they contain one value.
+- Added: Pester coverage validates the committed sync report against the report schema and proves a missing required report section is rejected.
+
 ## [v4.9.44] - 2026-06-06
 
 - Added: `projects.json` visitor-facing rows now include `releaseTrust` metadata derived from latest-release asset filenames, including checksum, signature, SBOM, attestation, debug-artifact, source-only, executable-kind, and public-note fields.

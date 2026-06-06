@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-06-06T15:05:20.8029815-04:00",
+  "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
+  "generatedAt": "2026-06-06T15:18:04.6441311-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -41,11 +42,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "97c58e2ee066e7a3c02e9ab67e52ba32800b13e9",
+    "sourceCommit": "47e473e40730daa17c38a80b50c5109964f63178",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "a4fde03e114eb7f1dbeee670376342d87759bdf1fa498f52a19959f46940c72c",
+    "generatorSha256": "5cb4b31012b361ef6ac098e9b57856a019a61556eb47805933e5c2609bbef67d",
     "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T15:02:49.8482329-04:00",
+    "metadataSnapshotAt": "2026-06-06T15:16:48.2080260-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -132,7 +133,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T18:51:36.0000000Z",
+        "pushedAt": "2026-06-06T19:08:52.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1404,12 +1405,16 @@
       {
         "repo": "BackgroundSearch",
         "latestReleaseTag": "v2.1.0",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       },
       {
         "repo": "BetterNext",
         "latestReleaseTag": "v3.5.2",
-        "releaseAssetKinds": "zip"
+        "releaseAssetKinds": [
+          "zip"
+        ]
       },
       {
         "repo": "Devicer",
@@ -1430,22 +1435,30 @@
       {
         "repo": "kindred",
         "latestReleaseTag": "v2.5.1",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       },
       {
         "repo": "NDNS",
         "latestReleaseTag": "v3.4.0",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       },
       {
         "repo": "OpenSwift",
         "latestReleaseTag": "v0.3.0",
-        "releaseAssetKinds": "apk"
+        "releaseAssetKinds": [
+          "apk"
+        ]
       },
       {
         "repo": "OpenTasker",
         "latestReleaseTag": "v0.2.59",
-        "releaseAssetKinds": "apk"
+        "releaseAssetKinds": [
+          "apk"
+        ]
       },
       {
         "repo": "OrganizeContacts",
@@ -1458,12 +1471,16 @@
       {
         "repo": "pfSenseSuite",
         "latestReleaseTag": "v3.4.0",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       },
       {
         "repo": "Scour",
         "latestReleaseTag": "v0.3.0",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       },
       {
         "repo": "Snapture",
@@ -1476,22 +1493,30 @@
       {
         "repo": "SwiftFloris",
         "latestReleaseTag": "v1.8.172",
-        "releaseAssetKinds": "apk"
+        "releaseAssetKinds": [
+          "apk"
+        ]
       },
       {
         "repo": "sysadmindoc.github.io",
         "latestReleaseTag": "v0.13.1",
-        "releaseAssetKinds": "zip"
+        "releaseAssetKinds": [
+          "zip"
+        ]
       },
       {
         "repo": "UniversalConverterX",
         "latestReleaseTag": "v1.0.0",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       },
       {
         "repo": "Vantage",
         "latestReleaseTag": "v1.1.0",
-        "releaseAssetKinds": "source-archive"
+        "releaseAssetKinds": [
+          "source-archive"
+        ]
       }
     ],
     "missingReleaseForDownloadKind": [],
@@ -1516,32 +1541,39 @@
       "valid": true,
       "errors": [],
       "unsupportedKeywords": []
+    },
+    "report": {
+      "schemaPath": "schemas/profile-sync-report.v1.json",
+      "schemaId": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
+      "valid": true,
+      "errors": [],
+      "unsupportedKeywords": []
     }
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.44",
+    "expectedVersion": "v4.9.45",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.44"
+        "value": "v4.9.45"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.44"
+        "value": "v4.9.45"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.44"
+        "value": "v4.9.45"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.44"
+        "value": "v4.9.45"
       }
     ],
     "dates": [
@@ -1574,7 +1606,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 9148,
+      "elapsedMs": 3830,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1592,7 +1624,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.95,
+      "ageDays": 4.96,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1602,7 +1634,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 9148,
+    "elapsedMs": 3830,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],

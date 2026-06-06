@@ -47,8 +47,10 @@ $LinkValidationThrottle = 16
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
+$ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
 $CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
 $ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
+$ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
 $script:RepositoryMetadataProvider = "graphql"
 $script:RepositoryEnumerationRequestedLimit = 500
 $script:RepositoryEnumerationTruncated = $false
@@ -2794,6 +2796,7 @@ function Test-FeedSchemaContracts {
             schemaId = $ProjectsSchemaUrl
             valid = $false
             errors = $projectsParseErrors.ToArray()
+            unsupportedKeywords = @()
         }
     }
 
@@ -3447,7 +3450,7 @@ function Test-ReleaseAssetDrift {
             $sourceOnlyWithRelease.Add([ordered]@{
                 repo = [string]$entry.repo
                 latestReleaseTag = [string]$meta.latestRelease.tagName
-                releaseAssetKinds = $assetKinds
+                releaseAssetKinds = @($assetKinds)
             })
         }
 
@@ -3464,9 +3467,9 @@ function Test-ReleaseAssetDrift {
                 $releaseAssetKindMismatches.Add([ordered]@{
                     repo = [string]$entry.repo
                     downloadKind = $explicitDownloadKind
-                    expectedAssetKinds = $expectedKinds
-                    releaseAssetKinds = $assetKinds
-                    releaseAssetNames = $assetNames
+                    expectedAssetKinds = @($expectedKinds)
+                    releaseAssetKinds = @($assetKinds)
+                    releaseAssetNames = @($assetNames)
                     primaryAction = [string]$action["kind"]
                 })
             }
@@ -3687,7 +3690,19 @@ function Test-ProfileState {
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
-    $schemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
+    $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
+    $schemaValidation = [ordered]@{
+        passed = [bool]$feedSchemaValidation.passed
+        catalog = $feedSchemaValidation.catalog
+        projects = $feedSchemaValidation.projects
+        report = [ordered]@{
+            schemaPath = "schemas/profile-sync-report.v1.json"
+            schemaId = $ReportSchemaUrl
+            valid = $true
+            errors = @()
+            unsupportedKeywords = @()
+        }
+    }
     $docVersionConsistency = Test-DocVersionConsistency
     $reportGeneratedAt = (Get-Date).ToString("o")
     $feedProvenance = $null
@@ -3709,6 +3724,7 @@ function Test-ProfileState {
         }
     }
     $report = [ordered]@{
+        schema = $ReportSchemaUrl
         generatedAt = $reportGeneratedAt
         readmeInSync = $readmeInSync
         projectsExportInSync = $projectsInSync
@@ -3741,6 +3757,14 @@ function Test-ProfileState {
         linkValidationWarnings = @($linkWarnings)
         readmeExperienceChecks = $experienceChecks
     }
+    $reportSchemaValidation = Test-JsonSchemaContract -Value $report -SchemaPath $ReportSchemaPath
+    $schemaValidation = [ordered]@{
+        passed = [bool]($feedSchemaValidation.passed -and $reportSchemaValidation.valid)
+        catalog = $feedSchemaValidation.catalog
+        projects = $feedSchemaValidation.projects
+        report = $reportSchemaValidation
+    }
+    $report.schemaValidation = $schemaValidation
 
     $failed = (
         -not $readmeInSync -or

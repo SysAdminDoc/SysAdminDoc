@@ -5,10 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.44
+Current version after this refresh: v4.9.45
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.45 batch closed the sync-report schema contract item by adding
+  `schemas/profile-sync-report.v1.json`, a top-level report `schema` URL, and
+  `schemaValidation.report`.
+- `scripts/sync-profile.ps1 -Check` now validates the generated report against
+  the report schema and fails when required report sections are missing or
+  malformed. The first schema run caught and fixed single-value
+  `releaseAssetDrift.sourceOnlyWithRelease.releaseAssetKinds` serialization.
+- Local verification passed for Pester, PSScriptAnalyzer, and schema-gated
+  generation; Pester now validates the committed report and a malformed report
+  fixture.
 - The v4.9.44 batch closed the release/download trust metadata item by adding
   `releaseTrust` to visitor-facing `projects.json` rows and requiring it in the
   project-feed schema. The object records filename-derived checksum, signature,
@@ -230,7 +240,7 @@ Top opportunities, in priority order:
 15. P2 - Export per-project SPDX/license metadata in the generated feed and report.
 16. P2 - Report GitHub fork-parent drift against catalog attribution.
 17. P2 - Add a public-repo enumeration limit guard.
-18. P2 - Publish a JSON Schema for `profile-sync-report.json`.
+18. P2 - Publish a JSON Schema for `profile-sync-report.json`. [Completed v4.9.45]
 19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn.
 20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions.
 21. P2 - Add a live GitHub-rendered profile smoke check.
@@ -1214,7 +1224,7 @@ depend on stable report fields.
   already the central evidence artifact for generated-profile checks and will be
   parsed by planned job summaries, artifacts, and report parity work, but its
   fields are not described by a versioned schema the way catalog/feed fields are.
-  → roadmap "Publish a JSON Schema for profile-sync-report.json". [Verified]
+  → roadmap "Publish a JSON Schema for profile-sync-report.json". [Completed v4.9.45]
 
 ### Standards note (cycle 16)
 

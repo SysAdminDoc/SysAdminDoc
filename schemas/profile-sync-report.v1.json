@@ -1,0 +1,1215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
+  "title": "SysAdminDoc profile sync report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "generatedAt",
+    "readmeInSync",
+    "projectsExportInSync",
+    "profileAssetsInSync",
+    "profileAssetChecks",
+    "publicRepoCount",
+    "catalogEntryCount",
+    "includedReadmeCount",
+    "provenance",
+    "metadataHygiene",
+    "releaseAssetDrift",
+    "schemaValidation",
+    "docVersionConsistency",
+    "validationPerformance",
+    "missingPublicRepos",
+    "privateVisibilityViolations",
+    "medicalPrivacyViolations",
+    "urlSchemeViolations",
+    "orphanedSuppressedEntries",
+    "renamedRepoRedirects",
+    "metadataDrift",
+    "metadataDriftSummary",
+    "linkValidationSkipped",
+    "linkValidationSummary",
+    "linkValidationFailures",
+    "linkValidationWarnings",
+    "readmeExperienceChecks"
+  ],
+  "properties": {
+    "schema": {
+      "const": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "readmeInSync": {
+      "type": "boolean"
+    },
+    "projectsExportInSync": {
+      "type": "boolean"
+    },
+    "profileAssetsInSync": {
+      "type": "boolean"
+    },
+    "profileAssetChecks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/profileAssetCheck"
+      }
+    },
+    "publicRepoCount": {
+      "$ref": "#/$defs/nonNegativeInteger"
+    },
+    "catalogEntryCount": {
+      "$ref": "#/$defs/nonNegativeInteger"
+    },
+    "includedReadmeCount": {
+      "$ref": "#/$defs/nonNegativeInteger"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "metadataHygiene": {
+      "$ref": "#/$defs/metadataHygiene"
+    },
+    "releaseAssetDrift": {
+      "$ref": "#/$defs/releaseAssetDrift"
+    },
+    "schemaValidation": {
+      "$ref": "#/$defs/schemaValidation"
+    },
+    "docVersionConsistency": {
+      "$ref": "#/$defs/docVersionConsistency"
+    },
+    "validationPerformance": {
+      "$ref": "#/$defs/validationPerformance"
+    },
+    "missingPublicRepos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/missingPublicRepo"
+      }
+    },
+    "privateVisibilityViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/privateVisibilityViolation"
+      }
+    },
+    "medicalPrivacyViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/repoReason"
+      }
+    },
+    "urlSchemeViolations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/urlSchemeViolation"
+      }
+    },
+    "orphanedSuppressedEntries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/repoReason"
+      }
+    },
+    "renamedRepoRedirects": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/renamedRepoRedirect"
+      }
+    },
+    "metadataDrift": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/metadataDriftRow"
+      }
+    },
+    "metadataDriftSummary": {
+      "$ref": "#/$defs/metadataDriftSummary"
+    },
+    "linkValidationSkipped": {
+      "type": "boolean"
+    },
+    "linkValidationSummary": {
+      "$ref": "#/$defs/linkValidationSummary"
+    },
+    "linkValidationFailures": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/linkValidationRow"
+      }
+    },
+    "linkValidationWarnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/linkValidationRow"
+      }
+    },
+    "readmeExperienceChecks": {
+      "$ref": "#/$defs/readmeExperienceChecks"
+    }
+  },
+  "$defs": {
+    "nonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "nonNegativeNumber": {
+      "type": "number",
+      "minimum": 0
+    },
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableUri": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "nullableInteger": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "nullableCommitSha": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "profileAssetCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "exists",
+        "inSync"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean"
+        },
+        "inSync": {
+          "type": "boolean"
+        }
+      }
+    },
+    "repoEnumeration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedLimit",
+        "returnedCount",
+        "truncated"
+      ],
+      "properties": {
+        "requestedLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "returnedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "sourceRepository",
+        "sourceCommit",
+        "catalogSha256",
+        "generatorSha256",
+        "projectSchemaSha256",
+        "metadataSnapshotAt",
+        "metadataProvider",
+        "repoEnumeration"
+      ],
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "sourceRepository": {
+          "type": "string",
+          "const": "SysAdminDoc/SysAdminDoc"
+        },
+        "sourceCommit": {
+          "$ref": "#/$defs/nullableCommitSha"
+        },
+        "catalogSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "generatorSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "projectSchemaSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "metadataSnapshotAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "metadataProvider": {
+          "type": "string",
+          "enum": [
+            "graphql",
+            "rest-fallback"
+          ]
+        },
+        "repoEnumeration": {
+          "$ref": "#/$defs/repoEnumeration"
+        }
+      }
+    },
+    "metadataHygiene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "missingTopicCount",
+        "missingDescriptionCount",
+        "topicHintPolicy",
+        "missingTopics",
+        "missingDescriptions"
+      ],
+      "properties": {
+        "missingTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "topicHintPolicy": {
+          "$ref": "#/$defs/topicHintPolicy"
+        },
+        "missingTopics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/missingTopicRow"
+          }
+        },
+        "missingDescriptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/missingDescriptionRow"
+          }
+        }
+      }
+    },
+    "topicHintPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mutatesRepositories",
+        "applyModeAvailable",
+        "requiresExplicitAllowlist"
+      ],
+      "properties": {
+        "mutatesRepositories": {
+          "type": "boolean"
+        },
+        "applyModeAvailable": {
+          "type": "boolean"
+        },
+        "requiresExplicitAllowlist": {
+          "type": "boolean"
+        }
+      }
+    },
+    "missingTopicRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "language",
+        "pushedAt",
+        "category",
+        "topicHints"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "pushedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "category": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "topicHints": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "missingDescriptionRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "language",
+        "category",
+        "catalogDescription"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "category": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "catalogDescription": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "releaseAssetDrift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkedCatalogRows",
+        "releaseBearingRows",
+        "releaseActionRows",
+        "assetApiInspected",
+        "inspectedReleaseRows",
+        "releaseAssetKindCounts",
+        "releaseTrustLevelCounts",
+        "executableDownloadsMissingChecksums",
+        "debugArtifactRows",
+        "sourceOnlyWithRelease",
+        "missingReleaseForDownloadKind",
+        "releaseActionLabelMismatches",
+        "releaseAssetKindMismatches",
+        "releaseAssetFetchFailures",
+        "userscriptKindWithoutInstallUrl",
+        "note"
+      ],
+      "properties": {
+        "checkedCatalogRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "releaseBearingRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "releaseActionRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "assetApiInspected": {
+          "type": "boolean"
+        },
+        "inspectedReleaseRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "releaseAssetKindCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedCount"
+          }
+        },
+        "releaseTrustLevelCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trustLevelCount"
+          }
+        },
+        "executableDownloadsMissingChecksums": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/downloadChecksumGap"
+          }
+        },
+        "debugArtifactRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/debugArtifactRow"
+          }
+        },
+        "sourceOnlyWithRelease": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceOnlyReleaseRow"
+          }
+        },
+        "missingReleaseForDownloadKind": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/missingReleaseRow"
+          }
+        },
+        "releaseActionLabelMismatches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/releaseActionLabelMismatch"
+          }
+        },
+        "releaseAssetKindMismatches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/releaseAssetKindMismatch"
+          }
+        },
+        "releaseAssetFetchFailures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/releaseAssetFetchFailure"
+          }
+        },
+        "userscriptKindWithoutInstallUrl": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/missingReleaseRow"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "namedCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "count"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "trustLevelCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trustLevel",
+        "count"
+      ],
+      "properties": {
+        "trustLevel": {
+          "type": "string",
+          "enum": [
+            "attested",
+            "checksum",
+            "metadata-only",
+            "signed",
+            "signed-and-attested",
+            "unknown"
+          ]
+        },
+        "count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "downloadChecksumGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "latestReleaseTag",
+        "executableAssetKinds",
+        "trustLevel"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "executableAssetKinds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "trustLevel": {
+          "type": "string"
+        }
+      }
+    },
+    "debugArtifactRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "latestReleaseTag",
+        "trustLevel"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "trustLevel": {
+          "type": "string"
+        }
+      }
+    },
+    "sourceOnlyReleaseRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "latestReleaseTag",
+        "releaseAssetKinds"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "releaseAssetKinds": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "missingReleaseRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "downloadKind"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "downloadKind": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "releaseActionLabelMismatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "downloadKind",
+        "expectedLabel",
+        "actualLabel"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "downloadKind": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "expectedLabel": {
+          "type": "string"
+        },
+        "actualLabel": {
+          "type": "string"
+        }
+      }
+    },
+    "releaseAssetKindMismatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "downloadKind",
+        "expectedAssetKinds",
+        "releaseAssetKinds",
+        "releaseAssetNames",
+        "primaryAction"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "downloadKind": {
+          "type": "string"
+        },
+        "expectedAssetKinds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "releaseAssetKinds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "releaseAssetNames": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "primaryAction": {
+          "type": "string"
+        }
+      }
+    },
+    "releaseAssetFetchFailure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "latestReleaseTag",
+        "error"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "schemaValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "catalog",
+        "projects",
+        "report"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "catalog": {
+          "$ref": "#/$defs/schemaResult"
+        },
+        "projects": {
+          "$ref": "#/$defs/schemaResult"
+        },
+        "report": {
+          "$ref": "#/$defs/schemaResult"
+        }
+      }
+    },
+    "schemaResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaPath",
+        "schemaId",
+        "valid",
+        "errors",
+        "unsupportedKeywords"
+      ],
+      "properties": {
+        "schemaPath": {
+          "type": "string"
+        },
+        "schemaId": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "unsupportedKeywords": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "docVersionConsistency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "expectedVersion",
+        "expectedDate",
+        "versions",
+        "dates",
+        "errors",
+        "warnings"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "expectedVersion": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "expectedDate": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/docFieldValue"
+          }
+        },
+        "dates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/docFieldValue"
+          }
+        },
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "docFieldValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "field",
+        "value"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "validationPerformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "linkValidation"
+      ],
+      "properties": {
+        "linkValidation": {
+          "$ref": "#/$defs/linkValidationPerformance"
+        }
+      }
+    },
+    "linkValidationPerformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skipped",
+        "targetCount",
+        "throttleLimit",
+        "elapsedMs",
+        "failureCount",
+        "warningCount",
+        "warningHostCount"
+      ],
+      "properties": {
+        "skipped": {
+          "type": "boolean"
+        },
+        "targetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "throttleLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "elapsedMs": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failureCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningHostCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "metadataDriftSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fatalCount",
+        "informationalCount",
+        "generatedAt"
+      ],
+      "properties": {
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "informationalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "generatedAt": {
+          "$ref": "#/$defs/generatedAtAge"
+        }
+      }
+    },
+    "generatedAtAge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "ageDays",
+        "staleAfterDays",
+        "stale",
+        "warning"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ageDays": {
+          "$ref": "#/$defs/nonNegativeNumber"
+        },
+        "staleAfterDays": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "stale": {
+          "type": "boolean"
+        },
+        "warning": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "metadataDriftRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "field",
+        "oldValue",
+        "newValue",
+        "severity",
+        "failing"
+      ],
+      "properties": {
+        "repo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "field": {
+          "type": "string"
+        },
+        "oldValue": {},
+        "newValue": {},
+        "severity": {
+          "type": "string",
+          "enum": [
+            "fatal",
+            "info"
+          ]
+        },
+        "failing": {
+          "type": "boolean"
+        }
+      }
+    },
+    "linkValidationSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCount",
+        "throttleLimit",
+        "elapsedMs",
+        "warningCountByHost"
+      ],
+      "properties": {
+        "targetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "throttleLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "elapsedMs": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCountByHost": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hostWarningCount"
+          }
+        }
+      }
+    },
+    "hostWarningCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host",
+        "count"
+      ],
+      "properties": {
+        "host": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "linkValidationRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "type",
+        "url",
+        "host",
+        "status",
+        "error"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "host": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "status": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "error": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "missingPublicRepo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "description",
+        "language"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "description": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "privateVisibilityViolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "reason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "visibility": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "repoReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "urlSchemeViolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "field",
+        "url",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "renamedRepoRedirect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "canonical",
+        "url"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "canonical": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "readmeExperienceChecks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "startHereSection",
+        "catalogSnapshotSection",
+        "generatedCatalogNotice",
+        "setupInspectPath",
+        "themeAwareImageChrome",
+        "plainTextTagline",
+        "meaningfulImageAltText",
+        "minimalProfileHeader",
+        "richProfileHeader",
+        "genericImageAltTextCount",
+        "thirdPartyMetricHostCount",
+        "thirdPartyBadgeHostCount",
+        "profileStatsChromeCount",
+        "featuredRows",
+        "featuredActionColumn",
+        "currentlyBuildingRows",
+        "currentlyBuildingActionColumn",
+        "categoryAnchorCount",
+        "missingCategoryAnchors",
+        "primaryActionCoverage",
+        "missingPrimaryActions",
+        "unlabeledDownloadButtons"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "startHereSection": {
+          "type": "boolean"
+        },
+        "catalogSnapshotSection": {
+          "type": "boolean"
+        },
+        "generatedCatalogNotice": {
+          "type": "boolean"
+        },
+        "setupInspectPath": {
+          "type": "boolean"
+        },
+        "themeAwareImageChrome": {
+          "type": "boolean"
+        },
+        "plainTextTagline": {
+          "type": "boolean"
+        },
+        "meaningfulImageAltText": {
+          "type": "boolean"
+        },
+        "minimalProfileHeader": {
+          "type": "boolean"
+        },
+        "richProfileHeader": {
+          "type": "boolean"
+        },
+        "genericImageAltTextCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "thirdPartyMetricHostCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "thirdPartyBadgeHostCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "profileStatsChromeCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "featuredRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "featuredActionColumn": {
+          "type": "boolean"
+        },
+        "currentlyBuildingRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "currentlyBuildingActionColumn": {
+          "type": "boolean"
+        },
+        "categoryAnchorCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingCategoryAnchors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "primaryActionCoverage": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingPrimaryActions": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "unlabeledDownloadButtons": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    }
+  }
+}
