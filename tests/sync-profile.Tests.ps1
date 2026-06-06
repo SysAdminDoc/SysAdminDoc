@@ -136,6 +136,53 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
     }
 }
 
+Describe 'REST fallback release request guard' {
+    It 'parses slurped paginated repo arrays from gh api' {
+        $json = @'
+[
+  [
+    { "name": "A", "archived": false, "private": false }
+  ],
+  [
+    { "name": "B", "archived": false, "private": false }
+  ]
+]
+'@
+
+        $repos = @(ConvertFrom-RestRepoPageJson -Json $json)
+
+        $repos | Should -HaveCount 2
+        $repos[0].name | Should -Be 'A'
+        $repos[1].name | Should -Be 'B'
+    }
+
+    It 'requires authentication when release requests exceed the unauthenticated budget' {
+        $result = Test-RestFallbackReleaseFetchBudget -RepoCount 184 -Authenticated:$false -MaxReleaseFetches 240 -UnauthenticatedReleaseFetchLimit 50
+
+        $result.allowed | Should -BeFalse
+        $result.message | Should -Match 'requires authenticated gh access'
+    }
+
+    It 'caps release requests even when authenticated' {
+        $result = Test-RestFallbackReleaseFetchBudget -RepoCount 241 -Authenticated:$true -MaxReleaseFetches 240 -UnauthenticatedReleaseFetchLimit 50
+
+        $result.allowed | Should -BeFalse
+        $result.message | Should -Match 'exceeding the configured cap'
+    }
+
+    It 'allows the current repo count when authenticated and under the cap' {
+        $result = Test-RestFallbackReleaseFetchBudget -RepoCount 184 -Authenticated:$true -MaxReleaseFetches 240 -UnauthenticatedReleaseFetchLimit 50
+
+        $result.allowed | Should -BeTrue
+        $result.message | Should -BeNullOrEmpty
+    }
+
+    It 'treats release 404 as no release while keeping rate limits fatal' {
+        Test-GhApiNotFound -Output 'gh: Not Found (HTTP 404)' | Should -BeTrue
+        Test-GhApiNotFound -Output 'gh: API rate limit exceeded (HTTP 403)' | Should -BeFalse
+    }
+}
+
 Describe 'Test-LinkTargets batch reporting' {
     It 'summarizes transient warnings by host while keeping fatal failures separate' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

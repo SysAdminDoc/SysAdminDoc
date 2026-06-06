@@ -44,6 +44,8 @@ $GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-cat
 $MetadataGeneratedAtStaleDays = 7
 $SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
 $LinkValidationThrottle = 16
+$RestFallbackMaxReleaseFetches = 240
+$RestFallbackUnauthenticatedReleaseFetchLimit = 50
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
@@ -144,30 +146,30 @@ function Get-GitHubReposFromRest {
         return @()
     }
 
-    $allRepos = New-Object System.Collections.Generic.List[object]
-    $page = 1
-    do {
-        $repoJson = & gh api "users/$Owner/repos?per_page=100&page=$page" 2>&1
-        $repoOutput = (($repoJson | Out-String).Trim())
-        if ($LASTEXITCODE -ne 0) {
-            throw "REST repo metadata fallback failed on page $page. Last gh output: $repoOutput"
-        }
+    $repoJson = & gh api --paginate --slurp "users/$Owner/repos?per_page=100" 2>&1
+    $repoOutput = (($repoJson | Out-String).Trim())
+    if ($LASTEXITCODE -ne 0) {
+        throw "REST repo metadata fallback failed while enumerating repos. Last gh output: $repoOutput"
+    }
 
-        $pageRepos = @($repoOutput | ConvertFrom-Json)
-        foreach ($repo in $pageRepos) {
-            if (-not $repo.archived -and -not $repo.private) {
-                $allRepos.Add($repo)
-            }
+    $allRepos = New-Object System.Collections.Generic.List[object]
+    foreach ($repo in @(ConvertFrom-RestRepoPageJson -Json $repoOutput)) {
+        if (-not $repo.archived -and -not $repo.private) {
+            $allRepos.Add($repo)
         }
-        $page++
-    } while ($pageRepos.Count -eq 100)
+    }
+
+    $releaseBudget = Test-RestFallbackReleaseFetchBudget -RepoCount $allRepos.Count -Authenticated (Test-GitHubCliAuthenticated)
+    if (-not $releaseBudget.allowed) {
+        throw $releaseBudget.message
+    }
 
     $mapped = New-Object System.Collections.Generic.List[object]
     foreach ($repo in $allRepos) {
         $release = $null
-        $releaseJson = & gh api "repos/$Owner/$($repo.name)/releases/latest" 2>$null
+        $releaseJson = & gh api "repos/$Owner/$($repo.name)/releases/latest" 2>&1
+        $releaseOutput = (($releaseJson | Out-String).Trim())
         if ($LASTEXITCODE -eq 0) {
-            $releaseOutput = (($releaseJson | Out-String).Trim())
             if (-not [string]::IsNullOrWhiteSpace($releaseOutput)) {
                 $releaseData = $releaseOutput | ConvertFrom-Json
                 $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
@@ -181,6 +183,9 @@ function Get-GitHubReposFromRest {
                     assetApiInspected = $true
                 }
             }
+        } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
+            Write-Warning "REST release fallback failed for $($repo.name); aborting to avoid partial release metadata. Last gh output: $releaseOutput"
+            throw "REST repo metadata fallback failed while fetching latest release for $($repo.name). Refusing to emit partial release metadata."
         }
 
         $topics = @()
@@ -208,6 +213,63 @@ function Get-GitHubReposFromRest {
     $script:RepositoryEnumerationRequestedLimit = 0
     $script:RepositoryEnumerationTruncated = $false
     return $mapped.ToArray()
+}
+
+function ConvertFrom-RestRepoPageJson {
+    param([string]$Json)
+
+    if ([string]::IsNullOrWhiteSpace($Json)) {
+        return @()
+    }
+
+    $repos = New-Object System.Collections.Generic.List[object]
+    foreach ($page in @($Json | ConvertFrom-Json)) {
+        foreach ($repo in @($page)) {
+            $repos.Add($repo)
+        }
+    }
+
+    return $repos.ToArray()
+}
+
+function Test-GitHubCliAuthenticated {
+    if (-not [string]::IsNullOrWhiteSpace($env:GH_TOKEN) -or -not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+        return $true
+    }
+
+    $null = & gh auth status -h github.com 2>&1
+    return ($LASTEXITCODE -eq 0)
+}
+
+function Test-GhApiNotFound {
+    param([string]$Output)
+
+    return ($Output -match '(?i)\bHTTP\s+404\b' -or $Output -match '(?i)\bNot Found\b')
+}
+
+function Test-RestFallbackReleaseFetchBudget {
+    param(
+        [int]$RepoCount,
+        [bool]$Authenticated,
+        [int]$MaxReleaseFetches = $RestFallbackMaxReleaseFetches,
+        [int]$UnauthenticatedReleaseFetchLimit = $RestFallbackUnauthenticatedReleaseFetchLimit
+    )
+
+    $message = $null
+    if ($RepoCount -gt $MaxReleaseFetches) {
+        $message = "REST repo metadata fallback would fetch latest-release metadata for $RepoCount repos, exceeding the configured cap of $MaxReleaseFetches requests."
+    } elseif (-not $Authenticated -and $RepoCount -gt $UnauthenticatedReleaseFetchLimit) {
+        $message = "REST repo metadata fallback requires authenticated gh access for $RepoCount release requests; unauthenticated runs are capped at $UnauthenticatedReleaseFetchLimit to avoid rate-limit partial data."
+    }
+
+    return [ordered]@{
+        allowed = [string]::IsNullOrWhiteSpace($message)
+        message = $message
+        repoCount = $RepoCount
+        authenticated = [bool]$Authenticated
+        maxReleaseFetches = $MaxReleaseFetches
+        unauthenticatedReleaseFetchLimit = $UnauthenticatedReleaseFetchLimit
+    }
 }
 
 function Get-GitHubRepos {

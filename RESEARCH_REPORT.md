@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.49
+Current version after this refresh: v4.9.50
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.50 batch closed the REST release-fallback partial-data gap by using
+  `gh api --paginate --slurp` for repo enumeration and enforcing authenticated,
+  capped latest-release fetches.
+- Release 404s are treated as expected no-release rows, while non-404 release
+  fetch failures warn and abort so partial release metadata is not written
+  silently.
+- A forced REST fallback exercise returned 184 public repos and 147 inspected
+  releases, and Pester covers paginated REST parsing, budget policy, and
+  404/rate-limit classification.
 - The v4.9.49 batch closed the header/non-catalog link-validation gap by adding
   generated README targets for the portfolio link and both `setup.ps1` raw/source
   links.
@@ -599,7 +608,7 @@ Top addendum opportunities (one line each):
 - **Major — Unguarded planning-doc version drift.** Version/date are hand-typed in three tracked docs with no check; the existing alignment item is manual only. → "self-contained version/date consistency gate". [Closed v4.9.20]
 - **Major — Privacy gate is untested.** `Test-ProfileState` (private-visibility + medical-keyword + drift) has no direct unit test; only the regex string is tested. A regression in the gate that keeps private/medical repos off the public profile would pass CI. → "Cover the safety-critical functions". `scripts/sync-profile.ps1:1324-1442`, `tests/sync-profile.Tests.ps1`. [Verified]
 - **Minor — Hero links unvalidated.** The link gate used to iterate only catalog entries, so the portfolio link, the `setup.ps1` blob link, and third-party image hosts were not probed. → "Extend link validation to hero/header". [Closed v4.9.49]
-- **Minor — REST fallback N+1.** Per-repo `gh api releases/latest` in the fallback (~184 calls) with no rate-limit handling; a partial fetch yields a silently incomplete feed. → "Cap and authenticate the REST release-fallback". `scripts/sync-profile.ps1:148-162`. [Verified]
+- **Minor — REST fallback N+1.** Per-repo `gh api releases/latest` in the fallback used to run without authentication/budget policy or partial-data aborts. → "Cap and authenticate the REST release-fallback". [Closed v4.9.50]
 - **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` swallows an unrecognized `downloadKind`; no catalog-shape validation catches the typo. → "Add catalog JSON-shape validation". `scripts/sync-profile.ps1:546`. [Verified]
 - **Minor — No size budget.** ~72 KB generated README with no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Verified]
 - **Minor — No SECURITY.md.** Repo runs Scorecard/zizmor but lacks a security policy Scorecard scores. → "Add SECURITY.md". [Verified]
