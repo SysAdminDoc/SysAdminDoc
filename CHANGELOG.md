@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.52] - 2026-06-06
+
+- Added: Profile sync now reports `catalogShape` and fails `-Check` when catalog rows have missing repo names, duplicate repo keys, unknown categories, or unknown `downloadKind` values.
+- Added: `schemas/profile-sync-report.v1.json` validates the new catalog-shape report section.
+- Added: Pester coverage for the committed catalog, duplicate repo detection, missing repo detection, and unknown category/download-kind detection.
+
 ## [v4.9.51] - 2026-06-06
 
 - Added: Profile sync reports now include `readmeSizeBudget` with generated README byte count, the configured 96 KiB soft limit, over-limit state, and warning text.

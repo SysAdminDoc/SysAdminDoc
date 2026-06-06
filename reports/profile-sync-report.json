@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T16:08:12.5823267-04:00",
+  "generatedAt": "2026-06-06T16:15:34.2183896-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,17 +62,22 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "58530df22daccc36fc0aa1c25ef28d6dcfea955c",
+    "sourceCommit": "0fb0e0e069f4f1d910729412e189e74169ac0bb3",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "03ea2b40dfad3a74fee501ed5d528e90372414416cdf4e47cadf4124581e6368",
+    "generatorSha256": "25faa9538c169fb317df7b3604217696dc28fc30bffe93591118ad523c22c2dd",
     "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T16:06:39.7972717-04:00",
+    "metadataSnapshotAt": "2026-06-06T16:14:14.2074828-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
       "returnedCount": 184,
       "truncated": false
     }
+  },
+  "catalogShape": {
+    "passed": true,
+    "issueCount": 0,
+    "issues": []
   },
   "metadataHygiene": {
     "missingTopicCount": 69,
@@ -153,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T20:04:50.0000000Z",
+        "pushedAt": "2026-06-06T20:13:44.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1572,28 +1577,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.51",
+    "expectedVersion": "v4.9.52",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.51"
+        "value": "v4.9.52"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.51"
+        "value": "v4.9.52"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.51"
+        "value": "v4.9.52"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.51"
+        "value": "v4.9.52"
       }
     ],
     "dates": [
@@ -1626,7 +1631,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 4345,
+      "elapsedMs": 3745,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -1645,7 +1650,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.99,
+      "ageDays": 5.0,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1655,7 +1660,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 4345,
+    "elapsedMs": 3745,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },

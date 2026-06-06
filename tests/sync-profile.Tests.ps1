@@ -136,6 +136,49 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
     }
 }
 
+Describe 'Catalog shape validation' {
+    It 'passes the fixture and committed catalog' {
+        foreach ($path in @('tests/fixtures/catalog.json', 'data/profile-catalog.json')) {
+            $cat = Get-Catalog -Path (Join-Path $script:RepoRoot $path)
+            $result = Test-CatalogShape -Catalog $cat
+
+            $result.passed | Should -BeTrue
+            $result.issueCount | Should -Be 0
+            @($result.issues) | Should -HaveCount 0
+        }
+    }
+
+    It 'flags duplicate repo rows case-insensitively' {
+        $first = New-TestEntry -Repo 'DupTool' -Category 'powershell'
+        $second = New-TestEntry -Repo 'duptool' -Category 'python'
+
+        $result = Test-CatalogShape -Catalog @{ entries = @($first, $second) }
+
+        $result.passed | Should -BeFalse
+        ($result.issues | Where-Object { $_.field -eq 'repo' }).reason | Should -Match 'duplicate repo'
+    }
+
+    It 'flags a missing repo value' {
+        $entry = New-TestEntry -Repo '' -Category 'powershell'
+
+        $result = Test-CatalogShape -Catalog @{ entries = @($entry) }
+
+        $result.passed | Should -BeFalse
+        ($result.issues | Where-Object { $_.field -eq 'repo' }).reason | Should -Be 'repo is required'
+    }
+
+    It 'flags unknown category and downloadKind values' {
+        $entry = New-TestEntry -Repo 'BadShape' -Category 'unknown'
+        $entry.downloadKind = 'installer'
+
+        $result = Test-CatalogShape -Catalog @{ entries = @($entry) }
+
+        $result.passed | Should -BeFalse
+        ($result.issues | Where-Object { $_.field -eq 'category' }).reason | Should -Be 'unknown category'
+        ($result.issues | Where-Object { $_.field -eq 'downloadKind' }).reason | Should -Be 'unknown downloadKind'
+    }
+}
+
 Describe 'REST fallback release request guard' {
     It 'parses slurped paginated repo arrays from gh api' {
         $json = @'

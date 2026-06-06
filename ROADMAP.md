@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.51
+Current repo version: v4.9.52
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,14 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.52 refresh: catalog shape validation shipped.
+Profile sync now reports `catalogShape` and fails `-Check` when catalog rows
+have missing repo names, duplicate repo keys, unknown categories, or unknown
+`downloadKind` values. The committed catalog currently passes with 0 shape
+issues. The report schema and Pester suite cover the new guard.
+Next highest open item: repository settings/community-health baseline in the
+sync report.
 
 2026-06-06 v4.9.51 refresh: generated README size budget shipped.
 Profile sync now records `readmeSizeBudget` in the generated report with the
@@ -790,11 +798,12 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Completed: v4.9.36 added `Test-ProfileState` projects-sync gate test; v4.9.38 added URL-scheme validation tests; v4.9.39 added medical privacy gate tests (flags medical keywords, respects `allowPublicMedical`). `Update-Header` idempotency test remains open.
   - Complexity: M
 
-- [ ] P2 — Add catalog JSON-shape validation to CI/Pester
+- [x] P2 — Add catalog JSON-shape validation to CI/Pester
   - Why: a malformed `data/profile-catalog.json` (bad category slug, missing `repo`, duplicate entry, unknown `downloadKind`) only surfaces at generation runtime, and some bad values (e.g. an unrecognized `downloadKind`) silently fall through to a default label. There is no structural validation step.
   - Evidence: `Get-Catalog` (`scripts/sync-profile.ps1:313`) `ConvertFrom-Json` with no schema/shape assertions; `Get-DownloadLabel` (`:546`) `default { return "Download" }` swallows unknown kinds.
   - Touches: `tests/sync-profile.Tests.ps1` (or a new `Test-CatalogShape` function), optional committed schema from the P1 schema item.
   - Acceptance: a test fails on a duplicate `repo`, an unknown `category` slug, or an unknown `downloadKind`; known-good catalog passes.
+  - Completed: v4.9.52 added `Test-CatalogShape`, `catalogShape` report output, `-Check` failure wiring, schema support, and Pester coverage for known-good plus malformed catalog rows.
   - Verify: inject a duplicate repo into a fixture, run Pester, confirm the new test fails.
   - Complexity: M
 

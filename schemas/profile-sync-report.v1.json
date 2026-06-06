@@ -15,6 +15,7 @@
     "catalogEntryCount",
     "includedReadmeCount",
     "provenance",
+    "catalogShape",
     "metadataHygiene",
     "releaseAssetDrift",
     "schemaValidation",
@@ -69,6 +70,9 @@
     },
     "provenance": {
       "$ref": "#/$defs/provenance"
+    },
+    "catalogShape": {
+      "$ref": "#/$defs/catalogShape"
     },
     "metadataHygiene": {
       "$ref": "#/$defs/metadataHygiene"
@@ -287,6 +291,53 @@
         },
         "repoEnumeration": {
           "$ref": "#/$defs/repoEnumeration"
+        }
+      }
+    },
+    "catalogShape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "issueCount",
+        "issues"
+      ],
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "issueCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/catalogShapeIssue"
+          }
+        }
+      }
+    },
+    "catalogShapeIssue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "field",
+        "value",
+        "reason"
+      ],
+      "properties": {
+        "repo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "field": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reason": {
+          "type": "string"
         }
       }
     },

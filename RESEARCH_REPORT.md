@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.51
+Current version after this refresh: v4.9.52
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.52 batch closed the catalog JSON-shape validation gap by adding
+  `Test-CatalogShape` plus `catalogShape` report output and `-Check` failure
+  wiring.
+- The guard catches missing repo names, duplicate repo keys, unknown categories,
+  and unknown `downloadKind` values; the committed catalog currently passes with
+  0 shape issues.
+- The report schema validates the new `catalogShape` section, and Pester covers
+  known-good and malformed catalog cases.
 - The v4.9.51 batch closed the generated README size-budget gap by adding
   `readmeSizeBudget` to the sync report.
 - The current generated README is 65,900 UTF-8 bytes against the 98,304-byte
@@ -584,7 +592,7 @@ This addendum is a fresh, code-first pass after the planning-doc consolidation. 
 
 ### Executive summary (addendum)
 
-A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, and the planning-doc version/date consistency gate was closed in v4.9.20. Remaining automated-guard gaps include catalog JSON-shape validation and repository/community-health reporting; the previously identified hero-link validation, REST release-fallback, and generated-README size-budget gaps are now closed.
+A line-by-line read of `scripts/sync-profile.ps1` (1,495 lines), the four workflows, the Pester suite, and `setup.ps1`, plus live verification, surfaced net-new gaps that sit outside the existing roadmap. The public feed's dangling JSON Schema URLs were closed in v4.9.19, and the planning-doc version/date consistency gate was closed in v4.9.20. Remaining automated-guard gaps include repository/community-health reporting and raw userscript trust metadata; the previously identified hero-link validation, REST release-fallback, generated-README size-budget, and catalog-shape validation gaps are now closed.
 
 Top addendum opportunities (one line each):
 
@@ -593,7 +601,7 @@ Top addendum opportunities (one line each):
 3. P1 — `Test-ProfileState` (the private/medical/visibility gate) has zero direct Pester coverage. [Verified]
 4. P2 — Link validation never probes the hero/portfolio/image-host URLs. [Verified]
 5. P2 — REST release-fallback is an unbounded per-repo N+1 (~184 calls) with no rate-limit awareness. [Verified]
-6. P2 — No catalog JSON-shape validation; unknown `downloadKind` silently defaults. [Verified]
+6. P2 — No catalog JSON-shape validation; unknown `downloadKind` silently defaults. [Closed v4.9.52]
 7. P2 — No generated-README size budget (file is ~72 KB and grows unbounded). [Closed v4.9.51]
 8. P2 — No SECURITY.md though Scorecard scores its presence. [Verified]
 9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [Verified]
@@ -615,7 +623,7 @@ Top addendum opportunities (one line each):
 - **Major — Privacy gate is untested.** `Test-ProfileState` (private-visibility + medical-keyword + drift) has no direct unit test; only the regex string is tested. A regression in the gate that keeps private/medical repos off the public profile would pass CI. → "Cover the safety-critical functions". `scripts/sync-profile.ps1:1324-1442`, `tests/sync-profile.Tests.ps1`. [Verified]
 - **Minor — Hero links unvalidated.** The link gate used to iterate only catalog entries, so the portfolio link, the `setup.ps1` blob link, and third-party image hosts were not probed. → "Extend link validation to hero/header". [Closed v4.9.49]
 - **Minor — REST fallback N+1.** Per-repo `gh api releases/latest` in the fallback used to run without authentication/budget policy or partial-data aborts. → "Cap and authenticate the REST release-fallback". [Closed v4.9.50]
-- **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` swallows an unrecognized `downloadKind`; no catalog-shape validation catches the typo. → "Add catalog JSON-shape validation". `scripts/sync-profile.ps1:546`. [Verified]
+- **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` used to swallow an unrecognized `downloadKind`; catalog-shape validation now catches the typo. → "Add catalog JSON-shape validation". [Closed v4.9.52]
 - **Minor — No size budget.** ~72 KB generated README had no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Closed v4.9.51]
 - **Minor — No SECURITY.md.** Repo runs Scorecard/zizmor but lacks a security policy Scorecard scores. → "Add SECURITY.md". [Verified]
 - **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [Verified]
