@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.60
+Current version after this refresh: v4.9.61
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.61 batch closed the generated automation branch cleanup policy gap by
+  adding `automation-branch-cleanup.yml`.
+- The cleanup workflow runs a weekly dry-run, supports manual deletion, and only
+  deletes managed `automation/profile-sync-*` or `automation/profile-assets-*`
+  branches when a matching pull request is merged.
+- Current live remote inspection found no existing `automation/*` branches.
+- Pester coverage guards the dry-run default, strict generated-branch prefixes,
+  merged-PR gating, scoped write permissions, and timeout budget.
+- Strict local `zizmor --strict-collection .github/workflows` also drove a
+  YAML-safe `workflow-security.yml` install command fix for the hash-checked
+  `zizmor` setup step.
 - The v4.9.60 batch reconciled stale duplicate roadmap rows for pull-request
   profile-sync validation, public-safe issue forms, the sync-report schema
   contract, and live rendered-profile smoke proof against their shipped evidence.
@@ -371,7 +382,7 @@ Top opportunities, in priority order:
 22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
 23. P3 - Add `.editorconfig` and generated README markdown linting.
 24. P3 - Validate all historical `CHANGELOG.md` release headings.
-25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches.
+25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows.
 27. P3 - Cover future local GitHub actions under workflow-security triggers and ownership.
 28. P3 - Stagger same-minute scheduled maintenance workflows.
@@ -1437,7 +1448,7 @@ dirty, but the repository setting does not prevent future branch accumulation.
   has automatic branch deletion disabled. Future scheduled/manual generated PRs
   can leave merged automation branches behind unless the build machine enables
   repository-wide head-branch deletion or adds a narrowly scoped cleanup path.
-  → roadmap "Enable cleanup for generated automation PR branches". [Verified]
+  → roadmap "Enable cleanup for generated automation PR branches". [Closed v4.9.61]
 
 ### Standards note (cycle 18)
 

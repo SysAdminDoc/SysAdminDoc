@@ -1400,6 +1400,39 @@ Describe 'Generated profile PR validation handoff' {
     }
 }
 
+Describe 'Generated automation branch cleanup' {
+    BeforeAll {
+        $script:AutomationCleanupWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/automation-branch-cleanup.yml') -Raw
+    }
+
+    It 'defaults to dry-run cleanup and staggers the weekly schedule' {
+        $script:AutomationCleanupWorkflow | Should -Match 'dry_run:'
+        $script:AutomationCleanupWorkflow | Should -Match 'default: "true"'
+        $script:AutomationCleanupWorkflow | Should -Match 'DRY_RUN: \$\{\{ github[.]event_name != ''workflow_dispatch'' \|\| inputs[.]dry_run == ''true'' \}\}'
+        $script:AutomationCleanupWorkflow | Should -Match 'cron: "43 8 [*] [*] 3"'
+    }
+
+    It 'limits deletion to merged generated profile branches' {
+        $script:AutomationCleanupWorkflow | Should -Match '"automation/profile-sync-"'
+        $script:AutomationCleanupWorkflow | Should -Match '"automation/profile-assets-"'
+        $script:AutomationCleanupWorkflow | Should -Match 'matching-refs/heads/automation/'
+        $script:AutomationCleanupWorkflow | Should -Match 'StartsWith\(\$prefix, \[StringComparison\]::Ordinal\)'
+        $script:AutomationCleanupWorkflow | Should -Match '\$_[.]state -eq "MERGED"'
+        $script:AutomationCleanupWorkflow | Should -Match 'mergedAt'
+        $script:AutomationCleanupWorkflow | Should -Match 'gh api -X DELETE "repos/\$repo/git/refs/heads/\$branch"'
+    }
+
+    It 'keeps write permissions scoped to the cleanup job' {
+        $workflowLevel = [regex]::Match($script:AutomationCleanupWorkflow, '(?ms)^permissions:\s*(?<block>.*?)(?=^jobs:)').Groups['block'].Value
+        $job = [regex]::Match($script:AutomationCleanupWorkflow, '(?ms)^  cleanup:.*').Value
+
+        $workflowLevel | Should -Match 'contents: read'
+        $workflowLevel | Should -Not -Match 'contents: write'
+        $job | Should -Match 'contents: write'
+        $job | Should -Match 'pull-requests: read'
+    }
+}
+
 Describe 'Profile sync report summaries' {
     BeforeAll {
         $script:SummaryScriptPath = Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1'
@@ -1463,6 +1496,7 @@ Describe 'Profile sync report summaries' {
 Describe 'Workflow timeout budgets' {
     BeforeAll {
         $script:WorkflowTimeoutBudgets = [ordered]@{
+            '.github/workflows/automation-branch-cleanup.yml' = 1
             '.github/workflows/assets-refresh.yml' = 1
             '.github/workflows/profile-sync.yml' = 2
             '.github/workflows/scorecard.yml' = 1
@@ -1522,7 +1556,7 @@ Describe 'CI validation tool pins' {
     }
 
     It 'installs zizmor from hash-checked pinned requirements' {
-        $script:WorkflowSecurityForToolPins | Should -Match 'python -m pip install --disable-pip-version-check --no-deps --require-hashes --only-binary :all: -r requirements-ci[.]txt'
+        $script:WorkflowSecurityForToolPins | Should -Match 'python -m pip install --disable-pip-version-check --no-deps\s+--require-hashes --only-binary=:all: -r requirements-ci[.]txt'
         $script:WorkflowSecurityForToolPins | Should -Not -Match 'pip install --upgrade zizmor'
         $script:CiRequirements | Should -Match '(?m)^zizmor==1[.]25[.]2\s+\\'
         $script:CiRequirements | Should -Match '--hash=sha256:c4246f1344d8dbeffc044d7bb11b131773a7db7eb57d9073c45942dfd3543a1f'

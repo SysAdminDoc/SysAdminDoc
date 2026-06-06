@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.61] - 2026-06-06
+
+- Added: `automation-branch-cleanup.yml` now provides a scheduled dry-run and manual delete path for merged generated PR branches.
+- Added: Cleanup is restricted to `automation/profile-sync-*` and `automation/profile-assets-*` refs with a merged pull request, leaving unmatched and unmerged branches untouched.
+- Added: Pester coverage guards the dry-run default, strict branch prefixes, merged-PR checks, scoped write permissions, and workflow timeout budget.
+- Fixed: Workflow security now installs `zizmor` with YAML-safe `--only-binary=:all:` syntax so strict workflow collection can parse the workflow file cleanly.
+
 ## [v4.9.60] - 2026-06-06
 
 - Changed: Reconciled stale duplicate roadmap rows for pull-request profile-sync validation, public-safe issue forms, the sync-report schema contract, and live rendered-profile smoke proof.
