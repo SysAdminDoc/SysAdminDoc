@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.44
+Current repo version: v4.9.45
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,20 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.45 refresh: sync-report JSON Schema contract shipped.
+`reports/profile-sync-report.json` now advertises
+`schemas/profile-sync-report.v1.json` through a top-level `schema` URL. The new
+schema validates the report's core booleans/counts, profile asset checks,
+provenance, metadata hygiene, release asset drift and trust diagnostics,
+schema-validation results, doc-version consistency, validation performance,
+link validation, metadata drift, and README experience sections. `-Check` now
+validates the generated report against that schema and records the result under
+`schemaValidation.report`. Pester validates the committed report contract,
+checks that the schema uses no unsupported keywords, and proves a report missing
+`releaseAssetDrift` is rejected. This batch also fixed array stability for
+single-value `releaseAssetDrift.sourceOnlyWithRelease.releaseAssetKinds`.
+Next highest open item: pin and audit CI-installed validation tools.
 
 2026-06-06 v4.9.44 refresh: release/download trust metadata shipped.
 `projects.json` visitor-facing rows now include a `releaseTrust` object derived
@@ -1015,11 +1029,12 @@ repository enumeration as the public catalog grows.*
 report's machine-readable contract now that multiple workflow-summary and
 artifact items depend on it.*
 
-- [ ] P2 🤖 🔬 — Publish a JSON Schema for `profile-sync-report.json`
+- [x] P2 🤖 🔬 — Publish a JSON Schema for `profile-sync-report.json`
   - Why: `reports/profile-sync-report.json` is now the central evidence artifact for sync status, metadata hygiene, release drift, link validation, schema validation, planning-doc consistency, and planned job summaries, but only the catalog/feed have committed JSON Schemas. Consumers that parse the report still have no versioned contract for report fields.
   - Evidence: `schemas/` contains only `profile-catalog.v1.json` and `profile-projects.v1.json`; `reports/profile-sync-report.json` has structured top-level fields such as `metadataHygiene`, `releaseAssetDrift`, `validationPerformance`, `readmeExperienceChecks`, `schemaValidation`, and `docVersionConsistency`, but no top-level `schema`/`$schema` pointer; `tests/sync-profile.Tests.ps1` validates catalog/feed schema contracts, not the full sync-report shape; JSON Schema's official docs describe it as a vocabulary for validating JSON data consistency and interoperability: https://json-schema.org/
   - Touches: `schemas/profile-sync-report.v1.json`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, generated `reports/profile-sync-report.json`, optional workflow summary helper once added.
   - Acceptance: the sync report includes a versioned schema URL or schema id; a committed `schemas/profile-sync-report.v1.json` validates the generated report shape; Pester or `-Check` validates the current report against the schema; future report-summary helpers can rely on stable optional/required fields.
+  - Completed: v4.9.45 adds `schemas/profile-sync-report.v1.json`, emits the report `schema` URL, records `schemaValidation.report`, validates the report from `-Check`, and adds Pester coverage for valid and malformed report fixtures.
   - Verify: run `scripts/sync-profile.ps1 -Write -Check` and Pester; deliberately remove a required report field in a fixture and confirm schema validation fails with a clear report-schema error.
   - Complexity: M
 
@@ -1478,13 +1493,14 @@ code scanning is currently useful for this repository's actual language mix.*
 contract now that provenance, community settings, release trust, and
 motion-safety sections are all planned additions.*
 
-- [ ] P2 - Promote `profile-sync-report.json` to a versioned schema contract
+- [x] P2 - Promote `profile-sync-report.json` to a versioned schema contract
   - Why: `reports/profile-sync-report.json` is now the central evidence artifact for generated README health, link validation, release drift, schema validation, planning-doc consistency, validation performance, and workflow summaries. New planned sections will make the shape larger and more consumer-facing, so the report needs the same versioned contract discipline as the catalog and public feed.
   - Evidence: `reports/profile-sync-report.json` currently has 23 top-level fields including `metadataHygiene`, `releaseAssetDrift`, `schemaValidation`, `docVersionConsistency`, `validationPerformance`, `metadataDrift`, `linkValidationSummary`, and `readmeExperienceChecks`, but it has no top-level `schema` or `$schema` pointer. `schemas/` contains only `profile-catalog.v1.json` and `profile-projects.v1.json`. `scripts/sync-profile.ps1:2498-2517` validates only catalog/feed schemas through `Test-FeedSchemaContracts`; `tests/sync-profile.Tests.ps1:478-510` exercises catalog/feed schema validation, not report schema validation. The current report also has volatile live-data sections with arrays of 69 missing-topic rows, 17 source-only release rows, and 5 metadata-drift rows, so downstream summary consumers need stable required/optional rules.
   - Source notes: JSON Schema describes itself as a vocabulary for JSON data consistency, validity, and interoperability at scale: https://json-schema.org/. The repo's custom validator already fails closed on unsupported schema keywords, which makes adding a report schema safer as long as the first version stays within the supported keyword subset.
   - Touches: `schemas/profile-sync-report.v1.json`, `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, `scripts/write-profile-sync-summary.ps1`, `tests/sync-profile.Tests.ps1`, optional `PROJECT_CONTEXT.md`.
   - Recommended schema shape: add top-level `schema`, `generatedAt`, core booleans/counts, required objects for `metadataHygiene`, `releaseAssetDrift`, `schemaValidation`, `docVersionConsistency`, `validationPerformance`, `linkValidationSummary`, and `readmeExperienceChecks`; keep newly planned `repositorySettings`, `provenance`, `releaseTrust`, and `motionSafeChrome` fields optional in v1 until implemented; disallow unexpected top-level properties only after the generator and summary helper are updated together.
   - Acceptance: the report advertises a raw-GitHub schema URL; `-Check` validates the generated report against `schemas/profile-sync-report.v1.json`; Pester includes a fixture proving a missing required section fails; workflow summaries rely only on schema-backed fields; volatile row arrays have item schemas but allow empty arrays.
+  - Completed: v4.9.45 ships the report schema, top-level report schema URL, `schemaValidation.report`, report-schema failure wiring, and Pester coverage for valid and missing-section reports.
   - Verify: run `scripts/sync-profile.ps1 -Write -Check`; intentionally remove `readmeExperienceChecks` from a fixture report and confirm schema validation fails; confirm `scripts/write-profile-sync-summary.ps1` still renders the report without private/suppressed repo details.
   - Complexity: M
 
@@ -1573,7 +1589,7 @@ P2/P3, each doable in well under an hour:
 - [ ] P2 — Per-project SPDX/license fields in `projects.json` and the sync report.
 - [ ] P2 — GitHub fork-parent drift report for catalog `forkOf` attribution.
 - [x] P2 — Public-repo enumeration limit guard for `gh repo list --limit 300` (completed v4.9.36: raised to 500 with truncation warning).
-- [ ] P2 — JSON Schema contract for `reports/profile-sync-report.json`.
+- [x] P2 — JSON Schema contract for `reports/profile-sync-report.json` (completed v4.9.45 with `schemas/profile-sync-report.v1.json`, report `schema`, `schemaValidation.report`, `-Check` failure wiring, and Pester malformed-report coverage).
 - [x] P2 — `.gitattributes` generated-artifact diff policy for feed/report/SVG churn (completed v4.9.37).
 - [ ] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions.
 - [ ] P2 — Userscript install trust metadata for raw `.user.js` actions.
