@@ -1128,6 +1128,10 @@
         "genericImageAltTextCount",
         "thirdPartyMetricHostCount",
         "thirdPartyBadgeHostCount",
+        "thirdPartyRenderHostCount",
+        "thirdPartyRenderHosts",
+        "motionSafeChrome",
+        "motionPatternCount",
         "profileStatsChromeCount",
         "featuredRows",
         "featuredActionColumn",
@@ -1177,6 +1181,18 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "thirdPartyBadgeHostCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "thirdPartyRenderHostCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "thirdPartyRenderHosts": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "motionSafeChrome": {
+          "type": "boolean"
+        },
+        "motionPatternCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "profileStatsChromeCount": {

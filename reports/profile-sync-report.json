@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T15:26:41.7860423-04:00",
+  "generatedAt": "2026-06-06T15:37:40.8777369-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -12,6 +12,26 @@
     },
     {
       "path": "assets/profile/activity-light.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/footer-dark.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/footer-light.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/header-dark.svg",
+      "exists": true,
+      "inSync": true
+    },
+    {
+      "path": "assets/profile/header-light.svg",
       "exists": true,
       "inSync": true
     },
@@ -42,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "413708fa4de3da05c1861fb1e9a83f874b40f25f",
+    "sourceCommit": "10a2ac16bfb9ebca7bfe07aac691035fff02a240",
     "catalogSha256": "d355ee6dbcb76e71f7aaf6fe2d9bd048eafb4f9a5333fea53da48887c897971a",
-    "generatorSha256": "5cb4b31012b361ef6ac098e9b57856a019a61556eb47805933e5c2609bbef67d",
+    "generatorSha256": "cd6b134b39054c5c81075e8327f05f45d972846561baff1e14b42a2c4edf6fe2",
     "projectSchemaSha256": "7ce9926603d5660f1c6afb2f43440db53ab59f3d5b86a9ca14726785e8b1321a",
-    "metadataSnapshotAt": "2026-06-06T15:25:29.5255040-04:00",
+    "metadataSnapshotAt": "2026-06-06T15:36:28.9086358-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -133,7 +153,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-06T19:25:13.0000000Z",
+        "pushedAt": "2026-06-06T19:32:54.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -168,7 +188,7 @@
       {
         "repo": "CallShield",
         "language": "Kotlin",
-        "pushedAt": "2026-06-04T18:53:05.0000000Z",
+        "pushedAt": "2026-06-06T19:29:49.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1552,28 +1572,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.46",
+    "expectedVersion": "v4.9.47",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.46"
+        "value": "v4.9.47"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.46"
+        "value": "v4.9.47"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.46"
+        "value": "v4.9.47"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.46"
+        "value": "v4.9.47"
       }
     ],
     "dates": [
@@ -1606,7 +1626,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 3269,
+      "elapsedMs": 3215,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1624,7 +1644,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 4.96,
+      "ageDays": 4.97,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1634,7 +1654,7 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 3269,
+    "elapsedMs": 3215,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],
@@ -1653,6 +1673,10 @@
     "genericImageAltTextCount": 0,
     "thirdPartyMetricHostCount": 0,
     "thirdPartyBadgeHostCount": 0,
+    "thirdPartyRenderHostCount": 0,
+    "thirdPartyRenderHosts": [],
+    "motionSafeChrome": true,
+    "motionPatternCount": 0,
     "profileStatsChromeCount": 0,
     "featuredRows": 10,
     "featuredActionColumn": true,

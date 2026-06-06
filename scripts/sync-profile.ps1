@@ -1487,6 +1487,59 @@ function New-ProfilePanelSvg {
     return ($lines -join [Environment]::NewLine)
 }
 
+function New-ProfileHeroSvg {
+    param(
+        [ValidateSet("dark", "light")]
+        [string]$Theme,
+        [int]$Width = 820,
+        [int]$Height = 220
+    )
+
+    if ($Theme -eq "dark") {
+        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#58a6ff"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#1f6feb"
+    } else {
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#0969da"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"
+    }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"SysAdminDoc profile header`">")
+    $lines.Add("  <title>SysAdminDoc profile header</title>")
+    $lines.Add("  <desc>Static profile header for a healthcare IT engineer, DICOM/PACS specialist, and product builder.</desc>")
+    $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
+    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"$($Width - 32)`" height=`"$($Height - 32)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"8`" height=`"$($Height - 32)`" fill=`"$accent`"/>")
+    $lines.Add("  <text x=`"$([math]::Floor($Width / 2))`" y=`"78`" text-anchor=`"middle`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"42`" font-weight=`"700`">SysAdminDoc</text>")
+    $lines.Add("  <text x=`"$([math]::Floor($Width / 2))`" y=`"116`" text-anchor=`"middle`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"17`" font-weight=`"600`">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>")
+    $lines.Add("  <text x=`"$([math]::Floor($Width / 2))`" y=`"148`" text-anchor=`"middle`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>")
+    $lines.Add("</svg>")
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-ProfileFooterSvg {
+    param(
+        [ValidateSet("dark", "light")]
+        [string]$Theme,
+        [int]$Width = 820,
+        [int]$Height = 120
+    )
+
+    if ($Theme -eq "dark") {
+        $bg = "#0d1117"; $waveOne = "#161b22"; $waveTwo = "#1f6feb"; $line = "#30363d"
+    } else {
+        $bg = "#ffffff"; $waveOne = "#f6f8fa"; $waveTwo = "#dbeafe"; $line = "#d0d7de"
+    }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-label=`"Decorative footer wave for the SysAdminDoc profile`">")
+    $lines.Add("  <title>Decorative footer wave for the SysAdminDoc profile</title>")
+    $lines.Add("  <desc>Static footer divider used by the generated profile README.</desc>")
+    $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
+    $lines.Add("  <path d=`"M0 74 C120 42 226 38 350 68 C482 100 610 94 820 48 L820 120 L0 120 Z`" fill=`"$waveOne`" stroke=`"$line`" stroke-width=`"1`"/>")
+    $lines.Add("  <path d=`"M0 92 C156 56 282 58 420 84 C548 108 674 96 820 64 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.35`"/>")
+    $lines.Add("</svg>")
+    return ($lines -join [Environment]::NewLine)
+}
+
 function Get-TopLanguageRows {
     param(
         [hashtable[]]$Entries,
@@ -1557,33 +1610,31 @@ function New-ProfileAssetSvgs {
     )
 
     $assets = [ordered]@{}
+    $assets["$assetPathPrefix/header-dark.svg"] = New-ProfileHeroSvg -Theme dark
+    $assets["$assetPathPrefix/header-light.svg"] = New-ProfileHeroSvg -Theme light
     $assets["$assetPathPrefix/stats-dark.svg"] = New-ProfilePanelSvg -Title "SysAdminDoc Catalog Stats" -Subtitle "Generated from public GitHub metadata and data/profile-catalog.json" -Rows $statsRows -Theme dark
     $assets["$assetPathPrefix/stats-light.svg"] = New-ProfilePanelSvg -Title "SysAdminDoc Catalog Stats" -Subtitle "Generated from public GitHub metadata and data/profile-catalog.json" -Rows $statsRows -Theme light
     $assets["$assetPathPrefix/languages-dark.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme dark
     $assets["$assetPathPrefix/languages-light.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme light
     $assets["$assetPathPrefix/activity-dark.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme dark
     $assets["$assetPathPrefix/activity-light.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme light
+    $assets["$assetPathPrefix/footer-dark.svg"] = New-ProfileFooterSvg -Theme dark
+    $assets["$assetPathPrefix/footer-light.svg"] = New-ProfileFooterSvg -Theme light
     return $assets
 }
 
 function New-ProfileChrome {
-    $headerDark = "https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=58A6FF&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=8b949e&descAlignY=52"
-    $headerLight = "https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=220&section=header&text=SysAdminDoc&fontSize=44&fontColor=0969DA&animation=fadeIn&fontAlignY=32&desc=Healthcare%20IT%20Engineer%20%7C%20DICOM%2FPACS%20Specialist%20%7C%20Product%20Builder&descSize=17&descColor=57606a&descAlignY=52"
-    $typingDark = "https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=58A6FF&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"
-    $typingLight = "https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=4000&pause=1000&color=0969DA&center=true&vCenter=true&repeat=true&width=800&height=40&lines=Healthcare+IT+Engineer+%2B+DICOM%2FPACS+Specialist;16%2B+years+IT+ops+%2B+10%2B+production+platforms;Python+%7C+React+%7C+C%2B%2B+%7C+C%23+%7C+Go+%7C+Rust+%7C+Kotlin+%7C+PowerShell"
+    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
+    $headerImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/header-dark.svg" -LightUrl "$assetPathPrefix/header-light.svg" -Alt 'SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder'
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('<p align="center">')
-    $lines.Add("  $(New-ThemeAwareImage -DarkUrl $headerDark -LightUrl $headerLight -Alt 'SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder')")
+    $lines.Add("  $headerImage")
     $lines.Add('</p>')
     $lines.Add('')
     $lines.Add('<p align="center">')
     $lines.Add('  <strong>Healthcare IT engineer and DICOM/PACS specialist</strong><br/>')
     $lines.Add('  16+ years in IT operations, 10+ production platforms, and public tools across Python, React, C++, C#, Go, Rust, Kotlin, and PowerShell.')
-    $lines.Add('</p>')
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add("  $(New-ThemeAwareImage -DarkUrl $typingDark -LightUrl $typingLight -Alt 'Rotating focus lines for healthcare IT, DICOM/PACS, production platforms, and core languages')")
     $lines.Add('</p>')
     $lines.Add('')
     return ($lines -join [Environment]::NewLine)
@@ -1623,9 +1674,8 @@ function New-ProfileStatsChrome {
 }
 
 function New-ProfileFooter {
-    $footerDark = "https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:161b22,100:1f6feb&height=120&section=footer"
-    $footerLight = "https://capsule-render.vercel.app/api?type=waving&color=0:ffffff,50:f6f8fa,100:dbeafe&height=120&section=footer"
-    return New-ThemeAwareImage -DarkUrl $footerDark -LightUrl $footerLight -Alt "Decorative footer wave for the SysAdminDoc profile"
+    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
+    return New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "Decorative footer wave for the SysAdminDoc profile"
 }
 
 function Update-Header {
@@ -2205,6 +2255,15 @@ function Test-ReadmeExperience {
     $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
     $thirdPartyBadgeHostPattern = 'img\.shields\.io/github/(?:followers|stars)'
     $thirdPartyBadgeHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyBadgeHostPattern).Count
+    $thirdPartyRenderHostPattern = 'https://(?<host>(?:capsule-render\.vercel\.app|readme-typing-svg\.demolab\.com|skillicons\.dev))'
+    $thirdPartyRenderHosts = @(
+        [regex]::Matches($ExpectedReadme, $thirdPartyRenderHostPattern) |
+            ForEach-Object { $_.Groups['host'].Value } |
+            Sort-Object -Unique
+    )
+    $motionPattern = '(?i)(?:[?&]animation=|[?&]repeat=true|readme-typing-svg(?:\.demolab\.com)?)'
+    $motionPatternCount = [regex]::Matches($ExpectedReadme, $motionPattern).Count
+    $motionSafeChrome = $motionPatternCount -eq 0
     $profileStatsChromeCount = [regex]::Matches($ExpectedReadme, '<a href="https://skillicons\.dev">').Count
     $hasPlainTextTagline = $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -and
         $ExpectedReadme.Contains("16+ years in IT operations")
@@ -2228,6 +2287,7 @@ function Test-ReadmeExperience {
         ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)
     $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
         $hasProfileHeaderContract -and
+        $motionSafeChrome -and
         $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
@@ -2245,6 +2305,10 @@ function Test-ReadmeExperience {
         genericImageAltTextCount = $genericAltCount
         thirdPartyMetricHostCount = $thirdPartyMetricHostCount
         thirdPartyBadgeHostCount = $thirdPartyBadgeHostCount
+        thirdPartyRenderHostCount = $thirdPartyRenderHosts.Count
+        thirdPartyRenderHosts = $thirdPartyRenderHosts
+        motionSafeChrome = [bool]$motionSafeChrome
+        motionPatternCount = $motionPatternCount
         profileStatsChromeCount = $profileStatsChromeCount
         featuredRows = $featured.Count
         featuredActionColumn = [bool]$hasFeaturedActionColumn
