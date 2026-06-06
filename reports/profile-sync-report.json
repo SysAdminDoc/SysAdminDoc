@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-05T04:12:51.0900766-04:00",
+  "generatedAt": "2026-06-06T14:20:28.6355071-04:00",
   "readmeInSync": true,
-  "projectsExportInSync": false,
+  "projectsExportInSync": true,
   "profileAssetsInSync": true,
   "profileAssetChecks": [
     {
@@ -117,7 +117,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-05T06:15:03.0000000Z",
+        "pushedAt": "2026-06-06T18:17:35.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1002,61 +1002,63 @@
       "schemaPath": "schemas/profile-catalog.v1.json",
       "schemaId": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
       "valid": true,
-      "errors": []
+      "errors": [],
+      "unsupportedKeywords": []
     },
     "projects": {
       "schemaPath": "schemas/profile-projects.v1.json",
       "schemaId": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json",
       "valid": true,
-      "errors": []
+      "errors": [],
+      "unsupportedKeywords": []
     }
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.35",
-    "expectedDate": "2026-06-05",
+    "expectedVersion": "v4.9.41",
+    "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.35"
+        "value": "v4.9.41"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.35"
+        "value": "v4.9.41"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.35"
+        "value": "v4.9.41"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.35"
+        "value": "v4.9.41"
       }
     ],
     "dates": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogDate",
-        "value": "2026-06-05"
+        "value": "2026-06-06"
       },
       {
         "path": "ROADMAP.md",
         "field": "latestProfileSync",
-        "value": "2026-06-05"
+        "value": "2026-06-06"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "latestSyncDate",
-        "value": "2026-06-05"
+        "value": "2026-06-06"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "researchRefresh",
-        "value": "2026-06-05"
+        "value": "2026-06-06"
       }
     ],
     "errors": [],
@@ -1067,7 +1069,7 @@
       "skipped": false,
       "targetCount": 185,
       "throttleLimit": 16,
-      "elapsedMs": 8923,
+      "elapsedMs": 4407,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0
@@ -1076,55 +1078,16 @@
   "missingPublicRepos": [],
   "privateVisibilityViolations": [],
   "medicalPrivacyViolations": [],
+  "urlSchemeViolations": [],
+  "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [
-    {
-      "repo": "Astra-Deck",
-      "field": "pushedAt",
-      "oldValue": "2026-06-05T05:49:05Z",
-      "newValue": "2026-06-05T08:07:33Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "EspressoMonkey",
-      "field": "pushedAt",
-      "oldValue": "2026-06-05T06:15:16Z",
-      "newValue": "2026-06-05T06:46:49Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "OpenCut",
-      "field": "pushedAt",
-      "oldValue": "2026-06-05T05:58:58Z",
-      "newValue": "2026-06-05T06:53:42Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "ScriptVault",
-      "field": "pushedAt",
-      "oldValue": "2026-06-05T06:15:16Z",
-      "newValue": "2026-06-05T06:46:49Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "sysadmindoc.github.io",
-      "field": "pushedAt",
-      "oldValue": "2026-06-05T06:05:55Z",
-      "newValue": "2026-06-05T06:22:09Z",
-      "severity": "info",
-      "failing": false
-    }
-  ],
+  "metadataDrift": [],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 5,
+    "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 3.5,
+      "ageDays": 4.92,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -1134,24 +1097,26 @@
   "linkValidationSummary": {
     "targetCount": 185,
     "throttleLimit": 16,
-    "elapsedMs": 8923,
+    "elapsedMs": 4407,
     "warningCountByHost": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeExperienceChecks": {
     "passed": true,
-    "startHereSection": true,
-    "catalogSnapshotSection": true,
-    "generatedCatalogNotice": true,
+    "startHereSection": false,
+    "catalogSnapshotSection": false,
+    "generatedCatalogNotice": false,
     "setupInspectPath": true,
-    "themeAwareImageChrome": true,
-    "plainTextTagline": true,
-    "meaningfulImageAltText": true,
+    "themeAwareImageChrome": false,
+    "plainTextTagline": false,
+    "meaningfulImageAltText": false,
+    "minimalProfileHeader": true,
+    "richProfileHeader": false,
     "genericImageAltTextCount": 0,
     "thirdPartyMetricHostCount": 0,
     "thirdPartyBadgeHostCount": 0,
-    "profileStatsChromeCount": 1,
+    "profileStatsChromeCount": 0,
     "featuredRows": 10,
     "featuredActionColumn": true,
     "currentlyBuildingRows": 5,

@@ -2,10 +2,28 @@
 
 Consolidated from legacy research and feature-planning documents on 2026-06-03. This is the canonical research home for the profile-catalog system; planned work derived from it lives in `ROADMAP.md`. The dated source bundle was archived to `docs/archive/research-feature-plan-2026-06-04.md`.
 
-Research refresh: 2026-06-05
+Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.40
+Current version after this refresh: v4.9.41
+
+## Verification Refresh — 2026-06-06
+
+- The v4.9.41 batch closed the Windows PowerShell setup parser failure found in
+  Cycle 33/Cycle 36 by replacing typographic punctuation in `setup.ps1` with
+  ASCII hyphens and adding a Pester guard that rejects future non-ASCII bytes in
+  the public bootstrapper.
+- The Tests workflow now includes an always-created `Windows setup smoke` job on
+  `windows-latest` that uses `shell: powershell` to parse `setup.ps1` with
+  `System.Management.Automation.Language.Parser.ParseFile()` and run
+  `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly`.
+- The profile generator and rendered smoke check now preserve the compact
+  portfolio-first README header from the latest remote privacy edit instead of
+  regenerating the removed personal-profile chrome, Start Here, Catalog
+  Snapshot, or Currently Building sections.
+- Local verification passed for Windows PowerShell `5.1.26100.7920`
+  `setup.ps1 -CheckOnly`, `pwsh -NoProfile -File .\setup.ps1 -CheckOnly`,
+  PSScriptAnalyzer, and the offline Pester suite.
 
 ## Verification Refresh — 2026-06-04
 

@@ -1543,19 +1543,26 @@ function Update-Header {
         } while ($updated -ne $previous)
     }
     $focusMarker = "### Professional Focus"
+    $hasRichProfileHeader = $updated.Contains($focusMarker) -or
+        $updated.Contains("Healthcare IT engineer and DICOM/PACS specialist") -or
+        $updated.Contains("https://skillicons.dev") -or
+        $updated.Contains("assets/profile/stats-")
     $focusIndex = $updated.IndexOf($focusMarker, [StringComparison]::Ordinal)
     if ($focusIndex -ge 0) {
         $updated = $updated.Substring($focusIndex)
     }
-    $updated = (New-ProfileChrome) + [Environment]::NewLine + [Environment]::NewLine + $updated
 
     $updated = $updated -replace '\d+%2B\+open\+source\+tools', "$PublicRepoCount%2B+open+source+tools"
     $updated = $updated -replace '- \d+\+ open source projects across', "- $PublicRepoCount+ open source projects across"
     $updated = $updated -replace 'Public portfolio: \d+ active repos, \d+ visitor-facing projects,', "Public portfolio: $PublicRepoCount active repos, $($Entries.Count) visitor-facing projects,"
     $updated = $updated -replace '\| Public catalog \| \d+ active repos,', "| Public catalog | $PublicRepoCount active repos,"
 
+    if ($hasRichProfileHeader) {
+        $updated = (New-ProfileChrome) + [Environment]::NewLine + [Environment]::NewLine + $updated
+    }
+
     $building = @($Entries | Where-Object { $_.currentlyBuilding -eq $true } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
-    if ($building.Count -gt 0) {
+    if ($hasRichProfileHeader -and $building.Count -gt 0) {
         $tableLines = New-Object System.Collections.Generic.List[string]
         $tableLines.Add("**Currently Building**")
         $tableLines.Add("")
@@ -1578,7 +1585,10 @@ function Update-Header {
     }
 
     $updated = [regex]::Replace($updated.TrimEnd(), '(\r?\n\s*---\s*)+$', '')
-    return $updated.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + (New-ProfileStatsChrome)
+    if ($hasRichProfileHeader) {
+        return $updated.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + (New-ProfileStatsChrome)
+    }
+    return $updated.TrimEnd()
 }
 
 function New-Readme {
@@ -1593,6 +1603,8 @@ function New-Readme {
     })
     $readme = Get-Content -LiteralPath $ReadmePath -Raw
     $sectionMarkers = @($GeneratedCatalogNotice, "### Start Here", "### Featured Projects")
+    $includeGeneratedNotice = $readme.Contains($GeneratedCatalogNotice)
+    $includeDiscoverySection = $readme.Contains("### Start Here") -or $readme.Contains("### Catalog Snapshot")
     $start = -1
     foreach ($marker in $sectionMarkers) {
         $markerIndex = $readme.IndexOf($marker, [StringComparison]::Ordinal)
@@ -1611,12 +1623,16 @@ function New-Readme {
     $blocks = New-Object System.Collections.Generic.List[string]
     $blocks.Add($header)
     $blocks.Add("")
-    $blocks.Add($GeneratedCatalogNotice)
-    $blocks.Add("")
-    $blocks.Add((New-DiscoverySection -Entries $entries -Repos $Repos))
-    $blocks.Add("")
-    $blocks.Add("---")
-    $blocks.Add("")
+    if ($includeGeneratedNotice) {
+        $blocks.Add($GeneratedCatalogNotice)
+        $blocks.Add("")
+    }
+    if ($includeDiscoverySection) {
+        $blocks.Add((New-DiscoverySection -Entries $entries -Repos $Repos))
+        $blocks.Add("")
+        $blocks.Add("---")
+        $blocks.Add("")
+    }
     $blocks.Add((New-FeaturedSection -Entries $entries -RepoLookup $repoLookup))
     $blocks.Add("")
     $blocks.Add("---")
@@ -1979,10 +1995,21 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains('alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"') -and
         $ExpectedReadme.Contains('alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub"')
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
-    $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or $ExpectedReadme.Contains("| Project | Focus | Action |")
-    $passed = $hasStartHere -and $hasSnapshot -and $hasGeneratedNotice -and $hasSetupInspectPath -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
-        $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and
-        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $profileStatsChromeCount -eq 1 -and
+    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith("**[View my full portfolio", [StringComparison]::Ordinal)
+    $hasRichProfileHeader = $ExpectedReadme.Contains("### Professional Focus") -or
+        $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -or
+        $ExpectedReadme.Contains("https://skillicons.dev") -or
+        $profileStatsChromeCount -gt 0
+    $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
+        (-not $ExpectedReadme.Contains("**Currently Building**")) -or
+        $ExpectedReadme.Contains("| Project | Focus | Action |")
+    $hasDiscoveryContract = ($hasStartHere -and $hasSnapshot -and $hasGeneratedNotice) -or
+        ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
+    $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 1) -or
+        ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)
+    $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
+        $hasProfileHeaderContract -and
+        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
     return [ordered]@{
@@ -1994,6 +2021,8 @@ function Test-ReadmeExperience {
         themeAwareImageChrome = [bool]$hasThemeAwareChrome
         plainTextTagline = [bool]$hasPlainTextTagline
         meaningfulImageAltText = [bool]$hasMeaningfulAltText
+        minimalProfileHeader = [bool]$hasMinimalProfileHeader
+        richProfileHeader = [bool]$hasRichProfileHeader
         genericImageAltTextCount = $genericAltCount
         thirdPartyMetricHostCount = $thirdPartyMetricHostCount
         thirdPartyBadgeHostCount = $thirdPartyBadgeHostCount

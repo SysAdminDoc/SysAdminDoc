@@ -2,14 +2,14 @@
 
 > Single source of truth for all planned work. Items above the --- are existing plans; items below are research conducted 2026-06-03.
 
-Last research refresh: 2026-06-05
+Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
-Latest profile sync: 2026-06-05
-Current repo version: v4.9.40
+Latest profile sync: 2026-06-06
+Current repo version: v4.9.41
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 32 - 2026-06-04.
+> Last researched: Cycle 48 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,20 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 32 - 2026-06-04.
+Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.41 refresh: Windows PowerShell setup smoke shipped. The
+advertised `setup.ps1 -CheckOnly` inspect-before-install path now parses and
+runs under Windows PowerShell 5.1 by keeping the bootstrapper ASCII-only. The
+Tests workflow now includes an always-created `Windows setup smoke` job on
+`windows-latest`, with a parser step and runtime `-CheckOnly` diagnostics.
+Pester coverage guards both the ASCII-only source contract and the workflow
+shape so future branch-protection candidates can include the setup smoke check.
+The same batch preserves the minimal public README header introduced by the
+latest remote privacy edit, so profile sync no longer reintroduces the older
+personal-profile chrome, Start Here, Catalog Snapshot, or Currently Building
+sections. Rendered-profile smoke checks now target the compact catalog sections
+that remain visible.
 
 2026-06-05 v4.9.35 refresh: Dependabot CodeQL action update applied. The
 Scorecard SARIF upload step now uses the Dependabot-reviewed
@@ -1200,16 +1213,310 @@ item makes that proof repeatable for generated-profile changes.*
   - Verify: run the smoke workflow or script after a no-op profile sync; confirm screenshots are uploaded as artifacts with explicit retention, the job summary links the artifacts, DOM assertions pass for `https://github.com/SysAdminDoc`, and an intentionally broken scratch README layout fails before merge or before a generated PR is accepted.
   - Complexity: M
 
+### Researcher Queue (Cycle 33 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass re-ran the advertised first-time setup
+path from the README with Windows PowerShell 5.1 instead of only reading source
+contracts. It found an immediate runtime/parser failure before any check-only
+diagnostics can run.*
+
+- [x] P1 🤖 🔬 — Fix the advertised Windows PowerShell `setup.ps1 -CheckOnly` path
+  - Why: the public README tells new Windows users to run the installer through Windows PowerShell and offers an inspect-before-install `-CheckOnly` path, but that exact shell currently fails before executing the script. This undermines the first-run trust path for the profile catalog's Python/Git install snippets.
+  - Evidence: local `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` on Windows PowerShell `5.1.26100.7920` failed with `setup.ps1:85` parser error: `Missing closing '}' in statement block or type definition`; `README.md:118` advertises `irm ... | iex`; `README.md:124` advertises saving then running `powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly`; `setup.ps1:1` declares `#Requires -Version 5.1`; `setup.ps1:116-129` contains the intended no-install check-only branch. Microsoft documents WinGet as the command-line Windows Package Manager after App Installer registration: https://learn.microsoft.com/windows/package-manager/winget. GitHub's PowerShell CI guide says GitHub-hosted runners have a tools cache with PowerShell and Pester: https://docs.github.com/en/actions/tutorials/build-and-test-code/powershell.
+  - Touches: `setup.ps1`, `tests/sync-profile.Tests.ps1`, `.github/workflows/tests.yml`, optional README setup text if the command needs to be clarified.
+  - Acceptance: `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` parses and runs on Windows PowerShell 5.1, reports winget/Python/pip/Git status, does not call `winget install`, and exits without mutating installed tools; the README inspect-before-install command remains accurate.
+  - Verify: run the command above on Windows PowerShell 5.1 and, when available, `pwsh -NoProfile -File .\setup.ps1 -CheckOnly`; add a Windows CI smoke job that uses `powershell`, not only `pwsh`, for PRs touching `setup.ps1`, README setup text, or tests; temporarily route `-CheckOnly` into `Install-Pkg` and confirm the smoke fails.
+  - Completed: v4.9.41 replaced the unsafe typographic punctuation in `setup.ps1`, verified the advertised Windows PowerShell `-CheckOnly` path, and added ASCII-only regression coverage.
+  - Complexity: S
+
+### Researcher Queue (Cycle 34 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass narrowed the existing generated-feed
+provenance item into a concrete feed/report contract. It inspected the export
+payload, schema, metadata-drift comparison, and official provenance/commit
+references.*
+
+- [ ] P1 🤖 🔬 — Add deterministic generated-feed provenance fields
+  - Why: `projects.json` is now an external portfolio feed, but consumers can only see `generatedAt` and a static `source` string. They cannot tell which commit, generator file, catalog file, schema file, or metadata snapshot produced a feed, nor whether a stale committed feed came from GraphQL or REST fallback metadata.
+  - Evidence: `scripts/sync-profile.ps1:1727-1735` emits only `schema`, `generatedAt`, `source`, counts, `projects`, and `suppressed`; `schemas/profile-projects.v1.json:7-16` requires the same top-level fields and has no provenance object; `scripts/sync-profile.ps1:2777-2785` treats only `schema`, `source`, and counts as top-level fatal drift fields; current HEAD is `8c8aac4643b57514a364d0dfb3aaddf98d638023`. GitHub's commits API exposes commit SHAs and commit metadata for repository references: https://docs.github.com/en/rest/commits. GitHub artifact-attestation docs frame provenance as evidence of where and how an artifact was built, which is the same trust model this public feed needs even if it starts with lightweight in-file metadata: https://docs.github.com/en/actions/how-tos/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds.
+  - Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, generated `projects.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`, optional portfolio consumer notes.
+  - Acceptance: `projects.json` includes a public-safe `provenance` object with at least `sourceRepository`, `sourceCommit`, `catalogSha256`, `generatorSha256`, `projectSchemaSha256`, `metadataSnapshotAt`, `metadataProvider` (`graphql` or `rest-fallback`), and repository enumeration counts/limit/truncation status; the schema validates the object; metadata drift treats provenance mismatches as fatal except for intentionally volatile `metadataSnapshotAt`; no absolute local paths or private repo names are emitted.
+  - Verify: regenerate twice without source changes and confirm file hashes are stable except the snapshot timestamp; edit `data/profile-catalog.json` and confirm `catalogSha256` changes; edit `scripts/sync-profile.ps1` and confirm `generatorSha256` changes; simulate REST fallback and confirm `metadataProvider=rest-fallback` appears in the report/feed.
+  - Complexity: M
+
+### Researcher Queue (Cycle 35 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass refreshed the CI reproducibility item
+against the current workflows after action SHA pinning and actionlint hardening.
+The remaining drift source is live validation-tool installation, not GitHub
+Action identity.*
+
+- [ ] P2 🤖 🔬 — Pin CI validation tools with a reviewed update path
+  - Why: workflow actions are pinned to commit SHAs, but runtime validation tools still float. Pester uses `Install-Module Pester -MinimumVersion 5.5.0`, which can select a newer unreviewed version, and `zizmor` is installed with `python -m pip install --upgrade zizmor`. A new registry release can change CI behavior without a Dependabot PR or human review.
+  - Evidence: `.github/workflows/tests.yml:65-66` installs Pester by minimum version; `.github/workflows/workflow-security.yml:44-48` installs latest `zizmor` before auditing workflows; `.github/dependabot.yml:3-10` only monitors `github-actions`, so PSGallery/PyPI tool changes do not create reviewable update PRs. Microsoft documents `Install-Module -RequiredVersion` for exact module selection: https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module. The Pester installation docs describe explicit installation paths and versions for CI usage: https://pester.dev/docs/introduction/installation.
+  - Touches: `.github/workflows/tests.yml`, `.github/workflows/workflow-security.yml`, optional `requirements-ci.txt`/tool-version manifest, Pester tests that assert pinned install commands.
+  - Acceptance: Pester and `zizmor` installs use exact reviewed versions; Python package installation uses a lock or hash-checked requirement where practical; the version-update process is documented near Dependabot/action-update guidance; workflow-security continues to show actionlint version plus checksum verification.
+  - Verify: run `rg -n "Install-Module Pester|pip install.*zizmor|RequiredVersion|--require-hashes" .github/workflows tests scripts`; CI logs show the intended exact versions; a future version bump changes one manifest/workflow line and is reviewed like action SHA updates.
+  - Complexity: S
+
+### Researcher Queue (Cycle 36 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass isolated the Windows PowerShell 5.1
+setup failure to file encoding and typographic punctuation, not a missing brace
+in the PowerShell syntax.*
+
+- [x] P1 🤖 🔬 — Make `setup.ps1` parse safely from disk in Windows PowerShell 5.1
+  - Why: `setup.ps1` is the public first-run bootstrapper, and the README intentionally invokes it through `powershell.exe`, not `pwsh`. A script that only parses after manually forcing UTF-8 does not satisfy the advertised Windows-first install path.
+  - Evidence: `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` fails at `setup.ps1:85` with `MissingEndCurlyBrace`; `[System.Management.Automation.Language.Parser]::ParseFile()` reports the same `85:69` parse error; the first bytes of `setup.ps1` are `23 52 65 71 75 69 72 65`, so the file has no UTF-8 BOM; `rg -n '[^\x00-\x7F]' setup.ps1` finds em dashes at `setup.ps1:2`, `setup.ps1:107`, and `setup.ps1:112`; parsing the same bytes via `[System.IO.File]::ReadAllText(..., [System.Text.Encoding]::UTF8)` and `ParseInput()` succeeds; replacing `U+2014` with ASCII `-` also parses. Microsoft documents that UTF-8-no-BOM scripts with non-ASCII characters can break in Windows PowerShell and that Windows PowerShell reads source without a BOM as the active ANSI code page: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_character_encoding. Microsoft also documents that PowerShell treats smart quotes as string delimiters, which explains why mojibake from UTF-8 em dash bytes can look like quote imbalance: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules.
+  - Touches: `setup.ps1`, `.gitattributes`, `.editorconfig`, `tests/sync-profile.Tests.ps1`, optional `PSScriptAnalyzerSettings.psd1`.
+  - Recommended fix: keep the public bootstrap script ASCII-only by replacing typographic punctuation in `setup.ps1` with `-` and adding a regression test that `setup.ps1` contains no non-ASCII bytes. Avoid solving this by adding a UTF-8 BOM unless the repo intentionally changes its current `*.ps1 text eol=lf` policy, because the rest of the repo favors BOM-less UTF-8 and ASCII code for cross-tool consistency.
+  - Acceptance: Windows PowerShell 5.1 `ParseFile()` returns no parser errors for `setup.ps1`; `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` reaches the check-only branch; a test fails if future non-ASCII characters are added to `setup.ps1`; generated README text may still use entities/Markdown punctuation, but the downloaded `.ps1` stays shell-safe.
+  - Verify: run `powershell -NoProfile -Command '[System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path .\setup.ps1), [ref]$null, [ref]$errs) > $null; if ($errs) { throw $errs[0] }'`; run the advertised `-CheckOnly` command; run `rg -n '[^\x00-\x7F]' setup.ps1` and expect no matches; run existing Pester.
+  - Completed: v4.9.41 keeps the public bootstrapper ASCII-only, Windows PowerShell `ParseFile()` returns no parser errors, and `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` reaches the no-install diagnostics branch.
+  - Complexity: S
+
+### Researcher Queue (Cycle 37 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass converted the existing Windows setup
+smoke idea into a branch-protection-friendly CI shape that avoids path-filter
+pending-check traps.*
+
+- [x] P1 🤖 🔬 — Add an always-created Windows setup smoke job
+  - Why: source-text Pester checks did not catch the Windows PowerShell parser failure. The repo already removed PR path filters from required-check candidates, so the setup smoke should be a normal always-created job rather than a path-filtered workflow that can be skipped when required checks are later enforced.
+  - Evidence: `.github/workflows/tests.yml:5-6` already runs on all `pull_request` and `merge_group` events; `.github/workflows/tests.yml:50-71` runs Ubuntu Pester only; `tests/sync-profile.Tests.ps1:393-413` verifies `setup.ps1` source strings but never executes or parses it with Windows PowerShell; GitHub's PowerShell Actions guide shows using `pwsh` and the Pester module in CI, but the advertised README command specifically uses `powershell`, so the test must exercise Windows PowerShell as well: https://docs.github.com/en/actions/tutorials/build-and-test-code/powershell.
+  - Touches: `.github/workflows/tests.yml`, `tests/sync-profile.Tests.ps1`, optional new `tests/setup-smoke.ps1` helper.
+  - Recommended workflow shape: add a `windows-setup-smoke` job on `windows-latest` with `shell: powershell`, `timeout-minutes: 10`, `contents: read`, checkout with `persist-credentials: false`, a parser step using `System.Management.Automation.Language.Parser.ParseFile()`, and a runtime step running `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly`. Keep it always created on PR and merge queue; the job is cheap and safer than path logic.
+  - Acceptance: the job name is stable for future branch-protection rules; it fails on parser errors before running the script; `-CheckOnly` output confirms no install path was taken; the job does not upload the transcript unless a failure needs debugging; Pester retains a source-level no-non-ASCII guard so failures are caught locally before hosted CI.
+  - Verify: intentionally add an em dash in a `setup.ps1` string in a scratch branch and confirm the Windows job fails at parse; remove it and confirm the job reaches `Check-only mode: no packages will be installed.`; confirm `git diff --check` and offline Pester still pass.
+  - Completed: v4.9.41 added `windows-setup-smoke` to `.github/workflows/tests.yml` with `shell: powershell`, `timeout-minutes: 10`, `persist-credentials: false`, a parser step, and a runtime `-CheckOnly` step. Offline Pester guards the always-created job shape.
+  - Complexity: S-M
+
+### Researcher Queue (Cycle 38 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass turned the provenance backlog into
+field-level implementation requirements tied to the current feed generator,
+schema, and drift gate.*
+
+- [ ] P1 🤖 🔬 — Implement a versioned `projects.json.provenance` contract
+  - Why: downstream portfolio consumers need to debug whether a feed came from the expected commit, catalog, generator, schema, and metadata provider. The current feed is structurally valid but cannot explain its build inputs.
+  - Evidence: root `projects.json:1-7` has `schema`, `generatedAt`, `source`, and counts only; `scripts/sync-profile.ps1:1727-1735` emits the same payload shape; `schemas/profile-projects.v1.json:7-16` requires only the legacy top-level fields; `Test-MetadataDrift` only treats `schema`, `source`, and counts as top-level fatal fields at `scripts/sync-profile.ps1:2777-2785`; local git object IDs are available now for `data/profile-catalog.json` (`80e8b64ffe477f91f45e5220e47839d82765ff00`), `scripts/sync-profile.ps1` (`ac24d72dfe5af1426d521d02ab5dfc8b69570303`), `schemas/profile-projects.v1.json` (`affa705e61ba82541832c7fc8c4d7a00a03b5128`), and HEAD (`8c8aac4643b57514a364d0dfb3aaddf98d638023`).
+  - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Get-GitHubRepos`, REST fallback, `Test-MetadataDrift`, `Test-FeedSchemaContracts`), `schemas/profile-projects.v1.json`, `projects.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`.
+  - Proposed fields: `provenance.version`, `provenance.sourceRepository`, `provenance.sourceCommit`, `provenance.catalogPath`, `provenance.catalogGitBlob`, `provenance.generatorPath`, `provenance.generatorGitBlob`, `provenance.projectSchemaPath`, `provenance.projectSchemaGitBlob`, `provenance.metadataSnapshotAt`, `provenance.metadataProvider`, `provenance.repoEnumeration.requestedLimit`, `provenance.repoEnumeration.returnedCount`, and `provenance.repoEnumeration.truncated`.
+  - Drift rules: `sourceRepository`, `sourceCommit`, path names, blob IDs, provider, and enumeration status are fatal when committed and expected feed disagree; `metadataSnapshotAt` is informational/staleness-only; row-level star/topic/pushedAt behavior stays informational; no absolute local path should appear.
+  - Acceptance: schema requires the `provenance` object and disallows extra fields; generated feed includes deterministic blob IDs from `git hash-object` or equivalent content hashing; REST fallback can mark `metadataProvider=rest-fallback`; reports summarize provenance and expose stale or mismatched provenance as actionable drift.
+  - Verify: run `scripts/sync-profile.ps1 -Write -Check`; edit only a catalog row and confirm `catalogGitBlob` changes; edit only the generator and confirm `generatorGitBlob` changes; compare expected/current feed and confirm provenance mismatches are surfaced at top level.
+  - Complexity: M
+
+### Researcher Queue (Cycle 39 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass focused on timestamp semantics in
+the generated feed. The existing `generatedAt` field currently behaves like a
+catalog timestamp, not a metadata snapshot timestamp.*
+
+- [ ] P2 🤖 🔬 — Split catalog timestamp and feed snapshot timestamp semantics
+  - Why: `projects.json.generatedAt` is currently copied from `data/profile-catalog.json`, so consumers may read it as "this feed was generated at" even when live metadata was fetched later. Once provenance lands, the repo needs unambiguous timestamps for catalog source age, feed build time, and GitHub metadata snapshot age.
+  - Evidence: `projects.json:3` currently shows `generatedAt: 2026-06-01T16:18:55.0998940-04:00`; `scripts/sync-profile.ps1:1729` sets feed `generatedAt = ConvertTo-IsoText $Catalog.generatedAt`; `Test-MetadataDrift` treats stale `projects.json.generatedAt` as a feed freshness warning at `scripts/sync-profile.ps1:2752-2769`, even though that value is not necessarily the last metadata fetch; `PROJECT_CONTEXT.md` says the latest sync validation was 2026-06-05, newer than the feed's `generatedAt`.
+  - Touches: `New-ProjectsExportJson`, `Test-MetadataDrift`, `schemas/profile-projects.v1.json`, `reports/profile-sync-report.json`, `scripts/write-profile-sync-summary.ps1`, downstream portfolio notes.
+  - Recommended model: keep top-level `generatedAt` as the feed build/snapshot time, move the catalog value to `provenance.catalogGeneratedAt`, and add `provenance.metadataSnapshotAt` for the live GitHub fetch time. If preserving top-level compatibility is preferred, add `feedGeneratedAt` first and deprecate ambiguous `generatedAt` through schema notes and report warnings.
+  - Acceptance: sync report distinguishes stale committed feed output from stale source catalog metadata; workflow summaries label the right timestamp; downstream portfolio consumers can display "feed built at" without misrepresenting catalog edit time; schema docs explain the compatibility decision.
+  - Verify: after a no-op `-Write -Check`, feed build/snapshot time changes only when the generated feed is intentionally refreshed; catalog timestamp changes only when the catalog source changes; staleness warnings identify the correct timestamp field.
+  - Complexity: S-M
+
+### Researcher Queue (Cycle 40 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass inspected live GitHub repository
+settings and the local community-health files that shipped in recent profile
+hardening work.*
+
+- [ ] P2 - Add repository settings and community-health baseline reporting
+  - Why: the repo now has public-safe intake files and CODEOWNERS, but those files are only one layer of the trust posture. The sync report should also show whether live repository settings actually support the intended public profile workflow.
+  - Evidence: local `.github/ISSUE_TEMPLATE/` contains `broken-link.yml`, `profile-correction.yml`, `workflow-ci.yml`, and `config.yml`; `.github/pull_request_template.md` has public-safety and generated-profile checklists; `.github/CODEOWNERS` owns `.github/`, `scripts/`, `tests/`, `schemas/`, `data/profile-catalog.json`, `projects.json`, `reports/`, `assets/profile/`, `setup.ps1`, `SECURITY.md`, and `PSScriptAnalyzerSettings.psd1`. Live `gh api repos/SysAdminDoc/SysAdminDoc/community/profile` returned `health_percentage=71`, detected `README.md`, `LICENSE`, and the PR template, but returned `code_of_conduct=null`, `contributing=null`, and `issue_template=null`. Live repo settings returned `has_issues=true`, `has_discussions=true`, `has_projects=true`, `has_wiki=true`, `delete_branch_on_merge=false`, `allow_forking=true`, `web_commit_signoff_required=false`, `secret_scanning=enabled`, `secret_scanning_push_protection=enabled`, and `dependabot_security_updates=disabled`. Live branch protection still has no required status checks or required PR review object, while conversation resolution, admin enforcement, force-push blocking, and deletion blocking are enabled. Live rulesets returned `[]`.
+  - Source notes: GitHub's community profile API exposes health percentage and detected files: https://docs.github.com/en/rest/metrics/community. GitHub issue forms are YAML files in `/.github/ISSUE_TEMPLATE`: https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms. GitHub CODEOWNERS only becomes merge enforcement when branch protection requires code-owner review, and GitHub recommends owning the `.github` CODEOWNERS file or directory itself: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners. GitHub recommends Dependabot alerts, secret scanning, push protection, and code scanning as minimum public-repository security settings: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository.
+  - Touches: `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, `scripts/write-profile-sync-summary.ps1`, `tests/sync-profile.Tests.ps1`, optional future `schemas/profile-sync-report.v1.json`.
+  - Proposed report fields: `repositorySettings.repository`, `repositorySettings.visibility`, `repositorySettings.features.hasIssues`, `hasDiscussions`, `hasProjects`, `hasWiki`, `repositorySettings.security.secretScanning`, `secretScanningPushProtection`, `dependabotSecurityUpdates`, `codeScanningConfigured`, `repositorySettings.branchProtection.requiredStatusChecks`, `requiredPullRequestReviews`, `requiredCodeOwnerReviews`, `requiredConversationResolution`, `enforceAdmins`, `allowForcePushes`, `allowDeletions`, `repositorySettings.rulesets.count`, and `communityHealth.files`.
+  - Recommended behavior: keep this report informational until PR-based delivery or a documented bypass is approved. Treat missing public-safe intake files as fatal because they are local repo contract files; treat disabled live repository settings as warnings with exact remediation notes.
+  - Acceptance: `-Check` records the live settings when `gh` is authenticated and a public-safe `unavailable` reason when offline or unauthenticated; Actions summary includes aggregate status without dumping sensitive settings; tests cover parsing fixture responses for enabled/disabled settings; no tokens, owner email addresses, alert details, or security alert contents are written to the report.
+  - Risks: live settings are mutable outside git; branch-protection changes can block this autonomous direct-push loop while `enforce_admins=true`; the community profile API may not recognize YAML issue forms as `issue_template`, so the report should separately check local `.github/ISSUE_TEMPLATE/*.yml`.
+  - Verify: run `gh api repos/SysAdminDoc/SysAdminDoc/community/profile`; run `gh api repos/SysAdminDoc/SysAdminDoc --jq '{has_issues,has_discussions,security_and_analysis}'`; run branch protection and rulesets checks; run `scripts/sync-profile.ps1 -Check` and confirm the report contains the expected aggregate booleans.
+  - Complexity: M
+
+### Researcher Queue (Cycle 41 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass audited the public `projects.json`
+suppression surface and found that suppressed rows currently reuse the full
+project row schema.*
+
+- [ ] P1 - Redact suppressed rows in the public project feed
+  - Why: the public feed is consumed by the portfolio and can be read directly from raw GitHub. Suppression exists specifically because a row should not be visitor-facing, so exporting the full row for suppressed projects weakens the privacy and visitor-safety contract.
+  - Evidence: `projects.json` currently has `suppressedCount=9` and every suppressed row contains `repoUrl`, `description`, and `primaryAction`; the feed exposes suppressed rows such as `improve-repo` with reason `Repo is private; public profile links would 404 for visitors`, plus a direct `https://github.com/SysAdminDoc/improve-repo` URL. `data/profile-catalog.json` currently has 10 entries with `suppressionReason`, including `VaultBox`; committed `projects.json` has only 9 suppressed rows and `reports/profile-sync-report.json` currently has `projectsExportInSync=false`, so suppressed-feed accounting is already difficult to reason about. `schemas/profile-projects.v1.json:47-50` points `suppressed.items` to the same `#/$defs/project` schema as public projects; `scripts/sync-profile.ps1:1671-1718` builds the full row before adding it to `$suppressed` at lines 1720-1721; `tests/sync-profile.Tests.ps1:744-745` already asserts the public Actions summary does not include `AppManagerNG` or `VaultBox`, but no comparable test guards `projects.json.suppressed`.
+  - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, `Test-MetadataDrift`, privacy gates), `schemas/profile-projects.v1.json`, `projects.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`, downstream `sysadmindoc.github.io` feed importer.
+  - Recommended contract: replace full suppressed project objects with minimal objects such as `suppressedId`, `reasonCode`, `publicReason`, `category`, and `visibilityClass`, where `suppressedId` is either an opaque stable slug or a salted hash of the catalog repo name. Do not export `repo`, `title`, `description`, `repoUrl`, `primaryAction`, `branch`, `topics`, release fields, notes, or live metadata for private/sensitive rows. Keep full suppression details in the private/local catalog and report only aggregate counts publicly.
+  - Suggested `reasonCode` values: `private-repo`, `medical-privacy`, `duplicate-rename`, `placeholder`, `superseded`, `not-visitor-facing`, `third-party-fork-review`, and `documentation-only`. Map old free-text reasons to stable codes while preserving a sanitized `publicReason`.
+  - Drift rules: `suppressedCount` and reason-code counts are fatal if current and expected feeds disagree; opaque IDs are fatal only when the underlying catalog suppression set changes; row-level private names and URLs must never appear in committed feed output.
+  - Acceptance: no suppressed feed row contains a GitHub repository URL, direct project name, install/download/live action, release tag, release asset name, topics, or notes; schema defines a dedicated `suppressedProject` object; tests fail if suppressed rows include `repo`, `repoUrl`, `description`, `primaryAction`, `releaseAssetNames`, or private known names like `VaultBox`; downstream portfolio still excludes suppressed rows and only uses aggregate suppression counts.
+  - Verify: run a local JSON assertion over `projects.json.suppressed`; run `scripts/sync-profile.ps1 -Write -Check`; confirm `projectsExportInSync=true`; confirm portfolio feed import still produces 177 visible projects and no suppressed/local-only routes.
+  - Complexity: M
+
+### Researcher Queue (Cycle 42 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass inspected release/download rows and
+the trust metadata currently available to visitors for executable assets.*
+
+- [ ] P2 - Add release/download trust metadata for executable assets
+  - Why: the README and portfolio route visitors to many EXE, APK, ZIP, CRX, XPI, script, and source release assets. The current feed can say what kind of file exists, but it cannot communicate whether the artifact has checksums, signatures, SBOMs, attestations, release/debug channel classification, or verification guidance.
+  - Evidence: `reports/profile-sync-report.json.releaseAssetDriftSummary` checks 177 catalog rows, 141 release-bearing rows, and 71 release-action rows; current asset kind counts include 18 `apk`, 32 `exe`, 28 `zip`, 5 `crx`, 2 `xpi`, 8 `script`, 3 `userscript`, and 58 `source-archive`. `projects.json` has 71 `hasDownload=true` rows and 58 download rows whose release assets include `exe`, `apk`, or `zip`; only 17 of those 58 have asset names matching `sha256|checksum|sums`, 3 have `debug` in a downloadable asset name, 1 has an `sbom` asset name, and 0 have asset names matching signature patterns such as `.sig` or `.asc`. `schemas/profile-projects.v1.json:260-286` only models `releaseAssetKinds` and `releaseAssetNames`; there is no field for `releaseTrust`, checksum coverage, signing status, attestation status, SBOM status, or channel classification.
+  - Source notes: GitHub artifact attestations can establish build provenance for binaries and can also attest SBOMs, with verification through `gh attestation verify`: https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations. SLSA notes that provenance should be bound to artifacts rather than only to releases, because releases can contain multiple platform-specific artifacts and may gain artifacts over time: https://slsa.dev/spec/draft/distributing-provenance. Microsoft Authenticode identifies the publisher of signed software and verifies that signed software has not changed since publication: https://learn.microsoft.com/en-us/windows-hardware/drivers/install/authenticode. Android's `apksigner` supports signing APKs and verifying APK signatures, including printing certificate information: https://developer.android.com/tools/apksigner.
+  - Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, `reports/profile-sync-report.json`, `scripts/write-profile-sync-summary.ps1`, `projects.json`, README generated action labels, downstream portfolio download cards, release workflows in sibling repos over time.
+  - Proposed feed fields: `releaseTrust.checksumAssets`, `releaseTrust.hasChecksumForEveryExecutable`, `releaseTrust.signatureAssets`, `releaseTrust.hasAuthenticodeSignature` (when known), `releaseTrust.apkSignatureVerified` (when locally verifiable), `releaseTrust.sbomAssets`, `releaseTrust.attestationAvailable`, `releaseTrust.debugArtifactPresent`, `releaseTrust.sourceOnlyRelease`, `releaseTrust.trustLevel` (`unknown`, `metadata-only`, `checksum`, `signed`, `attested`, `signed-and-attested`), and `releaseTrust.notesPublic`.
+  - Recommended staged rollout: first derive filename-based metadata from release assets without downloading binaries; next add optional artifact download and local verification for a small allowlist of executable rows; finally add build-workflow guidance for sibling repos to publish checksums, SBOMs, and GitHub artifact attestations consistently.
+  - Acceptance: the sync report warns when visitor-facing executable downloads lack checksum assets; debug APKs are flagged separately from release APKs; schema requires the `releaseTrust` object for rows with latest releases; README/portfolio can display a small public trust summary without implying stronger guarantees than verified; source-only releases remain valid repo actions but are counted distinctly.
+  - Verify: run feed generation and confirm all 58 executable/archive download rows have `releaseTrust`; add a fixture release with `.sha256`, `.sig`, `sbom`, and `debug.apk` assets and confirm classification; use `gh attestation verify` on an attested fixture artifact when available; run `scripts/sync-profile.ps1 -Write -Check` and portfolio feed tests.
+  - Complexity: M-L
+
+### Researcher Queue (Cycle 43 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass converted the branch-protection
+backlog into an enforcement sequence that avoids breaking the current
+direct-push automation.*
+
+- [ ] P2 - Stage branch protection or ruleset enforcement behind PR delivery
+  - Why: the repo has enough always-created CI checks to protect `main`, but enabling required checks while this autonomous loop still pushes directly to `main` and `enforce_admins=true` would block future maintenance unless PR delivery or an explicit bypass is in place first.
+  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection/required_status_checks` currently returns `404 Required status checks not enabled`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returns `[]`; `gh pr list --state open` returns no open PRs. Current branch protection has `enforce_admins.enabled=true`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`, but no required status checks or required PR review object. Local workflows now have always-created PR/merge-queue candidates: `.github/workflows/tests.yml` defines `PSScriptAnalyzer` and `Pester (offline)` jobs and includes `pull_request` plus `merge_group`; `.github/workflows/profile-sync.yml` defines `Check generated README` and includes `pull_request` plus `merge_group`; `.github/workflows/workflow-security.yml` defines `zizmor` and includes `pull_request` plus `merge_group`. Recent run evidence confirms job names from GitHub: Dependabot PR run `26967432335` had `Pester (offline)` and `PSScriptAnalyzer`, run `26967432325` had `zizmor`, and scheduled run `27005324221` had `Check generated README`.
+  - Source notes: GitHub branch protection can require PRs, approvals, code-owner review, status checks, conversation resolution, signed commits, linear history, and merge queue: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule. GitHub merge queues require workflows to trigger on `merge_group` or required checks will not be reported: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue. Rulesets can be active or disabled, can require status checks and reviews, and can allow PR-only bypasses for selected actors: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository and https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets. GitHub Actions `jobs.<job_id>.name` controls the job name displayed in the UI: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax.
+  - Recommended sequence:
+    1. Ship the Windows `setup.ps1` parser fix and `windows-setup-smoke` job first so setup safety is included in the required-check set.
+    2. Move this autonomous loop to PR-based delivery, or document a narrow allowed bypass before enabling required checks.
+    3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Check generated README`, `zizmor`, and the future `windows-setup-smoke` job.
+    4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
+    5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
+  - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
+  - Risks: requiring `Check generated README` can force live-link/profile-smoke dependencies onto every PR; requiring `zizmor` before exact tool pinning can create supply-chain update friction; code-owner review is weak for a single-user repo unless the user wants self-review controls; merge queue is overkill unless PR volume increases.
+  - Verify: open a disposable PR touching `README.md`, `.github/workflows/tests.yml`, and `setup.ps1`; confirm all required candidate jobs are created on PR and `merge_group`; query branch protection/rulesets after enforcement; confirm direct push behavior is intentionally blocked or bypassed according to the documented delivery model.
+  - Complexity: M
+
+### Researcher Queue (Cycle 44 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass reviewed the motion safety and
+third-party render-host state of the generated GitHub profile chrome.*
+
+- [ ] P2 - Make generated profile chrome motion-safe and reduce external render-host dependence
+  - Why: the profile is a public trust surface, not a marketing landing page. Auto-playing typing/fade animation and third-party image rendering can distract visitors, fail in restricted networks, and make accessibility/reliability dependent on services outside the repo.
+  - Evidence: `README.md:2` embeds `https://capsule-render.vercel.app/api?...animation=fadeIn...` for the header; `README.md:11` embeds `https://readme-typing-svg.demolab.com?...duration=4000&pause=1000&repeat=true...`; `README.md:52-53` embeds `skillicons.dev` for static icon chrome; `README.md:734` embeds the capsule-render footer wave. `scripts/sync-profile.ps1:1465-1468`, `1489-1499`, and `1521-1522` generate these URLs. `reports/profile-sync-report.json.readmeExperienceChecks` currently passes `themeAwareImageChrome=true`, `thirdPartyMetricHostCount=0`, `thirdPartyBadgeHostCount=0`, and `profileStatsChromeCount=1`, but there is no `motionSafeChrome`, `thirdPartyRenderHostCount`, or host allowlist/denylist for capsule-render/readme-typing-svg/skillicons. `scripts/sync-profile.ps1:1353-1355` already generates committed SVG panels with `<title>` and `<desc>`, so local static SVG generation is already part of the architecture.
+  - Source notes: WCAG Pause, Stop, Hide requires a mechanism to pause/stop/hide moving, blinking, scrolling, or auto-updating content that starts automatically and runs in parallel with other content: https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide. The CSS `prefers-reduced-motion` media feature detects a user's reduced-motion preference, but static README images from third-party services cannot reliably negotiate a per-user pause control inside GitHub-rendered Markdown: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion. GitHub supports relative image paths in READMEs, which lets the repo replace external generated images with committed local assets: https://docs.github.com/articles/about-readmes. GitHub anonymizes image URLs but warns that anyone with an anonymized URL may view the image/video, so self-hosted committed assets are still simpler for a profile trust surface: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-anonymized-urls.
+  - Touches: `scripts/sync-profile.ps1` (`Update-Header`, `Test-ReadmeExperience`, SVG helpers), `README.md`, `assets/profile/*.svg` or new `assets/profile/header-*.svg`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`, optional `PROJECT_CONTEXT.md`.
+  - Recommended implementation: replace the animated typing SVG with a static local text/SVG panel or plain Markdown line; remove `animation=fadeIn` from capsule URLs or replace the capsule header/footer with committed local SVGs; keep `skillicons.dev` only if a recorded decision says the static third-party icon host is acceptable, otherwise commit a local icon strip. Add `readmeExperienceChecks.motionSafeChrome` and `readmeExperienceChecks.thirdPartyRenderHosts` with an explicit allowlist.
+  - Acceptance: generated README contains no `animation=`, `repeat=true`, or known typing/capsule auto-motion parameters; `readmeExperienceChecks.motionSafeChrome=true`; external render hosts are either zero or explicitly listed with reason, fallback, and failure behavior; live rendered smoke still passes desktop and 390px mobile with no failed images or overflow; image alt text remains meaningful.
+  - Verify: run `rg -n "animation=|repeat=true|readme-typing-svg|capsule-render" README.md scripts/sync-profile.ps1`; run `scripts/sync-profile.ps1 -Write -Check`; run `scripts/render-profile-smoke.ps1`; confirm `reports/profile-sync-report.json.readmeExperienceChecks.motionSafeChrome` is true.
+  - Complexity: M
+
+### Researcher Queue (Cycle 45 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass checked whether CodeQL/default
+code scanning is currently useful for this repository's actual language mix.*
+
+- [ ] P3 - Record code-scanning posture and avoid a low-value CodeQL default-setup chase
+  - Why: code scanning is a useful repository trust signal, but this repo is currently PowerShell-only by GitHub language accounting. Enabling CodeQL default setup without a supported language would not add meaningful scan coverage; the higher-value controls are PSScriptAnalyzer, actionlint, zizmor, Scorecard, secret scanning, and a future report schema.
+  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/languages` returned only `{"PowerShell":210925}`; local source inspection found four `.ps1` files, five workflow `.yml` files, and three schema/report JSON files under `.github/workflows`, `scripts`, `tests`, and `schemas`. `gh api repos/SysAdminDoc/SysAdminDoc/code-scanning/alerts --jq length` returned `404 no analysis found` and also reported the local token would need `admin:repo_hook` scope for that API operation. `.github/workflows/scorecard.yml` uploads Scorecard SARIF with `github/codeql-action/upload-sarif`, but there is no CodeQL analysis workflow and no CodeQL-supported source language in the profile repo itself.
+  - Source notes: GitHub's CodeQL supported-language list does not include PowerShell: https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/. GitHub's default setup docs state that if analyses fail for all CodeQL-supported languages, default setup remains enabled but runs no scans until a supported language is added and successfully analyzed: https://docs.github.com/en/code-security/code-scanning/enabling-code-scanning/configuring-default-setup-for-code-scanning. GitHub's code-scanning REST API documents `404` as a possible response for code-scanning endpoints: https://docs.github.com/en/rest/code-scanning/code-scanning.
+  - Touches: `scripts/sync-profile.ps1` future `repositorySettings`/security report block, `reports/profile-sync-report.json`, `PROJECT_CONTEXT.md`, optional `.github/workflows/codeql.yml` only if a supported language is added later.
+  - Recommended behavior: report `codeScanning.status=no-analysis` and `codeScanning.recommendation=not-applicable-powerShell-only` rather than treating missing CodeQL as a failure. Keep Scorecard SARIF upload, PSScriptAnalyzer, workflow security, secret scanning, and push protection as the active controls. Revisit CodeQL only if JavaScript/TypeScript/Python/C#/Kotlin/etc. source enters this repo.
+  - Acceptance: repository/security baseline report distinguishes "not applicable" from "misconfigured"; no failing CodeQL workflow is added for a PowerShell-only repo; future supported-language detection can raise a warning prompting CodeQL default setup or advanced setup.
+  - Verify: run `gh api repos/SysAdminDoc/SysAdminDoc/languages`; run the code-scanning alerts probe with graceful 404 handling; confirm report output is public-safe and does not require extra token scopes for normal `-Check`.
+  - Complexity: S
+
+### Researcher Queue (Cycle 46 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass revisited the sync-report JSON
+contract now that provenance, community settings, release trust, and
+motion-safety sections are all planned additions.*
+
+- [ ] P2 - Promote `profile-sync-report.json` to a versioned schema contract
+  - Why: `reports/profile-sync-report.json` is now the central evidence artifact for generated README health, link validation, release drift, schema validation, planning-doc consistency, validation performance, and workflow summaries. New planned sections will make the shape larger and more consumer-facing, so the report needs the same versioned contract discipline as the catalog and public feed.
+  - Evidence: `reports/profile-sync-report.json` currently has 23 top-level fields including `metadataHygiene`, `releaseAssetDrift`, `schemaValidation`, `docVersionConsistency`, `validationPerformance`, `metadataDrift`, `linkValidationSummary`, and `readmeExperienceChecks`, but it has no top-level `schema` or `$schema` pointer. `schemas/` contains only `profile-catalog.v1.json` and `profile-projects.v1.json`. `scripts/sync-profile.ps1:2498-2517` validates only catalog/feed schemas through `Test-FeedSchemaContracts`; `tests/sync-profile.Tests.ps1:478-510` exercises catalog/feed schema validation, not report schema validation. The current report also has volatile live-data sections with arrays of 69 missing-topic rows, 17 source-only release rows, and 5 metadata-drift rows, so downstream summary consumers need stable required/optional rules.
+  - Source notes: JSON Schema describes itself as a vocabulary for JSON data consistency, validity, and interoperability at scale: https://json-schema.org/. The repo's custom validator already fails closed on unsupported schema keywords, which makes adding a report schema safer as long as the first version stays within the supported keyword subset.
+  - Touches: `schemas/profile-sync-report.v1.json`, `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, `scripts/write-profile-sync-summary.ps1`, `tests/sync-profile.Tests.ps1`, optional `PROJECT_CONTEXT.md`.
+  - Recommended schema shape: add top-level `schema`, `generatedAt`, core booleans/counts, required objects for `metadataHygiene`, `releaseAssetDrift`, `schemaValidation`, `docVersionConsistency`, `validationPerformance`, `linkValidationSummary`, and `readmeExperienceChecks`; keep newly planned `repositorySettings`, `provenance`, `releaseTrust`, and `motionSafeChrome` fields optional in v1 until implemented; disallow unexpected top-level properties only after the generator and summary helper are updated together.
+  - Acceptance: the report advertises a raw-GitHub schema URL; `-Check` validates the generated report against `schemas/profile-sync-report.v1.json`; Pester includes a fixture proving a missing required section fails; workflow summaries rely only on schema-backed fields; volatile row arrays have item schemas but allow empty arrays.
+  - Verify: run `scripts/sync-profile.ps1 -Write -Check`; intentionally remove `readmeExperienceChecks` from a fixture report and confirm schema validation fails; confirm `scripts/write-profile-sync-summary.ps1` still renders the report without private/suppressed repo details.
+  - Complexity: M
+
+### Researcher Queue (Cycle 47 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass inspected the downstream
+`sysadmindoc.github.io` feed importer before changing the public profile feed
+shape.*
+
+- [ ] P1 - Add downstream portfolio compatibility tests before changing feed shape
+  - Why: `projects.json` is no longer only an in-repo artifact; the portfolio build fetches it at build time. Suppressed-row redaction, provenance, timestamp semantics, and release-trust fields should be introduced without silently breaking the portfolio's generated routes, counts, and download cards.
+  - Evidence: in the separate `\\vmware-host\Shared Folders\repos\sysadmindoc.github.io` repo, `scripts/sync-profile-feed.mjs` fetches `https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json`, validates it through `scripts/lib/profile-feed.mjs`, and writes `src/data/_profile-projects.json`. `scripts/lib/profile-feed.mjs` filters only `payload.projects`, rejects empty visible project sets, requires `repo`, `title`, `category`, `description`, and `repoUrl`, and returns `{ ...payload, feedSourceUrl, cachedAt, projectCount, projects }`, so unknown top-level fields are preserved. `src/data/portfolio.ts` exposes `profileFeedInfo.generatedAt`, `cachedAt`, `feedSourceUrl`, `source`, `publicRepoCount`, `projectCount`, and `suppressedCount`, but has no typed handling for `provenance`, `catalogGeneratedAt`, `metadataSnapshotAt`, or `releaseTrust`. `src/data/generated.d.ts` currently allows `suppressed?: GeneratedProfileProject[]`, and `test/profile-feed.test.mjs` only tests filtering suppressed/non-portfolio rows inside `projects`, not a redacted `suppressed` array.
+  - Current downstream state: the portfolio worktree is dirty from unrelated work, so this roadmap pass treated it as read-only evidence and did not modify it.
+  - Touches: this repo's `schemas/profile-projects.v1.json`, `projects.json`, and generator; downstream `scripts/lib/profile-feed.mjs`, `src/data/portfolio.ts`, `src/data/generated.d.ts`, `src/data/fixtures/generated/_profile-projects.json`, `test/profile-feed.test.mjs`, and endpoint/schema audits.
+  - Recommended compatibility path: add a portfolio fixture that contains feed `provenance`, split timestamp fields, `releaseTrust`, and redacted suppressed rows before changing the live profile feed. Then update profile feed schema/generator in this repo. Keep additive fields backwards-compatible first; make suppressed redaction a schema major/minor decision with downstream tests proving ignored suppressed details do not leak into routes or caches.
+  - Acceptance: portfolio build still renders 177 visible projects from a new feed fixture; `profileFeedInfo` can surface new provenance/timestamp fields or safely ignore them; redacted `suppressed` rows do not require `repo` or `repoUrl`; no suppressed/private project route is generated; portfolio endpoint audits still pass.
+  - Verify: in the portfolio repo, run `npm test -- profile-feed` or the full `npm test` after fixture updates, then run `npm run check` or `npm run build` when the feed contract changes; in this repo, regenerate `projects.json` and confirm raw feed consumers still see a valid schema URL.
+  - Complexity: M
+
+### Researcher Queue (Cycle 48 - 2026-06-06)
+
+*Research conducted 2026-06-06. This pass measured generated README/feed
+weight and checked the current rendered profile smoke output.*
+
+- [ ] P2 - Add generated README/feed size and render-budget reporting
+  - Why: the profile README is generated and can grow quietly as the catalog expands. The current rendered smoke proves it still fits today, but there is no budget warning before the README becomes too long to scan, expensive to render, or noisy in pull-request review.
+  - Evidence: current artifact measurements are `README.md` 74,664 bytes / 735 lines, `projects.json` 293,666 bytes / 9,196 lines, `reports/profile-sync-report.json` 29,049 bytes / 1,166 lines, and six profile SVG panels totaling 15,338 bytes. The README has 164 Markdown table rows, 11 `<details>` blocks, 7 image tags, and 78 fenced code blocks. `reports/rendered-profile-smoke.json` from 2026-06-05 passed at 1280px desktop and 390px mobile; it found no missing sections, failed images, root overflow, or document overflow. `.gitattributes` marks `README.md`, `projects.json`, `reports/*.json`, and `assets/profile/*.svg` as `linguist-generated`, so GitHub can collapse generated diffs, but that does not tell maintainers when the visitor-facing README is getting too dense.
+  - Source notes: GitHub profile READMEs render from a username-matching public root `README.md`: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme. GitHub's large-file docs describe repository file-size warnings and hard limits, but the budgets here should be much lower because this is about profile scan quality and review ergonomics, not Git storage limits: https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github. GitHub's `.gitattributes` docs explain `linguist-generated` for hiding generated files in diffs and language stats: https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github.
+  - Touches: `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, `scripts/write-profile-sync-summary.ps1`, `scripts/render-profile-smoke.ps1`, `tests/sync-profile.Tests.ps1`, optional `.gitattributes` policy note.
+  - Proposed budgets: warn when README exceeds 100 KB, 1,000 lines, 220 table rows, 15 details blocks, 10 image tags, or 100 code blocks; warn when `projects.json` exceeds 500 KB; warn when sync report exceeds 100 KB; warn when rendered smoke finds mobile root width below 300px, any image failure, any overflow, or more than a configured number of failed/third-party render hosts. Keep failures informational first, then promote severe render failures to fatal.
+  - Acceptance: `reports/profile-sync-report.json` includes `artifactBudgets` and `renderedProfileSmoke` summary fields; job summary prints byte/line counts and warning status; Pester covers budget calculation with small fixtures; thresholds are documented as profile-review budgets, not GitHub hard limits.
+  - Verify: run the budget function against current files and confirm all current values are below warning thresholds; inflate a fixture README past 100 KB and confirm warning; run `scripts/render-profile-smoke.ps1` and confirm report aggregation stays public-safe.
+  - Complexity: S-M
+
+## Continuation State
+
+Last autonomous roadmap pass: Cycle 49 - 2026-06-06.
+
+Current local state:
+
+- Repo: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
+- HEAD inspected: `8c8aac4643b57514a364d0dfb3aaddf98d638023`
+- Worktree before implementation: `ROADMAP.md` and `AUTONOMOUS-LOOP-STATE.md` already contained uncommitted Cycle 48 research/state edits on `main...origin/main`.
+- Live GitHub branch protection check: `required_status_checks=null`, `required_pull_request_reviews=null`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, `allow_deletions.enabled=false`, `enforce_admins.enabled=true`
+- Live rulesets check: no repository rulesets returned
+- Live open PR check: no open PRs returned
+- Local PowerShell check: Windows PowerShell `5.1.26100.7920`; the advertised `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` now parses, runs the no-install diagnostics branch, and exits successfully.
+- Encoding check: `setup.ps1` remains UTF-8 without BOM but is ASCII-only, so Windows PowerShell 5.1 no longer misdecodes typographic punctuation in the public bootstrapper.
+- Provenance check: current feed top-level shape has no `provenance` object, and `generatedAt` is copied from the catalog timestamp rather than the current metadata snapshot.
+- Community/settings check: local intake files, SECURITY.md, PR template, and CODEOWNERS exist, but live GitHub community health is 71%, rulesets are empty, required status checks are not configured, code-owner review enforcement is not enabled, and Dependabot security updates are disabled while secret scanning and push protection are enabled.
+- Suppressed-feed check: committed `projects.json.suppressed` exports full project rows for 9 suppressed entries, including repo names, descriptions, URLs, and primary actions; current catalog has 10 suppression reasons including `VaultBox`, and the committed report says `projectsExportInSync=false`.
+- Release-trust check: 71 current feed rows have download actions and 58 download rows expose EXE/APK/ZIP assets; only 17 of those 58 have checksum-like asset names, 3 include debug-named assets, 1 includes SBOM-like naming, and none expose signature-like asset names.
+- Branch-protection check: required status checks are not enabled (`404` from the required-status-checks endpoint), no rulesets exist, no open PRs exist, and the current candidate check names are `PSScriptAnalyzer`, `Pester (offline)`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
+- Motion/render-host check: README still uses capsule-render header/footer URLs, readme-typing-svg with `repeat=true`, and skillicons.dev; current report guards old metric/badge hosts but has no `motionSafeChrome` or generic third-party render-host allowlist.
+- Code-scanning check: GitHub language API reports only PowerShell, the code-scanning alerts endpoint returns `404 no analysis found`, and CodeQL default setup is not currently a high-value control until a supported language is added.
+- Report-schema check: `reports/profile-sync-report.json` has 23 top-level fields and no schema pointer; `schemas/` only contains catalog/feed schemas.
+- Downstream feed check: `sysadmindoc.github.io` imports this repo's raw `projects.json`, filters only the `projects` array for visible rows, preserves unknown top-level fields in the cache, and currently types `suppressed` as full project rows. Its worktree was dirty from unrelated work and was used read-only.
+- Size/render check: current README is 74,664 bytes / 735 lines, `projects.json` is 293,666 bytes, sync report is 29,049 bytes, profile SVG panels total 15,338 bytes, and the latest rendered-profile smoke passed desktop/mobile with no overflow or failed images.
+- Header-preservation check: remote `main` removed the personal-profile header blocks before v4.9.41 was pushed; `scripts/sync-profile.ps1` now treats the compact portfolio-first header as a valid passing contract and does not regenerate the removed personal sections.
+
+Next research cycles:
+
+1. Cycle 50: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
+2. Cycle 51: audit header/non-catalog links against the existing link-validation gate.
+3. Cycle 52: inspect userscript install trust metadata for raw `.user.js` actions.
+4. Cycle 53: audit per-project SPDX/license metadata and public license display opportunities.
+5. Cycle 54: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+
 ### Quick Wins
 
 P2/P3, each doable in well under an hour:
+
+- [x] P1 — Fix the advertised Windows PowerShell `setup.ps1 -CheckOnly` parser failure (completed v4.9.41 with ASCII-only `setup.ps1`, Windows PowerShell verification, and Pester coverage).
 
 - [ ] P2 — Generated-README size budget guard (informational warning in the report).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).
 - [x] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor` (completed v4.9.33 with checksum-verified actionlint 1.7.12 and Pester wiring coverage).
-- [ ] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes.
+- [x] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes (completed v4.9.41 with an always-created `Windows setup smoke` job).
 - [ ] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools.
 - [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
