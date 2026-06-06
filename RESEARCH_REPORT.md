@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.46
+Current version after this refresh: v4.9.47
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.47 batch closed the motion-safe profile chrome item by replacing
+  generated capsule/typing motion with committed static header/footer SVG
+  assets and local footer rendering in the compact README.
+- `readmeExperienceChecks` now reports `motionSafeChrome`,
+  `motionPatternCount`, `thirdPartyRenderHostCount`, and
+  `thirdPartyRenderHosts`; the current report records `motionSafeChrome=true`,
+  0 motion patterns, and 0 third-party render hosts.
+- `schemas/profile-sync-report.v1.json` now requires the motion/render-host
+  fields, and Pester coverage proves reintroduced `repeat=true`,
+  `animation=`, or typing-SVG motion fails the README experience gate.
+- Local verification passed for Pester 89/89, PSScriptAnalyzer, full profile
+  sync/write/check, and whitespace diff checks.
 - The v4.9.46 batch closed the CI validation-tool pinning item by replacing
   floating Pester and `zizmor` installs with exact reviewed versions.
 - `.github/workflows/tests.yml` now installs Pester 5.7.1 with

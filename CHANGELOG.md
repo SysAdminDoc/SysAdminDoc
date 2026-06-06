@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.47] - 2026-06-06
+
+- Changed: Generated profile chrome now uses committed static header/footer SVG assets instead of external capsule-render or typing-SVG motion.
+- Added: `readmeExperienceChecks.motionSafeChrome`, `motionPatternCount`, `thirdPartyRenderHostCount`, and `thirdPartyRenderHosts` to the sync report schema and generated report.
+- Added: Profile sync now fails when generated README chrome contains known auto-motion patterns such as `animation=`, `repeat=true`, or `readme-typing-svg`.
+- Added: Pester coverage verifies motion-safe README output, local static SVG asset generation, report schema coverage, and failure behavior for reintroduced motion patterns.
+
 ## [v4.9.46] - 2026-06-06
 
 - Changed: The Tests workflow now installs Pester 5.7.1 with `-RequiredVersion`, keeping the PSScriptAnalyzer 1.25.0 lane on an exact reviewed module version.

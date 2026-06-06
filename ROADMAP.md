@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.46
+Current repo version: v4.9.47
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,18 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.47 refresh: motion-safe profile chrome shipped.
+Generated profile chrome now uses committed static header/footer SVG assets,
+the dormant rich header no longer depends on capsule-render animation or
+readme-typing-svg, and the compact public README footer uses local
+`assets/profile/footer-*.svg`. `readmeExperienceChecks` now records
+`motionSafeChrome`, `motionPatternCount`, `thirdPartyRenderHostCount`, and
+`thirdPartyRenderHosts`, and `-Check` fails if generated README chrome contains
+known auto-motion patterns such as `animation=`, `repeat=true`, or
+`readme-typing-svg`.
+Next highest open item: header/non-catalog link validation folded into the
+existing link gate.
 
 2026-06-06 v4.9.46 refresh: CI validation tool pins shipped.
 The Tests workflow now installs Pester 5.7.1 through
@@ -941,12 +953,13 @@ Existing completed work already covers theme-aware chrome, plain-text tagline,
 meaningful alt text, and third-party render-host reduction; this item is
 specifically about auto-starting motion in the remaining hero/typing chrome.*
 
-- [ ] P2 🤖 🔬 — Add a reduced-motion/static profile chrome guard
+- [x] P2 🤖 🔬 — Add a reduced-motion/static profile chrome guard
   - Why: the generated profile header still uses `capsule-render` with `animation=fadeIn` and `readme-typing-svg` with `repeat=true`, while GitHub README embeds do not offer an in-page pause/stop control. This is a separate accessibility concern from dark/light theme handling and alt text.
   - Evidence: `scripts/sync-profile.ps1:1469-1472` generates the animated capsule and looping typing SVG URLs; `README.md:2` and `README.md:11` render those URLs; W3C WCAG 2.2.2 says moving/blinking/scrolling content that starts automatically, lasts more than five seconds, and appears alongside other content needs a pause/stop/hide mechanism unless essential: https://www.w3.org/WAI/WCAG20/Understanding/pause-stop-hide.html; MDN documents `prefers-reduced-motion` as the user preference for reducing non-essential motion: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion; readme-typing-svg documents `repeat` defaulting to `true`: https://github.com/DenverCoder1/readme-typing-svg
   - Touches: `scripts/sync-profile.ps1`, generated `README.md`, optional committed `assets/profile/*.svg`, `tests/sync-profile.Tests.ps1`, `reports/profile-sync-report.json`.
   - Acceptance: generated profile chrome either uses static committed SVG/text for the hero/typing line or configures third-party URLs to avoid looping/auto-starting motion; `readmeExperienceChecks` records a `motionSafeChrome` field and fails when profile chrome contains `repeat=true`, `animation=`, or other known long-running motion parameters without an accessible fallback.
   - Verify: run `scripts/sync-profile.ps1 -Write -Check` and confirm `motionSafeChrome=true`; temporarily restore `repeat=true` or `animation=fadeIn` in the generator fixture and confirm Pester or `-Check` fails.
+  - Completed: v4.9.47 replaced generated capsule/typing motion with committed static header/footer SVG assets, added `readmeExperienceChecks.motionSafeChrome`, and added Pester coverage proving reintroduced `repeat=true`, `animation=`, or typing-SVG motion fails the README experience gate.
   - Complexity: S
 
 ### Researcher Queue (Cycle 10 - 2026-06-04)
@@ -1474,7 +1487,7 @@ direct-push automation.*
 *Research conducted 2026-06-06. This pass reviewed the motion safety and
 third-party render-host state of the generated GitHub profile chrome.*
 
-- [ ] P2 - Make generated profile chrome motion-safe and reduce external render-host dependence
+- [x] P2 - Make generated profile chrome motion-safe and reduce external render-host dependence
   - Why: the profile is a public trust surface, not a marketing landing page. Auto-playing typing/fade animation and third-party image rendering can distract visitors, fail in restricted networks, and make accessibility/reliability dependent on services outside the repo.
   - Evidence: `README.md:2` embeds `https://capsule-render.vercel.app/api?...animation=fadeIn...` for the header; `README.md:11` embeds `https://readme-typing-svg.demolab.com?...duration=4000&pause=1000&repeat=true...`; `README.md:52-53` embeds `skillicons.dev` for static icon chrome; `README.md:734` embeds the capsule-render footer wave. `scripts/sync-profile.ps1:1465-1468`, `1489-1499`, and `1521-1522` generate these URLs. `reports/profile-sync-report.json.readmeExperienceChecks` currently passes `themeAwareImageChrome=true`, `thirdPartyMetricHostCount=0`, `thirdPartyBadgeHostCount=0`, and `profileStatsChromeCount=1`, but there is no `motionSafeChrome`, `thirdPartyRenderHostCount`, or host allowlist/denylist for capsule-render/readme-typing-svg/skillicons. `scripts/sync-profile.ps1:1353-1355` already generates committed SVG panels with `<title>` and `<desc>`, so local static SVG generation is already part of the architecture.
   - Source notes: WCAG Pause, Stop, Hide requires a mechanism to pause/stop/hide moving, blinking, scrolling, or auto-updating content that starts automatically and runs in parallel with other content: https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide. The CSS `prefers-reduced-motion` media feature detects a user's reduced-motion preference, but static README images from third-party services cannot reliably negotiate a per-user pause control inside GitHub-rendered Markdown: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion. GitHub supports relative image paths in READMEs, which lets the repo replace external generated images with committed local assets: https://docs.github.com/articles/about-readmes. GitHub anonymizes image URLs but warns that anyone with an anonymized URL may view the image/video, so self-hosted committed assets are still simpler for a profile trust surface: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-anonymized-urls.
@@ -1482,6 +1495,7 @@ third-party render-host state of the generated GitHub profile chrome.*
   - Recommended implementation: replace the animated typing SVG with a static local text/SVG panel or plain Markdown line; remove `animation=fadeIn` from capsule URLs or replace the capsule header/footer with committed local SVGs; keep `skillicons.dev` only if a recorded decision says the static third-party icon host is acceptable, otherwise commit a local icon strip. Add `readmeExperienceChecks.motionSafeChrome` and `readmeExperienceChecks.thirdPartyRenderHosts` with an explicit allowlist.
   - Acceptance: generated README contains no `animation=`, `repeat=true`, or known typing/capsule auto-motion parameters; `readmeExperienceChecks.motionSafeChrome=true`; external render hosts are either zero or explicitly listed with reason, fallback, and failure behavior; live rendered smoke still passes desktop and 390px mobile with no failed images or overflow; image alt text remains meaningful.
   - Verify: run `rg -n "animation=|repeat=true|readme-typing-svg|capsule-render" README.md scripts/sync-profile.ps1`; run `scripts/sync-profile.ps1 -Write -Check`; run `scripts/render-profile-smoke.ps1`; confirm `reports/profile-sync-report.json.readmeExperienceChecks.motionSafeChrome` is true.
+  - Completed: v4.9.47 removes external capsule-render/readme-typing output from generated profile chrome, adds local static header/footer SVG assets, records third-party render hosts in `readmeExperienceChecks`, and reports zero render hosts for the current compact README.
   - Complexity: M
 
 ### Researcher Queue (Cycle 45 - 2026-06-06)
@@ -1594,7 +1608,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor` (completed v4.9.33 with checksum-verified actionlint 1.7.12 and Pester wiring coverage).
 - [x] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes (completed v4.9.41 with an always-created `Windows setup smoke` job).
 - [x] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools (completed v4.9.46 with Pester 5.7.1 `-RequiredVersion`, hash-checked `zizmor` 1.25.2 requirements, toolchain docs, and Pester coverage).
-- [ ] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome.
+- [x] P2 — Reduced-motion/static guard for profile hero and typing SVG chrome (completed v4.9.47 with static local header/footer SVGs, `motionSafeChrome`, render-host reporting, schema updates, and Pester regression coverage).
 - [ ] P2 — Generated profile PR validation handoff for `GITHUB_TOKEN`-created branches.
 - [x] P2 — Profile-assets refresh report artifact and job summary parity (completed v4.9.31 with shared summary helper and retained report artifact).
 - [x] P2 — Expanded CODEOWNERS coverage for public profile contract files (completed v4.9.38).
@@ -1641,8 +1655,8 @@ P1/P2 needing design or staged rollout:
 - [ ] P2 — REST release-fallback N+1 cap with rate-limit awareness and partial-data abort.
 - [ ] P2 — Header/non-catalog link validation folded into the existing link gate.
 - [x] P2 — Release/download trust metadata for visitor-facing EXE/APK/ZIP release rows (completed v4.9.44 with feed `releaseTrust`, schema coverage, trust-level counts, checksum-gap reporting, and debug artifact reporting).
-- [ ] P2 — Pinned CI validation-tool installs with a documented update path.
-- [ ] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate.
+- [x] P2 — Pinned CI validation-tool installs with a documented update path (completed v4.9.46 with exact Pester/PSScriptAnalyzer versions, hash-checked `zizmor`, and `docs/ci-toolchain.md`).
+- [x] P2 — Motion-safe generated profile chrome with a `readmeExperienceChecks.motionSafeChrome` gate (completed v4.9.47 with generated report/schema fields and failure coverage for reintroduced motion patterns).
 - [ ] P2 — Generated profile PR validation handoff using a least-privilege token or explicit dispatch.
 - [ ] P2 — Profile-assets refresh report artifact and public-safe summary parity.
 - [x] P2 — CODEOWNERS coverage aligned with generated profile, schema, setup, and planning-doc paths (completed v4.9.38).

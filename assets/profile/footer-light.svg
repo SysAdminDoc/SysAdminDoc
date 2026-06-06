@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="120" viewBox="0 0 820 120" role="img" aria-label="Decorative footer wave for the SysAdminDoc profile">
+  <title>Decorative footer wave for the SysAdminDoc profile</title>
+  <desc>Static footer divider used by the generated profile README.</desc>
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  <path d="M0 74 C120 42 226 38 350 68 C482 100 610 94 820 48 L820 120 L0 120 Z" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+  <path d="M0 92 C156 56 282 58 420 84 C548 108 674 96 820 64 L820 120 L0 120 Z" fill="#dbeafe" opacity="0.35"/>
+</svg>

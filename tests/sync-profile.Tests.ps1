@@ -321,6 +321,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'Currently Building'
         $script:rendered | Should -Not -Match 'https://skillicons\.dev'
         $script:rendered | Should -Not -Match 'assets/profile/(stats|languages|activity)-(dark|light)\.svg'
+        $script:rendered | Should -Not -Match 'capsule-render\.vercel\.app|readme-typing-svg|[?&]animation=|[?&]repeat=true'
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
         $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
@@ -344,9 +345,28 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $result.genericImageAltTextCount | Should -Be 0
         $result.thirdPartyMetricHostCount | Should -Be 0
         $result.thirdPartyBadgeHostCount | Should -Be 0
+        $result.thirdPartyRenderHostCount | Should -Be 0
+        $result.thirdPartyRenderHosts | Should -BeNullOrEmpty
+        $result.motionSafeChrome | Should -BeTrue
+        $result.motionPatternCount | Should -Be 0
         $result.profileStatsChromeCount | Should -Be 0
         $result.currentlyBuildingActionColumn | Should -BeTrue
         $result.passed | Should -BeTrue
+    }
+
+    It 'fails README experience checks for auto-starting profile motion patterns' {
+        $animatedReadme = $script:rendered + [Environment]::NewLine + @'
+<p align="center"><img src="https://readme-typing-svg.demolab.com?duration=4000&repeat=true" alt="Animated typing line" /></p>
+<p align="center"><img src="https://capsule-render.vercel.app/api?animation=fadeIn" alt="Animated header" /></p>
+'@
+
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $animatedReadme
+
+        $result.motionSafeChrome | Should -BeFalse
+        $result.motionPatternCount | Should -BeGreaterOrEqual 3
+        $result.thirdPartyRenderHosts | Should -Contain 'readme-typing-svg.demolab.com'
+        $result.thirdPartyRenderHosts | Should -Contain 'capsule-render.vercel.app'
+        $result.passed | Should -BeFalse
     }
 
     It 'generates committed local profile SVG assets' {
@@ -354,15 +374,21 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $repo.stargazerCount = 7
         $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @($repo)
 
+        $assets.Keys | Should -Contain 'assets/profile/header-dark.svg'
+        $assets.Keys | Should -Contain 'assets/profile/header-light.svg'
         $assets.Keys | Should -Contain 'assets/profile/stats-dark.svg'
         $assets.Keys | Should -Contain 'assets/profile/languages-light.svg'
         $assets.Keys | Should -Contain 'assets/profile/activity-dark.svg'
+        $assets.Keys | Should -Contain 'assets/profile/footer-dark.svg'
+        $assets.Keys | Should -Contain 'assets/profile/footer-light.svg'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<title>.*Catalog Stats</title>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<desc>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
+        $assets['assets/profile/footer-light.svg'] | Should -Match 'Static footer divider'
     }
 }
 
