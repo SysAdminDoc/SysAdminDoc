@@ -43,6 +43,7 @@ $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
+$userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -58,6 +59,8 @@ $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.wa
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $profileReleaseWarningCount = if ($profileReleaseConsistency) { [int]$profileReleaseConsistency.warningCount } else { 0 }
+$userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
+$userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -77,6 +80,8 @@ $summary = @"
 | Unknown project licenses | $unknownLicenseCount |
 | Fork-parent warnings | $forkParentWarningCount |
 | Release rows checked | $releaseRowsChecked |
+| Userscript installs checked | $userscriptInstallCount |
+| Userscript trust warnings | $userscriptWarningCount |
 | Link targets checked | $($linkSummary.targetCount) |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
@@ -120,6 +125,10 @@ if ($forkParentWarningCount -gt 0) {
 
 if ($profileReleaseWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $profileReleaseWarningCount profile release/tag warning(s)."
+}
+
+if ($userscriptWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $userscriptWarningCount userscript install trust warning(s)."
 }
 
 if ($repositoryWarningCount -gt 0) {

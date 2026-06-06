@@ -576,6 +576,57 @@ Describe 'Report schema depth helpers' {
         ($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) | Should -Contain 'checksum'
         $result.assetApiInspected | Should -BeTrue
     }
+
+    It 'reports userscript metadata trust gaps from raw install headers' {
+        $broad = New-TestEntry -Repo 'BroadScript' -Category 'extensions'
+        $broad.downloadKind = 'userscript'
+        $broad.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/BroadScript/main/BroadScript.user.js'
+        $scoped = New-TestEntry -Repo 'ScopedScript' -Category 'extensions'
+        $scoped.downloadKind = 'userscript'
+        $scoped.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.user.js'
+        $contentByUrl = @{
+            $broad.userscriptUrl = @'
+// ==UserScript==
+// @name        Broad Script
+// @version     1.0.0
+// @match       *://*/*
+// @grant       GM_xmlhttpRequest
+// ==/UserScript==
+'@
+            $scoped.userscriptUrl = @'
+// ==UserScript==
+// @name        Scoped Script
+// @version     1.2.3
+// @match       https://example.com/*
+// @updateURL   https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.meta.js
+// @downloadURL https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.user.js
+// @grant       none
+// ==/UserScript==
+'@
+        }
+
+        $result = Test-UserscriptInstallTrust -Entries @($broad, $scoped) -ContentByUrl $contentByUrl
+
+        $result.checkedCount | Should -Be 2
+        $result.rawGitHubCount | Should -Be 2
+        $result.branchSourceCount | Should -Be 1
+        $result.tagOrCommitSourceCount | Should -Be 1
+        $result.metadataBlockCount | Should -Be 2
+        $result.broadScopeCount | Should -Be 1
+        $result.missingUpdateUrlCount | Should -Be 1
+        $result.missingDownloadUrlCount | Should -Be 1
+        $result.warningCount | Should -Be 3
+        $broadRow = $result.rows | Where-Object { $_.repo -eq 'BroadScript' }
+        $broadRow.name | Should -Be 'Broad Script'
+        $broadRow.sourceRef | Should -Be 'main'
+        $broadRow.sourceRefType | Should -Be 'branch'
+        ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'scope-broad'
+        ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-missing'
+        ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-missing'
+        $scopedRow = $result.rows | Where-Object { $_.repo -eq 'ScopedScript' }
+        $scopedRow.sourceRefType | Should -Be 'tag'
+        $scopedRow.warningCount | Should -Be 0
+    }
 }
 
 Describe 'New-Readme generation (offline, fixture catalog)' {
@@ -1336,6 +1387,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Unknown project licenses'
             $summary | Should -Match 'Fork-parent warnings'
             $summary | Should -Match 'Profile release/tag warnings'
+            $summary | Should -Match 'Userscript installs checked'
+            $summary | Should -Match 'Userscript trust warnings'
             $summary | Should -Match 'Link targets checked'
             $summary | Should -Match 'Repository setting warnings'
             $summary | Should -Match 'Community-health fatal gaps'
@@ -1352,6 +1405,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'forkParentDrift'
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
+        $script:SummaryScript | Should -Match 'userscriptInstallTrust'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.58] - 2026-06-06
+
+- Added: Profile sync reports now include `userscriptInstallTrust`, parsing raw `.user.js` metadata headers for install actions.
+- Added: Public-safe summary rows now include userscript install and warning counts.
+- Added: The sync-report schema and Pester coverage validate branch/tag source provenance, metadata blocks, version/update/download URL presence, scope counts, and broad-scope warnings.
+- Verified: Current live report checks 11 userscript installs, all from raw GitHub branch URLs, with 11 metadata blocks, 0 missing versions, 2 missing update URLs, 2 missing download URLs, 3 broad-scope rows, and 7 warning rows.
+
 ## [v4.9.57] - 2026-06-06
 
 - Added: Profile sync reports now include `profileReleaseConsistency`, comparing the planning-doc version against the profile repository's latest GitHub release and matching tag ref.

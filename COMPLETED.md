@@ -27,6 +27,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Prepared a focused awesome-list submission shortlist with target lists, proposed entry text, and pre-submit gates, without opening external PRs (v4.9.11). — *Source: ROADMAP.md*
 - [x] Added release asset taxonomy from latest-release asset names, exported asset kinds/names in `projects.json`, corrected mismatched catalog labels, and regenerated to 0 release asset kind mismatches (v4.9.13). — *Source: ROADMAP.md*
 - [x] Added release/download trust metadata to visitor-facing feed rows, including checksum/signature/SBOM/attestation/debug/source-only filename evidence, schema validation, trust-level counts, checksum-gap reporting, and debug artifact reporting (v4.9.44). — *Source: ROADMAP.md*
+- [x] Added userscript install trust metadata to the sync report, including raw GitHub branch/tag provenance, metadata block parsing, version/update/download URL checks, scope counts, broad-scope warnings, schema validation, and public-safe summary rows (v4.9.58). — *Source: ROADMAP.md*
 - [x] Added per-project repository license metadata to visitor-facing feed rows with `licenseKey`, `licenseName`, and `licenseSpdxId`, plus sync-report detected/missing/non-standard/license-count aggregates (v4.9.55). — *Source: ROADMAP.md*
 - [x] Added committed local SVG profile metric panels, asset sync/report checks, and a scheduled/manual asset-refresh workflow; removed komarev plus third-party stats/streak/activity hosts from the generated README (v4.9.14). — *Source: ROADMAP.md*
 - [x] Made generated profile chrome motion-safe by replacing external capsule/typing motion with committed static header/footer SVG assets, adding `readmeExperienceChecks.motionSafeChrome` plus render-host reporting, and adding Pester/schema coverage (v4.9.47). — *Source: ROADMAP.md*
@@ -89,6 +90,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added Pester coverage for project license export, missing/non-standard license reporting, report summary rows, and schema validation (v4.9.55). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for fork-parent drift matches, catalog continuations, missing catalog attribution, parent mismatches, unavailable parents, report schema validation, and summary rows (v4.9.56). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for profile release/tag consistency when the latest release is behind, the expected tag is missing, and the latest release/tag matches the planning version (v4.9.57). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for userscript install trust metadata, including branch/tag source parsing, broad-scope warnings, and missing update/download URL warnings (v4.9.58). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 
