@@ -42,8 +42,11 @@ protection remains admin-enforced, keeps required conversation resolution,
 blocks force pushes and deletion, does not require PR reviews, and does not use
 repository rulesets. Required-check readiness now treats branch protection as
 the selected enforcement mechanism, so the transition checklist is ready with
-zero activation blockers. The next cycle should monitor the first normal PR
-under active required-check enforcement and record the hosted proof.
+zero activation blockers. Check-only metadata drift also downgrades transient
+release-asset inspection loss to informational when release identity is
+unchanged, so hosted PR validation is not blocked by a temporary GitHub release
+API outage. The next cycle should monitor the first normal PR under active
+required-check enforcement and record the hosted proof.
 
 2026-06-07 v4.9.120 refresh: routine PR delivery proof recorded.
 Cycle 127 opened and merged PR #14 from the `routine-pr-drill-evidence` branch

@@ -5884,6 +5884,48 @@ function New-MetadataDriftRecord {
     }
 }
 
+function Test-TransientReleaseAssetInspectionDrift {
+    param(
+        [object]$CurrentRow,
+        [object]$ExpectedRow,
+        [string]$Field
+    )
+
+    $assetDependentFields = @(
+        "primaryAction.kind",
+        "primaryAction.label",
+        "primaryAction.url",
+        "hasDownload",
+        "releaseAssetKinds",
+        "releaseAssetNames",
+        "releaseAssetInspected",
+        "releaseTrust"
+    )
+    if ($assetDependentFields -notcontains $Field) {
+        return $false
+    }
+
+    $currentInspected = ConvertTo-BooleanValue (Get-NestedMemberValue -Object $CurrentRow -Path "releaseAssetInspected")
+    $expectedInspected = ConvertTo-BooleanValue (Get-NestedMemberValue -Object $ExpectedRow -Path "releaseAssetInspected")
+    if (-not $currentInspected -or $expectedInspected) {
+        return $false
+    }
+
+    $currentReleaseTag = Get-NestedMemberValue -Object $CurrentRow -Path "latestReleaseTag"
+    $expectedReleaseTag = Get-NestedMemberValue -Object $ExpectedRow -Path "latestReleaseTag"
+    if ((ConvertTo-ComparableJson $currentReleaseTag) -ne (ConvertTo-ComparableJson $expectedReleaseTag)) {
+        return $false
+    }
+
+    $currentReleaseUrl = Get-NestedMemberValue -Object $CurrentRow -Path "latestReleaseUrl"
+    $expectedReleaseUrl = Get-NestedMemberValue -Object $ExpectedRow -Path "latestReleaseUrl"
+    if ((ConvertTo-ComparableJson $currentReleaseUrl) -ne (ConvertTo-ComparableJson $expectedReleaseUrl)) {
+        return $false
+    }
+
+    return $true
+}
+
 function Test-MetadataDrift {
     param(
         [string]$CurrentProjectsJson,
@@ -6042,7 +6084,11 @@ function Test-MetadataDrift {
                 $oldValue = Get-NestedMemberValue -Object $currentRows[$key] -Path $field
                 $newValue = Get-NestedMemberValue -Object $expectedRows[$key] -Path $field
                 if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                    $severity = if ($infoFields -contains $field) { "info" } else { "fatal" }
+                    $releaseAssetInspectionDrift = Test-TransientReleaseAssetInspectionDrift `
+                        -CurrentRow $currentRows[$key] `
+                        -ExpectedRow $expectedRows[$key] `
+                        -Field $field
+                    $severity = if ($infoFields -contains $field -or $releaseAssetInspectionDrift) { "info" } else { "fatal" }
                     $drift.Add((New-MetadataDriftRecord -Repo $repo -Field $field -OldValue $oldValue -NewValue $newValue -Severity $severity))
                 }
             }
