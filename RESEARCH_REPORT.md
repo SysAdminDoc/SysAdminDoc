@@ -5,10 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.111
+Current version after this refresh: v4.9.112
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.112 batch adds the disposable PR exercise plan for candidate-check
+  freshness proof without enabling required-check enforcement.
+- `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
+  now records `status=planned`, `readinessStatus=needs-live-validation`,
+  `evidenceStatus=not-run`, the `automation/required-check-proof-` branch
+  prefix, the three proof touch paths, and the six expected candidate check
+  names.
+- The plan explicitly requires closing the disposable PR and deleting the proof
+  branch after recording PR number, run IDs, check conclusions, and cleanup
+  state.
+- Profile sync summaries now surface the exercise plan status, readiness,
+  evidence state, candidate count, branch prefix, and touch paths; Pester and
+  the sync-report schema guard the report shape.
 - The v4.9.111 batch makes the remaining direct-main maintenance blocker
   machine-readable.
 - `requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy`

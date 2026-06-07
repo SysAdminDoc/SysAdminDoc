@@ -381,6 +381,14 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'not-approved'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'defer-required-check-enforcement'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'planned'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'needs-live-validation'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.requiredBeforeEnforcement | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.candidateCheckCount | Should -Be 6
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'README.md'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain '.github/workflows/tests.yml'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'setup.ps1'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'not-run'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2200,6 +2208,7 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'PR Delivery Transition Checklist'
         $script:PrDeliveryTransitionDecision | Should -Match 'Candidate required checks'
         $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Disposable PR Exercise Plan'
         $script:PrDeliveryTransitionDecision | Should -Match 'generated-profile/validation.*PR status handoff'
         $script:PrDeliveryTransitionDecision | Should -Match 'direct-main maintenance'
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
@@ -2222,6 +2231,27 @@ Describe 'Required status check readiness' {
 
         $transition.readyForRequiredCheckEnforcement | Should -BeFalse
         $transition.status | Should -Be 'blocked'
+        $plan = $transition.candidateCheckExercisePlan
+        $plan.status | Should -Be 'planned'
+        $plan.readinessStatus | Should -Be 'needs-live-validation'
+        $plan.requiredBeforeEnforcement | Should -BeTrue
+        $plan.purpose | Should -Be 'refresh-recent-check-run-proof'
+        $plan.disposableBranchPrefix | Should -Be 'automation/required-check-proof-'
+        $plan.pullRequestTitle | Should -Be 'chore: exercise required-check candidates'
+        $plan.candidateCheckCount | Should -Be 6
+        (($plan.candidateChecks) -join '|') | Should -Be 'Pester (offline)|PSScriptAnalyzer|Markdownlint|Windows setup smoke|Check generated README|zizmor'
+        $plan.workflowCount | Should -Be 3
+        $plan.workflows | Should -Contain '.github/workflows/profile-sync.yml'
+        $plan.touchPaths | Should -Contain 'README.md'
+        $plan.touchPaths | Should -Contain '.github/workflows/tests.yml'
+        $plan.touchPaths | Should -Contain 'setup.ps1'
+        $plan.nonMutationPolicy | Should -Match 'do not merge'
+        $plan.expectedPrChecks | Should -Contain 'zizmor'
+        $plan.verificationSteps | Should -HaveCount 5
+        $plan.cleanupRequired | Should -BeTrue
+        $plan.evidenceStatus | Should -Be 'not-run'
+        $plan.documentationPath | Should -Be 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md'
+        $plan.nextAction | Should -Match 'Run the disposable PR proof'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
@@ -2603,6 +2633,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'statusHandoffState'
         $script:SummaryScript | Should -Match 'directMainMaintenancePolicy'
         $script:SummaryScript | Should -Match 'Direct-main maintenance policy'
+        $script:SummaryScript | Should -Match 'candidateCheckExercisePlan'
+        $script:SummaryScript | Should -Match 'Candidate check exercise plan'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'

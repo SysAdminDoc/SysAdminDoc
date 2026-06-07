@@ -206,6 +206,38 @@ has been selected. Required-check enforcement should remain deferred until the
 repo chooses and tests either an explicit direct-main bypass actor/policy or
 routine PR delivery.
 
+## Cycle 120 Disposable PR Exercise Plan
+
+Cycle 120 adds a machine-readable
+`requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
+record for the remaining recent-check-run proof. The plan is still
+`readinessStatus=needs-live-validation` and `evidenceStatus=not-run`; it does
+not enable enforcement, approve a bypass, or merge a proof branch.
+
+The proof branch should use the `automation/required-check-proof-` prefix and a
+disposable pull request titled `chore: exercise required-check candidates`.
+The proof commit must touch these paths because they cover the candidate
+workflow surface without changing branch-protection settings:
+
+- `README.md`
+- `.github/workflows/tests.yml`
+- `setup.ps1`
+
+The expected PR check names remain:
+
+- `Pester (offline)`
+- `PSScriptAnalyzer`
+- `Markdownlint`
+- `Windows setup smoke`
+- `Check generated README`
+- `zizmor`
+
+The proof is complete only after the disposable PR check rollup shows those six
+candidate checks, the relevant run IDs and conclusions are recorded, and the
+PR plus proof branch are closed and deleted. Required-check enforcement remains
+deferred until this proof and the direct-main maintenance policy are both
+resolved.
+
 ## References
 
 - [GitHub Docs: About protected branches](https://docs.github.com/articles/types-of-required-status-checks)
