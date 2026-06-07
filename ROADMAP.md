@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.114
+Current repo version: v4.9.115
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 122 - 2026-06-07.
+> Last researched: Cycle 123 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 122 - 2026-06-07.
+Last researched: Cycle 123 - 2026-06-07.
+
+2026-06-07 v4.9.115 refresh: volatile project push-time equality handling
+shipped. Cycle 123 retried the disposable candidate-check proof locally and
+found the remaining `projectsExportInSync=false` false positive: the profile
+repo's own `projects[].pushedAt` changes after every pushed maintenance commit,
+and that drift is already classified as informational metadata drift. The
+projects-feed comparison now masks `projects[].pushedAt` for equality while
+leaving the exported feed value and metadata drift report intact, so check-only
+validation can pass when only volatile push-time evidence changes.
 
 2026-06-07 v4.9.114 refresh: normalized provenance hashing and disposable
 candidate-check evidence shipped. Cycle 122 opened disposable PR #11 from
@@ -52,10 +61,10 @@ Cycle 121 used the disposable required-check proof rehearsal to expose that
 `sync-profile.ps1 -Check` could mark `projects.json` stale after a normal commit
 because volatile provenance and equivalent `pushedAt` timestamp serialization
 changed while stable feed content did not. `ConvertTo-ProjectsSyncComparableJson`
-now normalizes `projects[].pushedAt` to UTC ISO text and continues ignoring
-`sourceCommit` and `metadataSnapshotAt` for sync equality, while Pester proves
-stable provenance hash drift is still detected. The regenerated feed/report are
-back in sync on `main`, unblocking a later disposable PR proof.
+continues ignoring `sourceCommit` and `metadataSnapshotAt` for sync equality,
+while Pester proves stable provenance hash drift is still detected. The
+regenerated feed/report are back in sync on `main`, unblocking a later
+disposable PR proof.
 
 2026-06-07 v4.9.112 refresh: candidate-check exercise plan shipped.
 Cycle 120 added `candidateCheckExercisePlan` under

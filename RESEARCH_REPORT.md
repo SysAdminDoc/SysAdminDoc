@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.114
+Current version after this refresh: v4.9.115
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.115 batch fixes the remaining volatile projects-feed equality issue
+  found while retrying the disposable candidate-check proof locally.
+- `projects[].pushedAt` value changes remain exported and remain visible as
+  informational metadata drift, but `ConvertTo-ProjectsSyncComparableJson` now
+  masks those values before check-only equality comparison.
+- This keeps routine profile-repo push-time changes from making
+  `projectsExportInSync=false` when stable project feed content is unchanged.
 - The v4.9.114 batch fixes a cross-platform provenance hashing issue exposed
   by disposable PR #11.
 - PR #11 created all six candidate required-check names. `PSScriptAnalyzer`,
@@ -24,9 +31,10 @@ Current version after this refresh: v4.9.114
   state, and the next rerun action.
 - The v4.9.113 batch fixes a check-only projects-feed sync bug exposed while
   rehearsing the disposable required-check proof.
-- `ConvertTo-ProjectsSyncComparableJson` now normalizes `projects[].pushedAt`
-  values to UTC ISO text before comparing the committed feed with expected
-  output.
+- `ConvertTo-ProjectsSyncComparableJson` initially normalized
+  `projects[].pushedAt` values to UTC ISO text before comparing the committed
+  feed with expected output; v4.9.115 later masks these volatile values for
+  equality while preserving them in the public feed and drift report.
 - The comparison still ignores volatile `provenance.sourceCommit` and
   `provenance.metadataSnapshotAt`, while stable provenance fields such as
   catalog, generator, and schema hashes remain strict.

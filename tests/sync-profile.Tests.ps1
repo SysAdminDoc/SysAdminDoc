@@ -1562,7 +1562,7 @@ Describe 'Feed JSON Schema contracts' {
         ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repoUrl'
     }
 
-    It 'ignores volatile provenance fields in projects sync comparison' {
+    It 'ignores volatile provenance and pushed-at fields in projects sync comparison' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $current = New-ProjectsExportJson -Catalog $cat -Repos @()
         $currentPayload = $current | ConvertFrom-Json
@@ -1571,7 +1571,7 @@ Describe 'Feed JSON Schema contracts' {
         $expectedPayload = $current | ConvertFrom-Json
         $expectedPayload.provenance.metadataSnapshotAt = '2026-06-06T00:00:00Z'
         $expectedPayload.provenance.sourceCommit = '0000000000000000000000000000000000000000'
-        $expectedPayload.projects[0].pushedAt = '2026-06-01T08:00:01.0000000Z'
+        $expectedPayload.projects[0].pushedAt = '2026-06-07T09:56:21Z'
         $expected = $expectedPayload | ConvertTo-Json -Depth 20
 
         (ConvertTo-ProjectsSyncComparableJson -Json $current) | Should -Be (ConvertTo-ProjectsSyncComparableJson -Json $expected)

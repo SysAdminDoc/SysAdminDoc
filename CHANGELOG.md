@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.115] - 2026-06-07
+
+- Fixed: `projects.json` check-only comparison now masks volatile `projects[].pushedAt` values for equality so routine profile-repo push-time drift stays informational.
+- Added: Pester coverage now proves changed project push timestamps do not hide stable provenance hash drift.
+- Changed: the disposable candidate-check proof should be rerun after both hash normalization and push-time equality masking are on `main`.
+
 ## [v4.9.114] - 2026-06-07
 
 - Fixed: feed provenance hashes now normalize text newlines before SHA-256 so Windows CRLF/mixed working-tree bytes do not drift from GitHub's LF checkout.
