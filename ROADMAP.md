@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.73
+Current repo version: v4.9.74
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 48 - 2026-06-06.
+> Last researched: Cycle 82 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 48 - 2026-06-06.
+Last researched: Cycle 82 - 2026-06-06.
+
+2026-06-06 v4.9.74 refresh: stale duplicate roadmap rows reconciled.
+Unchecked duplicate rows for Windows setup smoke, CI validation tool pins,
+public-repo enumeration limits, generated-artifact `.gitattributes`, generated
+automation branch cleanup, and suppressed-feed redaction are now closed against
+their shipped evidence. Pester now guards those reconciliations and the current
+branch-protection evidence. Branch-protection/ruleset status-check enforcement
+remains external-gated while this loop pushes directly to `main`; live PR #7
+currently shows the candidate check set including `Markdownlint`.
 
 2026-06-06 v4.9.73 refresh: markdownlint guard shipped.
 The generated README-safe markdownlint leg now runs through `markdownlint-cli2`
@@ -1178,11 +1187,12 @@ structured issue forms, so the items below avoid those duplicates.*
   - Verify: `actionlint .github/workflows/*.yml` passes locally or in CI; introduce an invalid expression or bad `needs:` reference in a scratch branch and confirm the workflow fails before merge.
   - Complexity: S
 
-- [ ] P2 🤖 🔬 — Add a Windows runner smoke check for `setup.ps1 -CheckOnly`
+- [x] P2 🤖 🔬 — Add a Windows runner smoke check for `setup.ps1 -CheckOnly`
   - Why: the README now gives novices an inspect-before-install command that runs `setup.ps1 -CheckOnly`, but current Pester coverage only inspects source text and generated README snippets. Because the script is Windows/WinGet/PATH-specific, an Ubuntu-only source contract can miss runtime regressions in the exact path users are told to run.
   - Evidence: `README.md:118-130` advertises both the one-paste setup and `-CheckOnly`; `tests/sync-profile.Tests.ps1:345-357` reads `setup.ps1` text but does not execute it; GitHub-hosted runner docs list standard `windows-latest` public-repo runners: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
   - Touches: `.github/workflows/tests.yml` or a new path-filtered setup-smoke workflow; optional Pester helper that shells out to `setup.ps1 -CheckOnly` on Windows only.
   - Acceptance: a Windows job runs `powershell -NoProfile -ExecutionPolicy Bypass -File setup.ps1 -CheckOnly` for PRs touching `setup.ps1`, README setup text, or tests; the check asserts check-only mode does not install or mutate tools, and uploads/redacts the temp transcript only on failure.
+  - Completed: v4.9.41 added the always-created `Windows setup smoke` Tests job, kept `setup.ps1` ASCII-only for Windows PowerShell 5.1, and added Pester coverage for the bootstrapper contract.
   - Verify: open a scratch PR touching `setup.ps1`; confirm the Windows smoke job runs and passes. Temporarily make `-CheckOnly` call the install path and confirm the job fails.
   - Complexity: S
 
@@ -1202,11 +1212,12 @@ inside CI. Existing open items already cover GitHub Actions SHA-pin review,
 `actionlint`, PSScriptAnalyzer, workflow timeouts, and Dependabot PR triage; the
 new gap is that registry-installed validation tools are not pinned or locked.*
 
-- [ ] P2 🤖 🔬 — Pin and audit CI-installed validation tools
+- [x] P2 🤖 🔬 — Pin and audit CI-installed validation tools
   - Why: the workflows pin third-party GitHub Actions by SHA, but they still install validation tools directly from live registries: `zizmor` via `python -m pip install --upgrade zizmor` and Pester via `Install-Module Pester -MinimumVersion 5.5.0 -Force`. A new PyPI or PSGallery release can change CI behavior, break validation, or introduce a supply-chain dependency without a reviewed PR.
   - Evidence: `.github/workflows/workflow-security.yml:32-36` installs latest `zizmor`; `.github/workflows/tests.yml:39-45` trusts PSGallery and installs any Pester version at or above 5.5.0; no `requirements*.txt`, lock file, or tool-version manifest exists in the repo; pip's repeatable-installs docs recommend exact `==` pins and hash-checking for stricter automated installs: https://pip.pypa.io/en/stable/topics/repeatable-installs/ and https://pip.pypa.io/en/stable/topics/secure-installs/; Microsoft documents `Install-Module -RequiredVersion` for exact module selection: https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module; OpenSSF Scorecard's Pinned-Dependencies check calls unpinned build/release dependencies a medium risk: https://github.com/ossf/scorecard/blob/main/docs/checks.md#pinned-dependencies
   - Touches: `.github/workflows/tests.yml`, `.github/workflows/workflow-security.yml`, optional `requirements-ci.txt` with hashes, optional `docs/ci-toolchain.md` or a small tool-version manifest.
   - Acceptance: CI validation tools are installed from exact reviewed versions; Python-installed tools use a pinned requirements file, preferably with hashes or a documented reason hashes are deferred; PowerShell modules use `-RequiredVersion`; the maintenance note explains how to update pins intentionally and how those updates relate to Dependabot/Renovate/manual review.
+  - Completed: v4.9.46 pins Pester 5.7.1 with `-RequiredVersion`, keeps PSScriptAnalyzer at 1.25.0, installs `zizmor` 1.25.2 from hash-checked `requirements-ci.txt`, documents the update path, and adds Pester guards.
   - Verify: `rg -n "pip install --upgrade|MinimumVersion" .github/workflows` returns no unreviewed floating validation-tool installs; a manual CI run uses the pinned versions; bumping a pin in a scratch branch produces a reviewable diff and still passes Pester/workflow-security.
   - Complexity: S
 
@@ -1306,12 +1317,13 @@ metadata versus the manual fork/continuation attribution already shipped.*
 *Research conducted 2026-06-04. This pass focused on future-proofing live
 repository enumeration as the public catalog grows.*
 
-- [ ] P2 🤖 🔬 — Add a public-repo enumeration limit guard
+- [x] P2 🤖 🔬 — Add a public-repo enumeration limit guard
   - Why: the main metadata path uses `gh repo list SysAdminDoc --visibility public --no-archived --limit 300`; the account currently has 184 active public repositories, so it is well under the cap today, but future growth could silently omit repos beyond the fixed limit. The REST fallback paginates, but the normal path has no near-limit warning or completeness signal.
   - Evidence: `scripts/sync-profile.ps1:207-213` hard-codes `--limit 300`; `gh repo list SysAdminDoc --visibility public --no-archived --limit 500 --json name --jq 'length'` returned 184 on 2026-06-04; `gh repo list --help` documents `--limit` as the maximum number of repositories to list with default 30; GitHub CLI docs document the same option: https://cli.github.com/manual/gh_repo_list
   - Touches: `scripts/sync-profile.ps1`, `reports/profile-sync-report.json`, optional Pester fixture for enumeration report shape.
   - Acceptance: the sync report records repository enumeration metadata such as requested limit, returned count, and a near-limit/completeness warning; `-Check` warns when returned count is close to the configured cap and fails or switches strategy if the count equals the cap; the implementation either raises the limit intentionally or uses a paginated/API path that cannot silently truncate public repos.
-  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm `repoEnumeration.returned=184`, `limit=300`, and `nearLimit=false` for the current account; simulate a fixture where returned count equals the limit and confirm the guard warns or fails rather than treating the catalog as complete.
+  - Completed: v4.9.36 raises the GraphQL enumeration limit to 500, records requested/returned/truncation metadata in feed provenance, and adds Pester coverage for truncation warnings.
+  - Verify: run `scripts/sync-profile.ps1 -Check` and confirm `repoEnumeration.returned=184`, `limit=500`, and `truncated=false` for the current account; simulate a fixture where returned count equals the limit and confirm the guard warns or fails rather than treating the catalog as complete.
   - Complexity: S
 
 ### Researcher Queue (Cycle 16 - 2026-06-04)
@@ -1336,11 +1348,12 @@ large committed generated artifacts during pull-request review. It is separate
 from the existing `.editorconfig`/markdownlint item, which covers whitespace and
 Markdown rules, and from CODEOWNERS, which covers review routing.*
 
-- [ ] P2 🤖 🔬 — Add a `.gitattributes` generated-artifact diff policy
+- [x] P2 🤖 🔬 — Add a `.gitattributes` generated-artifact diff policy
   - Why: the repo commits large fully generated outputs (`projects.json`, `reports/profile-sync-report.json`, and six `assets/profile/*.svg` panels), but it has no `.gitattributes` policy telling GitHub which generated artifacts should be collapsed in diffs and ignored for language statistics. Reviewers still need the public README visible by default, but the machine-only feed/report/SVG churn can obscure the hand-authored and generator-code changes that explain it.
   - Evidence: root listing shows no `.gitattributes`; `git check-attr -a -- README.md projects.json reports/profile-sync-report.json assets/profile/stats-light.svg` returned no attributes; tracked generated output sizes are `projects.json` 293,281 bytes, `reports/profile-sync-report.json` 27,988 bytes, and profile SVG panels 15,338 bytes combined; `scripts/sync-profile.ps1` writes those paths through the default `ReadmePath`, `ProjectsPath`, `ReportPath`, and `AssetsPath` parameters; GitHub Docs say `linguist-generated` in `.gitattributes` hides selected generated files by default in diffs and excludes them from repository language statistics: https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github
   - Touches: `.gitattributes`, optional `RESEARCH_REPORT.md` maintenance note if the README exception needs rationale.
   - Acceptance: `.gitattributes` marks only fully generated machine artifacts such as `/projects.json`, `/reports/profile-sync-report.json`, and `/assets/profile/*.svg` with `linguist-generated`; `README.md` stays review-visible by default unless a future review-summary workflow intentionally changes that policy; CODEOWNERS continues to own the generated contract files even when GitHub collapses their diffs.
+  - Completed: v4.9.37 adds `.gitattributes` policy for generated feed/report/profile SVG artifacts while leaving the public README review-visible by default.
   - Verify: `git check-attr linguist-generated -- projects.json reports/profile-sync-report.json assets/profile/stats-light.svg README.md` shows the generated feed/report/SVG paths marked and `README.md` unmarked; a test PR or comparison view collapses the generated artifacts while still showing README and generator-code diffs on first load.
   - Complexity: S
 
@@ -1351,11 +1364,12 @@ generated pull-request branches created by the profile sync and profile-assets
 refresh workflows. It is distinct from the generated PR validation handoff item,
 which covers whether those PRs receive checks.*
 
-- [ ] P3 🤖 🔬 — Enable cleanup for generated automation PR branches
+- [x] P3 🤖 🔬 — Enable cleanup for generated automation PR branches
   - Why: the profile sync and profile-assets refresh workflows create short-lived `automation/profile-sync-*` and `automation/profile-assets-*` branches, but the repository is not configured to delete head branches after merge. There are no stale `automation/*` branches right now, so this is preventive hygiene, but scheduled/manual generated PRs can otherwise accumulate branch refs over time.
   - Evidence: `.github/workflows/profile-sync.yml:85-101` creates `automation/profile-sync-${{ github.run_id }}` and opens a PR; `.github/workflows/assets-refresh.yml:45-62` does the same for `automation/profile-assets-${{ github.run_id }}`; `gh repo view SysAdminDoc/SysAdminDoc --json deleteBranchOnMerge --jq .deleteBranchOnMerge` returned `false`; `git ls-remote --heads origin automation/*` returned no current automation branches; GitHub Docs describe an "Automatically delete head branches" repository setting for deleting PR head branches after merge: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-the-automatic-deletion-of-branches
   - Touches: GitHub repository pull-request merge settings, or a narrowly scoped workflow/admin cleanup step if the build machine wants to delete only generated `automation/*` branches.
   - Acceptance: merged generated profile/profile-assets PRs do not leave remote automation branches behind; if repository-wide auto-delete is enabled, any branch-protection or ruleset exception is documented; if cleanup is workflow-specific, it only deletes merged `automation/profile-sync-*` and `automation/profile-assets-*` branches and never touches contributor branches.
+  - Completed: v4.9.61 adds `automation-branch-cleanup.yml` with scheduled dry-run visibility, manual delete mode, strict generated-branch prefixes, merged-PR gating, scoped write permissions, and Pester coverage.
   - Verify: `gh repo view SysAdminDoc/SysAdminDoc --json deleteBranchOnMerge --jq .deleteBranchOnMerge` returns `true` or a documented cleanup workflow exists; merge a scratch generated PR and confirm `git ls-remote --heads origin automation/*` does not retain the merged branch.
   - Complexity: S
 
@@ -1447,11 +1461,12 @@ rows for privacy posture. It is distinct from the README private/medical gate:
 the row is omitted from the README, but still exported through the public feed's
 `suppressed` array.*
 
-- [ ] P1 🤖 🔬 — Redact private suppression rows from the public feed
+- [x] P1 🤖 🔬 — Redact private suppression rows from the public feed
   - Why: `projects.json` intentionally includes a `suppressed` array for non-featured public rows, but one current suppressed row is marked as private while still exporting its repo identifier, repo URL, primary action, include flags, and private suppression reason. Private repositories are intended to be accessible only to explicitly authorized users; the public feed should not preserve private repo identifiers unless they have been explicitly approved as public-safe.
   - Evidence: parsing `projects.json` found 9 suppressed rows; one row has a suppression reason beginning "Repo is private" while still carrying `includeInReadme=true`, `includeInPortfolio=true`, `repoUrl`, and `primaryAction`; `scripts/sync-profile.ps1:1651-1739` emits all suppressed rows into the public feed; `scripts/sync-profile.ps1:3146-3185` enforces private/medical violations for README/profile inclusion but does not redact the feed's suppressed array; GitHub Docs describe private repositories as accessible only to explicitly shared users: https://docs.github.com/articles/limits-for-viewing-content-and-diffs-in-a-repository
   - Touches: `scripts/sync-profile.ps1` (`New-ProjectsExportJson`, privacy/report validation), `schemas/profile-projects.v1.json`, generated `projects.json`, `reports/profile-sync-report.json`, and Pester fixtures for private suppressed rows.
   - Acceptance: public `projects.json` either omits private suppressed rows entirely or emits only aggregate/redacted counts; suppression reasons that mention private state are not exported with repo identifiers; `-Check` fails or warns when a private/medical suppression row would be publicly named; public suppressed rows such as renamed or placeholder public repos can remain with public-safe reasons.
+  - Completed: v4.9.42 redacts all suppressed feed rows into dedicated public-safe placeholder records and adds schema/Pester coverage that rejects suppressed project identifiers in the public feed.
   - Verify: regenerate with `scripts/sync-profile.ps1 -Write -Check` and confirm the private suppression row is absent or redacted from `projects.json`; add a fixture private suppressed row and confirm Pester catches any exported repo name/url/action; confirm public suppressed rows still support portfolio exclusion and stale-review reporting.
   - Complexity: M
 
@@ -1749,12 +1764,12 @@ direct-push automation.*
 
 - [ ] P2 - Stage branch protection or ruleset enforcement behind PR delivery
   - Why: the repo has enough always-created CI checks to protect `main`, but enabling required checks while this autonomous loop still pushes directly to `main` and `enforce_admins=true` would block future maintenance unless PR delivery or an explicit bypass is in place first.
-  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection/required_status_checks` currently returns `404 Required status checks not enabled`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returns `[]`; `gh pr list --state open` returns no open PRs. Current branch protection has `enforce_admins.enabled=true`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`, but no required status checks or required PR review object. Local workflows now have always-created PR/merge-queue candidates: `.github/workflows/tests.yml` defines `PSScriptAnalyzer` and `Pester (offline)` jobs and includes `pull_request` plus `merge_group`; `.github/workflows/profile-sync.yml` defines `Check generated README` and includes `pull_request` plus `merge_group`; `.github/workflows/workflow-security.yml` defines `zizmor` and includes `pull_request` plus `merge_group`. Recent run evidence confirms job names from GitHub: Dependabot PR run `26967432335` had `Pester (offline)` and `PSScriptAnalyzer`, run `26967432325` had `zizmor`, and scheduled run `27005324221` had `Check generated README`.
+  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection/required_status_checks` currently returns `404 Required status checks not enabled`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returns `[]`; `gh pr list --state open` currently shows Dependabot PR #7 (`dependabot/github_actions/routine-actions-0321e4ed66`). Current branch protection has `enforce_admins.enabled=true`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`, but no required status checks or required PR review object. Local workflows now have always-created PR/merge-queue candidates: `.github/workflows/tests.yml` defines `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, and `Windows setup smoke`; `.github/workflows/profile-sync.yml` defines `Check generated README`; `.github/workflows/workflow-security.yml` defines `zizmor`; all three include `pull_request` plus `merge_group`. Current PR #7 check evidence shows `Markdownlint`, `PSScriptAnalyzer`, `Windows setup smoke`, and `zizmor` passing, with `Pester (offline)` and `Check generated README` failing on the Dependabot branch.
   - Source notes: GitHub branch protection can require PRs, approvals, code-owner review, status checks, conversation resolution, signed commits, linear history, and merge queue: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule. GitHub merge queues require workflows to trigger on `merge_group` or required checks will not be reported: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue. Rulesets can be active or disabled, can require status checks and reviews, and can allow PR-only bypasses for selected actors: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository and https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets. GitHub Actions `jobs.<job_id>.name` controls the job name displayed in the UI: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax.
   - Recommended sequence:
-    1. Ship the Windows `setup.ps1` parser fix and `windows-setup-smoke` job first so setup safety is included in the required-check set.
+    1. Keep the already-shipped `Windows setup smoke` and `Markdownlint` jobs in the candidate required-check set.
     2. Move this autonomous loop to PR-based delivery, or document a narrow allowed bypass before enabling required checks.
-    3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Check generated README`, `zizmor`, and the future `windows-setup-smoke` job.
+    3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
     4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
     5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
   - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
@@ -1843,37 +1858,26 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 49 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 82 - 2026-06-06.
 
 Current local state:
 
-- Repo: `\\vmware-host\Shared Folders\repos\SysAdminDoc`
-- HEAD inspected: `8c8aac4643b57514a364d0dfb3aaddf98d638023`
-- Worktree before implementation: `ROADMAP.md` and `AUTONOMOUS-LOOP-STATE.md` already contained uncommitted Cycle 48 research/state edits on `main...origin/main`.
-- Live GitHub branch protection check: `required_status_checks=null`, `required_pull_request_reviews=null`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, `allow_deletions.enabled=false`, `enforce_admins.enabled=true`
-- Live rulesets check: no repository rulesets returned
-- Live open PR check: no open PRs returned
-- Local PowerShell check: Windows PowerShell `5.1.26100.7920`; the advertised `powershell -NoProfile -ExecutionPolicy Bypass -File .\setup.ps1 -CheckOnly` now parses, runs the no-install diagnostics branch, and exits successfully.
-- Encoding check: `setup.ps1` remains UTF-8 without BOM but is ASCII-only, so Windows PowerShell 5.1 no longer misdecodes typographic punctuation in the public bootstrapper.
-- Provenance check: current feed top-level shape has no `provenance` object, and `generatedAt` is copied from the catalog timestamp rather than the current metadata snapshot.
-- Community/settings check: local intake files, SECURITY.md, PR template, and CODEOWNERS exist, but live GitHub community health is 71%, rulesets are empty, required status checks are not configured, code-owner review enforcement is not enabled, and Dependabot security updates are disabled while secret scanning and push protection are enabled.
-- Suppressed-feed check: committed `projects.json.suppressed` exports full project rows for 9 suppressed entries, including repo names, descriptions, URLs, and primary actions; current catalog has 10 suppression reasons including `VaultBox`, and the committed report says `projectsExportInSync=false`.
-- Release-trust check: 71 current feed rows have download actions and 58 download rows expose EXE/APK/ZIP assets; only 17 of those 58 have checksum-like asset names, 3 include debug-named assets, 1 includes SBOM-like naming, and none expose signature-like asset names.
-- Branch-protection check: required status checks are not enabled (`404` from the required-status-checks endpoint), no rulesets exist, no open PRs exist, and the current candidate check names are `PSScriptAnalyzer`, `Pester (offline)`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
-- Motion/render-host check: README still uses capsule-render header/footer URLs, readme-typing-svg with `repeat=true`, and skillicons.dev; current report guards old metric/badge hosts but has no `motionSafeChrome` or generic third-party render-host allowlist.
-- Code-scanning check: GitHub language API reports only PowerShell, the code-scanning alerts endpoint returns `404 no analysis found`, and CodeQL default setup is not currently a high-value control until a supported language is added.
-- Report-schema check: `reports/profile-sync-report.json` has 23 top-level fields and no schema pointer; `schemas/` only contains catalog/feed schemas.
-- Downstream feed check: `sysadmindoc.github.io` imports this repo's raw `projects.json`, filters only the `projects` array for visible rows, preserves unknown top-level fields in the cache, and currently types `suppressed` as full project rows. Its worktree was dirty from unrelated work and was used read-only.
-- Size/render check: current README is 74,664 bytes / 735 lines, `projects.json` is 293,666 bytes, sync report is 29,049 bytes, profile SVG panels total 15,338 bytes, and the latest rendered-profile smoke passed desktop/mobile with no overflow or failed images.
-- Header-preservation check: remote `main` removed the personal-profile header blocks before v4.9.41 was pushed; `scripts/sync-profile.ps1` now treats the compact portfolio-first header as a valid passing contract and does not regenerate the removed personal sections.
+- Repo: `C:\Users\--\repos\SysAdminDoc`
+- HEAD inspected before this cycle: `e0262aa ci: add markdownlint validation`
+- Worktree before implementation: clean on `main...origin/main`.
+- Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
+- Live open PR check: Dependabot PR #7 is open from `dependabot/github_actions/routine-actions-0321e4ed66` for `github/codeql-action` 4.36.2. Current PR checks show `Markdownlint`, `PSScriptAnalyzer`, `Windows setup smoke`, and `zizmor` passing, with `Pester (offline)` and `Check generated README` failing on the PR branch.
+- Cycle 82 reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and suppressed-feed redaction against their shipped evidence.
+- Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, and the generated README-safe markdownlint lane.
+- Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 50: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
-2. Cycle 51: audit header/non-catalog links against the existing link-validation gate.
-3. Cycle 52: inspect userscript install trust metadata for raw `.user.js` actions.
-4. Cycle 53: audit per-project SPDX/license metadata and public license display opportunities.
-5. Cycle 54: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+1. Cycle 83: triage the failing checks on Dependabot PR #7 or document why that branch should wait.
+2. Cycle 84: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
+3. Cycle 85: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
+4. Cycle 86: audit downstream portfolio compatibility before changing any feed shape.
+5. Cycle 87: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
 
 ### Quick Wins
 

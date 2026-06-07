@@ -1610,6 +1610,39 @@ Describe 'Required status check readiness' {
     }
 }
 
+Describe 'Roadmap reconciliation guards' {
+    BeforeAll {
+        $script:RoadmapForReconciliation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'ROADMAP.md') -Raw
+    }
+
+    It 'does not leave shipped duplicate roadmap rows unchecked' {
+        $shippedRows = [ordered]@{
+            'Add a Windows runner smoke check for `setup.ps1 -CheckOnly`' = 'v4.9.41'
+            'Pin and audit CI-installed validation tools' = 'v4.9.46'
+            'Add a public-repo enumeration limit guard' = 'v4.9.36'
+            'Add a `.gitattributes` generated-artifact diff policy' = 'v4.9.37'
+            'Enable cleanup for generated automation PR branches' = 'v4.9.61'
+            'Redact private suppression rows from the public feed' = 'v4.9.42'
+        }
+
+        foreach ($entry in $shippedRows.GetEnumerator()) {
+            $titlePattern = [regex]::Escape($entry.Key)
+            $versionPattern = [regex]::Escape($entry.Value)
+
+            $script:RoadmapForReconciliation | Should -Not -Match "(?m)^- \[ \].*$titlePattern"
+            $script:RoadmapForReconciliation | Should -Match "(?m)^- \[x\].*$titlePattern"
+            $script:RoadmapForReconciliation | Should -Match "Completed: $versionPattern"
+        }
+    }
+
+    It 'records current branch-protection evidence without enabling enforcement' {
+        $script:RoadmapForReconciliation | Should -Match 'Required status checks not enabled'
+        $script:RoadmapForReconciliation | Should -Match 'PR #7'
+        $script:RoadmapForReconciliation | Should -Match 'Markdownlint'
+        $script:RoadmapForReconciliation | Should -Match 'external-gated'
+    }
+}
+
 Describe 'Generated profile PR validation handoff' {
     BeforeAll {
         $script:GeneratedPrHelper = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') -Raw
