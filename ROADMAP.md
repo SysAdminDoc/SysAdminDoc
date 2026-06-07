@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.122
+Current repo version: v4.9.123
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 130 - 2026-06-07.
+> Last researched: Cycle 131 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,18 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 130 - 2026-06-07.
+Last researched: Cycle 131 - 2026-06-07.
+
+2026-06-07 v4.9.123 refresh: review-policy posture recorded.
+Cycle 131 adds `repositorySettings.reviewPolicyPosture` so the report records
+that pull-request review and code-owner review requirements remain warning-only
+until an independent reviewer or team model exists. The new decision note
+`docs/decisions/2026-06-07-review-policy-posture.md` keeps that boundary
+explicit: branch-protection required checks and routine PR delivery are active,
+direct-main bypass remains unapproved, and review enforcement should not be
+enabled in a way that blocks single-maintainer routine maintenance. The
+Scorecard `CodeReviewID` row now uses
+`external-gated-reviewer-model` instead of stale PR-delivery gating.
 
 2026-06-07 v4.9.122 refresh: required-check enforcement proof recorded.
 Cycle 130 records PR #16 as the first normal routine maintenance pull request
@@ -2422,7 +2433,7 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 130 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 131 - 2026-06-07.
 
 Current local state:
 
@@ -2465,13 +2476,13 @@ Current local state:
 - Cycle 120 added the candidate-check exercise plan for the disposable PR proof needed before required-check enforcement, with report/schema/summary/Pester coverage and `evidenceStatus=not-run`.
 - Cycle 112 documented the profile release/tag policy, added `profileReleaseConsistency.releasePolicy`, and changed policy-acknowledged release/tag drift to an informational summary notice instead of cutting a `v4.9.x` release/tag.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
-- Branch-protection required-check enforcement is active. Routine maintenance uses pull-request delivery, no direct-main bypass is approved, and PR #16 is the first recorded normal PR proof under active required checks.
+- Branch-protection required-check enforcement is active. Routine maintenance uses pull-request delivery, no direct-main bypass is approved, PR #16 is the first recorded normal PR proof under active required checks, and review requirements remain warning-only until an independent reviewer or team model exists.
 
 Next research cycles:
 
-1. Cycle 131: audit branch-protection review settings and decide whether PR reviews or code-owner reviews should stay warning-only for this single-maintainer profile repo.
-2. Cycle 132: audit remaining repository-setting warnings, especially Dependabot security updates, for report-only evidence or safe local guards.
-3. Cycle 133: audit userscript install-trust warnings and decide whether any branch-hosted install rows should move to release/tag-hosted URLs with explicit update metadata.
+1. Cycle 132: audit remaining repository-setting warnings, especially Dependabot security updates, for report-only evidence or safe local guards.
+2. Cycle 133: audit userscript install-trust warnings and decide whether any branch-hosted install rows should move to release/tag-hosted URLs with explicit update metadata.
+3. Cycle 134: audit branch-protection and workflow check-name stability after several routine PR merges under required checks.
 
 ### Quick Wins
 
@@ -2486,6 +2497,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — REST fallback release-fetch policy/progress reporting (completed v4.9.81 with `validationPerformance.restFallbackReleaseFetch`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — Required-check readiness report without enabling enforcement (completed v4.9.82 with `repositorySettings.requiredCheckReadiness`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
+- [x] P2 — Review-policy posture after required-check enforcement (completed v4.9.123 with `repositorySettings.reviewPolicyPosture`, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Generated PR delivery dry-run helper (completed v4.9.88 with `open-generated-profile-pr.ps1 -DryRun`, a read-only Profile sync `dry-run-pr` mode, side-effect guards, and Pester coverage).
 - [x] P2 — Generated PR dry-run evidence report (completed v4.9.91 with hosted run ID, failure step, skipped preview state, uploaded report-artifact state, schema coverage, summary rows, and Pester guards).
 - [x] P2 — Hosted profile-check success exit hardening (completed v4.9.92 with explicit successful `sync-profile.ps1 -Check` exit and Pester entrypoint guard).

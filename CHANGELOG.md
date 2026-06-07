@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.123] - 2026-06-07
+
+- Added: `repositorySettings.reviewPolicyPosture` now records the pull-request review and code-owner review posture as warning-only until an independent reviewer or team model exists.
+- Added: `docs/decisions/2026-06-07-review-policy-posture.md` documents why review requirements stay disabled while required checks and PR delivery remain enforced.
+- Changed: The Scorecard `CodeReviewID` row now classifies the remaining gap as `external-gated-reviewer-model` instead of stale PR-delivery gating.
+
 ## [v4.9.122] - 2026-06-07
 
 - Added: `requiredCheckEnforcementEvidence` now records PR #16 as the first branch-protection-enforced routine maintenance proof, including head/merge SHAs, workflow run IDs, retained artifact IDs, all six passing required checks, rebase merge, and branch cleanup.

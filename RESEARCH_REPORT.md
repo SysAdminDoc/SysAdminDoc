@@ -5,10 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.122
+Current version after this refresh: v4.9.123
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.123 batch records the pull-request review and code-owner review
+  posture as warning-only until an independent reviewer or team model exists.
+- `repositorySettings.reviewPolicyPosture` now reports
+  `status=warning-only-single-maintainer`,
+  `recommendation=keep-warning-only-until-reviewer-model`,
+  `pullRequestReviewsRequired=false`, `codeOwnerReviewsRequired=false`,
+  `codeownersFilePresent=true`, `requiredCheckEnforcementProven=true`, and
+  Scorecard CodeReview classification `external-gated-reviewer-model`.
+- `docs/decisions/2026-06-07-review-policy-posture.md` documents that required
+  checks and routine PR delivery stay active while review requirements remain
+  warning-only.
+- The Scorecard `CodeReviewID` row no longer claims PR delivery is the gating
+  blocker; the remaining gate is an independent reviewer or team model.
 - The v4.9.122 batch records PR #16 as the first normal routine maintenance
   pull request completed under active branch-protection required checks.
 - `requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence`
