@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.81
+Current version after this refresh: v4.9.82
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.82 batch adds machine-readable required-check readiness reporting
+  under `repositorySettings.requiredCheckReadiness` without enabling
+  branch-protection or ruleset enforcement.
+- Current live evidence remains non-enforcing: branch protection does not
+  require status checks, repository rulesets are empty, active branch rules are
+  empty, and protected `main` still has admin enforcement enabled.
+- The readiness report records six candidate checks, three activation blockers,
+  and `recommendation=defer-until-pr-delivery-or-bypass`.
+- The profile sync summary surfaces readiness status, candidate count, and
+  blocker count; Pester keeps the candidate list aligned with the decision note
+  and guards the report schema plus summary wiring.
 - The v4.9.81 batch adds structured REST fallback release-fetch policy and
   progress reporting under `validationPerformance.restFallbackReleaseFetch`.
 - The current GraphQL metadata path reports `status=not-used` while preserving

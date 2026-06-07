@@ -1606,6 +1606,7 @@
         "security",
         "branchProtection",
         "rulesets",
+        "requiredCheckReadiness",
         "warningCount",
         "warnings"
       ],
@@ -1633,6 +1634,9 @@
         },
         "rulesets": {
           "$ref": "#/$defs/repositoryRulesets"
+        },
+        "requiredCheckReadiness": {
+          "$ref": "#/$defs/requiredCheckReadiness"
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -1819,6 +1823,81 @@
         },
         "count": {
           "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "requiredCheckReadiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "recommendation",
+        "readyForEnforcement",
+        "branchProtectionRequiredStatusChecks",
+        "rulesetCount",
+        "enforceAdmins",
+        "candidateCheckCount",
+        "candidateChecks",
+        "blockerCount",
+        "blockers"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not-enabled",
+            "enforcement-present",
+            "needs-live-validation"
+          ]
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": [
+            "defer-until-pr-delivery-or-bypass"
+          ]
+        },
+        "readyForEnforcement": {
+          "type": "boolean"
+        },
+        "branchProtectionRequiredStatusChecks": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "rulesetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "enforceAdmins": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "candidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "candidateChecks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requiredCheckCandidate"
+          }
+        },
+        "blockerCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "blockers": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "requiredCheckCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "workflow"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "workflow": {
+          "type": "string"
         }
       }
     },

@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.82] - 2026-06-06
+
+- Added: `repositorySettings.requiredCheckReadiness` now records the candidate required checks, live status-check/ruleset enforcement state, admin-enforcement state, activation recommendation, and blocker list.
+- Added: The profile sync summary now surfaces required-check readiness status, candidate count, and blocker count.
+- Added: Pester coverage now keeps the report candidate list aligned with the non-enforcing activation decision and summary-helper output.
+
 ## [v4.9.81] - 2026-06-06
 
 - Added: `validationPerformance.restFallbackReleaseFetch` now records whether REST fallback latest-release fetching was used, the configured authenticated/unauthenticated caps, fetch attempts, 404 no-release count, and any fatal abort details.
