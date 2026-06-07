@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T01:20:31.5472201-04:00",
+  "generatedAt": "2026-06-07T01:36:37.2119198-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -58,15 +58,15 @@
   ],
   "publicRepoCount": 184,
   "catalogEntryCount": 187,
-  "includedReadmeCount": 177,
+  "includedReadmeCount": 166,
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a024e2d9384959681d088bec3f8f179490f26e29",
-    "catalogSha256": "80bca1eae2728b762ac9813eb3446a3087745ae983737a2550f17b5cb1404f1e",
+    "sourceCommit": "d99ee6de077b3714a6ad229b2eade1d9fa38be4a",
+    "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
     "generatorSha256": "557460f3b294ab5eb21c838951e3deb3288bc23010916e199879044d782c1186",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T01:18:40.0540954-04:00",
+    "metadataSnapshotAt": "2026-06-07T01:34:49.9219307-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T05:14:29Z",
+        "pushedAt": "2026-06-07T05:34:04Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -885,8 +885,8 @@
     "missingDescriptions": []
   },
   "projectLicenseMetadata": {
-    "checkedCount": 177,
-    "detectedCount": 174,
+    "checkedCount": 166,
+    "detectedCount": 163,
     "missingCount": 3,
     "unknownCount": 9,
     "warningCount": 12,
@@ -925,7 +925,7 @@
         "licenseSpdxId": "MIT",
         "licenseKey": "mit",
         "licenseName": "MIT License",
-        "count": 156
+        "count": 145
       },
       {
         "licenseSpdxId": "MPL-2.0",
@@ -1144,11 +1144,11 @@
     "note": "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
   },
   "releaseAssetDrift": {
-    "checkedCatalogRows": 177,
-    "releaseBearingRows": 141,
+    "checkedCatalogRows": 166,
+    "releaseBearingRows": 135,
     "releaseActionRows": 71,
     "assetApiInspected": true,
-    "inspectedReleaseRows": 141,
+    "inspectedReleaseRows": 135,
     "releaseAssetKindCounts": [
       {
         "kind": "apk",
@@ -1172,7 +1172,7 @@
       },
       {
         "kind": "source-archive",
-        "count": 58
+        "count": 52
       },
       {
         "kind": "userscript",
@@ -1194,11 +1194,11 @@
       },
       {
         "trustLevel": "metadata-only",
-        "count": 118
+        "count": 112
       },
       {
         "trustLevel": "unknown",
-        "count": 36
+        "count": 31
       }
     ],
     "executableDownloadsMissingChecksums": [
@@ -2550,28 +2550,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.94",
+    "expectedVersion": "v4.9.95",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.94"
+        "value": "v4.9.95"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.94"
+        "value": "v4.9.95"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.94"
+        "value": "v4.9.95"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.94"
+        "value": "v4.9.95"
       }
     ],
     "dates": [
@@ -2598,7 +2598,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 106,
+      "headingCount": 107,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2608,14 +2608,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.94",
+    "expectedVersion": "v4.9.95",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.94",
+    "expectedTag": "v4.9.95",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2625,13 +2625,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.94",
+        "expectedVersion": "v4.9.95",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.94",
+        "expectedVersion": "v4.9.95",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2641,9 +2641,9 @@
   "validationPerformance": {
     "linkValidation": {
       "skipped": false,
-      "targetCount": 188,
+      "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3938,
+      "elapsedMs": 3831,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2677,7 +2677,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.38,
+      "ageDays": 5.39,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2685,286 +2685,57 @@
   },
   "linkValidationSkipped": false,
   "linkValidationSummary": {
-    "targetCount": 188,
+    "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3938,
+    "elapsedMs": 3831,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 65901,
+    "byteCount": 61434,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
   },
   "readmeDensity": {
-    "lineCount": 642,
+    "lineCount": 587,
     "detailsSectionCount": 11,
     "tableRowCount": 110,
-    "projectRowCount": 177,
+    "projectRowCount": 166,
     "categoryCount": 10,
     "categorySoftLimit": 30,
     "lowSignalSoftLimit": 15,
-    "largestCategory": "python",
-    "largestCategoryCount": 41,
-    "repoOnlyProjectCount": 68,
-    "lowSignalProjectCount": 44,
-    "portfolioOnlyCandidateCount": 11,
-    "portfolioOnlyCandidateCategoryCount": 1,
-    "portfolioOnlyCandidateCategories": [
-      "python"
-    ],
+    "largestCategory": "powershell",
+    "largestCategoryCount": 30,
+    "repoOnlyProjectCount": 57,
+    "lowSignalProjectCount": 34,
+    "portfolioOnlyCandidateCount": 0,
+    "portfolioOnlyCandidateCategoryCount": 0,
+    "portfolioOnlyCandidateCategories": [],
     "portfolioOnlyCandidateSelectionPolicy": "Review non-featured, non-currently-building repo-only rows that still have portfolio routes; sort by stars, release availability, age, category order, and repo name.",
-    "portfolioOnlyCandidates": [
-      {
-        "reviewRank": 1,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "CSV_Power_Tool",
-        "title": "CSV_Power_Tool",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:02:27Z",
-        "latestReleaseTag": null,
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "no-latest-release",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 2,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "Flux",
-        "title": "Flux",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:02:38Z",
-        "latestReleaseTag": null,
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "no-latest-release",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 3,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "PillSleepTracker",
-        "title": "PillSleepTracker",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:03:22Z",
-        "latestReleaseTag": null,
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "no-latest-release",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 4,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "UniversalCompiler",
-        "title": "UniversalCompiler",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:03:40Z",
-        "latestReleaseTag": null,
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "no-latest-release",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 5,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "GmailDownloader",
-        "title": "GmailDownloader",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-04-26T02:17:22Z",
-        "latestReleaseTag": "v1.1.0",
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 6,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "bypassnroGen",
-        "title": "bypassnroGen",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:02:15Z",
-        "latestReleaseTag": "v1.0.0",
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 7,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "LipSight",
-        "title": "LipSight",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:02:55Z",
-        "latestReleaseTag": "v1.0.0",
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 8,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "PDFedit",
-        "title": "PDFedit",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:03:19Z",
-        "latestReleaseTag": "v5.5.0",
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 9,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "QR-Code-Generator-Pro",
-        "title": "QR-Code-Generator-Pro",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:03:28Z",
-        "latestReleaseTag": "v7.0.0",
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 10,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "Stock-Video-Collector",
-        "title": "Stock-Video-Collector",
-        "stars": 0,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-05-26T19:03:38Z",
-        "latestReleaseTag": "v0.7.1",
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      },
-      {
-        "reviewRank": 11,
-        "category": "python",
-        "displayName": "Python",
-        "repo": "Tunerize",
-        "title": "Tunerize",
-        "stars": 1,
-        "primaryAction": "repo",
-        "includeInPortfolio": true,
-        "pushedAt": "2026-04-26T02:13:24Z",
-        "latestReleaseTag": null,
-        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
-        "reasonCodes": [
-          "category-over-soft-limit",
-          "repo-only-action",
-          "no-latest-release",
-          "portfolio-route-available"
-        ],
-        "recommendation": "review-for-portfolio-only"
-      }
-    ],
+    "portfolioOnlyCandidates": [],
     "portfolioOnlyPreview": {
       "enabled": true,
       "mode": "report-only",
       "candidateSource": "readmeDensity.portfolioOnlyCandidates",
-      "candidateCount": 11,
-      "candidateRepos": [
-        "CSV_Power_Tool",
-        "Flux",
-        "PillSleepTracker",
-        "UniversalCompiler",
-        "GmailDownloader",
-        "bypassnroGen",
-        "LipSight",
-        "PDFedit",
-        "QR-Code-Generator-Pro",
-        "Stock-Video-Collector",
-        "Tunerize"
-      ],
-      "currentProjectRowCount": 177,
+      "candidateCount": 0,
+      "candidateRepos": [],
+      "currentProjectRowCount": 166,
       "previewProjectRowCount": 166,
-      "projectRowDelta": -11,
-      "currentLargestCategory": "python",
+      "projectRowDelta": 0,
+      "currentLargestCategory": "powershell",
       "previewLargestCategory": "powershell",
       "previewLargestCategoryCount": 30,
       "remainingOverSoftLimitCategoryCount": 0,
-      "resolvedOverSoftLimitCategoryCount": 1,
+      "resolvedOverSoftLimitCategoryCount": 0,
       "preservesPortfolioRoutes": true,
       "catalogMutated": false,
       "readmeMutated": false,
       "projectsFeedMutated": false,
-      "status": "ready",
-      "recommendation": "review-catalog-demotion",
+      "status": "no-candidates",
+      "recommendation": "keep-readme-routing-surface",
       "note": "Report-only preview; catalog, README, and projects feed output are not mutated by this section.",
       "categoryRows": [
         {
@@ -2979,10 +2750,10 @@
         {
           "category": "python",
           "displayName": "Python",
-          "currentProjectCount": 41,
+          "currentProjectCount": 30,
           "previewProjectCount": 30,
-          "projectRowDelta": -11,
-          "currentOverSoftLimitBy": 11,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
           "previewOverSoftLimitBy": 0
         },
         {
@@ -3059,11 +2830,9 @@
         }
       ]
     },
-    "routingRecommendation": "review-portfolio-only-candidates",
-    "warningCount": 1,
-    "warnings": [
-      "python has 41 README rows, above the 30 row category soft limit."
-    ],
+    "routingRecommendation": "keep-readme-routing-surface",
+    "warningCount": 0,
+    "warnings": [],
     "categoryRows": [
       {
         "category": "powershell",
@@ -3081,17 +2850,15 @@
       {
         "category": "python",
         "displayName": "Python",
-        "projectCount": 41,
+        "projectCount": 30,
         "actionableCount": 24,
-        "repoOnlyCount": 17,
-        "lowSignalCount": 10,
-        "overCategorySoftLimitBy": 11,
-        "portfolioOnlyCandidateCount": 11,
-        "routingRecommendation": "review-portfolio-only-candidates",
-        "warningCount": 1,
-        "warnings": [
-          "python has 41 README rows, above the 30 row category soft limit."
-        ]
+        "repoOnlyCount": 6,
+        "lowSignalCount": 0,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
+        "warningCount": 0,
+        "warnings": []
       },
       {
         "category": "web",
@@ -3207,7 +2974,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 65901,
+        "value": 61434,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -3216,7 +2983,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 642,
+        "value": 587,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -3252,7 +3019,7 @@
       {
         "artifact": "README.md",
         "metric": "codeBlocks",
-        "value": 78,
+        "value": 67,
         "softLimit": 100,
         "overSoftLimit": false,
         "warning": null,
@@ -3261,7 +3028,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 399544,
+        "value": 399555,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3270,7 +3037,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 98094,
+        "value": 89794,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3298,7 +3065,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T01:20:54.4213556-04:00",
+    "generatedAt": "2026-06-07T01:37:04.1367197-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,
@@ -3336,7 +3103,7 @@
     "currentlyBuildingActionColumn": true,
     "categoryAnchorCount": 10,
     "missingCategoryAnchors": [],
-    "primaryActionCoverage": 177,
+    "primaryActionCoverage": 166,
     "missingPrimaryActions": [],
     "unlabeledDownloadButtons": 0
   }

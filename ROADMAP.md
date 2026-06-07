@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.94
+Current repo version: v4.9.95
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 102 - 2026-06-07.
+> Last researched: Cycle 103 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,21 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 102 - 2026-06-07.
+Last researched: Cycle 103 - 2026-06-07.
+
+2026-06-07 v4.9.95 refresh: approved portfolio-only catalog mutation
+shipped. The 11 rows approved in
+`docs/decisions/2026-06-07-portfolio-only-demotion-review.md` now have
+`includeInReadme=false` and `includeInPortfolio=true`: `CSV_Power_Tool`,
+`Flux`, `PillSleepTracker`, `UniversalCompiler`, `GmailDownloader`,
+`bypassnroGen`, `LipSight`, `PDFedit`, `QR-Code-Generator-Pro`,
+`Stock-Video-Collector`, and `Tunerize`. `scripts/sync-profile.ps1 -Write
+-Check` regenerated `README.md`, `projects.json`, profile SVGs, and the sync
+report; the README now has 166 project rows, Python is at the 30-row soft
+limit, `readmeDensity.portfolioOnlyCandidateCount=0`, and
+`routingRecommendation=keep-readme-routing-surface`. The portfolio feed still
+exports all 177 visible projects, including all 11 demoted rows. Pester now
+guards the catalog flags, feed preservation, and generated README removal.
 
 2026-06-07 v4.9.94 refresh: portfolio-only demotion decision
 shipped. `docs/decisions/2026-06-07-portfolio-only-demotion-review.md`
@@ -156,12 +170,12 @@ aggregation, schema contract, and summary wiring.
 shipped. The sync report now extends `readmeDensity` with
 `routingRecommendation`, portfolio-only candidate counts, per-category
 soft-limit overflow counts, and category-level routing recommendations. Current
-evidence keeps the README as the public routing surface but records
-`review-portfolio-only-candidates` because the Python category has 41 generated
-rows against the 30-row soft limit, creating 11 candidate rows for explicit
-portfolio-only review. `docs/decisions/2026-06-06-readme-density-routing.md`
-records the decision, the profile sync summary surfaces the recommendation and
-candidate count, and Pester guards the generated fields plus summary wiring.
+v4.9.95 evidence keeps the README as the public routing surface and records
+`keep-readme-routing-surface` after the approved Python demotion set brought
+Python to the 30-row soft limit. `docs/decisions/2026-06-06-readme-density-routing.md`
+records the original decision, the profile sync summary surfaces the
+recommendation and candidate count, and Pester guards the generated fields plus
+summary wiring.
 
 2026-06-06 v4.9.82 refresh: required-check readiness reporting shipped.
 The sync report now includes `repositorySettings.requiredCheckReadiness` with
@@ -438,7 +452,7 @@ Generated project rows now include `licenseKey`, `licenseName`, and
 `licenseSpdxId` from live GitHub metadata, separate from `upstreamLicense`.
 The sync report now records `projectLicenseMetadata` with detected, missing,
 non-standard, and per-license aggregate counts; the current live report checks
-177 visitor-facing projects, detects 174 licenses, and records 12 warning rows
+166 README-facing projects, detects 163 licenses, and records 12 warning rows
 for 3 missing and 9 non-standard licenses. The projects/feed schemas, report
 schema, summary helper, and Pester suite cover the new fields. The duplicate
 profile-assets report-summary row is reconciled as already completed in v4.9.31.
@@ -472,7 +486,7 @@ sync report.
 Profile sync now records `readmeSizeBudget` in the generated report with the
 UTF-8 byte count, a 96 KiB soft limit, over-limit state, and an informational
 warning that suggests collapsing low-traffic categories. The current generated
-README is 65,900 bytes, below the 98,304-byte soft limit. The report schema and
+README is 61,434 bytes, below the 98,304-byte soft limit. The report schema and
 Pester suite cover the new section.
 Next highest open item: catalog JSON-shape validation in CI/Pester.
 
@@ -924,7 +938,7 @@ This repository is the public GitHub profile README for `SysAdminDoc`. As of v4.
 Live GitHub metadata gathered through 2026-06-04 showed:
 
 - 184 active public repos visible through GitHub metadata.
-- 177 catalog entries included in the public README and 9 public/private-state entries explicitly suppressed with reasons.
+- 166 catalog entries included in the public README, 177 visible projects exported to the portfolio feed, and 10 public-safe suppression records.
 - 0 active public repos missing from the generated catalog after v4.9.0.
 - 0 renamed-repo redirects after removing the duplicate `EspressoMonkey` profile row.
 - 0 private visibility or medical-imaging privacy violations in `scripts/sync-profile.ps1 -Check`.
@@ -2097,14 +2111,15 @@ Current local state:
 - Cycle 100 added an explicit successful exit path after `sync-profile.ps1 -Check` passes, targeting the hosted dry-run regenerate step failure observed in run `27082852047`.
 - Cycle 101 refreshed generated PR dry-run evidence from successful hosted run `27083372279`, including preview-helper proof and the planned generated branch.
 - Cycle 102 added a public portfolio-only demotion decision that approves the current 11 reviewed candidates for a later catalog mutation without changing generated output yet.
+- Cycle 103 applied the approved 11-row catalog mutation, removed those rows from generated README output, preserved them in the portfolio feed, and cleared the README density warning.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 103: apply the approved portfolio-only catalog mutation for the 11 named rows and verify README/feed output.
-2. Cycle 104: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
-3. Cycle 105: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
+1. Cycle 104: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
+2. Cycle 105: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
+3. Cycle 106: audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.
 
 ### Quick Wins
 
@@ -2124,6 +2139,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Hosted profile-check success exit hardening (completed v4.9.92 with explicit successful `sync-profile.ps1 -Check` exit and Pester entrypoint guard).
 - [x] P2 — Hosted generated PR dry-run success evidence (completed v4.9.93 with successful run `27083372279`, preview-helper proof, planned branch, artifact upload, schema-backed report fields, and Pester guards).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).
+- [x] P2 — Approved portfolio-only catalog mutation (completed v4.9.95 with the 11 approved rows removed from README output, preserved in `projects.json`, and covered by Pester).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
 - [x] P2 — Deterministic aggregate report row ordering (completed v4.9.90 with explicit key sorting for license and suppression reason count rows plus Pester exact-order coverage).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).

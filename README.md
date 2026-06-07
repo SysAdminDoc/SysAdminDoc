@@ -207,19 +207,14 @@ $d="$env:TEMP\Brave-Portable-Updater"; if(Test-Path $d){git -C $d pull -q}else{g
 
 <a id="python-desktop-applications"></a>
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> -- 41 repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> -- 30 repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
 <br/>
 
-Start with: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Tunerize**](https://github.com/SysAdminDoc/Tunerize).
+Start with: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
 
 [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;11 -- Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
 ```powershell
 $d="$env:TEMP\project-nomad-desktop"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/project-nomad-desktop $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\nomad.py"
-```
-
-[**Tunerize**](https://github.com/SysAdminDoc/Tunerize) &#11088;1 -- Re-render any audio as chiptune (built-in NES synth) or through any SoundFont — Audio→MIDI→SF2/chiptune→WAV, locally
-```powershell
-$d="$env:TEMP\Tunerize"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Tunerize $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\app\main.py"
 ```
 
 [**Vertigo**](https://github.com/SysAdminDoc/Vertigo) &#11088;1 -- Vertical video studio for short-form creators — turns raw footage into polished 9:16 for Shorts/TikTok/Reels &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Vertigo/releases/latest)
@@ -255,11 +250,6 @@ $d="$env:TEMP\PyShop"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --de
 [**SwiftShot**](https://github.com/SysAdminDoc/SwiftShot) -- Debloated, Greenshot-inspired screenshot tool &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/SwiftShot/releases/latest)
 ```powershell
 $d="$env:TEMP\SwiftShot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SwiftShot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\App\Install-SwiftShot.ps1"
-```
-
-[**Flux**](https://github.com/SysAdminDoc/Flux) -- Privacy-focused BitTorrent client — PyQt6 + libtorrent
-```powershell
-$d="$env:TEMP\Flux"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Flux $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\flux-torrent\Launch-Flux.ps1"
 ```
 
 [**GitForge**](https://github.com/SysAdminDoc/GitForge) -- Full GitHub repo manager — clone, sync, diff, manage &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/GitForge/releases/latest)
@@ -302,11 +292,6 @@ $d="$env:TEMP\ExplorerTweaks"; if(Test-Path $d){git -C $d pull -q}else{git clone
 $d="$env:TEMP\FaceSlim"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/FaceSlim $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\FaceSlim.py"
 ```
 
-[**LipSight**](https://github.com/SysAdminDoc/LipSight) -- AI-powered lip reading tool — transcribes speech from silent video
-```powershell
-$d="$env:TEMP\LipSight"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LipSight $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\LipSight.py"
-```
-
 [**LlamaLink**](https://github.com/SysAdminDoc/LlamaLink) -- Sleek GUI frontend for llama.cpp — search, download, and chat with local LLMs &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/LlamaLink/releases/latest)
 ```powershell
 $d="$env:TEMP\LlamaLink"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/LlamaLink $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\llamalink.py"
@@ -317,24 +302,9 @@ $d="$env:TEMP\LlamaLink"; if(Test-Path $d){git -C $d pull -q}else{git clone -q -
 $d="$env:TEMP\SlunderStudio"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SlunderStudio $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
-[**GmailDownloader**](https://github.com/SysAdminDoc/GmailDownloader) -- Full Gmail mailbox downloader, AI-powered organizer & analytics suite
-```powershell
-$d="$env:TEMP\GmailDownloader"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b master https://github.com/SysAdminDoc/GmailDownloader $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\gmaildownloader.py"
-```
-
-[**UniversalCompiler**](https://github.com/SysAdminDoc/UniversalCompiler) -- All-in-one script-to-EXE compiler
-```powershell
-$d="$env:TEMP\UniversalCompiler"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/UniversalCompiler $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\UniversalCompiler.ps1"
-```
-
 [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;19 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
-```
-
-[**bypassnroGen**](https://github.com/SysAdminDoc/bypassnroGen) -- Generate Windows 11 OOBE bypass files
-```powershell
-$d="$env:TEMP\bypassnroGen"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/bypassnroGen $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\BypassNRO_Generator.py"
 ```
 
 [**MSStoreHelper**](https://github.com/SysAdminDoc/MSStoreHelper) &#11088;3 -- Install Microsoft Store apps without the Store &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/MSStoreHelper/releases/latest)
@@ -352,11 +322,6 @@ $d="$env:TEMP\Qwen3-TTS-Studio"; if(Test-Path $d){git -C $d pull -q}else{git clo
 $d="$env:TEMP\AppList"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AppList $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\AppList.py"
 ```
 
-[**PillSleepTracker**](https://github.com/SysAdminDoc/PillSleepTracker) -- Floating widget for medication tracking + sleep analytics
-```powershell
-$d="$env:TEMP\PillSleepTracker"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PillSleepTracker $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Launch-PillSleepTracker.ps1"
-```
-
 [**Mattpad**](https://github.com/SysAdminDoc/Mattpad) -- Minimal notepad built for personal workflow &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/Mattpad/releases/latest)
 ```powershell
 $d="$env:TEMP\Mattpad"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Mattpad $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\mattpad.py"
@@ -372,11 +337,6 @@ $d="$env:TEMP\HostsFileGet"; if(Test-Path $d){git -C $d pull -q}else{git clone -
 $d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Bookmark-Organizer-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
-[**QR-Code-Generator-Pro**](https://github.com/SysAdminDoc/QR-Code-Generator-Pro) -- QR generator with 98 visual style presets
-```powershell
-$d="$env:TEMP\QR-Code-Generator-Pro"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/QR-Code-Generator-Pro $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\qr_code_generator_pro_v7.py"
-```
-
 [**uBlock-Stylus-Converter**](https://github.com/SysAdminDoc/uBlock-Stylus-Converter) -- Convert uBlock cosmetic filters to Stylus CSS &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/uBlock-Stylus-Converter/releases/latest)
 ```powershell
 $d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/uBlock-Stylus-Converter $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\ublocktoCSS.py"
@@ -387,24 +347,9 @@ $d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{
 $d="$env:TEMP\KeepSyncNotes"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/KeepSyncNotes $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\keepsync_notes.py"
 ```
 
-[**PDFedit**](https://github.com/SysAdminDoc/PDFedit) -- Simple PDF editor
-```powershell
-$d="$env:TEMP\PDFedit"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/PDFedit $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\PDFedit.py"
-```
-
-[**CSV_Power_Tool**](https://github.com/SysAdminDoc/CSV_Power_Tool) -- Bulk CSV processing and consolidation
-```powershell
-$d="$env:TEMP\CSV_Power_Tool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/CSV_Power_Tool $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\CSV_Consolidator.py"
-```
-
 [**AI-Model-Compass**](https://github.com/SysAdminDoc/AI-Model-Compass) -- Discover, download, and run local AI models tailored to your hardware &nbsp;[<kbd>&#11015; Download</kbd>](https://github.com/SysAdminDoc/AI-Model-Compass/releases/latest)
 ```powershell
 $d="$env:TEMP\AI-Model-Compass"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/AI-Model-Compass $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\ai_model_compass.py"
-```
-
-[**Stock-Video-Collector**](https://github.com/SysAdminDoc/Stock-Video-Collector) -- Stock video collector
-```powershell
-$d="$env:TEMP\Stock-Video-Collector"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Stock-Video-Collector $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\artlist_scraper.py"
 ```
 
 [**GifText**](https://github.com/SysAdminDoc/GifText) &#11088;1 -- Animated GIF text editor for meme creation
