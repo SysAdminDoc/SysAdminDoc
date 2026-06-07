@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.80
+Current repo version: v4.9.81
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 88 - 2026-06-06.
+> Last researched: Cycle 89 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 88 - 2026-06-06.
+Last researched: Cycle 89 - 2026-06-06.
+
+2026-06-06 v4.9.81 refresh: REST fallback release-fetch state reporting
+shipped. The sync report now records `validationPerformance.restFallbackReleaseFetch`
+so a GraphQL metadata run says `not-used`, while future REST fallback runs
+preserve the configured authenticated/unauthenticated release-fetch caps, repo
+count, attempted and successful latest-release calls, 404 no-release count, and
+fatal abort details. The summary helper surfaces fallback status, attempts, and
+404 counts, and Pester guards HTTP-status parsing, the reportable state object,
+the default GraphQL/offline not-used path, and summary wiring.
 
 2026-06-06 v4.9.80 refresh: portfolio feed compatibility reporting shipped.
 The sync report now includes `portfolioCompatibility`, a downstream-facing
@@ -1915,12 +1924,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 85 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 89 - 2026-06-06.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `16cd21c docs: close obsolete dependabot pr`
+- HEAD inspected before this cycle: `ff6b655 feat: report portfolio compatibility`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -1928,14 +1937,18 @@ Current local state:
 - Cycle 83 applied the routine `github/codeql-action/upload-sarif` 4.36.2 update from Dependabot PR #7 on `main`.
 - Cycle 84 closed the now-obsolete PR #7 branch and recorded the closure.
 - Cycle 85 recorded required-check enforcement readiness in a decision note with candidate checks, live branch-protection/ruleset evidence, and activation preconditions.
-- Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, and the generated README-safe markdownlint lane.
+- Cycle 86 added README density reporting for portfolio-only review inputs.
+- Cycle 87 recorded PowerShell-only code-scanning posture and active SARIF/static-analysis controls.
+- Cycle 88 added downstream portfolio compatibility reporting for the public feed contract.
+- Cycle 89 added REST fallback release-fetch policy/progress reporting under `validationPerformance`.
+- Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
-2. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
-3. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
+1. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
+2. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
+3. Cycle 92: add generated artifact/render-budget reporting if the density review keeps the README as a public routing surface.
 
 ### Quick Wins
 
@@ -1947,6 +1960,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Generated README density report for portfolio-only review inputs (completed v4.9.78 with `readmeDensity`, summary-helper output, schema coverage, and Pester guards).
 - [x] P3 — Code-scanning posture for the PowerShell-only profile repo (completed v4.9.79 with `repositorySettings.security.codeScanning`, summary rows, a decision note, and future supported-language warning coverage).
 - [x] P1 — Downstream portfolio compatibility snapshot before feed-shape changes (completed v4.9.80 with `portfolioCompatibility`, summary rows, schema coverage, and Pester guards).
+- [x] P2 — REST fallback release-fetch policy/progress reporting (completed v4.9.81 with `validationPerformance.restFallbackReleaseFetch`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).

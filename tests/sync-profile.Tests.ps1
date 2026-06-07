@@ -386,6 +386,46 @@ Describe 'REST fallback release request guard' {
         Test-GhApiNotFound -Output 'gh: Not Found (HTTP 404)' | Should -BeTrue
         Test-GhApiNotFound -Output 'gh: API rate limit exceeded (HTTP 403)' | Should -BeFalse
     }
+
+    It 'extracts gh api HTTP status from failure output' {
+        Get-GhApiHttpStatus -Output 'gh: API rate limit exceeded (HTTP 403)' | Should -Be 403
+        Get-GhApiHttpStatus -Output 'gh: Not Found (HTTP 404)' | Should -Be 404
+        Get-GhApiHttpStatus -Output 'network failed before an HTTP response' | Should -BeNullOrEmpty
+    }
+
+    It 'creates a reportable REST fallback release-fetch state' {
+        $state = New-RestFallbackReleaseFetchState `
+            -Used `
+            -Status 'aborted' `
+            -RepoCount 184 `
+            -Authenticated:$true `
+            -AttemptedReleaseFetches 12 `
+            -SuccessfulReleaseFetches 10 `
+            -NoRelease404Count 1 `
+            -Fatal:$true `
+            -AbortRepo 'BrokenRepo' `
+            -AbortHttpStatus 403 `
+            -AbortMessage 'Latest-release fetch failed after 12 attempted request(s).'
+
+        $state.used | Should -BeTrue
+        $state.status | Should -Be 'aborted'
+        $state.repoCount | Should -Be 184
+        $state.attemptedReleaseFetches | Should -Be 12
+        $state.noRelease404Count | Should -Be 1
+        $state.fatal | Should -BeTrue
+        $state.abortRepo | Should -Be 'BrokenRepo'
+        $state.abortHttpStatus | Should -Be 403
+    }
+
+    It 'reports GraphQL and offline paths as not using REST release fallback' {
+        Reset-RestFallbackReleaseFetchState
+        $state = Get-RestFallbackReleaseFetchState
+
+        $state.used | Should -BeFalse
+        $state.status | Should -Be 'not-used'
+        $state.attemptedReleaseFetches | Should -Be 0
+        $state.fatal | Should -BeFalse
+    }
 }
 
 Describe 'Test-LinkTargets batch reporting' {
@@ -1912,6 +1952,9 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
             $summary | Should -Match 'Link targets checked'
+            $summary | Should -Match 'REST fallback release status'
+            $summary | Should -Match 'REST fallback release attempts'
+            $summary | Should -Match 'REST fallback no-release 404s'
             $summary | Should -Match 'Repository setting warnings'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
@@ -1936,6 +1979,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
         $script:SummaryScript | Should -Match 'portfolioCompatibility'
         $script:SummaryScript | Should -Match 'readmeDensity'
+        $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'communityHealth'

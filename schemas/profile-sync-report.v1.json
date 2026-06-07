@@ -2216,11 +2216,82 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "linkValidation"
+        "linkValidation",
+        "restFallbackReleaseFetch"
       ],
       "properties": {
         "linkValidation": {
           "$ref": "#/$defs/linkValidationPerformance"
+        },
+        "restFallbackReleaseFetch": {
+          "$ref": "#/$defs/restFallbackReleaseFetch"
+        }
+      }
+    },
+    "restFallbackReleaseFetch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "used",
+        "status",
+        "repoCount",
+        "authenticated",
+        "maxReleaseFetches",
+        "unauthenticatedReleaseFetchLimit",
+        "attemptedReleaseFetches",
+        "successfulReleaseFetches",
+        "noRelease404Count",
+        "fatal",
+        "abortRepo",
+        "abortHttpStatus",
+        "abortMessage"
+      ],
+      "properties": {
+        "used": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "not-used",
+            "preflight-passed",
+            "preflight-blocked",
+            "completed",
+            "aborted"
+          ]
+        },
+        "repoCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "authenticated": {
+          "type": "boolean"
+        },
+        "maxReleaseFetches": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unauthenticatedReleaseFetchLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "attemptedReleaseFetches": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulReleaseFetches": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "noRelease404Count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "fatal": {
+          "type": "boolean"
+        },
+        "abortRepo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "abortHttpStatus": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "abortMessage": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
