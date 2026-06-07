@@ -1620,6 +1620,7 @@
         "rulesets",
         "actionsWorkflowPermissions",
         "requiredCheckReadiness",
+        "reviewPolicyPosture",
         "warningCount",
         "warnings"
       ],
@@ -1654,11 +1655,86 @@
         "requiredCheckReadiness": {
           "$ref": "#/$defs/requiredCheckReadiness"
         },
+        "reviewPolicyPosture": {
+          "$ref": "#/$defs/reviewPolicyPosture"
+        },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warnings": {
           "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "reviewPolicyPosture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "status",
+        "recommendation",
+        "branchProtectionUnavailableReason",
+        "pullRequestReviewsRequired",
+        "codeOwnerReviewsRequired",
+        "requiredStatusChecksEnabled",
+        "codeownersFilePresent",
+        "routinePrDeliveryProven",
+        "requiredCheckEnforcementProven",
+        "directMainBypassApproved",
+        "reviewerModel",
+        "scorecardCodeReviewClassification",
+        "documentationPath",
+        "evidence",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "branchProtectionUnavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "pullRequestReviewsRequired": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "codeOwnerReviewsRequired": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "requiredStatusChecksEnabled": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "codeownersFilePresent": {
+          "type": "boolean"
+        },
+        "routinePrDeliveryProven": {
+          "type": "boolean"
+        },
+        "requiredCheckEnforcementProven": {
+          "type": "boolean"
+        },
+        "directMainBypassApproved": {
+          "type": "boolean"
+        },
+        "reviewerModel": {
+          "type": "string"
+        },
+        "scorecardCodeReviewClassification": {
+          "type": "string"
+        },
+        "documentationPath": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
         }
       }
     },

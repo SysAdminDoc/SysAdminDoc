@@ -143,6 +143,13 @@ $requiredCheckEnforcementPullRequest = if ($requiredCheckEnforcementEvidence -an
 $requiredCheckEnforcementSuccessful = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.successfulCandidateCheckCount) { [int]$requiredCheckEnforcementEvidence.successfulCandidateCheckCount } else { 0 }
 $requiredCheckEnforcementFailed = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.failedCandidateCheckCount) { [int]$requiredCheckEnforcementEvidence.failedCandidateCheckCount } else { 0 }
 $requiredCheckEnforcementCleanup = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.cleanupState) { [string]$requiredCheckEnforcementEvidence.cleanupState } else { "" }
+$reviewPolicyPosture = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'reviewPolicyPosture') { $repositorySettings.reviewPolicyPosture } else { $null }
+$reviewPolicyStatus = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.status) { [string]$reviewPolicyPosture.status } else { "unknown" }
+$reviewPolicyRecommendation = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.recommendation) { [string]$reviewPolicyPosture.recommendation } else { "unknown" }
+$reviewPolicyPrReviewsRequired = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.pullRequestReviewsRequired) { [bool]$reviewPolicyPosture.pullRequestReviewsRequired } else { $false }
+$reviewPolicyCodeOwnerReviewsRequired = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.codeOwnerReviewsRequired) { [bool]$reviewPolicyPosture.codeOwnerReviewsRequired } else { $false }
+$reviewPolicyReviewerModel = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.reviewerModel) { [string]$reviewPolicyPosture.reviewerModel } else { "" }
+$reviewPolicyScorecardClassification = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.scorecardCodeReviewClassification) { [string]$reviewPolicyPosture.scorecardCodeReviewClassification } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -333,6 +340,12 @@ $summary = @"
 | Required check enforcement passed checks | $requiredCheckEnforcementSuccessful |
 | Required check enforcement failed checks | $requiredCheckEnforcementFailed |
 | Required check enforcement cleanup | $requiredCheckEnforcementCleanup |
+| Review policy posture | $reviewPolicyStatus |
+| Review policy recommendation | $reviewPolicyRecommendation |
+| PR reviews required | $reviewPolicyPrReviewsRequired |
+| Code-owner reviews required | $reviewPolicyCodeOwnerReviewsRequired |
+| Review policy reviewer model | $reviewPolicyReviewerModel |
+| Scorecard CodeReview classification | $reviewPolicyScorecardClassification |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

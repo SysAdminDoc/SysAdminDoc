@@ -325,7 +325,8 @@ Describe 'Repository settings and community-health baseline' {
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }).classification | Should -Be 'local-fix-pending-scorecard-refresh'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'SASTID' }).classification | Should -Be 'covered-by-local-static-analysis'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'FuzzingID' }).classification | Should -Be 'not-applicable-profile-generator'
-        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-pr-delivery'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-reviewer-model'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).nextAction | Should -Match 'independent reviewer'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CIIBestPracticesID' }).classification | Should -Be 'external-program-optional'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
@@ -419,6 +420,16 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.mergeMethod | Should -Be 'rebase'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Not -Match 'routine PR delivery'
+        $repoSettings.reviewPolicyPosture.available | Should -BeTrue
+        $repoSettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
+        $repoSettings.reviewPolicyPosture.recommendation | Should -Be 'keep-warning-only-until-reviewer-model'
+        $repoSettings.reviewPolicyPosture.pullRequestReviewsRequired | Should -BeFalse
+        $repoSettings.reviewPolicyPosture.codeOwnerReviewsRequired | Should -BeFalse
+        $repoSettings.reviewPolicyPosture.requiredStatusChecksEnabled | Should -BeFalse
+        $repoSettings.reviewPolicyPosture.codeownersFilePresent | Should -BeTrue
+        $repoSettings.reviewPolicyPosture.scorecardCodeReviewClassification | Should -Be 'external-gated-reviewer-model'
+        $repoSettings.reviewPolicyPosture.documentationPath | Should -Be 'docs/decisions/2026-06-07-review-policy-posture.md'
+        $repoSettings.reviewPolicyPosture.nextAction | Should -Match 'independent reviewer'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
@@ -1927,6 +1938,11 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'track-external-scorecard-governance-items'
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }) | Should -BeNullOrEmpty
+        ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-reviewer-model'
+        $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
+        $report.repositorySettings.reviewPolicyPosture.recommendation | Should -Be 'keep-warning-only-until-reviewer-model'
+        $report.repositorySettings.reviewPolicyPosture.requiredCheckEnforcementProven | Should -BeTrue
+        $report.repositorySettings.reviewPolicyPosture.scorecardCodeReviewClassification | Should -Be 'external-gated-reviewer-model'
     }
 }
 
@@ -2818,6 +2834,9 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'candidateCheckExerciseEvidence'
         $script:SummaryScript | Should -Match 'routineMaintenancePrDrillEvidence'
         $script:SummaryScript | Should -Match 'requiredCheckEnforcementEvidence'
+        $script:SummaryScript | Should -Match 'reviewPolicyPosture'
+        $script:SummaryScript | Should -Match 'Review policy posture'
+        $script:SummaryScript | Should -Match 'Scorecard CodeReview classification'
         $script:SummaryScript | Should -Match 'Routine PR drill status'
         $script:SummaryScript | Should -Match 'Candidate check exercise plan'
         $script:SummaryScript | Should -Match 'Candidate check exercise evidence is'
