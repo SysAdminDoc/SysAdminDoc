@@ -40,11 +40,17 @@ policy that must be proven before enforcement can be safely enabled.
 - Repository rulesets are readable and currently return `[]`.
 - PR #13 proved all six candidate required-check names complete successfully on
   a pull request.
+- PR #14 proved normal routine-maintenance PR delivery: it merged by rebase from
+  the `routine-pr-drill-evidence` branch after `Check generated README`,
+  `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`,
+  `Windows setup smoke`, and `zizmor` all passed.
 - Generated-profile maintenance PR delivery is already proven separately by
-  PR #10 and `generated-profile/validation`, but routine non-generated
-  maintenance still needs a live merge drill.
-- `routineMaintenancePrDrillEvidence` is present in the sync report as the
-  pending evidence slot for that merged routine-maintenance PR.
+  PR #10 and `generated-profile/validation`.
+- `routineMaintenancePrDrillEvidence` records PR #14, head SHA
+  `65475b7b47fc1e33a96843a131108b2660b18d19`, merge SHA
+  `64e02f3b4b9737f77b4629052dabc9f449e261bb`, workflow run IDs
+  `27090770215`, `27090770193`, and `27090770203`, rebase merge method, and
+  deleted-branch cleanup.
 
 ## References
 
