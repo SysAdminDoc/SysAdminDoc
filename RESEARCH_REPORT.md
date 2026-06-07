@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.96
+Current version after this refresh: v4.9.97
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.97 batch refreshes retained workflow artifact uploads for GitHub
+  Actions Node 24 runtime readiness.
+- Raw action metadata confirmed the previous `actions/upload-artifact` 4.6.2
+  SHA runs on `node20`, while the reviewed 6.0.0 SHA
+  `b7c566a772e6b6bfb58ed0dc250532a479d7789f` runs on `node24`.
+- Profile sync and profile-assets refresh now use that SHA for all five
+  retained report/smoke artifact uploads, and Pester rejects floating tags plus
+  the older Node 20 SHA.
 - The v4.9.96 batch extends deterministic report-row ordering coverage.
 - Pester now asserts exact order for
   `releaseAssetDrift.releaseAssetKindCounts`,
@@ -379,8 +387,8 @@ Current version after this refresh: v4.9.96
 - The v4.9.57 batch closed the profile repository release/tag consistency gap by
   adding warning-only `profileReleaseConsistency` reporting beside
   `docVersionConsistency`.
-- The current live report compares expected planning version `v4.9.96` against
-  latest GitHub release `v3.0.0`, records the missing `v4.9.96` tag ref, and
+- The current live report compares expected planning version `v4.9.97` against
+  latest GitHub release `v3.0.0`, records the missing `v4.9.97` tag ref, and
   surfaces 2 warning-only release/tag rows.
 - The sync-report schema, summary helper, and Pester suite now cover missing,
   behind, and matching release/tag states.

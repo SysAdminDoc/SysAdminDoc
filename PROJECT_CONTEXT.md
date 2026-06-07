@@ -30,6 +30,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 - `docs/decisions/2026-06-06-code-scanning-posture.md` records that missing CodeQL analysis is not a misconfiguration while this repo's live language mix has no CodeQL-supported source language.
 - `reports/profile-sync-report.json` is the latest validation report from `scripts/sync-profile.ps1 -Check`, with a top-level `schema` URL and `schemaValidation.report` result.
 - `.github/workflows/profile-sync.yml` runs scheduled/manual profile checks, can run a read-only generated PR dry run, can open a manual generated-profile PR through `scripts/open-generated-profile-pr.ps1`, and dispatches a branch-scoped profile-sync check after generated PR creation.
+- Profile sync and profile-assets refresh pin retained `actions/upload-artifact` uses to the reviewed 6.0.0 Node 24 runtime SHA, with Pester coverage against floating upload-artifact tags and the older 4.6.2 Node 20 SHA.
 - `.github/workflows/automation-branch-cleanup.yml` gives generated profile PR branches a cleanup policy: scheduled dry-run visibility plus a manual delete mode limited to merged `automation/profile-sync-*` and `automation/profile-assets-*` branches.
 - `.github/workflows/tests.yml` runs offline Pester, pinned PSScriptAnalyzer, pinned markdownlint, and a Windows PowerShell setup smoke check on generator/setup/schema/Markdown changes, with exact reviewed validation tool versions.
 - `.github/workflows/workflow-security.yml` creates all-PR and merge-queue checks, runs checksum-verified `actionlint` against workflow YAML, runs hash-checked `zizmor` against workflows plus future local action definitions under `.github`, and is scheduled separately from assets-refresh.
@@ -45,7 +46,7 @@ The product surface is not an app. It is a public catalog and trust surface for 
 
 Research run date: 2026-06-07
 Latest sync date: 2026-06-07
-Version: v4.9.96
+Version: v4.9.97
 Last committed baseline before v4.8.0 work: `1fe3830 Consolidate profile research roadmap`
 Branch: `main...origin/main`
 GitHub repo visibility: `PUBLIC`
@@ -78,7 +79,7 @@ Latest sync validation through `scripts/sync-profile.ps1 -Check` found:
 - `metadataHygiene` reports 69 public repos missing topics and 0 missing public descriptions; all missing-topic rows include generated `topicHints`.
 - `projectLicenseMetadata` checks 166 README-facing rows, detects 163 project licenses, records 3 missing-license rows, records 9 non-standard GitHub `other` rows, and aggregates 145 MIT, 3 GPL-3.0, 2 Apache-2.0, 1 AGPL-3.0, 1 BSD-3-Clause, 1 LGPL-3.0, 1 MPL-2.0, and 9 NOASSERTION rows with deterministic report-row ordering.
 - `forkParentDrift` checks 10 fork/continuation rows, records 8 live GitHub forks, 7 catalog `forkOf` rows, 5 matching GitHub forks, 2 catalog continuations/imports, 3 missing catalog-attribution warnings, 0 parent mismatches, and 0 parent-unavailable rows.
-- `profileReleaseConsistency` compares planning version `v4.9.96` against latest GitHub release `v3.0.0`, records the missing `v4.9.96` tag ref, and surfaces 2 warning-only release/tag rows without failing `-Check`.
+- `profileReleaseConsistency` compares planning version `v4.9.97` against latest GitHub release `v3.0.0`, records the missing `v4.9.97` tag ref, and surfaces 2 warning-only release/tag rows without failing `-Check`.
 - `userscriptInstallTrust` checks 11 raw `.user.js` install actions, records 11 metadata blocks, 0 missing-version rows, 2 missing-update-URL rows, 2 missing-download-URL rows, 3 broad-scope rows, and 7 warning rows.
 - `releaseAssetDrift` checks 166 README-facing rows, including 135 release-bearing rows, 135 asset-inspected release rows, 71 release-action rows, 17 source-only rows with releases, 0 release asset kind mismatches, and 0 release asset fetch failures.
 - `releaseAssetDrift.releaseTrustLevelCounts` reports 23 checksum-classified rows, 118 metadata-only rows, and 36 unknown rows; `executableDownloadsMissingChecksums` reports 55 visitor-facing executable download rows missing complete checksum coverage, and `debugArtifactRows` reports 3 debug-named release rows.

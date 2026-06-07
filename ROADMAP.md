@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.96
+Current repo version: v4.9.97
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 104 - 2026-06-07.
+> Last researched: Cycle 105 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 104 - 2026-06-07.
+Last researched: Cycle 105 - 2026-06-07.
+
+2026-06-07 v4.9.97 refresh: artifact upload action Node 24 readiness
+shipped. Cycle 105 reviewed the hosted Node.js 20 deprecation path for
+retained workflow artifacts, confirmed the previous `actions/upload-artifact`
+4.6.2 SHA runs on `node20`, and pinned profile-sync/profile-assets uploads to
+the reviewed 6.0.0 SHA `b7c566a772e6b6bfb58ed0dc250532a479d7789f`, whose
+action metadata runs on `node24`. Pester now guards all five retained artifact
+upload uses, rejects floating `actions/upload-artifact@v*` tags, and rejects the
+older Node 20 SHA.
 
 2026-06-07 v4.9.96 refresh: deterministic report-row coverage extended.
 Cycle 104 audited report aggregate arrays that are already sorted in
@@ -2122,14 +2131,15 @@ Current local state:
 - Cycle 102 added a public portfolio-only demotion decision that approves the current 11 reviewed candidates for a later catalog mutation without changing generated output yet.
 - Cycle 103 applied the approved 11-row catalog mutation, removed those rows from generated README output, preserved them in the portfolio feed, and cleared the README density warning.
 - Cycle 104 extended exact-order Pester coverage to release asset kind counts, release trust level counts, and portfolio primary action kind counts.
+- Cycle 105 pinned retained `actions/upload-artifact` workflow uses to the reviewed 6.0.0 Node 24 SHA and added Pester guards against floating tags and the older Node 20 SHA.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 105: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
-2. Cycle 106: audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.
-3. Cycle 107: run another generated profile delivery rehearsal if workflow evidence indicates a new PR-delivery gap.
+1. Cycle 106: audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.
+2. Cycle 107: run another generated profile delivery rehearsal if workflow evidence indicates a new PR-delivery gap.
+3. Cycle 108: review the remaining GitHub Actions dependency pin surface for hosted runtime warnings or major-update readiness.
 
 ### Quick Wins
 
@@ -2153,6 +2163,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
 - [x] P2 — Deterministic aggregate report row ordering (completed v4.9.90 with explicit key sorting for license and suppression reason count rows plus Pester exact-order coverage).
 - [x] P2 — Extended deterministic report row-order assertions (completed v4.9.96 with exact-order Pester coverage for release asset kind counts, release trust counts, and portfolio primary action kind counts).
+- [x] P2 — Upload-artifact Node 24 runtime pin (completed v4.9.97 with all retained report/smoke artifacts pinned to the reviewed `actions/upload-artifact` 6.0.0 SHA and Pester guards against floating tags or the older Node 20 SHA).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Concrete README portfolio-only review candidate rows (completed v4.9.86 with `portfolioOnlyCandidateSelectionPolicy`, `portfolioOnlyCandidates`, reason codes, summary sample output, schema coverage, and Pester guards).
 - [x] P2 — Portfolio-only catalog review preview mode (completed v4.9.87 with report-only row-delta/category-impact previewing, mutation flags, summary rows, schema coverage, and Pester guards).

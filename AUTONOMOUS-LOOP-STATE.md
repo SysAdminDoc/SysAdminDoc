@@ -2,16 +2,15 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-07
-Last completed roadmap cycle: Cycle 104 - deterministic report row-order coverage
+Last completed roadmap cycle: Cycle 105 - upload-artifact Node 24 runtime pin
 
 ## Latest Result
 
-- Added exact-order Pester assertions for `releaseAssetDrift.releaseAssetKindCounts`.
-- Added exact-order Pester assertions for `releaseAssetDrift.releaseTrustLevelCounts`.
-- Added exact-order Pester assertions for `portfolioCompatibility.primaryActionKindCounts`.
-- Kept generator behavior unchanged because those arrays already sort by explicit report keys.
-- Updated planning docs to v4.9.96.
+- Confirmed the old retained artifact upload SHA runs on `node20`.
+- Pinned all retained `actions/upload-artifact` workflow uses to the reviewed 6.0.0 SHA that runs on `node24`.
+- Added Pester coverage for the exact upload-artifact SHA, no floating tags, and no older 4.6.2 SHA.
+- Updated planning docs to v4.9.97.
 
 ## Next Cycle
 
-Continue on this same assigned project. Review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
+Continue on this same assigned project. Audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.

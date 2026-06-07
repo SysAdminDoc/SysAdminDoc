@@ -2510,6 +2510,36 @@ Describe 'Workflow checkout action pin' {
     }
 }
 
+Describe 'Workflow artifact upload action pin' {
+    BeforeAll {
+        $script:WorkflowFilesForUploadArtifact = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
+        $script:UploadArtifactV600Sha = 'b7c566a772e6b6bfb58ed0dc250532a479d7789f'
+        $script:UploadArtifactV462Sha = 'ea165f8d65b6e75b540449e92b4886f43607fa02'
+    }
+
+    It 'uses the pinned upload-artifact 6.0.0 action SHA everywhere artifacts are retained' {
+        $allWorkflows = ($script:WorkflowFilesForUploadArtifact | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+        $uploadArtifactUses = [regex]::Matches($allWorkflows, 'actions/upload-artifact@(?<sha>[a-f0-9]{40})')
+
+        $uploadArtifactUses.Count | Should -Be 5
+        foreach ($match in $uploadArtifactUses) {
+            $match.Groups['sha'].Value | Should -Be $script:UploadArtifactV600Sha
+        }
+    }
+
+    It 'does not use floating upload-artifact tags' {
+        foreach ($workflowFile in $script:WorkflowFilesForUploadArtifact) {
+            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match 'actions/upload-artifact@v'
+        }
+    }
+
+    It 'does not use the older upload-artifact 4.6.2 action SHA' {
+        foreach ($workflowFile in $script:WorkflowFilesForUploadArtifact) {
+            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:UploadArtifactV462Sha
+        }
+    }
+}
+
 Describe 'Workflow CodeQL upload action pin' {
     BeforeAll {
         $script:ScorecardWorkflowForCodeQl = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
