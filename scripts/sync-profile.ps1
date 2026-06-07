@@ -47,6 +47,9 @@ $LinkValidationThrottle = 16
 $RestFallbackMaxReleaseFetches = 240
 $RestFallbackUnauthenticatedReleaseFetchLimit = 50
 $ReadmeSoftLimitBytes = 96KB
+$StaleProjectPushedAtReviewDays = 365
+$StaleProjectReleaseReviewDays = 540
+$ArchiveProjectPushedAtReviewDays = 730
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
@@ -872,6 +875,39 @@ function ConvertTo-IsoText {
         return $Value.ToString("o")
     }
     return [string]$Value
+}
+
+function ConvertTo-DateTimeOffsetOrNull {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [datetimeoffset]) {
+        return $Value
+    }
+    if ($Value -is [datetime]) {
+        return [datetimeoffset]$Value
+    }
+
+    $parsed = [datetimeoffset]::MinValue
+    if ([datetimeoffset]::TryParse([string]$Value, [ref]$parsed)) {
+        return $parsed
+    }
+    return $null
+}
+
+function Get-AgeDays {
+    param(
+        [object]$Value,
+        [datetimeoffset]$Now
+    )
+
+    $parsed = ConvertTo-DateTimeOffsetOrNull -Value $Value
+    if ($null -eq $parsed) {
+        return $null
+    }
+    return [math]::Round(($Now.ToUniversalTime() - $parsed.ToUniversalTime()).TotalDays, 2)
 }
 
 function ConvertTo-RawGitHubUrl {
@@ -4738,6 +4774,133 @@ function Test-ForkParentDrift {
     }
 }
 
+function Test-StaleProjectReview {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup,
+        [datetimeoffset]$Now = [datetimeoffset]::Now,
+        [int]$StaleAfterDays = $StaleProjectPushedAtReviewDays,
+        [int]$ReleaseStaleAfterDays = $StaleProjectReleaseReviewDays,
+        [int]$ArchiveAfterDays = $ArchiveProjectPushedAtReviewDays
+    )
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $suppressionCounts = @{}
+    $statusCounts = @{
+        current = 0
+        "stale-review" = 0
+        "archive-review" = 0
+    }
+    $checkedProjectCount = 0
+    $suppressedCount = 0
+    $noReleaseCount = 0
+    $archiveReviewCount = 0
+
+    foreach ($entry in @($Entries | Sort-Object category, repo)) {
+        $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
+        if ($isSuppressed) {
+            $suppressedCount++
+            $reasonCode = Get-SuppressionReasonCode -Reason ([string]$entry.suppressionReason)
+            $visibilityClass = if ($reasonCode -eq "private-or-sensitive") { "private-or-sensitive" } else { "suppressed" }
+            $key = "$reasonCode|$visibilityClass"
+            if (-not $suppressionCounts.ContainsKey($key)) {
+                $suppressionCounts[$key] = [ordered]@{
+                    reasonCode = $reasonCode
+                    publicReason = Get-PublicSuppressionReason -ReasonCode $reasonCode
+                    visibilityClass = $visibilityClass
+                    count = 0
+                }
+            }
+            $suppressionCounts[$key]["count"] = [int]$suppressionCounts[$key]["count"] + 1
+            continue
+        }
+
+        if ($entry.includeInPortfolio -eq $false -and $entry.includeInReadme -eq $false) {
+            continue
+        }
+
+        $checkedProjectCount++
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $signals = New-Object System.Collections.Generic.List[string]
+        $pushedAt = if ($meta) { ConvertTo-IsoText (Get-MemberValue -Object $meta -Name "pushedAt") } else { $null }
+        $pushedAtAgeDays = Get-AgeDays -Value $pushedAt -Now $Now
+        $release = if ($meta) { Get-MemberValue -Object $meta -Name "latestRelease" } else { $null }
+        $latestReleaseTag = if ($release) { [string](Get-MemberValue -Object $release -Name "tagName") } else { $null }
+        $latestReleasePublishedAt = if ($release) { ConvertTo-IsoText (Get-MemberValue -Object $release -Name "publishedAt") } else { $null }
+        $latestReleaseAgeDays = Get-AgeDays -Value $latestReleasePublishedAt -Now $Now
+
+        if (-not $meta) {
+            $signals.Add("metadata-unavailable")
+        }
+        if ($null -eq $pushedAtAgeDays) {
+            $signals.Add("pushedAt-missing")
+        } elseif ($pushedAtAgeDays -gt $StaleAfterDays) {
+            $signals.Add("pushedAt-stale")
+        }
+        if ($release) {
+            if ($null -eq $latestReleaseAgeDays) {
+                $signals.Add("release-date-missing")
+            } elseif ($latestReleaseAgeDays -gt $ReleaseStaleAfterDays) {
+                $signals.Add("release-stale")
+            }
+        } else {
+            $noReleaseCount++
+            if ($null -ne $pushedAtAgeDays -and $pushedAtAgeDays -gt $StaleAfterDays) {
+                $signals.Add("no-latest-release")
+            }
+        }
+
+        $isPinned = ($entry.featured -eq $true -or $entry.currentlyBuilding -eq $true)
+        if (-not $isPinned -and $null -ne $pushedAtAgeDays -and $pushedAtAgeDays -gt $ArchiveAfterDays) {
+            $signals.Add("archive-review")
+        }
+
+        $status = "current"
+        if ($signals.Contains("archive-review")) {
+            $status = "archive-review"
+            $archiveReviewCount++
+        } elseif ($signals.Count -gt 0) {
+            $status = "stale-review"
+        }
+        $statusCounts[$status] = [int]$statusCounts[$status] + 1
+
+        if ($status -ne "current") {
+            $primaryAction = Get-PrimaryAction $entry $meta $entry.category
+            $rows.Add([ordered]@{
+                repo = [string]$entry.repo
+                category = [string]$entry.category
+                status = $status
+                signals = @($signals)
+                pushedAt = if ([string]::IsNullOrWhiteSpace($pushedAt)) { $null } else { $pushedAt }
+                pushedAtAgeDays = $pushedAtAgeDays
+                latestReleaseTag = if ([string]::IsNullOrWhiteSpace($latestReleaseTag)) { $null } else { $latestReleaseTag }
+                latestReleasePublishedAt = if ([string]::IsNullOrWhiteSpace($latestReleasePublishedAt)) { $null } else { $latestReleasePublishedAt }
+                latestReleaseAgeDays = $latestReleaseAgeDays
+                primaryAction = [string]$primaryAction["kind"]
+                featured = [bool]$entry.featured
+                currentlyBuilding = [bool]$entry.currentlyBuilding
+            })
+        }
+    }
+
+    $staleProjectCount = @($rows | Where-Object { $_.status -in @("stale-review", "archive-review") }).Count
+    return [ordered]@{
+        checkedProjectCount = [int]$checkedProjectCount
+        staleAfterDays = [int]$StaleAfterDays
+        releaseStaleAfterDays = [int]$ReleaseStaleAfterDays
+        archiveAfterDays = [int]$ArchiveAfterDays
+        staleProjectCount = [int]$staleProjectCount
+        archiveReviewCount = [int]$archiveReviewCount
+        noReleaseCount = [int]$noReleaseCount
+        suppressedCount = [int]$suppressedCount
+        warningCount = [int]$staleProjectCount
+        statusCounts = @($statusCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ kind = [string]$_.Name; count = [int]$_.Value } })
+        suppressionReasonCounts = @($suppressionCounts.Values | Sort-Object reasonCode, visibilityClass)
+        rows = $rows.ToArray()
+        note = "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
+    }
+}
+
 function Test-ReleaseAssetDrift {
     param(
         [hashtable[]]$Entries,
@@ -5386,6 +5549,7 @@ function Test-ProfileState {
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
+    $staleProjectReview = Test-StaleProjectReview -Entries $entries -RepoLookup $repoLookup
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
@@ -5443,6 +5607,7 @@ function Test-ProfileState {
         metadataHygiene = $metadataHygiene
         projectLicenseMetadata = $projectLicenseMetadata
         forkParentDrift = $forkParentDrift
+        staleProjectReview = $staleProjectReview
         releaseAssetDrift = $releaseAssetDrift
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting

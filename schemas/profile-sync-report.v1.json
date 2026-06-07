@@ -20,6 +20,7 @@
     "metadataHygiene",
     "projectLicenseMetadata",
     "forkParentDrift",
+    "staleProjectReview",
     "releaseAssetDrift",
     "userscriptInstallTrust",
     "repositorySettings",
@@ -92,6 +93,9 @@
     },
     "forkParentDrift": {
       "$ref": "#/$defs/forkParentDrift"
+    },
+    "staleProjectReview": {
+      "$ref": "#/$defs/staleProjectReview"
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
@@ -214,6 +218,13 @@
         "integer",
         "null"
       ]
+    },
+    "nullableNumber": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
     },
     "nullableBoolean": {
       "type": [
@@ -917,6 +928,159 @@
         },
         "catalogDescription": {
           "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "staleProjectReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkedProjectCount",
+        "staleAfterDays",
+        "releaseStaleAfterDays",
+        "archiveAfterDays",
+        "staleProjectCount",
+        "archiveReviewCount",
+        "noReleaseCount",
+        "suppressedCount",
+        "warningCount",
+        "statusCounts",
+        "suppressionReasonCounts",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "checkedProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "staleAfterDays": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "releaseStaleAfterDays": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "archiveAfterDays": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "staleProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "archiveReviewCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "noReleaseCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "statusCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedCount"
+          }
+        },
+        "suppressionReasonCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/staleSuppressionReasonCount"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/staleProjectReviewRow"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "staleSuppressionReasonCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reasonCode",
+        "publicReason",
+        "visibilityClass",
+        "count"
+      ],
+      "properties": {
+        "reasonCode": {
+          "type": "string"
+        },
+        "publicReason": {
+          "type": "string"
+        },
+        "visibilityClass": {
+          "type": "string"
+        },
+        "count": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "staleProjectReviewRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "category",
+        "status",
+        "signals",
+        "pushedAt",
+        "pushedAtAgeDays",
+        "latestReleaseTag",
+        "latestReleasePublishedAt",
+        "latestReleaseAgeDays",
+        "primaryAction",
+        "featured",
+        "currentlyBuilding"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "stale-review",
+            "archive-review"
+          ]
+        },
+        "signals": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "pushedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "pushedAtAgeDays": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReleasePublishedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReleaseAgeDays": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "primaryAction": {
+          "type": "string"
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "currentlyBuilding": {
+          "type": "boolean"
         }
       }
     },

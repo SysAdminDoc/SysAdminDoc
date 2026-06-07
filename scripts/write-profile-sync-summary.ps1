@@ -36,6 +36,7 @@ $report = Get-Content -LiteralPath $ReportPath -Raw | ConvertFrom-Json
 $metadataHygiene = $report.metadataHygiene
 $projectLicenseMetadata = if ($report.PSObject.Properties.Name -contains 'projectLicenseMetadata') { $report.projectLicenseMetadata } else { $null }
 $forkParentDrift = if ($report.PSObject.Properties.Name -contains 'forkParentDrift') { $report.forkParentDrift } else { $null }
+$staleProjectReview = if ($report.PSObject.Properties.Name -contains 'staleProjectReview') { $report.staleProjectReview } else { $null }
 $releaseDrift = $report.releaseAssetDrift
 $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
@@ -51,6 +52,8 @@ $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missin
 $missingLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.missingCount } else { 0 }
 $unknownLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.unknownCount } else { 0 }
 $forkParentWarningCount = if ($forkParentDrift) { [int]$forkParentDrift.warningCount } else { 0 }
+$staleProjectWarningCount = if ($staleProjectReview) { [int]$staleProjectReview.warningCount } else { 0 }
+$archiveReviewCount = if ($staleProjectReview) { [int]$staleProjectReview.archiveReviewCount } else { 0 }
 $fatalDriftCount = if ($driftSummary) { [int]$driftSummary.fatalCount } else { 0 }
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
@@ -88,6 +91,8 @@ $summary = @"
 | Missing project licenses | $missingLicenseCount |
 | Unknown project licenses | $unknownLicenseCount |
 | Fork-parent warnings | $forkParentWarningCount |
+| Stale project review rows | $staleProjectWarningCount |
+| Archive review candidates | $archiveReviewCount |
 | Release rows checked | $releaseRowsChecked |
 | Userscript installs checked | $userscriptInstallCount |
 | Userscript trust warnings | $userscriptWarningCount |
@@ -134,6 +139,10 @@ if ($unknownLicenseCount -gt 0) {
 
 if ($forkParentWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $forkParentWarningCount fork-parent attribution warning(s)."
+}
+
+if ($staleProjectWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $staleProjectWarningCount stale/archive project review row(s)."
 }
 
 if ($profileReleaseWarningCount -gt 0) {

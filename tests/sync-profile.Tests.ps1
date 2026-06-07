@@ -34,6 +34,8 @@ BeforeAll {
             [string]$ForkParentFetchError = $null,
             [switch]$WithRelease,
             [string]$ReleaseTag = 'v1.0.0',
+            [string]$ReleasePublishedAt = '2026-06-04T00:00:00Z',
+            [string]$PushedAt = '2026-06-04T00:00:00Z',
             [string[]]$AssetNames = @()
         )
 
@@ -48,7 +50,7 @@ BeforeAll {
                 [pscustomobject]@{
                     tagName = $ReleaseTag
                     url = "https://github.com/SysAdminDoc/$Name/releases/tag/$ReleaseTag"
-                    publishedAt = '2026-06-04T00:00:00Z'
+                    publishedAt = $ReleasePublishedAt
                     releaseAssetNames = @($AssetNames)
                     releaseAssetKinds = @($assetKinds)
                     assetApiInspected = $true
@@ -57,7 +59,7 @@ BeforeAll {
                 $null
             }
             stargazerCount = 0
-            pushedAt = '2026-06-04T00:00:00Z'
+            pushedAt = $PushedAt
             licenseInfo = $LicenseInfo
             isFork = $IsFork
             parent = $Parent
@@ -526,6 +528,47 @@ Describe 'Report schema depth helpers' {
         ($result.missingCatalogAttribution | ForEach-Object { $_.repo }) | Should -Contain 'MissingAttribution'
         ($result.parentMismatches | ForEach-Object { $_.repo }) | Should -Contain 'MismatchedFork'
         ($result.parentUnavailable | ForEach-Object { $_.repo }) | Should -Contain 'ParentUnavailable'
+    }
+
+    It 'reports stale and archive review candidates without exposing suppressed names' {
+        $current = New-TestEntry -Repo 'CurrentTool' -Category 'powershell'
+        $stale = New-TestEntry -Repo 'StaleTool' -Category 'python'
+        $oldRelease = New-TestEntry -Repo 'OldReleaseTool' -Category 'desktop'
+        $archive = New-TestEntry -Repo 'ArchiveCandidate' -Category 'guides'
+        $suppressedPrivate = New-TestEntry -Repo 'HiddenPrivate' -Category 'suppressed'
+        $suppressedPrivate.suppressionReason = 'Repo is private; public profile links would 404 for visitors.'
+        $suppressedDuplicate = New-TestEntry -Repo 'HiddenDuplicate' -Category 'suppressed'
+        $suppressedDuplicate.suppressionReason = 'Renamed duplicate profile entry.'
+        $repos = @(
+            (New-TestRepoMeta -Name 'CurrentTool' -PushedAt '2026-06-01T00:00:00Z'),
+            (New-TestRepoMeta -Name 'StaleTool' -PushedAt '2025-01-01T00:00:00Z'),
+            (New-TestRepoMeta -Name 'OldReleaseTool' -WithRelease -PushedAt '2026-06-01T00:00:00Z' -ReleasePublishedAt '2024-01-01T00:00:00Z'),
+            (New-TestRepoMeta -Name 'ArchiveCandidate' -PushedAt '2023-01-01T00:00:00Z')
+        )
+        $lookup = ConvertTo-Lookup $repos
+
+        $result = Test-StaleProjectReview `
+            -Entries @($current, $stale, $oldRelease, $archive, $suppressedPrivate, $suppressedDuplicate) `
+            -RepoLookup $lookup `
+            -Now ([datetimeoffset]'2026-06-06T00:00:00Z')
+
+        $result.checkedProjectCount | Should -Be 4
+        $result.staleAfterDays | Should -Be 365
+        $result.releaseStaleAfterDays | Should -Be 540
+        $result.archiveAfterDays | Should -Be 730
+        $result.staleProjectCount | Should -Be 3
+        $result.archiveReviewCount | Should -Be 1
+        $result.noReleaseCount | Should -Be 3
+        $result.suppressedCount | Should -Be 2
+        $result.warningCount | Should -Be 3
+        ($result.rows | ForEach-Object { $_.repo }) | Should -Contain 'StaleTool'
+        ($result.rows | ForEach-Object { $_.repo }) | Should -Contain 'OldReleaseTool'
+        ($result.rows | ForEach-Object { $_.repo }) | Should -Contain 'ArchiveCandidate'
+        ($result.rows | Where-Object { $_.repo -eq 'OldReleaseTool' }).signals | Should -Contain 'release-stale'
+        ($result.rows | Where-Object { $_.repo -eq 'ArchiveCandidate' }).status | Should -Be 'archive-review'
+        ($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) | Should -Contain 'private-or-sensitive'
+        ($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) | Should -Contain 'duplicate-or-superseded'
+        ($result | ConvertTo-Json -Depth 20) | Should -Not -Match 'HiddenPrivate|HiddenDuplicate'
     }
 
     It 'normalizes C++ language topic hints to cpp' {
@@ -1606,6 +1649,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Missing project licenses'
             $summary | Should -Match 'Unknown project licenses'
             $summary | Should -Match 'Fork-parent warnings'
+            $summary | Should -Match 'Stale project review rows'
+            $summary | Should -Match 'Archive review candidates'
             $summary | Should -Match 'Catalog rows accounted'
             $summary | Should -Match 'Catalog accounting fatal gaps'
             $summary | Should -Match 'Profile release/tag warnings'
@@ -1626,6 +1671,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'linkValidationSummary'
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'forkParentDrift'
+        $script:SummaryScript | Should -Match 'staleProjectReview'
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
         $script:SummaryScript | Should -Match 'userscriptInstallTrust'
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
