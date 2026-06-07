@@ -5,10 +5,26 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.107
+Current version after this refresh: v4.9.108
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.108 batch proves the generated branch validation path now passes
+  after the v4.9.107 workflow fix.
+- Hosted Profile sync run `27087015369` created branch
+  `automation/profile-sync-27087015369`, pushed commit
+  `787a869f04a4b5a644730c4bba9552875541b76c`, opened PR #9, and dispatched
+  branch-scoped validation run `27087055596`.
+- Validation run `27087055596` ran `sync-profile.ps1 -Write -Check` on the
+  generated branch, passed, uploaded `profile-sync-report` artifact
+  `7462246872`, and uploaded `rendered-profile-smoke` artifact `7462247041`.
+- PR #9 was closed and `automation/profile-sync-27087015369` was deleted after
+  evidence collection.
+- GitHub commit check-runs show three workflow-dispatch check runs on commit
+  `787a869f04a4b5a644730c4bba9552875541b76c`, including successful
+  `Check generated README`, but `gh pr checks` and PR `statusCheckRollup`
+  reported no PR-attached checks. Required-check enforcement therefore still
+  waits on PR-attached candidate checks or an approved bypass.
 - The v4.9.107 batch proves generated PR creation and records the next
   branch-scoped validation issue.
 - Hosted Profile sync run `27086701950` created branch

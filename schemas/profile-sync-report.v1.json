@@ -2429,6 +2429,12 @@
         "validationConclusion",
         "validationFailedStep",
         "validationArtifactId",
+        "validationSmokeArtifactId",
+        "generatedBranchCheckRunCount",
+        "generatedBranchSuccessfulCheckRunCount",
+        "pullRequestCheckRollupCount",
+        "pullRequestChecksAttached",
+        "pullRequestCheckRollupNote",
         "blocker",
         "evidenceSummary",
         "nextAction"
@@ -2527,6 +2533,24 @@
         },
         "validationArtifactId": {
           "$ref": "#/$defs/nullableInteger"
+        },
+        "validationSmokeArtifactId": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "generatedBranchCheckRunCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "generatedBranchSuccessfulCheckRunCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "pullRequestCheckRollupCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "pullRequestChecksAttached": {
+          "type": "boolean"
+        },
+        "pullRequestCheckRollupNote": {
+          "type": "string"
         },
         "blocker": {
           "type": "string"

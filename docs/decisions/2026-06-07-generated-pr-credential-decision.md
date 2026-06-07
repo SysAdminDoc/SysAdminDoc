@@ -60,6 +60,23 @@ generated branch was deleted after evidence collection. The Profile sync
 workflow now regenerates before checking only on dispatched
 `automation/profile-*` branches.
 
+## Cycle 116 Branch Validation Proof
+
+Hosted run `27087015369` proved the regenerated branch validation path. The run
+created branch `automation/profile-sync-27087015369`, committed
+`787a869f04a4b5a644730c4bba9552875541b76c`, opened PR #9, and dispatched
+branch-scoped Profile sync validation run `27087055596`.
+
+Validation run `27087055596` ran `sync-profile.ps1 -Write -Check`, passed, and
+uploaded both the `profile-sync-report` and `rendered-profile-smoke` artifacts.
+PR #9 was closed and the generated branch was deleted after evidence
+collection.
+
+The credential path is therefore sufficient for branch creation, PR creation,
+validation dispatch, and cleanup. It does not by itself prove required-check
+enforcement readiness: `gh pr checks` and PR `statusCheckRollup` reported no
+PR-attached checks for PR #9.
+
 ## Selected Path
 
 The applied repository setting command was:
@@ -68,11 +85,12 @@ The applied repository setting command was:
 gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
 ```
 
-Next, rerun the hosted Profile sync `write-pr` workflow and verify:
+Next, prove PR-attached required-check delivery or a narrow approved bypass:
 
-- A generated pull request is created.
-- Branch-scoped Profile sync validation is dispatched and succeeds.
-- The generated branch cleanup policy leaves no orphaned generated branches.
+- Confirm generated maintenance PRs can surface candidate required checks in
+  the PR check rollup, not only commit-level workflow-dispatch check runs.
+- Confirm the generated branch cleanup policy leaves no orphaned generated
+  branches.
 - `repositorySettings.actionsWorkflowPermissions.generatedPrCreationAllowed`
   remains `true` in the next sync report.
 

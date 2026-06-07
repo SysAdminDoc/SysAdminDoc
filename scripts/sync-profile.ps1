@@ -4132,33 +4132,39 @@ function Get-GeneratedPrWriteEvidence {
         mode = "write-pr"
         event = "workflow_dispatch"
         branch = "main"
-        headSha = "244613af3ced21adec9d557e0a80732a8f04fa07"
-        runId = [long]27086701950
-        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086701950"
-        createdAt = "2026-06-07T07:56:08Z"
+        headSha = "5509b9e0e63837d4c52c5d38d6f1ccf7621d4c7e"
+        runId = [long]27087015369
+        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087015369"
+        createdAt = "2026-06-07T08:11:25Z"
         conclusion = "success"
         jobName = "Open generated README PR"
-        jobId = [long]79942449541
+        jobId = [long]79943359597
         failedStep = $null
         regenerateStepPassed = $true
         reportArtifactUploaded = $true
-        artifactId = [long]7462114118
-        generatedBranch = "automation/profile-sync-27086701950"
+        artifactId = [long]7462231036
+        generatedBranch = "automation/profile-sync-27087015369"
         generatedBranchPushed = $true
-        generatedBranchCleanup = "deleted-after-validation-failure"
+        generatedBranchCleanup = "deleted-after-validation-success"
         pullRequestCreated = $true
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/8"
-        pullRequestNumber = [int]8
+        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/9"
+        pullRequestNumber = [int]9
         pullRequestState = "closed"
         validationDispatched = $true
-        validationRunId = [long]27086730286
-        validationRunUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086730286"
-        validationConclusion = "failure"
-        validationFailedStep = "Validate generated profile"
-        validationArtifactId = [long]7462125092
-        blocker = "Branch-scoped generated validation used check-only mode against a fresh live metadata snapshot and reported projectsExportInSync=false."
-        evidenceSummary = "Manual hosted write-pr drill with the patched helper continued past the workflow-permissions endpoint 403, committed 0e52dce to automation/profile-sync-27086701950, pushed the branch, created PR #8, and dispatched Profile sync validation run 27086730286. The validation run failed in check-only mode with projectsExportInSync=false, so PR #8 was closed and the generated branch was deleted after evidence collection."
-        nextAction = "Rerun write-pr with generated automation branch validation using sync-profile.ps1 -Write -Check, then confirm the validation run succeeds before required-check enforcement."
+        validationRunId = [long]27087055596
+        validationRunUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087055596"
+        validationConclusion = "success"
+        validationFailedStep = $null
+        validationArtifactId = [long]7462246872
+        validationSmokeArtifactId = [long]7462247041
+        generatedBranchCheckRunCount = [int]3
+        generatedBranchSuccessfulCheckRunCount = [int]1
+        pullRequestCheckRollupCount = [int]0
+        pullRequestChecksAttached = $false
+        pullRequestCheckRollupNote = "gh pr checks and statusCheckRollup reported no PR-attached checks for PR #9, even though the workflow_dispatch validation produced commit check runs on 787a869f04a4b5a644730c4bba9552875541b76c."
+        blocker = "Required-check enforcement still needs PR-attached candidate checks or an approved bypass; the successful workflow_dispatch validation did not appear in the PR status check rollup."
+        evidenceSummary = "Manual hosted write-pr drill with the patched helper continued past the workflow-permissions endpoint 403, committed 787a869 to automation/profile-sync-27087015369, pushed the branch, created PR #9, and dispatched Profile sync validation run 27087055596. The generated branch validation used sync-profile.ps1 -Write -Check, passed, uploaded profile-sync-report artifact 7462246872 and rendered-profile-smoke artifact 7462247041, then PR #9 was closed and the generated branch was deleted after evidence collection. GitHub commit check-runs showed three workflow_dispatch check runs on the generated branch commit, but the PR check rollup reported zero attached checks."
+        nextAction = "Prove PR-attached required-check delivery, or document and test a narrow bypass, before enabling required-check enforcement."
     }
 }
 
@@ -4174,7 +4180,7 @@ function Get-GeneratedPrCredentialDecision {
         "decision-recorded"
     }
     $nextAction = if ($settingAllowsGeneratedPr -eq $true) {
-        "Rerun the hosted write-pr workflow and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
+        "Prove PR-attached generated maintenance checks or document and test a narrow approved bypass before required-check enforcement."
     } else {
         "Enable the repository Actions pull-request creation setting, rerun hosted write-pr, and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
     }
@@ -4296,7 +4302,7 @@ function Get-PrDeliveryTransitionChecklist {
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Hosted write-pr drill 27086351848 showed GITHUB_TOKEN cannot read the repository workflow-permissions endpoint, so the helper must continue to gh pr create when that specific preflight read is unavailable."
     } elseif ($EnforceAdmins -eq $true) {
-        "Protected main has admin enforcement enabled, so direct pushes would be rejected after required checks are enabled."
+        "Hosted write-pr run 27087015369 opened PR #9 and dispatched validation run 27087055596, which passed on branch commit 787a869f04a4b5a644730c4bba9552875541b76c; however gh pr checks/statusCheckRollup reported no PR-attached checks, and protected main still enforces admins."
     } else {
         "Admin enforcement is not confirmed as blocking, but the delivery path still needs a live PR or documented bypass drill."
     }
@@ -4305,7 +4311,7 @@ function Get-PrDeliveryTransitionChecklist {
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Rerun generated PR delivery with the preflight-unavailable fallback and verify gh pr create plus validation dispatch."
     } else {
-        "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."
+        "Switch the autonomous loop to PR-attached delivery, or document and test a narrow approved bypass."
     }
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "pr-delivery-or-bypass" `

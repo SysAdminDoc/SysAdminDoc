@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.107
+Current repo version: v4.9.108
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 115 - 2026-06-07.
+> Last researched: Cycle 116 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,24 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 115 - 2026-06-07.
+Last researched: Cycle 116 - 2026-06-07.
+
+2026-06-07 v4.9.108 refresh: generated PR branch validation proof shipped.
+Cycle 116 reran hosted Profile sync `write-pr` run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087015369` on
+`main` at `5509b9e0e63837d4c52c5d38d6f1ccf7621d4c7e`. The helper created
+`automation/profile-sync-27087015369`, committed
+`787a869f04a4b5a644730c4bba9552875541b76c`, opened PR #9
+(`https://github.com/SysAdminDoc/SysAdminDoc/pull/9`), and dispatched
+branch-scoped validation run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087055596`.
+Validation used `sync-profile.ps1 -Write -Check`, passed, uploaded
+`profile-sync-report` artifact `7462246872` and `rendered-profile-smoke`
+artifact `7462247041`, and produced three workflow-dispatch check runs on the
+generated branch commit. PR #9 was closed and the generated branch was deleted
+after evidence collection. `gh pr checks` and PR `statusCheckRollup` still
+reported zero PR-attached checks, so required-check enforcement remains blocked
+until PR-attached candidate checks or an approved bypass are proven.
 
 2026-06-07 v4.9.107 refresh: generated PR creation proof and branch-validation
 fix shipped. Cycle 115 reran hosted Profile sync `write-pr` run

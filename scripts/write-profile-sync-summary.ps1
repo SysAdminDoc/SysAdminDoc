@@ -100,6 +100,10 @@ $generatedPrWriteValidationDispatched = if ($generatedPrWriteEvidence) { [bool]$
 $generatedPrWriteValidationConclusion = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.validationConclusion) { [string]$generatedPrWriteEvidence.validationConclusion } else { "" }
 $generatedPrWriteValidationFailedStep = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.validationFailedStep) { [string]$generatedPrWriteEvidence.validationFailedStep } else { "" }
 $generatedPrWriteValidationUrl = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.validationRunUrl) { [string]$generatedPrWriteEvidence.validationRunUrl } else { "" }
+$generatedPrWriteBranchCheckRunCount = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.generatedBranchCheckRunCount) { [int]$generatedPrWriteEvidence.generatedBranchCheckRunCount } else { 0 }
+$generatedPrWriteBranchSuccessfulCheckRunCount = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.generatedBranchSuccessfulCheckRunCount) { [int]$generatedPrWriteEvidence.generatedBranchSuccessfulCheckRunCount } else { 0 }
+$generatedPrWritePrCheckRollupCount = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.pullRequestCheckRollupCount) { [int]$generatedPrWriteEvidence.pullRequestCheckRollupCount } else { 0 }
+$generatedPrWritePrChecksAttached = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.pullRequestChecksAttached) { [bool]$generatedPrWriteEvidence.pullRequestChecksAttached } else { $false }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -253,6 +257,10 @@ $summary = @"
 | Generated PR validation conclusion | $generatedPrWriteValidationConclusion |
 | Generated PR validation failed step | $generatedPrWriteValidationFailedStep |
 | Generated PR validation URL | $generatedPrWriteValidationUrl |
+| Generated PR branch check runs | $generatedPrWriteBranchCheckRunCount |
+| Generated PR successful branch checks | $generatedPrWriteBranchSuccessfulCheckRunCount |
+| Generated PR PR checks attached | $generatedPrWritePrChecksAttached |
+| Generated PR PR check count | $generatedPrWritePrCheckRollupCount |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
