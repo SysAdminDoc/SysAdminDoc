@@ -2,15 +2,15 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-07
-Last completed roadmap cycle: Cycle 97 - catalog review notes for README candidates
+Last completed roadmap cycle: Cycle 98 - deterministic aggregate report ordering
 
 ## Latest Result
 
-- Added optional `readmeReviewNote` catalog context for README candidate-review rows.
-- Stamped the 11 current portfolio-only review candidates with catalog review notes while keeping `projects.json` public-feed output free of internal notes.
-- Added `catalogReviewNote` to `readmeDensity.portfolioOnlyCandidates` with schema and Pester coverage.
-- Updated planning docs to v4.9.89.
+- Added explicit key-based sorting for report aggregate rows that previously depended on hashtable value enumeration.
+- Stabilized `projectLicenseMetadata.licenseCounts` and `staleProjectReview.suppressionReasonCounts` output order across live metadata snapshots.
+- Added Pester coverage for exact aggregate row ordering.
+- Updated planning docs to v4.9.90.
 
 ## Next Cycle
 
-Continue on this same assigned project. Address deterministic ordering for report aggregate arrays that still churn across live metadata snapshots, then record generated PR dry-run evidence in the required-check readiness report once hosted run evidence exists.
+Continue on this same assigned project. Record generated PR dry-run evidence in the required-check readiness report once hosted run evidence exists, then add a public decision note for approving or rejecting portfolio-only demotions after catalog review notes have enough evidence.

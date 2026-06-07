@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.89
+Current version after this refresh: v4.9.90
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.90 batch stabilizes hash-backed aggregate report row ordering.
+- `projectLicenseMetadata.licenseCounts` and
+  `staleProjectReview.suppressionReasonCounts` now sort by explicit report
+  fields before JSON output, avoiding churn from PowerShell hashtable value
+  enumeration.
+- Pester fixtures now create intentionally unsorted insertion order and assert
+  exact aggregate output order for both report sections.
 - The v4.9.89 batch adds catalog-backed review notes for README
   portfolio-only candidates.
 - `data/profile-catalog.json` now supports optional `readmeReviewNote` values
