@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.78
+Current repo version: v4.9.79
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 86 - 2026-06-06.
+> Last researched: Cycle 87 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,18 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 86 - 2026-06-06.
+Last researched: Cycle 87 - 2026-06-06.
+
+2026-06-06 v4.9.79 refresh: code-scanning posture recorded.
+The repository baseline report now expands
+`repositorySettings.security.codeScanning` with inspected languages,
+CodeQL-supported-language detection, local workflow evidence, active controls,
+and the current PowerShell-only `not-applicable-powershell-only`
+recommendation. `docs/decisions/2026-06-06-code-scanning-posture.md` records
+that missing CodeQL is not a misconfiguration while the live language mix has
+no CodeQL-supported source language. The profile sync summary surfaces the
+posture, and Pester guards the current no-CodeQL workflow stance plus the
+future warning path when a supported language appears.
 
 2026-06-06 v4.9.78 refresh: README density reporting shipped.
 The sync report now includes `readmeDensity`, recording generated README line
@@ -1832,7 +1843,7 @@ third-party render-host state of the generated GitHub profile chrome.*
 *Research conducted 2026-06-06. This pass checked whether CodeQL/default
 code scanning is currently useful for this repository's actual language mix.*
 
-- [ ] P3 - Record code-scanning posture and avoid a low-value CodeQL default-setup chase
+- [x] P3 - Record code-scanning posture and avoid a low-value CodeQL default-setup chase
   - Why: code scanning is a useful repository trust signal, but this repo is currently PowerShell-only by GitHub language accounting. Enabling CodeQL default setup without a supported language would not add meaningful scan coverage; the higher-value controls are PSScriptAnalyzer, actionlint, zizmor, Scorecard, secret scanning, and a future report schema.
   - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/languages` returned only `{"PowerShell":210925}`; local source inspection found four `.ps1` files, five workflow `.yml` files, and three schema/report JSON files under `.github/workflows`, `scripts`, `tests`, and `schemas`. `gh api repos/SysAdminDoc/SysAdminDoc/code-scanning/alerts --jq length` returned `404 no analysis found` and also reported the local token would need `admin:repo_hook` scope for that API operation. `.github/workflows/scorecard.yml` uploads Scorecard SARIF with `github/codeql-action/upload-sarif`, but there is no CodeQL analysis workflow and no CodeQL-supported source language in the profile repo itself.
   - Source notes: GitHub's CodeQL supported-language list does not include PowerShell: https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/. GitHub's default setup docs state that if analyses fail for all CodeQL-supported languages, default setup remains enabled but runs no scans until a supported language is added and successfully analyzed: https://docs.github.com/en/code-security/code-scanning/enabling-code-scanning/configuring-default-setup-for-code-scanning. GitHub's code-scanning REST API documents `404` as a possible response for code-scanning endpoints: https://docs.github.com/en/rest/code-scanning/code-scanning.
@@ -1840,6 +1851,7 @@ code scanning is currently useful for this repository's actual language mix.*
   - Recommended behavior: report `codeScanning.status=no-analysis` and `codeScanning.recommendation=not-applicable-powerShell-only` rather than treating missing CodeQL as a failure. Keep Scorecard SARIF upload, PSScriptAnalyzer, workflow security, secret scanning, and push protection as the active controls. Revisit CodeQL only if JavaScript/TypeScript/Python/C#/Kotlin/etc. source enters this repo.
   - Acceptance: repository/security baseline report distinguishes "not applicable" from "misconfigured"; no failing CodeQL workflow is added for a PowerShell-only repo; future supported-language detection can raise a warning prompting CodeQL default setup or advanced setup.
   - Verify: run `gh api repos/SysAdminDoc/SysAdminDoc/languages`; run the code-scanning alerts probe with graceful 404 handling; confirm report output is public-safe and does not require extra token scopes for normal `-Check`.
+  - Completed: v4.9.79 expands `repositorySettings.security.codeScanning`, records the decision note, surfaces summary rows, and adds Pester coverage for both the current PowerShell-only posture and future CodeQL-supported language detection.
   - Complexity: S
 
 ### Researcher Queue (Cycle 46 - 2026-06-06)
@@ -1910,11 +1922,10 @@ Current local state:
 
 Next research cycles:
 
-1. Cycle 87: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
-2. Cycle 88: audit downstream portfolio compatibility before changing any feed shape.
-3. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
-4. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
-5. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
+1. Cycle 88: audit downstream portfolio compatibility before changing any feed shape.
+2. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+3. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
+4. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
 
 ### Quick Wins
 
@@ -1924,6 +1935,7 @@ P2/P3, each doable in well under an hour:
 
 - [x] P2 — Generated-README size budget guard (completed v4.9.51 with `readmeSizeBudget`, a 96 KiB informational soft cap, schema coverage, and Pester warning checks).
 - [x] P2 — Generated README density report for portfolio-only review inputs (completed v4.9.78 with `readmeDensity`, summary-helper output, schema coverage, and Pester guards).
+- [x] P3 — Code-scanning posture for the PowerShell-only profile repo (completed v4.9.79 with `repositorySettings.security.codeScanning`, summary rows, a decision note, and future supported-language warning coverage).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).

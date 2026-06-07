@@ -1712,7 +1712,14 @@
       "required": [
         "status",
         "recommendation",
-        "languagesInspected"
+        "reason",
+        "languagesInspected",
+        "codeqlSupportedLanguages",
+        "codeqlSupportedLanguageDetected",
+        "codeqlWorkflowPresent",
+        "sarifUploadWorkflowPresent",
+        "scorecardSarifUploadPresent",
+        "activeControls"
       ],
       "properties": {
         "status": {
@@ -1721,7 +1728,28 @@
         "recommendation": {
           "$ref": "#/$defs/nullableString"
         },
+        "reason": {
+          "$ref": "#/$defs/nullableString"
+        },
         "languagesInspected": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "codeqlSupportedLanguages": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "codeqlSupportedLanguageDetected": {
+          "type": "boolean"
+        },
+        "codeqlWorkflowPresent": {
+          "type": "boolean"
+        },
+        "sarifUploadWorkflowPresent": {
+          "type": "boolean"
+        },
+        "scorecardSarifUploadPresent": {
+          "type": "boolean"
+        },
+        "activeControls": {
           "$ref": "#/$defs/stringArray"
         }
       }

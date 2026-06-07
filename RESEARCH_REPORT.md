@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.78
+Current version after this refresh: v4.9.79
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.79 batch records code-scanning posture for the current
+  PowerShell-only profile repository.
+- `repositorySettings.security.codeScanning` now records inspected languages,
+  CodeQL-supported-language detection, local workflow evidence, active controls,
+  and the current `not-applicable-powershell-only` recommendation.
+- `docs/decisions/2026-06-06-code-scanning-posture.md` records that missing
+  CodeQL analysis is not a misconfiguration while live repository languages do
+  not include a CodeQL-supported source language.
+- The profile sync summary surfaces code-scanning status, recommendation,
+  inspected languages, and active controls; Pester covers both the current
+  PowerShell-only posture and the future supported-language warning path.
 - The v4.9.78 batch adds warning-only README density reporting to the sync
   report and profile sync summary.
 - `readmeDensity` records generated README line count, details sections,

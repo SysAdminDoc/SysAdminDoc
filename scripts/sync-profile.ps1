@@ -52,6 +52,7 @@ $ReadmeLowSignalSoftLimit = 15
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
+$CodeQlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
@@ -3153,6 +3154,35 @@ function Get-CommunityLocalFileStatus {
     })
 }
 
+function Get-CodeScanningLocalEvidence {
+    param([string]$WorkflowDirectory = (Join-Path $RepoRoot ".github/workflows"))
+
+    $workflowFiles = @()
+    $workflowText = ""
+    if (Test-Path -LiteralPath $WorkflowDirectory) {
+        $workflowFiles = @(Get-ChildItem -LiteralPath $WorkflowDirectory -Filter "*.yml" -File -ErrorAction SilentlyContinue | Sort-Object Name)
+        $workflowText = (($workflowFiles | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n")
+    }
+
+    $hasCodeQlWorkflow = [regex]::IsMatch($workflowText, '(?i)github/codeql-action/(init|analyze)@|codeql\s+(database|analyze)')
+    $hasSarifUpload = [regex]::IsMatch($workflowText, '(?i)github/codeql-action/upload-sarif@')
+    $hasScorecardSarif = (
+        [regex]::IsMatch($workflowText, '(?i)ossf/scorecard-action@') -and
+        [regex]::IsMatch($workflowText, '(?m)^\s*results_format:\s*sarif\s*$') -and
+        $hasSarifUpload
+    )
+
+    return [ordered]@{
+        workflowFilesInspected = @($workflowFiles | ForEach-Object { $_.Name })
+        codeqlWorkflowPresent = [bool]$hasCodeQlWorkflow
+        sarifUploadWorkflowPresent = [bool]$hasSarifUpload
+        scorecardSarifUploadPresent = [bool]$hasScorecardSarif
+        psScriptAnalyzerWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)Invoke-ScriptAnalyzer|PSScriptAnalyzer')
+        actionlintWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)\bactionlint\b')
+        zizmorWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)\bzizmor\b')
+    }
+}
+
 function Test-RepositoryCommunityBaseline {
     param(
         [object]$Repository,
@@ -3161,6 +3191,7 @@ function Test-RepositoryCommunityBaseline {
         [object[]]$Rulesets = @(),
         [object]$Languages,
         [object[]]$LocalFiles = @(),
+        [object]$CodeScanningLocalEvidence,
         [string]$RepositoryUnavailableReason,
         [string]$CommunityUnavailableReason,
         [string]$BranchProtectionUnavailableReason,
@@ -3177,6 +3208,9 @@ function Test-RepositoryCommunityBaseline {
     $branchProtectionAvailable = ($null -ne $BranchProtection -and [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason))
     $rulesetsAvailable = ($null -ne $Rulesets -and [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason))
     $languagesAvailable = ($null -ne $Languages -and [string]::IsNullOrWhiteSpace($LanguagesUnavailableReason))
+    if ($null -eq $CodeScanningLocalEvidence) {
+        $CodeScanningLocalEvidence = Get-CodeScanningLocalEvidence
+    }
 
     if (-not $repoAvailable -and -not [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason)) {
         $repoWarnings.Add("Repository settings unavailable: $RepositoryUnavailableReason.")
@@ -3242,10 +3276,17 @@ function Test-RepositoryCommunityBaseline {
 
     $languageNames = @()
     if ($languagesAvailable) {
-        $languageNames = @($Languages.PSObject.Properties.Name)
+        $languageNames = @($Languages.PSObject.Properties.Name | Sort-Object)
     }
-    $codeqlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
-    $hasCodeqlSupportedLanguage = @($languageNames | Where-Object { $codeqlSupportedLanguages -contains $_ }).Count -gt 0
+    $detectedCodeQlSupportedLanguages = @($languageNames | Where-Object { $CodeQlSupportedLanguages -contains $_ } | Sort-Object)
+    $hasCodeqlSupportedLanguage = $detectedCodeQlSupportedLanguages.Count -gt 0
+    $powerShellOnly = ($languageNames.Count -eq 1 -and $languageNames[0] -eq "PowerShell")
+    $codeQlWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "codeqlWorkflowPresent")
+    $sarifUploadWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "sarifUploadWorkflowPresent")
+    $scorecardSarifUploadPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "scorecardSarifUploadPresent")
+    $psScriptAnalyzerWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "psScriptAnalyzerWorkflowPresent")
+    $actionlintWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "actionlintWorkflowPresent")
+    $zizmorWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "zizmorWorkflowPresent")
     $codeScanningStatus = if ($languagesAvailable -and -not $hasCodeqlSupportedLanguage) {
         "not-applicable"
     } elseif ($languagesAvailable) {
@@ -3254,11 +3295,34 @@ function Test-RepositoryCommunityBaseline {
         "unavailable"
     }
     $codeScanningRecommendation = if ($codeScanningStatus -eq "not-applicable") {
-        "no-codeql-supported-languages-detected"
+        if ($powerShellOnly) {
+            "not-applicable-powershell-only"
+        } else {
+            "no-codeql-supported-languages-detected"
+        }
     } elseif ($codeScanningStatus -eq "needs-live-validation") {
         "verify-code-scanning-for-supported-languages"
     } else {
         $LanguagesUnavailableReason
+    }
+    $codeScanningReason = if ($codeScanningStatus -eq "not-applicable") {
+        "Detected repository languages do not include a current CodeQL-supported source language."
+    } elseif ($codeScanningStatus -eq "needs-live-validation") {
+        "Detected repository languages include CodeQL-supported source language(s)."
+    } else {
+        $LanguagesUnavailableReason
+    }
+    $activeCodeScanningControls = New-Object System.Collections.Generic.List[string]
+    if ($secretScanning -eq "enabled") { $activeCodeScanningControls.Add("secret-scanning") }
+    if ($secretScanningPushProtection -eq "enabled") { $activeCodeScanningControls.Add("secret-scanning-push-protection") }
+    if ($dependabotSecurityUpdates -eq "enabled") { $activeCodeScanningControls.Add("dependabot-security-updates") }
+    if ($psScriptAnalyzerWorkflowPresent) { $activeCodeScanningControls.Add("psscriptanalyzer") }
+    if ($actionlintWorkflowPresent) { $activeCodeScanningControls.Add("actionlint") }
+    if ($zizmorWorkflowPresent) { $activeCodeScanningControls.Add("zizmor") }
+    if ($scorecardSarifUploadPresent) { $activeCodeScanningControls.Add("openssf-scorecard-sarif") }
+    if ($codeQlWorkflowPresent) { $activeCodeScanningControls.Add("codeql-workflow") }
+    if ($languagesAvailable -and $hasCodeqlSupportedLanguage -and -not $codeQlWorkflowPresent) {
+        $repoWarnings.Add("CodeQL-supported languages detected; verify code scanning default setup, add an intentional CodeQL workflow, or document another SARIF-producing analyzer.")
     }
 
     foreach ($file in @($LocalFiles)) {
@@ -3314,7 +3378,14 @@ function Test-RepositoryCommunityBaseline {
             codeScanning = [ordered]@{
                 status = $codeScanningStatus
                 recommendation = $codeScanningRecommendation
+                reason = $codeScanningReason
                 languagesInspected = @($languageNames)
+                codeqlSupportedLanguages = @($detectedCodeQlSupportedLanguages)
+                codeqlSupportedLanguageDetected = [bool]$hasCodeqlSupportedLanguage
+                codeqlWorkflowPresent = $codeQlWorkflowPresent
+                sarifUploadWorkflowPresent = $sarifUploadWorkflowPresent
+                scorecardSarifUploadPresent = $scorecardSarifUploadPresent
+                activeControls = @($activeCodeScanningControls.ToArray())
             }
         }
         branchProtection = [ordered]@{
