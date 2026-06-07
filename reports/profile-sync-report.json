@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T06:26:48.3300669-04:00",
+  "generatedAt": "2026-06-07T06:45:39.2779072-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "e2cd15156f2f4707abac1967d02c49db77d66c46",
+    "sourceCommit": "fa6d388b18506c43f9cdddb231756701862b3b07",
     "catalogSha256": "ca7be2a35d8a6c6d8d15fb3f8df6e2f8d8358d724c34cc1005a08ac2387e0eef",
-    "generatorSha256": "5de4c5ac288d8caf403c186531e424fbb4adba829c36d33b114d1c0da9c9a8e4",
+    "generatorSha256": "22e537acc12d490f571f9bcc7a8401391bb3325704dbdcf29b87ac13be7aefd1",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T06:25:33.8744775-04:00",
+    "metadataSnapshotAt": "2026-06-07T06:44:23.0745194-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,7 +2270,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T06:25:33.8744775-04:00",
+          "queriedAt": "2026-06-07T06:44:23.0745194-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 1,
@@ -2492,9 +2492,9 @@
         "status": "blocked",
         "readyForRequiredCheckEnforcement": false,
         "checklistCount": 5,
-        "readyCount": 2,
+        "readyCount": 3,
         "blockedCount": 2,
-        "needsLiveValidationCount": 1,
+        "needsLiveValidationCount": 0,
         "generatedPrDryRunEvidence": {
           "available": true,
           "workflow": ".github/workflows/profile-sync.yml",
@@ -2580,8 +2580,8 @@
           "nextAction": "Choose and test either an explicit direct-main bypass actor/policy or routine PR delivery before enabling admin-enforced required checks."
         },
         "candidateCheckExercisePlan": {
-          "status": "planned",
-          "readinessStatus": "needs-live-validation",
+          "status": "completed",
+          "readinessStatus": "ready",
           "requiredBeforeEnforcement": true,
           "purpose": "refresh-recent-check-run-proof",
           "disposableBranchPrefix": "automation/required-check-proof-",
@@ -2623,53 +2623,52 @@
             "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
           ],
           "cleanupRequired": true,
-          "evidenceStatus": "partial-failed",
+          "evidenceStatus": "passed",
           "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
-          "nextAction": "Rerun the disposable PR proof after projectsExportInSync follows fatal drift classification on main, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+          "nextAction": "Keep this proof fresh before enforcement; resolve the direct-main maintenance bypass or PR-delivery policy before enabling required checks."
         },
         "candidateCheckExerciseEvidence": {
           "available": true,
-          "status": "partial-failed",
-          "evidenceStatus": "failed",
-          "pullRequestNumber": 12,
-          "pullRequestUrl": "https://github.com/SysAdminDoc/SysAdminDoc/pull/12",
+          "status": "passed",
+          "evidenceStatus": "successful",
+          "pullRequestNumber": 13,
+          "pullRequestUrl": "https://github.com/SysAdminDoc/SysAdminDoc/pull/13",
           "pullRequestState": "closed",
-          "branch": "automation/required-check-proof-20260607-124",
-          "headSha": "52f790cb1c0b4c87f6b617abc4e622c8995214fb",
-          "mergeSha": "85f569434fdf89dab0f76c099ac357b014566065",
+          "branch": "automation/required-check-proof-20260607-125",
+          "headSha": "b67e1f1fc3ec70cf6a91b4d1a0c5f71d52d1fb79",
+          "mergeSha": "24b6a49dbe03f82f6c794b79f953fdf04190febe",
           "workflowRunIds": [
-            27089526076,
-            27089526072,
-            27089526079
+            27090100279,
+            27090100281,
+            27090100282
           ],
-          "profileSyncRunId": 27089526076,
-          "testsRunId": 27089526079,
-          "workflowSecurityRunId": 27089526072,
-          "profileSyncArtifactId": 7463127507,
+          "profileSyncRunId": 27090100279,
+          "testsRunId": 27090100282,
+          "workflowSecurityRunId": 27090100281,
+          "profileSyncArtifactId": 7463321333,
           "expectedCandidateCheckCount": 6,
           "observedCandidateCheckCount": 6,
-          "successfulCandidateCheckCount": 5,
-          "failedCandidateCheckCount": 1,
+          "successfulCandidateCheckCount": 6,
+          "failedCandidateCheckCount": 0,
           "skippedNonCandidateCheckCount": 3,
           "successfulCandidateChecks": [
+            "Check generated README",
             "PSScriptAnalyzer",
             "Pester (offline)",
             "Markdownlint",
             "Windows setup smoke",
             "zizmor"
           ],
-          "failedCandidateChecks": [
-            "Check generated README"
-          ],
+          "failedCandidateChecks": [],
           "skippedNonCandidateChecks": [
             "Open generated README PR",
             "Preview generated README PR",
             "Generated profile validation status"
           ],
-          "failureReason": "Check generated README failed because projectsExportInSync remained false even though the hosted report contained only informational sourceCommit, metadataSnapshotAt, and pushedAt drift with zero fatal metadata drift.",
+          "failureReason": "",
           "cleanupState": "closed-pr-and-deleted-branch",
-          "evidenceSummary": "Disposable PR #12 created all six candidate required-check names. PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed; Check generated README failed because projectsExportInSync stayed false for informational pushed-at drift. The PR was closed and automation/required-check-proof-20260607-124 was deleted after evidence collection.",
-          "nextAction": "Make projectsExportInSync follow fatal metadata drift classification on main, regenerate the feed/report, then rerun the disposable candidate-check proof."
+          "evidenceSummary": "Disposable PR #13 created all six candidate required-check names. Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed. The PR was closed and automation/required-check-proof-20260607-125 was deleted after evidence collection.",
+          "nextAction": "Resolve the direct-main maintenance bypass or PR-delivery policy before enabling required-check enforcement; refresh this proof if GitHub's recent-check selection window expires."
         },
         "items": [
           {
@@ -2688,10 +2687,10 @@
           },
           {
             "id": "recent-check-run-proof",
-            "status": "needs-live-validation",
+            "status": "ready",
             "summary": "Each required check must have a recent successful run in this repository before it can be selected.",
-            "evidence": "Disposable PR #12 created all six candidate checks, but Check generated README failed because projectsExportInSync remained false despite only informational pushed-at drift.",
-            "nextAction": "Rerun the disposable PR proof after projectsExportInSync follows fatal drift classification and verify every candidate check completes."
+            "evidence": "Disposable PR #13 created all six candidate checks and every candidate check completed successfully.",
+            "nextAction": "Refresh this disposable PR proof if GitHub's recent-check selection window expires before enforcement."
           },
           {
             "id": "pr-delivery-or-bypass",
@@ -2829,28 +2828,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.116",
+    "expectedVersion": "v4.9.117",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.116"
+        "value": "v4.9.117"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.116"
+        "value": "v4.9.117"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.116"
+        "value": "v4.9.117"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.116"
+        "value": "v4.9.117"
       }
     ],
     "dates": [
@@ -2877,7 +2876,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 128,
+      "headingCount": 129,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2887,14 +2886,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.116",
+    "expectedVersion": "v4.9.117",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.116",
+    "expectedTag": "v4.9.117",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2904,13 +2903,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.116",
+        "expectedVersion": "v4.9.117",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.116",
+        "expectedVersion": "v4.9.117",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2933,7 +2932,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3699,
+      "elapsedMs": 3765,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2967,7 +2966,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.59,
+      "ageDays": 5.6,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2977,7 +2976,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3699,
+    "elapsedMs": 3765,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3327,7 +3326,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 108051,
+        "value": 107569,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3355,7 +3354,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T06:27:07.6059645-04:00",
+    "generatedAt": "2026-06-07T06:45:55.2839621-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

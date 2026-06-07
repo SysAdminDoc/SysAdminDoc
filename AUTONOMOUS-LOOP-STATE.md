@@ -2,16 +2,16 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-07
-Last completed roadmap cycle: Cycle 124 - Fatal-drift-aligned projects feed sync
+Last completed roadmap cycle: Cycle 125 - Successful candidate-check proof
 
 ## Latest Result
 
-- Retried the disposable candidate-check proof as PR #12; all six candidate checks were created, five passed, and `Check generated README` failed while the hosted report showed only informational feed drift.
-- Fixed `Test-ProfileState` so `projectsExportInSync` follows fatal metadata drift classification instead of failing on source commit, metadata snapshot, or pushed-at informational drift.
-- Updated `candidateCheckExerciseEvidence` to PR #12 with run IDs, artifact ID, pass/fail counts, failed check name, and cleanup state.
-- Updated roadmap, research report, project context, completed work, and changelog to v4.9.116.
-- Local verification passed: profile sync write/check, rendered-profile smoke, profile summary render, Pester, PSScriptAnalyzer, markdownlint, setup check-only, zizmor, actionlint, diff whitespace check, and commit-trailer/text scan.
+- Retried the disposable candidate-check proof as PR #13 from `automation/required-check-proof-20260607-125`.
+- All six candidate checks passed: `Check generated README`, `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, and `zizmor`.
+- The retained profile-sync artifact `7463321333` reported `readmeInSync=true`, `projectsExportInSync=true`, `profileAssetsInSync=true`, and zero fatal metadata drift at merge ref `24b6a49dbe03f82f6c794b79f953fdf04190febe`.
+- Updated `candidateCheckExercisePlan` and `candidateCheckExerciseEvidence` to mark recent-check proof completed/passed, then closed PR #13 and deleted the proof branch.
+- Updated roadmap, research report, project context, completed work, and changelog to v4.9.117.
 
 ## Next Cycle
 
-Continue on this same assigned project. Rerun the disposable candidate-check PR proof now that `projectsExportInSync` follows fatal metadata drift classification, then record the updated PR evidence and cleanup state.
+Continue on this same assigned project. Work the remaining required-check enforcement dependency: document and test a direct-main maintenance bypass or switch routine maintenance to PR delivery before enabling admin-enforced required checks.

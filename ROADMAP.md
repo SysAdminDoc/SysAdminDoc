@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.116
+Current repo version: v4.9.117
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 124 - 2026-06-07.
+> Last researched: Cycle 125 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,20 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 124 - 2026-06-07.
+Last researched: Cycle 125 - 2026-06-07.
+
+2026-06-07 v4.9.117 refresh: successful candidate-check proof shipped.
+Cycle 125 opened disposable PR #13 from
+`automation/required-check-proof-20260607-125` and proved all six candidate
+required-check names completed successfully: `Check generated README`,
+`PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`,
+and `zizmor`. The retained Profile sync artifact `7463321333` reported
+`readmeInSync=true`, `projectsExportInSync=true`,
+`profileAssetsInSync=true`, and zero fatal metadata drift at merge ref
+`24b6a49dbe03f82f6c794b79f953fdf04190febe`. PR #13 was closed and the proof
+branch was deleted after evidence collection. The recent-check proof is now
+ready, but required-check enforcement remains deferred until direct-main
+maintenance has either a documented/tested bypass or routine PR delivery.
 
 2026-06-07 v4.9.116 refresh: fatal-drift-aligned projects feed sync shipped.
 Cycle 124 opened disposable PR #12 from
