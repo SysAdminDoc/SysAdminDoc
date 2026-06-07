@@ -19,6 +19,9 @@ Current version after this refresh: v4.9.121
   enforcement mechanism; `requiredCheckReadiness.status=enforcement-present`,
   `recommendation=monitor-required-check-enforcement`, and the PR-delivery
   transition checklist has zero blockers.
+- Check-only metadata drift now treats transient release-asset inspection loss
+  as informational when release tag and URL are unchanged, preserving hosted PR
+  validation during temporary GitHub release API outages.
 - The v4.9.120 batch records the successful routine-maintenance PR delivery
   proof from PR #14.
 - PR #14 merged by rebase from the `routine-pr-drill-evidence` branch after all six
