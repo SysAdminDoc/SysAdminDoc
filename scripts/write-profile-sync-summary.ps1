@@ -128,6 +128,13 @@ $candidateCheckExerciseLatestSuccessful = if ($candidateCheckExerciseLatestEvide
 $candidateCheckExerciseLatestFailed = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.failedCandidateCheckCount) { [int]$candidateCheckExerciseLatestEvidence.failedCandidateCheckCount } else { 0 }
 $candidateCheckExerciseLatestFailedNames = if ($candidateCheckExerciseLatestEvidence -and $candidateCheckExerciseLatestEvidence.failedCandidateChecks) { @($candidateCheckExerciseLatestEvidence.failedCandidateChecks) -join ", " } else { "" }
 $candidateCheckExerciseLatestCleanup = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.cleanupState) { [string]$candidateCheckExerciseLatestEvidence.cleanupState } else { "" }
+$routineMaintenancePrDrillEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'routineMaintenancePrDrillEvidence') { $prDeliveryTransition.routineMaintenancePrDrillEvidence } else { $null }
+$routineMaintenancePrDrillAvailable = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.available) { [bool]$routineMaintenancePrDrillEvidence.available } else { $false }
+$routineMaintenancePrDrillStatus = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.status) { [string]$routineMaintenancePrDrillEvidence.status } else { "" }
+$routineMaintenancePrDrillPullRequest = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.pullRequestNumber) { [int]$routineMaintenancePrDrillEvidence.pullRequestNumber } else { 0 }
+$routineMaintenancePrDrillSuccessful = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.successfulCandidateCheckCount) { [int]$routineMaintenancePrDrillEvidence.successfulCandidateCheckCount } else { 0 }
+$routineMaintenancePrDrillFailed = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.failedCandidateCheckCount) { [int]$routineMaintenancePrDrillEvidence.failedCandidateCheckCount } else { 0 }
+$routineMaintenancePrDrillCleanup = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.cleanupState) { [string]$routineMaintenancePrDrillEvidence.cleanupState } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -305,6 +312,12 @@ $summary = @"
 | Candidate check exercise failed checks | $candidateCheckExerciseLatestFailed |
 | Candidate check exercise failed names | $candidateCheckExerciseLatestFailedNames |
 | Candidate check exercise cleanup | $candidateCheckExerciseLatestCleanup |
+| Routine PR drill evidence available | $routineMaintenancePrDrillAvailable |
+| Routine PR drill status | $routineMaintenancePrDrillStatus |
+| Routine PR drill pull request | $routineMaintenancePrDrillPullRequest |
+| Routine PR drill passed checks | $routineMaintenancePrDrillSuccessful |
+| Routine PR drill failed checks | $routineMaintenancePrDrillFailed |
+| Routine PR drill cleanup | $routineMaintenancePrDrillCleanup |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

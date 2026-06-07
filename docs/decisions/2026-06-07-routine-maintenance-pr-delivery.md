@@ -25,7 +25,7 @@ The selected path is:
 3. Wait for the six candidate checks already proven by PR #13.
 4. Merge without bypass.
 5. Record the merged PR number, head SHA, merge SHA, check run IDs, and cleanup
-   state in the next sync report.
+   state in `routineMaintenancePrDrillEvidence` in the next sync report.
 
 This decision does not change branch protection, create a ruleset, require pull
 request reviews, or enable required status checks. It only records the delivery
@@ -43,6 +43,8 @@ policy that must be proven before enforcement can be safely enabled.
 - Generated-profile maintenance PR delivery is already proven separately by
   PR #10 and `generated-profile/validation`, but routine non-generated
   maintenance still needs a live merge drill.
+- `routineMaintenancePrDrillEvidence` is present in the sync report as the
+  pending evidence slot for that merged routine-maintenance PR.
 
 ## References
 
