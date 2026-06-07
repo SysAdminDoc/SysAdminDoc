@@ -2097,14 +2097,17 @@ Describe 'Required status check readiness' {
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
         $evidence.event | Should -Be 'workflow_dispatch'
-        $evidence.runId | Should -Be 27083372279
-        $evidence.runUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27083372279'
+        $evidence.headSha | Should -Be 'f6cd6b970a1d92c5a13cac2b1c9abac031fab257'
+        $evidence.runId | Should -Be 27084524165
+        $evidence.runUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27084524165'
+        $evidence.createdAt | Should -Be '2026-06-07T06:06:38Z'
         $evidence.conclusion | Should -Be 'success'
+        $evidence.jobId | Should -Be 79936227891
         $evidence.failedStep | Should -BeNullOrEmpty
         $evidence.previewStepReached | Should -BeTrue
         $evidence.reportArtifactUploaded | Should -BeTrue
         $evidence.artifactReadinessStatus | Should -Be 'needs-live-validation'
-        $evidence.evidenceSummary | Should -Match 'automation/profile-sync-27083372279'
+        $evidence.evidenceSummary | Should -Match 'automation/profile-sync-27084524165'
         $evidence.nextAction | Should -Match 'required-check preconditions'
     }
 }

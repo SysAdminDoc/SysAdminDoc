@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.98
+Current repo version: v4.9.99
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 106 - 2026-06-07.
+> Last researched: Cycle 107 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,19 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 106 - 2026-06-07.
+Last researched: Cycle 107 - 2026-06-07.
+
+2026-06-07 v4.9.99 refresh: generated PR dry-run evidence refreshed after
+workflow-runtime hardening. Cycle 107 dispatched hosted Profile sync run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27084524165` in
+`dry-run-pr` mode on `main` at
+`f6cd6b970a1d92c5a13cac2b1c9abac031fab257`. The run completed
+`Regenerate profile`, wrote the sync summary, uploaded the report artifact
+through the reviewed Node 24 `actions/upload-artifact` SHA, and reached
+`Preview pull request`, where the helper planned
+`automation/profile-sync-27084524165` without creating a branch, commit, push,
+pull request, or validation dispatch. Required-check enforcement still waits on
+live PR delivery or an approved bypass plus recent required-check proof.
 
 2026-06-07 v4.9.98 refresh: workflow summary size budget guard shipped.
 Cycle 106 audited the delivery-health path for `GITHUB_STEP_SUMMARY` output
@@ -2017,7 +2029,7 @@ direct-push automation.*
     3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
     4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
     5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
-  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. The transition report currently marks candidate checks and workflow coverage ready, while recent successful check-run proof needs live validation and PR delivery or bypass remains blocked. v4.9.91 records hosted `dry-run-pr` evidence for run `27082852047`; the run uploaded a sync report artifact but failed at `Regenerate profile` before the preview helper ran, so it is evidence for the next fix rather than proof that generated PR delivery is ready. v4.9.92 adds an explicit success exit after `sync-profile.ps1 -Check` passes to prevent handled native-command failures from surfacing as hosted step failures. v4.9.93 refreshes the dry-run evidence with successful hosted run `27083372279`, which reached the preview helper and planned `automation/profile-sync-27083372279` without side effects.
+  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. The transition report currently marks candidate checks and workflow coverage ready, while recent successful check-run proof needs live validation and PR delivery or bypass remains blocked. v4.9.91 records hosted `dry-run-pr` evidence for run `27082852047`; the run uploaded a sync report artifact but failed at `Regenerate profile` before the preview helper ran, so it is evidence for the next fix rather than proof that generated PR delivery is ready. v4.9.92 adds an explicit success exit after `sync-profile.ps1 -Check` passes to prevent handled native-command failures from surfacing as hosted step failures. v4.9.93 refreshes the dry-run evidence with successful hosted run `27083372279`, which reached the preview helper and planned `automation/profile-sync-27083372279` without side effects. v4.9.99 refreshes the evidence with successful hosted run `27084524165` after artifact-runtime and summary-size guard changes; it reached the preview helper and planned `automation/profile-sync-27084524165` without side effects.
   - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
   - Risks: requiring `Check generated README` can force live-link/profile-smoke dependencies onto every PR; requiring `zizmor` before exact tool pinning can create supply-chain update friction; code-owner review is weak for a single-user repo unless the user wants self-review controls; merge queue is overkill unless PR volume increases.
   - Verify: open a disposable PR touching `README.md`, `.github/workflows/tests.yml`, and `setup.ps1`; confirm all required candidate jobs are created on PR and `merge_group`; query branch protection/rulesets after enforcement; confirm direct push behavior is intentionally blocked or bypassed according to the documented delivery model.
@@ -2107,12 +2119,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 96 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 107 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `3835491 feat: report portfolio preview impact`
+- HEAD inspected before this cycle: `f6cd6b9 ci: guard profile summary size`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -2141,14 +2153,15 @@ Current local state:
 - Cycle 104 extended exact-order Pester coverage to release asset kind counts, release trust level counts, and portfolio primary action kind counts.
 - Cycle 105 pinned retained `actions/upload-artifact` workflow uses to the reviewed 6.0.0 Node 24 SHA and added Pester guards against floating tags and the older Node 20 SHA.
 - Cycle 106 added a GitHub Actions step-summary size guard and Pester budget check for the profile sync summary helper.
+- Cycle 107 refreshed hosted generated PR dry-run evidence after the artifact-runtime and summary-size guard changes; run `27084524165` reached the preview helper and planned `automation/profile-sync-27084524165` without side effects.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 107: run another generated profile delivery rehearsal if workflow evidence indicates a new PR-delivery gap.
-2. Cycle 108: review the remaining GitHub Actions dependency pin surface for hosted runtime warnings or major-update readiness.
-3. Cycle 109: audit README/report density again after the next live metadata refresh and route any new low-signal rows through the review pipeline.
+1. Cycle 108: review the remaining GitHub Actions dependency pin surface for hosted runtime warnings or major-update readiness.
+2. Cycle 109: audit README/report density again after the next live metadata refresh and route any new low-signal rows through the review pipeline.
+3. Cycle 110: exercise generated PR delivery against a disposable branch or PR only after a safe bypass/review model is documented.
 
 ### Quick Wins
 
@@ -2167,6 +2180,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Generated PR dry-run evidence report (completed v4.9.91 with hosted run ID, failure step, skipped preview state, uploaded report-artifact state, schema coverage, summary rows, and Pester guards).
 - [x] P2 — Hosted profile-check success exit hardening (completed v4.9.92 with explicit successful `sync-profile.ps1 -Check` exit and Pester entrypoint guard).
 - [x] P2 — Hosted generated PR dry-run success evidence (completed v4.9.93 with successful run `27083372279`, preview-helper proof, planned branch, artifact upload, schema-backed report fields, and Pester guards).
+- [x] P2 — Hosted generated PR dry-run refresh after workflow-runtime hardening (completed v4.9.99 with successful run `27084524165`, Node 24 artifact-upload path proof, summary helper proof, planned branch, and no side effects).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).
 - [x] P2 — Approved portfolio-only catalog mutation (completed v4.9.95 with the 11 approved rows removed from README output, preserved in `projects.json`, and covered by Pester).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
