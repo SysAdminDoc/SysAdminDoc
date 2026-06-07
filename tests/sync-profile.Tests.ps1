@@ -854,6 +854,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'reports README density and low-signal category warnings without failing sync' {
         $first = New-TestEntry -Repo 'RepoOnlyA' -Category 'powershell' -Description 'repo only A' -Order 1
         $second = New-TestEntry -Repo 'RepoOnlyB' -Category 'powershell' -Description 'repo only B' -Order 2
+        $second.readmeReviewNote = 'Keep in README until explicit portfolio-only demotion is approved.'
         $density = Test-ReadmeDensity `
             -ExpectedReadme "one`ntwo`n<details>`n| [**RepoOnlyA**](https://github.com/SysAdminDoc/RepoOnlyA) | PowerShell |" `
             -Entries @($first, $second) `
@@ -876,6 +877,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         @($density.portfolioOnlyCandidates) | Should -HaveCount 2
         $density.portfolioOnlyCandidates[0].reviewRank | Should -Be 1
         $density.portfolioOnlyCandidates[0].repo | Should -Be 'RepoOnlyB'
+        $density.portfolioOnlyCandidates[0].catalogReviewNote | Should -Be 'Keep in README until explicit portfolio-only demotion is approved.'
         $density.portfolioOnlyCandidates[0].recommendation | Should -Be 'review-for-portfolio-only'
         $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'category-over-soft-limit'
         $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'low-signal-zero-star'

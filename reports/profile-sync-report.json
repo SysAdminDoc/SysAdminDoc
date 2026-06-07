@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T00:03:22.9067051-04:00",
+  "generatedAt": "2026-06-07T00:17:23.6329363-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "38354919502b0955d4bf1d891c6d982968cfea24",
-    "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
-    "generatorSha256": "b9c34eff25989b59576e5fccfebb3493b9efeb1ffd61cba6598566450e070e7b",
+    "sourceCommit": "8e69b4694d281464f3301c347f59accbefbb6f6f",
+    "catalogSha256": "80bca1eae2728b762ac9813eb3446a3087745ae983737a2550f17b5cb1404f1e",
+    "generatorSha256": "3609b487b07e2e2df51b08d901606e3f4918720b38e6d8073e298cf5126ed8f4",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T00:02:06.1689679-04:00",
+    "metadataSnapshotAt": "2026-06-07T00:15:59.3422222-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T04:00:09Z",
+        "pushedAt": "2026-06-07T04:12:28Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,9 +892,27 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "MPL-2.0",
-        "licenseKey": "mpl-2.0",
-        "licenseName": "Mozilla Public License 2.0",
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
+      },
+      {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
+      },
+      {
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
       },
       {
@@ -904,40 +922,22 @@
         "count": 2
       },
       {
-        "licenseSpdxId": "AGPL-3.0",
-        "licenseKey": "agpl-3.0",
-        "licenseName": "GNU Affero General Public License v3.0",
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
         "count": 1
-      },
-      {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
-      },
-      {
-        "licenseSpdxId": "NOASSERTION",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "count": 9
-      },
-      {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
       },
       {
         "licenseSpdxId": "LGPL-3.0",
         "licenseKey": "lgpl-3.0",
         "licenseName": "GNU Lesser General Public License v3.0",
         "count": 1
+      },
+      {
+        "licenseSpdxId": "NOASSERTION",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "count": 9
       }
     ],
     "missingLicenses": [
@@ -1116,28 +1116,28 @@
     ],
     "suppressionReasonCounts": [
       {
-        "reasonCode": "placeholder",
-        "publicReason": "Placeholder project omitted from the public feed.",
-        "visibilityClass": "suppressed",
-        "count": 1
-      },
-      {
         "reasonCode": "private-or-sensitive",
         "publicReason": "Private or sensitive project omitted from the public feed.",
         "visibilityClass": "private-or-sensitive",
         "count": 2
       },
       {
-        "reasonCode": "not-visitor-facing",
-        "publicReason": "Project omitted because it is not visitor-facing.",
+        "reasonCode": "placeholder",
+        "publicReason": "Placeholder project omitted from the public feed.",
         "visibilityClass": "suppressed",
-        "count": 4
+        "count": 1
       },
       {
         "reasonCode": "duplicate-or-superseded",
         "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
         "count": 3
+      },
+      {
+        "reasonCode": "not-visitor-facing",
+        "publicReason": "Project omitted because it is not visitor-facing.",
+        "visibilityClass": "suppressed",
+        "count": 4
       }
     ],
     "rows": [],
@@ -2527,28 +2527,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.88",
+    "expectedVersion": "v4.9.89",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.88"
+        "value": "v4.9.89"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.88"
+        "value": "v4.9.89"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.88"
+        "value": "v4.9.89"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.88"
+        "value": "v4.9.89"
       }
     ],
     "dates": [
@@ -2575,7 +2575,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 100,
+      "headingCount": 101,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2585,14 +2585,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.88",
+    "expectedVersion": "v4.9.89",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.88",
+    "expectedTag": "v4.9.89",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2602,13 +2602,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.88",
+        "expectedVersion": "v4.9.89",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.88",
+        "expectedVersion": "v4.9.89",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2620,7 +2620,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3769,
+      "elapsedMs": 3846,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2654,7 +2654,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.32,
+      "ageDays": 5.33,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2664,7 +2664,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3769,
+    "elapsedMs": 3846,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2706,6 +2706,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:02:27Z",
         "latestReleaseTag": null,
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2725,6 +2726,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:02:38Z",
         "latestReleaseTag": null,
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2744,6 +2746,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:03:22Z",
         "latestReleaseTag": null,
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2763,6 +2766,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:03:40Z",
         "latestReleaseTag": null,
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2782,6 +2786,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-04-26T02:17:22Z",
         "latestReleaseTag": "v1.1.0",
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2800,6 +2805,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:02:15Z",
         "latestReleaseTag": "v1.0.0",
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2818,6 +2824,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:02:55Z",
         "latestReleaseTag": "v1.0.0",
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2836,6 +2843,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:03:19Z",
         "latestReleaseTag": "v5.5.0",
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2854,6 +2862,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:03:28Z",
         "latestReleaseTag": "v7.0.0",
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2872,6 +2881,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-05-26T19:03:38Z",
         "latestReleaseTag": "v0.7.1",
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -2890,6 +2900,7 @@
         "includeInPortfolio": true,
         "pushedAt": "2026-04-26T02:13:24Z",
         "latestReleaseTag": null,
+        "catalogReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
         "reasonCodes": [
           "category-over-soft-limit",
           "repo-only-action",
@@ -3236,7 +3247,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 95184,
+        "value": 96713,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3264,7 +3275,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T00:03:37.4906399-04:00",
+    "generatedAt": "2026-06-07T00:17:40.6347216-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

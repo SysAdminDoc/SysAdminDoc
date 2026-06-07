@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.88
+Current version after this refresh: v4.9.89
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.89 batch adds catalog-backed review notes for README
+  portfolio-only candidates.
+- `data/profile-catalog.json` now supports optional `readmeReviewNote` values
+  for internal review context, and the generator carries those values into
+  `readmeDensity.portfolioOnlyCandidates[].catalogReviewNote`.
+- Current evidence keeps the review notes out of `README.md` and
+  `projects.json`, so the public profile and portfolio feed remain unchanged
+  while the sync report records why each candidate remains under review.
 - The v4.9.88 batch adds a side-effect-free generated PR dry-run helper.
 - `scripts/open-generated-profile-pr.ps1 -DryRun` reports planned branch,
   base branch, commit message, PR title, validation workflow/mode,

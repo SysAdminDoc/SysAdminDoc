@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.89] - 2026-06-07
+
+- Added: `data/profile-catalog.json` now supports `readmeReviewNote` for internal README candidate-review context without exporting the note to the public portfolio feed.
+- Added: The 11 current portfolio-only review candidates now carry catalog review notes in `readmeDensity.portfolioOnlyCandidates[].catalogReviewNote`.
+- Added: Catalog/report schemas and Pester coverage now guard the review-note field through the density candidate report path.
+
 ## [v4.9.88] - 2026-06-07
 
 - Added: `scripts/open-generated-profile-pr.ps1 -DryRun` now previews generated PR branch, paths, validation URL, and missing CI environment without creating branches, commits, pushes, pull requests, or workflow dispatches.
