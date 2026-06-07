@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.74
+Current repo version: v4.9.75
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 82 - 2026-06-06.
+> Last researched: Cycle 83 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,15 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 82 - 2026-06-06.
+Last researched: Cycle 83 - 2026-06-06.
+
+2026-06-06 v4.9.75 refresh: routine CodeQL upload-sarif update applied.
+Dependabot PR #7's `github/codeql-action/upload-sarif` 4.36.2 SHA is applied
+directly on `main`, and Pester now guards against reverting to either the
+4.36.1 SHA from PR #6 or the older 3.35.5 SHA. The PR branch failures were the
+expected pinned-SHA test mismatch plus stale generated profile state on the
+Dependabot branch. Branch-protection/ruleset status-check enforcement remains
+external-gated while this loop pushes directly to `main`.
 
 2026-06-06 v4.9.74 refresh: stale duplicate roadmap rows reconciled.
 Unchecked duplicate rows for Windows setup smoke, CI validation tool pins,
@@ -1858,26 +1866,27 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 82 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 83 - 2026-06-06.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `e0262aa ci: add markdownlint validation`
+- HEAD inspected before this cycle: `06e00df docs: reconcile shipped roadmap rows`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
-- Live open PR check: Dependabot PR #7 is open from `dependabot/github_actions/routine-actions-0321e4ed66` for `github/codeql-action` 4.36.2. Current PR checks show `Markdownlint`, `PSScriptAnalyzer`, `Windows setup smoke`, and `zizmor` passing, with `Pester (offline)` and `Check generated README` failing on the PR branch.
+- Dependabot PR #7 was triaged: its Pester failure came from the intentional CodeQL upload-sarif SHA guard, and its profile-sync failure came from stale generated profile state on the PR branch. The 4.36.2 SHA was applied directly on `main` with matching Pester/docs updates.
 - Cycle 82 reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and suppressed-feed redaction against their shipped evidence.
+- Cycle 83 applied the routine `github/codeql-action/upload-sarif` 4.36.2 update from Dependabot PR #7 on `main`.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 83: triage the failing checks on Dependabot PR #7 or document why that branch should wait.
-2. Cycle 84: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
-3. Cycle 85: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
-4. Cycle 86: audit downstream portfolio compatibility before changing any feed shape.
-5. Cycle 87: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+1. Cycle 84: confirm PR #7 closes or becomes obsolete after the direct `main` update, then close/document it if needed.
+2. Cycle 85: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
+3. Cycle 86: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
+4. Cycle 87: audit downstream portfolio compatibility before changing any feed shape.
+5. Cycle 88: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
 
 ### Quick Wins
 
@@ -1908,7 +1917,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Pull-request profile-sync validation for catalog/profile changes (duplicate row reconciled in v4.9.60; completed v4.9.28 with read-only pull-request profile-sync validation and trigger-surface Pester coverage).
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [x] P2 — Structured issue forms for broken catalog links and profile corrections (duplicate row reconciled in v4.9.60; completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
-- [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35).
+- [x] P2 — Current Dependabot workflow-action PR triage (#5 addressed in v4.9.34; #6 addressed in v4.9.35; #7 addressed in v4.9.75).
 - [x] P3 — Auto-delete or cleanup policy for generated `automation/*` PR branches (completed v4.9.61 with scheduled dry-run/manual cleanup workflow, strict generated-branch prefixes, merged-PR gating, scoped write permissions, and Pester coverage).
 - [x] P3 — Shared helper/composite action for generated profile PR creation (completed v4.9.62 with `scripts/open-generated-profile-pr.ps1`, explicit workflow inputs, branch-prefix allowlist, no-change guard preservation, validation handoff, and Pester coverage).
 - [x] P3 — Historical `CHANGELOG.md` release-heading validation and cleanup (completed v4.9.63 with `docVersionConsistency.changelogHeadingValidation`, line-numbered malformed-heading reporting, impossible-date rejection, schema support, Pester coverage, and the `v3.0.0` date cleanup).
