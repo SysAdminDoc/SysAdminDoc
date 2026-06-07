@@ -882,6 +882,23 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'repo-only-action'
         $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'no-latest-release'
         $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'portfolio-route-available'
+        $density.portfolioOnlyPreview.mode | Should -Be 'report-only'
+        $density.portfolioOnlyPreview.status | Should -Be 'ready'
+        $density.portfolioOnlyPreview.recommendation | Should -Be 'review-catalog-demotion'
+        $density.portfolioOnlyPreview.candidateSource | Should -Be 'readmeDensity.portfolioOnlyCandidates'
+        $density.portfolioOnlyPreview.candidateCount | Should -Be 2
+        $density.portfolioOnlyPreview.candidateRepos | Should -Contain 'RepoOnlyA'
+        $density.portfolioOnlyPreview.candidateRepos | Should -Contain 'RepoOnlyB'
+        $density.portfolioOnlyPreview.currentProjectRowCount | Should -Be 2
+        $density.portfolioOnlyPreview.previewProjectRowCount | Should -Be 0
+        $density.portfolioOnlyPreview.projectRowDelta | Should -Be -2
+        $density.portfolioOnlyPreview.resolvedOverSoftLimitCategoryCount | Should -Be 1
+        $density.portfolioOnlyPreview.remainingOverSoftLimitCategoryCount | Should -Be 0
+        $density.portfolioOnlyPreview.preservesPortfolioRoutes | Should -BeTrue
+        $density.portfolioOnlyPreview.catalogMutated | Should -BeFalse
+        $density.portfolioOnlyPreview.readmeMutated | Should -BeFalse
+        $density.portfolioOnlyPreview.projectsFeedMutated | Should -BeFalse
+        $density.portfolioOnlyPreview.note | Should -Match 'Report-only preview'
         $density.routingRecommendation | Should -Be 'review-portfolio-only-candidates'
         $density.warningCount | Should -BeGreaterThan 0
         ($density.warnings -join ' ') | Should -Match 'portfolio-only review'
@@ -889,6 +906,12 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $powershellDensity.overCategorySoftLimitBy | Should -Be 1
         $powershellDensity.portfolioOnlyCandidateCount | Should -Be 2
         $powershellDensity.routingRecommendation | Should -Be 'review-portfolio-only-candidates'
+        $powershellPreview = @($density.portfolioOnlyPreview.categoryRows | Where-Object { $_.category -eq 'powershell' })[0]
+        $powershellPreview.currentProjectCount | Should -Be 2
+        $powershellPreview.previewProjectCount | Should -Be 0
+        $powershellPreview.projectRowDelta | Should -Be -2
+        $powershellPreview.currentOverSoftLimitBy | Should -Be 1
+        $powershellPreview.previewOverSoftLimitBy | Should -Be 0
     }
     It 'reports generated artifact budgets without failing healthy artifacts' {
         $fixtureReadme = @'
@@ -2126,6 +2149,10 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'README repo-only rows'
             $summary | Should -Match 'README portfolio-only candidates'
             $summary | Should -Match 'README candidate sample'
+            $summary | Should -Match 'README portfolio-only preview'
+            $summary | Should -Match 'README preview row delta'
+            $summary | Should -Match 'README preview rows'
+            $summary | Should -Match 'README preview over-limit categories'
             $summary | Should -Match 'README routing recommendation'
             $summary | Should -Match 'Artifact budget status'
             $summary | Should -Match 'Artifact budget warnings'
@@ -2169,6 +2196,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'portfolioOnlyCandidateCount'
         $script:SummaryScript | Should -Match 'portfolioOnlyCandidates'
+        $script:SummaryScript | Should -Match 'portfolioOnlyPreview'
         $script:SummaryScript | Should -Match 'artifactBudgets'
         $script:SummaryScript | Should -Match 'renderedProfileSmoke'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'

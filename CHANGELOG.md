@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.87] - 2026-06-07
+
+- Added: `reports/profile-sync-report.json.readmeDensity.portfolioOnlyPreview` now records a report-only catalog demotion preview for the current candidate rows.
+- Added: The preview shows the current 11 Python candidates would reduce README project rows from 177 to 166 and clear the current category soft-limit warning without changing generated README/feed output.
+- Added: The profile sync summary now surfaces portfolio-only preview status, row delta, preview row count, and remaining over-limit category count.
+
 ## [v4.9.86] - 2026-06-07
 
 - Added: `reports/profile-sync-report.json.readmeDensity.portfolioOnlyCandidates` now names concrete README rows for portfolio-only review.

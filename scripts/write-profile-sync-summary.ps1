@@ -111,6 +111,15 @@ $readmePortfolioOnlyCandidateSample = if ($readmeDensity -and $readmeDensity.PSO
 } else {
     ""
 }
+$readmePortfolioOnlyPreview = if ($readmeDensity -and $readmeDensity.PSObject.Properties.Name -contains 'portfolioOnlyPreview') {
+    $readmeDensity.portfolioOnlyPreview
+} else {
+    $null
+}
+$readmePortfolioOnlyPreviewStatus = if ($readmePortfolioOnlyPreview) { [string]$readmePortfolioOnlyPreview.status } else { "unknown" }
+$readmePortfolioOnlyPreviewDelta = if ($readmePortfolioOnlyPreview) { [int]$readmePortfolioOnlyPreview.projectRowDelta } else { 0 }
+$readmePortfolioOnlyPreviewRows = if ($readmePortfolioOnlyPreview) { [int]$readmePortfolioOnlyPreview.previewProjectRowCount } else { 0 }
+$readmePortfolioOnlyPreviewOverLimitCategories = if ($readmePortfolioOnlyPreview) { [int]$readmePortfolioOnlyPreview.remainingOverSoftLimitCategoryCount } else { 0 }
 $artifactBudgetStatus = if ($artifactBudgets) { [string]$artifactBudgets.status } else { "unknown" }
 $artifactBudgetWarningCount = if ($artifactBudgets) { [int]$artifactBudgets.warningCount } else { 0 }
 $artifactBudgetRowCount = if ($artifactBudgets) { Get-Count $artifactBudgets.rows } else { 0 }
@@ -143,6 +152,10 @@ $summary = @"
 | README repo-only rows | $readmeRepoOnlyProjectCount |
 | README portfolio-only candidates | $readmePortfolioOnlyCandidateCount |
 | README candidate sample | $readmePortfolioOnlyCandidateSample |
+| README portfolio-only preview | $readmePortfolioOnlyPreviewStatus |
+| README preview row delta | $readmePortfolioOnlyPreviewDelta |
+| README preview rows | $readmePortfolioOnlyPreviewRows |
+| README preview over-limit categories | $readmePortfolioOnlyPreviewOverLimitCategories |
 | README routing recommendation | $readmeRoutingRecommendation |
 | Artifact budget status | $artifactBudgetStatus |
 | Artifact budget warnings | $artifactBudgetWarningCount |
