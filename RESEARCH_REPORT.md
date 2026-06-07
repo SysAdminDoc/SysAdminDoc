@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.76
+Current version after this refresh: v4.9.77
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.77 batch records required-check enforcement readiness without
+  enabling branch-protection or ruleset status-check enforcement.
+- The candidate required checks are `Pester (offline)`, `PSScriptAnalyzer`,
+  `Markdownlint`, `Windows setup smoke`, `Check generated README`, and
+  `zizmor`; those names match current job/check names and remain guarded by
+  Pester.
+- Live branch-protection/ruleset evidence remains unchanged: required status
+  checks are not enabled, repository rulesets are absent, and protected `main`
+  has `enforce_admins=true` while this loop still pushes directly to `main`.
+- GitHub's protected-branch, ruleset, and required-status troubleshooting docs
+  were rechecked before the decision note was recorded.
 - The v4.9.76 batch closes Dependabot PR #7 as obsolete after the same
   `github/codeql-action/upload-sarif` 4.36.2 SHA landed directly on `main` in
   `c18bd58`.

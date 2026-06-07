@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.77] - 2026-06-06
+
+- Added: `docs/decisions/2026-06-06-required-check-enforcement-readiness.md` records the candidate required checks and activation preconditions without enabling branch-protection or ruleset enforcement.
+- Added: Pester coverage now guards the required-check readiness decision, candidate check names, direct-push caveat, and current live evidence.
+- Changed: Branch-protection/ruleset enforcement remains external-gated while direct pushes remain the loop delivery path.
+
 ## [v4.9.76] - 2026-06-06
 
 - Changed: Closed Dependabot PR #7 as obsolete after the same CodeQL upload-sarif 4.36.2 SHA landed on `main`.

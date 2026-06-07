@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.76
+Current repo version: v4.9.77
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 84 - 2026-06-06.
+> Last researched: Cycle 85 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,17 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 84 - 2026-06-06.
+Last researched: Cycle 85 - 2026-06-06.
+
+2026-06-06 v4.9.77 refresh: required-check enforcement readiness recorded.
+The current candidate required checks are `Pester (offline)`,
+`PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`,
+`Check generated README`, and `zizmor`. Enforcement is still intentionally not
+enabled while protected `main` has `enforce_admins=true` and this loop pushes
+directly to `main`; `docs/decisions/2026-06-06-required-check-enforcement-readiness.md`
+now records the activation preconditions, candidate check list, and live API
+evidence. Pester guards the decision note so future cleanup does not turn the
+external-gated item into an undocumented repository-setting change.
 
 2026-06-06 v4.9.76 refresh: obsolete Dependabot PR #7 closed.
 After the CodeQL upload-sarif 4.36.2 SHA landed on `main`, Dependabot PR #7
@@ -1145,7 +1155,7 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection` returned `required_status_checks=null`, `required_pull_request_reviews=null`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returned no rulesets. GitHub protected-branch docs describe required status checks before merging: https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches/
   - Touches: GitHub repository branch-protection or ruleset settings; optional `.github/workflows/*.yml` job-name stabilization if required-check names need to be fixed.
   - Acceptance: the default branch requires the relevant validation checks before merge, at minimum Pester, workflow security, and generated profile sync for changes that affect the profile pipeline; any admin bypass or Dependabot bypass is documented.
-  - Progress: v4.9.30 removed PR path filters from Tests, Profile sync, and Workflow security, added `merge_group` triggers, and added Pester coverage that prevents required-check candidates from becoming path-filtered again.
+  - Progress: v4.9.30 removed PR path filters from Tests, Profile sync, and Workflow security, added `merge_group` triggers, and added Pester coverage that prevents required-check candidates from becoming path-filtered again. v4.9.77 recorded the current candidate checks and activation preconditions in `docs/decisions/2026-06-06-required-check-enforcement-readiness.md` without enabling enforcement.
   - Remaining blocker: the live protected branch has `enforce_admins=true`, and this autonomous loop currently pushes directly to `main`; enabling required checks now would reject future direct pushes before checks can be created, so enforcement needs PR-based delivery or an approved bypass path first.
   - Verify: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection --jq '.required_status_checks'` or the rulesets API shows required checks; a PR with a failing required check is blocked from merging.
   - Complexity: S
@@ -1873,28 +1883,29 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 84 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 85 - 2026-06-06.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `06e00df docs: reconcile shipped roadmap rows`
+- HEAD inspected before this cycle: `16cd21c docs: close obsolete dependabot pr`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
 - Cycle 82 reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and suppressed-feed redaction against their shipped evidence.
 - Cycle 83 applied the routine `github/codeql-action/upload-sarif` 4.36.2 update from Dependabot PR #7 on `main`.
 - Cycle 84 closed the now-obsolete PR #7 branch and recorded the closure.
+- Cycle 85 recorded required-check enforcement readiness in a decision note with candidate checks, live branch-protection/ruleset evidence, and activation preconditions.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 85: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
-2. Cycle 86: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
-3. Cycle 87: audit downstream portfolio compatibility before changing any feed shape.
-4. Cycle 88: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
-5. Cycle 89: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
+1. Cycle 86: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
+2. Cycle 87: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
+3. Cycle 88: audit downstream portfolio compatibility before changing any feed shape.
+4. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+5. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
 
 ### Quick Wins
 
@@ -1921,7 +1932,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions (completed v4.9.57 with `profileReleaseConsistency`, warning-only latest-release/tag drift rows, schema support, summary rows, and Pester coverage).
 - [x] P2 — Userscript install trust metadata for raw `.user.js` actions (completed v4.9.58 with `userscriptInstallTrust`, schema support, summary rows, live report counts, and Pester coverage).
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
-- [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; external enforcement remains gated by the direct-push loop).
+- [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; v4.9.77 recorded activation preconditions and candidate checks; external enforcement remains gated by the direct-push loop).
 - [x] P2 — Pull-request profile-sync validation for catalog/profile changes (duplicate row reconciled in v4.9.60; completed v4.9.28 with read-only pull-request profile-sync validation and trigger-surface Pester coverage).
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [x] P2 — Structured issue forms for broken catalog links and profile corrections (duplicate row reconciled in v4.9.60; completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).

@@ -1570,6 +1570,7 @@ Describe 'Required status check readiness' {
             ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
             WorkflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
         }
+        $script:RequiredCheckDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-required-check-enforcement-readiness.md') -Raw
     }
 
     It 'creates candidate required checks for every pull request and merge queue run' {
@@ -1607,6 +1608,19 @@ Describe 'Required status check readiness' {
         $testsWorkflow | Should -Match '(?m)^        shell: powershell\s*$'
         $testsWorkflow | Should -Match 'System\.Management\.Automation\.Language\.Parser'
         $testsWorkflow | Should -Match '-CheckOnly'
+    }
+
+    It 'records non-enforcing activation preconditions for the candidate checks' {
+        foreach ($checkName in @('Pester \(offline\)', 'PSScriptAnalyzer', 'Markdownlint', 'Windows setup smoke', 'Check generated README', 'zizmor')) {
+            $script:RequiredCheckDecision | Should -Match $checkName
+        }
+
+        $script:RequiredCheckDecision | Should -Match 'Do not enable branch-protection or ruleset required-status-check enforcement'
+        $script:RequiredCheckDecision | Should -Match 'direct pushes to `main`'
+        $script:RequiredCheckDecision | Should -Match 'enforce_admins\.enabled=true'
+        $script:RequiredCheckDecision | Should -Match '404 Required status checks not enabled'
+        $script:RequiredCheckDecision | Should -Match 'pull requests, or an approved'
+        $script:RequiredCheckDecision | Should -Match 'job names stay unique and stable'
     }
 }
 
