@@ -4,6 +4,8 @@
 #
 # Usage (paste into PowerShell):
 #   irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
+#
+# Required-check proof touch: disposable PR only.
 
 [CmdletBinding()]
 param(
