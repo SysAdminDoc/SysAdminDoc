@@ -46,6 +46,7 @@ $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
+$readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity') { $report.readmeDensity } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -71,6 +72,10 @@ $catalogAccountedCount = if ($catalogFeedAccounting) {
     0
 }
 $catalogAccountingFatalCount = if ($catalogFeedAccounting) { [int]$catalogFeedAccounting.fatalCount } else { 0 }
+$readmeDensityWarningCount = if ($readmeDensity) { [int]$readmeDensity.warningCount } else { 0 }
+$readmeLargestCategory = if ($readmeDensity) { [string]$readmeDensity.largestCategory } else { "" }
+$readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestCategoryCount } else { 0 }
+$readmeRepoOnlyProjectCount = if ($readmeDensity) { [int]$readmeDensity.repoOnlyProjectCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -84,6 +89,9 @@ $summary = @"
 | Planning docs aligned | $($report.docVersionConsistency.passed) |
 | Catalog rows accounted | $catalogAccountedCount |
 | Catalog accounting fatal gaps | $catalogAccountingFatalCount |
+| README density warnings | $readmeDensityWarningCount |
+| README largest category | $readmeLargestCategory ($readmeLargestCategoryCount) |
+| README repo-only rows | $readmeRepoOnlyProjectCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
@@ -119,6 +127,10 @@ if ($fatalDriftCount -gt 0) {
 
 if ($catalogAccountingFatalCount -gt 0) {
     Write-Output "::error::Profile sync report has $catalogAccountingFatalCount catalog/feed accounting fatal gap(s)."
+}
+
+if ($readmeDensityWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $readmeDensityWarningCount README density warning(s)."
 }
 
 if ($linkFailureCount -gt 0) {

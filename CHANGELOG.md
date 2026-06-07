@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.78] - 2026-06-06
+
+- Added: `reports/profile-sync-report.json.readmeDensity` now records generated README line, details, table-row, category, repo-only, low-signal, and warning counts.
+- Added: The profile sync summary now surfaces README density warnings, largest category, and repo-only row counts.
+- Added: Pester coverage now guards the density calculator, report schema, and summary-helper wiring.
+
 ## [v4.9.77] - 2026-06-06
 
 - Added: `docs/decisions/2026-06-06-required-check-enforcement-readiness.md` records the candidate required checks and activation preconditions without enabling branch-protection or ruleset enforcement.

@@ -99,6 +99,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Link-validation de-flake: 12s timeout plus retry in `Test-HttpUrl`; only 404/410 are fatal, while transient 403/429/5xx/timeout become `linkValidationWarnings`. — *Source: TODO.md*
 - [x] Hardened the REST metadata fallback with paginated repo enumeration, authenticated/capped latest-release fetches, non-404 partial-data aborts, live fallback verification, and Pester coverage (v4.9.50). — *Source: ROADMAP.md*
 - [x] Added an informational generated-README size budget report with UTF-8 byte count, a 96 KiB soft cap, schema coverage, and Pester warning checks (v4.9.51). — *Source: ROADMAP.md*
+- [x] Added README density reporting with generated line/details/table/category counts, repo-only and low-signal row warnings, report-schema coverage, summary-helper output, and Pester guards (v4.9.78). — *Source: ROADMAP.md*
 
 ### Tests and reliability
 

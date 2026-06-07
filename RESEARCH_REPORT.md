@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.77
+Current version after this refresh: v4.9.78
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.78 batch adds warning-only README density reporting to the sync
+  report and profile sync summary.
+- `readmeDensity` records generated README line count, details sections,
+  project table rows, per-category counts, repo-only rows, low-signal zero-star
+  repo-only rows, and warning counts.
+- The current density pass is intentionally informational; it creates measured
+  inputs for a future portfolio-only browsing decision rather than demoting
+  public rows in the same pass.
 - The v4.9.77 batch records required-check enforcement readiness without
   enabling branch-protection or ruleset status-check enforcement.
 - The candidate required checks are `Pester (offline)`, `PSScriptAnalyzer`,
