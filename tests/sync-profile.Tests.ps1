@@ -1976,6 +1976,7 @@ Describe 'Portfolio-only catalog mutation' {
         )
         $script:PortfolioOnlyCatalog = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') -Raw | ConvertFrom-Json
         $script:PortfolioOnlyFeed = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'projects.json') -Raw | ConvertFrom-Json
+        $script:PortfolioOnlyReport = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
         $script:GeneratedReadme = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Raw
     }
 
@@ -1990,6 +1991,24 @@ Describe 'Portfolio-only catalog mutation' {
 
             @($script:PortfolioOnlyFeed.projects | Where-Object { $_.repo -eq $repo }) | Should -HaveCount 1
             $script:GeneratedReadme | Should -Not -Match ([regex]::Escape("github.com/SysAdminDoc/$repo"))
+        }
+    }
+
+    It 'keeps the committed README density report below portfolio-only review thresholds' {
+        $density = $script:PortfolioOnlyReport.readmeDensity
+
+        $density.warningCount | Should -Be 0
+        $density.portfolioOnlyCandidateCount | Should -Be 0
+        $density.portfolioOnlyCandidateCategoryCount | Should -Be 0
+        $density.routingRecommendation | Should -Be 'keep-readme-routing-surface'
+        $density.largestCategoryCount | Should -BeLessOrEqual $density.categorySoftLimit
+        $density.portfolioOnlyPreview.status | Should -Be 'no-candidates'
+        $density.portfolioOnlyPreview.remainingOverSoftLimitCategoryCount | Should -Be 0
+        $density.portfolioOnlyPreview.projectRowDelta | Should -Be 0
+
+        foreach ($row in $density.categoryRows) {
+            $row.overCategorySoftLimitBy | Should -Be 0
+            $row.portfolioOnlyCandidateCount | Should -Be 0
         }
     }
 }

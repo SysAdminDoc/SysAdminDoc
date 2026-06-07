@@ -2,15 +2,15 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-07
-Last completed roadmap cycle: Cycle 108 - Scorecard action pin guard and hosted proof
+Last completed roadmap cycle: Cycle 109 - README density post-demotion guard
 
 ## Latest Result
 
-- Added Pester coverage for the pinned `ossf/scorecard-action` 2.4.3 SHA.
-- Verified hosted OpenSSF Scorecard run `27084740289` succeeds with current read-only workflow-level permissions and SARIF upload.
-- Confirmed the current Scorecard action pin matches upstream v2.4.3 and rejects floating tags.
-- Updated planning docs to v4.9.100.
+- Audited the current `readmeDensity` report after the latest live metadata refresh.
+- Added committed-report Pester coverage for zero density warnings, zero portfolio-only candidates, no over-soft-limit categories, and a `no-candidates` preview.
+- Confirmed the generated README remains at 166 project rows with the largest categories at the 30-row soft cap.
+- Updated planning docs to v4.9.101.
 
 ## Next Cycle
 
-Continue on this same assigned project. Audit README/report density again after the next live metadata refresh and route any new low-signal rows through the review pipeline.
+Continue on this same assigned project. Exercise generated PR delivery against a disposable branch or PR only after a safe bypass/review model is documented.
