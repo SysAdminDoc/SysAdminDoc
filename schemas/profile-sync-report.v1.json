@@ -1990,7 +1990,8 @@
         "defaultWorkflowPermissions",
         "canApprovePullRequestReviews",
         "generatedPrCreationAllowed",
-        "recommendation"
+        "recommendation",
+        "generatedPrCredentialDecision"
       ],
       "properties": {
         "available": {
@@ -2015,6 +2016,67 @@
             "ready-for-generated-pr-delivery",
             "verify-actions-workflow-permissions"
           ]
+        },
+        "generatedPrCredentialDecision": {
+          "$ref": "#/$defs/generatedPrCredentialDecision"
+        }
+      }
+    },
+    "generatedPrCredentialDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "selectedPath",
+        "rejectedPath",
+        "rationale",
+        "requiresRepositorySetting",
+        "requiresNewSecret",
+        "currentSettingAllowsGeneratedPr",
+        "decisionDocumentPath",
+        "activationCommand",
+        "nextAction"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "decision-recorded",
+            "setting-enabled"
+          ]
+        },
+        "selectedPath": {
+          "type": "string",
+          "enum": [
+            "enable-actions-pr-creation"
+          ]
+        },
+        "rejectedPath": {
+          "type": "string",
+          "enum": [
+            "approved-github-app-or-pat-token"
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "requiresRepositorySetting": {
+          "type": "boolean"
+        },
+        "requiresNewSecret": {
+          "type": "boolean"
+        },
+        "currentSettingAllowsGeneratedPr": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "decisionDocumentPath": {
+          "type": "string"
+        },
+        "activationCommand": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
         }
       }
     },

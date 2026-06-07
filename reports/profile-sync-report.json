@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T03:20:35.5873725-04:00",
+  "generatedAt": "2026-06-07T03:34:32.9858104-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5f018b43d5c0a19273ca2eb40c0078c254d7ec5a",
+    "sourceCommit": "947a8ceef5877ae3ccf121fdbe4f087d0e7ba666",
     "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
-    "generatorSha256": "76d2de43fea7a52a71568b9db91aa4c2c5e97ee331958109952722f0dec37bec",
+    "generatorSha256": "59ac4f413d27be56c66a27c672edfd7fd4989a7ea5cf13230ce13b6db57eee41",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T03:19:21.1333974-04:00",
+    "metadataSnapshotAt": "2026-06-07T03:33:18.4952612-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,7 +2270,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T03:19:21.1333974-04:00",
+          "queriedAt": "2026-06-07T03:33:18.4952612-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 1,
@@ -2395,7 +2395,19 @@
       "defaultWorkflowPermissions": "read",
       "canApprovePullRequestReviews": false,
       "generatedPrCreationAllowed": false,
-      "recommendation": "enable-actions-pr-creation-or-use-approved-automation-token"
+      "recommendation": "enable-actions-pr-creation-or-use-approved-automation-token",
+      "generatedPrCredentialDecision": {
+        "status": "decision-recorded",
+        "selectedPath": "enable-actions-pr-creation",
+        "rejectedPath": "approved-github-app-or-pat-token",
+        "rationale": "The manual generated-PR job already scopes write privileges to actions:write, contents:write, and pull-requests:write; enabling the repository setting avoids adding a long-lived automation secret.",
+        "requiresRepositorySetting": true,
+        "requiresNewSecret": false,
+        "currentSettingAllowsGeneratedPr": false,
+        "decisionDocumentPath": "docs/decisions/2026-06-07-generated-pr-credential-decision.md",
+        "activationCommand": "gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true",
+        "nextAction": "Enable the repository Actions pull-request creation setting, rerun hosted write-pr, and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
+      }
     },
     "requiredCheckReadiness": {
       "status": "not-enabled",
@@ -2693,28 +2705,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.104",
+    "expectedVersion": "v4.9.105",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.104"
+        "value": "v4.9.105"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.104"
+        "value": "v4.9.105"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.104"
+        "value": "v4.9.105"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.104"
+        "value": "v4.9.105"
       }
     ],
     "dates": [
@@ -2741,7 +2753,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 116,
+      "headingCount": 117,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2751,14 +2763,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.104",
+    "expectedVersion": "v4.9.105",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.104",
+    "expectedTag": "v4.9.105",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2768,13 +2780,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.104",
+        "expectedVersion": "v4.9.105",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.104",
+        "expectedVersion": "v4.9.105",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2797,7 +2809,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3274,
+      "elapsedMs": 3183,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2831,7 +2843,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.46,
+      "ageDays": 5.47,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2841,7 +2853,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3274,
+    "elapsedMs": 3183,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3191,7 +3203,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99123,
+        "value": 100185,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3219,7 +3231,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T03:20:54.3527653-04:00",
+    "generatedAt": "2026-06-07T03:34:47.4847622-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

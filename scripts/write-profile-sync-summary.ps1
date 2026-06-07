@@ -43,6 +43,7 @@ $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
 $actionsWorkflowPermissions = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'actionsWorkflowPermissions') { $repositorySettings.actionsWorkflowPermissions } else { $null }
+$generatedPrCredentialDecision = if ($actionsWorkflowPermissions -and $actionsWorkflowPermissions.PSObject.Properties.Name -contains 'generatedPrCredentialDecision') { $actionsWorkflowPermissions.generatedPrCredentialDecision } else { $null }
 $requiredCheckReadiness = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'requiredCheckReadiness') { $repositorySettings.requiredCheckReadiness } else { $null }
 $prDeliveryTransition = if ($requiredCheckReadiness -and $requiredCheckReadiness.PSObject.Properties.Name -contains 'prDeliveryTransition') { $requiredCheckReadiness.prDeliveryTransition } else { $null }
 $generatedPrDryRunEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'generatedPrDryRunEvidence') { $prDeliveryTransition.generatedPrDryRunEvidence } else { $null }
@@ -73,6 +74,10 @@ $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.wa
 $actionsDefaultWorkflowPermissions = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.defaultWorkflowPermissions) { [string]$actionsWorkflowPermissions.defaultWorkflowPermissions } else { "unknown" }
 $actionsPrCreationAllowed = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.generatedPrCreationAllowed) { [bool]$actionsWorkflowPermissions.generatedPrCreationAllowed } else { $false }
 $actionsPrCreationRecommendation = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.recommendation) { [string]$actionsWorkflowPermissions.recommendation } else { "unknown" }
+$generatedPrCredentialDecisionStatus = if ($generatedPrCredentialDecision -and $null -ne $generatedPrCredentialDecision.status) { [string]$generatedPrCredentialDecision.status } else { "unknown" }
+$generatedPrCredentialDecisionPath = if ($generatedPrCredentialDecision -and $null -ne $generatedPrCredentialDecision.selectedPath) { [string]$generatedPrCredentialDecision.selectedPath } else { "unknown" }
+$generatedPrCredentialRequiresNewSecret = if ($generatedPrCredentialDecision -and $null -ne $generatedPrCredentialDecision.requiresNewSecret) { [bool]$generatedPrCredentialDecision.requiresNewSecret } else { $false }
+$generatedPrCredentialCurrentSettingAllowsPr = if ($generatedPrCredentialDecision -and $null -ne $generatedPrCredentialDecision.currentSettingAllowsGeneratedPr) { [bool]$generatedPrCredentialDecision.currentSettingAllowsGeneratedPr } else { $false }
 $requiredCheckReadinessStatus = if ($requiredCheckReadiness) { [string]$requiredCheckReadiness.status } else { "unknown" }
 $requiredCheckCandidateCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.candidateCheckCount } else { 0 }
 $requiredCheckBlockerCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.blockerCount } else { 0 }
@@ -216,6 +221,10 @@ $summary = @"
 | Actions workflow default permissions | $actionsDefaultWorkflowPermissions |
 | Actions PR creation allowed | $actionsPrCreationAllowed |
 | Actions PR permission recommendation | $actionsPrCreationRecommendation |
+| Generated PR credential decision | $generatedPrCredentialDecisionStatus |
+| Generated PR credential path | $generatedPrCredentialDecisionPath |
+| Generated PR credential new secret | $generatedPrCredentialRequiresNewSecret |
+| Generated PR credential setting allows PR | $generatedPrCredentialCurrentSettingAllowsPr |
 | Required check readiness | $requiredCheckReadinessStatus |
 | Required check candidates | $requiredCheckCandidateCount |
 | Required check blockers | $requiredCheckBlockerCount |

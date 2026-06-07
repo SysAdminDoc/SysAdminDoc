@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.104
+Current version after this refresh: v4.9.105
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.105 batch records the generated PR credential decision before live
+  repository settings are changed.
+- `docs/decisions/2026-06-07-generated-pr-credential-decision.md` chooses the
+  repository Actions pull-request creation setting for generated profile PR
+  delivery and keeps an approved GitHub App/PAT credential as a fallback path.
+- `repositorySettings.actionsWorkflowPermissions.generatedPrCredentialDecision`
+  now records the selected path, rejected fallback credential path, no-new-secret
+  posture, current live setting state, activation command, and next action.
+- Profile sync summaries now expose the generated-PR credential decision rows so
+  hosted evidence keeps the activation step visible before required-check
+  enforcement.
 - The v4.9.104 batch records the profile release/tag policy decision:
   `v4.9.x` profile-sync versions are internal evidence versions, while GitHub
   Releases remain manual public milestones. The sync report now exposes

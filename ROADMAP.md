@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.104
+Current repo version: v4.9.105
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 112 - 2026-06-07.
+> Last researched: Cycle 113 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,19 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 112 - 2026-06-07.
+Last researched: Cycle 113 - 2026-06-07.
+
+2026-06-07 v4.9.105 refresh: generated PR credential decision recorded.
+Cycle 113 resolved the generated PR delivery credential choice without changing
+the live repository setting in this pass. `docs/decisions/2026-06-07-generated-pr-credential-decision.md`
+now selects enabling GitHub Actions pull-request creation for the manual
+`write-pr` workflow, rejects a PAT or GitHub App secret as a fallback-only path,
+and records the exact `gh api` activation command. The sync report now includes
+`repositorySettings.actionsWorkflowPermissions.generatedPrCredentialDecision`
+with the selected path, rejected credential path, new-secret requirement, live
+setting state, decision note path, and next action. The Actions summary helper
+surfaces the decision rows so hosted runs expose the remaining activation step
+before required-check enforcement.
 
 2026-06-07 v4.9.104 refresh: profile release/tag policy recorded.
 Cycle 112 audited the current `profileReleaseConsistency` drift against
