@@ -1618,6 +1618,7 @@
         "security",
         "branchProtection",
         "rulesets",
+        "actionsWorkflowPermissions",
         "requiredCheckReadiness",
         "warningCount",
         "warnings"
@@ -1646,6 +1647,9 @@
         },
         "rulesets": {
           "$ref": "#/$defs/repositoryRulesets"
+        },
+        "actionsWorkflowPermissions": {
+          "$ref": "#/$defs/repositoryActionsWorkflowPermissions"
         },
         "requiredCheckReadiness": {
           "$ref": "#/$defs/requiredCheckReadiness"
@@ -1838,6 +1842,43 @@
         }
       }
     },
+    "repositoryActionsWorkflowPermissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "unavailableReason",
+        "defaultWorkflowPermissions",
+        "canApprovePullRequestReviews",
+        "generatedPrCreationAllowed",
+        "recommendation"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "defaultWorkflowPermissions": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "canApprovePullRequestReviews": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "generatedPrCreationAllowed": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": [
+            "enable-actions-pr-creation-or-use-approved-automation-token",
+            "ready-for-generated-pr-delivery",
+            "verify-actions-workflow-permissions"
+          ]
+        }
+      }
+    },
     "requiredCheckReadiness": {
       "type": "object",
       "additionalProperties": false,
@@ -2007,6 +2048,7 @@
         "blockedCount",
         "needsLiveValidationCount",
         "generatedPrDryRunEvidence",
+        "generatedPrWriteEvidence",
         "items"
       ],
       "properties": {
@@ -2035,6 +2077,9 @@
         },
         "generatedPrDryRunEvidence": {
           "$ref": "#/$defs/generatedPrDryRunEvidence"
+        },
+        "generatedPrWriteEvidence": {
+          "$ref": "#/$defs/generatedPrWriteEvidence"
         },
         "items": {
           "type": "array",
@@ -2140,6 +2185,122 @@
         },
         "artifactReadinessNeedsLiveValidationCount": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "evidenceSummary": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
+        }
+      }
+    },
+    "generatedPrWriteEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "workflow",
+        "workflowName",
+        "mode",
+        "event",
+        "branch",
+        "headSha",
+        "runId",
+        "runUrl",
+        "createdAt",
+        "conclusion",
+        "jobName",
+        "jobId",
+        "failedStep",
+        "regenerateStepPassed",
+        "reportArtifactUploaded",
+        "artifactId",
+        "generatedBranch",
+        "generatedBranchPushed",
+        "generatedBranchCleanup",
+        "pullRequestCreated",
+        "pullRequestUrl",
+        "validationDispatched",
+        "blocker",
+        "evidenceSummary",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "workflow": {
+          "type": "string"
+        },
+        "workflowName": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "const": "write-pr"
+        },
+        "event": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "headSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "runId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "runUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "conclusion": {
+          "type": "string"
+        },
+        "jobName": {
+          "type": "string"
+        },
+        "jobId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedStep": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "regenerateStepPassed": {
+          "type": "boolean"
+        },
+        "reportArtifactUploaded": {
+          "type": "boolean"
+        },
+        "artifactId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "generatedBranch": {
+          "type": "string"
+        },
+        "generatedBranchPushed": {
+          "type": "boolean"
+        },
+        "generatedBranchCleanup": {
+          "type": "string"
+        },
+        "pullRequestCreated": {
+          "type": "boolean"
+        },
+        "pullRequestUrl": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "validationDispatched": {
+          "type": "boolean"
+        },
+        "blocker": {
+          "type": "string"
         },
         "evidenceSummary": {
           "type": "string"

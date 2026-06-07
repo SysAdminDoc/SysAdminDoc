@@ -42,9 +42,11 @@ $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
+$actionsWorkflowPermissions = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'actionsWorkflowPermissions') { $repositorySettings.actionsWorkflowPermissions } else { $null }
 $requiredCheckReadiness = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'requiredCheckReadiness') { $repositorySettings.requiredCheckReadiness } else { $null }
 $prDeliveryTransition = if ($requiredCheckReadiness -and $requiredCheckReadiness.PSObject.Properties.Name -contains 'prDeliveryTransition') { $requiredCheckReadiness.prDeliveryTransition } else { $null }
 $generatedPrDryRunEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'generatedPrDryRunEvidence') { $prDeliveryTransition.generatedPrDryRunEvidence } else { $null }
+$generatedPrWriteEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'generatedPrWriteEvidence') { $prDeliveryTransition.generatedPrWriteEvidence } else { $null }
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
@@ -68,6 +70,9 @@ $linkWarningCount = Get-Count $report.linkValidationWarnings
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
 $validationElapsedMs = if ($performance -and $performance.linkValidation) { [int]$performance.linkValidation.elapsedMs } else { 0 }
 $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.warningCount } else { 0 }
+$actionsDefaultWorkflowPermissions = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.defaultWorkflowPermissions) { [string]$actionsWorkflowPermissions.defaultWorkflowPermissions } else { "unknown" }
+$actionsPrCreationAllowed = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.generatedPrCreationAllowed) { [bool]$actionsWorkflowPermissions.generatedPrCreationAllowed } else { $false }
+$actionsPrCreationRecommendation = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.recommendation) { [string]$actionsWorkflowPermissions.recommendation } else { "unknown" }
 $requiredCheckReadinessStatus = if ($requiredCheckReadiness) { [string]$requiredCheckReadiness.status } else { "unknown" }
 $requiredCheckCandidateCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.candidateCheckCount } else { 0 }
 $requiredCheckBlockerCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.blockerCount } else { 0 }
@@ -79,6 +84,11 @@ $generatedPrDryRunConclusion = if ($generatedPrDryRunEvidence) { [string]$genera
 $generatedPrDryRunPreviewReached = if ($generatedPrDryRunEvidence) { [bool]$generatedPrDryRunEvidence.previewStepReached } else { $false }
 $generatedPrDryRunFailedStep = if ($generatedPrDryRunEvidence -and $null -ne $generatedPrDryRunEvidence.failedStep) { [string]$generatedPrDryRunEvidence.failedStep } else { "" }
 $generatedPrDryRunUrl = if ($generatedPrDryRunEvidence) { [string]$generatedPrDryRunEvidence.runUrl } else { "" }
+$generatedPrWriteAvailable = if ($generatedPrWriteEvidence) { [bool]$generatedPrWriteEvidence.available } else { $false }
+$generatedPrWriteConclusion = if ($generatedPrWriteEvidence) { [string]$generatedPrWriteEvidence.conclusion } else { "unknown" }
+$generatedPrWriteFailedStep = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.failedStep) { [string]$generatedPrWriteEvidence.failedStep } else { "" }
+$generatedPrWriteBranchCleanup = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.generatedBranchCleanup) { [string]$generatedPrWriteEvidence.generatedBranchCleanup } else { "" }
+$generatedPrWriteUrl = if ($generatedPrWriteEvidence) { [string]$generatedPrWriteEvidence.runUrl } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -189,6 +199,9 @@ $summary = @"
 | REST fallback release attempts | $restFallbackAttempted |
 | REST fallback no-release 404s | $restFallbackNoRelease404Count |
 | Repository setting warnings | $repositoryWarningCount |
+| Actions workflow default permissions | $actionsDefaultWorkflowPermissions |
+| Actions PR creation allowed | $actionsPrCreationAllowed |
+| Actions PR permission recommendation | $actionsPrCreationRecommendation |
 | Required check readiness | $requiredCheckReadinessStatus |
 | Required check candidates | $requiredCheckCandidateCount |
 | Required check blockers | $requiredCheckBlockerCount |
@@ -200,6 +213,11 @@ $summary = @"
 | Generated PR dry-run preview reached | $generatedPrDryRunPreviewReached |
 | Generated PR dry-run failed step | $generatedPrDryRunFailedStep |
 | Generated PR dry-run URL | $generatedPrDryRunUrl |
+| Generated PR write evidence | $generatedPrWriteAvailable |
+| Generated PR write conclusion | $generatedPrWriteConclusion |
+| Generated PR write failed step | $generatedPrWriteFailedStep |
+| Generated PR write branch cleanup | $generatedPrWriteBranchCleanup |
+| Generated PR write URL | $generatedPrWriteUrl |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

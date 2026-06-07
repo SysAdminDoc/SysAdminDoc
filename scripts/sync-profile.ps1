@@ -3871,6 +3871,7 @@ function Get-RequiredCheckReadiness {
         [bool]$RulesetsAvailable,
         [Nullable[bool]]$RequiredStatusChecks,
         [Nullable[bool]]$EnforceAdmins,
+        [Nullable[bool]]$ActionsPullRequestCreationAllowed,
         [int]$RulesetCount,
         [string]$BranchProtectionUnavailableReason,
         [string]$RulesetsUnavailableReason
@@ -3899,6 +3900,7 @@ function Get-RequiredCheckReadiness {
         -WorkflowCoverage $workflowCoverage `
         -RequiredChecksEnabled $requiredChecksEnabled `
         -EnforceAdmins $EnforceAdmins `
+        -ActionsPullRequestCreationAllowed $ActionsPullRequestCreationAllowed `
         -BranchProtectionAvailable $BranchProtectionAvailable `
         -RulesetsAvailable $RulesetsAvailable
 
@@ -3971,6 +3973,37 @@ function Get-GeneratedPrDryRunEvidence {
     }
 }
 
+function Get-GeneratedPrWriteEvidence {
+    return [ordered]@{
+        available = $true
+        workflow = ".github/workflows/profile-sync.yml"
+        workflowName = "Profile sync"
+        mode = "write-pr"
+        event = "workflow_dispatch"
+        branch = "main"
+        headSha = "e0eba1d6d54a4112f9151e55245dd589f7c19d50"
+        runId = [long]27085061539
+        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27085061539"
+        createdAt = "2026-06-07T06:34:35Z"
+        conclusion = "failure"
+        jobName = "Open generated README PR"
+        jobId = [long]79937807362
+        failedStep = "Create pull request"
+        regenerateStepPassed = $true
+        reportArtifactUploaded = $true
+        artifactId = [long]7461506616
+        generatedBranch = "automation/profile-sync-27085061539"
+        generatedBranchPushed = $true
+        generatedBranchCleanup = "deleted"
+        pullRequestCreated = $false
+        pullRequestUrl = $null
+        validationDispatched = $false
+        blocker = "GitHub Actions workflow permissions disallow GITHUB_TOKEN pull-request creation."
+        evidenceSummary = "Manual hosted write-pr drill regenerated the profile, uploaded the report artifact, pushed automation/profile-sync-27085061539, then failed at gh pr create with createPullRequest because repository workflow permissions do not allow GitHub Actions to create pull requests. The disposable branch was deleted after evidence collection."
+        nextAction = "Enable the repository workflow-permissions setting for GitHub Actions pull-request creation or switch generated PR delivery to an approved GitHub App/PAT credential before rerunning write-pr."
+    }
+}
+
 function Test-RequiredCheckWorkflowCoverage {
     param(
         [object[]]$Candidates = $RequiredStatusCheckCandidates
@@ -4038,6 +4071,7 @@ function Get-PrDeliveryTransitionChecklist {
         [object]$WorkflowCoverage,
         [bool]$RequiredChecksEnabled,
         [Nullable[bool]]$EnforceAdmins,
+        [Nullable[bool]]$ActionsPullRequestCreationAllowed,
         [bool]$BranchProtectionAvailable,
         [bool]$RulesetsAvailable
     )
@@ -4067,18 +4101,25 @@ function Get-PrDeliveryTransitionChecklist {
                 -Evidence "GitHub required-status-check selection depends on recent successful checks in the target repository." `
                 -NextAction "Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes."))
 
-    $deliveryStatus = if ($EnforceAdmins -eq $true) { "blocked" } else { "needs-live-validation" }
-    $deliveryEvidence = if ($EnforceAdmins -eq $true) {
+    $deliveryStatus = if ($EnforceAdmins -eq $true -or $ActionsPullRequestCreationAllowed -eq $false) { "blocked" } else { "needs-live-validation" }
+    $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
+        "Repository workflow permissions currently block GITHUB_TOKEN pull-request creation; hosted write-pr drill 27085061539 failed at createPullRequest after pushing a disposable generated branch that was later deleted."
+    } elseif ($EnforceAdmins -eq $true) {
         "Protected main has admin enforcement enabled, so direct pushes would be rejected after required checks are enabled."
     } else {
         "Admin enforcement is not confirmed as blocking, but the delivery path still needs a live PR or documented bypass drill."
+    }
+    $deliveryNextAction = if ($ActionsPullRequestCreationAllowed -eq $false) {
+        "Enable GitHub Actions pull-request creation for GITHUB_TOKEN or switch the helper to an approved GitHub App/PAT credential before rerunning generated PR delivery."
+    } else {
+        "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."
     }
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "pr-delivery-or-bypass" `
                 -Status $deliveryStatus `
                 -Summary "Direct-main delivery must be replaced by PR delivery or a documented bypass before enforcement." `
                 -Evidence $deliveryEvidence `
-                -NextAction "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."))
+                -NextAction $deliveryNextAction))
 
     $enforcementStatus = if ($RequiredChecksEnabled) { "ready" } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) { "blocked" } else { "needs-live-validation" }
     $enforcementEvidence = if ($RequiredChecksEnabled) {
@@ -4114,6 +4155,7 @@ function Get-PrDeliveryTransitionChecklist {
         blockedCount = $blockedCount
         needsLiveValidationCount = $needsLiveValidationCount
         generatedPrDryRunEvidence = Get-GeneratedPrDryRunEvidence
+        generatedPrWriteEvidence = Get-GeneratedPrWriteEvidence
         items = @($items.ToArray())
     }
 }
@@ -4124,6 +4166,7 @@ function Test-RepositoryCommunityBaseline {
         [object]$CommunityProfile,
         [object]$BranchProtection,
         [object[]]$Rulesets = @(),
+        [object]$ActionsWorkflowPermissions,
         [object]$Languages,
         [object[]]$LocalFiles = @(),
         [object]$CodeScanningLocalEvidence,
@@ -4131,6 +4174,7 @@ function Test-RepositoryCommunityBaseline {
         [string]$CommunityUnavailableReason,
         [string]$BranchProtectionUnavailableReason,
         [string]$RulesetsUnavailableReason,
+        [string]$ActionsWorkflowPermissionsUnavailableReason,
         [string]$LanguagesUnavailableReason
     )
 
@@ -4142,6 +4186,7 @@ function Test-RepositoryCommunityBaseline {
     $communityAvailable = ($null -ne $CommunityProfile -and [string]::IsNullOrWhiteSpace($CommunityUnavailableReason))
     $branchProtectionAvailable = ($null -ne $BranchProtection -and [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason))
     $rulesetsAvailable = ($null -ne $Rulesets -and [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason))
+    $actionsWorkflowPermissionsAvailable = ($null -ne $ActionsWorkflowPermissions -and [string]::IsNullOrWhiteSpace($ActionsWorkflowPermissionsUnavailableReason))
     $languagesAvailable = ($null -ne $Languages -and [string]::IsNullOrWhiteSpace($LanguagesUnavailableReason))
     if ($null -eq $CodeScanningLocalEvidence) {
         $CodeScanningLocalEvidence = Get-CodeScanningLocalEvidence
@@ -4152,6 +4197,9 @@ function Test-RepositoryCommunityBaseline {
     }
     if (-not $communityAvailable -and -not [string]::IsNullOrWhiteSpace($CommunityUnavailableReason)) {
         $communityWarnings.Add("GitHub community profile unavailable: $CommunityUnavailableReason.")
+    }
+    if (-not $actionsWorkflowPermissionsAvailable -and -not [string]::IsNullOrWhiteSpace($ActionsWorkflowPermissionsUnavailableReason)) {
+        $repoWarnings.Add("GitHub Actions workflow permissions unavailable: $ActionsWorkflowPermissionsUnavailableReason.")
     }
 
     $secretScanning = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning.status"
@@ -4208,11 +4256,25 @@ function Test-RepositoryCommunityBaseline {
     } elseif (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
         $repoWarnings.Add("Repository rulesets unavailable: $RulesetsUnavailableReason.")
     }
+
+    $defaultWorkflowPermissions = $null
+    $canApprovePullRequestReviews = $null
+    $generatedPrCreationAllowed = $null
+    if ($actionsWorkflowPermissionsAvailable) {
+        $defaultWorkflowPermissions = [string](Get-MemberValue -Object $ActionsWorkflowPermissions -Name "default_workflow_permissions")
+        $canApprovePullRequestReviews = Get-NullableBool (Get-MemberValue -Object $ActionsWorkflowPermissions -Name "can_approve_pull_request_reviews")
+        $generatedPrCreationAllowed = [bool]($canApprovePullRequestReviews -eq $true)
+        if (-not $generatedPrCreationAllowed) {
+            $repoWarnings.Add("GitHub Actions workflow permissions do not allow GITHUB_TOKEN to create pull requests.")
+        }
+    }
+
     $requiredCheckReadiness = Get-RequiredCheckReadiness `
         -BranchProtectionAvailable $branchProtectionAvailable `
         -RulesetsAvailable $rulesetsAvailable `
         -RequiredStatusChecks $requiredStatusChecks `
         -EnforceAdmins $enforceAdmins `
+        -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed `
         -RulesetCount $rulesetCount `
         -BranchProtectionUnavailableReason $BranchProtectionUnavailableReason `
         -RulesetsUnavailableReason $RulesetsUnavailableReason
@@ -4347,6 +4409,14 @@ function Test-RepositoryCommunityBaseline {
             unavailableReason = if ($rulesetsAvailable) { $null } else { $RulesetsUnavailableReason }
             count = [int]$rulesetCount
         }
+        actionsWorkflowPermissions = [ordered]@{
+            available = [bool]$actionsWorkflowPermissionsAvailable
+            unavailableReason = if ($actionsWorkflowPermissionsAvailable) { $null } else { $ActionsWorkflowPermissionsUnavailableReason }
+            defaultWorkflowPermissions = if ($actionsWorkflowPermissionsAvailable) { $defaultWorkflowPermissions } else { $null }
+            canApprovePullRequestReviews = $canApprovePullRequestReviews
+            generatedPrCreationAllowed = if ($actionsWorkflowPermissionsAvailable) { $generatedPrCreationAllowed } else { $null }
+            recommendation = if ($actionsWorkflowPermissionsAvailable -and -not $generatedPrCreationAllowed) { "enable-actions-pr-creation-or-use-approved-automation-token" } elseif ($actionsWorkflowPermissionsAvailable) { "ready-for-generated-pr-delivery" } else { "verify-actions-workflow-permissions" }
+        }
         requiredCheckReadiness = $requiredCheckReadiness
         warningCount = $repoWarnings.Count
         warnings = $repoWarnings.ToArray()
@@ -4387,6 +4457,7 @@ function Get-RepositoryCommunityBaseline {
             -CommunityUnavailableReason "offline" `
             -BranchProtectionUnavailableReason "offline" `
             -RulesetsUnavailableReason "offline" `
+            -ActionsWorkflowPermissionsUnavailableReason "offline" `
             -LanguagesUnavailableReason "offline"
     }
     if (-not (Test-GitHubCliAuthenticated)) {
@@ -4396,6 +4467,7 @@ function Get-RepositoryCommunityBaseline {
             -CommunityUnavailableReason "gh authentication unavailable" `
             -BranchProtectionUnavailableReason "gh authentication unavailable" `
             -RulesetsUnavailableReason "gh authentication unavailable" `
+            -ActionsWorkflowPermissionsUnavailableReason "gh authentication unavailable" `
             -LanguagesUnavailableReason "gh authentication unavailable"
     }
 
@@ -4403,12 +4475,14 @@ function Get-RepositoryCommunityBaseline {
     $communityResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/community/profile"
     $branchProtectionResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/branches/main/protection"
     $rulesetsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rulesets"
+    $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
     $branchProtectionValue = if ($branchProtectionResult["ok"]) { $branchProtectionResult["value"] } else { $null }
     $rulesetsValue = if ($rulesetsResult["ok"]) { @($rulesetsResult["value"]) } else { @() }
+    $actionsWorkflowPermissionsValue = if ($actionsWorkflowPermissionsResult["ok"]) { $actionsWorkflowPermissionsResult["value"] } else { $null }
     $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
 
     return Test-RepositoryCommunityBaseline `
@@ -4416,12 +4490,14 @@ function Get-RepositoryCommunityBaseline {
         -CommunityProfile $communityValue `
         -BranchProtection $branchProtectionValue `
         -Rulesets $rulesetsValue `
+        -ActionsWorkflowPermissions $actionsWorkflowPermissionsValue `
         -Languages $languagesValue `
         -LocalFiles $localFiles `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
         -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
         -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
+        -ActionsWorkflowPermissionsUnavailableReason $(if ($actionsWorkflowPermissionsResult["ok"]) { $null } else { $actionsWorkflowPermissionsResult["error"] }) `
         -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] })
 }
 
