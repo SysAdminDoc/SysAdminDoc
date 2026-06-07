@@ -6,6 +6,7 @@ All notable changes to SysAdminDoc will be documented in this file.
 
 - Changed: Branch protection on `main` now requires the six proven candidate checks with strict up-to-date enforcement.
 - Changed: Required-check readiness now treats branch protection as the selected enforcement mechanism, so missing repository rulesets are no longer blockers when branch protection is enforcing checks.
+- Fixed: Check-only metadata drift now treats transient release-asset inspection loss as informational when the release tag and URL are unchanged, preserving hosted PR validation during GitHub release API outages.
 - Added: Pester coverage now proves the enforcement-present readiness path reports zero blockers with branch-protection required checks enabled.
 
 ## [v4.9.120] - 2026-06-07

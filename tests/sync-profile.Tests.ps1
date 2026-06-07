@@ -3282,6 +3282,93 @@ Describe 'Test-MetadataDrift report' {
         $result.informationalCount | Should -Be 1
     }
 
+    It 'marks transient release asset inspection loss informational' {
+        $baseProject = [ordered]@{
+            repo = 'WinTool'
+            title = 'WinTool'
+            category = 'powershell'
+            includeInReadme = $true
+            includeInPortfolio = $true
+            suppressed = $false
+            suppressionReason = $null
+            description = 'desc'
+            repoUrl = 'https://github.com/SysAdminDoc/WinTool'
+            primaryAction = [ordered]@{ kind = 'release'; label = 'Download'; url = 'https://github.com/SysAdminDoc/WinTool/releases/latest' }
+            hasDownload = $true
+            hasLiveDemo = $false
+            hasDirectInstall = $false
+            branch = 'main'
+            stars = 1
+            latestReleaseTag = 'v1.0.0'
+            latestReleaseUrl = 'https://github.com/SysAdminDoc/WinTool/releases/tag/v1.0.0'
+            releaseAssetKinds = @('exe')
+            releaseAssetNames = @('WinTool.exe')
+            releaseAssetInspected = $true
+            releaseTrust = [ordered]@{
+                checksumAssets = @()
+                hasChecksumForEveryExecutable = $false
+                signatureAssets = @()
+                hasAuthenticodeSignature = $null
+                apkSignatureVerified = $null
+                sbomAssets = @()
+                attestationAvailable = $false
+                debugArtifactPresent = $false
+                sourceOnlyRelease = $false
+                executableAssetKinds = @('exe')
+                trustLevel = 'metadata-only'
+                notesPublic = 'Derived from release asset filenames; binaries were not downloaded or verified.'
+            }
+        }
+        $current = [ordered]@{
+            generatedAt = '2026-06-04T00:00:00Z'
+            publicRepoCount = 1
+            projectCount = 1
+            suppressedCount = 0
+            projects = @($baseProject)
+            suppressed = @()
+        }
+        $expectedProject = $baseProject | ConvertTo-Json -Depth 20 | ConvertFrom-Json -AsHashtable
+        $expectedProject.primaryAction = [ordered]@{ kind = 'repo'; label = 'Repo'; url = 'https://github.com/SysAdminDoc/WinTool' }
+        $expectedProject.hasDownload = $false
+        $expectedProject.releaseAssetKinds = @()
+        $expectedProject.releaseAssetNames = @()
+        $expectedProject.releaseAssetInspected = $false
+        $expectedProject.releaseTrust = [ordered]@{
+            checksumAssets = @()
+            hasChecksumForEveryExecutable = $false
+            signatureAssets = @()
+            hasAuthenticodeSignature = $null
+            apkSignatureVerified = $null
+            sbomAssets = @()
+            attestationAvailable = $false
+            debugArtifactPresent = $false
+            sourceOnlyRelease = $false
+            executableAssetKinds = @()
+            trustLevel = 'unknown'
+            notesPublic = $null
+        }
+        $expected = [ordered]@{
+            generatedAt = '2026-06-04T00:00:00Z'
+            publicRepoCount = 1
+            projectCount = 1
+            suppressedCount = 0
+            projects = @($expectedProject)
+            suppressed = @()
+        }
+
+        $result = Test-MetadataDrift `
+            -CurrentProjectsJson ($current | ConvertTo-Json -Depth 20) `
+            -ExpectedProjectsJson ($expected | ConvertTo-Json -Depth 20)
+
+        $result.fatalCount | Should -Be 0
+        $result.informationalCount | Should -BeGreaterThan 0
+        foreach ($field in @('primaryAction.kind', 'primaryAction.label', 'primaryAction.url', 'hasDownload', 'releaseAssetKinds', 'releaseAssetNames', 'releaseAssetInspected', 'releaseTrust')) {
+            $row = @($result.metadataDrift | Where-Object { $_.field -eq $field })
+            $row | Should -HaveCount 1
+            $row[0].severity | Should -Be 'info'
+        }
+    }
+
     It 'warns when the committed projects feed is stale' {
         $payload = [ordered]@{
             generatedAt = '2026-05-01T00:00:00Z'
