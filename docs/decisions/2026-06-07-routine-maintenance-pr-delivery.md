@@ -4,32 +4,30 @@ Date: 2026-06-07
 
 ## Decision
 
-Select pull-request delivery for routine maintenance before required-check
-enforcement. Do not approve a direct-main bypass actor in this pass, and do not
-enable required status checks yet.
+Select pull-request delivery for routine maintenance. This document originally
+recorded the pre-enforcement decision; Cycle 129 later enabled branch-protection
+required checks after the delivery path was proven, and Cycle 130 recorded the
+first enforced routine PR proof. Direct-main bypass remains unapproved.
 
-Protected `main` currently has `enforce_admins.enabled=true`. If required
-status checks are enabled through branch protection while this maintenance loop
-continues pushing directly to `main`, future direct pushes can be rejected
-before checks exist for the pushed commit. GitHub's branch-protection
-documentation says admin restrictions are optional unless applied to
-administrators, while this repository already applies them. GitHub rulesets can
-grant bypass permissions to repository roles, teams, users, or GitHub Apps, but
-adding a bypass without a narrow actor model would weaken the control being
-prepared.
+Protected `main` has `enforce_admins.enabled=true` and strict required status
+checks for the six candidate checks. Pull-request delivery avoids the rejected
+direct-push path while preserving the control being prepared. GitHub's
+branch-protection documentation says admin restrictions are optional unless
+applied to administrators, while this repository applies them. GitHub rulesets
+can grant bypass permissions to repository roles, teams, users, or GitHub Apps,
+but adding a bypass without a narrow actor model would weaken the control.
 
-The selected path is:
+The selected path is now:
 
 1. Keep direct-main bypass unapproved.
 2. Deliver routine maintenance through a normal branch and pull request.
-3. Wait for the six candidate checks already proven by PR #13.
-4. Merge without bypass.
-5. Record the merged PR number, head SHA, merge SHA, check run IDs, and cleanup
-   state in `routineMaintenancePrDrillEvidence` in the next sync report.
+3. Wait for the six candidate checks already proven by PR #13 and PR #14.
+4. Merge without bypass after all required checks pass.
+5. Record merged PR proof in `routineMaintenancePrDrillEvidence` and
+   `requiredCheckEnforcementEvidence`.
 
-This decision does not change branch protection, create a ruleset, require pull
-request reviews, or enable required status checks. It only records the delivery
-policy that must be proven before enforcement can be safely enabled.
+This decision does not create a ruleset or approve a bypass. It records the
+delivery policy that supports active branch-protection enforcement.
 
 ## Current Evidence
 
@@ -46,6 +44,8 @@ policy that must be proven before enforcement can be safely enabled.
   the `routine-pr-drill-evidence` branch after `Check generated README`,
   `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`,
   `Windows setup smoke`, and `zizmor` all passed.
+- PR #16 proved normal routine-maintenance PR delivery under active
+  branch-protection required checks after the same six required checks passed.
 - Generated-profile maintenance PR delivery is already proven separately by
   PR #10 and `generated-profile/validation`.
 - `routineMaintenancePrDrillEvidence` records PR #14, head SHA
@@ -53,6 +53,12 @@ policy that must be proven before enforcement can be safely enabled.
   `64e02f3b4b9737f77b4629052dabc9f449e261bb`, workflow run IDs
   `27090770215`, `27090770193`, and `27090770203`, rebase merge method, and
   deleted-branch cleanup.
+- `requiredCheckEnforcementEvidence` records PR #16, head SHA
+  `8575e324182b96527bb9b58420d5ff44e3c05c06`, merge SHA
+  `dc05296386af847d4e89803f1ed3ac966df49fb7`, workflow run IDs
+  `27091837034`, `27091837025`, and `27091837036`, profile-sync artifact
+  `7463884699`, rendered-smoke artifact `7463884770`, rebase merge method,
+  and deleted-branch cleanup.
 
 ## References
 
