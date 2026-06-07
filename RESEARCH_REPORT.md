@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.71
+Current version after this refresh: v4.9.72
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.72 batch adds warning-only stale-project/archive-review reporting
+  to `reports/profile-sync-report.json`.
+- `staleProjectReview` derives visitor-facing candidates from `pushedAt` age
+  and latest-release age, while suppressed catalog rows are summarized only by
+  public reason code and visibility class.
+- The profile sync summary now surfaces stale and archive-review row counts, and
+  Pester covers helper classification, suppressed-row redaction, schema
+  validation, and summary wiring.
 - The v4.9.71 batch closed the retained render-host decision gap by recording
   that the current README retains no live third-party render, metric, or badge
   hosts.
@@ -458,7 +466,7 @@ Top opportunities, in priority order:
 19. P2 - Add a `.gitattributes` generated-artifact diff policy for feed/report/SVG churn. [Completed v4.9.37]
 20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions. [Completed v4.9.57]
 21. P2 - Add a live GitHub-rendered profile smoke check. [Completed v4.9.27; refreshed v4.9.48]
-22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons.
+22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons. [Completed v4.9.72]
 23. P3 - Add `.editorconfig` and generated README markdown linting. [EditorConfig completed v4.9.70; markdownlint optional remains]
 24. P3 - Validate all historical `CHANGELOG.md` release headings. [Completed v4.9.63]
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
@@ -2095,6 +2103,15 @@ terminology. It found a docs drift issue rather than a generator failure.
   retained in the current GitHub profile README, and it lists the exact evidence
   required before any future reintroduction. Pester ties that decision to the
   committed sync report so the note does not drift from the generated checks.
+
+### Implementation note (cycle 34)
+
+- v4.9.72 adds `staleProjectReview` to the sync report and schema. It is
+  warning-only: visitor-facing stale/archive candidates are listed by public
+  repo, while suppressed rows are grouped by public reason code and visibility
+  class.
+- The report uses fixed review thresholds for `pushedAt`, latest-release age,
+  and archive review. It does not archive or demote repositories automatically.
 
 ## Cycle 32 Research Addendum — 2026-06-04
 

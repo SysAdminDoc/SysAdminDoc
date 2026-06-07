@@ -30,6 +30,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added release/download trust metadata to visitor-facing feed rows, including checksum/signature/SBOM/attestation/debug/source-only filename evidence, schema validation, trust-level counts, checksum-gap reporting, and debug artifact reporting (v4.9.44). — *Source: ROADMAP.md*
 - [x] Added userscript install trust metadata to the sync report, including raw GitHub branch/tag provenance, metadata block parsing, version/update/download URL checks, scope counts, broad-scope warnings, schema validation, and public-safe summary rows (v4.9.58). — *Source: ROADMAP.md*
 - [x] Added catalog-to-feed accounting to the sync report, including public-safe accounted-row totals, redacted unaccounted rows, fatal feed count mismatch detection, schema validation, and public-safe summary rows (v4.9.59). — *Source: ROADMAP.md*
+- [x] Added stale-project and archive-review reporting to the sync report, using visitor-facing `pushedAt` age, latest-release age, public-safe suppression reason counts, summary rows, schema validation, and Pester coverage (v4.9.72). — *Source: ROADMAP.md*
 - [x] Reconciled stale duplicate roadmap rows for pull-request profile-sync validation, public-safe issue forms, the sync-report schema contract, and live rendered-profile smoke proof against their shipped v4.9.27/v4.9.28/v4.9.29/v4.9.45 evidence (v4.9.60). — *Source: ROADMAP.md*
 - [x] Added per-project repository license metadata to visitor-facing feed rows with `licenseKey`, `licenseName`, and `licenseSpdxId`, plus sync-report detected/missing/non-standard/license-count aggregates (v4.9.55). — *Source: ROADMAP.md*
 - [x] Added committed local SVG profile metric panels, asset sync/report checks, and a scheduled/manual asset-refresh workflow; removed komarev plus third-party stats/streak/activity hosts from the generated README (v4.9.14). — *Source: ROADMAP.md*
@@ -116,6 +117,7 @@ Items consolidated from legacy planning documents on 2026-06-03.
 - [x] Added Pester coverage for generated SVG metadata wiring, including XML-parsed title/description IDs, row-summary descriptions, and dynamic text escaping (v4.9.68). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for completed-work catalog terminology so `privateReason` is not presented as a current field and the schema-backed suppression/upstream fields remain named (v4.9.69). — *Source: ROADMAP.md*
 - [x] Added Pester coverage for the profile render-host decision record and current zero-host report fields (v4.9.71). — *Source: ROADMAP.md*
+- [x] Added Pester coverage for stale-project/archive-review reporting, including warning-only candidate classification, public-safe suppression grouping, report-schema validation, and summary helper rows (v4.9.72). — *Source: ROADMAP.md*
 - [x] Fixed a StrictMode bug where `Test-HttpUrl` dereferenced `$_.Exception.Response` on exceptions lacking it (DNS failures crashed `-Check`). — *Source: TODO.md*
 - [x] Renamed the splat array shadowing `$args` in `Get-GitHubRepos`. — *Source: TODO.md*
 

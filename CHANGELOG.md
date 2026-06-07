@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.72] - 2026-06-06
+
+- Added: `reports/profile-sync-report.json.staleProjectReview` summarizes stale and archive-review candidates from `pushedAt`, latest-release age, and public-safe suppression reason counts.
+- Added: The profile sync summary now surfaces stale/archive review row counts, and Pester covers the new report helper, schema contract, and summary wiring.
+- Changed: Suppressed catalog rows remain grouped by public reason code in stale-project review output instead of exposing suppressed project identifiers.
+
 ## [v4.9.71] - 2026-06-06
 
 - Added: `docs/decisions/2026-06-06-profile-render-hosts.md` records that the current profile retains no live third-party render, metric, or badge hosts.

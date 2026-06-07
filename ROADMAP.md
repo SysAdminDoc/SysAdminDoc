@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.71
+Current repo version: v4.9.72
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,16 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.72 refresh: stale-project/archive-review report shipped.
+`reports/profile-sync-report.json.staleProjectReview` now summarizes
+visitor-facing stale/archive review candidates from `pushedAt` age and
+latest-release age, while suppressed catalog rows are grouped only by public
+reason code and visibility class. The profile sync summary surfaces stale and
+archive-review counts, and Pester covers the helper, public-safe suppression
+grouping, schema contract, and summary wiring. Branch-protection/ruleset
+status-check enforcement remains external-gated while this loop pushes directly
+to `main`; continue with the next non-blocked research/maintenance item.
 
 2026-06-06 v4.9.71 refresh: profile render-host decision recorded.
 `docs/decisions/2026-06-06-profile-render-hosts.md` now records that the
@@ -859,10 +869,11 @@ Note: the profile README is an actively-curated surface and may have concurrent 
   - Completed: v4.9.24 records the retained names `WinForge`, `FirewallForge`, `NetForge`, `PathForge`, `GitForge`, `ImageForge`, `ClipForge`, `IconForge`, and the additionally found `MediaForge`; no live repos were renamed, and future repo names should avoid the "Forge" pattern unless explicitly excepted.
   - Source: TODO.md (P3)
 
-- [ ] P2 — Add a quarterly archive/retirement / stale-project review
+- [x] P2 — Add a quarterly archive/retirement / stale-project review
   - Why: many active repos benefit from periodic retirement review to keep the profile sharp.
   - Touches: `scripts/sync-profile.ps1` (`Test-ProfileState`), report schema, optional catalog `stalePolicy`; `data/profile-catalog.json` stale marks.
   - Acceptance: a report groups stale, dormant, source-only, suppressed, and recently revived projects from `pushedAt`/`latestRelease`/suppression reasons; forked or dormant repos stay out of the main featured set.
+  - Completed: v4.9.72 adds warning-only `staleProjectReview` output with stale/archive thresholds, visitor-facing rows, public-safe suppression reason counts, schema validation, workflow-summary rows, and Pester coverage.
   - Source: ROADMAP.md (P2); docs/research-feature-plan-2026-06-04.md (P3)
 
 - [ ] P2 — Add contributor/community signals if public contribution grows
@@ -1896,6 +1907,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Refresh stale catalog field names in completed-work docs (completed v4.9.69 with a schema-backed completed-work summary and Pester terminology guard).
 - [x] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace (completed v4.9.70 with Markdown trim enforcement, LF pinning for formatting policy files, PR template cleanup, and Pester formatting-contract coverage).
 - [x] P3 — Recorded decision note on the retained third-party render hosts (completed v4.9.71 as a zero-retained-host decision with report-backed Pester coverage).
+- [x] P3 — Stale-project/archive-review report from `pushedAt`, latest releases, and suppression reasons (completed v4.9.72 with warning-only `staleProjectReview`, public-safe suppression grouping, schema support, summary rows, and Pester coverage).
 
 ### Larger Bets
 
