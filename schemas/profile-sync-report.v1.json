@@ -2255,6 +2255,7 @@
         "candidateCheckExercisePlan",
         "candidateCheckExerciseEvidence",
         "routineMaintenancePrDrillEvidence",
+        "requiredCheckEnforcementEvidence",
         "items"
       ],
       "properties": {
@@ -2298,6 +2299,9 @@
         },
         "routineMaintenancePrDrillEvidence": {
           "$ref": "#/$defs/routineMaintenancePrDrillEvidence"
+        },
+        "requiredCheckEnforcementEvidence": {
+          "$ref": "#/$defs/requiredCheckEnforcementEvidence"
         },
         "items": {
           "type": "array",
@@ -2638,6 +2642,142 @@
           "$ref": "#/$defs/stringArray"
         },
         "failedCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "mergeMethod": {
+          "type": "string"
+        },
+        "cleanupState": {
+          "type": "string"
+        },
+        "evidenceSummary": {
+          "type": "string"
+        },
+        "documentationPath": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
+        }
+      }
+    },
+    "requiredCheckEnforcementEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "status",
+        "evidenceStatus",
+        "enforcementMechanism",
+        "strictRequiredStatusChecks",
+        "pullRequestNumber",
+        "pullRequestUrl",
+        "pullRequestState",
+        "branch",
+        "headSha",
+        "mergeSha",
+        "mergedAt",
+        "workflowRunIds",
+        "profileSyncRunId",
+        "testsRunId",
+        "workflowSecurityRunId",
+        "profileSyncArtifactId",
+        "renderedSmokeArtifactId",
+        "expectedCandidateCheckCount",
+        "observedCandidateCheckCount",
+        "successfulCandidateCheckCount",
+        "failedCandidateCheckCount",
+        "skippedNonCandidateCheckCount",
+        "successfulCandidateChecks",
+        "failedCandidateChecks",
+        "skippedNonCandidateChecks",
+        "mergeMethod",
+        "cleanupState",
+        "evidenceSummary",
+        "documentationPath",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "evidenceStatus": {
+          "type": "string"
+        },
+        "enforcementMechanism": {
+          "type": "string"
+        },
+        "strictRequiredStatusChecks": {
+          "type": "boolean"
+        },
+        "pullRequestNumber": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "pullRequestUrl": {
+          "type": "string"
+        },
+        "pullRequestState": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "headSha": {
+          "type": "string"
+        },
+        "mergeSha": {
+          "type": "string"
+        },
+        "mergedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "workflowRunIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonNegativeInteger"
+          }
+        },
+        "profileSyncRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "testsRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "workflowSecurityRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "profileSyncArtifactId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "renderedSmokeArtifactId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "expectedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "observedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "skippedNonCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "failedCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "skippedNonCandidateChecks": {
           "$ref": "#/$defs/stringArray"
         },
         "mergeMethod": {

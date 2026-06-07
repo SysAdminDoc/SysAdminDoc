@@ -381,7 +381,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-proven'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'select-required-check-enforcement-mechanism'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'keep-pr-delivery'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'completed'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'ready'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.requiredBeforeEnforcement | Should -BeTrue
@@ -407,6 +407,16 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.successfulCandidateCheckCount | Should -Be 6
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.mergeMethod | Should -Be 'rebase'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.available | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.status | Should -Be 'passed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.enforcementMechanism | Should -Be 'branch-protection'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.strictRequiredStatusChecks | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.pullRequestNumber | Should -Be 16
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.headSha | Should -Be '8575e324182b96527bb9b58420d5ff44e3c05c06'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.mergeSha | Should -Be 'dc05296386af847d4e89803f1ed3ac966df49fb7'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.successfulCandidateCheckCount | Should -Be 6
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.failedCandidateCheckCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.mergeMethod | Should -Be 'rebase'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Not -Match 'routine PR delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2273,9 +2283,11 @@ Describe 'Required status check readiness' {
     It 'records routine maintenance PR delivery as the selected and proven path' {
         $script:RoutinePrDeliveryDecision | Should -Match 'Routine Maintenance PR Delivery'
         $script:RoutinePrDeliveryDecision | Should -Match 'Select pull-request delivery'
-        $script:RoutinePrDeliveryDecision | Should -Match 'Do not approve a direct-main bypass'
+        $script:RoutinePrDeliveryDecision | Should -Match 'Direct-main bypass remains unapproved'
         $script:RoutinePrDeliveryDecision | Should -Match 'PR #14 proved normal routine-maintenance PR delivery'
+        $script:RoutinePrDeliveryDecision | Should -Match 'PR #16 proved normal routine-maintenance PR delivery under active'
         $script:RoutinePrDeliveryDecision | Should -Match 'routineMaintenancePrDrillEvidence'
+        $script:RoutinePrDeliveryDecision | Should -Match 'requiredCheckEnforcementEvidence'
         $script:RoutinePrDeliveryDecision | Should -Match 'GitHub Docs: Creating rulesets'
     }
 
@@ -2363,7 +2375,36 @@ Describe 'Required status check readiness' {
         $routinePrDrill.mergeMethod | Should -Be 'rebase'
         $routinePrDrill.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
         $routinePrDrill.documentationPath | Should -Be 'docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md'
-        $routinePrDrill.nextAction | Should -Match 'required-check enforcement'
+        $routinePrDrill.nextAction | Should -Match 'PR #16'
+        $enforcementEvidence = $transition.requiredCheckEnforcementEvidence
+        $enforcementEvidence.available | Should -BeTrue
+        $enforcementEvidence.status | Should -Be 'passed'
+        $enforcementEvidence.evidenceStatus | Should -Be 'successful'
+        $enforcementEvidence.enforcementMechanism | Should -Be 'branch-protection'
+        $enforcementEvidence.strictRequiredStatusChecks | Should -BeTrue
+        $enforcementEvidence.pullRequestNumber | Should -Be 16
+        $enforcementEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/16'
+        $enforcementEvidence.branch | Should -Be 'record-required-check-enforcement'
+        $enforcementEvidence.headSha | Should -Be '8575e324182b96527bb9b58420d5ff44e3c05c06'
+        $enforcementEvidence.mergeSha | Should -Be 'dc05296386af847d4e89803f1ed3ac966df49fb7'
+        $enforcementEvidence.mergedAt | Should -Be '2026-06-07T11:58:25Z'
+        $enforcementEvidence.workflowRunIds | Should -Contain 27091837034
+        $enforcementEvidence.profileSyncRunId | Should -Be 27091837034
+        $enforcementEvidence.testsRunId | Should -Be 27091837025
+        $enforcementEvidence.workflowSecurityRunId | Should -Be 27091837036
+        $enforcementEvidence.profileSyncArtifactId | Should -Be 7463884699
+        $enforcementEvidence.renderedSmokeArtifactId | Should -Be 7463884770
+        $enforcementEvidence.expectedCandidateCheckCount | Should -Be 6
+        $enforcementEvidence.observedCandidateCheckCount | Should -Be 6
+        $enforcementEvidence.successfulCandidateCheckCount | Should -Be 6
+        $enforcementEvidence.failedCandidateCheckCount | Should -Be 0
+        $enforcementEvidence.skippedNonCandidateCheckCount | Should -Be 3
+        $enforcementEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
+        $enforcementEvidence.successfulCandidateChecks | Should -Contain 'zizmor'
+        $enforcementEvidence.failedCandidateChecks | Should -BeNullOrEmpty
+        $enforcementEvidence.mergeMethod | Should -Be 'rebase'
+        $enforcementEvidence.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
+        $enforcementEvidence.nextAction | Should -Match 'routine pull requests'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
@@ -2424,7 +2465,7 @@ Describe 'Required status check readiness' {
         $transition.directMainMaintenancePolicy.requiredBeforeEnforcement | Should -BeTrue
         $transition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
         $transition.directMainMaintenancePolicy.evidence | Should -Match 'No direct-main bypass actor is approved'
-        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'required-check enforcement'
+        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'pull-request delivery'
     }
 
     It 'treats branch-protection required checks as the selected enforcement mechanism' {
@@ -2438,7 +2479,8 @@ Describe 'Required status check readiness' {
         $transition.blockedCount | Should -Be 0
         $transition.needsLiveValidationCount | Should -Be 0
         ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).status | Should -Be 'ready'
-        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).nextAction | Should -Match 'Monitor required checks'
+        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).evidence | Should -Match 'PR #16'
+        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).nextAction | Should -Match 'routine pull requests'
 
         $readiness.status | Should -Be 'enforcement-present'
         $readiness.recommendation | Should -Be 'monitor-required-check-enforcement'
@@ -2475,11 +2517,11 @@ Describe 'Roadmap reconciliation guards' {
         }
     }
 
-    It 'records current branch-protection evidence without enabling enforcement' {
-        $script:RoadmapForReconciliation | Should -Match 'Required status checks not enabled'
-        $script:RoadmapForReconciliation | Should -Match 'PR #7'
+    It 'records current branch-protection evidence after enabling enforcement' {
+        $script:RoadmapForReconciliation | Should -Match 'required status checks are enabled'
+        $script:RoadmapForReconciliation | Should -Match 'PR #16'
         $script:RoadmapForReconciliation | Should -Match 'Markdownlint'
-        $script:RoadmapForReconciliation | Should -Match 'external-gated'
+        $script:RoadmapForReconciliation | Should -Match 'Branch-protection required-check enforcement is active'
     }
 }
 
@@ -2775,6 +2817,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'candidateCheckExercisePlan'
         $script:SummaryScript | Should -Match 'candidateCheckExerciseEvidence'
         $script:SummaryScript | Should -Match 'routineMaintenancePrDrillEvidence'
+        $script:SummaryScript | Should -Match 'requiredCheckEnforcementEvidence'
         $script:SummaryScript | Should -Match 'Routine PR drill status'
         $script:SummaryScript | Should -Match 'Candidate check exercise plan'
         $script:SummaryScript | Should -Match 'Candidate check exercise evidence is'
