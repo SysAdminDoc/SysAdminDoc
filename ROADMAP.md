@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.102
+Current repo version: v4.9.103
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 110 - 2026-06-07.
+> Last researched: Cycle 111 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,21 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 110 - 2026-06-07.
+Last researched: Cycle 111 - 2026-06-07.
+
+2026-06-07 v4.9.103 refresh: Scorecard alert posture reporting shipped.
+Cycle 111 reviewed the five open Scorecard code-scanning alerts from the
+successful hosted Scorecard run `27084740289`: `CodeReviewID`,
+`SecurityPolicyID`, `SASTID`, `CIIBestPracticesID`, and `FuzzingID`.
+`SECURITY.md` now includes a direct GitHub private vulnerability reporting URL,
+so the Security-Policy alert is classified as a local fix waiting on the next
+hosted Scorecard refresh. `repositorySettings.security.codeScanning.scorecardAlertPosture`
+now records the open alert count, local-actionable count, hosted-refresh count,
+external-gated count, not-applicable count, and public-safe rows for each alert.
+Current posture is 5 open alerts, 0 locally actionable gaps, 1 hosted-refresh
+item, 2 external-gated governance items, and 2 accepted Scorecard limitations.
+The sync report schema, profile summary helper, code-scanning decision note, and
+Pester coverage now guard this warning-only classification.
 
 2026-06-07 v4.9.102 refresh: generated PR write-path drill and blocker guard
 shipped. Cycle 110 dispatched hosted Profile sync run
@@ -2160,7 +2174,7 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 110 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 111 - 2026-06-07.
 
 Current local state:
 
@@ -2198,14 +2212,15 @@ Current local state:
 - Cycle 108 added an offline guard for the pinned `ossf/scorecard-action` 2.4.3 SHA and captured successful hosted Scorecard run `27084740289` after the workflow permission repair.
 - Cycle 109 audited current README density after the latest metadata refresh and added a committed-report guard for zero warnings, zero portfolio-only candidates, and no over-soft-limit categories.
 - Cycle 110 exercised the hosted generated PR `write-pr` path, captured the current Actions workflow-permissions blocker, deleted the disposable generated branch, and added a helper preflight before future branch pushes.
+- Cycle 111 reviewed open Scorecard code-scanning alerts, added warning-only `scorecardAlertPosture` report/schema/summary coverage, and fixed the Security-Policy linked-reporting gap in `SECURITY.md`.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 111: review remaining Scorecard warning-only findings for any profile-repo items worth documenting or suppressing.
-2. Cycle 112: audit profile-release/tag warning policy and decide whether to cut a matching profile release or document the intentional gap.
-3. Cycle 113: decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
+1. Cycle 112: audit profile-release/tag warning policy and decide whether to cut a matching profile release or document the intentional gap.
+2. Cycle 113: decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
+3. Cycle 114: audit remaining repository-setting warnings, especially Dependabot security updates and branch-protection review settings, for report-only evidence or safe local guards.
 
 ### Quick Wins
 
@@ -2226,6 +2241,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Hosted generated PR dry-run success evidence (completed v4.9.93 with successful run `27083372279`, preview-helper proof, planned branch, artifact upload, schema-backed report fields, and Pester guards).
 - [x] P2 — Hosted generated PR dry-run refresh after workflow-runtime hardening (completed v4.9.99 with successful run `27084524165`, Node 24 artifact-upload path proof, summary helper proof, planned branch, and no side effects).
 - [x] P2 — Scorecard action pin guard and hosted proof (completed v4.9.100 with the pinned `ossf/scorecard-action` 2.4.3 SHA, floating-tag rejection, and successful hosted run `27084740289`).
+- [x] P2 — Scorecard alert posture reporting (completed v4.9.103 with `scorecardAlertPosture`, a direct private-reporting URL in `SECURITY.md`, schema/summary/Pester coverage, and warning-only classification for the 5 current Scorecard alerts).
 - [x] P2 — README density post-demotion guard (completed v4.9.101 with committed-report Pester coverage for zero density warnings, zero portfolio-only candidates, and no over-soft-limit categories).
 - [x] P2 — Generated PR write-path blocker guard (completed v4.9.102 with hosted run `27085061539`, Actions workflow-permissions reporting, disposable branch cleanup, and a helper preflight before branch creation).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).

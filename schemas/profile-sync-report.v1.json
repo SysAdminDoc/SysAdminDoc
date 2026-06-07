@@ -1743,7 +1743,8 @@
         "codeqlWorkflowPresent",
         "sarifUploadWorkflowPresent",
         "scorecardSarifUploadPresent",
-        "activeControls"
+        "activeControls",
+        "scorecardAlertPosture"
       ],
       "properties": {
         "status": {
@@ -1775,6 +1776,144 @@
         },
         "activeControls": {
           "$ref": "#/$defs/stringArray"
+        },
+        "scorecardAlertPosture": {
+          "$ref": "#/$defs/scorecardAlertPosture"
+        }
+      }
+    },
+    "scorecardAlertPosture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "unavailableReason",
+        "provider",
+        "tool",
+        "queriedAt",
+        "openAlertCount",
+        "localActionableCount",
+        "needsHostedRefreshCount",
+        "externalGatedCount",
+        "notApplicableCount",
+        "recommendation",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "queriedAt": {
+          "type": "string"
+        },
+        "openAlertCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "localActionableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "needsHostedRefreshCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "externalGatedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "notApplicableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scorecardAlertPostureRow"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "scorecardAlertPostureRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alertNumber",
+        "ruleId",
+        "checkName",
+        "state",
+        "severity",
+        "securitySeverity",
+        "classification",
+        "localDisposition",
+        "localEvidence",
+        "nextAction",
+        "htmlUrl",
+        "helpUrl",
+        "toolName",
+        "toolVersion",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "alertNumber": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "ruleId": {
+          "type": "string"
+        },
+        "checkName": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "securitySeverity": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "classification": {
+          "type": "string"
+        },
+        "localDisposition": {
+          "type": "string"
+        },
+        "localEvidence": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
+        },
+        "htmlUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "helpUrl": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "toolName": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "toolVersion": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "createdAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },

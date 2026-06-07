@@ -70,6 +70,34 @@ BeforeAll {
             isPrivate = $false
         }
     }
+
+    function New-TestScorecardAlert {
+        param(
+            [int]$Number,
+            [string]$RuleId,
+            [string]$Description,
+            [string]$SecuritySeverity = 'medium'
+        )
+
+        [pscustomobject]@{
+            number = $Number
+            state = 'open'
+            html_url = "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/$Number"
+            created_at = '2026-06-07T06:18:17Z'
+            updated_at = '2026-06-07T06:18:17Z'
+            tool = [pscustomobject]@{
+                name = 'Scorecard'
+                version = 'v5.3.0'
+            }
+            rule = [pscustomobject]@{
+                id = $RuleId
+                description = $Description
+                severity = 'error'
+                security_severity_level = $SecuritySeverity
+                help_uri = "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#$($Description.ToLowerInvariant())"
+            }
+        }
+    }
 }
 
 Describe 'Function library loads via the dot-source test seam' {
@@ -258,10 +286,18 @@ Describe 'Repository settings and community-health baseline' {
             actionlintWorkflowPresent = $true
             zizmorWorkflowPresent = $true
         }
+        $scorecardAlerts = @(
+            New-TestScorecardAlert -Number 1 -RuleId 'CodeReviewID' -Description 'Code-Review' -SecuritySeverity 'high'
+            New-TestScorecardAlert -Number 2 -RuleId 'SecurityPolicyID' -Description 'Security-Policy'
+            New-TestScorecardAlert -Number 3 -RuleId 'SASTID' -Description 'SAST'
+            New-TestScorecardAlert -Number 4 -RuleId 'CIIBestPracticesID' -Description 'CII-Best-Practices' -SecuritySeverity 'low'
+            New-TestScorecardAlert -Number 5 -RuleId 'FuzzingID' -Description 'Fuzzing'
+        )
 
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -ScorecardAlerts $scorecardAlerts
         $repoSettings = $result['repositorySettings']
         $communityHealth = $result['communityHealth']
+        $scorecardPosture = $repoSettings.security.codeScanning.scorecardAlertPosture
 
         $repoSettings.available | Should -BeTrue
         $repoSettings.security.secretScanning | Should -Be 'enabled'
@@ -279,6 +315,18 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'actionlint'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'zizmor'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+        $scorecardPosture.available | Should -BeTrue
+        $scorecardPosture.openAlertCount | Should -Be 5
+        $scorecardPosture.localActionableCount | Should -Be 0
+        $scorecardPosture.needsHostedRefreshCount | Should -Be 1
+        $scorecardPosture.externalGatedCount | Should -Be 2
+        $scorecardPosture.notApplicableCount | Should -Be 2
+        $scorecardPosture.recommendation | Should -Be 'rerun-scorecard-to-refresh-alerts'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }).classification | Should -Be 'local-fix-pending-scorecard-refresh'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'SASTID' }).classification | Should -Be 'covered-by-local-static-analysis'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'FuzzingID' }).classification | Should -Be 'not-applicable-profile-generator'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-pr-delivery'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CIIBestPracticesID' }).classification | Should -Be 'external-program-optional'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
         $repoSettings.actionsWorkflowPermissions.available | Should -BeTrue
@@ -317,7 +365,7 @@ Describe 'Repository settings and community-health baseline' {
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
         ($repoSettings.warnings -join ' ') | Should -Match 'create pull requests'
-        ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'alert|secret_value|ghp_|gho_|github_pat_'
+        ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'secret_value|ghp_|gho_|github_pat_'
 
         $communityHealth.available | Should -BeTrue
         $communityHealth.healthPercentage | Should -Be 71
@@ -1777,7 +1825,7 @@ Describe 'Code scanning posture decision' {
 
         $decision | Should -Match 'Do not add a CodeQL analysis workflow'
         $decision | Should -Match 'not-applicable-powershell-only'
-        $decision | Should -Match 'does not call the code-scanning alerts API'
+        $decision | Should -Match 'Scorecard alert posture'
         $codeScanning.status | Should -Be 'not-applicable'
         $codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
@@ -1785,6 +1833,12 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardSarifUploadPresent | Should -BeTrue
         $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+        $codeScanning.scorecardAlertPosture.available | Should -BeTrue
+        $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be 5
+        $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 1
+        $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
+        $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'rerun-scorecard-to-refresh-alerts'
+        ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }).localDisposition | Should -Be 'fixed-locally'
     }
 }
 
@@ -2406,6 +2460,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'generatedPrDryRunEvidence'
         $script:SummaryScript | Should -Match 'generatedPrWriteEvidence'
         $script:SummaryScript | Should -Match 'codeScanning'
+        $script:SummaryScript | Should -Match 'scorecardAlertPosture'
+        $script:SummaryScript | Should -Match 'Scorecard open alerts'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'
         $script:SummaryScript | Should -Match '::error::'
@@ -2669,6 +2725,7 @@ Describe 'Public-safe intake files' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw
 
         $securityPolicy | Should -Match 'private vulnerability reporting'
+        $securityPolicy | Should -Match 'https://github\.com/SysAdminDoc/SysAdminDoc/security/advisories/new'
         $securityPolicy | Should -Match 'Do not include secrets'
         $securityPolicy | Should -Match 'private repository names'
         $securityPolicy | Should -Match 'medical data'

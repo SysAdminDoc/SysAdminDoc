@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.103] - 2026-06-07
+
+- Added: `repositorySettings.security.codeScanning.scorecardAlertPosture` now records open Scorecard SARIF alerts from GitHub code-scanning alerts, including classification counts and warning-only disposition rows.
+- Fixed: `SECURITY.md` now includes a direct GitHub private vulnerability reporting URL so the Scorecard Security-Policy check can detect linked reporting.
+- Added: The profile sync summary, report schema, and Pester coverage now guard Scorecard alert posture fields and the current hosted-refresh classification for the security-policy alert.
+
 ## [v4.9.102] - 2026-06-07
 
 - Added: `repositorySettings.actionsWorkflowPermissions` now records the live GitHub Actions workflow-permissions setting that controls whether `GITHUB_TOKEN` may create pull requests.

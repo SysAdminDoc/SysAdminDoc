@@ -25,9 +25,13 @@ language.
 
 `scripts/sync-profile.ps1 -Check` records this as
 `repositorySettings.security.codeScanning.status=not-applicable` with
-`recommendation=not-applicable-powershell-only`. The normal profile sync check
-does not call the code-scanning alerts API, so routine validation does not
-require extra alert or security API scopes.
+`recommendation=not-applicable-powershell-only`.
+
+Scorecard alert posture is informational. The normal profile sync check queries
+the code-scanning alerts API when the current token can read it and records the
+result under `repositorySettings.security.codeScanning.scorecardAlertPosture`.
+If the API is unavailable, profile sync keeps running and records an unavailable
+posture instead of requiring extra alert or security API scopes.
 
 ## Reopen Criteria
 
@@ -46,6 +50,10 @@ Current verification:
   `github/codeql-action/upload-sarif`.
 - `.github/workflows/tests.yml` runs `PSScriptAnalyzer`.
 - `.github/workflows/workflow-security.yml` runs `actionlint` and `zizmor`.
+- The latest reviewed Scorecard alert posture records 5 open Scorecard alerts:
+  1 local hosted-refresh item after the `SECURITY.md` reporting-link fix, 2
+  external-gated governance items, and 2 accepted Scorecard limitations for the
+  current PowerShell-only profile generator.
 
 Source notes:
 
