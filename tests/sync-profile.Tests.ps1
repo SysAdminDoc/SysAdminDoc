@@ -295,9 +295,9 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.blockedCount | Should -Be 2
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.needsLiveValidationCount | Should -Be 1
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.available | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'failure'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -Be 'Regenerate profile'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'success'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -BeNullOrEmpty
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeTrue
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2030,14 +2030,15 @@ Describe 'Required status check readiness' {
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
         $evidence.event | Should -Be 'workflow_dispatch'
-        $evidence.runId | Should -Be 27082852047
-        $evidence.runUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27082852047'
-        $evidence.conclusion | Should -Be 'failure'
-        $evidence.failedStep | Should -Be 'Regenerate profile'
-        $evidence.previewStepReached | Should -BeFalse
+        $evidence.runId | Should -Be 27083372279
+        $evidence.runUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27083372279'
+        $evidence.conclusion | Should -Be 'success'
+        $evidence.failedStep | Should -BeNullOrEmpty
+        $evidence.previewStepReached | Should -BeTrue
         $evidence.reportArtifactUploaded | Should -BeTrue
         $evidence.artifactReadinessStatus | Should -Be 'needs-live-validation'
-        $evidence.nextAction | Should -Match 'rerun dry-run-pr'
+        $evidence.evidenceSummary | Should -Match 'automation/profile-sync-27083372279'
+        $evidence.nextAction | Should -Match 'required-check preconditions'
     }
 }
 

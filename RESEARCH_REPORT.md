@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.92
+Current version after this refresh: v4.9.93
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.93 batch refreshes generated PR dry-run evidence from successful
+  hosted run `27083372279`.
+- The run used workflow-dispatch mode `dry-run-pr` on `main` at
+  `2e2d2e2b35e5dd9475748978de0b9a82bb738699`, passed `Regenerate profile`,
+  wrote the summary, uploaded `profile-sync-report`, and reached
+  `Preview pull request`.
+- The dry-run helper planned branch `automation/profile-sync-27083372279` and
+  confirmed no branch, commit, push, pull request, or validation dispatch would
+  be created.
 - The v4.9.92 batch adds an explicit success exit after
   `scripts/sync-profile.ps1 -Check` passes.
 - This targets hosted shells where a handled native-command failure, such as a
