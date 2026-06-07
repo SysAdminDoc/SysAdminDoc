@@ -2253,6 +2253,7 @@
         "directMainMaintenancePolicy",
         "candidateCheckExercisePlan",
         "candidateCheckExerciseEvidence",
+        "routineMaintenancePrDrillEvidence",
         "items"
       ],
       "properties": {
@@ -2293,6 +2294,9 @@
         },
         "candidateCheckExerciseEvidence": {
           "$ref": "#/$defs/candidateCheckExerciseEvidence"
+        },
+        "routineMaintenancePrDrillEvidence": {
+          "$ref": "#/$defs/routineMaintenancePrDrillEvidence"
         },
         "items": {
           "type": "array",
@@ -2530,6 +2534,121 @@
           "type": "string"
         },
         "evidenceSummary": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
+        }
+      }
+    },
+    "routineMaintenancePrDrillEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "status",
+        "evidenceStatus",
+        "requiredBeforeEnforcement",
+        "selectedPath",
+        "pullRequestNumber",
+        "pullRequestUrl",
+        "pullRequestState",
+        "branch",
+        "headSha",
+        "mergeSha",
+        "workflowRunIds",
+        "profileSyncRunId",
+        "testsRunId",
+        "workflowSecurityRunId",
+        "expectedCandidateCheckCount",
+        "observedCandidateCheckCount",
+        "successfulCandidateCheckCount",
+        "failedCandidateCheckCount",
+        "successfulCandidateChecks",
+        "failedCandidateChecks",
+        "mergeMethod",
+        "cleanupState",
+        "evidenceSummary",
+        "documentationPath",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "evidenceStatus": {
+          "type": "string"
+        },
+        "requiredBeforeEnforcement": {
+          "type": "boolean"
+        },
+        "selectedPath": {
+          "type": "string"
+        },
+        "pullRequestNumber": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "pullRequestUrl": {
+          "type": "string"
+        },
+        "pullRequestState": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "headSha": {
+          "type": "string"
+        },
+        "mergeSha": {
+          "type": "string"
+        },
+        "workflowRunIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonNegativeInteger"
+          }
+        },
+        "profileSyncRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "testsRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "workflowSecurityRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "expectedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "observedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "failedCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "mergeMethod": {
+          "type": "string"
+        },
+        "cleanupState": {
+          "type": "string"
+        },
+        "evidenceSummary": {
+          "type": "string"
+        },
+        "documentationPath": {
           "type": "string"
         },
         "nextAction": {

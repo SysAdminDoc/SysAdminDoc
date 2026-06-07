@@ -4388,6 +4388,37 @@ function Get-CandidateCheckExerciseEvidence {
     }
 }
 
+function Get-RoutineMaintenancePrDrillEvidence {
+    return [ordered]@{
+        available = $false
+        status = "pending"
+        evidenceStatus = "not-run"
+        requiredBeforeEnforcement = $true
+        selectedPath = "pull-request-delivery"
+        pullRequestNumber = 0
+        pullRequestUrl = ""
+        pullRequestState = ""
+        branch = ""
+        headSha = ""
+        mergeSha = ""
+        workflowRunIds = @()
+        profileSyncRunId = 0
+        testsRunId = 0
+        workflowSecurityRunId = 0
+        expectedCandidateCheckCount = @($RequiredStatusCheckCandidates).Count
+        observedCandidateCheckCount = 0
+        successfulCandidateCheckCount = 0
+        failedCandidateCheckCount = 0
+        successfulCandidateChecks = @()
+        failedCandidateChecks = @()
+        mergeMethod = ""
+        cleanupState = "not-started"
+        evidenceSummary = "Routine maintenance pull-request delivery is selected but not yet proven by a merged non-generated maintenance PR."
+        documentationPath = "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md"
+        nextAction = "Open and merge a normal routine maintenance PR, wait for the six candidate checks, delete the branch, then record the PR number, head SHA, merge SHA, run IDs, and cleanup state."
+    }
+}
+
 function Get-PrDeliveryTransitionChecklist {
     param(
         [object]$WorkflowCoverage,
@@ -4491,6 +4522,7 @@ function Get-PrDeliveryTransitionChecklist {
         directMainMaintenancePolicy = Get-DirectMainMaintenancePolicy
         candidateCheckExercisePlan = Get-CandidateCheckExercisePlan
         candidateCheckExerciseEvidence = Get-CandidateCheckExerciseEvidence
+        routineMaintenancePrDrillEvidence = Get-RoutineMaintenancePrDrillEvidence
         items = @($items.ToArray())
     }
 }

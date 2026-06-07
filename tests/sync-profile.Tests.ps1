@@ -396,6 +396,12 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.available | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.status | Should -Be 'pending'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.evidenceStatus | Should -Be 'not-run'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.selectedPath | Should -Be 'pull-request-delivery'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.expectedCandidateCheckCount | Should -Be 6
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.cleanupState | Should -Be 'not-started'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'routine PR delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2256,6 +2262,7 @@ Describe 'Required status check readiness' {
         $script:RoutinePrDeliveryDecision | Should -Match 'Select pull-request delivery'
         $script:RoutinePrDeliveryDecision | Should -Match 'Do not approve a direct-main bypass'
         $script:RoutinePrDeliveryDecision | Should -Match 'live merge drill'
+        $script:RoutinePrDeliveryDecision | Should -Match 'routineMaintenancePrDrillEvidence'
         $script:RoutinePrDeliveryDecision | Should -Match 'GitHub Docs: Creating rulesets'
     }
 
@@ -2319,6 +2326,22 @@ Describe 'Required status check readiness' {
         $candidateEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
         $candidateEvidence.failureReason | Should -BeNullOrEmpty
         $candidateEvidence.nextAction | Should -Match 'direct-main maintenance'
+        $routinePrDrill = $transition.routineMaintenancePrDrillEvidence
+        $routinePrDrill.available | Should -BeFalse
+        $routinePrDrill.status | Should -Be 'pending'
+        $routinePrDrill.evidenceStatus | Should -Be 'not-run'
+        $routinePrDrill.requiredBeforeEnforcement | Should -BeTrue
+        $routinePrDrill.selectedPath | Should -Be 'pull-request-delivery'
+        $routinePrDrill.pullRequestNumber | Should -Be 0
+        $routinePrDrill.workflowRunIds | Should -BeNullOrEmpty
+        $routinePrDrill.expectedCandidateCheckCount | Should -Be 6
+        $routinePrDrill.observedCandidateCheckCount | Should -Be 0
+        $routinePrDrill.successfulCandidateCheckCount | Should -Be 0
+        $routinePrDrill.failedCandidateCheckCount | Should -Be 0
+        $routinePrDrill.mergeMethod | Should -BeNullOrEmpty
+        $routinePrDrill.cleanupState | Should -Be 'not-started'
+        $routinePrDrill.documentationPath | Should -Be 'docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md'
+        $routinePrDrill.nextAction | Should -Match 'normal routine maintenance PR'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
@@ -2657,6 +2680,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'generated-profile/validation'
             $summary | Should -Match 'Candidate check exercise latest evidence'
             $summary | Should -Match 'Candidate check exercise failed names'
+            $summary | Should -Match 'Routine PR drill status'
+            $summary | Should -Match 'Routine PR drill cleanup'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
             $summary | Should -Match 'Code scanning languages'
@@ -2705,6 +2730,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'Direct-main maintenance policy'
         $script:SummaryScript | Should -Match 'candidateCheckExercisePlan'
         $script:SummaryScript | Should -Match 'candidateCheckExerciseEvidence'
+        $script:SummaryScript | Should -Match 'routineMaintenancePrDrillEvidence'
+        $script:SummaryScript | Should -Match 'Routine PR drill status'
         $script:SummaryScript | Should -Match 'Candidate check exercise plan'
         $script:SummaryScript | Should -Match 'Candidate check exercise evidence is'
         $script:SummaryScript | Should -Match 'codeScanning'
