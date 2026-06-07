@@ -870,6 +870,107 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $powershellDensity.portfolioOnlyCandidateCount | Should -Be 2
         $powershellDensity.routingRecommendation | Should -Be 'review-portfolio-only-candidates'
     }
+    It 'reports generated artifact budgets without failing healthy artifacts' {
+        $fixtureReadme = @'
+one
+two
+<details>
+```powershell
+Write-Host ok
+```
+'@
+        $budgets = Test-GeneratedArtifactBudgets `
+            -ExpectedReadme $fixtureReadme `
+            -ExpectedProjectsJson '{"projects":[]}' `
+            -ExpectedAssets @{ 'assets/profile/test.svg' = '<svg><title>Test</title></svg>' } `
+            -ReportJson '{"schema":"test"}'
+
+        $budgets.status | Should -Be 'within-budget'
+        $budgets.warningCount | Should -Be 0
+        $budgets.rows.Count | Should -Be 10
+        $readmeLineBudget = @($budgets.rows | Where-Object { $_.artifact -eq 'README.md' -and $_.metric -eq 'lines' })[0]
+        $readmeLineBudget.value | Should -Be 6
+        $readmeLineBudget.softLimit | Should -Be 1000
+        $readmeLineBudget.overSoftLimit | Should -BeFalse
+        $reportBudget = @($budgets.rows | Where-Object { $_.artifact -eq 'reports/profile-sync-report.json' -and $_.metric -eq 'bytes' })[0]
+        $reportBudget.value | Should -Be ([System.Text.Encoding]::UTF8.GetByteCount('{"schema":"test"}'))
+    }
+    It 'warns when generated artifact budgets cross soft limits' {
+        $largeReadme = (@('line') * 1001) -join "`n"
+        $budgets = Test-GeneratedArtifactBudgets `
+            -ExpectedReadme $largeReadme `
+            -ExpectedProjectsJson '{"projects":[]}' `
+            -ExpectedAssets @{} `
+            -ReportJson '{}'
+
+        $budgets.status | Should -Be 'warning'
+        $budgets.warningCount | Should -BeGreaterThan 0
+        ($budgets.warnings -join ' ') | Should -Match 'README.md lines'
+    }
+    It 'summarizes rendered profile smoke reports and mobile render budgets' {
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $true
+            viewports = @(
+                [pscustomobject]@{
+                    name = 'desktop'
+                    passed = $true
+                    rootClientWidth = 846
+                    rootOverflow = $false
+                    documentOverflow = $false
+                    failedImages = @()
+                    missingSections = @()
+                },
+                [pscustomobject]@{
+                    name = 'mobile'
+                    passed = $true
+                    rootClientWidth = 308
+                    rootOverflow = $false
+                    documentOverflow = $false
+                    failedImages = @()
+                    missingSections = @()
+                }
+            )
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.status | Should -Be 'passed'
+        $summary.viewportCount | Should -Be 2
+        $summary.passedViewportCount | Should -Be 2
+        $summary.minimumRootClientWidth | Should -Be 308
+        $summary.mobileRootClientWidth | Should -Be 308
+        $summary.warningCount | Should -Be 0
+    }
+    It 'warns on rendered smoke overflow and narrow mobile root width' {
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $false
+            viewports = @(
+                [pscustomobject]@{
+                    name = 'mobile'
+                    passed = $false
+                    rootClientWidth = 280
+                    rootOverflow = $true
+                    documentOverflow = $false
+                    failedImages = @([pscustomobject]@{ src = 'missing.png' })
+                    missingSections = @('Featured Projects')
+                }
+            )
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.status | Should -Be 'warning'
+        $summary.failedViewportCount | Should -Be 1
+        $summary.failedImageCount | Should -Be 1
+        $summary.missingSectionCount | Should -Be 1
+        $summary.overflowCount | Should -Be 1
+        $summary.warningCount | Should -BeGreaterThan 0
+        ($summary.warnings -join ' ') | Should -Match 'below the 300 px budget'
+    }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeFalse
@@ -1339,7 +1440,12 @@ Describe 'Feed JSON Schema contracts' {
 
     It 'warns when a schema uses keywords the validator cannot check' {
         $schemaPath = Join-Path $TestDrive 'unsupported.json'
-        Set-Content -LiteralPath $schemaPath -Value '{"type":"object","oneOf":[{"type":"string"}],"maxLength":10}' -Encoding utf8
+        $unsupportedSchema = @{
+            type = 'object'
+            oneOf = @(@{ type = 'string' })
+            maxLength = 10
+        } | ConvertTo-Json -Depth 5 -Compress
+        Set-Content -LiteralPath $schemaPath -Value $unsupportedSchema -Encoding utf8
 
         $result = Test-JsonSchemaContract -Value @{} -SchemaPath $schemaPath
 
@@ -1735,6 +1841,7 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-'
         $script:RenderSmokeScript | Should -Match 'viewport\.Name'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
+        $script:RenderSmokeScript | Should -Match 'renderedProfileSmoke'
     }
 
     It 'asserts key rendered sections and overflow/image health' {
@@ -1974,6 +2081,12 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'README repo-only rows'
             $summary | Should -Match 'README portfolio-only candidates'
             $summary | Should -Match 'README routing recommendation'
+            $summary | Should -Match 'Artifact budget status'
+            $summary | Should -Match 'Artifact budget warnings'
+            $summary | Should -Match 'Artifact budget rows'
+            $summary | Should -Match 'Rendered smoke status'
+            $summary | Should -Match 'Rendered smoke warnings'
+            $summary | Should -Match 'Rendered smoke mobile root px'
             $summary | Should -Match 'Profile release/tag warnings'
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
@@ -2009,6 +2122,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'portfolioCompatibility'
         $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'portfolioOnlyCandidateCount'
+        $script:SummaryScript | Should -Match 'artifactBudgets'
+        $script:SummaryScript | Should -Match 'renderedProfileSmoke'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'requiredCheckReadiness'

@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.83
+Current repo version: v4.9.84
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 91 - 2026-06-06.
+> Last researched: Cycle 92 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,19 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 91 - 2026-06-06.
+Last researched: Cycle 92 - 2026-06-06.
+
+2026-06-06 v4.9.84 refresh: generated artifact/render-budget reporting
+shipped. The sync report now includes `artifactBudgets` with 10 soft-budget
+rows for README bytes, lines, table rows, details sections, image tags, code
+blocks, `projects.json` bytes, sync-report bytes, profile-SVG bytes, and
+profile-SVG file count. `scripts/render-profile-smoke.ps1` now patches
+`reports/profile-sync-report.json.renderedProfileSmoke` after live smoke runs.
+Current status is healthy: artifact budgets are `within-budget` with 0 warnings,
+the rendered profile smoke is `passed` across 2 viewports with 0 warnings, and
+the mobile root width is 308 px. The profile sync summary surfaces the budget
+and smoke status fields, and Pester covers budget calculation, smoke
+aggregation, schema contract, and summary wiring.
 
 2026-06-06 v4.9.83 refresh: README density routing decision reporting
 shipped. The sync report now extends `readmeDensity` with
@@ -1935,7 +1947,7 @@ shape.*
 *Research conducted 2026-06-06. This pass measured generated README/feed
 weight and checked the current rendered profile smoke output.*
 
-- [ ] P2 - Add generated README/feed size and render-budget reporting
+- [x] P2 - Add generated README/feed size and render-budget reporting
   - Why: the profile README is generated and can grow quietly as the catalog expands. The current rendered smoke proves it still fits today, but there is no budget warning before the README becomes too long to scan, expensive to render, or noisy in pull-request review.
   - Evidence: current artifact measurements are `README.md` 74,664 bytes / 735 lines, `projects.json` 293,666 bytes / 9,196 lines, `reports/profile-sync-report.json` 29,049 bytes / 1,166 lines, and six profile SVG panels totaling 15,338 bytes. The README has 164 Markdown table rows, 11 `<details>` blocks, 7 image tags, and 78 fenced code blocks. `reports/rendered-profile-smoke.json` from 2026-06-05 passed at 1280px desktop and 390px mobile; it found no missing sections, failed images, root overflow, or document overflow. `.gitattributes` marks `README.md`, `projects.json`, `reports/*.json`, and `assets/profile/*.svg` as `linguist-generated`, so GitHub can collapse generated diffs, but that does not tell maintainers when the visitor-facing README is getting too dense.
   - Source notes: GitHub profile READMEs render from a username-matching public root `README.md`: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme. GitHub's large-file docs describe repository file-size warnings and hard limits, but the budgets here should be much lower because this is about profile scan quality and review ergonomics, not Git storage limits: https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github. GitHub's `.gitattributes` docs explain `linguist-generated` for hiding generated files in diffs and language stats: https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github.
@@ -1943,16 +1955,17 @@ weight and checked the current rendered profile smoke output.*
   - Proposed budgets: warn when README exceeds 100 KB, 1,000 lines, 220 table rows, 15 details blocks, 10 image tags, or 100 code blocks; warn when `projects.json` exceeds 500 KB; warn when sync report exceeds 100 KB; warn when rendered smoke finds mobile root width below 300px, any image failure, any overflow, or more than a configured number of failed/third-party render hosts. Keep failures informational first, then promote severe render failures to fatal.
   - Acceptance: `reports/profile-sync-report.json` includes `artifactBudgets` and `renderedProfileSmoke` summary fields; job summary prints byte/line counts and warning status; Pester covers budget calculation with small fixtures; thresholds are documented as profile-review budgets, not GitHub hard limits.
   - Verify: run the budget function against current files and confirm all current values are below warning thresholds; inflate a fixture README past 100 KB and confirm warning; run `scripts/render-profile-smoke.ps1` and confirm report aggregation stays public-safe.
+  - Completed: v4.9.84 adds `artifactBudgets`, `renderedProfileSmoke`, summary rows, schema coverage, live smoke report patching, and Pester guards. Current generated artifacts are within budget with 0 warnings and live rendered smoke passes with 0 warnings at desktop and mobile widths.
   - Complexity: S-M
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 91 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 92 - 2026-06-06.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `1042dde feat: report required check readiness`
+- HEAD inspected before this cycle: `f4bd0de feat: report readme routing decision`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -1966,14 +1979,15 @@ Current local state:
 - Cycle 89 added REST fallback release-fetch policy/progress reporting under `validationPerformance`.
 - Cycle 90 added machine-readable required-check readiness reporting without enabling enforcement.
 - Cycle 91 added README density routing-decision reporting; current evidence keeps the README as the public routing surface while recording 11 Python-category rows for portfolio-only review.
+- Cycle 92 added generated artifact/render-budget reporting; current artifact budgets are within budget and live rendered smoke passes with 0 warnings.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 92: add generated artifact/render-budget reporting while the README remains the public routing surface.
-2. Cycle 93: draft a PR-delivery transition checklist before any required-check enforcement is enabled.
-3. Cycle 94: use the density-routing report to choose concrete Python rows for portfolio-only catalog review if the artifact budgets stay healthy.
+1. Cycle 93: draft a PR-delivery transition checklist before any required-check enforcement is enabled.
+2. Cycle 94: use the density-routing report to choose concrete Python rows for portfolio-only catalog review if the artifact budgets stay healthy.
+3. Cycle 95: add a portfolio-only catalog review preview mode before changing generated README rows.
 
 ### Quick Wins
 
@@ -1988,6 +2002,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — REST fallback release-fetch policy/progress reporting (completed v4.9.81 with `validationPerformance.restFallbackReleaseFetch`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — Required-check readiness report without enabling enforcement (completed v4.9.82 with `repositorySettings.requiredCheckReadiness`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
+- [x] P2 — Generated artifact/render-budget report (completed v4.9.84 with `artifactBudgets`, `renderedProfileSmoke`, summary rows, schema coverage, live smoke report patching, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).

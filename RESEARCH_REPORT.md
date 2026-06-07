@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.83
+Current version after this refresh: v4.9.84
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.84 batch adds generated artifact and rendered-profile smoke budget
+  reporting to the sync report and profile sync summary.
+- `artifactBudgets` records 10 soft-budget rows for README bytes, README
+  lines, generated table rows, details sections, image tags, code blocks,
+  `projects.json` bytes, sync-report bytes, generated profile-SVG bytes, and
+  generated profile-SVG file count.
+- Current artifact status is `within-budget` with 0 warnings: README 65,901 /
+  98,304 bytes, 642 / 1,000 lines, 110 / 220 table rows, 11 / 15 details
+  sections, 1 / 10 image tags, 78 / 100 code blocks, `projects.json` 399,544 /
+  512,000 bytes, sync report 81,189 / 102,400 bytes, profile SVGs 22,658 /
+  131,072 bytes, and 10 / 16 SVG files.
+- `renderedProfileSmoke` is patched by `scripts/render-profile-smoke.ps1`
+  after live smoke execution. The current smoke status is `passed` across 2
+  viewports with 0 warnings and a 308 px mobile root width.
 - The v4.9.83 batch adds README density routing-decision reporting to the
   sync report and profile sync summary.
 - `readmeDensity` now records `routingRecommendation`, aggregate

@@ -49,6 +49,16 @@ $RestFallbackUnauthenticatedReleaseFetchLimit = 50
 $ReadmeSoftLimitBytes = 96KB
 $ReadmeCategorySoftLimit = 30
 $ReadmeLowSignalSoftLimit = 15
+$ReadmeLineSoftLimit = 1000
+$ReadmeTableRowSoftLimit = 220
+$ReadmeDetailsSectionSoftLimit = 15
+$ReadmeImageTagSoftLimit = 10
+$ReadmeCodeBlockSoftLimit = 100
+$ProjectsJsonSoftLimitBytes = 500KB
+$ReportJsonSoftLimitBytes = 100KB
+$ProfileAssetsSoftLimitBytes = 128KB
+$ProfileAssetsCountSoftLimit = 16
+$RenderedSmokeMinimumRootClientWidth = 300
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
@@ -3196,6 +3206,176 @@ function Test-ReadmeDensity {
     }
 }
 
+function New-ArtifactBudgetRow {
+    param(
+        [string]$Artifact,
+        [string]$Metric,
+        [int]$Value,
+        [int]$SoftLimit,
+        [string]$Note
+    )
+
+    $overSoftLimit = $Value -gt $SoftLimit
+    return [ordered]@{
+        artifact = $Artifact
+        metric = $Metric
+        value = [int]$Value
+        softLimit = [int]$SoftLimit
+        overSoftLimit = [bool]$overSoftLimit
+        warning = if ($overSoftLimit) {
+            "{0} {1} is {2}, above the {3} soft limit." -f $Artifact, $Metric, $Value, $SoftLimit
+        } else {
+            $null
+        }
+        note = $Note
+    }
+}
+
+function Test-GeneratedArtifactBudgets {
+    param(
+        [string]$ExpectedReadme,
+        [string]$ExpectedProjectsJson,
+        [hashtable]$ExpectedAssets,
+        [AllowNull()][string]$ReportJson
+    )
+
+    $safeReadme = if ($null -eq $ExpectedReadme) { "" } else { $ExpectedReadme }
+    $safeProjects = if ($null -eq $ExpectedProjectsJson) { "" } else { $ExpectedProjectsJson }
+    $safeReport = if ($null -eq $ReportJson) { "" } else { $ReportJson }
+    $lineCount = if ([string]::IsNullOrEmpty($safeReadme)) {
+        0
+    } else {
+        [regex]::Split($safeReadme.TrimEnd(), '\r?\n').Count
+    }
+    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/').Count
+    $detailsSectionCount = [regex]::Matches($safeReadme, '(?m)^<details>\s*$').Count
+    $imageTagCount = [regex]::Matches($safeReadme, '<img\b|!\[').Count
+    $codeFenceCount = [regex]::Matches($safeReadme, '(?m)^```').Count
+    $codeBlockCount = [int][Math]::Floor($codeFenceCount / 2)
+    $assetTotalBytes = 0
+    $assetCount = 0
+    $assetKeys = if ($null -eq $ExpectedAssets) {
+        @()
+    } elseif ($ExpectedAssets -is [System.Collections.IDictionary]) {
+        @($ExpectedAssets.Keys)
+    } elseif ($ExpectedAssets.PSObject.Properties.Name -contains "Keys") {
+        @($ExpectedAssets.Keys)
+    } else {
+        @()
+    }
+    foreach ($assetPath in $assetKeys) {
+        $assetCount++
+        $assetTotalBytes += [System.Text.Encoding]::UTF8.GetByteCount(([string]$ExpectedAssets[$assetPath]) + [Environment]::NewLine)
+    }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "bytes" -Value ([System.Text.Encoding]::UTF8.GetByteCount($safeReadme)) -SoftLimit $ReadmeSoftLimitBytes -Note "Generated profile README byte budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "lines" -Value $lineCount -SoftLimit $ReadmeLineSoftLimit -Note "Rendered profile scan budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "tableRows" -Value $tableRowCount -SoftLimit $ReadmeTableRowSoftLimit -Note "Generated project table-row budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "detailsSections" -Value $detailsSectionCount -SoftLimit $ReadmeDetailsSectionSoftLimit -Note "Collapsible section budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "imageTags" -Value $imageTagCount -SoftLimit $ReadmeImageTagSoftLimit -Note "Rendered image budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "codeBlocks" -Value $codeBlockCount -SoftLimit $ReadmeCodeBlockSoftLimit -Note "Install-snippet block budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "projects.json" -Metric "bytes" -Value ([System.Text.Encoding]::UTF8.GetByteCount($safeProjects)) -SoftLimit $ProjectsJsonSoftLimitBytes -Note "Public portfolio feed size budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "reports/profile-sync-report.json" -Metric "bytes" -Value ([System.Text.Encoding]::UTF8.GetByteCount($safeReport)) -SoftLimit $ReportJsonSoftLimitBytes -Note "Serialized sync-report size budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "assets/profile" -Metric "bytes" -Value $assetTotalBytes -SoftLimit $ProfileAssetsSoftLimitBytes -Note "Generated profile SVG asset total budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "assets/profile" -Metric "files" -Value $assetCount -SoftLimit $ProfileAssetsCountSoftLimit -Note "Generated profile SVG asset count budget."))
+
+    $warnings = @($rows.ToArray() | Where-Object { $_.overSoftLimit -eq $true } | ForEach-Object { $_.warning })
+    return [ordered]@{
+        status = if ($warnings.Count -gt 0) { "warning" } else { "within-budget" }
+        warningCount = [int]$warnings.Count
+        warnings = @($warnings)
+        rows = @($rows.ToArray())
+    }
+}
+
+function New-RenderedProfileSmokeSummary {
+    param(
+        [AllowNull()][object]$SmokeReport,
+        [int]$MinimumRootClientWidth = $RenderedSmokeMinimumRootClientWidth
+    )
+
+    if ($null -eq $SmokeReport) {
+        return [ordered]@{
+            status = "not-run"
+            generatedAt = $null
+            url = $null
+            viewportCount = 0
+            passedViewportCount = 0
+            failedViewportCount = 0
+            failedImageCount = 0
+            missingSectionCount = 0
+            overflowCount = 0
+            minimumRootClientWidth = $null
+            mobileRootClientWidth = $null
+            warningCount = 0
+            warnings = @()
+        }
+    }
+
+    $viewports = @(Get-MemberValue -Object $SmokeReport -Name "viewports")
+    $passedViewportCount = @($viewports | Where-Object { [bool](Get-MemberValue -Object $_ -Name "passed") }).Count
+    $failedViewportCount = @($viewports | Where-Object { -not [bool](Get-MemberValue -Object $_ -Name "passed") }).Count
+    $failedImageCount = 0
+    $missingSectionCount = 0
+    $overflowCount = 0
+    $rootWidths = New-Object System.Collections.Generic.List[int]
+    $mobileRootClientWidth = $null
+    foreach ($viewport in $viewports) {
+        $failedImageCount += @(Get-MemberValue -Object $viewport -Name "failedImages").Count
+        $missingSectionCount += @(Get-MemberValue -Object $viewport -Name "missingSections").Count
+        if ([bool](Get-MemberValue -Object $viewport -Name "rootOverflow") -or [bool](Get-MemberValue -Object $viewport -Name "documentOverflow")) {
+            $overflowCount++
+        }
+        $rootClientWidth = Get-MemberValue -Object $viewport -Name "rootClientWidth"
+        if ($null -ne $rootClientWidth) {
+            $widthValue = [int]$rootClientWidth
+            $rootWidths.Add($widthValue)
+            if ([string](Get-MemberValue -Object $viewport -Name "name") -eq "mobile") {
+                $mobileRootClientWidth = $widthValue
+            }
+        }
+    }
+
+    $minimumRootClientWidthValue = if ($rootWidths.Count -gt 0) {
+        [int](@($rootWidths.ToArray()) | Measure-Object -Minimum).Minimum
+    } else {
+        $null
+    }
+    $warnings = New-Object System.Collections.Generic.List[string]
+    if ($failedViewportCount -gt 0) {
+        $warnings.Add("Rendered profile smoke has $failedViewportCount failed viewport(s).")
+    }
+    if ($failedImageCount -gt 0) {
+        $warnings.Add("Rendered profile smoke has $failedImageCount failed image(s).")
+    }
+    if ($missingSectionCount -gt 0) {
+        $warnings.Add("Rendered profile smoke has $missingSectionCount missing section assertion(s).")
+    }
+    if ($overflowCount -gt 0) {
+        $warnings.Add("Rendered profile smoke has $overflowCount viewport overflow warning(s).")
+    }
+    if ($null -ne $mobileRootClientWidth -and $mobileRootClientWidth -lt $MinimumRootClientWidth) {
+        $warnings.Add("Rendered profile mobile root width is $mobileRootClientWidth px, below the $MinimumRootClientWidth px budget.")
+    }
+
+    return [ordered]@{
+        status = if ([bool](Get-MemberValue -Object $SmokeReport -Name "passed") -and $warnings.Count -eq 0) { "passed" } else { "warning" }
+        generatedAt = Get-MemberValue -Object $SmokeReport -Name "generatedAt"
+        url = Get-MemberValue -Object $SmokeReport -Name "url"
+        viewportCount = [int]$viewports.Count
+        passedViewportCount = [int]$passedViewportCount
+        failedViewportCount = [int]$failedViewportCount
+        failedImageCount = [int]$failedImageCount
+        missingSectionCount = [int]$missingSectionCount
+        overflowCount = [int]$overflowCount
+        minimumRootClientWidth = $minimumRootClientWidthValue
+        mobileRootClientWidth = $mobileRootClientWidth
+        warningCount = [int]$warnings.Count
+        warnings = @($warnings.ToArray())
+    }
+}
+
 function Test-CatalogShape {
     param([hashtable]$Catalog)
 
@@ -6073,6 +6253,8 @@ function Test-ProfileState {
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $readmeSizeBudget = Test-ReadmeSizeBudget -ExpectedReadme $ExpectedReadme
     $readmeDensity = Test-ReadmeDensity -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup
+    $artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $null
+    $renderedProfileSmoke = New-RenderedProfileSmokeSummary -SmokeReport $null
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -6165,7 +6347,25 @@ function Test-ProfileState {
         linkValidationWarnings = @($linkWarnings)
         readmeSizeBudget = $readmeSizeBudget
         readmeDensity = $readmeDensity
+        artifactBudgets = $artifactBudgets
+        renderedProfileSmoke = $renderedProfileSmoke
         readmeExperienceChecks = $experienceChecks
+    }
+    for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {
+        $draftReportJson = $report | ConvertTo-Json -Depth 30
+        $report.artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $draftReportJson
+    }
+    $reportSchemaValidation = Test-JsonSchemaContract -Value $report -SchemaPath $ReportSchemaPath
+    $schemaValidation = [ordered]@{
+        passed = [bool]($feedSchemaValidation.passed -and $reportSchemaValidation.valid)
+        catalog = $feedSchemaValidation.catalog
+        projects = $feedSchemaValidation.projects
+        report = $reportSchemaValidation
+    }
+    $report.schemaValidation = $schemaValidation
+    for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {
+        $draftReportJson = $report | ConvertTo-Json -Depth 30
+        $report.artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $draftReportJson
     }
     $reportSchemaValidation = Test-JsonSchemaContract -Value $report -SchemaPath $ReportSchemaPath
     $schemaValidation = [ordered]@{

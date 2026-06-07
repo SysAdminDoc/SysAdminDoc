@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.84] - 2026-06-06
+
+- Added: `reports/profile-sync-report.json.artifactBudgets` now records generated README, feed, report, and profile-SVG budget rows with soft-limit warnings.
+- Added: `reports/profile-sync-report.json.renderedProfileSmoke` now records the live rendered-profile smoke summary after `scripts/render-profile-smoke.ps1` runs.
+- Added: The profile sync summary now surfaces artifact budget status, rendered smoke status, warning counts, and mobile root width, with Pester coverage for budget and smoke aggregation.
+
 ## [v4.9.83] - 2026-06-06
 
 - Added: `reports/profile-sync-report.json.readmeDensity` now records README routing recommendation fields, including portfolio-only candidate counts and per-category soft-limit overflow counts.

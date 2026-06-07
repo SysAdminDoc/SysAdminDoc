@@ -10,6 +10,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+. (Join-Path $PSScriptRoot "sync-profile.ps1")
+
 function Find-ChromeExecutable {
     $commands = @("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
     foreach ($command in $commands) {
@@ -282,6 +284,32 @@ $report = [ordered]@{
 }
 $reportPath = Join-Path $resolvedOutputDir "rendered-profile-smoke.json"
 $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $reportPath -Encoding utf8
+$syncReportPath = Join-Path $currentDirectory "reports/profile-sync-report.json"
+if (Test-Path -LiteralPath $syncReportPath) {
+    try {
+        $syncReport = Get-Content -LiteralPath $syncReportPath -Raw | ConvertFrom-Json -AsHashtable
+        $syncReport["renderedProfileSmoke"] = New-RenderedProfileSmokeSummary -SmokeReport $report
+        for ($budgetPass = 0; $budgetPass -lt 2; $budgetPass++) {
+            $draftSyncReportJson = $syncReport | ConvertTo-Json -Depth 30
+            foreach ($row in @($syncReport["artifactBudgets"]["rows"])) {
+                if ($row["artifact"] -eq "reports/profile-sync-report.json" -and $row["metric"] -eq "bytes") {
+                    $value = [System.Text.Encoding]::UTF8.GetByteCount($draftSyncReportJson + [Environment]::NewLine)
+                    $row["value"] = [int]$value
+                    $row["overSoftLimit"] = [bool]($value -gt [int]$row["softLimit"])
+                    $row["warning"] = if ($row["overSoftLimit"]) {
+                        "reports/profile-sync-report.json bytes is $value, above the $($row["softLimit"]) soft limit."
+                    } else {
+                        $null
+                    }
+                }
+            }
+        }
+        $syncReport | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $syncReportPath -Encoding utf8
+        Write-Host "Updated profile sync report renderedProfileSmoke summary: $syncReportPath"
+    } catch {
+        Write-Warning "Could not update profile sync report renderedProfileSmoke summary: $($_.Exception.Message)"
+    }
+}
 
 if (-not $report.passed) {
     Write-Error "Rendered profile smoke failed. See $reportPath."

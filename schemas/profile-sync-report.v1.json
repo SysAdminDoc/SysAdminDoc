@@ -44,6 +44,8 @@
     "linkValidationWarnings",
     "readmeSizeBudget",
     "readmeDensity",
+    "artifactBudgets",
+    "renderedProfileSmoke",
     "readmeExperienceChecks"
   ],
   "properties": {
@@ -194,6 +196,12 @@
     },
     "readmeDensity": {
       "$ref": "#/$defs/readmeDensity"
+    },
+    "artifactBudgets": {
+      "$ref": "#/$defs/artifactBudgets"
+    },
+    "renderedProfileSmoke": {
+      "$ref": "#/$defs/renderedProfileSmoke"
     },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
@@ -2578,6 +2586,144 @@
             "keep-in-readme",
             "review-portfolio-only-candidates"
           ]
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "artifactBudgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "warningCount",
+        "warnings",
+        "rows"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "within-budget",
+            "warning"
+          ]
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifactBudgetRow"
+          }
+        }
+      }
+    },
+    "artifactBudgetRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact",
+        "metric",
+        "value",
+        "softLimit",
+        "overSoftLimit",
+        "warning",
+        "note"
+      ],
+      "properties": {
+        "artifact": {
+          "type": "string"
+        },
+        "metric": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "softLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "overSoftLimit": {
+          "type": "boolean"
+        },
+        "warning": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "renderedProfileSmoke": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "generatedAt",
+        "url",
+        "viewportCount",
+        "passedViewportCount",
+        "failedViewportCount",
+        "failedImageCount",
+        "missingSectionCount",
+        "overflowCount",
+        "minimumRootClientWidth",
+        "mobileRootClientWidth",
+        "warningCount",
+        "warnings"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "not-run",
+            "passed",
+            "warning"
+          ]
+        },
+        "generatedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "url": {
+          "$ref": "#/$defs/nullableUri"
+        },
+        "viewportCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "passedViewportCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedViewportCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedImageCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingSectionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "overflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "minimumRootClientWidth": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "mobileRootClientWidth": {
+          "$ref": "#/$defs/nullableInteger"
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
