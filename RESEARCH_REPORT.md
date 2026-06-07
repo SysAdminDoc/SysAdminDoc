@@ -5,10 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.85
+Current version after this refresh: v4.9.86
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.86 batch names concrete README portfolio-only review candidates
+  without changing generated README inclusion.
+- `readmeDensity.portfolioOnlyCandidateSelectionPolicy` records that candidate
+  rows are non-featured, non-currently-building repo-only rows that still have
+  portfolio routes, sorted by stars, release availability, age, category order,
+  and repo name.
+- `readmeDensity.portfolioOnlyCandidates` currently identifies 11 Python rows:
+  `CSV_Power_Tool`, `Flux`, `PillSleepTracker`, `UniversalCompiler`,
+  `GmailDownloader`, `bypassnroGen`, `LipSight`, `PDFedit`,
+  `QR-Code-Generator-Pro`, `Stock-Video-Collector`, and `Tunerize`.
+- The current recommendation remains `review-portfolio-only-candidates`, not an
+  automatic catalog change. A preview mode should come before any generated
+  README row is demoted.
 - The v4.9.85 batch adds a PR-delivery transition checklist to
   `repositorySettings.requiredCheckReadiness` before any required-check
   enforcement is enabled.

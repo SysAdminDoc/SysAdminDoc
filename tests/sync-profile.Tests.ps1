@@ -872,6 +872,16 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $density.portfolioOnlyCandidateCount | Should -Be 2
         $density.portfolioOnlyCandidateCategoryCount | Should -Be 1
         $density.portfolioOnlyCandidateCategories | Should -Contain 'powershell'
+        $density.portfolioOnlyCandidateSelectionPolicy | Should -Match 'non-featured'
+        @($density.portfolioOnlyCandidates) | Should -HaveCount 2
+        $density.portfolioOnlyCandidates[0].reviewRank | Should -Be 1
+        $density.portfolioOnlyCandidates[0].repo | Should -Be 'RepoOnlyB'
+        $density.portfolioOnlyCandidates[0].recommendation | Should -Be 'review-for-portfolio-only'
+        $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'category-over-soft-limit'
+        $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'low-signal-zero-star'
+        $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'repo-only-action'
+        $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'no-latest-release'
+        $density.portfolioOnlyCandidates[0].reasonCodes | Should -Contain 'portfolio-route-available'
         $density.routingRecommendation | Should -Be 'review-portfolio-only-candidates'
         $density.warningCount | Should -BeGreaterThan 0
         ($density.warnings -join ' ') | Should -Match 'portfolio-only review'
@@ -2115,6 +2125,7 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'README largest category'
             $summary | Should -Match 'README repo-only rows'
             $summary | Should -Match 'README portfolio-only candidates'
+            $summary | Should -Match 'README candidate sample'
             $summary | Should -Match 'README routing recommendation'
             $summary | Should -Match 'Artifact budget status'
             $summary | Should -Match 'Artifact budget warnings'
@@ -2157,6 +2168,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'portfolioCompatibility'
         $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'portfolioOnlyCandidateCount'
+        $script:SummaryScript | Should -Match 'portfolioOnlyCandidates'
         $script:SummaryScript | Should -Match 'artifactBudgets'
         $script:SummaryScript | Should -Match 'renderedProfileSmoke'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'

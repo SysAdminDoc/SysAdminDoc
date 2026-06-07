@@ -212,6 +212,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1
+    },
     "nonNegativeNumber": {
       "type": "number",
       "minimum": 0
@@ -2624,6 +2628,8 @@
         "portfolioOnlyCandidateCount",
         "portfolioOnlyCandidateCategoryCount",
         "portfolioOnlyCandidateCategories",
+        "portfolioOnlyCandidateSelectionPolicy",
+        "portfolioOnlyCandidates",
         "routingRecommendation",
         "warningCount",
         "warnings",
@@ -2675,6 +2681,15 @@
             "type": "string"
           }
         },
+        "portfolioOnlyCandidateSelectionPolicy": {
+          "type": "string"
+        },
+        "portfolioOnlyCandidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/readmeDensityPortfolioOnlyCandidate"
+          }
+        },
         "routingRecommendation": {
           "type": "string",
           "enum": [
@@ -2696,6 +2711,65 @@
           "items": {
             "$ref": "#/$defs/readmeDensityCategoryRow"
           }
+        }
+      }
+    },
+    "readmeDensityPortfolioOnlyCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewRank",
+        "category",
+        "displayName",
+        "repo",
+        "title",
+        "stars",
+        "primaryAction",
+        "includeInPortfolio",
+        "pushedAt",
+        "latestReleaseTag",
+        "reasonCodes",
+        "recommendation"
+      ],
+      "properties": {
+        "reviewRank": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "category": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "stars": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "primaryAction": {
+          "type": "string"
+        },
+        "includeInPortfolio": {
+          "type": "boolean"
+        },
+        "pushedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reasonCodes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": [
+            "review-for-portfolio-only"
+          ]
         }
       }
     },
