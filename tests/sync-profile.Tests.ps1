@@ -357,9 +357,9 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.status | Should -Be 'blocked'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyForRequiredCheckEnforcement | Should -BeFalse
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.checklistCount | Should -Be 5
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyCount | Should -Be 2
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyCount | Should -Be 3
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.blockedCount | Should -Be 2
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.needsLiveValidationCount | Should -Be 1
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.needsLiveValidationCount | Should -Be 0
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.available | Should -BeTrue
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -BeNullOrEmpty
@@ -381,18 +381,19 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'not-approved'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'defer-required-check-enforcement'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'planned'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'needs-live-validation'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'completed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'ready'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.requiredBeforeEnforcement | Should -BeTrue
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.candidateCheckCount | Should -Be 6
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'README.md'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain '.github/workflows/tests.yml'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'setup.ps1'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'partial-failed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.pullRequestNumber | Should -Be 12
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.status | Should -Be 'partial-failed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateCheckCount | Should -Be 5
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -Contain 'Check generated README'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'passed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.pullRequestNumber | Should -Be 13
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.status | Should -Be 'passed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateCheckCount | Should -Be 6
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
@@ -2266,8 +2267,8 @@ Describe 'Required status check readiness' {
         $transition.readyForRequiredCheckEnforcement | Should -BeFalse
         $transition.status | Should -Be 'blocked'
         $plan = $transition.candidateCheckExercisePlan
-        $plan.status | Should -Be 'planned'
-        $plan.readinessStatus | Should -Be 'needs-live-validation'
+        $plan.status | Should -Be 'completed'
+        $plan.readinessStatus | Should -Be 'ready'
         $plan.requiredBeforeEnforcement | Should -BeTrue
         $plan.purpose | Should -Be 'refresh-recent-check-run-proof'
         $plan.disposableBranchPrefix | Should -Be 'automation/required-check-proof-'
@@ -2283,30 +2284,31 @@ Describe 'Required status check readiness' {
         $plan.expectedPrChecks | Should -Contain 'zizmor'
         $plan.verificationSteps | Should -HaveCount 5
         $plan.cleanupRequired | Should -BeTrue
-        $plan.evidenceStatus | Should -Be 'partial-failed'
+        $plan.evidenceStatus | Should -Be 'passed'
         $plan.documentationPath | Should -Be 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md'
-        $plan.nextAction | Should -Match 'Rerun the disposable PR proof'
+        $plan.nextAction | Should -Match 'direct-main maintenance'
         $candidateEvidence = $transition.candidateCheckExerciseEvidence
         $candidateEvidence.available | Should -BeTrue
-        $candidateEvidence.status | Should -Be 'partial-failed'
-        $candidateEvidence.evidenceStatus | Should -Be 'failed'
-        $candidateEvidence.pullRequestNumber | Should -Be 12
-        $candidateEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/12'
+        $candidateEvidence.status | Should -Be 'passed'
+        $candidateEvidence.evidenceStatus | Should -Be 'successful'
+        $candidateEvidence.pullRequestNumber | Should -Be 13
+        $candidateEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/13'
         $candidateEvidence.pullRequestState | Should -Be 'closed'
-        $candidateEvidence.branch | Should -Be 'automation/required-check-proof-20260607-124'
-        $candidateEvidence.headSha | Should -Be '52f790cb1c0b4c87f6b617abc4e622c8995214fb'
-        $candidateEvidence.mergeSha | Should -Be '85f569434fdf89dab0f76c099ac357b014566065'
-        $candidateEvidence.workflowRunIds | Should -Contain 27089526076
-        $candidateEvidence.profileSyncArtifactId | Should -Be 7463127507
+        $candidateEvidence.branch | Should -Be 'automation/required-check-proof-20260607-125'
+        $candidateEvidence.headSha | Should -Be 'b67e1f1fc3ec70cf6a91b4d1a0c5f71d52d1fb79'
+        $candidateEvidence.mergeSha | Should -Be '24b6a49dbe03f82f6c794b79f953fdf04190febe'
+        $candidateEvidence.workflowRunIds | Should -Contain 27090100279
+        $candidateEvidence.profileSyncArtifactId | Should -Be 7463321333
         $candidateEvidence.expectedCandidateCheckCount | Should -Be 6
         $candidateEvidence.observedCandidateCheckCount | Should -Be 6
-        $candidateEvidence.successfulCandidateCheckCount | Should -Be 5
-        $candidateEvidence.failedCandidateCheckCount | Should -Be 1
+        $candidateEvidence.successfulCandidateCheckCount | Should -Be 6
+        $candidateEvidence.failedCandidateCheckCount | Should -Be 0
+        $candidateEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
         $candidateEvidence.successfulCandidateChecks | Should -Contain 'Windows setup smoke'
-        $candidateEvidence.failedCandidateChecks | Should -Contain 'Check generated README'
+        $candidateEvidence.failedCandidateChecks | Should -BeNullOrEmpty
         $candidateEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
-        $candidateEvidence.failureReason | Should -Match 'projectsExportInSync remained false'
-        $candidateEvidence.nextAction | Should -Match 'fatal metadata drift classification'
+        $candidateEvidence.failureReason | Should -BeNullOrEmpty
+        $candidateEvidence.nextAction | Should -Match 'direct-main maintenance'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'

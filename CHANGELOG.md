@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.117] - 2026-06-07
+
+- Added: `candidateCheckExerciseEvidence` now records disposable PR #13, the six observed candidate checks, six passing results, profile-sync artifact ID, PR merge ref, and closed-PR/deleted-branch cleanup state.
+- Changed: `candidateCheckExercisePlan` now records the recent-check proof as completed and passed, while the PR-delivery transition checklist keeps required-check enforcement blocked on the unresolved direct-main maintenance policy.
+- Verified: PR #13 `Check generated README` passed with `readmeInSync=true`, `projectsExportInSync=true`, `profileAssetsInSync=true`, and zero fatal metadata drift in artifact `7463321333`.
+
 ## [v4.9.116] - 2026-06-07
 
 - Fixed: `projectsExportInSync` now follows fatal metadata-drift classification, so source commit, metadata snapshot, and pushed-at informational drift do not fail check-only validation.

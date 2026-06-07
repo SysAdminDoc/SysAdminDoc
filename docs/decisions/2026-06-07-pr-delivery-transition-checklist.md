@@ -31,7 +31,7 @@ generated branch head SHA.
 | --- | --- | --- | --- |
 | Candidate required checks | Ready | `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` are defined with stable workflow-backed names. | Keep job names unique and unchanged before enforcement. |
 | Candidate workflow coverage | Ready | Tests, Profile sync, and Workflow security all create checks on `pull_request` and `merge_group`, and PR triggers are not path-filtered. | Keep required-check candidate workflows always-created for PRs and merge queue runs. |
-| Recent successful check runs | Needs live validation | GitHub requires status checks to have completed recently in the repository before they can be selected as required checks. | Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes. |
+| Recent successful check runs | Ready | Disposable PR #13 created all six candidate checks and each completed successfully in this repository. | Refresh the disposable proof if GitHub's recent-check selection window expires before enforcement. |
 | PR delivery or bypass | Blocked | Generated PR creation, branch-scoped workflow-dispatch validation, and the `generated-profile/validation` PR status handoff are proven. Routine maintenance still pushes directly to `main` while branch protection has `enforce_admins.enabled=true`. | Document and test a narrow approved direct-main maintenance bypass, or switch routine maintenance to PR delivery before enabling required checks. |
 | Enforcement mechanism | Blocked | Branch protection and repository rulesets are currently readable and non-enforcing for required checks. | After PR delivery is proven, enable either branch-protection required checks or one repository ruleset, then re-query live settings. |
 
@@ -210,10 +210,9 @@ routine PR delivery.
 
 Cycle 120 adds a machine-readable
 `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
-record for the remaining recent-check-run proof. The plan is still
-`readinessStatus=needs-live-validation`; after the first proof attempt its
-`evidenceStatus` is `partial-failed`. This does not enable enforcement, approve
-a bypass, or merge a proof branch.
+record for the remaining recent-check-run proof. After Cycle 125 the plan is
+`readinessStatus=ready` and `evidenceStatus=passed`. This does not enable
+enforcement, approve a bypass, or merge a proof branch.
 
 The proof branch should use the `automation/required-check-proof-` prefix and a
 disposable pull request titled `chore: exercise required-check candidates`.
@@ -290,6 +289,32 @@ The PR was closed and `automation/required-check-proof-20260607-124` was
 deleted after evidence collection. Required-check enforcement remains deferred.
 The next proof should rerun after `projectsExportInSync` is aligned to fatal
 metadata drift classification on `main`.
+
+## Cycle 125 Disposable PR Exercise Evidence
+
+Cycle 125 opened disposable PR #13 from
+`automation/required-check-proof-20260607-125` at
+`b67e1f1fc3ec70cf6a91b4d1a0c5f71d52d1fb79`. The PR check rollup created all
+six candidate required-check names, and each completed successfully:
+
+- `Check generated README`: passed
+- `PSScriptAnalyzer`: passed
+- `Pester (offline)`: passed
+- `Markdownlint`: passed
+- `Windows setup smoke`: passed
+- `zizmor`: passed
+
+The Profile sync run was `27090100279`, Tests run was `27090100282`, and
+Workflow security run was `27090100281`. The retained `profile-sync-report`
+artifact was `7463321333`, and the PR merge ref was
+`24b6a49dbe03f82f6c794b79f953fdf04190febe`. The hosted report showed
+`readmeInSync=true`, `projectsExportInSync=true`,
+`profileAssetsInSync=true`, and zero fatal metadata drift.
+
+The PR was closed and `automation/required-check-proof-20260607-125` was
+deleted after evidence collection. Required-check enforcement remains deferred
+until the direct-main maintenance bypass or PR-delivery policy is selected and
+tested.
 
 ## References
 

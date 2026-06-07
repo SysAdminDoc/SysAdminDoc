@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.116
+Current version after this refresh: v4.9.117
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.117 batch records the successful disposable candidate-check proof
+  from PR #13.
+- PR #13 created all six candidate required-check names, and `Check generated
+  README`, `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows
+  setup smoke`, and `zizmor` all passed.
+- Retained Profile sync artifact `7463321333` reported `readmeInSync=true`,
+  `projectsExportInSync=true`, `profileAssetsInSync=true`, and zero fatal
+  metadata drift at merge ref
+  `24b6a49dbe03f82f6c794b79f953fdf04190febe`.
+- `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
+  now records `status=completed`, `readinessStatus=ready`, and
+  `evidenceStatus=passed`; required-check enforcement remains deferred until
+  the direct-main maintenance bypass or PR-delivery policy is selected and
+  tested.
 - The v4.9.116 batch makes projects-feed sync status follow fatal metadata
   drift classification.
 - Disposable PR #12 created all six candidate required-check names. Five
@@ -61,7 +75,7 @@ Current version after this refresh: v4.9.116
 - The v4.9.112 batch adds the disposable PR exercise plan for candidate-check
   freshness proof without enabling required-check enforcement.
 - `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
-  now records `status=planned`, `readinessStatus=needs-live-validation`,
+  originally recorded `status=planned`, `readinessStatus=needs-live-validation`,
   `evidenceStatus=not-run`, the `automation/required-check-proof-` branch
   prefix, the three proof touch paths, and the six expected candidate check
   names.

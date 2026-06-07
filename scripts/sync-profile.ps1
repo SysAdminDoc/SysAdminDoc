@@ -4304,8 +4304,8 @@ function Get-CandidateCheckExercisePlan {
     $workflowNames = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "workflow") } | Sort-Object -Unique)
 
     return [ordered]@{
-        status = "planned"
-        readinessStatus = "needs-live-validation"
+        status = "completed"
+        readinessStatus = "ready"
         requiredBeforeEnforcement = $true
         purpose = "refresh-recent-check-run-proof"
         disposableBranchPrefix = "automation/required-check-proof-"
@@ -4336,56 +4336,55 @@ function Get-CandidateCheckExercisePlan {
             "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
         )
         cleanupRequired = $true
-        evidenceStatus = "partial-failed"
+        evidenceStatus = "passed"
         documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
-        nextAction = "Rerun the disposable PR proof after projectsExportInSync follows fatal drift classification on main, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+        nextAction = "Keep this proof fresh before enforcement; resolve the direct-main maintenance bypass or PR-delivery policy before enabling required checks."
     }
 }
 
 function Get-CandidateCheckExerciseEvidence {
     return [ordered]@{
         available = $true
-        status = "partial-failed"
-        evidenceStatus = "failed"
-        pullRequestNumber = 12
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/12"
+        status = "passed"
+        evidenceStatus = "successful"
+        pullRequestNumber = 13
+        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/13"
         pullRequestState = "closed"
-        branch = "automation/required-check-proof-20260607-124"
-        headSha = "52f790cb1c0b4c87f6b617abc4e622c8995214fb"
-        mergeSha = "85f569434fdf89dab0f76c099ac357b014566065"
+        branch = "automation/required-check-proof-20260607-125"
+        headSha = "b67e1f1fc3ec70cf6a91b4d1a0c5f71d52d1fb79"
+        mergeSha = "24b6a49dbe03f82f6c794b79f953fdf04190febe"
         workflowRunIds = @(
-            27089526076,
-            27089526072,
-            27089526079
+            27090100279,
+            27090100281,
+            27090100282
         )
-        profileSyncRunId = 27089526076
-        testsRunId = 27089526079
-        workflowSecurityRunId = 27089526072
-        profileSyncArtifactId = 7463127507
+        profileSyncRunId = 27090100279
+        testsRunId = 27090100282
+        workflowSecurityRunId = 27090100281
+        profileSyncArtifactId = 7463321333
         expectedCandidateCheckCount = 6
         observedCandidateCheckCount = 6
-        successfulCandidateCheckCount = 5
-        failedCandidateCheckCount = 1
+        successfulCandidateCheckCount = 6
+        failedCandidateCheckCount = 0
         skippedNonCandidateCheckCount = 3
         successfulCandidateChecks = @(
+            "Check generated README",
             "PSScriptAnalyzer",
             "Pester (offline)",
             "Markdownlint",
             "Windows setup smoke",
             "zizmor"
         )
-        failedCandidateChecks = @(
-            "Check generated README"
-        )
+        failedCandidateChecks = @()
         skippedNonCandidateChecks = @(
             "Open generated README PR",
             "Preview generated README PR",
             "Generated profile validation status"
         )
-        failureReason = "Check generated README failed because projectsExportInSync remained false even though the hosted report contained only informational sourceCommit, metadataSnapshotAt, and pushedAt drift with zero fatal metadata drift."
+        failureReason = ""
         cleanupState = "closed-pr-and-deleted-branch"
-        evidenceSummary = "Disposable PR #12 created all six candidate required-check names. PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed; Check generated README failed because projectsExportInSync stayed false for informational pushed-at drift. The PR was closed and automation/required-check-proof-20260607-124 was deleted after evidence collection."
-        nextAction = "Make projectsExportInSync follow fatal metadata drift classification on main, regenerate the feed/report, then rerun the disposable candidate-check proof."
+        evidenceSummary = "Disposable PR #13 created all six candidate required-check names. Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed. The PR was closed and automation/required-check-proof-20260607-125 was deleted after evidence collection."
+        nextAction = "Resolve the direct-main maintenance bypass or PR-delivery policy before enabling required-check enforcement; refresh this proof if GitHub's recent-check selection window expires."
     }
 }
 
@@ -4419,10 +4418,10 @@ function Get-PrDeliveryTransitionChecklist {
 
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "recent-check-run-proof" `
-                -Status "needs-live-validation" `
+                -Status "ready" `
                 -Summary "Each required check must have a recent successful run in this repository before it can be selected." `
-                -Evidence "Disposable PR #12 created all six candidate checks, but Check generated README failed because projectsExportInSync remained false despite only informational pushed-at drift." `
-                -NextAction "Rerun the disposable PR proof after projectsExportInSync follows fatal drift classification and verify every candidate check completes."))
+                -Evidence "Disposable PR #13 created all six candidate checks and every candidate check completed successfully." `
+                -NextAction "Refresh this disposable PR proof if GitHub's recent-check selection window expires before enforcement."))
 
     $deliveryStatus = if ($EnforceAdmins -eq $true -or $ActionsPullRequestCreationAllowed -eq $false) { "blocked" } else { "needs-live-validation" }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
