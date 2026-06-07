@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.121
+Current repo version: v4.9.122
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 129 - 2026-06-07.
+> Last researched: Cycle 130 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,20 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 129 - 2026-06-07.
+Last researched: Cycle 130 - 2026-06-07.
+
+2026-06-07 v4.9.122 refresh: required-check enforcement proof recorded.
+Cycle 130 records PR #16 as the first normal routine maintenance pull request
+completed under active branch-protection required checks. The sync report now
+captures head SHA `8575e324182b96527bb9b58420d5ff44e3c05c06`, merge SHA
+`dc05296386af847d4e89803f1ed3ac966df49fb7`, workflow run IDs `27091837034`,
+`27091837025`, and `27091837036`, retained profile-sync artifact
+`7463884699`, retained rendered-smoke artifact `7463884770`, all six passing
+required checks, rebase merge, and deleted-branch cleanup. The direct-main
+maintenance policy now recommends keeping routine maintenance on pull-request
+delivery, with no direct-main bypass approved. Future work should keep
+monitoring check-name stability and re-query branch protection after any
+workflow check-name changes.
 
 2026-06-07 v4.9.121 refresh: branch-protection required checks enabled.
 Cycle 129 enabled strict required status checks on protected `main` for
@@ -47,8 +60,8 @@ release-asset inspection loss to informational when release identity is
 unchanged, so hosted PR validation is not blocked by a temporary GitHub release
 API outage. Rendered profile smoke now gives Chrome DevTools a longer startup
 window, CI-friendly launch flags, captured browser logs, and one fresh-port
-retry. The next cycle should monitor the first normal PR under active
-required-check enforcement and record the hosted proof.
+retry. Cycle 130 records the first normal PR proof under active required-check
+enforcement in the v4.9.122 refresh.
 
 2026-06-07 v4.9.120 refresh: routine PR delivery proof recorded.
 Cycle 127 opened and merged PR #14 from the `routine-pr-drill-evidence` branch
@@ -2309,20 +2322,20 @@ the trust metadata currently available to visitors for executable assets.*
 backlog into an enforcement sequence that avoids breaking the current
 direct-push automation.*
 
-- [ ] P2 - Stage branch protection or ruleset enforcement behind PR delivery
-  - Why: the repo has enough always-created CI checks to protect `main`, but enabling required checks while this autonomous loop still pushes directly to `main` and `enforce_admins=true` would block future maintenance unless PR delivery or an explicit bypass is in place first.
-  - Evidence: `gh api repos/SysAdminDoc/SysAdminDoc/branches/main/protection/required_status_checks` currently returns `404 Required status checks not enabled`; `gh api repos/SysAdminDoc/SysAdminDoc/rulesets` returns `[]`; `gh pr list --state open` currently shows Dependabot PR #7 (`dependabot/github_actions/routine-actions-0321e4ed66`). Current branch protection has `enforce_admins.enabled=true`, `required_conversation_resolution.enabled=true`, `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`, but no required status checks or required PR review object. Local workflows now have always-created PR/merge-queue candidates: `.github/workflows/tests.yml` defines `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, and `Windows setup smoke`; `.github/workflows/profile-sync.yml` defines `Check generated README`; `.github/workflows/workflow-security.yml` defines `zizmor`; all three include `pull_request` plus `merge_group`. Current PR #7 check evidence shows `Markdownlint`, `PSScriptAnalyzer`, `Windows setup smoke`, and `zizmor` passing, with `Pester (offline)` and `Check generated README` failing on the Dependabot branch.
+- [x] P2 - Stage branch protection or ruleset enforcement behind PR delivery
+  - Why: the repo has enough always-created CI checks to protect `main`, but required checks needed a proven PR delivery path first because `enforce_admins=true` would reject future direct maintenance pushes.
+  - Evidence: branch protection now requires `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` with strict up-to-date enforcement; repository rulesets remain unused. PR #16 proved the active enforcement path by passing all six required checks before rebase merge at head SHA `8575e324182b96527bb9b58420d5ff44e3c05c06` and merge SHA `dc05296386af847d4e89803f1ed3ac966df49fb7`.
   - Source notes: GitHub branch protection can require PRs, approvals, code-owner review, status checks, conversation resolution, signed commits, linear history, and merge queue: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule. GitHub merge queues require workflows to trigger on `merge_group` or required checks will not be reported: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue. Rulesets can be active or disabled, can require status checks and reviews, and can allow PR-only bypasses for selected actors: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository and https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets. GitHub Actions `jobs.<job_id>.name` controls the job name displayed in the UI: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax.
-  - Recommended sequence:
+  - Implemented sequence:
     1. Keep the already-shipped `Windows setup smoke` and `Markdownlint` jobs in the candidate required-check set.
-    2. Move this autonomous loop to PR-based delivery, or document a narrow allowed bypass before enabling required checks.
-    3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
-    4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
-    5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
-  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. v4.9.117 proves all six candidate check names on disposable PR #13. v4.9.118 selects routine pull-request delivery with no direct-main bypass. v4.9.119 adds `routineMaintenancePrDrillEvidence` as the evidence slot for the normal maintenance merge drill. v4.9.120 records merged PR #14 as the successful routine-maintenance PR delivery proof: all six candidate checks passed, the branch merged by rebase, and the proof branch was deleted. v4.9.121 enables branch-protection required checks for the six candidate contexts with strict up-to-date enforcement and updates readiness reporting to treat branch protection as the selected enforcement mechanism. The remaining work is monitoring the first normal PR under active required-check enforcement and recording that hosted proof.
+    2. Move routine maintenance to PR-based delivery before enabling required checks.
+    3. Use branch protection on `main` to require `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
+    4. Run a real PR proof so each required check is present with the exact UI check name.
+    5. Keep active enforcement after the proof PR merges without bypass.
+  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. v4.9.117 proves all six candidate check names on disposable PR #13. v4.9.118 selects routine pull-request delivery with no direct-main bypass. v4.9.119 adds `routineMaintenancePrDrillEvidence` as the evidence slot for the normal maintenance merge drill. v4.9.120 records merged PR #14 as the successful routine-maintenance PR delivery proof. v4.9.121 enables branch-protection required checks for the six candidate contexts with strict up-to-date enforcement. v4.9.122 records PR #16 as the first normal PR proof under active required-check enforcement, with all six checks passing, rebase merge, and deleted-branch cleanup.
   - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
   - Risks: requiring `Check generated README` can force live-link/profile-smoke dependencies onto every PR; requiring `zizmor` before exact tool pinning can create supply-chain update friction; code-owner review is weak for a single-user repo unless the user wants self-review controls; merge queue is overkill unless PR volume increases.
-  - Verify: open a disposable PR touching `README.md`, `.github/workflows/tests.yml`, and `setup.ps1`; confirm all required candidate jobs are created on PR and `merge_group`; query branch protection/rulesets after enforcement; confirm direct push behavior is intentionally blocked or bypassed according to the documented delivery model.
+  - Verify: PR #13 proved all six candidate jobs are created on PR, PR #14 proved routine PR delivery, branch protection was queried after enforcement, and PR #16 proved the normal required-check path. Continue re-querying branch protection after workflow check-name changes.
   - Complexity: M
 
 ### Researcher Queue (Cycle 44 - 2026-06-06)
@@ -2409,14 +2422,14 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 112 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 130 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `5f018b4 feat: report scorecard alert posture`
+- HEAD inspected before this cycle: `dc052963 ci: harden rendered smoke`
 - Worktree before implementation: clean on `main...origin/main`.
-- Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
+- Live GitHub branch protection check: required status checks are enabled for `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`; no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
 - Cycle 82 reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and suppressed-feed redaction against their shipped evidence.
 - Cycle 83 applied the routine `github/codeql-action/upload-sarif` 4.36.2 update from Dependabot PR #7 on `main`.
@@ -2452,13 +2465,13 @@ Current local state:
 - Cycle 120 added the candidate-check exercise plan for the disposable PR proof needed before required-check enforcement, with report/schema/summary/Pester coverage and `evidenceStatus=not-run`.
 - Cycle 112 documented the profile release/tag policy, added `profileReleaseConsistency.releasePolicy`, and changed policy-acknowledged release/tag drift to an informational summary notice instead of cutting a `v4.9.x` release/tag.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
-- Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
+- Branch-protection required-check enforcement is active. Routine maintenance uses pull-request delivery, no direct-main bypass is approved, and PR #16 is the first recorded normal PR proof under active required checks.
 
 Next research cycles:
 
-1. Cycle 113: decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
-2. Cycle 114: audit remaining repository-setting warnings, especially Dependabot security updates and branch-protection review settings, for report-only evidence or safe local guards.
-3. Cycle 115: audit userscript install-trust warnings and decide whether any branch-hosted install rows should move to release/tag-hosted URLs with explicit update metadata.
+1. Cycle 131: audit branch-protection review settings and decide whether PR reviews or code-owner reviews should stay warning-only for this single-maintainer profile repo.
+2. Cycle 132: audit remaining repository-setting warnings, especially Dependabot security updates, for report-only evidence or safe local guards.
+3. Cycle 133: audit userscript install-trust warnings and decide whether any branch-hosted install rows should move to release/tag-hosted URLs with explicit update metadata.
 
 ### Quick Wins
 
@@ -2514,7 +2527,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Profile repo release/tag consistency check for `v4.9.x` planning versions (completed v4.9.57 with `profileReleaseConsistency`, warning-only latest-release/tag drift rows, schema support, summary rows, and Pester coverage).
 - [x] P2 — Userscript install trust metadata for raw `.user.js` actions (completed v4.9.58 with `userscriptInstallTrust`, schema support, summary rows, live report counts, and Pester coverage).
 - [x] P2 — Live GitHub-rendered profile smoke check with screenshot artifacts (completed v4.9.27 with `scripts/render-profile-smoke.ps1`, profile-sync workflow artifact upload, and Pester wiring coverage).
-- [ ] P2 🔧 — Require branch protection/ruleset status checks on `main` (v4.9.30 completed always-created PR/merge-queue check readiness; v4.9.77 recorded activation preconditions and candidate checks; external enforcement remains gated by the direct-push loop).
+- [x] P2 🔧 — Require branch protection/ruleset status checks on `main` (completed v4.9.122 with routine PR delivery, branch-protection required checks, six passing required checks on PR #16, rebase merge, and deleted-branch cleanup).
 - [x] P2 — Pull-request profile-sync validation for catalog/profile changes (duplicate row reconciled in v4.9.60; completed v4.9.28 with read-only pull-request profile-sync validation and trigger-surface Pester coverage).
 - [x] P2 — Explicit GitHub Actions timeout budgets for validation and refresh jobs (completed v4.9.32 with job-level budgets and Pester coverage).
 - [x] P2 — Structured issue forms for broken catalog links and profile corrections (duplicate row reconciled in v4.9.60; completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).

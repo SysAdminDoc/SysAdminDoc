@@ -9,6 +9,11 @@ Cycle 129. The repo has stable candidate checks, pull request triggers, and
 merge queue triggers, and routine maintenance has switched to PR-based delivery
 with no direct-main bypass approved.
 
+Cycle 130 records PR #16 as the first normal routine maintenance pull request
+completed under active branch-protection required checks. All six required
+checks passed before rebase merge, and the proof branch was deleted after
+merge.
+
 Cycle 110 live evidence confirmed one additional blocker: the repository's
 GitHub Actions workflow permissions currently use `default_workflow_permissions=read`
 and `can_approve_pull_request_reviews=false`. GitHub documents the
@@ -30,8 +35,8 @@ generated branch head SHA.
 | Candidate required checks | Ready | `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` are defined with stable workflow-backed names. | Keep job names unique and unchanged before enforcement. |
 | Candidate workflow coverage | Ready | Tests, Profile sync, and Workflow security all create checks on `pull_request` and `merge_group`, and PR triggers are not path-filtered. | Keep required-check candidate workflows always-created for PRs and merge queue runs. |
 | Recent successful check runs | Ready | Disposable PR #13 created all six candidate checks and each completed successfully in this repository. | Refresh the disposable proof if GitHub's recent-check selection window expires before enforcement. |
-| PR delivery or bypass | Ready | Generated PR creation, branch-scoped workflow-dispatch validation, and the `generated-profile/validation` PR status handoff are proven. Routine maintenance uses PR delivery with no direct-main bypass approved, and PR #14 merged by rebase after all six candidate checks passed. | Select and enable one required-check enforcement mechanism, then re-query branch protection or rulesets. |
-| Enforcement mechanism | Ready | Branch protection requires `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` with strict up-to-date enforcement. Repository rulesets remain unused. | Monitor required checks on the next normal PR and re-query branch protection after any check-name changes. |
+| PR delivery or bypass | Ready | Generated PR creation, branch-scoped workflow-dispatch validation, and the `generated-profile/validation` PR status handoff are proven. Routine maintenance uses PR delivery with no direct-main bypass approved; PR #14 proved routine PR delivery before enforcement, and PR #16 proved it under active required checks. | Keep routine maintenance on PR delivery unless a separate approved bypass is documented. |
+| Enforcement mechanism | Ready | Branch protection requires `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` with strict up-to-date enforcement. PR #16 passed all six required checks before rebase merge. Repository rulesets remain unused. | Keep monitoring required checks on routine PRs and re-query branch protection after any check-name changes. |
 
 ## Activation Order
 
@@ -52,6 +57,8 @@ generated branch head SHA.
 8. Re-run `scripts/sync-profile.ps1 -Check` and confirm
    `repositorySettings.requiredCheckReadiness` and `prDeliveryTransition`
    reflect the new state.
+9. Record the first normal routine PR proof under active required checks. PR
+   #16 completed that proof in Cycle 130.
 
 ## Cycle 110 Live Write-PR Drill
 
@@ -198,12 +205,10 @@ machine-readable report evidence. The sync report now includes
 - `selectedPath=none`
 - `recommendation=defer-required-check-enforcement`
 
-This does not approve a bypass. It records the current state: routine
-maintenance still commits directly to `main`, live branch protection reports
+This did not approve a bypass. It recorded the Cycle 119 state: routine
+maintenance still committed directly to `main`, live branch protection reported
 `enforce_admins.enabled=true`, and no bypass actor or broader PR-delivery policy
-has been selected. Required-check enforcement should remain deferred until the
-repo chooses and tests either an explicit direct-main bypass actor/policy or
-routine PR delivery.
+had been selected. Later cycles chose and proved routine PR delivery.
 
 ## Cycle 120 Disposable PR Exercise Plan
 
@@ -311,9 +316,73 @@ artifact was `7463321333`, and the PR merge ref was
 `profileAssetsInSync=true`, and zero fatal metadata drift.
 
 The PR was closed and `automation/required-check-proof-20260607-125` was
-deleted after evidence collection. Required-check enforcement remains deferred
-until the direct-main maintenance bypass or PR-delivery policy is selected and
-tested.
+deleted after evidence collection. This proof later supported routine PR
+delivery and branch-protection enforcement.
+
+## Cycle 127 Routine PR Delivery Proof
+
+PR #14 proved normal routine-maintenance PR delivery before required-check
+enforcement. It merged by rebase after all six candidate checks passed:
+
+- `Check generated README`
+- `PSScriptAnalyzer`
+- `Pester (offline)`
+- `Markdownlint`
+- `Windows setup smoke`
+- `zizmor`
+
+The sync report records PR #14, head SHA
+`65475b7b47fc1e33a96843a131108b2660b18d19`, merge SHA
+`64e02f3b4b9737f77b4629052dabc9f449e261bb`, workflow run IDs
+`27090770215`, `27090770193`, and `27090770203`, rebase merge method, and
+deleted-branch cleanup.
+
+## Cycle 129 Branch-Protection Activation
+
+Branch protection now requires these six checks on protected `main` with strict
+up-to-date enforcement:
+
+- `Pester (offline)`
+- `PSScriptAnalyzer`
+- `Markdownlint`
+- `Windows setup smoke`
+- `Check generated README`
+- `zizmor`
+
+Admin enforcement, required conversation resolution, force-push blocking, and
+deletion blocking remain enabled. Pull request reviews and code-owner reviews
+are not required, and repository rulesets remain unused.
+
+## Cycle 130 Required-Check Enforcement Proof
+
+PR #16 is the first normal routine-maintenance pull request recorded after
+branch-protection required checks were enabled:
+
+- Pull request: `https://github.com/SysAdminDoc/SysAdminDoc/pull/16`
+- Branch slug: `record-required-check-enforcement`
+- Head SHA: `8575e324182b96527bb9b58420d5ff44e3c05c06`
+- Merge SHA: `dc05296386af847d4e89803f1ed3ac966df49fb7`
+- Merged at: `2026-06-07T11:58:25Z`
+- Merge method: `rebase`
+- Cleanup state: merged pull request and deleted branch
+
+All six required checks passed before merge:
+
+- `Check generated README`: run `27091837034`, job `79956716702`
+- `PSScriptAnalyzer`: run `27091837025`, job `79956716678`
+- `Pester (offline)`: run `27091837025`, job `79956716668`
+- `Markdownlint`: run `27091837025`, job `79956716665`
+- `Windows setup smoke`: run `27091837025`, job `79956716660`
+- `zizmor`: run `27091837036`, job `79956716654`
+
+Retained evidence artifacts:
+
+- `profile-sync-report`: artifact `7463884699`
+- `rendered-profile-smoke`: artifact `7463884770`
+
+Skipped non-candidate jobs were `Open generated README PR`, `Preview generated
+README PR`, and `Generated profile validation status`. They are not required
+checks for the routine PR path.
 
 ## References
 

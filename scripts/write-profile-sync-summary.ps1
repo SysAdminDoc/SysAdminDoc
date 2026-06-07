@@ -135,6 +135,14 @@ $routineMaintenancePrDrillPullRequest = if ($routineMaintenancePrDrillEvidence -
 $routineMaintenancePrDrillSuccessful = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.successfulCandidateCheckCount) { [int]$routineMaintenancePrDrillEvidence.successfulCandidateCheckCount } else { 0 }
 $routineMaintenancePrDrillFailed = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.failedCandidateCheckCount) { [int]$routineMaintenancePrDrillEvidence.failedCandidateCheckCount } else { 0 }
 $routineMaintenancePrDrillCleanup = if ($routineMaintenancePrDrillEvidence -and $null -ne $routineMaintenancePrDrillEvidence.cleanupState) { [string]$routineMaintenancePrDrillEvidence.cleanupState } else { "" }
+$requiredCheckEnforcementEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'requiredCheckEnforcementEvidence') { $prDeliveryTransition.requiredCheckEnforcementEvidence } else { $null }
+$requiredCheckEnforcementAvailable = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.available) { [bool]$requiredCheckEnforcementEvidence.available } else { $false }
+$requiredCheckEnforcementStatus = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.status) { [string]$requiredCheckEnforcementEvidence.status } else { "" }
+$requiredCheckEnforcementMechanism = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.enforcementMechanism) { [string]$requiredCheckEnforcementEvidence.enforcementMechanism } else { "" }
+$requiredCheckEnforcementPullRequest = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.pullRequestNumber) { [int]$requiredCheckEnforcementEvidence.pullRequestNumber } else { 0 }
+$requiredCheckEnforcementSuccessful = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.successfulCandidateCheckCount) { [int]$requiredCheckEnforcementEvidence.successfulCandidateCheckCount } else { 0 }
+$requiredCheckEnforcementFailed = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.failedCandidateCheckCount) { [int]$requiredCheckEnforcementEvidence.failedCandidateCheckCount } else { 0 }
+$requiredCheckEnforcementCleanup = if ($requiredCheckEnforcementEvidence -and $null -ne $requiredCheckEnforcementEvidence.cleanupState) { [string]$requiredCheckEnforcementEvidence.cleanupState } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -318,6 +326,13 @@ $summary = @"
 | Routine PR drill passed checks | $routineMaintenancePrDrillSuccessful |
 | Routine PR drill failed checks | $routineMaintenancePrDrillFailed |
 | Routine PR drill cleanup | $routineMaintenancePrDrillCleanup |
+| Required check enforcement evidence | $requiredCheckEnforcementAvailable |
+| Required check enforcement status | $requiredCheckEnforcementStatus |
+| Required check enforcement mechanism | $requiredCheckEnforcementMechanism |
+| Required check enforcement PR | $requiredCheckEnforcementPullRequest |
+| Required check enforcement passed checks | $requiredCheckEnforcementSuccessful |
+| Required check enforcement failed checks | $requiredCheckEnforcementFailed |
+| Required check enforcement cleanup | $requiredCheckEnforcementCleanup |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
@@ -447,6 +462,10 @@ if ($generatedPrDryRunAvailable -and $generatedPrDryRunConclusion -ne "success")
 
 if ($candidateCheckExerciseLatestAvailable -and $candidateCheckExerciseLatestStatus -ne "passed") {
     Write-Output "::warning::Candidate check exercise evidence is $candidateCheckExerciseLatestStatus; failed candidate checks: $candidateCheckExerciseLatestFailedNames."
+}
+
+if ($requiredCheckEnforcementAvailable -and $requiredCheckEnforcementStatus -ne "passed") {
+    Write-Output "::warning::Required-check enforcement evidence is $requiredCheckEnforcementStatus; failed candidate checks: $requiredCheckEnforcementFailed."
 }
 
 if ($codeScanningStatus -eq "needs-live-validation") {

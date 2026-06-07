@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.121
+Current version after this refresh: v4.9.122
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.122 batch records PR #16 as the first normal routine maintenance
+  pull request completed under active branch-protection required checks.
+- `requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence`
+  now records PR #16, head SHA
+  `8575e324182b96527bb9b58420d5ff44e3c05c06`, merge SHA
+  `dc05296386af847d4e89803f1ed3ac966df49fb7`, workflow run IDs
+  `27091837034`, `27091837025`, and `27091837036`, retained profile-sync
+  artifact `7463884699`, retained rendered-smoke artifact `7463884770`, all
+  six passing required checks, rebase merge method, and deleted-branch cleanup.
+- `directMainMaintenancePolicy.recommendation` is now `keep-pr-delivery`
+  because required checks are active and routine PR delivery has been proven
+  before and after enforcement.
+- The profile-sync summary, sync-report schema, and Pester suite now guard the
+  required-check enforcement proof shape.
 - The v4.9.121 batch enables strict branch-protection required checks on
   protected `main` for `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`,
   `Windows setup smoke`, `Check generated README`, and `zizmor`.
