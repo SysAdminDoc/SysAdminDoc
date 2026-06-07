@@ -2058,6 +2058,20 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper | Should -Match 'Generated profile PR validation handoff'
     }
 
+    It 'supports a side-effect-free generated PR dry run' {
+        $script:GeneratedPrHelper | Should -Match '\[switch\]\$DryRun'
+        $script:GeneratedPrHelper | Should -Match 'Dry run: no branch, commit, push, pull request, or validation dispatch will be created'
+        $script:GeneratedPrHelper | Should -Not -Match 'gh pr create.*--dry-run'
+
+        $script:GeneratedPrWorkflows.ProfileSync | Should -Match 'dry-run-pr'
+        $script:GeneratedPrWorkflows.ProfileSync | Should -Match '-DryRun'
+        $dryRunJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  dry-run-pr:.*').Value
+        $dryRunJob | Should -Match 'contents: read'
+        $dryRunJob | Should -Not -Match 'contents: write'
+        $dryRunJob | Should -Not -Match 'pull-requests: write'
+        $dryRunJob | Should -Not -Match 'actions: write'
+    }
+
     It 'centralizes branch creation, commit, push, pull request, and validation guards' {
         $script:GeneratedPrHelper | Should -Match "\[ValidateSet\('automation/profile-sync-', 'automation/profile-assets-'\)\]"
         $script:GeneratedPrHelper | Should -Match 'git diff --quiet'
@@ -2264,7 +2278,7 @@ Describe 'Workflow timeout budgets' {
         $script:WorkflowTimeoutBudgets = [ordered]@{
             '.github/workflows/automation-branch-cleanup.yml' = 1
             '.github/workflows/assets-refresh.yml' = 1
-            '.github/workflows/profile-sync.yml' = 2
+            '.github/workflows/profile-sync.yml' = 3
             '.github/workflows/scorecard.yml' = 1
             '.github/workflows/tests.yml' = 4
             '.github/workflows/workflow-security.yml' = 1
@@ -2368,7 +2382,7 @@ Describe 'Workflow checkout action pin' {
         $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
 
-        $checkoutUses.Count | Should -Be 9
+        $checkoutUses.Count | Should -Be 10
         foreach ($match in $checkoutUses) {
             $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
         }

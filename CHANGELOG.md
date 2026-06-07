@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.88] - 2026-06-07
+
+- Added: `scripts/open-generated-profile-pr.ps1 -DryRun` now previews generated PR branch, paths, validation URL, and missing CI environment without creating branches, commits, pushes, pull requests, or workflow dispatches.
+- Added: The manual Profile sync workflow now includes a read-only `dry-run-pr` mode for generated README PR delivery rehearsal.
+- Fixed: The generated PR helper summary line now formats the dispatched branch without a PowerShell parser error.
+
 ## [v4.9.87] - 2026-06-07
 
 - Added: `reports/profile-sync-report.json.readmeDensity.portfolioOnlyPreview` now records a report-only catalog demotion preview for the current candidate rows.

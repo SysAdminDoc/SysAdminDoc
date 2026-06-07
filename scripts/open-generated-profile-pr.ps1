@@ -31,15 +31,67 @@ param(
         'projects.json',
         'reports/profile-sync-report.json',
         'assets/profile/*.svg'
-    )
+    ),
+
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
 
+$missingEnvironment = @()
 foreach ($name in @('GH_TOKEN', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID')) {
     if ([string]::IsNullOrWhiteSpace([string][Environment]::GetEnvironmentVariable($name))) {
-        throw "$name is required."
+        $missingEnvironment += $name
     }
+}
+if ($missingEnvironment.Count -gt 0 -and -not $DryRun) {
+    throw "$($missingEnvironment -join ', ') required."
+}
+
+$repository = if ([string]::IsNullOrWhiteSpace($env:GITHUB_REPOSITORY)) {
+    'SysAdminDoc/SysAdminDoc'
+} else {
+    $env:GITHUB_REPOSITORY
+}
+$runId = if ([string]::IsNullOrWhiteSpace($env:GITHUB_RUN_ID)) {
+    'dry-run'
+} else {
+    $env:GITHUB_RUN_ID
+}
+$branch = "$BranchPrefix$runId"
+
+$changedGeneratedPaths = @(git diff --name-only -- @Paths)
+if ($LASTEXITCODE -ne 0) {
+    throw "git diff --name-only failed (exit code $LASTEXITCODE)."
+}
+$validationQuery = [uri]::EscapeDataString("branch:$branch")
+$validationRunsUrl = "https://github.com/$repository/actions/workflows/$ValidationWorkflow" +
+    "?query=$validationQuery"
+
+if ($DryRun) {
+    $dryRunLines = @(
+        '### Generated profile PR dry run'
+        ''
+        "- Repository: $repository"
+        "- Planned branch: $branch"
+        "- Base branch: $BaseBranch"
+        "- Commit message: $CommitMessage"
+        "- Pull request title: $PullRequestTitle"
+        "- Validation workflow: $ValidationWorkflow"
+        "- Validation mode: $ValidationMode"
+        "- Validation runs URL: $validationRunsUrl"
+        "- Missing CI environment: $(if ($missingEnvironment.Count -gt 0) { $missingEnvironment -join ', ' } else { 'none' })"
+        "- Changed generated paths: $(if ($changedGeneratedPaths.Count -gt 0) { $changedGeneratedPaths -join ', ' } else { 'none' })"
+        ''
+        'Dry run: no branch, commit, push, pull request, or validation dispatch will be created.'
+    )
+    foreach ($line in $dryRunLines) {
+        Write-Host $line
+    }
+    if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+        $dryRunLines | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+    }
+    exit 0
 }
 
 git diff --quiet
@@ -51,7 +103,6 @@ if ($LASTEXITCODE -ne 1) {
     throw "git diff --quiet failed (exit code $LASTEXITCODE)."
 }
 
-$branch = "$BranchPrefix$env:GITHUB_RUN_ID"
 git switch -c $branch
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to create branch $branch (exit code $LASTEXITCODE)."
@@ -95,9 +146,6 @@ if ($LASTEXITCODE -ne 0) {
     throw "Failed to push $branch (exit code $LASTEXITCODE)."
 }
 
-$validationQuery = [uri]::EscapeDataString("branch:$branch")
-$validationRunsUrl = "https://github.com/$env:GITHUB_REPOSITORY/actions/workflows/$ValidationWorkflow" +
-    "?query=$validationQuery"
 $prBody = @"
 $PullRequestBodyIntro
 
@@ -124,7 +172,7 @@ if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
         '### Generated profile PR validation handoff'
         ''
         "- Pull request: $prUrl"
-        "- Dispatched: Profile sync check on `$branch`"
+        ("- Dispatched: Profile sync check on ``{0}``" -f $branch)
         "- Validation runs: $validationRunsUrl"
     ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 }

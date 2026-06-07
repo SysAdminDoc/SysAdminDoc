@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.87
+Current repo version: v4.9.88
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 95 - 2026-06-07.
+> Last researched: Cycle 96 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,19 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 95 - 2026-06-07.
+Last researched: Cycle 96 - 2026-06-07.
+
+2026-06-07 v4.9.88 refresh: generated PR delivery dry-run helper
+shipped. `scripts/open-generated-profile-pr.ps1 -DryRun` now reports the
+planned generated branch, base branch, commit message, PR title, validation
+workflow/mode, validation-run URL, missing CI environment, and changed
+generated paths, then exits before branch creation, commit, push, PR creation,
+or validation dispatch. The manual Profile sync workflow now exposes
+`dry-run-pr` as a read-only workflow-dispatch mode that regenerates the
+profile, uploads the report, and calls the helper with `-DryRun`. Pester guards
+the side-effect-free contract and the workflow permissions. Required-check
+enforcement remains blocked until direct-main delivery is replaced by real PR
+delivery or an approved bypass.
 
 2026-06-07 v4.9.87 refresh: portfolio-only catalog review preview
 reporting shipped. `readmeDensity.portfolioOnlyPreview` now records a
@@ -1997,12 +2009,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 95 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 96 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `5befab9 feat: report portfolio review candidates`
+- HEAD inspected before this cycle: `3835491 feat: report portfolio preview impact`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -2020,14 +2032,15 @@ Current local state:
 - Cycle 93 added PR-delivery transition checklist reporting; current candidate checks/workflow coverage are ready, but required-check enforcement remains blocked by direct-main delivery and live PR proof.
 - Cycle 94 added concrete README portfolio-only review candidate rows; current Python candidates are selected deterministically but README inclusion is unchanged.
 - Cycle 95 added a report-only portfolio demotion preview; the selected 11 Python candidates would reduce README rows from 177 to 166 and clear the current category soft-limit warning without mutating the catalog, README, or projects feed.
+- Cycle 96 added a side-effect-free generated PR delivery dry-run helper and read-only Profile sync `dry-run-pr` workflow mode.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 96: add a PR-delivery dry-run helper once branch-based delivery is approved.
-2. Cycle 97: add candidate-row override notes to the catalog now the preview mode is in place.
-3. Cycle 98: add deterministic ordering for report aggregate arrays that still churn across live metadata snapshots.
+1. Cycle 97: add candidate-row override notes to the catalog now the preview mode is in place.
+2. Cycle 98: add deterministic ordering for report aggregate arrays that still churn across live metadata snapshots.
+3. Cycle 99: record generated PR dry-run evidence in the required-check readiness report once the manual dry-run mode has a hosted run.
 
 ### Quick Wins
 
@@ -2042,6 +2055,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — REST fallback release-fetch policy/progress reporting (completed v4.9.81 with `validationPerformance.restFallbackReleaseFetch`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — Required-check readiness report without enabling enforcement (completed v4.9.82 with `repositorySettings.requiredCheckReadiness`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
+- [x] P2 — Generated PR delivery dry-run helper (completed v4.9.88 with `open-generated-profile-pr.ps1 -DryRun`, a read-only Profile sync `dry-run-pr` mode, side-effect guards, and Pester coverage).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Concrete README portfolio-only review candidate rows (completed v4.9.86 with `portfolioOnlyCandidateSelectionPolicy`, `portfolioOnlyCandidates`, reason codes, summary sample output, schema coverage, and Pester guards).
 - [x] P2 — Portfolio-only catalog review preview mode (completed v4.9.87 with report-only row-delta/category-impact previewing, mutation flags, summary rows, schema coverage, and Pester guards).
