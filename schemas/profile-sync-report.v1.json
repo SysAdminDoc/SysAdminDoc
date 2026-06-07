@@ -17,6 +17,7 @@
     "provenance",
     "catalogShape",
     "catalogFeedAccounting",
+    "portfolioCompatibility",
     "metadataHygiene",
     "projectLicenseMetadata",
     "forkParentDrift",
@@ -85,6 +86,9 @@
     },
     "catalogFeedAccounting": {
       "$ref": "#/$defs/catalogFeedAccounting"
+    },
+    "portfolioCompatibility": {
+      "$ref": "#/$defs/portfolioCompatibility"
     },
     "metadataHygiene": {
       "$ref": "#/$defs/metadataHygiene"
@@ -2394,6 +2398,152 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "portfolioCompatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "consumerContract",
+        "feedSourceUrl",
+        "projectCount",
+        "suppressedCount",
+        "topLevelProjectCount",
+        "topLevelSuppressedCount",
+        "projectCountMatchesTopLevel",
+        "suppressedCountMatchesTopLevel",
+        "projectRequiredFields",
+        "missingProjectFieldCount",
+        "missingProjectFields",
+        "suppressedDisallowedFields",
+        "suppressedIdentifierLeakCount",
+        "suppressedIdentifierLeaks",
+        "redactedSuppressedRowsCompatible",
+        "provenanceAvailable",
+        "releaseTrustAvailable",
+        "primaryActionKindCounts",
+        "warningCount",
+        "warnings",
+        "fatalCount",
+        "errors",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "consumerContract": {
+          "type": "string"
+        },
+        "feedSourceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "projectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "topLevelProjectCount": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "topLevelSuppressedCount": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "projectCountMatchesTopLevel": {
+          "type": "boolean"
+        },
+        "suppressedCountMatchesTopLevel": {
+          "type": "boolean"
+        },
+        "projectRequiredFields": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "missingProjectFieldCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingProjectFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/portfolioCompatibilityProjectField"
+          }
+        },
+        "suppressedDisallowedFields": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "suppressedIdentifierLeakCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedIdentifierLeaks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/portfolioCompatibilitySuppressedLeak"
+          }
+        },
+        "redactedSuppressedRowsCompatible": {
+          "type": "boolean"
+        },
+        "provenanceAvailable": {
+          "type": "boolean"
+        },
+        "releaseTrustAvailable": {
+          "type": "boolean"
+        },
+        "primaryActionKindCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedCount"
+          }
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "portfolioCompatibilityProjectField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "field"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        }
+      }
+    },
+    "portfolioCompatibilitySuppressedLeak": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "suppressedId",
+        "field"
+      ],
+      "properties": {
+        "suppressedId": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
         }
       }
     },

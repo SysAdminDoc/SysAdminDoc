@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.79
+Current repo version: v4.9.80
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 87 - 2026-06-06.
+> Last researched: Cycle 88 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,17 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 87 - 2026-06-06.
+Last researched: Cycle 88 - 2026-06-06.
+
+2026-06-06 v4.9.80 refresh: portfolio feed compatibility reporting shipped.
+The sync report now includes `portfolioCompatibility`, a downstream-facing
+snapshot for the public `projects.json` feed before future shape changes. It
+checks the visible project fields the portfolio importer depends on, validates
+top-level project/suppression counts, confirms redacted suppressed rows do not
+expose project-identifying fields, records provenance and `releaseTrust`
+availability, and summarizes primary action counts. The profile sync summary
+surfaces compatibility status, fatal gaps, and warnings, while Pester guards
+compatible rows, missing required fields, and suppressed-row leak regressions.
 
 2026-06-06 v4.9.79 refresh: code-scanning posture recorded.
 The repository baseline report now expands
@@ -1877,7 +1887,7 @@ motion-safety sections are all planned additions.*
 `sysadmindoc.github.io` feed importer before changing the public profile feed
 shape.*
 
-- [ ] P1 - Add downstream portfolio compatibility tests before changing feed shape
+- [x] P1 - Add downstream portfolio compatibility tests before changing feed shape
   - Why: `projects.json` is no longer only an in-repo artifact; the portfolio build fetches it at build time. Suppressed-row redaction, provenance, timestamp semantics, and release-trust fields should be introduced without silently breaking the portfolio's generated routes, counts, and download cards.
   - Evidence: in the separate `\\vmware-host\Shared Folders\repos\sysadmindoc.github.io` repo, `scripts/sync-profile-feed.mjs` fetches `https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json`, validates it through `scripts/lib/profile-feed.mjs`, and writes `src/data/_profile-projects.json`. `scripts/lib/profile-feed.mjs` filters only `payload.projects`, rejects empty visible project sets, requires `repo`, `title`, `category`, `description`, and `repoUrl`, and returns `{ ...payload, feedSourceUrl, cachedAt, projectCount, projects }`, so unknown top-level fields are preserved. `src/data/portfolio.ts` exposes `profileFeedInfo.generatedAt`, `cachedAt`, `feedSourceUrl`, `source`, `publicRepoCount`, `projectCount`, and `suppressedCount`, but has no typed handling for `provenance`, `catalogGeneratedAt`, `metadataSnapshotAt`, or `releaseTrust`. `src/data/generated.d.ts` currently allows `suppressed?: GeneratedProfileProject[]`, and `test/profile-feed.test.mjs` only tests filtering suppressed/non-portfolio rows inside `projects`, not a redacted `suppressed` array.
   - Current downstream state: the portfolio worktree is dirty from unrelated work, so this roadmap pass treated it as read-only evidence and did not modify it.
@@ -1885,6 +1895,7 @@ shape.*
   - Recommended compatibility path: add a portfolio fixture that contains feed `provenance`, split timestamp fields, `releaseTrust`, and redacted suppressed rows before changing the live profile feed. Then update profile feed schema/generator in this repo. Keep additive fields backwards-compatible first; make suppressed redaction a schema major/minor decision with downstream tests proving ignored suppressed details do not leak into routes or caches.
   - Acceptance: portfolio build still renders 177 visible projects from a new feed fixture; `profileFeedInfo` can surface new provenance/timestamp fields or safely ignore them; redacted `suppressed` rows do not require `repo` or `repoUrl`; no suppressed/private project route is generated; portfolio endpoint audits still pass.
   - Verify: in the portfolio repo, run `npm test -- profile-feed` or the full `npm test` after fixture updates, then run `npm run check` or `npm run build` when the feed contract changes; in this repo, regenerate `projects.json` and confirm raw feed consumers still see a valid schema URL.
+  - Completed: v4.9.80 adds an in-repo `portfolioCompatibility` report snapshot, summary rows, schema coverage, and Pester guards for the known downstream contract without modifying the separate portfolio repo.
   - Complexity: M
 
 ### Researcher Queue (Cycle 48 - 2026-06-06)
@@ -1922,10 +1933,9 @@ Current local state:
 
 Next research cycles:
 
-1. Cycle 88: audit downstream portfolio compatibility before changing any feed shape.
-2. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
-3. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
-4. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
+1. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+2. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
+3. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
 
 ### Quick Wins
 
@@ -1936,6 +1946,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Generated-README size budget guard (completed v4.9.51 with `readmeSizeBudget`, a 96 KiB informational soft cap, schema coverage, and Pester warning checks).
 - [x] P2 — Generated README density report for portfolio-only review inputs (completed v4.9.78 with `readmeDensity`, summary-helper output, schema coverage, and Pester guards).
 - [x] P3 — Code-scanning posture for the PowerShell-only profile repo (completed v4.9.79 with `repositorySettings.security.codeScanning`, summary rows, a decision note, and future supported-language warning coverage).
+- [x] P1 — Downstream portfolio compatibility snapshot before feed-shape changes (completed v4.9.80 with `portfolioCompatibility`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).

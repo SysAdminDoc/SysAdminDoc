@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.80] - 2026-06-06
+
+- Added: `reports/profile-sync-report.json.portfolioCompatibility` now records the downstream portfolio feed compatibility snapshot for visible project fields, redacted suppressed rows, provenance, release trust, and primary action counts.
+- Added: `scripts/write-profile-sync-summary.ps1` now surfaces portfolio compatibility status, fatal gaps, and warnings.
+- Added: Pester coverage now guards compatible feed rows, missing downstream-required fields, and suppressed-row identifier leak regressions.
+
 ## [v4.9.79] - 2026-06-06
 
 - Added: `repositorySettings.security.codeScanning` now records CodeQL support status, inspected languages, local workflow evidence, active controls, and the PowerShell-only not-applicable recommendation.
