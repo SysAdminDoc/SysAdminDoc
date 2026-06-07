@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.97] - 2026-06-07
+
+- Changed: Profile sync and profile-assets refresh now pin retained artifact uploads to `actions/upload-artifact` 6.0.0's Node 24 runtime SHA.
+- Added: Pester coverage now requires all five retained `actions/upload-artifact` workflow uses to stay on the reviewed SHA and rejects floating tags plus the older 4.6.2 Node 20 SHA.
+
 ## [v4.9.96] - 2026-06-07
 
 - Added: Pester coverage now asserts exact deterministic ordering for `releaseAssetDrift.releaseAssetKindCounts`, `releaseAssetDrift.releaseTrustLevelCounts`, and `portfolioCompatibility.primaryActionKindCounts`.
