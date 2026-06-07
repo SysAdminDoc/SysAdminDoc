@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.94] - 2026-06-07
+
+- Added: `docs/decisions/2026-06-07-portfolio-only-demotion-review.md` approves the current 11 reviewed README density candidates for a later portfolio-only catalog mutation.
+- Added: Pester coverage now guards the decision note, approved repo list, no-mutation boundary, and preview evidence.
+
 ## [v4.9.93] - 2026-06-07
 
 - Changed: `generatedPrDryRunEvidence` now records successful hosted run `27083372279` on `main` at `2e2d2e2b35e5dd9475748978de0b9a82bb738699`.

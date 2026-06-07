@@ -1927,6 +1927,35 @@ Describe 'Rendered profile smoke wiring' {
     }
 }
 
+Describe 'Portfolio-only demotion decision' {
+    BeforeAll {
+        $script:PortfolioOnlyDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-portfolio-only-demotion-review.md') -Raw
+    }
+
+    It 'approves only the reviewed README density candidates for a later catalog change' {
+        $script:PortfolioOnlyDecision | Should -Match 'Status: Approved for staged catalog change'
+        foreach ($repo in @(
+                'CSV_Power_Tool',
+                'Flux',
+                'PillSleepTracker',
+                'UniversalCompiler',
+                'GmailDownloader',
+                'bypassnroGen',
+                'LipSight',
+                'PDFedit',
+                'QR-Code-Generator-Pro',
+                'Stock-Video-Collector',
+                'Tunerize'
+            )) {
+            $script:PortfolioOnlyDecision | Should -Match ([regex]::Escape($repo))
+        }
+        $script:PortfolioOnlyDecision | Should -Match 'does not mutate `data/profile-catalog[.]json`, `README[.]md`, or'
+        $script:PortfolioOnlyDecision | Should -Match 'Change only the 11 approved rows'
+        $script:PortfolioOnlyDecision | Should -Match 'projectRowDelta`:\s*\r?\n\s+`-11`'
+        $script:PortfolioOnlyDecision | Should -Match 'preservesPortfolioRoutes`:\s*\r?\n\s+`true`'
+    }
+}
+
 Describe 'Required status check readiness' {
     BeforeAll {
         $script:RequiredCheckWorkflows = [ordered]@{
