@@ -2074,6 +2074,14 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'failedImages'
     }
 
+    It 'uses CI-friendly Chrome launch flags and retries DevTools startup' {
+        $script:RenderSmokeScript | Should -Match '--disable-dev-shm-usage'
+        $script:RenderSmokeScript | Should -Match '--remote-debugging-address=127[.]0[.]0[.]1'
+        $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-chrome-\$attempt[.]err[.]log'
+        $script:RenderSmokeScript | Should -Match 'for \(\$attempt = 1; \$attempt -le 2'
+        $script:RenderSmokeScript | Should -Match 'Chrome exited before DevTools became ready'
+    }
+
     It 'runs from profile-sync and uploads public-safe smoke artifacts' {
         $script:ProfileSyncWorkflow | Should -Match 'Smoke live rendered profile'
         $script:ProfileSyncWorkflow | Should -Match ([regex]::Escape('./scripts/render-profile-smoke.ps1'))
