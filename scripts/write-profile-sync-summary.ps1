@@ -49,6 +49,8 @@ $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'usersc
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
 $portfolioCompatibility = if ($report.PSObject.Properties.Name -contains 'portfolioCompatibility') { $report.portfolioCompatibility } else { $null }
 $readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity') { $report.readmeDensity } else { $null }
+$artifactBudgets = if ($report.PSObject.Properties.Name -contains 'artifactBudgets') { $report.artifactBudgets } else { $null }
+$renderedProfileSmoke = if ($report.PSObject.Properties.Name -contains 'renderedProfileSmoke') { $report.renderedProfileSmoke } else { $null }
 $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'restFallbackReleaseFetch') { $performance.restFallbackReleaseFetch } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
@@ -100,6 +102,13 @@ $readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestC
 $readmeRepoOnlyProjectCount = if ($readmeDensity) { [int]$readmeDensity.repoOnlyProjectCount } else { 0 }
 $readmePortfolioOnlyCandidateCount = if ($readmeDensity) { [int]$readmeDensity.portfolioOnlyCandidateCount } else { 0 }
 $readmeRoutingRecommendation = if ($readmeDensity) { [string]$readmeDensity.routingRecommendation } else { "unknown" }
+$artifactBudgetStatus = if ($artifactBudgets) { [string]$artifactBudgets.status } else { "unknown" }
+$artifactBudgetWarningCount = if ($artifactBudgets) { [int]$artifactBudgets.warningCount } else { 0 }
+$artifactBudgetRowCount = if ($artifactBudgets) { Get-Count $artifactBudgets.rows } else { 0 }
+$renderedSmokeStatus = if ($renderedProfileSmoke) { [string]$renderedProfileSmoke.status } else { "unknown" }
+$renderedSmokeWarningCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.warningCount } else { 0 }
+$renderedSmokeViewportCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.viewportCount } else { 0 }
+$renderedSmokeMobileRootClientWidth = if ($renderedProfileSmoke -and $null -ne $renderedProfileSmoke.mobileRootClientWidth) { [int]$renderedProfileSmoke.mobileRootClientWidth } else { 0 }
 $restFallbackStatus = if ($restFallbackReleaseFetch) { [string]$restFallbackReleaseFetch.status } else { "unknown" }
 $restFallbackAttempted = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.attemptedReleaseFetches } else { 0 }
 $restFallbackNoRelease404Count = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.noRelease404Count } else { 0 }
@@ -125,6 +134,13 @@ $summary = @"
 | README repo-only rows | $readmeRepoOnlyProjectCount |
 | README portfolio-only candidates | $readmePortfolioOnlyCandidateCount |
 | README routing recommendation | $readmeRoutingRecommendation |
+| Artifact budget status | $artifactBudgetStatus |
+| Artifact budget warnings | $artifactBudgetWarningCount |
+| Artifact budget rows | $artifactBudgetRowCount |
+| Rendered smoke status | $renderedSmokeStatus |
+| Rendered smoke warnings | $renderedSmokeWarningCount |
+| Rendered smoke viewports | $renderedSmokeViewportCount |
+| Rendered smoke mobile root px | $renderedSmokeMobileRootClientWidth |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
@@ -186,6 +202,14 @@ if ($readmeDensityWarningCount -gt 0) {
 
 if ($readmePortfolioOnlyCandidateCount -gt 0) {
     Write-Output "::warning::Profile sync report recommends reviewing $readmePortfolioOnlyCandidateCount README row(s) for portfolio-only routing."
+}
+
+if ($artifactBudgetWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $artifactBudgetWarningCount generated artifact budget warning(s)."
+}
+
+if ($renderedSmokeWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $renderedSmokeWarningCount rendered profile smoke warning(s)."
 }
 
 if ($linkFailureCount -gt 0) {
