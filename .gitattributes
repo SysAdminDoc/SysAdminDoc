@@ -7,8 +7,14 @@ reports/*.json         linguist-generated=true
 # Ensure consistent line endings for generated text.
 .gitattributes text eol=lf
 .editorconfig text eol=lf
+.gitignore text eol=lf
+.github/CODEOWNERS text eol=lf
+.markdownlint-cli2.yaml text eol=lf
+package.json text eol=lf
+package-lock.json text eol=lf
 *.md    text eol=lf
 *.json  text eol=lf
 *.yml   text eol=lf
+*.yaml  text eol=lf
 *.ps1   text eol=lf
 *.psd1  text eol=lf

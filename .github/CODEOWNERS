@@ -10,3 +10,6 @@
 /setup.ps1 @SysAdminDoc
 /SECURITY.md @SysAdminDoc
 /PSScriptAnalyzerSettings.psd1 @SysAdminDoc
+/.markdownlint-cli2.yaml @SysAdminDoc
+/package.json @SysAdminDoc
+/package-lock.json @SysAdminDoc

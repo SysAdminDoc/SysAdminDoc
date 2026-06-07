@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.72
+Current version after this refresh: v4.9.73
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.73 batch completes the markdownlint half of the formatting contract
+  with `markdownlint-cli2` 0.22.1 pinned through npm lockfile metadata.
+- `.markdownlint-cli2.yaml` keeps generated README-safe exceptions for compact
+  GitHub tables and inline HTML while linting tracked public Markdown files.
+- The Tests workflow now runs a `Markdownlint` job through a pinned
+  `actions/setup-node` v6.4.0 SHA, and push filters cover Markdown, docs,
+  markdownlint config, and npm lockfile changes.
 - The v4.9.72 batch adds warning-only stale-project/archive-review reporting
   to `reports/profile-sync-report.json`.
 - `staleProjectReview` derives visitor-facing candidates from `pushedAt` age
@@ -467,7 +474,7 @@ Top opportunities, in priority order:
 20. P2 - Add a profile-repo release/tag consistency check for tracked `v4.9.x` versions. [Completed v4.9.57]
 21. P2 - Add a live GitHub-rendered profile smoke check. [Completed v4.9.27; refreshed v4.9.48]
 22. P3 - Add a stale-project and archive-review report derived from `pushedAt`, latest releases, and suppression reasons. [Completed v4.9.72]
-23. P3 - Add `.editorconfig` and generated README markdown linting. [EditorConfig completed v4.9.70; markdownlint optional remains]
+23. P3 - Add `.editorconfig` and generated README markdown linting. [Completed v4.9.73]
 24. P3 - Validate all historical `CHANGELOG.md` release headings. [Completed v4.9.63]
 25. P3 - Enable auto-delete or scoped cleanup for generated automation PR branches. [Completed v4.9.61]
 26. P3 - Centralize generated profile PR creation logic shared by profile-sync and asset-refresh workflows. [Completed v4.9.62]
@@ -766,7 +773,7 @@ Top addendum opportunities (one line each):
 6. P2 — No catalog JSON-shape validation; unknown `downloadKind` silently defaults. [Closed v4.9.52]
 7. P2 — No generated-README size budget (file is ~72 KB and grows unbounded). [Closed v4.9.51]
 8. P2 — No SECURITY.md though Scorecard scores its presence. [Verified]
-9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [EditorConfig closed v4.9.70; markdownlint optional remains]
+9. P3 — No `.editorconfig`/markdownlint contract for the large mixed-authorship README. [Completed v4.9.73]
 10. P3 — Third-party render-host privacy exposure is undocumented as a decision. [Closed v4.9.71]
 
 ### Evidence reviewed (addendum)
@@ -788,7 +795,7 @@ Top addendum opportunities (one line each):
 - **Minor — Silent unknown-kind fallthrough.** `Get-DownloadLabel` `default { "Download" }` used to swallow an unrecognized `downloadKind`; catalog-shape validation now catches the typo. → "Add catalog JSON-shape validation". [Closed v4.9.52]
 - **Minor — No size budget.** ~72 KB generated README had no growth guard; GitHub truncates long profile READMEs. → "generated-README size budget guard". [Closed v4.9.51]
 - **Minor — No SECURITY.md.** Repo runs Scorecard/zizmor but lacks a security policy Scorecard scores. → "Add SECURITY.md". [Verified]
-- **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [EditorConfig closed v4.9.70; markdownlint optional remains]
+- **Cosmetic — No whitespace/lint contract.** Large mixed-authorship README with no `.editorconfig`/markdownlint; hero whitespace can drift the generated diff. → "Add `.editorconfig` and a markdown lint pass". [Closed v4.9.73]
 - **Cosmetic — Undocumented render-host exposure.** komarev counter + four stats hosts see every visitor via Camo; no recorded decision. → "Document/justify the third-party render-host privacy exposure". [Closed v4.9.71 as a zero-retained-host decision]
 
 ### Competitive & standards notes (addendum)
@@ -2085,8 +2092,8 @@ terminology. It found a docs drift issue rather than a generator failure.
   LF, cleans the pull-request template's trailing placeholder
   spaces, and adds Pester coverage for the LF/final-newline/trailing whitespace
   policy plus tracked Markdown trailing-whitespace state.
-- The markdownlint portion remains optional because the immediate drift source
-  was whitespace policy rather than Markdown structural rules.
+- v4.9.73 completes the markdownlint portion with a pinned CLI2/npm lockfile
+  lane, a generated README-safe ruleset, workflow coverage, and Pester guards.
 
 ## Cycle 33 Research Addendum — 2026-06-06
 
@@ -2112,6 +2119,14 @@ terminology. It found a docs drift issue rather than a generator failure.
   class.
 - The report uses fixed review thresholds for `pushedAt`, latest-release age,
   and archive review. It does not archive or demote repositories automatically.
+
+### Implementation note (cycle 35)
+
+- v4.9.73 adds the generated README-safe markdownlint guard through
+  `.markdownlint-cli2.yaml`, `package.json`, and `package-lock.json`.
+- The Tests workflow runs `npm ci` and `npm run lint:markdown` with a pinned
+  `actions/setup-node` v6.4.0 SHA; npm Dependabot and CODEOWNERS now cover the
+  markdownlint toolchain files.
 
 ## Cycle 32 Research Addendum — 2026-06-04
 

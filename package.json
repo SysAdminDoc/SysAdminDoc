@@ -1,0 +1,11 @@
+{
+  "name": "sysadmindoc-profile",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint:markdown": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "0.22.1"
+  }
+}

@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.73] - 2026-06-06
+
+- Added: `markdownlint-cli2` 0.22.1 is pinned through `package.json` and `package-lock.json`, with a generated README-safe `.markdownlint-cli2.yaml` ruleset.
+- Added: The Tests workflow now runs a `Markdownlint` job through pinned `actions/setup-node` v6.4.0, and direct `main` pushes that touch Markdown, docs, config, or npm lockfiles trigger the lane.
+- Changed: Generated README footer spacing no longer emits a duplicate blank line before the local footer SVG.
+
 ## [v4.9.72] - 2026-06-06
 
 - Added: `reports/profile-sync-report.json.staleProjectReview` summarizes stale and archive-review candidates from `pushedAt`, latest-release age, and public-safe suppression reason counts.
