@@ -734,7 +734,9 @@ Describe 'Report schema depth helpers' {
         ($result.userscriptKindWithoutInstallUrl | ForEach-Object { $_.repo }) | Should -Contain 'ScriptNoUrl'
         ($result.executableDownloadsMissingChecksums | ForEach-Object { $_.repo }) | Should -Contain 'MismatchRelease'
         ($result.executableDownloadsMissingChecksums | ForEach-Object { $_.repo }) | Should -Not -Contain 'GoodRelease'
-        ($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) | Should -Contain 'checksum'
+        (($result.releaseAssetKindCounts | ForEach-Object { $_.kind }) -join ',') | Should -Be 'apk,other,source-archive'
+        (($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) -join ',') | Should -Be 'checksum,metadata-only,unknown'
+        ($result.releaseTrustLevelCounts | Where-Object { $_.trustLevel -eq 'checksum' }).count | Should -Be 1
         $result.assetApiInspected | Should -BeTrue
     }
 
@@ -1280,8 +1282,9 @@ Describe 'New-ProjectsExportJson feed' {
         $result.redactedSuppressedRowsCompatible | Should -BeTrue
         $result.provenanceAvailable | Should -BeTrue
         $result.releaseTrustAvailable | Should -BeTrue
-        ($result.primaryActionKindCounts | ForEach-Object { $_.kind }) | Should -Contain 'repo'
-        ($result.primaryActionKindCounts | ForEach-Object { $_.kind }) | Should -Contain 'live'
+        (($result.primaryActionKindCounts | ForEach-Object { $_.kind }) -join ',') | Should -Be 'live,repo'
+        ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'live' }).count | Should -Be 1
+        ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'repo' }).count | Should -Be 2
         $result.fatalCount | Should -Be 0
     }
 
