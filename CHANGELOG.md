@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.119] - 2026-06-07
+
+- Added: `routineMaintenancePrDrillEvidence` now gives the sync report a first-class evidence slot for the merged routine-maintenance PR proof.
+- Changed: The profile-sync summary now surfaces routine PR drill status, PR number, check counts, and cleanup state beside the existing candidate-check exercise evidence.
+- Added: Pester coverage now guards the pending routine PR drill evidence shape, schema contract, decision note, and summary rows.
+
 ## [v4.9.118] - 2026-06-07
 
 - Added: `docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md` now selects pull-request delivery for routine maintenance before required-check enforcement.

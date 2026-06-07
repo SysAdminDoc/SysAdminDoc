@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.118
+Current version after this refresh: v4.9.119
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.119 batch adds
+  `requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence`
+  as the pending report evidence slot for the normal routine-maintenance PR
+  merge drill.
+- The new evidence contract records PR number, branch/head SHA, merge SHA,
+  workflow run IDs, candidate-check counts, merge method, and cleanup state;
+  schema validation, the profile-sync summary, and Pester coverage now guard
+  that shape before the live merged-PR evidence is populated.
 - The v4.9.118 batch selects routine pull-request delivery before
   required-check enforcement.
 - `docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md` keeps

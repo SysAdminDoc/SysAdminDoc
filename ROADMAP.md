@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.118
+Current repo version: v4.9.119
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 126 - 2026-06-07.
+> Last researched: Cycle 127 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 126 - 2026-06-07.
+Last researched: Cycle 127 - 2026-06-07.
+
+2026-06-07 v4.9.119 refresh: routine PR drill evidence slot shipped.
+`requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence`
+now records the pending evidence contract for the merged routine-maintenance
+pull request: PR number, branch/head SHA, merge SHA, workflow run IDs,
+candidate-check counts, merge method, and cleanup state. The profile-sync
+summary and schema expose the same fields, and Pester guards the pending state.
+Required-check enforcement remains disabled until a normal maintenance PR
+merges without bypass and this evidence is updated with the live PR/check data.
 
 2026-06-07 v4.9.118 refresh: routine maintenance PR delivery policy shipped.
 `docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md` now selects
