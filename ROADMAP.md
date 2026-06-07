@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.91
+Current repo version: v4.9.92
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 99 - 2026-06-07.
+> Last researched: Cycle 100 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,15 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 99 - 2026-06-07.
+Last researched: Cycle 100 - 2026-06-07.
+
+2026-06-07 v4.9.92 refresh: hosted profile-check success exit hardening
+shipped. `scripts/sync-profile.ps1 -Check` now exits explicitly with status 0
+after successful report validation, preventing a handled native-command failure
+from leaking into the hosted PowerShell process status after the report has
+already passed. Pester now guards this entrypoint behavior. The next hosted
+`dry-run-pr` run should reach the preview helper if no separate generated PR
+preview issue remains.
 
 2026-06-07 v4.9.91 refresh: generated PR dry-run evidence reporting
 shipped. `repositorySettings.requiredCheckReadiness.prDeliveryTransition` now
@@ -1946,7 +1954,7 @@ direct-push automation.*
     3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
     4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
     5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
-  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. The transition report currently marks candidate checks and workflow coverage ready, while recent successful check-run proof needs live validation and PR delivery or bypass remains blocked. v4.9.91 records hosted `dry-run-pr` evidence for run `27082852047`; the run uploaded a sync report artifact but failed at `Regenerate profile` before the preview helper ran, so it is evidence for the next fix rather than proof that generated PR delivery is ready.
+  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. The transition report currently marks candidate checks and workflow coverage ready, while recent successful check-run proof needs live validation and PR delivery or bypass remains blocked. v4.9.91 records hosted `dry-run-pr` evidence for run `27082852047`; the run uploaded a sync report artifact but failed at `Regenerate profile` before the preview helper ran, so it is evidence for the next fix rather than proof that generated PR delivery is ready. v4.9.92 adds an explicit success exit after `sync-profile.ps1 -Check` passes to prevent handled native-command failures from surfacing as hosted step failures.
   - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
   - Risks: requiring `Check generated README` can force live-link/profile-smoke dependencies onto every PR; requiring `zizmor` before exact tool pinning can create supply-chain update friction; code-owner review is weak for a single-user repo unless the user wants self-review controls; merge queue is overkill unless PR volume increases.
   - Verify: open a disposable PR touching `README.md`, `.github/workflows/tests.yml`, and `setup.ps1`; confirm all required candidate jobs are created on PR and `merge_group`; query branch protection/rulesets after enforcement; confirm direct push behavior is intentionally blocked or bypassed according to the documented delivery model.
@@ -2063,14 +2071,15 @@ Current local state:
 - Cycle 97 added catalog-backed review notes for the selected README portfolio-only candidates and surfaced those notes in the report-only candidate rows without exporting them to `projects.json`.
 - Cycle 98 added deterministic sorting for hash-backed aggregate report rows, starting with license count and suppression-reason count arrays that previously churned across live metadata snapshots.
 - Cycle 99 recorded the hosted generated PR dry-run evidence in required-check readiness; the run uploaded a report artifact but failed before the preview helper, so generated PR delivery remains unproven.
+- Cycle 100 added an explicit successful exit path after `sync-profile.ps1 -Check` passes, targeting the hosted dry-run regenerate step failure observed in run `27082852047`.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 100: fix the hosted `dry-run-pr` regenerate failure so the preview helper can run, then refresh the dry-run evidence.
-2. Cycle 101: add a public decision note for approving or rejecting portfolio-only demotions after catalog review notes have enough evidence.
-3. Cycle 102: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
+1. Cycle 101: rerun hosted `dry-run-pr`, verify the preview helper runs, and refresh the dry-run evidence.
+2. Cycle 102: add a public decision note for approving or rejecting portfolio-only demotions after catalog review notes have enough evidence.
+3. Cycle 103: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
 
 ### Quick Wins
 
@@ -2087,6 +2096,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Generated PR delivery dry-run helper (completed v4.9.88 with `open-generated-profile-pr.ps1 -DryRun`, a read-only Profile sync `dry-run-pr` mode, side-effect guards, and Pester coverage).
 - [x] P2 — Generated PR dry-run evidence report (completed v4.9.91 with hosted run ID, failure step, skipped preview state, uploaded report-artifact state, schema coverage, summary rows, and Pester guards).
+- [x] P2 — Hosted profile-check success exit hardening (completed v4.9.92 with explicit successful `sync-profile.ps1 -Check` exit and Pester entrypoint guard).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
 - [x] P2 — Deterministic aggregate report row ordering (completed v4.9.90 with explicit key sorting for license and suppression reason count rows plus Pester exact-order coverage).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
