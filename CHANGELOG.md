@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.120] - 2026-06-07
+
+- Added: `routineMaintenancePrDrillEvidence` now records merged PR #14, head SHA, merge SHA, workflow run IDs, six passing candidate checks, rebase merge method, and branch cleanup.
+- Changed: `directMainMaintenancePolicy` now reports `status=pr-delivery-proven` and points the next step at selecting branch-protection or ruleset required-check enforcement.
+- Changed: The PR-delivery transition checklist now treats routine PR delivery as ready while keeping required-check enforcement blocked until an enforcement mechanism is enabled and re-queried.
+
 ## [v4.9.119] - 2026-06-07
 
 - Added: `routineMaintenancePrDrillEvidence` now gives the sync report a first-class evidence slot for the merged routine-maintenance PR proof.
