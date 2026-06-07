@@ -2,13 +2,30 @@
 
 Consolidated from legacy research and feature-planning documents on 2026-06-03. This is the canonical research home for the profile-catalog system; planned work derived from it lives in `ROADMAP.md`. The dated source bundle was archived to `docs/archive/research-feature-plan-2026-06-04.md`.
 
-Research refresh: 2026-06-06
+Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.84
+Current version after this refresh: v4.9.85
 
-## Verification Refresh — 2026-06-06
+## Verification Refresh — 2026-06-07
 
+- The v4.9.85 batch adds a PR-delivery transition checklist to
+  `repositorySettings.requiredCheckReadiness` before any required-check
+  enforcement is enabled.
+- `workflowCoverage` now records that the Tests, Profile sync, and Workflow
+  security workflows exist, expose the six candidate check names, include
+  `pull_request` and `merge_group`, and do not path-filter pull-request runs.
+- `prDeliveryTransition` records five checklist rows: candidate checks,
+  candidate workflow coverage, recent successful check-run proof, PR delivery
+  or bypass, and enforcement mechanism selection.
+- Current transition status is `blocked`: candidate checks and workflow
+  coverage are ready, but recent successful check-run proof needs live
+  validation and direct-main delivery with `enforce_admins=true` must be
+  replaced by PR delivery or a tested bypass before enforcement.
+- `docs/decisions/2026-06-07-pr-delivery-transition-checklist.md` records the
+  activation order and GitHub documentation references. The profile sync
+  summary now surfaces PR-delivery transition status, blockers, and
+  live-validation counts.
 - The v4.9.84 batch adds generated artifact and rendered-profile smoke budget
   reporting to the sync report and profile sync summary.
 - `artifactBudgets` records 10 soft-budget rows for README bytes, README

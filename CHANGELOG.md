@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.85] - 2026-06-07
+
+- Added: `repositorySettings.requiredCheckReadiness.workflowCoverage` now records candidate required-check workflow trigger coverage for PR and merge-queue delivery.
+- Added: `repositorySettings.requiredCheckReadiness.prDeliveryTransition` now records a five-item checklist before required-check enforcement is enabled.
+- Added: `docs/decisions/2026-06-07-pr-delivery-transition-checklist.md` and profile sync summary rows now surface PR-delivery blockers and live-validation items.
+
 ## [v4.9.84] - 2026-06-06
 
 - Added: `reports/profile-sync-report.json.artifactBudgets` now records generated README, feed, report, and profile-SVG budget rows with soft-limit warnings.

@@ -1846,6 +1846,8 @@
         "enforceAdmins",
         "candidateCheckCount",
         "candidateChecks",
+        "workflowCoverage",
+        "prDeliveryTransition",
         "blockerCount",
         "blockers"
       ],
@@ -1885,6 +1887,12 @@
             "$ref": "#/$defs/requiredCheckCandidate"
           }
         },
+        "workflowCoverage": {
+          "$ref": "#/$defs/requiredCheckWorkflowCoverage"
+        },
+        "prDeliveryTransition": {
+          "$ref": "#/$defs/prDeliveryTransition"
+        },
         "blockerCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -1905,6 +1913,158 @@
           "type": "string"
         },
         "workflow": {
+          "type": "string"
+        }
+      }
+    },
+    "requiredCheckWorkflowCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "workflowCount",
+        "candidateCheckCount",
+        "warningCount",
+        "warnings",
+        "workflows"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "blocked"
+          ]
+        },
+        "workflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "candidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/requiredCheckWorkflowCoverageRow"
+          }
+        }
+      }
+    },
+    "requiredCheckWorkflowCoverageRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workflow",
+        "candidateChecks",
+        "exists",
+        "pullRequestTrigger",
+        "mergeGroupTrigger",
+        "pullRequestPathFiltered",
+        "missingCandidateCheckNames"
+      ],
+      "properties": {
+        "workflow": {
+          "type": "string"
+        },
+        "candidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "exists": {
+          "type": "boolean"
+        },
+        "pullRequestTrigger": {
+          "type": "boolean"
+        },
+        "mergeGroupTrigger": {
+          "type": "boolean"
+        },
+        "pullRequestPathFiltered": {
+          "type": "boolean"
+        },
+        "missingCandidateCheckNames": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "prDeliveryTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "readyForRequiredCheckEnforcement",
+        "checklistCount",
+        "readyCount",
+        "blockedCount",
+        "needsLiveValidationCount",
+        "items"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "blocked",
+            "needs-live-validation"
+          ]
+        },
+        "readyForRequiredCheckEnforcement": {
+          "type": "boolean"
+        },
+        "checklistCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readyCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "blockedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "needsLiveValidationCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/prDeliveryTransitionItem"
+          }
+        }
+      }
+    },
+    "prDeliveryTransitionItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "summary",
+        "evidence",
+        "nextAction"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "blocked",
+            "needs-live-validation"
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "nextAction": {
           "type": "string"
         }
       }
