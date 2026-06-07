@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.102] - 2026-06-07
+
+- Added: `repositorySettings.actionsWorkflowPermissions` now records the live GitHub Actions workflow-permissions setting that controls whether `GITHUB_TOKEN` may create pull requests.
+- Added: `generatedPrWriteEvidence` records hosted `write-pr` run `27085061539`, including the pushed disposable branch, failed `Create pull request` step, uploaded report artifact, and branch cleanup.
+- Changed: `scripts/open-generated-profile-pr.ps1` now preflights repository workflow permissions before creating/pushing a generated PR branch, preventing orphaned automation branches when PR creation is disabled.
+
 ## [v4.9.101] - 2026-06-07
 
 - Added: Pester coverage now guards the committed `readmeDensity` report after the approved portfolio-only demotion, requiring zero density warnings, zero portfolio-only candidates, no over-soft-limit categories, and a `no-candidates` preview.

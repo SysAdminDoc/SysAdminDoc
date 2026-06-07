@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T02:29:03.6012679-04:00",
+  "generatedAt": "2026-06-07T02:46:54.9563911-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "23bbd2090ac08b0b92149d986f2b90ff889777d3",
+    "sourceCommit": "e0eba1d6d54a4112f9151e55245dd589f7c19d50",
     "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
-    "generatorSha256": "c0765118ed6cd8ec07907ceeb9744f2a632e648d90c8aa568440048f536b5693",
+    "generatorSha256": "ec4b42c40206197ea6badbf15243547da692a960ebeebc95c7633049d4da2384",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T02:27:47.5747242-04:00",
+    "metadataSnapshotAt": "2026-06-07T02:45:38.4152014-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T06:26:15Z",
+        "pushedAt": "2026-06-07T06:44:08Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -2283,6 +2283,14 @@
       "unavailableReason": "",
       "count": 0
     },
+    "actionsWorkflowPermissions": {
+      "available": true,
+      "unavailableReason": null,
+      "defaultWorkflowPermissions": "read",
+      "canApprovePullRequestReviews": false,
+      "generatedPrCreationAllowed": false,
+      "recommendation": "enable-actions-pr-creation-or-use-approved-automation-token"
+    },
     "requiredCheckReadiness": {
       "status": "not-enabled",
       "recommendation": "defer-until-pr-delivery-or-bypass",
@@ -2392,6 +2400,34 @@
           "evidenceSummary": "Manual hosted dry-run completed Regenerate profile, summary, artifact upload, and Preview pull request after workflow artifact-runtime and summary-size guard updates. The helper planned automation/profile-sync-27084524165 without creating a branch, commit, push, pull request, or validation dispatch.",
           "nextAction": "Keep refreshing this evidence after dry-run workflow changes; continue resolving live PR delivery and required-check preconditions before enforcement."
         },
+        "generatedPrWriteEvidence": {
+          "available": true,
+          "workflow": ".github/workflows/profile-sync.yml",
+          "workflowName": "Profile sync",
+          "mode": "write-pr",
+          "event": "workflow_dispatch",
+          "branch": "main",
+          "headSha": "e0eba1d6d54a4112f9151e55245dd589f7c19d50",
+          "runId": 27085061539,
+          "runUrl": "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27085061539",
+          "createdAt": "2026-06-07T06:34:35Z",
+          "conclusion": "failure",
+          "jobName": "Open generated README PR",
+          "jobId": 79937807362,
+          "failedStep": "Create pull request",
+          "regenerateStepPassed": true,
+          "reportArtifactUploaded": true,
+          "artifactId": 7461506616,
+          "generatedBranch": "automation/profile-sync-27085061539",
+          "generatedBranchPushed": true,
+          "generatedBranchCleanup": "deleted",
+          "pullRequestCreated": false,
+          "pullRequestUrl": null,
+          "validationDispatched": false,
+          "blocker": "GitHub Actions workflow permissions disallow GITHUB_TOKEN pull-request creation.",
+          "evidenceSummary": "Manual hosted write-pr drill regenerated the profile, uploaded the report artifact, pushed automation/profile-sync-27085061539, then failed at gh pr create with createPullRequest because repository workflow permissions do not allow GitHub Actions to create pull requests. The disposable branch was deleted after evidence collection.",
+          "nextAction": "Enable the repository workflow-permissions setting for GitHub Actions pull-request creation or switch generated PR delivery to an approved GitHub App/PAT credential before rerunning write-pr."
+        },
         "items": [
           {
             "id": "candidate-checks-defined",
@@ -2418,8 +2454,8 @@
             "id": "pr-delivery-or-bypass",
             "status": "blocked",
             "summary": "Direct-main delivery must be replaced by PR delivery or a documented bypass before enforcement.",
-            "evidence": "Protected main has admin enforcement enabled, so direct pushes would be rejected after required checks are enabled.",
-            "nextAction": "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."
+            "evidence": "Repository workflow permissions currently block GITHUB_TOKEN pull-request creation; hosted write-pr drill 27085061539 failed at createPullRequest after pushing a disposable generated branch that was later deleted.",
+            "nextAction": "Enable GitHub Actions pull-request creation for GITHUB_TOKEN or switch the helper to an approved GitHub App/PAT credential before rerunning generated PR delivery."
           },
           {
             "id": "enforcement-mechanism",
@@ -2437,12 +2473,13 @@
         "Protected main enforces admins; direct-push delivery needs PR delivery or an approved bypass before enabling required checks."
       ]
     },
-    "warningCount": 4,
+    "warningCount": 5,
     "warnings": [
       "Dependabot security updates are not enabled.",
       "Branch protection does not require status checks.",
       "Branch protection does not require pull request reviews.",
-      "Branch protection does not require code owner reviews."
+      "Branch protection does not require code owner reviews.",
+      "GitHub Actions workflow permissions do not allow GITHUB_TOKEN to create pull requests."
     ]
   },
   "communityHealth": {
@@ -2550,28 +2587,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.101",
+    "expectedVersion": "v4.9.102",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.101"
+        "value": "v4.9.102"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.101"
+        "value": "v4.9.102"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.101"
+        "value": "v4.9.102"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.101"
+        "value": "v4.9.102"
       }
     ],
     "dates": [
@@ -2598,7 +2635,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 113,
+      "headingCount": 114,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2608,14 +2645,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.101",
+    "expectedVersion": "v4.9.102",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.101",
+    "expectedTag": "v4.9.102",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2625,13 +2662,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.101",
+        "expectedVersion": "v4.9.102",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.101",
+        "expectedVersion": "v4.9.102",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2643,7 +2680,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3631,
+      "elapsedMs": 3120,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2677,7 +2714,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.42,
+      "ageDays": 5.44,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2687,7 +2724,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3631,
+    "elapsedMs": 3120,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3037,7 +3074,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 89866,
+        "value": 92230,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3065,7 +3102,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T02:29:18.5564323-04:00",
+    "generatedAt": "2026-06-07T02:47:11.3770464-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

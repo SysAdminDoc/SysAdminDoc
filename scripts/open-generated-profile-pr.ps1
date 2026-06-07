@@ -94,6 +94,29 @@ if ($DryRun) {
     exit 0
 }
 
+function Assert-GitHubActionsCanCreatePullRequests {
+    if ($env:GITHUB_ACTIONS -ne 'true') {
+        return
+    }
+
+    $permissions = $null
+    $output = gh api "repos/$repository/actions/permissions/workflow" 2>&1
+    $text = (($output | Out-String).Trim())
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to verify GitHub Actions workflow permissions before creating $branch. $text"
+    }
+
+    try {
+        $permissions = $text | ConvertFrom-Json
+    } catch {
+        throw "Unable to parse GitHub Actions workflow permissions before creating $branch."
+    }
+
+    if ($permissions.can_approve_pull_request_reviews -ne $true) {
+        throw "GitHub Actions workflow permissions do not allow GITHUB_TOKEN to create pull requests. Enable 'Allow GitHub Actions to create and approve pull requests' or provide an approved non-GITHUB_TOKEN credential before running generated PR delivery."
+    }
+}
+
 git diff --quiet
 if ($LASTEXITCODE -eq 0) {
     Write-Host $NoChangesMessage
@@ -102,6 +125,8 @@ if ($LASTEXITCODE -eq 0) {
 if ($LASTEXITCODE -ne 1) {
     throw "git diff --quiet failed (exit code $LASTEXITCODE)."
 }
+
+Assert-GitHubActionsCanCreatePullRequests
 
 git switch -c $branch
 if ($LASTEXITCODE -ne 0) {

@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.101
+Current repo version: v4.9.102
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 109 - 2026-06-07.
+> Last researched: Cycle 110 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,24 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 109 - 2026-06-07.
+Last researched: Cycle 110 - 2026-06-07.
+
+2026-06-07 v4.9.102 refresh: generated PR write-path drill and blocker guard
+shipped. Cycle 110 dispatched hosted Profile sync run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27085061539` in
+`write-pr` mode on `main` at `e0eba1d6d54a4112f9151e55245dd589f7c19d50`.
+The run regenerated profile artifacts, wrote the generated PR summary, uploaded
+`profile-sync-report` artifact `7461506616`, pushed disposable branch
+`automation/profile-sync-27085061539`, and then failed at `gh pr create` with
+GitHub's `createPullRequest` workflow-permissions block. No pull request was
+created and no branch-scoped validation was dispatched; the disposable branch
+was deleted after evidence collection. `repositorySettings.actionsWorkflowPermissions`
+now records `defaultWorkflowPermissions=read`,
+`canApprovePullRequestReviews=false`, and
+`generatedPrCreationAllowed=false`; `generatedPrWriteEvidence` records the live
+failed drill. `scripts/open-generated-profile-pr.ps1` now preflights that
+repository permission before branch creation so future runs fail before pushing
+an orphaned generated branch.
 
 2026-06-07 v4.9.101 refresh: README density audit guard shipped. Cycle 109
 rechecked the generated README/report density after the latest live metadata
@@ -2143,12 +2160,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 109 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 110 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `23bbd20 test: guard scorecard action pin`
+- HEAD inspected before this cycle: `e0eba1d test: guard readme density state`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -2180,14 +2197,15 @@ Current local state:
 - Cycle 107 refreshed hosted generated PR dry-run evidence after the artifact-runtime and summary-size guard changes; run `27084524165` reached the preview helper and planned `automation/profile-sync-27084524165` without side effects.
 - Cycle 108 added an offline guard for the pinned `ossf/scorecard-action` 2.4.3 SHA and captured successful hosted Scorecard run `27084740289` after the workflow permission repair.
 - Cycle 109 audited current README density after the latest metadata refresh and added a committed-report guard for zero warnings, zero portfolio-only candidates, and no over-soft-limit categories.
+- Cycle 110 exercised the hosted generated PR `write-pr` path, captured the current Actions workflow-permissions blocker, deleted the disposable generated branch, and added a helper preflight before future branch pushes.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 110: exercise generated PR delivery against a disposable branch or PR only after a safe bypass/review model is documented.
-2. Cycle 111: review remaining Scorecard warning-only findings for any profile-repo items worth documenting or suppressing.
-3. Cycle 112: audit profile-release/tag warning policy and decide whether to cut a matching profile release or document the intentional gap.
+1. Cycle 111: review remaining Scorecard warning-only findings for any profile-repo items worth documenting or suppressing.
+2. Cycle 112: audit profile-release/tag warning policy and decide whether to cut a matching profile release or document the intentional gap.
+3. Cycle 113: decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
 
 ### Quick Wins
 
@@ -2209,6 +2227,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Hosted generated PR dry-run refresh after workflow-runtime hardening (completed v4.9.99 with successful run `27084524165`, Node 24 artifact-upload path proof, summary helper proof, planned branch, and no side effects).
 - [x] P2 — Scorecard action pin guard and hosted proof (completed v4.9.100 with the pinned `ossf/scorecard-action` 2.4.3 SHA, floating-tag rejection, and successful hosted run `27084740289`).
 - [x] P2 — README density post-demotion guard (completed v4.9.101 with committed-report Pester coverage for zero density warnings, zero portfolio-only candidates, and no over-soft-limit categories).
+- [x] P2 — Generated PR write-path blocker guard (completed v4.9.102 with hosted run `27085061539`, Actions workflow-permissions reporting, disposable branch cleanup, and a helper preflight before branch creation).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).
 - [x] P2 — Approved portfolio-only catalog mutation (completed v4.9.95 with the 11 approved rows removed from README output, preserved in `projects.json`, and covered by Pester).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).

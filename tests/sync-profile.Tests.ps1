@@ -246,6 +246,10 @@ Describe 'Repository settings and community-health baseline' {
             allow_deletions = [pscustomobject]@{ enabled = $false }
         }
         $languages = [pscustomobject]@{ PowerShell = 210925 }
+        $actionsWorkflowPermissions = [pscustomobject]@{
+            default_workflow_permissions = 'read'
+            can_approve_pull_request_reviews = $false
+        }
         $codeScanningEvidence = [ordered]@{
             codeqlWorkflowPresent = $false
             sarifUploadWorkflowPresent = $true
@@ -255,7 +259,7 @@ Describe 'Repository settings and community-health baseline' {
             zizmorWorkflowPresent = $true
         }
 
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence
         $repoSettings = $result['repositorySettings']
         $communityHealth = $result['communityHealth']
 
@@ -277,6 +281,11 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
+        $repoSettings.actionsWorkflowPermissions.available | Should -BeTrue
+        $repoSettings.actionsWorkflowPermissions.defaultWorkflowPermissions | Should -Be 'read'
+        $repoSettings.actionsWorkflowPermissions.canApprovePullRequestReviews | Should -BeFalse
+        $repoSettings.actionsWorkflowPermissions.generatedPrCreationAllowed | Should -BeFalse
+        $repoSettings.actionsWorkflowPermissions.recommendation | Should -Be 'enable-actions-pr-creation-or-use-approved-automation-token'
         $repoSettings.requiredCheckReadiness.status | Should -Be 'not-enabled'
         $repoSettings.requiredCheckReadiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
         $repoSettings.requiredCheckReadiness.readyForEnforcement | Should -BeFalse
@@ -298,12 +307,17 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.conclusion | Should -Be 'failure'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.failedStep | Should -Be 'Create pull request'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'deleted'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCreated | Should -BeFalse
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
-        ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'alert|secret_value|token'
+        ($repoSettings.warnings -join ' ') | Should -Match 'create pull requests'
+        ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'alert|secret_value|ghp_|gho_|github_pat_'
 
         $communityHealth.available | Should -BeTrue
         $communityHealth.healthPercentage | Should -Be 71
@@ -2101,14 +2115,15 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'PR Delivery Transition Checklist'
         $script:PrDeliveryTransitionDecision | Should -Match 'Candidate required checks'
         $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Switch the loop to PR-based delivery'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Enable GitHub Actions pull-request creation'
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
     }
 
     It 'records hosted generated PR dry-run evidence without marking delivery proven' {
         $coverage = Test-RequiredCheckWorkflowCoverage
-        $transition = Get-PrDeliveryTransitionChecklist -WorkflowCoverage $coverage -RequiredChecksEnabled:$false -EnforceAdmins $true -BranchProtectionAvailable:$true -RulesetsAvailable:$true
+        $transition = Get-PrDeliveryTransitionChecklist -WorkflowCoverage $coverage -RequiredChecksEnabled:$false -EnforceAdmins $true -ActionsPullRequestCreationAllowed $false -BranchProtectionAvailable:$true -RulesetsAvailable:$true
         $evidence = $transition.generatedPrDryRunEvidence
+        $writeEvidence = $transition.generatedPrWriteEvidence
 
         $transition.readyForRequiredCheckEnforcement | Should -BeFalse
         $transition.status | Should -Be 'blocked'
@@ -2128,6 +2143,20 @@ Describe 'Required status check readiness' {
         $evidence.artifactReadinessStatus | Should -Be 'needs-live-validation'
         $evidence.evidenceSummary | Should -Match 'automation/profile-sync-27084524165'
         $evidence.nextAction | Should -Match 'required-check preconditions'
+        $writeEvidence.available | Should -BeTrue
+        $writeEvidence.mode | Should -Be 'write-pr'
+        $writeEvidence.runId | Should -Be 27085061539
+        $writeEvidence.jobId | Should -Be 79937807362
+        $writeEvidence.conclusion | Should -Be 'failure'
+        $writeEvidence.failedStep | Should -Be 'Create pull request'
+        $writeEvidence.reportArtifactUploaded | Should -BeTrue
+        $writeEvidence.artifactId | Should -Be 7461506616
+        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27085061539'
+        $writeEvidence.generatedBranchPushed | Should -BeTrue
+        $writeEvidence.generatedBranchCleanup | Should -Be 'deleted'
+        $writeEvidence.pullRequestCreated | Should -BeFalse
+        $writeEvidence.validationDispatched | Should -BeFalse
+        $writeEvidence.blocker | Should -Match 'pull-request creation'
     }
 }
 
@@ -2201,6 +2230,19 @@ Describe 'Generated profile PR validation handoff' {
         $dryRunJob | Should -Not -Match 'contents: write'
         $dryRunJob | Should -Not -Match 'pull-requests: write'
         $dryRunJob | Should -Not -Match 'actions: write'
+    }
+
+    It 'preflights workflow permission before pushing generated PR branches' {
+        $script:GeneratedPrHelper | Should -Match 'Assert-GitHubActionsCanCreatePullRequests'
+        $script:GeneratedPrHelper | Should -Match 'actions/permissions/workflow'
+        $script:GeneratedPrHelper | Should -Match 'can_approve_pull_request_reviews'
+        $script:GeneratedPrHelper | Should -Match 'Allow GitHub Actions to create and approve pull requests'
+
+        $preflightIndex = $script:GeneratedPrHelper.IndexOf('Assert-GitHubActionsCanCreatePullRequests', [StringComparison]::Ordinal)
+        $branchIndex = $script:GeneratedPrHelper.IndexOf('git switch -c $branch', [StringComparison]::Ordinal)
+        $preflightIndex | Should -BeGreaterThan -1
+        $branchIndex | Should -BeGreaterThan -1
+        $preflightIndex | Should -BeLessThan $branchIndex
     }
 
     It 'centralizes branch creation, commit, push, pull request, and validation guards' {
@@ -2313,6 +2355,9 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'REST fallback release attempts'
             $summary | Should -Match 'REST fallback no-release 404s'
             $summary | Should -Match 'Repository setting warnings'
+            $summary | Should -Match 'Actions workflow default permissions'
+            $summary | Should -Match 'Actions PR creation allowed'
+            $summary | Should -Match 'Actions PR permission recommendation'
             $summary | Should -Match 'Required check readiness'
             $summary | Should -Match 'Required check candidates'
             $summary | Should -Match 'Required check blockers'
@@ -2321,6 +2366,10 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Generated PR dry-run conclusion'
             $summary | Should -Match 'Generated PR dry-run preview reached'
             $summary | Should -Match 'Generated PR dry-run failed step'
+            $summary | Should -Match 'Generated PR write evidence'
+            $summary | Should -Match 'Generated PR write conclusion'
+            $summary | Should -Match 'Generated PR write failed step'
+            $summary | Should -Match 'Generated PR write branch cleanup'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
             $summary | Should -Match 'Code scanning languages'
@@ -2351,9 +2400,11 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'renderedProfileSmoke'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
+        $script:SummaryScript | Should -Match 'actionsWorkflowPermissions'
         $script:SummaryScript | Should -Match 'requiredCheckReadiness'
         $script:SummaryScript | Should -Match 'prDeliveryTransition'
         $script:SummaryScript | Should -Match 'generatedPrDryRunEvidence'
+        $script:SummaryScript | Should -Match 'generatedPrWriteEvidence'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'
