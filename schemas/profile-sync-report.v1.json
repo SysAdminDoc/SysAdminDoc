@@ -2442,6 +2442,9 @@
         "statusHandoffPendingPublisher",
         "statusHandoffFinalPublisher",
         "statusHandoffProof",
+        "statusHandoffState",
+        "statusHandoffTargetUrl",
+        "statusHandoffDescription",
         "blocker",
         "evidenceSummary",
         "nextAction"
@@ -2578,6 +2581,15 @@
           "type": "string"
         },
         "statusHandoffProof": {
+          "type": "string"
+        },
+        "statusHandoffState": {
+          "type": "string"
+        },
+        "statusHandoffTargetUrl": {
+          "type": "string"
+        },
+        "statusHandoffDescription": {
           "type": "string"
         },
         "blocker": {

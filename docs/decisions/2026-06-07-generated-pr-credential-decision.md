@@ -92,6 +92,12 @@ workflow updates the same context after `Check generated README` completes.
 Both write surfaces stay job-scoped: generated PR jobs get `statuses: write`,
 and normal read-only check jobs remain `contents: read`.
 
+Cycle 118 proved that path. Hosted `write-pr` run `27087776182` opened PR #10
+from `automation/profile-sync-27087776182`, dispatched validation run
+`27087806797`, and `generated-profile/validation` appeared in both
+`gh pr checks` and PR `statusCheckRollup` as passing. PR #10 was closed and the
+generated branch was deleted after evidence collection.
+
 ## Selected Path
 
 The applied repository setting command was:
@@ -100,13 +106,12 @@ The applied repository setting command was:
 gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
 ```
 
-Next, prove the generated status handoff or document a narrow approved bypass:
+Next, document or implement the remaining required-check enforcement policy:
 
-- Rerun hosted `write-pr` and confirm generated maintenance PRs surface
-  `generated-profile/validation` in the PR check rollup, not only commit-level
-  workflow-dispatch check runs.
-- Confirm the generated branch cleanup policy leaves no orphaned generated
-  branches.
+- Keep the generated profile `generated-profile/validation` status handoff as
+  the no-new-secret maintenance path.
+- Document and test a narrow direct-main maintenance bypass, or switch routine
+  maintenance to PR delivery before enabling admin-enforced required checks.
 - `repositorySettings.actionsWorkflowPermissions.generatedPrCreationAllowed`
   remains `true` in the next sync report.
 

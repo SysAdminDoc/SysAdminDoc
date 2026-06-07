@@ -5,10 +5,30 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.109
+Current version after this refresh: v4.9.110
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.110 batch proves the generated PR status handoff in a live PR
+  rollup.
+- Hosted Profile sync run `27087776182` created branch
+  `automation/profile-sync-27087776182`, pushed commit
+  `7e1ea63ce8a68f50d4c9dc9074c984341a1e53fd`, published
+  `generated-profile/validation` as pending, opened PR #10, and dispatched
+  branch-scoped validation run `27087806797`.
+- Validation run `27087806797` ran `sync-profile.ps1 -Write -Check` on the
+  generated branch, passed, uploaded `profile-sync-report` artifact
+  `7462523830`, uploaded `rendered-profile-smoke` artifact `7462524019`, and
+  then updated `generated-profile/validation` to success through the
+  workflow-dispatch-only status job.
+- `gh pr checks` and PR #10 `statusCheckRollup` both reported
+  `generated-profile/validation` as passing with target
+  `https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797`.
+- PR #10 was closed and `automation/profile-sync-27087776182` was deleted after
+  evidence collection.
+- Required-check enforcement still waits on a direct-main maintenance bypass or
+  broader PR-delivery policy, plus recent candidate-check validation; the
+  generated profile status handoff itself is proven.
 - The v4.9.109 batch implements a generated PR commit-status handoff for the
   remaining PR-check-rollup blocker.
 - GitHub documents that repository activity performed with `GITHUB_TOKEN` does

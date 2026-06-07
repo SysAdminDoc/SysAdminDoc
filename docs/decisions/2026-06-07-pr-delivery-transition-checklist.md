@@ -32,17 +32,16 @@ generated branch head SHA.
 | Candidate required checks | Ready | `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` are defined with stable workflow-backed names. | Keep job names unique and unchanged before enforcement. |
 | Candidate workflow coverage | Ready | Tests, Profile sync, and Workflow security all create checks on `pull_request` and `merge_group`, and PR triggers are not path-filtered. | Keep required-check candidate workflows always-created for PRs and merge queue runs. |
 | Recent successful check runs | Needs live validation | GitHub requires status checks to have completed recently in the repository before they can be selected as required checks. | Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes. |
-| PR delivery or bypass | Blocked | Generated PR creation and branch-scoped workflow-dispatch validation now work, but PR #9 reported no PR-attached check rollup and routine maintenance still pushes directly to `main` while branch protection has `enforce_admins.enabled=true`. Cycle 117 adds the `generated-profile/validation` commit-status handoff, with live PR-rollup proof still pending. | Prove PR-attached generated maintenance checks by rerunning hosted `write-pr` and verifying `generated-profile/validation` appears in `statusCheckRollup`, or document and test a narrow approved bypass before enabling required checks. |
+| PR delivery or bypass | Blocked | Generated PR creation, branch-scoped workflow-dispatch validation, and the `generated-profile/validation` PR status handoff are proven. Routine maintenance still pushes directly to `main` while branch protection has `enforce_admins.enabled=true`. | Document and test a narrow approved direct-main maintenance bypass, or switch routine maintenance to PR delivery before enabling required checks. |
 | Enforcement mechanism | Blocked | Branch protection and repository rulesets are currently readable and non-enforcing for required checks. | After PR delivery is proven, enable either branch-protection required checks or one repository ruleset, then re-query live settings. |
 
 ## Activation Order
 
 1. GitHub Actions pull-request creation for `GITHUB_TOKEN` is enabled as of
    Cycle 114. Keep default workflow permissions at `read`.
-2. Re-run the Profile sync `write-pr` workflow against a disposable generated
-   branch and confirm it creates a pull request, dispatches branch-scoped
-   Profile sync validation, publishes `generated-profile/validation`, and
-   leaves no orphaned branch after cleanup.
+2. Profile sync `write-pr` generated PR delivery is proven as of Cycle 118:
+   PR #10 surfaced `generated-profile/validation` in `statusCheckRollup`,
+   validation passed, and the disposable branch was deleted.
 3. Open a disposable PR that exercises the required-check surface without
    intentionally invalidating generated README output.
 4. Confirm all six candidate checks are created on the PR and on `merge_group`.
@@ -164,9 +163,29 @@ job stays `contents: read` and does not receive status-write permission.
 
 The sync report, schema, summary helper, and Pester suite now record and guard
 the status context, permission boundary, pending/final publisher paths, and
-pending hosted proof state. Required-check enforcement remains blocked until a
-new hosted `write-pr` run proves the status context appears in the generated PR
-`statusCheckRollup`.
+hosted proof state.
+
+## Cycle 118 Status-Rollup Proof
+
+Hosted Profile sync `write-pr` run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087776182` ran on
+`main` at `c3aeeb237b4e82bee169591a0f6a20d499719a73`. The helper created
+`automation/profile-sync-27087776182`, committed
+`7e1ea63ce8a68f50d4c9dc9074c984341a1e53fd`, published
+`generated-profile/validation` as pending, opened PR #10, and dispatched
+branch-scoped validation run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797`.
+
+Validation passed, uploaded `profile-sync-report` artifact `7462523830`, and
+uploaded `rendered-profile-smoke` artifact `7462524019`. The
+`generated-validation-status` job then updated `generated-profile/validation`
+to success. `gh pr checks` and PR #10 `statusCheckRollup` both reported
+`generated-profile/validation` as passing with the validation run target URL.
+
+PR #10 was closed and `automation/profile-sync-27087776182` was deleted after
+evidence collection. Required-check enforcement remains blocked by the
+direct-main maintenance policy and candidate-check freshness, not by generated
+profile PR status handoff.
 
 ## References
 
