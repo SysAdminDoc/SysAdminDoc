@@ -3087,6 +3087,8 @@ function Test-ReadmeDensity {
     $warnings = New-Object System.Collections.Generic.List[string]
     $repoOnlyProjectCount = 0
     $lowSignalProjectCount = 0
+    $portfolioOnlyCandidateCount = 0
+    $portfolioOnlyCandidateCategories = New-Object System.Collections.Generic.List[string]
 
     foreach ($definition in $CategoryDefinitions) {
         $slug = [string]$definition.Slug
@@ -3094,6 +3096,7 @@ function Test-ReadmeDensity {
         $repoOnlyCount = 0
         $actionableCount = 0
         $lowSignalCount = 0
+        $overCategorySoftLimitBy = [Math]::Max(0, ($categoryEntries.Count - $CategorySoftLimit))
         $categoryWarnings = New-Object System.Collections.Generic.List[string]
 
         foreach ($entry in $categoryEntries) {
@@ -3123,12 +3126,24 @@ function Test-ReadmeDensity {
             $categoryWarnings.Add(("{0} has {1} repo-only zero-star row(s); consider portfolio-only review for low-signal entries." -f $slug, $lowSignalCount))
         }
 
+        $lowSignalCandidateCount = if ($lowSignalCount -ge $LowSignalSoftLimit) { $lowSignalCount } else { 0 }
+        $categoryPortfolioOnlyCandidateCount = [Math]::Max($overCategorySoftLimitBy, $lowSignalCandidateCount)
+        $categoryRoutingRecommendation = if ($categoryPortfolioOnlyCandidateCount -gt 0) {
+            "review-portfolio-only-candidates"
+        } else {
+            "keep-in-readme"
+        }
+
         foreach ($warning in $categoryWarnings) {
             $warnings.Add($warning)
         }
 
         $repoOnlyProjectCount += $repoOnlyCount
         $lowSignalProjectCount += $lowSignalCount
+        $portfolioOnlyCandidateCount += $categoryPortfolioOnlyCandidateCount
+        if ($categoryPortfolioOnlyCandidateCount -gt 0) {
+            $portfolioOnlyCandidateCategories.Add($slug)
+        }
         $categoryRows.Add([ordered]@{
             category = $slug
             displayName = Get-CategoryDisplayName -Slug $slug
@@ -3136,6 +3151,9 @@ function Test-ReadmeDensity {
             actionableCount = [int]$actionableCount
             repoOnlyCount = [int]$repoOnlyCount
             lowSignalCount = [int]$lowSignalCount
+            overCategorySoftLimitBy = [int]$overCategorySoftLimitBy
+            portfolioOnlyCandidateCount = [int]$categoryPortfolioOnlyCandidateCount
+            routingRecommendation = $categoryRoutingRecommendation
             warningCount = [int]$categoryWarnings.Count
             warnings = @($categoryWarnings)
         })
@@ -3150,6 +3168,11 @@ function Test-ReadmeDensity {
     }
     $warningsArray = @($warnings.ToArray())
     $categoryRowsArray = @($categoryRows.ToArray())
+    $routingRecommendation = if ($portfolioOnlyCandidateCount -gt 0) {
+        "review-portfolio-only-candidates"
+    } else {
+        "keep-readme-routing-surface"
+    }
 
     return [ordered]@{
         lineCount = [int]$lineCount
@@ -3163,6 +3186,10 @@ function Test-ReadmeDensity {
         largestCategoryCount = $largestCategoryCount
         repoOnlyProjectCount = [int]$repoOnlyProjectCount
         lowSignalProjectCount = [int]$lowSignalProjectCount
+        portfolioOnlyCandidateCount = [int]$portfolioOnlyCandidateCount
+        portfolioOnlyCandidateCategoryCount = [int]$portfolioOnlyCandidateCategories.Count
+        portfolioOnlyCandidateCategories = @($portfolioOnlyCandidateCategories.ToArray())
+        routingRecommendation = $routingRecommendation
         warningCount = [int]($warningsArray.Count)
         warnings = $warningsArray
         categoryRows = $categoryRowsArray

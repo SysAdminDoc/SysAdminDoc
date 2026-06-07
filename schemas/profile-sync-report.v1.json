@@ -2453,6 +2453,10 @@
         "largestCategoryCount",
         "repoOnlyProjectCount",
         "lowSignalProjectCount",
+        "portfolioOnlyCandidateCount",
+        "portfolioOnlyCandidateCategoryCount",
+        "portfolioOnlyCandidateCategories",
+        "routingRecommendation",
         "warningCount",
         "warnings",
         "categoryRows"
@@ -2491,6 +2495,25 @@
         "lowSignalProjectCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "portfolioOnlyCandidateCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "portfolioOnlyCandidateCategoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "portfolioOnlyCandidateCategories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "routingRecommendation": {
+          "type": "string",
+          "enum": [
+            "keep-readme-routing-surface",
+            "review-portfolio-only-candidates"
+          ]
+        },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -2518,6 +2541,9 @@
         "actionableCount",
         "repoOnlyCount",
         "lowSignalCount",
+        "overCategorySoftLimitBy",
+        "portfolioOnlyCandidateCount",
+        "routingRecommendation",
         "warningCount",
         "warnings"
       ],
@@ -2539,6 +2565,19 @@
         },
         "lowSignalCount": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "overCategorySoftLimitBy": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "portfolioOnlyCandidateCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "routingRecommendation": {
+          "type": "string",
+          "enum": [
+            "keep-in-readme",
+            "review-portfolio-only-candidates"
+          ]
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"

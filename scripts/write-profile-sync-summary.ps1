@@ -98,6 +98,8 @@ $readmeDensityWarningCount = if ($readmeDensity) { [int]$readmeDensity.warningCo
 $readmeLargestCategory = if ($readmeDensity) { [string]$readmeDensity.largestCategory } else { "" }
 $readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestCategoryCount } else { 0 }
 $readmeRepoOnlyProjectCount = if ($readmeDensity) { [int]$readmeDensity.repoOnlyProjectCount } else { 0 }
+$readmePortfolioOnlyCandidateCount = if ($readmeDensity) { [int]$readmeDensity.portfolioOnlyCandidateCount } else { 0 }
+$readmeRoutingRecommendation = if ($readmeDensity) { [string]$readmeDensity.routingRecommendation } else { "unknown" }
 $restFallbackStatus = if ($restFallbackReleaseFetch) { [string]$restFallbackReleaseFetch.status } else { "unknown" }
 $restFallbackAttempted = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.attemptedReleaseFetches } else { 0 }
 $restFallbackNoRelease404Count = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.noRelease404Count } else { 0 }
@@ -121,6 +123,8 @@ $summary = @"
 | README density warnings | $readmeDensityWarningCount |
 | README largest category | $readmeLargestCategory ($readmeLargestCategoryCount) |
 | README repo-only rows | $readmeRepoOnlyProjectCount |
+| README portfolio-only candidates | $readmePortfolioOnlyCandidateCount |
+| README routing recommendation | $readmeRoutingRecommendation |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
@@ -178,6 +182,10 @@ if ($portfolioCompatibilityWarningCount -gt 0) {
 
 if ($readmeDensityWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $readmeDensityWarningCount README density warning(s)."
+}
+
+if ($readmePortfolioOnlyCandidateCount -gt 0) {
+    Write-Output "::warning::Profile sync report recommends reviewing $readmePortfolioOnlyCandidateCount README row(s) for portfolio-only routing."
 }
 
 if ($linkFailureCount -gt 0) {

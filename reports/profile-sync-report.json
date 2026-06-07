@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T22:29:18.2869093-04:00",
+  "generatedAt": "2026-06-06T22:41:02.1554729-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "fd302dd9eeca23b113d11cfe41a2debcb3ccdfad",
+    "sourceCommit": "1042dded72d6db1f51300242ceb16a5696c2fc4e",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
-    "generatorSha256": "d8c4016d12285606c96b8b271a3cf0e0e0580723015cdd81de36859f6bd7ad94",
+    "generatorSha256": "e288fe1a93b64a3e16eb99cbbd9c7240bc789000ea5250458c7fd23de22e50f8",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T22:27:43.3509314-04:00",
+    "metadataSnapshotAt": "2026-06-06T22:39:42.8834312-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T02:25:44.0000000Z",
+        "pushedAt": "2026-06-07T02:38:04.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,30 +892,6 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "Apache-2.0",
-        "licenseKey": "apache-2.0",
-        "licenseName": "Apache License 2.0",
-        "count": 2
-      },
-      {
-        "licenseSpdxId": "LGPL-3.0",
-        "licenseKey": "lgpl-3.0",
-        "licenseName": "GNU Lesser General Public License v3.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
-      },
-      {
-        "licenseSpdxId": "MPL-2.0",
-        "licenseKey": "mpl-2.0",
-        "licenseName": "Mozilla Public License 2.0",
-        "count": 1
-      },
-      {
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
@@ -928,10 +904,34 @@
         "count": 1
       },
       {
+        "licenseSpdxId": "Apache-2.0",
+        "licenseKey": "apache-2.0",
+        "licenseName": "Apache License 2.0",
+        "count": 2
+      },
+      {
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
+        "count": 1
+      },
+      {
         "licenseSpdxId": "BSD-3-Clause",
         "licenseKey": "bsd-3-clause",
         "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
+      },
+      {
+        "licenseSpdxId": "LGPL-3.0",
+        "licenseKey": "lgpl-3.0",
+        "licenseName": "GNU Lesser General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
       },
       {
         "licenseSpdxId": "NOASSERTION",
@@ -1116,16 +1116,16 @@
     ],
     "suppressionReasonCounts": [
       {
-        "reasonCode": "duplicate-or-superseded",
-        "publicReason": "Duplicate or superseded project omitted from the public feed.",
-        "visibilityClass": "suppressed",
-        "count": 3
-      },
-      {
         "reasonCode": "not-visitor-facing",
         "publicReason": "Project omitted because it is not visitor-facing.",
         "visibilityClass": "suppressed",
         "count": 4
+      },
+      {
+        "reasonCode": "placeholder",
+        "publicReason": "Placeholder project omitted from the public feed.",
+        "visibilityClass": "suppressed",
+        "count": 1
       },
       {
         "reasonCode": "private-or-sensitive",
@@ -1134,10 +1134,10 @@
         "count": 2
       },
       {
-        "reasonCode": "placeholder",
-        "publicReason": "Placeholder project omitted from the public feed.",
+        "reasonCode": "duplicate-or-superseded",
+        "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
-        "count": 1
+        "count": 3
       }
     ],
     "rows": [],
@@ -2437,28 +2437,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.82",
+    "expectedVersion": "v4.9.83",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.82"
+        "value": "v4.9.83"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.82"
+        "value": "v4.9.83"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.82"
+        "value": "v4.9.83"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.82"
+        "value": "v4.9.83"
       }
     ],
     "dates": [
@@ -2485,7 +2485,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 94,
+      "headingCount": 95,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2495,14 +2495,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.82",
+    "expectedVersion": "v4.9.83",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.82",
+    "expectedTag": "v4.9.83",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2512,13 +2512,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.82",
+        "expectedVersion": "v4.9.83",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.82",
+        "expectedVersion": "v4.9.83",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2530,7 +2530,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3451,
+      "elapsedMs": 3072,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2564,7 +2564,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.26,
+      "ageDays": 5.27,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2574,7 +2574,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3451,
+    "elapsedMs": 3072,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2598,6 +2598,12 @@
     "largestCategoryCount": 41,
     "repoOnlyProjectCount": 68,
     "lowSignalProjectCount": 44,
+    "portfolioOnlyCandidateCount": 11,
+    "portfolioOnlyCandidateCategoryCount": 1,
+    "portfolioOnlyCandidateCategories": [
+      "python"
+    ],
+    "routingRecommendation": "review-portfolio-only-candidates",
     "warningCount": 1,
     "warnings": [
       "python has 41 README rows, above the 30 row category soft limit."
@@ -2610,6 +2616,9 @@
         "actionableCount": 11,
         "repoOnlyCount": 19,
         "lowSignalCount": 14,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2620,6 +2629,9 @@
         "actionableCount": 24,
         "repoOnlyCount": 17,
         "lowSignalCount": 10,
+        "overCategorySoftLimitBy": 11,
+        "portfolioOnlyCandidateCount": 11,
+        "routingRecommendation": "review-portfolio-only-candidates",
         "warningCount": 1,
         "warnings": [
           "python has 41 README rows, above the 30 row category soft limit."
@@ -2632,6 +2644,9 @@
         "actionableCount": 26,
         "repoOnlyCount": 1,
         "lowSignalCount": 1,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2642,6 +2657,9 @@
         "actionableCount": 20,
         "repoOnlyCount": 3,
         "lowSignalCount": 2,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2652,6 +2670,9 @@
         "actionableCount": 14,
         "repoOnlyCount": 5,
         "lowSignalCount": 0,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2662,6 +2683,9 @@
         "actionableCount": 0,
         "repoOnlyCount": 3,
         "lowSignalCount": 1,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2672,6 +2696,9 @@
         "actionableCount": 2,
         "repoOnlyCount": 4,
         "lowSignalCount": 3,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2682,6 +2709,9 @@
         "actionableCount": 11,
         "repoOnlyCount": 8,
         "lowSignalCount": 6,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2692,6 +2722,9 @@
         "actionableCount": 1,
         "repoOnlyCount": 3,
         "lowSignalCount": 3,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       },
@@ -2702,6 +2735,9 @@
         "actionableCount": 0,
         "repoOnlyCount": 5,
         "lowSignalCount": 4,
+        "overCategorySoftLimitBy": 0,
+        "portfolioOnlyCandidateCount": 0,
+        "routingRecommendation": "keep-in-readme",
         "warningCount": 0,
         "warnings": []
       }
