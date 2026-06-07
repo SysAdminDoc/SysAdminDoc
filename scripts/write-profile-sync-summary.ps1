@@ -107,6 +107,7 @@ $generatedPrWritePrChecksAttached = if ($generatedPrWriteEvidence -and $null -ne
 $generatedPrWriteStatusHandoffImplemented = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffImplemented) { [bool]$generatedPrWriteEvidence.statusHandoffImplemented } else { $false }
 $generatedPrWriteStatusHandoffContext = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffContext) { [string]$generatedPrWriteEvidence.statusHandoffContext } else { "" }
 $generatedPrWriteStatusHandoffProof = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffProof) { [string]$generatedPrWriteEvidence.statusHandoffProof } else { "" }
+$generatedPrWriteStatusHandoffState = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffState) { [string]$generatedPrWriteEvidence.statusHandoffState } else { "" }
 $generatedPrWriteStatusHandoffPermission = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffPermission) { [string]$generatedPrWriteEvidence.statusHandoffPermission } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
@@ -267,6 +268,7 @@ $summary = @"
 | Generated PR PR check count | $generatedPrWritePrCheckRollupCount |
 | Generated PR status handoff | $generatedPrWriteStatusHandoffImplemented |
 | Generated PR status context | $generatedPrWriteStatusHandoffContext |
+| Generated PR status state | $generatedPrWriteStatusHandoffState |
 | Generated PR status permission | $generatedPrWriteStatusHandoffPermission |
 | Generated PR status proof | $generatedPrWriteStatusHandoffProof |
 | Code scanning status | $codeScanningStatus |

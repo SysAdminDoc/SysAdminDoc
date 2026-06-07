@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.109
+Current repo version: v4.9.110
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 117 - 2026-06-07.
+> Last researched: Cycle 118 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,27 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 117 - 2026-06-07.
+Last researched: Cycle 118 - 2026-06-07.
+
+2026-06-07 v4.9.110 refresh: generated PR status-rollup proof shipped.
+Cycle 118 reran hosted Profile sync `write-pr` run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087776182` on
+`main` at `c3aeeb237b4e82bee169591a0f6a20d499719a73`. The helper created
+`automation/profile-sync-27087776182`, committed
+`7e1ea63ce8a68f50d4c9dc9074c984341a1e53fd`, published
+`generated-profile/validation` as `pending`, opened PR #10
+(`https://github.com/SysAdminDoc/SysAdminDoc/pull/10`), and dispatched
+branch-scoped validation run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797`.
+Validation ran `sync-profile.ps1 -Write -Check`, passed, uploaded
+`profile-sync-report` artifact `7462523830` and `rendered-profile-smoke`
+artifact `7462524019`, then the status job updated
+`generated-profile/validation` to `success`. `gh pr checks` and PR
+`statusCheckRollup` both reported that context as passing. PR #10 was closed
+and `automation/profile-sync-27087776182` was deleted after evidence
+collection. Required-check enforcement now waits on a direct-main maintenance
+bypass or broader PR-delivery policy, plus recent candidate-check validation;
+the generated profile status handoff itself is proven.
 
 2026-06-07 v4.9.109 refresh: generated PR commit-status handoff shipped.
 Cycle 117 researched the `GITHUB_TOKEN` recursion limit documented by GitHub:
@@ -47,9 +67,8 @@ workflow-dispatch-only job with `statuses: write`. The sync report schema,
 Actions summary helper, and Pester suite now record and guard the handoff. The
 serialized sync-report artifact soft budget is now 112 KiB so the final
 rendered-smoke-patched report stays within the generated-artifact budget after
-the new status-handoff evidence.
-next cycle must rerun hosted `write-pr` and verify the status context appears
-in the generated PR `statusCheckRollup` before required-check enforcement.
+the new status-handoff evidence. Cycle 118 later proved the status context in
+the generated PR `statusCheckRollup`.
 
 2026-06-07 v4.9.108 refresh: generated PR branch validation proof shipped.
 Cycle 116 reran hosted Profile sync `write-pr` run

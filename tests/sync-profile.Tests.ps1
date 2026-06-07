@@ -368,14 +368,16 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.failedStep | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'deleted-after-validation-success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCreated | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestNumber | Should -Be 9
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestNumber | Should -Be 10
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationDispatched | Should -BeTrue
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationConclusion | Should -Be 'success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestChecksAttached | Should -BeFalse
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCheckRollupCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestChecksAttached | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCheckRollupCount | Should -Be 1
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffImplemented | Should -BeTrue
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffContext | Should -Be 'generated-profile/validation'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pending-next-hosted-write-pr'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffState | Should -Be 'success'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2195,8 +2197,8 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'PR Delivery Transition Checklist'
         $script:PrDeliveryTransitionDecision | Should -Match 'Candidate required checks'
         $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Prove PR-attached generated maintenance checks'
-        $script:PrDeliveryTransitionDecision | Should -Match 'PR-attached check rollup'
+        $script:PrDeliveryTransitionDecision | Should -Match 'generated-profile/validation.*PR status handoff'
+        $script:PrDeliveryTransitionDecision | Should -Match 'direct-main maintenance'
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
     }
 
@@ -2235,40 +2237,43 @@ Describe 'Required status check readiness' {
         $evidence.nextAction | Should -Match 'required-check preconditions'
         $writeEvidence.available | Should -BeTrue
         $writeEvidence.mode | Should -Be 'write-pr'
-        $writeEvidence.runId | Should -Be 27087015369
-        $writeEvidence.jobId | Should -Be 79943359597
+        $writeEvidence.runId | Should -Be 27087776182
+        $writeEvidence.jobId | Should -Be 79945465863
         $writeEvidence.conclusion | Should -Be 'success'
         $writeEvidence.failedStep | Should -BeNullOrEmpty
         $writeEvidence.reportArtifactUploaded | Should -BeTrue
-        $writeEvidence.artifactId | Should -Be 7462231036
-        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27087015369'
+        $writeEvidence.artifactId | Should -Be 7462507030
+        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27087776182'
         $writeEvidence.generatedBranchPushed | Should -BeTrue
         $writeEvidence.generatedBranchCleanup | Should -Be 'deleted-after-validation-success'
         $writeEvidence.pullRequestCreated | Should -BeTrue
-        $writeEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/9'
-        $writeEvidence.pullRequestNumber | Should -Be 9
+        $writeEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/10'
+        $writeEvidence.pullRequestNumber | Should -Be 10
         $writeEvidence.pullRequestState | Should -Be 'closed'
         $writeEvidence.validationDispatched | Should -BeTrue
-        $writeEvidence.validationRunId | Should -Be 27087055596
-        $writeEvidence.validationRunUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087055596'
+        $writeEvidence.validationRunId | Should -Be 27087806797
+        $writeEvidence.validationRunUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
         $writeEvidence.validationConclusion | Should -Be 'success'
         $writeEvidence.validationFailedStep | Should -BeNullOrEmpty
-        $writeEvidence.validationArtifactId | Should -Be 7462246872
-        $writeEvidence.validationSmokeArtifactId | Should -Be 7462247041
-        $writeEvidence.generatedBranchCheckRunCount | Should -Be 3
-        $writeEvidence.generatedBranchSuccessfulCheckRunCount | Should -Be 1
-        $writeEvidence.pullRequestCheckRollupCount | Should -Be 0
-        $writeEvidence.pullRequestChecksAttached | Should -BeFalse
-        $writeEvidence.pullRequestCheckRollupNote | Should -Match 'no PR-attached checks'
+        $writeEvidence.validationArtifactId | Should -Be 7462523830
+        $writeEvidence.validationSmokeArtifactId | Should -Be 7462524019
+        $writeEvidence.generatedBranchCheckRunCount | Should -Be 4
+        $writeEvidence.generatedBranchSuccessfulCheckRunCount | Should -Be 2
+        $writeEvidence.pullRequestCheckRollupCount | Should -Be 1
+        $writeEvidence.pullRequestChecksAttached | Should -BeTrue
+        $writeEvidence.pullRequestCheckRollupNote | Should -Match 'StatusContext generated-profile/validation'
         $writeEvidence.statusHandoffImplemented | Should -BeTrue
         $writeEvidence.statusHandoffContext | Should -Be 'generated-profile/validation'
         $writeEvidence.statusHandoffApi | Should -Be 'commit-statuses'
         $writeEvidence.statusHandoffPermission | Should -Be 'statuses: write'
         $writeEvidence.statusHandoffPendingPublisher | Should -Be 'scripts/open-generated-profile-pr.ps1'
         $writeEvidence.statusHandoffFinalPublisher | Should -Match 'generated-validation-status'
-        $writeEvidence.statusHandoffProof | Should -Be 'pending-next-hosted-write-pr'
-        $writeEvidence.blocker | Should -Match 'generated-profile/validation'
-        $writeEvidence.nextAction | Should -Match 'statusCheckRollup'
+        $writeEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
+        $writeEvidence.statusHandoffState | Should -Be 'success'
+        $writeEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
+        $writeEvidence.statusHandoffDescription | Should -Be 'Generated profile validation success.'
+        $writeEvidence.blocker | Should -Match 'direct-main maintenance'
+        $writeEvidence.nextAction | Should -Match 'direct-main maintenance'
     }
 }
 
@@ -2587,6 +2592,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'Generated PR PR check count'
         $script:SummaryScript | Should -Match 'Generated PR status handoff'
         $script:SummaryScript | Should -Match 'statusHandoffContext'
+        $script:SummaryScript | Should -Match 'statusHandoffState'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'

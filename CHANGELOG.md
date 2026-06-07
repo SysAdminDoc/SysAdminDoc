@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.110] - 2026-06-07
+
+- Added: `generatedPrWriteEvidence` now records hosted `write-pr` run `27087776182`, PR #10, validation run `27087806797`, status-context success, artifact IDs, and generated branch cleanup.
+- Changed: Required-check readiness now treats the generated profile `generated-profile/validation` PR status handoff as proven and points the remaining blocker at direct-main maintenance policy before admin-enforced required checks.
+- Changed: Profile sync summaries now show the final generated PR status-handoff state in addition to context, permission, and proof label.
+
 ## [v4.9.109] - 2026-06-07
 
 - Added: Generated profile PRs now publish a `generated-profile/validation` commit-status context before PR creation and update it after branch-scoped validation completes.
