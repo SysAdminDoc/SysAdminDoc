@@ -152,6 +152,12 @@ $reviewPolicyReviewerModel = if ($reviewPolicyPosture -and $null -ne $reviewPoli
 $reviewPolicyScorecardClassification = if ($reviewPolicyPosture -and $null -ne $reviewPolicyPosture.scorecardCodeReviewClassification) { [string]$reviewPolicyPosture.scorecardCodeReviewClassification } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
+$dependabotSecurityPosture = if ($repositorySettings -and $repositorySettings.security -and $repositorySettings.security.PSObject.Properties.Name -contains 'dependabotSecurityPosture') { $repositorySettings.security.dependabotSecurityPosture } else { $null }
+$dependabotSecurityStatus = if ($dependabotSecurityPosture -and $null -ne $dependabotSecurityPosture.status) { [string]$dependabotSecurityPosture.status } else { "unknown" }
+$dependabotSecurityRecommendation = if ($dependabotSecurityPosture -and $null -ne $dependabotSecurityPosture.recommendation) { [string]$dependabotSecurityPosture.recommendation } else { "unknown" }
+$dependabotSecurityUpdatesEnabled = if ($dependabotSecurityPosture -and $null -ne $dependabotSecurityPosture.securityUpdatesEnabled) { [bool]$dependabotSecurityPosture.securityUpdatesEnabled } else { $false }
+$dependabotConfigPresent = if ($dependabotSecurityPosture -and $null -ne $dependabotSecurityPosture.localConfigPresent) { [bool]$dependabotSecurityPosture.localConfigPresent } else { $false }
+$dependabotConfigEcosystems = if ($dependabotSecurityPosture -and $dependabotSecurityPosture.localConfigEcosystems) { @($dependabotSecurityPosture.localConfigEcosystems) -join ", " } else { "" }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
 $codeScanningStatus = if ($codeScanning) { [string]$codeScanning.status } else { "unknown" }
 $codeScanningRecommendation = if ($codeScanning) { [string]$codeScanning.recommendation } else { "unknown" }
@@ -346,6 +352,11 @@ $summary = @"
 | Code-owner reviews required | $reviewPolicyCodeOwnerReviewsRequired |
 | Review policy reviewer model | $reviewPolicyReviewerModel |
 | Scorecard CodeReview classification | $reviewPolicyScorecardClassification |
+| Dependabot security posture | $dependabotSecurityStatus |
+| Dependabot security recommendation | $dependabotSecurityRecommendation |
+| Dependabot security updates enabled | $dependabotSecurityUpdatesEnabled |
+| Dependabot local config present | $dependabotConfigPresent |
+| Dependabot local config ecosystems | $dependabotConfigEcosystems |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

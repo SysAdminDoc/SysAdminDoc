@@ -303,6 +303,14 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.secretScanning | Should -Be 'enabled'
         $repoSettings.security.secretScanningPushProtection | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityUpdates | Should -Be 'disabled'
+        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'disabled'
+        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'enable-dependabot-security-updates-or-document-manual-triage'
+        $repoSettings.security.dependabotSecurityPosture.securityUpdatesEnabled | Should -BeFalse
+        $repoSettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeTrue
+        $repoSettings.security.dependabotSecurityPosture.localConfigPath | Should -Be '.github/dependabot.yml'
+        $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
+        $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
+        $repoSettings.security.dependabotSecurityPosture.documentationPath | Should -Be 'docs/decisions/2026-06-07-dependabot-security-posture.md'
         $repoSettings.security.codeScanning.status | Should -Be 'not-applicable'
         $repoSettings.security.codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $repoSettings.security.codeScanning.reason | Should -Match 'CodeQL-supported source language'
@@ -1932,6 +1940,10 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardSarifUploadPresent | Should -BeTrue
         $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+        $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'disabled'
+        $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeTrue
+        $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
+        $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
         $codeScanning.scorecardAlertPosture.available | Should -BeTrue
         $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be 4
         $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 0
@@ -2837,6 +2849,9 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'reviewPolicyPosture'
         $script:SummaryScript | Should -Match 'Review policy posture'
         $script:SummaryScript | Should -Match 'Scorecard CodeReview classification'
+        $script:SummaryScript | Should -Match 'dependabotSecurityPosture'
+        $script:SummaryScript | Should -Match 'Dependabot security posture'
+        $script:SummaryScript | Should -Match 'Dependabot local config ecosystems'
         $script:SummaryScript | Should -Match 'Routine PR drill status'
         $script:SummaryScript | Should -Match 'Candidate check exercise plan'
         $script:SummaryScript | Should -Match 'Candidate check exercise evidence is'

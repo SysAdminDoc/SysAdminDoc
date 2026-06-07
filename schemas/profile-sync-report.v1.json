@@ -1783,6 +1783,7 @@
         "secretScanningNonProviderPatterns",
         "secretScanningValidityChecks",
         "dependabotSecurityUpdates",
+        "dependabotSecurityPosture",
         "codeScanning"
       ],
       "properties": {
@@ -1801,8 +1802,67 @@
         "dependabotSecurityUpdates": {
           "$ref": "#/$defs/nullableString"
         },
+        "dependabotSecurityPosture": {
+          "$ref": "#/$defs/dependabotSecurityPosture"
+        },
         "codeScanning": {
           "$ref": "#/$defs/codeScanningStatus"
+        }
+      }
+    },
+    "dependabotSecurityPosture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "status",
+        "recommendation",
+        "dependabotSecurityUpdatesStatus",
+        "securityUpdatesEnabled",
+        "localConfigPresent",
+        "localConfigPath",
+        "localConfigEcosystems",
+        "warningDisposition",
+        "documentationPath",
+        "evidence",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "dependabotSecurityUpdatesStatus": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "securityUpdatesEnabled": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "localConfigPresent": {
+          "type": "boolean"
+        },
+        "localConfigPath": {
+          "type": "string"
+        },
+        "localConfigEcosystems": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "warningDisposition": {
+          "type": "string"
+        },
+        "documentationPath": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
         }
       }
     },

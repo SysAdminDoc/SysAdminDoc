@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.123
+Current version after this refresh: v4.9.124
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.124 batch records Dependabot security-update posture as a
+  first-class repository security report object.
+- `repositorySettings.security.dependabotSecurityPosture` now reports
+  `status=disabled`,
+  `recommendation=enable-dependabot-security-updates-or-document-manual-triage`,
+  `securityUpdatesEnabled=false`, `localConfigPresent=true`, local config path
+  `.github/dependabot.yml`, and local config ecosystems `github-actions` and
+  `npm`.
+- `docs/decisions/2026-06-07-dependabot-security-posture.md` documents that
+  local Dependabot version-update config is useful but is not equivalent to
+  enabled Dependabot security updates.
 - The v4.9.123 batch records the pull-request review and code-owner review
   posture as warning-only until an independent reviewer or team model exists.
 - `repositorySettings.reviewPolicyPosture` now reports
