@@ -3076,6 +3076,110 @@ function Test-ReadmeSizeBudget {
     }
 }
 
+function New-ReadmePortfolioOnlyPreview {
+    param(
+        [object[]]$Entries,
+        [object[]]$Candidates,
+        [int]$CategorySoftLimit = $ReadmeCategorySoftLimit
+    )
+
+    $safeEntries = @($Entries)
+    $safeCandidates = @($Candidates | Where-Object {
+            -not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $_ -Name "repo"))
+        } | Sort-Object @{ Expression = { [int](Get-MemberValue -Object $_ -Name "reviewRank") }; Ascending = $true })
+    $candidateRepos = @($safeCandidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "repo") })
+    $candidateSet = @{}
+    foreach ($repo in $candidateRepos) {
+        $candidateSet[$repo.ToLowerInvariant()] = $true
+    }
+
+    $previewEntries = @($safeEntries | Where-Object {
+            $repo = [string](Get-MemberValue -Object $_ -Name "repo")
+            [string]::IsNullOrWhiteSpace($repo) -or -not $candidateSet.ContainsKey($repo.ToLowerInvariant())
+        })
+    $categoryRows = New-Object System.Collections.Generic.List[object]
+
+    foreach ($definition in $CategoryDefinitions) {
+        $slug = [string]$definition.Slug
+        $currentCount = @($safeEntries | Where-Object { [string](Get-MemberValue -Object $_ -Name "category") -eq $slug }).Count
+        $previewCount = @($previewEntries | Where-Object { [string](Get-MemberValue -Object $_ -Name "category") -eq $slug }).Count
+        $categoryRows.Add([ordered]@{
+                category = $slug
+                displayName = Get-CategoryDisplayName -Slug $slug
+                currentProjectCount = [int]$currentCount
+                previewProjectCount = [int]$previewCount
+                projectRowDelta = [int]($previewCount - $currentCount)
+                currentOverSoftLimitBy = [int][Math]::Max(0, ($currentCount - $CategorySoftLimit))
+                previewOverSoftLimitBy = [int][Math]::Max(0, ($previewCount - $CategorySoftLimit))
+            })
+    }
+
+    $categoryRowsArray = @($categoryRows.ToArray())
+    $largestPreviewCategory = @($categoryRowsArray |
+        Sort-Object @{ Expression = { [int]$_.previewProjectCount }; Descending = $true }, category |
+        Select-Object -First 1)
+    $previewLargestCategory = $null
+    $previewLargestCategoryCount = 0
+    if ($largestPreviewCategory.Count -gt 0) {
+        $previewLargestCategory = [string]$largestPreviewCategory[0].category
+        $previewLargestCategoryCount = [int]$largestPreviewCategory[0].previewProjectCount
+    }
+    $largestCurrentCategory = @($categoryRowsArray |
+        Sort-Object @{ Expression = { [int]$_.currentProjectCount }; Descending = $true }, category |
+        Select-Object -First 1)
+    $currentLargestCategory = $null
+    if ($largestCurrentCategory.Count -gt 0) {
+        $currentLargestCategory = [string]$largestCurrentCategory[0].category
+    }
+
+    $remainingOverSoftLimitCategoryCount = @($categoryRowsArray | Where-Object { [int]$_.previewOverSoftLimitBy -gt 0 }).Count
+    $resolvedOverSoftLimitCategoryCount = @($categoryRowsArray | Where-Object {
+            [int]$_.currentOverSoftLimitBy -gt 0 -and [int]$_.previewOverSoftLimitBy -eq 0
+        }).Count
+    $preservesPortfolioRoutes = @($safeCandidates | Where-Object {
+            (Get-MemberValue -Object $_ -Name "includeInPortfolio") -ne $true
+        }).Count -eq 0
+    $candidateCount = [int]$candidateRepos.Count
+    $status = if ($candidateCount -eq 0) {
+        "no-candidates"
+    } elseif ($remainingOverSoftLimitCategoryCount -gt 0) {
+        "warning"
+    } else {
+        "ready"
+    }
+    $recommendation = if ($candidateCount -eq 0) {
+        "keep-readme-routing-surface"
+    } elseif ($remainingOverSoftLimitCategoryCount -gt 0) {
+        "review-next-candidate-batch"
+    } else {
+        "review-catalog-demotion"
+    }
+
+    return [ordered]@{
+        enabled = $true
+        mode = "report-only"
+        candidateSource = "readmeDensity.portfolioOnlyCandidates"
+        candidateCount = $candidateCount
+        candidateRepos = @($candidateRepos)
+        currentProjectRowCount = [int]$safeEntries.Count
+        previewProjectRowCount = [int]$previewEntries.Count
+        projectRowDelta = [int]($previewEntries.Count - $safeEntries.Count)
+        currentLargestCategory = $currentLargestCategory
+        previewLargestCategory = $previewLargestCategory
+        previewLargestCategoryCount = [int]$previewLargestCategoryCount
+        remainingOverSoftLimitCategoryCount = [int]$remainingOverSoftLimitCategoryCount
+        resolvedOverSoftLimitCategoryCount = [int]$resolvedOverSoftLimitCategoryCount
+        preservesPortfolioRoutes = [bool]$preservesPortfolioRoutes
+        catalogMutated = $false
+        readmeMutated = $false
+        projectsFeedMutated = $false
+        status = $status
+        recommendation = $recommendation
+        note = "Report-only preview; catalog, README, and projects feed output are not mutated by this section."
+        categoryRows = $categoryRowsArray
+    }
+}
+
 function Test-ReadmeDensity {
     param(
         [string]$ExpectedReadme,
@@ -3248,6 +3352,10 @@ function Test-ReadmeDensity {
     } else {
         "keep-readme-routing-surface"
     }
+    $portfolioOnlyPreview = New-ReadmePortfolioOnlyPreview `
+        -Entries $Entries `
+        -Candidates $portfolioOnlyCandidates.ToArray() `
+        -CategorySoftLimit $CategorySoftLimit
 
     return [ordered]@{
         lineCount = [int]$lineCount
@@ -3266,6 +3374,7 @@ function Test-ReadmeDensity {
         portfolioOnlyCandidateCategories = @($portfolioOnlyCandidateCategories.ToArray())
         portfolioOnlyCandidateSelectionPolicy = "Review non-featured, non-currently-building repo-only rows that still have portfolio routes; sort by stars, release availability, age, category order, and repo name."
         portfolioOnlyCandidates = @($portfolioOnlyCandidates.ToArray())
+        portfolioOnlyPreview = $portfolioOnlyPreview
         routingRecommendation = $routingRecommendation
         warningCount = [int]($warningsArray.Count)
         warnings = $warningsArray

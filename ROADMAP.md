@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.86
+Current repo version: v4.9.87
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 94 - 2026-06-07.
+> Last researched: Cycle 95 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,19 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 94 - 2026-06-07.
+Last researched: Cycle 95 - 2026-06-07.
+
+2026-06-07 v4.9.87 refresh: portfolio-only catalog review preview
+reporting shipped. `readmeDensity.portfolioOnlyPreview` now records a
+report-only demotion preview for the selected candidates, including candidate
+source, repo list, current and preview README row counts, row delta, category
+soft-limit resolution, portfolio-route preservation, and explicit
+`catalogMutated=false`, `readmeMutated=false`, and `projectsFeedMutated=false`
+flags. Current preview evidence shows the 11 Python candidates would reduce
+README project rows from 177 to 166, reduce Python rows from 41 to the 30-row
+soft limit, resolve 1 over-limit category, and leave portfolio routes
+available. The profile sync summary surfaces preview status, row delta,
+preview row count, and remaining over-limit category count.
 
 2026-06-07 v4.9.86 refresh: concrete README portfolio-only review
 candidate reporting shipped. `readmeDensity` now includes
@@ -1985,12 +1997,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 94 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 95 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `462afa1 feat: report pr delivery transition`
+- HEAD inspected before this cycle: `5befab9 feat: report portfolio review candidates`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -2007,14 +2019,15 @@ Current local state:
 - Cycle 92 added generated artifact/render-budget reporting; current artifact budgets are within budget and live rendered smoke passes with 0 warnings.
 - Cycle 93 added PR-delivery transition checklist reporting; current candidate checks/workflow coverage are ready, but required-check enforcement remains blocked by direct-main delivery and live PR proof.
 - Cycle 94 added concrete README portfolio-only review candidate rows; current Python candidates are selected deterministically but README inclusion is unchanged.
+- Cycle 95 added a report-only portfolio demotion preview; the selected 11 Python candidates would reduce README rows from 177 to 166 and clear the current category soft-limit warning without mutating the catalog, README, or projects feed.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 95: add a portfolio-only catalog review preview mode before changing generated README rows.
-2. Cycle 96: add a PR-delivery dry-run helper once branch-based delivery is approved.
-3. Cycle 97: add candidate-row override notes to the catalog only after the preview mode is in place.
+1. Cycle 96: add a PR-delivery dry-run helper once branch-based delivery is approved.
+2. Cycle 97: add candidate-row override notes to the catalog now the preview mode is in place.
+3. Cycle 98: add deterministic ordering for report aggregate arrays that still churn across live metadata snapshots.
 
 ### Quick Wins
 
@@ -2031,6 +2044,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Concrete README portfolio-only review candidate rows (completed v4.9.86 with `portfolioOnlyCandidateSelectionPolicy`, `portfolioOnlyCandidates`, reason codes, summary sample output, schema coverage, and Pester guards).
+- [x] P2 — Portfolio-only catalog review preview mode (completed v4.9.87 with report-only row-delta/category-impact previewing, mutation flags, summary rows, schema coverage, and Pester guards).
 - [x] P2 — Generated artifact/render-budget report (completed v4.9.84 with `artifactBudgets`, `renderedProfileSmoke`, summary rows, schema coverage, live smoke report patching, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).

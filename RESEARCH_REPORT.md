@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.86
+Current version after this refresh: v4.9.87
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.87 batch adds a non-mutating portfolio-only catalog review preview
+  under `readmeDensity.portfolioOnlyPreview`.
+- The current preview shows the 11 selected Python candidates would reduce
+  README project rows from 177 to 166, reduce Python from 41 rows to the
+  30-row soft limit, resolve 1 over-limit category, and preserve portfolio
+  routes.
+- Preview mutation flags are all false: `catalogMutated=false`,
+  `readmeMutated=false`, and `projectsFeedMutated=false`.
+- GitHub profile README documentation confirms the root `README.md` in a
+  public username-matching repository is the rendered profile surface, and
+  GitHub README documentation notes README content beyond 500 KiB is truncated.
+  That keeps preview-first catalog demotion safer than directly changing the
+  public profile output. Sources: https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme
+  and https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes.
 - The v4.9.86 batch names concrete README portfolio-only review candidates
   without changing generated README inclusion.
 - `readmeDensity.portfolioOnlyCandidateSelectionPolicy` records that candidate
@@ -20,8 +34,8 @@ Current version after this refresh: v4.9.86
   `GmailDownloader`, `bypassnroGen`, `LipSight`, `PDFedit`,
   `QR-Code-Generator-Pro`, `Stock-Video-Collector`, and `Tunerize`.
 - The current recommendation remains `review-portfolio-only-candidates`, not an
-  automatic catalog change. A preview mode should come before any generated
-  README row is demoted.
+  automatic catalog change. Candidate-row demotion should wait for explicit
+  catalog override notes now that preview evidence exists.
 - The v4.9.85 batch adds a PR-delivery transition checklist to
   `repositorySettings.requiredCheckReadiness` before any required-check
   enforcement is enabled.

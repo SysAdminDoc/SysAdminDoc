@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T23:39:03.6490259-04:00",
+  "generatedAt": "2026-06-06T23:52:50.3086117-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "462afa15dc02c4a80bf736a3c48fcfe0a53bf210",
+    "sourceCommit": "5befab9d5e00bf92a28aecf8ed458ce125dc12e1",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
-    "generatorSha256": "b881c182c2b9560fcc785fc122f4dd10ba27052b3c4be3bb8f07c9de8f47cde0",
+    "generatorSha256": "b9c34eff25989b59576e5fccfebb3493b9efeb1ffd61cba6598566450e070e7b",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T23:37:45.8528289-04:00",
+    "metadataSnapshotAt": "2026-06-06T23:51:32.9685564-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T03:35:03Z",
+        "pushedAt": "2026-06-07T03:49:06Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,6 +892,12 @@
     "warningCount": 12,
     "licenseCounts": [
       {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
+      },
+      {
         "licenseSpdxId": "LGPL-3.0",
         "licenseKey": "lgpl-3.0",
         "licenseName": "GNU Lesser General Public License v3.0",
@@ -904,27 +910,15 @@
         "count": 1
       },
       {
-        "licenseSpdxId": "NOASSERTION",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "count": 9
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "count": 1
       },
       {
         "licenseSpdxId": "MPL-2.0",
         "licenseKey": "mpl-2.0",
         "licenseName": "Mozilla Public License 2.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
-      },
-      {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
       },
       {
@@ -938,6 +932,12 @@
         "licenseKey": "apache-2.0",
         "licenseName": "Apache License 2.0",
         "count": 2
+      },
+      {
+        "licenseSpdxId": "NOASSERTION",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "count": 9
       }
     ],
     "missingLicenses": [
@@ -1116,18 +1116,6 @@
     ],
     "suppressionReasonCounts": [
       {
-        "reasonCode": "placeholder",
-        "publicReason": "Placeholder project omitted from the public feed.",
-        "visibilityClass": "suppressed",
-        "count": 1
-      },
-      {
-        "reasonCode": "private-or-sensitive",
-        "publicReason": "Private or sensitive project omitted from the public feed.",
-        "visibilityClass": "private-or-sensitive",
-        "count": 2
-      },
-      {
         "reasonCode": "duplicate-or-superseded",
         "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
@@ -1138,6 +1126,18 @@
         "publicReason": "Project omitted because it is not visitor-facing.",
         "visibilityClass": "suppressed",
         "count": 4
+      },
+      {
+        "reasonCode": "placeholder",
+        "publicReason": "Placeholder project omitted from the public feed.",
+        "visibilityClass": "suppressed",
+        "count": 1
+      },
+      {
+        "reasonCode": "private-or-sensitive",
+        "publicReason": "Private or sensitive project omitted from the public feed.",
+        "visibilityClass": "private-or-sensitive",
+        "count": 2
       }
     ],
     "rows": [],
@@ -2527,28 +2527,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.86",
+    "expectedVersion": "v4.9.87",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.86"
+        "value": "v4.9.87"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.86"
+        "value": "v4.9.87"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.86"
+        "value": "v4.9.87"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.86"
+        "value": "v4.9.87"
       }
     ],
     "dates": [
@@ -2575,7 +2575,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 98,
+      "headingCount": 99,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2585,14 +2585,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.86",
+    "expectedVersion": "v4.9.87",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.86",
+    "expectedTag": "v4.9.87",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2602,13 +2602,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.86",
+        "expectedVersion": "v4.9.87",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.86",
+        "expectedVersion": "v4.9.87",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2620,7 +2620,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3594,
+      "elapsedMs": 3093,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2654,7 +2654,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.31,
+      "ageDays": 5.32,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2664,7 +2664,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3594,
+    "elapsedMs": 3093,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2899,6 +2899,132 @@
         "recommendation": "review-for-portfolio-only"
       }
     ],
+    "portfolioOnlyPreview": {
+      "enabled": true,
+      "mode": "report-only",
+      "candidateSource": "readmeDensity.portfolioOnlyCandidates",
+      "candidateCount": 11,
+      "candidateRepos": [
+        "CSV_Power_Tool",
+        "Flux",
+        "PillSleepTracker",
+        "UniversalCompiler",
+        "GmailDownloader",
+        "bypassnroGen",
+        "LipSight",
+        "PDFedit",
+        "QR-Code-Generator-Pro",
+        "Stock-Video-Collector",
+        "Tunerize"
+      ],
+      "currentProjectRowCount": 177,
+      "previewProjectRowCount": 166,
+      "projectRowDelta": -11,
+      "currentLargestCategory": "python",
+      "previewLargestCategory": "powershell",
+      "previewLargestCategoryCount": 30,
+      "remainingOverSoftLimitCategoryCount": 0,
+      "resolvedOverSoftLimitCategoryCount": 1,
+      "preservesPortfolioRoutes": true,
+      "catalogMutated": false,
+      "readmeMutated": false,
+      "projectsFeedMutated": false,
+      "status": "ready",
+      "recommendation": "review-catalog-demotion",
+      "note": "Report-only preview; catalog, README, and projects feed output are not mutated by this section.",
+      "categoryRows": [
+        {
+          "category": "powershell",
+          "displayName": "PowerShell",
+          "currentProjectCount": 30,
+          "previewProjectCount": 30,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "python",
+          "displayName": "Python",
+          "currentProjectCount": 41,
+          "previewProjectCount": 30,
+          "projectRowDelta": -11,
+          "currentOverSoftLimitBy": 11,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "web",
+          "displayName": "Web",
+          "currentProjectCount": 27,
+          "previewProjectCount": 27,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "extensions",
+          "displayName": "Extensions",
+          "currentProjectCount": 23,
+          "previewProjectCount": 23,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "android",
+          "displayName": "Android",
+          "currentProjectCount": 19,
+          "previewProjectCount": 19,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "security",
+          "displayName": "Security",
+          "currentProjectCount": 3,
+          "previewProjectCount": 3,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "media",
+          "displayName": "Media",
+          "currentProjectCount": 6,
+          "previewProjectCount": 6,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "desktop",
+          "displayName": "Desktop",
+          "currentProjectCount": 19,
+          "previewProjectCount": 19,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "guides",
+          "displayName": "Guides",
+          "currentProjectCount": 4,
+          "previewProjectCount": 4,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        },
+        {
+          "category": "misc",
+          "displayName": "Misc",
+          "currentProjectCount": 5,
+          "previewProjectCount": 5,
+          "projectRowDelta": 0,
+          "currentOverSoftLimitBy": 0,
+          "previewOverSoftLimitBy": 0
+        }
+      ]
+    },
     "routingRecommendation": "review-portfolio-only-candidates",
     "warningCount": 1,
     "warnings": [
@@ -3110,7 +3236,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 91163,
+        "value": 95183,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3138,7 +3264,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-06T23:39:19.7349119-04:00",
+    "generatedAt": "2026-06-06T23:53:06.1883514-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

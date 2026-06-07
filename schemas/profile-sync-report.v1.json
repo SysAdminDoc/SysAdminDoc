@@ -2630,6 +2630,7 @@
         "portfolioOnlyCandidateCategories",
         "portfolioOnlyCandidateSelectionPolicy",
         "portfolioOnlyCandidates",
+        "portfolioOnlyPreview",
         "routingRecommendation",
         "warningCount",
         "warnings",
@@ -2689,6 +2690,9 @@
           "items": {
             "$ref": "#/$defs/readmeDensityPortfolioOnlyCandidate"
           }
+        },
+        "portfolioOnlyPreview": {
+          "$ref": "#/$defs/readmeDensityPortfolioOnlyPreview"
         },
         "routingRecommendation": {
           "type": "string",
@@ -2770,6 +2774,150 @@
           "enum": [
             "review-for-portfolio-only"
           ]
+        }
+      }
+    },
+    "readmeDensityPortfolioOnlyPreview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "mode",
+        "candidateSource",
+        "candidateCount",
+        "candidateRepos",
+        "currentProjectRowCount",
+        "previewProjectRowCount",
+        "projectRowDelta",
+        "currentLargestCategory",
+        "previewLargestCategory",
+        "previewLargestCategoryCount",
+        "remainingOverSoftLimitCategoryCount",
+        "resolvedOverSoftLimitCategoryCount",
+        "preservesPortfolioRoutes",
+        "catalogMutated",
+        "readmeMutated",
+        "projectsFeedMutated",
+        "status",
+        "recommendation",
+        "note",
+        "categoryRows"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "report-only"
+          ]
+        },
+        "candidateSource": {
+          "type": "string"
+        },
+        "candidateCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "candidateRepos": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "currentProjectRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "previewProjectRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "projectRowDelta": {
+          "type": "integer"
+        },
+        "currentLargestCategory": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "previewLargestCategory": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "previewLargestCategoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "remainingOverSoftLimitCategoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "resolvedOverSoftLimitCategoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "preservesPortfolioRoutes": {
+          "type": "boolean"
+        },
+        "catalogMutated": {
+          "type": "boolean"
+        },
+        "readmeMutated": {
+          "type": "boolean"
+        },
+        "projectsFeedMutated": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "warning",
+            "no-candidates"
+          ]
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": [
+            "keep-readme-routing-surface",
+            "review-catalog-demotion",
+            "review-next-candidate-batch"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "categoryRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/readmeDensityPortfolioOnlyPreviewCategoryRow"
+          }
+        }
+      }
+    },
+    "readmeDensityPortfolioOnlyPreviewCategoryRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "displayName",
+        "currentProjectCount",
+        "previewProjectCount",
+        "projectRowDelta",
+        "currentOverSoftLimitBy",
+        "previewOverSoftLimitBy"
+      ],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "currentProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "previewProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "projectRowDelta": {
+          "type": "integer"
+        },
+        "currentOverSoftLimitBy": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "previewOverSoftLimitBy": {
+          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     },
