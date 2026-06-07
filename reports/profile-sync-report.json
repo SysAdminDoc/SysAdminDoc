@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T04:58:40.9021801-04:00",
+  "generatedAt": "2026-06-07T05:07:14.3929959-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "c3aeeb237b4e82bee169591a0f6a20d499719a73",
+    "sourceCommit": "8761fa8f25089f74b9938739e09fc96b0630cb6f",
     "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
-    "generatorSha256": "2126ea9fed73d88849c9adb9f3d5d46ce0d87e18178cb72c0b14a4a96e543412",
+    "generatorSha256": "dcbc0a8a0eb63d7f9b85134fbf4d30f008376583c3c92537c7edc8efaa747382",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T04:57:23.5046178-04:00",
+    "metadataSnapshotAt": "2026-06-07T05:05:57.2483987-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,7 +2270,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T04:57:23.5046178-04:00",
+          "queriedAt": "2026-06-07T05:05:57.2483987-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 1,
@@ -2569,6 +2569,16 @@
           "evidenceSummary": "Hosted write-pr drill 27087776182 ran on c3aeeb2, continued past the workflow-permissions endpoint 403, committed 7e1ea63 to automation/profile-sync-27087776182, pushed the branch, published generated-profile/validation as pending, created PR #10, and dispatched Profile sync validation run 27087806797. Validation used sync-profile.ps1 -Write -Check, passed, uploaded profile-sync-report artifact 7462523830 and rendered-profile-smoke artifact 7462524019, then the generated-validation-status job updated generated-profile/validation to success. PR #10 statusCheckRollup and gh pr checks both reported generated-profile/validation as passing, then PR #10 was closed and the generated branch was deleted after evidence collection.",
           "nextAction": "Document or implement the direct-main maintenance bypass/PR-delivery policy needed before enabling admin-enforced required-check protection."
         },
+        "directMainMaintenancePolicy": {
+          "status": "not-approved",
+          "allowed": false,
+          "requiredBeforeEnforcement": true,
+          "selectedPath": "none",
+          "recommendation": "defer-required-check-enforcement",
+          "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
+          "evidence": "Routine autonomous maintenance currently commits directly to main, while live branch protection reports enforce_admins.enabled=true. GitHub branch protection and rulesets support bypass controls, but this repo has not selected an approved bypass actor or switched routine maintenance to PR delivery.",
+          "nextAction": "Choose and test either an explicit direct-main bypass actor/policy or routine PR delivery before enabling admin-enforced required checks."
+        },
         "items": [
           {
             "id": "candidate-checks-defined",
@@ -2727,28 +2737,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.110",
+    "expectedVersion": "v4.9.111",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.110"
+        "value": "v4.9.111"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.110"
+        "value": "v4.9.111"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.110"
+        "value": "v4.9.111"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.110"
+        "value": "v4.9.111"
       }
     ],
     "dates": [
@@ -2775,7 +2785,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 122,
+      "headingCount": 123,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2785,14 +2795,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.110",
+    "expectedVersion": "v4.9.111",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.110",
+    "expectedTag": "v4.9.111",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2802,13 +2812,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.110",
+        "expectedVersion": "v4.9.111",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.110",
+        "expectedVersion": "v4.9.111",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2831,7 +2841,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3794,
+      "elapsedMs": 3770,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2875,7 +2885,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3794,
+    "elapsedMs": 3770,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3225,7 +3235,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 102126,
+        "value": 102980,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3253,7 +3263,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T04:58:55.6022530-04:00",
+    "generatedAt": "2026-06-07T05:07:31.2688987-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

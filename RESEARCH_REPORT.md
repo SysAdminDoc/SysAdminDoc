@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.110
+Current version after this refresh: v4.9.111
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.111 batch makes the remaining direct-main maintenance blocker
+  machine-readable.
+- `requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy`
+  now records `status=not-approved`, `allowed=false`,
+  `requiredBeforeEnforcement=true`, and
+  `recommendation=defer-required-check-enforcement`.
+- The report evidence states that routine maintenance still commits directly to
+  `main` while live branch protection has `enforce_admins.enabled=true`; no
+  bypass actor or broader PR-delivery policy has been selected.
+- The profile sync summary now surfaces direct-main maintenance policy status,
+  allowed state, and recommendation, and Pester guards the report and summary
+  shape.
 - The v4.9.110 batch proves the generated PR status handoff in a live PR
   rollup.
 - Hosted Profile sync run `27087776182` created branch

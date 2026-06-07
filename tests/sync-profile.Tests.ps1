@@ -378,6 +378,9 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffState | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'not-approved'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'defer-required-check-enforcement'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2274,6 +2277,11 @@ Describe 'Required status check readiness' {
         $writeEvidence.statusHandoffDescription | Should -Be 'Generated profile validation success.'
         $writeEvidence.blocker | Should -Match 'direct-main maintenance'
         $writeEvidence.nextAction | Should -Match 'direct-main maintenance'
+        $transition.directMainMaintenancePolicy.status | Should -Be 'not-approved'
+        $transition.directMainMaintenancePolicy.allowed | Should -BeFalse
+        $transition.directMainMaintenancePolicy.requiredBeforeEnforcement | Should -BeTrue
+        $transition.directMainMaintenancePolicy.evidence | Should -Match 'enforce_admins.enabled=true'
+        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'direct-main bypass'
     }
 }
 
@@ -2593,6 +2601,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'Generated PR status handoff'
         $script:SummaryScript | Should -Match 'statusHandoffContext'
         $script:SummaryScript | Should -Match 'statusHandoffState'
+        $script:SummaryScript | Should -Match 'directMainMaintenancePolicy'
+        $script:SummaryScript | Should -Match 'Direct-main maintenance policy'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'

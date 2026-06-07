@@ -4271,6 +4271,19 @@ function Test-RequiredCheckWorkflowCoverage {
     }
 }
 
+function Get-DirectMainMaintenancePolicy {
+    return [ordered]@{
+        status = "not-approved"
+        allowed = $false
+        requiredBeforeEnforcement = $true
+        selectedPath = "none"
+        recommendation = "defer-required-check-enforcement"
+        documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
+        evidence = "Routine autonomous maintenance currently commits directly to main, while live branch protection reports enforce_admins.enabled=true. GitHub branch protection and rulesets support bypass controls, but this repo has not selected an approved bypass actor or switched routine maintenance to PR delivery."
+        nextAction = "Choose and test either an explicit direct-main bypass actor/policy or routine PR delivery before enabling admin-enforced required checks."
+    }
+}
+
 function Get-PrDeliveryTransitionChecklist {
     param(
         [object]$WorkflowCoverage,
@@ -4365,6 +4378,7 @@ function Get-PrDeliveryTransitionChecklist {
         needsLiveValidationCount = $needsLiveValidationCount
         generatedPrDryRunEvidence = Get-GeneratedPrDryRunEvidence
         generatedPrWriteEvidence = Get-GeneratedPrWriteEvidence
+        directMainMaintenancePolicy = Get-DirectMainMaintenancePolicy
         items = @($items.ToArray())
     }
 }

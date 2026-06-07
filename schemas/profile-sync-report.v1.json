@@ -2250,6 +2250,7 @@
         "needsLiveValidationCount",
         "generatedPrDryRunEvidence",
         "generatedPrWriteEvidence",
+        "directMainMaintenancePolicy",
         "items"
       ],
       "properties": {
@@ -2282,11 +2283,54 @@
         "generatedPrWriteEvidence": {
           "$ref": "#/$defs/generatedPrWriteEvidence"
         },
+        "directMainMaintenancePolicy": {
+          "$ref": "#/$defs/directMainMaintenancePolicy"
+        },
         "items": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/prDeliveryTransitionItem"
           }
+        }
+      }
+    },
+    "directMainMaintenancePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "allowed",
+        "requiredBeforeEnforcement",
+        "selectedPath",
+        "recommendation",
+        "documentationPath",
+        "evidence",
+        "nextAction"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "allowed": {
+          "type": "boolean"
+        },
+        "requiredBeforeEnforcement": {
+          "type": "boolean"
+        },
+        "selectedPath": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "documentationPath": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
         }
       }
     },
