@@ -265,6 +265,32 @@ Required-check enforcement remains deferred. The next proof should rerun after
 the normalized provenance hash fix reaches `main` and regenerated feed/report
 artifacts are current.
 
+## Cycle 124 Disposable PR Exercise Evidence
+
+Cycle 124 opened disposable PR #12 from
+`automation/required-check-proof-20260607-124` at
+`52f790cb1c0b4c87f6b617abc4e622c8995214fb`. The PR check rollup again created
+all six candidate required-check names:
+
+- `PSScriptAnalyzer`: passed
+- `Pester (offline)`: passed
+- `Markdownlint`: passed
+- `Windows setup smoke`: passed
+- `zizmor`: passed
+- `Check generated README`: failed
+
+The failing Profile sync run was `27089526076`, and the retained
+`profile-sync-report` artifact was `7463127507`. The hosted report showed
+`projectsExportInSync=false` with zero fatal metadata drift; the only feed
+drift rows were informational `sourceCommit`, `metadataSnapshotAt`, and
+`pushedAt` changes. This confirmed the check result still needed to follow the
+report's fatal drift classification rather than raw comparable-feed mismatch.
+
+The PR was closed and `automation/required-check-proof-20260607-124` was
+deleted after evidence collection. Required-check enforcement remains deferred.
+The next proof should rerun after `projectsExportInSync` is aligned to fatal
+metadata drift classification on `main`.
+
 ## References
 
 - [GitHub Docs: About protected branches](https://docs.github.com/articles/types-of-required-status-checks)

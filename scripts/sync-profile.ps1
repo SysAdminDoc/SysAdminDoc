@@ -417,6 +417,9 @@ function Get-GitHubRepos {
                 if ($repos.Count -eq 0) {
                     throw "GitHub returned an empty repository list."
                 }
+                if ($repos.Count -eq 100 -and $repoLimit -gt 100) {
+                    throw "gh repo list returned exactly 100 repos despite requested limit $repoLimit; falling back to REST pagination to avoid a partial default-page result."
+                }
                 if ($repos.Count -ge $repoLimit) {
                     Write-Warning "gh repo list returned $($repos.Count) repos (limit $repoLimit); some public repos may be truncated."
                 }
@@ -4335,7 +4338,7 @@ function Get-CandidateCheckExercisePlan {
         cleanupRequired = $true
         evidenceStatus = "partial-failed"
         documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
-        nextAction = "Rerun the disposable PR proof after normalized provenance hashing is on main, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+        nextAction = "Rerun the disposable PR proof after projectsExportInSync follows fatal drift classification on main, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
     }
 }
 
@@ -4344,21 +4347,21 @@ function Get-CandidateCheckExerciseEvidence {
         available = $true
         status = "partial-failed"
         evidenceStatus = "failed"
-        pullRequestNumber = 11
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/11"
+        pullRequestNumber = 12
+        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/12"
         pullRequestState = "closed"
-        branch = "automation/required-check-proof-20260607-122"
-        headSha = "de62881b7ec7858683045ac8418c99f5e4010846"
-        mergeSha = "e27a7ee720f4f30073b5f42ed92ebe1a61d36db1"
+        branch = "automation/required-check-proof-20260607-124"
+        headSha = "52f790cb1c0b4c87f6b617abc4e622c8995214fb"
+        mergeSha = "85f569434fdf89dab0f76c099ac357b014566065"
         workflowRunIds = @(
-            27088934667,
-            27088934670,
-            27088934674
+            27089526076,
+            27089526072,
+            27089526079
         )
-        profileSyncRunId = 27088934667
-        testsRunId = 27088934674
-        workflowSecurityRunId = 27088934670
-        profileSyncArtifactId = 7462931270
+        profileSyncRunId = 27089526076
+        testsRunId = 27089526079
+        workflowSecurityRunId = 27089526072
+        profileSyncArtifactId = 7463127507
         expectedCandidateCheckCount = 6
         observedCandidateCheckCount = 6
         successfulCandidateCheckCount = 5
@@ -4379,10 +4382,10 @@ function Get-CandidateCheckExerciseEvidence {
             "Preview generated README PR",
             "Generated profile validation status"
         )
-        failureReason = "Check generated README failed on provenance hash drift because raw working-tree hashes differed between the Windows-generated feed and the hosted LF checkout for data/profile-catalog.json and scripts/sync-profile.ps1."
+        failureReason = "Check generated README failed because projectsExportInSync remained false even though the hosted report contained only informational sourceCommit, metadataSnapshotAt, and pushedAt drift with zero fatal metadata drift."
         cleanupState = "closed-pr-and-deleted-branch"
-        evidenceSummary = "Disposable PR #11 created all six candidate required-check names. PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed; Check generated README failed on provenance hash drift. The PR was closed and automation/required-check-proof-20260607-122 was deleted after evidence collection."
-        nextAction = "Normalize provenance hashing on main, regenerate the feed/report, then rerun the disposable candidate-check proof."
+        evidenceSummary = "Disposable PR #12 created all six candidate required-check names. PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed; Check generated README failed because projectsExportInSync stayed false for informational pushed-at drift. The PR was closed and automation/required-check-proof-20260607-124 was deleted after evidence collection."
+        nextAction = "Make projectsExportInSync follow fatal metadata drift classification on main, regenerate the feed/report, then rerun the disposable candidate-check proof."
     }
 }
 
@@ -4418,8 +4421,8 @@ function Get-PrDeliveryTransitionChecklist {
                 -Id "recent-check-run-proof" `
                 -Status "needs-live-validation" `
                 -Summary "Each required check must have a recent successful run in this repository before it can be selected." `
-                -Evidence "Disposable PR #11 created all six candidate checks, but Check generated README failed on cross-platform provenance hash drift before the proof could be accepted." `
-                -NextAction "Rerun the disposable PR proof after normalized provenance hashing is committed and verify every candidate check completes."))
+                -Evidence "Disposable PR #12 created all six candidate checks, but Check generated README failed because projectsExportInSync remained false despite only informational pushed-at drift." `
+                -NextAction "Rerun the disposable PR proof after projectsExportInSync follows fatal drift classification and verify every candidate check completes."))
 
     $deliveryStatus = if ($EnforceAdmins -eq $true -or $ActionsPullRequestCreationAllowed -eq $false) { "blocked" } else { "needs-live-validation" }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
@@ -6969,6 +6972,8 @@ function Test-ProfileState {
         [object[]]$Repos,
         [string]$ExpectedReadme,
         [string]$ExpectedProjects,
+        [string]$CurrentReadme,
+        [string]$CurrentProjects,
         [hashtable]$ExpectedAssets = @{},
         [switch]$SkipLinkValidation
     )
@@ -7048,14 +7053,26 @@ function Test-ProfileState {
         }
     }
 
-    $currentReadme = Get-Content -LiteralPath $ReadmePath -Raw
-    $currentProjects = if (Test-Path -LiteralPath $ProjectsPath) { Get-Content -LiteralPath $ProjectsPath -Raw } else { "" }
+    $currentReadme = if ($PSBoundParameters.ContainsKey("CurrentReadme")) {
+        $CurrentReadme
+    } else {
+        Get-Content -LiteralPath $ReadmePath -Raw
+    }
+    $currentProjects = if ($PSBoundParameters.ContainsKey("CurrentProjects")) {
+        $CurrentProjects
+    } elseif (Test-Path -LiteralPath $ProjectsPath) {
+        Get-Content -LiteralPath $ProjectsPath -Raw
+    } else {
+        ""
+    }
     $normalize = {
         param([string]$Text)
         return (($Text -replace "`r`n", "`n").TrimEnd())
     }
     $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
-    $projectsInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -eq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
+    $projectsComparableInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -eq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
+    $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
+    $projectsInSync = $projectsComparableInSync -or ([int](Get-MemberValue -Object $metadataDriftResult -Name "fatalCount") -eq 0)
     $assetChecks = New-Object System.Collections.Generic.List[object]
     foreach ($assetPath in @($ExpectedAssets.Keys | Sort-Object)) {
         $fullPath = Join-Path $RepoRoot $assetPath
@@ -7072,7 +7089,6 @@ function Test-ProfileState {
         })
     }
     $assetsInSync = @($assetChecks | Where-Object { $_.inSync -ne $true }).Count -eq 0
-    $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
 
     $linkFailures = @()
     $linkWarnings = @()

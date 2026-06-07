@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.115
+Current repo version: v4.9.116
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 123 - 2026-06-07.
+> Last researched: Cycle 124 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,22 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 123 - 2026-06-07.
+Last researched: Cycle 124 - 2026-06-07.
+
+2026-06-07 v4.9.116 refresh: fatal-drift-aligned projects feed sync shipped.
+Cycle 124 opened disposable PR #12 from
+`automation/required-check-proof-20260607-124` and again proved all six
+candidate required-check names were created. Five candidate checks passed, while
+`Check generated README` failed because `projectsExportInSync` stayed false
+even though the hosted report contained only informational `sourceCommit`,
+`metadataSnapshotAt`, and `pushedAt` drift with zero fatal metadata drift. The
+PR was closed and the proof branch was deleted after evidence collection.
+`Test-ProfileState` now uses the existing fatal metadata drift classifier for
+projects-feed sync status, so informational metadata drift remains visible in
+the report without failing check-only validation. The same batch also hardens
+live repository enumeration: if `gh repo list --limit 500` returns exactly the
+default 100-row page, the generator now falls back to REST pagination instead of
+treating that partial inventory as complete.
 
 2026-06-07 v4.9.115 refresh: volatile project push-time equality handling
 shipped. Cycle 123 retried the disposable candidate-check proof locally and
