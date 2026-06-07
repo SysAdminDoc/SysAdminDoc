@@ -5,10 +5,27 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.115
+Current version after this refresh: v4.9.116
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.116 batch makes projects-feed sync status follow fatal metadata
+  drift classification.
+- Disposable PR #12 created all six candidate required-check names. Five
+  candidate checks passed, and `Check generated README` failed while the hosted
+  report showed only informational `sourceCommit`, `metadataSnapshotAt`, and
+  `pushedAt` drift with zero fatal metadata drift.
+- `Test-ProfileState` now treats `projectsExportInSync` as passing when the
+  comparable feed differs only by informational metadata drift, while keeping
+  fatal metadata drift as the check-failing boundary.
+- The live run also exposed a `gh repo list --limit 500` default-page failure
+  mode where exactly 100 public repos were returned with `truncated=false`;
+  exact 100-row GraphQL results now fall back to REST pagination before privacy
+  gates treat omitted catalog rows as missing/private.
+- `requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence`
+  now records PR #12, branch `automation/required-check-proof-20260607-124`,
+  retained artifact `7463127507`, the five passing candidate checks, failed
+  generated README check, cleanup state, and next rerun action.
 - The v4.9.115 batch fixes the remaining volatile projects-feed equality issue
   found while retrying the disposable candidate-check proof locally.
 - `projects[].pushedAt` value changes remain exported and remain visible as

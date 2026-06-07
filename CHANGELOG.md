@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.116] - 2026-06-07
+
+- Fixed: `projectsExportInSync` now follows fatal metadata-drift classification, so source commit, metadata snapshot, and pushed-at informational drift do not fail check-only validation.
+- Fixed: `gh repo list` results with exactly 100 rows now fall back to REST pagination to avoid treating a default-page GraphQL result as the complete public repository inventory.
+- Added: `candidateCheckExerciseEvidence` now records disposable PR #12, the six observed candidate checks, five passing results, the generated README informational-drift failure, artifact ID, and cleanup state.
+- Added: Pester coverage now proves `Test-ProfileState` passes when the projects feed differs only by informational metadata drift.
+
 ## [v4.9.115] - 2026-06-07
 
 - Fixed: `projects.json` check-only comparison now masks volatile `projects[].pushedAt` values for equality so routine profile-repo push-time drift stays informational.

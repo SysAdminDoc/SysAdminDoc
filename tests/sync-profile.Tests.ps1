@@ -389,7 +389,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain '.github/workflows/tests.yml'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'setup.ps1'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'partial-failed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.pullRequestNumber | Should -Be 11
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.pullRequestNumber | Should -Be 12
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.status | Should -Be 'partial-failed'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateCheckCount | Should -Be 5
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -Contain 'Check generated README'
@@ -502,6 +502,12 @@ Describe 'REST fallback release request guard' {
 
         $result.allowed | Should -BeTrue
         $result.message | Should -BeNullOrEmpty
+    }
+
+    It 'falls back when gh repo list returns the default 100-row page' {
+        $script:SyncProfileScript | Should -Match 'repos[.]Count -eq 100'
+        $script:SyncProfileScript | Should -Match 'falling back to REST pagination'
+        $script:SyncProfileScript | Should -Match 'partial default-page result'
     }
 
     It 'treats release 404 as no release while keeping rate limits fatal' {
@@ -2284,14 +2290,14 @@ Describe 'Required status check readiness' {
         $candidateEvidence.available | Should -BeTrue
         $candidateEvidence.status | Should -Be 'partial-failed'
         $candidateEvidence.evidenceStatus | Should -Be 'failed'
-        $candidateEvidence.pullRequestNumber | Should -Be 11
-        $candidateEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/11'
+        $candidateEvidence.pullRequestNumber | Should -Be 12
+        $candidateEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/12'
         $candidateEvidence.pullRequestState | Should -Be 'closed'
-        $candidateEvidence.branch | Should -Be 'automation/required-check-proof-20260607-122'
-        $candidateEvidence.headSha | Should -Be 'de62881b7ec7858683045ac8418c99f5e4010846'
-        $candidateEvidence.mergeSha | Should -Be 'e27a7ee720f4f30073b5f42ed92ebe1a61d36db1'
-        $candidateEvidence.workflowRunIds | Should -Contain 27088934667
-        $candidateEvidence.profileSyncArtifactId | Should -Be 7462931270
+        $candidateEvidence.branch | Should -Be 'automation/required-check-proof-20260607-124'
+        $candidateEvidence.headSha | Should -Be '52f790cb1c0b4c87f6b617abc4e622c8995214fb'
+        $candidateEvidence.mergeSha | Should -Be '85f569434fdf89dab0f76c099ac357b014566065'
+        $candidateEvidence.workflowRunIds | Should -Contain 27089526076
+        $candidateEvidence.profileSyncArtifactId | Should -Be 7463127507
         $candidateEvidence.expectedCandidateCheckCount | Should -Be 6
         $candidateEvidence.observedCandidateCheckCount | Should -Be 6
         $candidateEvidence.successfulCandidateCheckCount | Should -Be 5
@@ -2299,8 +2305,8 @@ Describe 'Required status check readiness' {
         $candidateEvidence.successfulCandidateChecks | Should -Contain 'Windows setup smoke'
         $candidateEvidence.failedCandidateChecks | Should -Contain 'Check generated README'
         $candidateEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
-        $candidateEvidence.failureReason | Should -Match 'provenance hash drift'
-        $candidateEvidence.nextAction | Should -Match 'Normalize provenance hashing'
+        $candidateEvidence.failureReason | Should -Match 'projectsExportInSync remained false'
+        $candidateEvidence.nextAction | Should -Match 'fatal metadata drift classification'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
@@ -3063,6 +3069,35 @@ Describe 'Test-ProfileState projects sync gate' {
 
         $result.Failed | Should -BeTrue
         $result.Report.projectsExportInSync | Should -BeFalse
+    }
+
+    It 'passes when projects.json differs only by informational metadata drift' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -Language 'PowerShell'),
+            (New-TestRepoMeta -Name 'PyTool' -Language 'Python'),
+            (New-TestRepoMeta -Name 'WebTool' -Language 'JavaScript')
+        )
+        $expectedReadme = New-Readme -Catalog $cat -Repos $repos
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos $repos
+        $currentProjectsPayload = $expectedProjects | ConvertFrom-Json
+        $currentProjectsPayload.provenance.sourceCommit = '0000000000000000000000000000000000000000'
+        $currentProjectsPayload.provenance.metadataSnapshotAt = '2026-06-07T00:00:00Z'
+        $currentProjectsPayload.projects[0].pushedAt = '2026-06-07T10:05:07Z'
+        $currentProjects = $currentProjectsPayload | ConvertTo-Json -Depth 20
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos $repos `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme `
+            -CurrentProjects $currentProjects `
+            -SkipLinkValidation
+
+        $result.Report.projectsExportInSync | Should -BeTrue
+        $result.Report.metadataDriftSummary.fatalCount | Should -Be 0
+        @($result.Report.metadataDrift | Where-Object { $_.severity -eq 'info' }) | Should -Not -BeNullOrEmpty
     }
 
     It 'fails when a catalog row is excluded from both public feed arrays without a reason' {
