@@ -2,17 +2,16 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 81 - generated README-safe markdownlint guard
+Last completed roadmap cycle: Cycle 82 - stale duplicate roadmap reconciliation
 
 ## Latest Result
 
-- Added `.markdownlint-cli2.yaml`, `package.json`, and `package-lock.json` for pinned generated README-safe Markdown linting.
-- Added a `Markdownlint` job to `.github/workflows/tests.yml` using pinned `actions/setup-node` v6.4.0 and `npm ci`.
-- Expanded Tests direct-push filters, CODEOWNERS, Dependabot, Pester guards, and `docs/ci-toolchain.md` for the markdownlint toolchain.
-- Removed the duplicate generated README blank line before the footer SVG.
-- Re-checked protected `main`; required status checks remain unset, repository rulesets remain absent, and `enforce_admins=true`, so the branch-protection item stays external-gated.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.73.
+- Reconciled stale duplicate `ROADMAP.md` rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and public suppressed-feed redaction.
+- Added Pester coverage so those shipped roadmap rows cannot silently revert to unchecked duplicates.
+- Refreshed branch-protection evidence: required status checks remain unset, repository rulesets remain absent, protected `main` still has `enforce_admins=true`, and Dependabot PR #7 is the current open PR.
+- Recorded the current candidate check set, including `Markdownlint`; PR #7 currently has `Pester (offline)` and `Check generated README` failing while the other visible candidate checks pass.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.74.
 
 ## Next Cycle
 
-Continue on this same assigned project. Re-check the external-gated branch-protection/ruleset status-check item without enabling enforcement while direct pushes remain the delivery path, then reconcile stale duplicate roadmap/research rows against shipped evidence before taking the next new feature.
+Continue on this same assigned project. Triage the failing checks on Dependabot PR #7 or document why that branch should wait, then continue with branch-protection/ruleset readiness without enabling enforcement while direct pushes remain the delivery path.

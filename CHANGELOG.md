@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.74] - 2026-06-06
+
+- Changed: Reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration, generated-artifact `.gitattributes`, generated automation branch cleanup, and public suppressed-feed redaction.
+- Added: Pester coverage now guards those shipped roadmap rows against reverting to unchecked duplicates.
+- Changed: Branch-protection planning evidence now records Dependabot PR #7, the current candidate check set including `Markdownlint`, and the current external-gated status while direct pushes remain active.
+
 ## [v4.9.73] - 2026-06-06
 
 - Added: `markdownlint-cli2` 0.22.1 is pinned through `package.json` and `package-lock.json`, with a generated README-safe `.markdownlint-cli2.yaml` ruleset.

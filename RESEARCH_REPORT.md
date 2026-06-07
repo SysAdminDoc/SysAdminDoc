@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.73
+Current version after this refresh: v4.9.74
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.74 batch reconciles stale duplicate roadmap rows for Windows setup
+  smoke, CI validation tool pins, public-repo enumeration limits,
+  generated-artifact `.gitattributes`, generated automation branch cleanup,
+  and suppressed-feed redaction against their shipped evidence.
+- Pester coverage now guards those roadmap rows against reverting to unchecked
+  duplicates and records current branch-protection evidence without enabling
+  enforcement.
+- Live branch-protection research still shows required status checks unset and
+  no repository rulesets. Dependabot PR #7 is currently open, and the visible
+  candidate check names include `Markdownlint`, `PSScriptAnalyzer`,
+  `Windows setup smoke`, `Pester (offline)`, `Check generated README`, and
+  `zizmor`.
 - The v4.9.73 batch completes the markdownlint half of the formatting contract
   with `markdownlint-cli2` 0.22.1 pinned through npm lockfile metadata.
 - `.markdownlint-cli2.yaml` keeps generated README-safe exceptions for compact
