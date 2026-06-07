@@ -2,15 +2,15 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 87 - code-scanning posture
+Last completed roadmap cycle: Cycle 88 - portfolio feed compatibility
 
 ## Latest Result
 
-- Expanded `repositorySettings.security.codeScanning` with inspected languages, CodeQL support detection, local workflow evidence, active controls, and the current PowerShell-only recommendation.
-- Added `docs/decisions/2026-06-06-code-scanning-posture.md` so missing CodeQL analysis is treated as not applicable, not misconfigured, while no supported source language is present.
-- The profile sync summary now surfaces code-scanning status, recommendation, languages, and controls.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.79.
+- Added `portfolioCompatibility` to the sync report so public feed changes are checked against the known downstream portfolio importer contract.
+- The compatibility snapshot checks required visible-project fields, top-level count consistency, redacted suppressed-row leaks, provenance availability, releaseTrust availability, and primary-action counts.
+- The profile sync summary now surfaces portfolio compatibility status, fatal gaps, and warnings.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.80.
 
 ## Next Cycle
 
-Continue on this same assigned project. Audit downstream portfolio compatibility before changing any feed shape, then decide whether density-warning rows should move toward portfolio-only browsing using `readmeDensity` evidence.
+Continue on this same assigned project. Revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified, then decide whether density-warning rows should move toward portfolio-only browsing using `readmeDensity` evidence.

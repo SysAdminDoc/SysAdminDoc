@@ -5,10 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.79
+Current version after this refresh: v4.9.80
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.80 batch adds downstream portfolio compatibility reporting to the
+  sync report before future public feed shape changes.
+- `portfolioCompatibility` records the known downstream visible-project field
+  contract, top-level project/suppression count consistency, redacted
+  suppressed-row leak checks, provenance availability, releaseTrust
+  availability, and primary-action counts.
+- The current report is compatible: 177 visible projects, 10 redacted
+  suppressed rows, 0 missing downstream-required project fields, 0 suppressed
+  identifier leaks, provenance present, and releaseTrust present on visible
+  projects.
+- The profile sync summary surfaces compatibility status, fatal gaps, and
+  warnings; Pester covers compatible rows, missing required fields, and
+  suppressed-row identifier leak regressions.
 - The v4.9.79 batch records code-scanning posture for the current
   PowerShell-only profile repository.
 - `repositorySettings.security.codeScanning` now records inspected languages,

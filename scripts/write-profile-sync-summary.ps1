@@ -46,6 +46,7 @@ $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
+$portfolioCompatibility = if ($report.PSObject.Properties.Name -contains 'portfolioCompatibility') { $report.portfolioCompatibility } else { $null }
 $readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity') { $report.readmeDensity } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
@@ -85,6 +86,9 @@ $catalogAccountedCount = if ($catalogFeedAccounting) {
     0
 }
 $catalogAccountingFatalCount = if ($catalogFeedAccounting) { [int]$catalogFeedAccounting.fatalCount } else { 0 }
+$portfolioCompatibilityStatus = if ($portfolioCompatibility) { [string]$portfolioCompatibility.status } else { "unknown" }
+$portfolioCompatibilityFatalCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.fatalCount } else { 0 }
+$portfolioCompatibilityWarningCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.warningCount } else { 0 }
 $readmeDensityWarningCount = if ($readmeDensity) { [int]$readmeDensity.warningCount } else { 0 }
 $readmeLargestCategory = if ($readmeDensity) { [string]$readmeDensity.largestCategory } else { "" }
 $readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestCategoryCount } else { 0 }
@@ -102,6 +106,9 @@ $summary = @"
 | Planning docs aligned | $($report.docVersionConsistency.passed) |
 | Catalog rows accounted | $catalogAccountedCount |
 | Catalog accounting fatal gaps | $catalogAccountingFatalCount |
+| Portfolio compatibility | $portfolioCompatibilityStatus |
+| Portfolio compatibility fatal gaps | $portfolioCompatibilityFatalCount |
+| Portfolio compatibility warnings | $portfolioCompatibilityWarningCount |
 | README density warnings | $readmeDensityWarningCount |
 | README largest category | $readmeLargestCategory ($readmeLargestCategoryCount) |
 | README repo-only rows | $readmeRepoOnlyProjectCount |
@@ -144,6 +151,14 @@ if ($fatalDriftCount -gt 0) {
 
 if ($catalogAccountingFatalCount -gt 0) {
     Write-Output "::error::Profile sync report has $catalogAccountingFatalCount catalog/feed accounting fatal gap(s)."
+}
+
+if ($portfolioCompatibilityFatalCount -gt 0) {
+    Write-Output "::error::Profile sync report has $portfolioCompatibilityFatalCount portfolio compatibility fatal gap(s)."
+}
+
+if ($portfolioCompatibilityWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $portfolioCompatibilityWarningCount portfolio compatibility warning(s)."
 }
 
 if ($readmeDensityWarningCount -gt 0) {

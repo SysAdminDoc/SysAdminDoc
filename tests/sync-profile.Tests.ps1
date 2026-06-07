@@ -1049,6 +1049,56 @@ Describe 'New-ProjectsExportJson feed' {
         $result.unaccountedRows | Should -BeNullOrEmpty
     }
 
+    It 'reports downstream portfolio compatibility for generated feed rows' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
+
+        $result.status | Should -Be 'compatible'
+        $result.projectCount | Should -Be 3
+        $result.suppressedCount | Should -Be 1
+        $result.projectCountMatchesTopLevel | Should -BeTrue
+        $result.suppressedCountMatchesTopLevel | Should -BeTrue
+        $result.missingProjectFieldCount | Should -Be 0
+        $result.suppressedIdentifierLeakCount | Should -Be 0
+        $result.redactedSuppressedRowsCompatible | Should -BeTrue
+        $result.provenanceAvailable | Should -BeTrue
+        $result.releaseTrustAvailable | Should -BeTrue
+        ($result.primaryActionKindCounts | ForEach-Object { $_.kind }) | Should -Contain 'repo'
+        ($result.primaryActionKindCounts | ForEach-Object { $_.kind }) | Should -Contain 'live'
+        $result.fatalCount | Should -Be 0
+    }
+
+    It 'flags visible project rows missing downstream-required fields' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $payload.projects[0].repoUrl = ''
+        $json = $payload | ConvertTo-Json -Depth 50
+
+        $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
+
+        $result.status | Should -Be 'incompatible'
+        $result.missingProjectFieldCount | Should -Be 1
+        $result.missingProjectFields[0].field | Should -Be 'repoUrl'
+        $result.fatalCount | Should -BeGreaterThan 0
+    }
+
+    It 'flags suppressed rows that expose project-identifying fields to consumers' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $payload.suppressed[0] | Add-Member -NotePropertyName repoUrl -NotePropertyValue 'https://github.com/SysAdminDoc/HiddenTool'
+        $json = $payload | ConvertTo-Json -Depth 50
+
+        $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
+
+        $result.status | Should -Be 'incompatible'
+        $result.suppressedIdentifierLeakCount | Should -Be 1
+        $result.suppressedIdentifierLeaks[0].field | Should -Be 'repoUrl'
+        $result.redactedSuppressedRowsCompatible | Should -BeFalse
+        $result.fatalCount | Should -BeGreaterThan 0
+    }
+
     It 'exports release asset kinds and keeps source-only releases as repo actions' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $cat.entries[0].downloadKind = 'apk'
@@ -1852,6 +1902,9 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Archive review candidates'
             $summary | Should -Match 'Catalog rows accounted'
             $summary | Should -Match 'Catalog accounting fatal gaps'
+            $summary | Should -Match 'Portfolio compatibility'
+            $summary | Should -Match 'Portfolio compatibility fatal gaps'
+            $summary | Should -Match 'Portfolio compatibility warnings'
             $summary | Should -Match 'README density warnings'
             $summary | Should -Match 'README largest category'
             $summary | Should -Match 'README repo-only rows'
@@ -1881,6 +1934,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
         $script:SummaryScript | Should -Match 'userscriptInstallTrust'
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
+        $script:SummaryScript | Should -Match 'portfolioCompatibility'
         $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'codeScanning'

@@ -2482,6 +2482,176 @@ function Test-CatalogFeedAccounting {
     }
 }
 
+function Test-PortfolioFeedCompatibility {
+    param([string]$ProjectsJson)
+
+    $payload = $null
+    try {
+        $payload = $ProjectsJson | ConvertFrom-Json
+    } catch {
+        $payload = $null
+    }
+
+    $requiredProjectFields = @("repo", "title", "category", "description", "repoUrl")
+    $suppressedDisallowedFields = @(
+        "repo",
+        "title",
+        "description",
+        "repoUrl",
+        "liveUrl",
+        "installUrl",
+        "downloadUrl",
+        "primaryAction",
+        "releaseAssetKinds",
+        "releaseAssetNames",
+        "releaseTrust"
+    )
+    $missingProjectFields = New-Object System.Collections.Generic.List[object]
+    $suppressedIdentifierLeaks = New-Object System.Collections.Generic.List[object]
+    $warnings = New-Object System.Collections.Generic.List[string]
+    $errors = New-Object System.Collections.Generic.List[string]
+    $primaryActionKindCounts = New-Object System.Collections.Generic.List[object]
+
+    if ($null -eq $payload) {
+        $errors.Add("projects.json could not be parsed for portfolio compatibility.")
+        return [ordered]@{
+            status = "unavailable"
+            consumerContract = "sysadmindoc.github.io profile-feed importer"
+            feedSourceUrl = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json"
+            projectCount = 0
+            suppressedCount = 0
+            topLevelProjectCount = $null
+            topLevelSuppressedCount = $null
+            projectCountMatchesTopLevel = $false
+            suppressedCountMatchesTopLevel = $false
+            projectRequiredFields = $requiredProjectFields
+            missingProjectFieldCount = 0
+            missingProjectFields = @()
+            suppressedDisallowedFields = $suppressedDisallowedFields
+            suppressedIdentifierLeakCount = 0
+            suppressedIdentifierLeaks = @()
+            redactedSuppressedRowsCompatible = $false
+            provenanceAvailable = $false
+            releaseTrustAvailable = $false
+            primaryActionKindCounts = @()
+            warningCount = $warnings.Count
+            warnings = @($warnings.ToArray())
+            fatalCount = $errors.Count
+            errors = @($errors.ToArray())
+            note = "Compatibility snapshot for the downstream portfolio feed importer; normal consumers should use payload.projects and ignore unknown additive fields."
+        }
+    }
+
+    $projects = @((Get-MemberValue -Object $payload -Name "projects"))
+    $suppressed = @((Get-MemberValue -Object $payload -Name "suppressed"))
+    $topLevelProjectCount = [int](Get-MemberValue -Object $payload -Name "projectCount")
+    $topLevelSuppressedCount = [int](Get-MemberValue -Object $payload -Name "suppressedCount")
+    $projectCountMatchesTopLevel = [bool]($projects.Count -eq $topLevelProjectCount)
+    $suppressedCountMatchesTopLevel = [bool]($suppressed.Count -eq $topLevelSuppressedCount)
+    if (-not $projectCountMatchesTopLevel) {
+        $errors.Add("Feed projectCount does not match projects array length.")
+    }
+    if (-not $suppressedCountMatchesTopLevel) {
+        $errors.Add("Feed suppressedCount does not match suppressed array length.")
+    }
+    if ($projects.Count -eq 0) {
+        $errors.Add("Portfolio feed has no visible projects.")
+    }
+
+    $projectIndex = 0
+    foreach ($project in $projects) {
+        $projectIndex++
+        $repo = [string](Get-MemberValue -Object $project -Name "repo")
+        $repoLabel = if ([string]::IsNullOrWhiteSpace($repo)) { "project-$projectIndex" } else { $repo }
+        foreach ($field in $requiredProjectFields) {
+            $value = Get-MemberValue -Object $project -Name $field
+            if ($null -eq $value -or [string]::IsNullOrWhiteSpace([string]$value)) {
+                $missingProjectFields.Add([ordered]@{
+                    repo = $repoLabel
+                    field = $field
+                })
+            }
+        }
+    }
+
+    $suppressedIndex = 0
+    foreach ($row in $suppressed) {
+        $suppressedIndex++
+        $suppressedId = [string](Get-MemberValue -Object $row -Name "suppressedId")
+        if ([string]::IsNullOrWhiteSpace($suppressedId)) {
+            $suppressedId = "suppressed-$suppressedIndex"
+        }
+        foreach ($field in $suppressedDisallowedFields) {
+            if ($null -ne (Get-MemberValue -Object $row -Name $field)) {
+                $suppressedIdentifierLeaks.Add([ordered]@{
+                    suppressedId = $suppressedId
+                    field = $field
+                })
+            }
+        }
+    }
+
+    $actionKinds = @($projects | ForEach-Object {
+            $primaryAction = Get-MemberValue -Object $_ -Name "primaryAction"
+            [string](Get-MemberValue -Object $primaryAction -Name "kind")
+        } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+    foreach ($kind in $actionKinds) {
+        $primaryActionKindCounts.Add([ordered]@{
+            kind = $kind
+            count = [int]@($projects | Where-Object {
+                    $primaryAction = Get-MemberValue -Object $_ -Name "primaryAction"
+                    [string](Get-MemberValue -Object $primaryAction -Name "kind") -eq $kind
+                }).Count
+        })
+    }
+
+    $missingFieldsArray = @($missingProjectFields.ToArray())
+    $suppressedLeaksArray = @($suppressedIdentifierLeaks.ToArray())
+    if ($missingFieldsArray.Count -gt 0) {
+        $errors.Add("Portfolio project rows are missing downstream-required fields.")
+    }
+    if ($suppressedLeaksArray.Count -gt 0) {
+        $errors.Add("Redacted suppressed feed rows expose project-identifying fields.")
+    }
+
+    $provenance = Get-MemberValue -Object $payload -Name "provenance"
+    if ($null -eq $provenance) {
+        $warnings.Add("Feed provenance is not available to downstream consumers.")
+    }
+    $releaseTrustAvailable = @($projects | Where-Object { $null -ne (Get-MemberValue -Object $_ -Name "releaseTrust") }).Count -eq $projects.Count
+    if (-not $releaseTrustAvailable) {
+        $warnings.Add("Not every visible project row exposes releaseTrust metadata.")
+    }
+
+    $fatalCount = $errors.Count
+    return [ordered]@{
+        status = if ($fatalCount -eq 0) { "compatible" } else { "incompatible" }
+        consumerContract = "sysadmindoc.github.io profile-feed importer"
+        feedSourceUrl = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json"
+        projectCount = [int]$projects.Count
+        suppressedCount = [int]$suppressed.Count
+        topLevelProjectCount = $topLevelProjectCount
+        topLevelSuppressedCount = $topLevelSuppressedCount
+        projectCountMatchesTopLevel = $projectCountMatchesTopLevel
+        suppressedCountMatchesTopLevel = $suppressedCountMatchesTopLevel
+        projectRequiredFields = $requiredProjectFields
+        missingProjectFieldCount = $missingFieldsArray.Count
+        missingProjectFields = $missingFieldsArray
+        suppressedDisallowedFields = $suppressedDisallowedFields
+        suppressedIdentifierLeakCount = $suppressedLeaksArray.Count
+        suppressedIdentifierLeaks = $suppressedLeaksArray
+        redactedSuppressedRowsCompatible = [bool]($suppressedLeaksArray.Count -eq 0)
+        provenanceAvailable = [bool]($null -ne $provenance)
+        releaseTrustAvailable = $releaseTrustAvailable
+        primaryActionKindCounts = @($primaryActionKindCounts.ToArray())
+        warningCount = $warnings.Count
+        warnings = @($warnings.ToArray())
+        fatalCount = $fatalCount
+        errors = @($errors.ToArray())
+        note = "Compatibility snapshot for the downstream portfolio feed importer; normal consumers should use payload.projects and ignore unknown additive fields."
+    }
+}
+
 function New-CatalogFromReadme {
     param([object[]]$Repos)
 
@@ -5729,6 +5899,7 @@ function Test-ProfileState {
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
+    $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
     $schemaValidation = [ordered]@{
@@ -5787,6 +5958,7 @@ function Test-ProfileState {
         releaseAssetDrift = $releaseAssetDrift
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting
+        portfolioCompatibility = $portfolioCompatibility
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
         schemaValidation = $schemaValidation
@@ -5838,6 +6010,7 @@ function Test-ProfileState {
         $experienceChecks["passed"] -ne $true -or
         $repositoryCommunityBaseline["communityHealth"]["fatalCount"] -gt 0 -or
         $catalogFeedAccounting.fatalCount -gt 0 -or
+        $portfolioCompatibility.fatalCount -gt 0 -or
         $schemaValidation.passed -ne $true -or
         $docVersionConsistency.passed -ne $true
     )
