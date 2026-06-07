@@ -5543,6 +5543,18 @@ function Test-ProfileReleaseConsistency {
         }
     }
 
+    $releasePolicy = [ordered]@{
+        status = "documented-internal-version-gap"
+        decisionDocumentPath = "docs/decisions/2026-06-07-profile-release-tag-policy.md"
+        planningVersionKind = "profile-sync-internal-evidence-version"
+        publicReleaseCadence = "manual-public-milestone-only"
+        warningDisposition = "informational"
+        releaseCreationRecommended = $false
+        tagCreationRecommended = $false
+        releaseCreationGate = "Create a GitHub release/tag only for user-visible public profile milestones or explicit operator request."
+        nextAction = "Keep reporting the release/tag gap as warning-only evidence until a public milestone is intentionally cut or the repo switches to per-version releases."
+    }
+
     return [ordered]@{
         passed = [bool]($warnings.Count -eq 0)
         repository = $repository
@@ -5561,6 +5573,7 @@ function Test-ProfileReleaseConsistency {
         expectedTagUnavailableReason = $tagRefUnavailableReason
         warningCount = $warnings.Count
         warnings = $warnings.ToArray()
+        releasePolicy = $releasePolicy
         note = "Warning-only comparison of the planning-doc version against the profile repository's latest GitHub release and matching tag ref."
     }
 }

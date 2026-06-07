@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.104] - 2026-06-07
+
+- Added: `profileReleaseConsistency.releasePolicy` now records the accepted internal-version gap policy for `v4.9.x` profile-sync versions versus sparse public GitHub releases.
+- Added: `docs/decisions/2026-06-07-profile-release-tag-policy.md` documents that public releases/tags are manual public milestones, not per-cycle profile-sync evidence versions.
+- Changed: Profile sync summaries now surface the release-policy status and emit policy-acknowledged release/tag drift as a notice instead of a generic warning annotation.
+
 ## [v4.9.103] - 2026-06-07
 
 - Added: `repositorySettings.security.codeScanning.scorecardAlertPosture` now records open Scorecard SARIF alerts from GitHub code-scanning alerts, including classification counts and warning-only disposition rows.

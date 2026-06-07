@@ -2758,6 +2758,7 @@
         "expectedTagUnavailableReason",
         "warningCount",
         "warnings",
+        "releasePolicy",
         "note"
       ],
       "properties": {
@@ -2823,7 +2824,66 @@
             "$ref": "#/$defs/profileReleaseWarning"
           }
         },
+        "releasePolicy": {
+          "$ref": "#/$defs/profileReleasePolicy"
+        },
         "note": {
+          "type": "string"
+        }
+      }
+    },
+    "profileReleasePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "decisionDocumentPath",
+        "planningVersionKind",
+        "publicReleaseCadence",
+        "warningDisposition",
+        "releaseCreationRecommended",
+        "tagCreationRecommended",
+        "releaseCreationGate",
+        "nextAction"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "documented-internal-version-gap"
+          ]
+        },
+        "decisionDocumentPath": {
+          "type": "string"
+        },
+        "planningVersionKind": {
+          "type": "string",
+          "enum": [
+            "profile-sync-internal-evidence-version"
+          ]
+        },
+        "publicReleaseCadence": {
+          "type": "string",
+          "enum": [
+            "manual-public-milestone-only"
+          ]
+        },
+        "warningDisposition": {
+          "type": "string",
+          "enum": [
+            "informational"
+          ]
+        },
+        "releaseCreationRecommended": {
+          "type": "boolean"
+        },
+        "tagCreationRecommended": {
+          "type": "boolean"
+        },
+        "releaseCreationGate": {
+          "type": "string"
+        },
+        "nextAction": {
           "type": "string"
         }
       }
