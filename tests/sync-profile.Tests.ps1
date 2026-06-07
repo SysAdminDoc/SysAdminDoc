@@ -373,6 +373,9 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationConclusion | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestChecksAttached | Should -BeFalse
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCheckRollupCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffImplemented | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffContext | Should -Be 'generated-profile/validation'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pending-next-hosted-write-pr'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -1029,6 +1032,7 @@ Write-Host ok
         $readmeLineBudget.overSoftLimit | Should -BeFalse
         $reportBudget = @($budgets.rows | Where-Object { $_.artifact -eq 'reports/profile-sync-report.json' -and $_.metric -eq 'bytes' })[0]
         $reportBudget.value | Should -Be ([System.Text.Encoding]::UTF8.GetByteCount('{"schema":"test"}'))
+        $reportBudget.softLimit | Should -Be 114688
     }
     It 'warns when generated artifact budgets cross soft limits' {
         $largeReadme = (@('line') * 1001) -join "`n"
@@ -2256,7 +2260,15 @@ Describe 'Required status check readiness' {
         $writeEvidence.pullRequestCheckRollupCount | Should -Be 0
         $writeEvidence.pullRequestChecksAttached | Should -BeFalse
         $writeEvidence.pullRequestCheckRollupNote | Should -Match 'no PR-attached checks'
-        $writeEvidence.blocker | Should -Match 'PR-attached candidate checks'
+        $writeEvidence.statusHandoffImplemented | Should -BeTrue
+        $writeEvidence.statusHandoffContext | Should -Be 'generated-profile/validation'
+        $writeEvidence.statusHandoffApi | Should -Be 'commit-statuses'
+        $writeEvidence.statusHandoffPermission | Should -Be 'statuses: write'
+        $writeEvidence.statusHandoffPendingPublisher | Should -Be 'scripts/open-generated-profile-pr.ps1'
+        $writeEvidence.statusHandoffFinalPublisher | Should -Match 'generated-validation-status'
+        $writeEvidence.statusHandoffProof | Should -Be 'pending-next-hosted-write-pr'
+        $writeEvidence.blocker | Should -Match 'generated-profile/validation'
+        $writeEvidence.nextAction | Should -Match 'statusCheckRollup'
     }
 }
 
@@ -2296,6 +2308,8 @@ Describe 'Roadmap reconciliation guards' {
 Describe 'Generated profile PR validation handoff' {
     BeforeAll {
         $script:GeneratedPrHelper = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') -Raw
+        $script:GeneratedValidationStatusScriptPath = Join-Path $script:RepoRoot 'scripts/set-generated-validation-status.ps1'
+        $script:GeneratedValidationStatusScript = Get-Content -LiteralPath $script:GeneratedValidationStatusScriptPath -Raw
         $script:GeneratedPrWorkflows = [ordered]@{
             ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
             AssetsRefresh = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') -Raw
@@ -2305,6 +2319,7 @@ Describe 'Generated profile PR validation handoff' {
     It 'grants actions write only to generated PR jobs that dispatch validation' {
         foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
             $workflow | Should -Match '(?ms)permissions:\s*\r?\n\s+actions: write\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
+            $workflow | Should -Match 'statuses: write'
             $workflow | Should -Match 'open-generated-profile-pr[.]ps1'
         }
         $script:GeneratedPrHelper | Should -Match 'gh workflow run \$ValidationWorkflow --ref \$branch -f "mode=\$ValidationMode"'
@@ -2316,6 +2331,45 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper | Should -Match '\[uri\]::EscapeDataString\("branch:\$branch"\)'
         $script:GeneratedPrHelper | Should -Match 'GITHUB_STEP_SUMMARY'
         $script:GeneratedPrHelper | Should -Match 'Generated profile PR validation handoff'
+        $script:GeneratedPrHelper | Should -Match 'Status context: generated-profile/validation'
+    }
+
+    It 'publishes a generated validation commit status without broadening the check job token' {
+        $script:GeneratedPrHelper | Should -Match 'set-generated-validation-status[.]ps1'
+        $script:GeneratedPrHelper | Should -Match '-State pending'
+        $script:GeneratedPrHelper | Should -Match '-TargetUrl \$validationRunsUrl'
+        $script:GeneratedPrHelper | Should -Match 'Generated profile validation pending[.]'
+        $script:GeneratedPrHelper | Should -Match 'Deleted generated branch \$branch after generated validation status publishing failed'
+        $script:GeneratedValidationStatusScript | Should -Match "generated-profile/validation"
+        $script:GeneratedValidationStatusScript | Should -Match 'repos/\$Repository/statuses/\$Sha'
+
+        $checkJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  check:.*?^  write-pr:').Value
+        $writePrJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  write-pr:.*?^  generated-validation-status:').Value
+        $statusJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  generated-validation-status:.*?^  dry-run-pr:').Value
+
+        $checkJob | Should -Not -Match 'statuses: write'
+        $writePrJob | Should -Match 'statuses: write'
+        $statusJob | Should -Match 'needs: check'
+        $statusJob | Should -Match 'statuses: write'
+        $statusJob | Should -Match 'set-generated-validation-status[.]ps1'
+        $statusJob | Should -Match 'needs[.]check[.]result'
+    }
+
+    It 'builds the generated validation status payload offline' {
+        $sha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        $output = & pwsh -NoProfile -File $script:GeneratedValidationStatusScriptPath `
+            -State pending `
+            -Description 'Generated profile validation pending.' `
+            -Repository 'SysAdminDoc/SysAdminDoc' `
+            -Sha $sha `
+            -TargetUrl 'https://github.com/SysAdminDoc/SysAdminDoc/actions/workflows/profile-sync.yml?query=branch%3Aautomation%2Fprofile-sync-1' `
+            -DryRun
+        $payload = ($output | Out-String) | ConvertFrom-Json
+
+        $payload.state | Should -Be 'pending'
+        $payload.context | Should -Be 'generated-profile/validation'
+        $payload.description | Should -Be 'Generated profile validation pending.'
+        $payload.target_url | Should -Match 'profile-sync[.]yml'
     }
 
     It 'regenerates before checking dispatched generated automation branches' {
@@ -2379,6 +2433,7 @@ Describe 'Generated profile PR validation handoff' {
 
         $checkJob | Should -Match 'contents: read'
         $checkJob | Should -Not -Match 'actions: write'
+        $checkJob | Should -Not -Match 'statuses: write'
         $checkJob | Should -Not -Match 'open-generated-profile-pr[.]ps1'
     }
 }
@@ -2487,6 +2542,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Generated PR write branch cleanup'
             $summary | Should -Match 'Generated PR branch check runs'
             $summary | Should -Match 'Generated PR PR checks attached'
+            $summary | Should -Match 'Generated PR status context'
+            $summary | Should -Match 'generated-profile/validation'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
             $summary | Should -Match 'Code scanning languages'
@@ -2528,6 +2585,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'generatedPrWriteEvidence'
         $script:SummaryScript | Should -Match 'Generated PR validation conclusion'
         $script:SummaryScript | Should -Match 'Generated PR PR check count'
+        $script:SummaryScript | Should -Match 'Generated PR status handoff'
+        $script:SummaryScript | Should -Match 'statusHandoffContext'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'
@@ -2606,7 +2665,7 @@ Describe 'Workflow timeout budgets' {
         $script:WorkflowTimeoutBudgets = [ordered]@{
             '.github/workflows/automation-branch-cleanup.yml' = 1
             '.github/workflows/assets-refresh.yml' = 1
-            '.github/workflows/profile-sync.yml' = 3
+            '.github/workflows/profile-sync.yml' = 4
             '.github/workflows/scorecard.yml' = 1
             '.github/workflows/tests.yml' = 4
             '.github/workflows/workflow-security.yml' = 1
@@ -2710,7 +2769,7 @@ Describe 'Workflow checkout action pin' {
         $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
 
-        $checkoutUses.Count | Should -Be 10
+        $checkoutUses.Count | Should -Be 11
         foreach ($match in $checkoutUses) {
             $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
         }

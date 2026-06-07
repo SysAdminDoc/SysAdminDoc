@@ -104,6 +104,10 @@ $generatedPrWriteBranchCheckRunCount = if ($generatedPrWriteEvidence -and $null 
 $generatedPrWriteBranchSuccessfulCheckRunCount = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.generatedBranchSuccessfulCheckRunCount) { [int]$generatedPrWriteEvidence.generatedBranchSuccessfulCheckRunCount } else { 0 }
 $generatedPrWritePrCheckRollupCount = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.pullRequestCheckRollupCount) { [int]$generatedPrWriteEvidence.pullRequestCheckRollupCount } else { 0 }
 $generatedPrWritePrChecksAttached = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.pullRequestChecksAttached) { [bool]$generatedPrWriteEvidence.pullRequestChecksAttached } else { $false }
+$generatedPrWriteStatusHandoffImplemented = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffImplemented) { [bool]$generatedPrWriteEvidence.statusHandoffImplemented } else { $false }
+$generatedPrWriteStatusHandoffContext = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffContext) { [string]$generatedPrWriteEvidence.statusHandoffContext } else { "" }
+$generatedPrWriteStatusHandoffProof = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffProof) { [string]$generatedPrWriteEvidence.statusHandoffProof } else { "" }
+$generatedPrWriteStatusHandoffPermission = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffPermission) { [string]$generatedPrWriteEvidence.statusHandoffPermission } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -261,6 +265,10 @@ $summary = @"
 | Generated PR successful branch checks | $generatedPrWriteBranchSuccessfulCheckRunCount |
 | Generated PR PR checks attached | $generatedPrWritePrChecksAttached |
 | Generated PR PR check count | $generatedPrWritePrCheckRollupCount |
+| Generated PR status handoff | $generatedPrWriteStatusHandoffImplemented |
+| Generated PR status context | $generatedPrWriteStatusHandoffContext |
+| Generated PR status permission | $generatedPrWriteStatusHandoffPermission |
+| Generated PR status proof | $generatedPrWriteStatusHandoffProof |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

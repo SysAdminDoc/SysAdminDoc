@@ -5,10 +5,30 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.108
+Current version after this refresh: v4.9.109
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.109 batch implements a generated PR commit-status handoff for the
+  remaining PR-check-rollup blocker.
+- GitHub documents that repository activity performed with `GITHUB_TOKEN` does
+  not create follow-up `push` or `pull_request` workflow runs; generated PRs
+  therefore cannot rely on natural PR CI without a GitHub App/PAT credential.
+- `scripts/open-generated-profile-pr.ps1` now publishes
+  `generated-profile/validation` as a pending commit status on the generated
+  branch head SHA before PR creation, using the branch-scoped validation-runs
+  query as the target URL.
+- `.github/workflows/profile-sync.yml` now updates the same status context from
+  a separate workflow-dispatch-only `generated-validation-status` job after the
+  branch-scoped Profile sync validation job completes.
+- `scripts/set-generated-validation-status.ps1`, the sync report schema,
+  summary helper, and Pester coverage now guard the status context, `statuses:
+  write` permission boundary, and pending hosted proof state.
+- The generated sync-report artifact budget now uses a 112 KiB soft cap so the
+  final rendered-smoke-patched report stays within budget after status-handoff
+  evidence is added.
+- Required-check enforcement still waits on the next hosted `write-pr` run to
+  prove `generated-profile/validation` appears in PR `statusCheckRollup`.
 - The v4.9.108 batch proves the generated branch validation path now passes
   after the v4.9.107 workflow fix.
 - Hosted Profile sync run `27087015369` created branch

@@ -10,8 +10,9 @@ rerunning generated profile PR delivery.
 Do not add a PAT or GitHub App secret for this path unless the repository
 setting remains unavailable or proves too broad for the required-check rollout.
 The manual `write-pr` job already narrows its write surface to `actions: write`,
-`contents: write`, and `pull-requests: write`; enabling the repository setting
-avoids introducing a new long-lived automation credential.
+`contents: write`, `pull-requests: write`, and now `statuses: write` for the
+generated validation status context; enabling the repository setting avoids
+introducing a new long-lived automation credential.
 
 ## Before Activation
 
@@ -77,6 +78,20 @@ validation dispatch, and cleanup. It does not by itself prove required-check
 enforcement readiness: `gh pr checks` and PR `statusCheckRollup` reported no
 PR-attached checks for PR #9.
 
+## Cycle 117 Status Handoff
+
+Cycle 117 kept the selected no-new-secret path and added a commit-status
+handoff for generated PRs. GitHub documents that repository activity performed
+with `GITHUB_TOKEN` does not create follow-up `push` or `pull_request`
+workflow runs, so generated PRs cannot rely on natural PR CI unless the repo
+switches to an approved GitHub App/PAT credential.
+
+Instead, the helper publishes `generated-profile/validation` as a pending
+commit status before PR creation, and the dispatched Profile sync validation
+workflow updates the same context after `Check generated README` completes.
+Both write surfaces stay job-scoped: generated PR jobs get `statuses: write`,
+and normal read-only check jobs remain `contents: read`.
+
 ## Selected Path
 
 The applied repository setting command was:
@@ -85,10 +100,11 @@ The applied repository setting command was:
 gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
 ```
 
-Next, prove PR-attached required-check delivery or a narrow approved bypass:
+Next, prove the generated status handoff or document a narrow approved bypass:
 
-- Confirm generated maintenance PRs can surface candidate required checks in
-  the PR check rollup, not only commit-level workflow-dispatch check runs.
+- Rerun hosted `write-pr` and confirm generated maintenance PRs surface
+  `generated-profile/validation` in the PR check rollup, not only commit-level
+  workflow-dispatch check runs.
 - Confirm the generated branch cleanup policy leaves no orphaned generated
   branches.
 - `repositorySettings.actionsWorkflowPermissions.generatedPrCreationAllowed`

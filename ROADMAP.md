@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.108
+Current repo version: v4.9.109
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 116 - 2026-06-07.
+> Last researched: Cycle 117 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,24 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 116 - 2026-06-07.
+Last researched: Cycle 117 - 2026-06-07.
+
+2026-06-07 v4.9.109 refresh: generated PR commit-status handoff shipped.
+Cycle 117 researched the `GITHUB_TOKEN` recursion limit documented by GitHub:
+repository activity performed with `GITHUB_TOKEN` does not create follow-up
+`push` or `pull_request` workflow runs. Instead of adding a PAT/GitHub App
+secret, generated PR delivery now publishes a stable commit-status context,
+`generated-profile/validation`, on the generated branch head SHA. The shared
+helper sets that context to `pending` before PR creation and deletes the
+generated branch if status publication fails; the dispatched Profile sync
+validation workflow updates the same context to success/failure from a separate
+workflow-dispatch-only job with `statuses: write`. The sync report schema,
+Actions summary helper, and Pester suite now record and guard the handoff. The
+serialized sync-report artifact soft budget is now 112 KiB so the final
+rendered-smoke-patched report stays within the generated-artifact budget after
+the new status-handoff evidence.
+next cycle must rerun hosted `write-pr` and verify the status context appears
+in the generated PR `statusCheckRollup` before required-check enforcement.
 
 2026-06-07 v4.9.108 refresh: generated PR branch validation proof shipped.
 Cycle 116 reran hosted Profile sync `write-pr` run

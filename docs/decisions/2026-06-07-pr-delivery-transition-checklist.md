@@ -18,6 +18,13 @@ and `can_approve_pull_request_reviews=false`. GitHub documents the
 control for whether `GITHUB_TOKEN` can create or approve pull requests:
 https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#preventing-github-actions-from-creating-or-approving-pull-requests.
 
+Cycle 117 research confirmed the remaining PR-check-rollup blocker: GitHub
+does not create follow-up `push` or `pull_request` workflow runs from
+repository activity performed with `GITHUB_TOKEN`. To avoid adding a PAT or
+GitHub App secret just for generated profile maintenance, generated PR delivery
+now publishes a commit-status context, `generated-profile/validation`, on the
+generated branch head SHA.
+
 ## Checklist
 
 | Item | Status | Evidence | Next action |
@@ -25,7 +32,7 @@ https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-f
 | Candidate required checks | Ready | `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` are defined with stable workflow-backed names. | Keep job names unique and unchanged before enforcement. |
 | Candidate workflow coverage | Ready | Tests, Profile sync, and Workflow security all create checks on `pull_request` and `merge_group`, and PR triggers are not path-filtered. | Keep required-check candidate workflows always-created for PRs and merge queue runs. |
 | Recent successful check runs | Needs live validation | GitHub requires status checks to have completed recently in the repository before they can be selected as required checks. | Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes. |
-| PR delivery or bypass | Blocked | Generated PR creation and branch-scoped workflow-dispatch validation now work, but PR #9 reported no PR-attached check rollup and routine maintenance still pushes directly to `main` while branch protection has `enforce_admins.enabled=true`. | Prove PR-attached generated maintenance checks or document and test a narrow approved bypass before enabling required checks. |
+| PR delivery or bypass | Blocked | Generated PR creation and branch-scoped workflow-dispatch validation now work, but PR #9 reported no PR-attached check rollup and routine maintenance still pushes directly to `main` while branch protection has `enforce_admins.enabled=true`. Cycle 117 adds the `generated-profile/validation` commit-status handoff, with live PR-rollup proof still pending. | Prove PR-attached generated maintenance checks by rerunning hosted `write-pr` and verifying `generated-profile/validation` appears in `statusCheckRollup`, or document and test a narrow approved bypass before enabling required checks. |
 | Enforcement mechanism | Blocked | Branch protection and repository rulesets are currently readable and non-enforcing for required checks. | After PR delivery is proven, enable either branch-protection required checks or one repository ruleset, then re-query live settings. |
 
 ## Activation Order
@@ -34,7 +41,8 @@ https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-f
    Cycle 114. Keep default workflow permissions at `read`.
 2. Re-run the Profile sync `write-pr` workflow against a disposable generated
    branch and confirm it creates a pull request, dispatches branch-scoped
-   Profile sync validation, and leaves no orphaned branch after cleanup.
+   Profile sync validation, publishes `generated-profile/validation`, and
+   leaves no orphaned branch after cleanup.
 3. Open a disposable PR that exercises the required-check surface without
    intentionally invalidating generated README output.
 4. Confirm all six candidate checks are created on the PR and on `merge_group`.
@@ -139,9 +147,32 @@ runs, including successful `Check generated README`. However, `gh pr checks`
 and PR `statusCheckRollup` reported zero PR-attached checks, so this is branch
 validation proof rather than required-check enforcement proof.
 
+## Cycle 117 Commit-Status Handoff
+
+Cycle 117 added a generated PR commit-status handoff without adding a new
+automation secret. The shared helper now publishes `generated-profile/validation`
+as `pending` on the generated branch head SHA before `gh pr create`; if that
+status publication fails after the branch push, the helper deletes the generated
+branch before failing. The generated PR body and job summary list the same
+status context.
+
+Profile sync now has a separate workflow-dispatch-only
+`generated-validation-status` job. It depends on `Check generated README`, has
+`statuses: write`, and updates `generated-profile/validation` to success or
+failure after branch-scoped validation completes. The normal read-only check
+job stays `contents: read` and does not receive status-write permission.
+
+The sync report, schema, summary helper, and Pester suite now record and guard
+the status context, permission boundary, pending/final publisher paths, and
+pending hosted proof state. Required-check enforcement remains blocked until a
+new hosted `write-pr` run proves the status context appears in the generated PR
+`statusCheckRollup`.
+
 ## References
 
 - [GitHub Docs: About protected branches](https://docs.github.com/articles/types-of-required-status-checks)
 - [GitHub Docs: Troubleshooting required status checks](https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks)
 - [GitHub Docs: About rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
 - [GitHub Docs: Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
+- [GitHub Docs: Triggering a workflow](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
+- [GitHub Docs: REST API endpoints for commit statuses](https://docs.github.com/en/rest/commits/statuses)
