@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T22:00:37.0955042-04:00",
+  "generatedAt": "2026-06-06T22:16:48.7763768-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "313f184d0e12e433cf13c9d71af027296c384f0e",
+    "sourceCommit": "ff6b655b240d4bc198ad2e1e570f11cf70bc0bab",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
-    "generatorSha256": "fe4c61089615b3e94911b898299a1edf9481b1b2054f7b515faf5f52d6c6292f",
+    "generatorSha256": "ee27e8c07aaacf9a157f8f82be09d9a85c350ce1d677a276c85b8accc0d0970d",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T21:59:11.5028540-04:00",
+    "metadataSnapshotAt": "2026-06-06T22:15:05.9618801-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T01:56:36.0000000Z",
+        "pushedAt": "2026-06-07T02:14:36.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -898,28 +898,16 @@
         "count": 2
       },
       {
-        "licenseSpdxId": "NOASSERTION",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "count": 9
-      },
-      {
-        "licenseSpdxId": "MPL-2.0",
-        "licenseKey": "mpl-2.0",
-        "licenseName": "Mozilla Public License 2.0",
-        "count": 1
-      },
-      {
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
         "count": 3
       },
       {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
-        "count": 1
+        "licenseSpdxId": "NOASSERTION",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "count": 9
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -938,6 +926,18 @@
         "licenseKey": "mit",
         "licenseName": "MIT License",
         "count": 156
+      },
+      {
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "count": 1
       }
     ],
     "missingLicenses": [
@@ -1116,12 +1116,6 @@
     ],
     "suppressionReasonCounts": [
       {
-        "reasonCode": "placeholder",
-        "publicReason": "Placeholder project omitted from the public feed.",
-        "visibilityClass": "suppressed",
-        "count": 1
-      },
-      {
         "reasonCode": "not-visitor-facing",
         "publicReason": "Project omitted because it is not visitor-facing.",
         "visibilityClass": "suppressed",
@@ -1132,6 +1126,12 @@
         "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
         "count": 3
+      },
+      {
+        "reasonCode": "placeholder",
+        "publicReason": "Placeholder project omitted from the public feed.",
+        "visibilityClass": "suppressed",
+        "count": 1
       },
       {
         "reasonCode": "private-or-sensitive",
@@ -2396,28 +2396,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.80",
+    "expectedVersion": "v4.9.81",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.80"
+        "value": "v4.9.81"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.80"
+        "value": "v4.9.81"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.80"
+        "value": "v4.9.81"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.80"
+        "value": "v4.9.81"
       }
     ],
     "dates": [
@@ -2444,7 +2444,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 92,
+      "headingCount": 93,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2454,14 +2454,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.80",
+    "expectedVersion": "v4.9.81",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.80",
+    "expectedTag": "v4.9.81",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2471,13 +2471,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.80",
+        "expectedVersion": "v4.9.81",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.80",
+        "expectedVersion": "v4.9.81",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2489,11 +2489,26 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 5365,
+      "elapsedMs": 3778,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
       "headerWarningHostCount": 0
+    },
+    "restFallbackReleaseFetch": {
+      "used": false,
+      "status": "not-used",
+      "repoCount": 0,
+      "authenticated": false,
+      "maxReleaseFetches": 240,
+      "unauthenticatedReleaseFetchLimit": 50,
+      "attemptedReleaseFetches": 0,
+      "successfulReleaseFetches": 0,
+      "noRelease404Count": 0,
+      "fatal": false,
+      "abortRepo": null,
+      "abortHttpStatus": null,
+      "abortMessage": null
     }
   },
   "missingPublicRepos": [],
@@ -2508,7 +2523,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.24,
+      "ageDays": 5.25,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2518,7 +2533,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 5365,
+    "elapsedMs": 3778,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },

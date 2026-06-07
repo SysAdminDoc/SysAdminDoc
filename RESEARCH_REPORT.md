@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.80
+Current version after this refresh: v4.9.81
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.81 batch adds structured REST fallback release-fetch policy and
+  progress reporting under `validationPerformance.restFallbackReleaseFetch`.
+- The current GraphQL metadata path reports `status=not-used` while preserving
+  the configured 240 authenticated / 50 unauthenticated latest-release fetch
+  caps for fallback runs.
+- Future REST fallback runs can now report attempted and successful release
+  fetch counts, no-release 404 counts, and fatal abort details without requiring
+  maintainers to scrape warning text.
+- The profile sync summary surfaces fallback status, attempts, and no-release
+  404 counts; Pester covers HTTP-status parsing, the reportable state object,
+  the default not-used path, and summary wiring.
 - The v4.9.80 batch adds downstream portfolio compatibility reporting to the
   sync report before future public feed shape changes.
 - `portfolioCompatibility` records the known downstream visible-project field

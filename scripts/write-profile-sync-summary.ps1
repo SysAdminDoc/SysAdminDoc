@@ -48,6 +48,7 @@ $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'usersc
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
 $portfolioCompatibility = if ($report.PSObject.Properties.Name -contains 'portfolioCompatibility') { $report.portfolioCompatibility } else { $null }
 $readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity') { $report.readmeDensity } else { $null }
+$restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'restFallbackReleaseFetch') { $performance.restFallbackReleaseFetch } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -93,6 +94,10 @@ $readmeDensityWarningCount = if ($readmeDensity) { [int]$readmeDensity.warningCo
 $readmeLargestCategory = if ($readmeDensity) { [string]$readmeDensity.largestCategory } else { "" }
 $readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestCategoryCount } else { 0 }
 $readmeRepoOnlyProjectCount = if ($readmeDensity) { [int]$readmeDensity.repoOnlyProjectCount } else { 0 }
+$restFallbackStatus = if ($restFallbackReleaseFetch) { [string]$restFallbackReleaseFetch.status } else { "unknown" }
+$restFallbackAttempted = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.attemptedReleaseFetches } else { 0 }
+$restFallbackNoRelease404Count = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.noRelease404Count } else { 0 }
+$restFallbackFatal = if ($restFallbackReleaseFetch) { [bool]$restFallbackReleaseFetch.fatal } else { $false }
 
 $summary = @"
 ### $Context report
@@ -127,6 +132,9 @@ $summary = @"
 | Link targets checked | $($linkSummary.targetCount) |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
+| REST fallback release status | $restFallbackStatus |
+| REST fallback release attempts | $restFallbackAttempted |
+| REST fallback no-release 404s | $restFallbackNoRelease404Count |
 | Repository setting warnings | $repositoryWarningCount |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
@@ -171,6 +179,10 @@ if ($linkFailureCount -gt 0) {
 
 if ($linkWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $linkWarningCount transient link warning(s)."
+}
+
+if ($restFallbackFatal) {
+    Write-Output "::error::Profile sync report captured a fatal REST fallback release-fetch state: $restFallbackStatus."
 }
 
 if ($missingLicenseCount -gt 0) {

@@ -64,6 +64,7 @@ $script:RepositoryMetadataProvider = "graphql"
 $script:RepositoryEnumerationRequestedLimit = 500
 $script:RepositoryEnumerationTruncated = $false
 $script:MetadataSnapshotAt = (Get-Date).ToString("o")
+$script:RestFallbackReleaseFetchState = $null
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -166,17 +167,30 @@ function Get-GitHubReposFromRest {
         }
     }
 
-    $releaseBudget = Test-RestFallbackReleaseFetchBudget -RepoCount $allRepos.Count -Authenticated (Test-GitHubCliAuthenticated)
+    $authenticated = Test-GitHubCliAuthenticated
+    $releaseBudget = Test-RestFallbackReleaseFetchBudget -RepoCount $allRepos.Count -Authenticated $authenticated
+    $script:RestFallbackReleaseFetchState = New-RestFallbackReleaseFetchState `
+        -Used `
+        -Status "preflight-passed" `
+        -RepoCount $allRepos.Count `
+        -Authenticated:$authenticated `
+        -MaxReleaseFetches $releaseBudget.maxReleaseFetches `
+        -UnauthenticatedReleaseFetchLimit $releaseBudget.unauthenticatedReleaseFetchLimit
     if (-not $releaseBudget.allowed) {
+        $script:RestFallbackReleaseFetchState["status"] = "preflight-blocked"
+        $script:RestFallbackReleaseFetchState["fatal"] = $true
+        $script:RestFallbackReleaseFetchState["abortMessage"] = $releaseBudget.message
         throw $releaseBudget.message
     }
 
     $mapped = New-Object System.Collections.Generic.List[object]
     foreach ($repo in $allRepos) {
         $release = $null
+        $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
         $releaseJson = & gh api "repos/$Owner/$($repo.name)/releases/latest" 2>&1
         $releaseOutput = (($releaseJson | Out-String).Trim())
         if ($LASTEXITCODE -eq 0) {
+            $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
             if (-not [string]::IsNullOrWhiteSpace($releaseOutput)) {
                 $releaseData = $releaseOutput | ConvertFrom-Json
                 $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
@@ -191,8 +205,15 @@ function Get-GitHubReposFromRest {
                 }
             }
         } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
+            $script:RestFallbackReleaseFetchState["status"] = "aborted"
+            $script:RestFallbackReleaseFetchState["fatal"] = $true
+            $script:RestFallbackReleaseFetchState["abortRepo"] = [string]$repo.name
+            $script:RestFallbackReleaseFetchState["abortHttpStatus"] = Get-GhApiHttpStatus -Output $releaseOutput
+            $script:RestFallbackReleaseFetchState["abortMessage"] = "Latest-release fetch failed after $($script:RestFallbackReleaseFetchState["attemptedReleaseFetches"]) attempted request(s)."
             Write-Warning "REST release fallback failed for $($repo.name); aborting to avoid partial release metadata. Last gh output: $releaseOutput"
             throw "REST repo metadata fallback failed while fetching latest release for $($repo.name). Refusing to emit partial release metadata."
+        } else {
+            $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
         }
 
         $topics = @()
@@ -229,6 +250,7 @@ function Get-GitHubReposFromRest {
     $script:RepositoryMetadataProvider = "rest-fallback"
     $script:RepositoryEnumerationRequestedLimit = 0
     $script:RepositoryEnumerationTruncated = $false
+    $script:RestFallbackReleaseFetchState["status"] = "completed"
     return $mapped.ToArray()
 }
 
@@ -261,7 +283,22 @@ function Test-GitHubCliAuthenticated {
 function Test-GhApiNotFound {
     param([string]$Output)
 
-    return ($Output -match '(?i)\bHTTP\s+404\b' -or $Output -match '(?i)\bNot Found\b')
+    return ((Get-GhApiHttpStatus -Output $Output) -eq 404 -or $Output -match '(?i)\bNot Found\b')
+}
+
+function Get-GhApiHttpStatus {
+    param([string]$Output)
+
+    if ([string]::IsNullOrWhiteSpace($Output)) {
+        return $null
+    }
+
+    $match = [regex]::Match($Output, '(?i)\bHTTP\s+(\d{3})\b')
+    if (-not $match.Success) {
+        return $null
+    }
+
+    return [int]$match.Groups[1].Value
 }
 
 function Test-RestFallbackReleaseFetchBudget {
@@ -289,8 +326,56 @@ function Test-RestFallbackReleaseFetchBudget {
     }
 }
 
+function New-RestFallbackReleaseFetchState {
+    param(
+        [switch]$Used,
+        [ValidateSet("not-used", "preflight-passed", "preflight-blocked", "completed", "aborted")]
+        [string]$Status = "not-used",
+        [int]$RepoCount = 0,
+        [bool]$Authenticated = $false,
+        [int]$MaxReleaseFetches = $RestFallbackMaxReleaseFetches,
+        [int]$UnauthenticatedReleaseFetchLimit = $RestFallbackUnauthenticatedReleaseFetchLimit,
+        [int]$AttemptedReleaseFetches = 0,
+        [int]$SuccessfulReleaseFetches = 0,
+        [int]$NoRelease404Count = 0,
+        [bool]$Fatal = $false,
+        [string]$AbortRepo = $null,
+        [Nullable[int]]$AbortHttpStatus = $null,
+        [string]$AbortMessage = $null
+    )
+
+    return [ordered]@{
+        used = [bool]$Used
+        status = $Status
+        repoCount = [int]$RepoCount
+        authenticated = [bool]$Authenticated
+        maxReleaseFetches = [int]$MaxReleaseFetches
+        unauthenticatedReleaseFetchLimit = [int]$UnauthenticatedReleaseFetchLimit
+        attemptedReleaseFetches = [int]$AttemptedReleaseFetches
+        successfulReleaseFetches = [int]$SuccessfulReleaseFetches
+        noRelease404Count = [int]$NoRelease404Count
+        fatal = [bool]$Fatal
+        abortRepo = if ([string]::IsNullOrWhiteSpace($AbortRepo)) { $null } else { $AbortRepo }
+        abortHttpStatus = $AbortHttpStatus
+        abortMessage = if ([string]::IsNullOrWhiteSpace($AbortMessage)) { $null } else { $AbortMessage }
+    }
+}
+
+function Reset-RestFallbackReleaseFetchState {
+    $script:RestFallbackReleaseFetchState = New-RestFallbackReleaseFetchState
+}
+
+function Get-RestFallbackReleaseFetchState {
+    if ($null -eq $script:RestFallbackReleaseFetchState) {
+        Reset-RestFallbackReleaseFetchState
+    }
+
+    return $script:RestFallbackReleaseFetchState
+}
+
 function Get-GitHubRepos {
     if ($Offline) {
+        Reset-RestFallbackReleaseFetchState
         return @()
     }
 
@@ -320,6 +405,7 @@ function Get-GitHubRepos {
                 $script:RepositoryMetadataProvider = "graphql"
                 $script:RepositoryEnumerationRequestedLimit = $repoLimit
                 $script:RepositoryEnumerationTruncated = [bool]($repos.Count -ge $repoLimit)
+                Reset-RestFallbackReleaseFetchState
                 return $repos
             } catch {
                 $lastOutput = $_.Exception.Message
@@ -5938,6 +6024,7 @@ function Test-ProfileState {
             warningHostCount = @($linkValidationSummary.warningCountByHost).Count
             headerWarningHostCount = @($linkValidationSummary.headerHostWarnings).Count
         }
+        restFallbackReleaseFetch = Get-RestFallbackReleaseFetchState
     }
     $report = [ordered]@{
         schema = $ReportSchemaUrl

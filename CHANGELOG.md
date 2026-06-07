@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.81] - 2026-06-06
+
+- Added: `validationPerformance.restFallbackReleaseFetch` now records whether REST fallback latest-release fetching was used, the configured authenticated/unauthenticated caps, fetch attempts, 404 no-release count, and any fatal abort details.
+- Added: The profile sync summary now surfaces REST fallback release-fetch status, attempts, and no-release 404 counts.
+- Added: Pester coverage now guards HTTP-status parsing, reportable REST fallback state, the default GraphQL not-used path, and summary-helper wiring.
+
 ## [v4.9.80] - 2026-06-06
 
 - Added: `reports/profile-sync-report.json.portfolioCompatibility` now records the downstream portfolio feed compatibility snapshot for visible project fields, redacted suppressed rows, provenance, release trust, and primary action counts.
