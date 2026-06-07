@@ -3626,6 +3626,37 @@ function Get-MemberValue {
     return $null
 }
 
+function Get-SortedReportRows {
+    param(
+        [object[]]$Rows,
+        [string[]]$Keys
+    )
+
+    $sortProperties = @(
+        foreach ($key in $Keys) {
+            $sortKey = $key
+            @{
+                Expression = {
+                    $value = $null
+                    if ($_ -is [System.Collections.IDictionary]) {
+                        if ($_.Contains($sortKey)) {
+                            $value = $_[$sortKey]
+                        }
+                    } else {
+                        $property = $_.PSObject.Properties[$sortKey]
+                        if ($property) {
+                            $value = $property.Value
+                        }
+                    }
+                    if ($null -eq $value) { "" } else { [string]$value }
+                }.GetNewClosure()
+            }
+        }
+    )
+
+    return @($Rows | Sort-Object -Property $sortProperties)
+}
+
 function Set-MemberValue {
     param(
         [object]$Object,
@@ -5727,7 +5758,7 @@ function Test-ProjectLicenseMetadata {
         missingCount = $missingLicenses.Count
         unknownCount = $unknownLicenses.Count
         warningCount = $missingLicenses.Count + $unknownLicenses.Count
-        licenseCounts = @($licenseCounts.Values | Sort-Object licenseSpdxId, licenseKey)
+        licenseCounts = Get-SortedReportRows -Rows @($licenseCounts.Values) -Keys @("licenseSpdxId", "licenseKey", "licenseName")
         missingLicenses = $missingLicenses.ToArray()
         unknownLicenses = $unknownLicenses.ToArray()
     }
@@ -5956,7 +5987,7 @@ function Test-StaleProjectReview {
         suppressedCount = [int]$suppressedCount
         warningCount = [int]$staleProjectCount
         statusCounts = @($statusCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ kind = [string]$_.Name; count = [int]$_.Value } })
-        suppressionReasonCounts = @($suppressionCounts.Values | Sort-Object reasonCode, visibilityClass)
+        suppressionReasonCounts = Get-SortedReportRows -Rows @($suppressionCounts.Values) -Keys @("reasonCode", "visibilityClass", "publicReason")
         rows = $rows.ToArray()
         note = "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
     }

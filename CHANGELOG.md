@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.90] - 2026-06-07
+
+- Added: Report aggregate rows now use explicit key-based sorting before JSON output instead of depending on hashtable enumeration order.
+- Changed: `projectLicenseMetadata.licenseCounts` and `staleProjectReview.suppressionReasonCounts` now emit stable deterministic order across live metadata snapshots.
+- Added: Pester coverage now asserts exact aggregate row ordering for license and suppression-reason report counts.
+
 ## [v4.9.89] - 2026-06-07
 
 - Added: `data/profile-catalog.json` now supports `readmeReviewNote` for internal README candidate-review context without exporting the note to the public portfolio feed.

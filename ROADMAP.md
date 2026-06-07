@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.89
+Current repo version: v4.9.90
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 97 - 2026-06-07.
+> Last researched: Cycle 98 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,15 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 97 - 2026-06-07.
+Last researched: Cycle 98 - 2026-06-07.
+
+2026-06-07 v4.9.90 refresh: deterministic aggregate report ordering
+shipped. Report rows generated from hash tables now flow through explicit
+key-based sorting before JSON serialization, avoiding live-snapshot churn from
+PowerShell hashtable value enumeration. The first stabilized rows are
+`projectLicenseMetadata.licenseCounts` and
+`staleProjectReview.suppressionReasonCounts`, with Pester coverage asserting
+exact order for both aggregate arrays.
 
 2026-06-07 v4.9.89 refresh: catalog-backed README candidate review notes
 shipped. `data/profile-catalog.json` now supports optional
@@ -2042,14 +2050,15 @@ Current local state:
 - Cycle 95 added a report-only portfolio demotion preview; the selected 11 Python candidates would reduce README rows from 177 to 166 and clear the current category soft-limit warning without mutating the catalog, README, or projects feed.
 - Cycle 96 added a side-effect-free generated PR delivery dry-run helper and read-only Profile sync `dry-run-pr` workflow mode.
 - Cycle 97 added catalog-backed review notes for the selected README portfolio-only candidates and surfaced those notes in the report-only candidate rows without exporting them to `projects.json`.
+- Cycle 98 added deterministic sorting for hash-backed aggregate report rows, starting with license count and suppression-reason count arrays that previously churned across live metadata snapshots.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 98: add deterministic ordering for report aggregate arrays that still churn across live metadata snapshots.
-2. Cycle 99: record generated PR dry-run evidence in the required-check readiness report once the manual dry-run mode has a hosted run.
-3. Cycle 100: add a public decision note for approving or rejecting portfolio-only demotions after catalog review notes have enough evidence.
+1. Cycle 99: record generated PR dry-run evidence in the required-check readiness report once the manual dry-run mode has a hosted run.
+2. Cycle 100: add a public decision note for approving or rejecting portfolio-only demotions after catalog review notes have enough evidence.
+3. Cycle 101: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
 
 ### Quick Wins
 
@@ -2066,6 +2075,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Generated PR delivery dry-run helper (completed v4.9.88 with `open-generated-profile-pr.ps1 -DryRun`, a read-only Profile sync `dry-run-pr` mode, side-effect guards, and Pester coverage).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
+- [x] P2 — Deterministic aggregate report row ordering (completed v4.9.90 with explicit key sorting for license and suppression reason count rows plus Pester exact-order coverage).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Concrete README portfolio-only review candidate rows (completed v4.9.86 with `portfolioOnlyCandidateSelectionPolicy`, `portfolioOnlyCandidates`, reason codes, summary sample output, schema coverage, and Pester guards).
 - [x] P2 — Portfolio-only catalog review preview mode (completed v4.9.87 with report-only row-delta/category-impact previewing, mutation flags, summary rows, schema coverage, and Pester guards).

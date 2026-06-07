@@ -578,25 +578,28 @@ Describe 'Report schema depth helpers' {
     }
 
     It 'summarizes visitor-facing project license metadata gaps' {
-        $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
-        $pyTool = New-TestEntry -Repo 'PyTool' -Category 'python'
-        $webTool = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $webTool = New-TestEntry -Repo 'AWebTool' -Category 'web'
+        $winTool = New-TestEntry -Repo 'BWinTool' -Category 'powershell'
+        $apiTool = New-TestEntry -Repo 'CApiTool' -Category 'web'
+        $pyTool = New-TestEntry -Repo 'DPyTool' -Category 'python'
         $repos = @(
-            (New-TestRepoMeta -Name 'WinTool' -LicenseInfo ([pscustomobject]@{ key = 'mit'; name = 'MIT License' })),
-            (New-TestRepoMeta -Name 'PyTool' -LicenseInfo $null),
-            (New-TestRepoMeta -Name 'WebTool' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' }))
+            (New-TestRepoMeta -Name 'AWebTool' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' })),
+            (New-TestRepoMeta -Name 'BWinTool' -LicenseInfo ([pscustomobject]@{ key = 'mit'; name = 'MIT License' })),
+            (New-TestRepoMeta -Name 'CApiTool' -LicenseInfo ([pscustomobject]@{ key = 'apache-2.0'; name = 'Apache License 2.0' })),
+            (New-TestRepoMeta -Name 'DPyTool' -LicenseInfo $null)
         )
         $lookup = ConvertTo-Lookup $repos
 
-        $result = Test-ProjectLicenseMetadata -Entries @($winTool, $pyTool, $webTool) -RepoLookup $lookup
+        $result = Test-ProjectLicenseMetadata -Entries @($webTool, $winTool, $apiTool, $pyTool) -RepoLookup $lookup
 
-        $result.checkedCount | Should -Be 3
-        $result.detectedCount | Should -Be 2
+        $result.checkedCount | Should -Be 4
+        $result.detectedCount | Should -Be 3
         $result.missingCount | Should -Be 1
         $result.unknownCount | Should -Be 1
         $result.warningCount | Should -Be 2
-        ($result.missingLicenses | ForEach-Object { $_.repo }) | Should -Contain 'PyTool'
-        ($result.unknownLicenses | ForEach-Object { $_.repo }) | Should -Contain 'WebTool'
+        ($result.missingLicenses | ForEach-Object { $_.repo }) | Should -Contain 'DPyTool'
+        ($result.unknownLicenses | ForEach-Object { $_.repo }) | Should -Contain 'AWebTool'
+        (($result.licenseCounts | ForEach-Object { $_.licenseSpdxId }) -join ',') | Should -Be 'Apache-2.0,MIT,NOASSERTION'
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'MIT' }).count | Should -Be 1
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).licenseKey | Should -Be 'other'
     }
@@ -641,9 +644,11 @@ Describe 'Report schema depth helpers' {
         $stale = New-TestEntry -Repo 'StaleTool' -Category 'python'
         $oldRelease = New-TestEntry -Repo 'OldReleaseTool' -Category 'desktop'
         $archive = New-TestEntry -Repo 'ArchiveCandidate' -Category 'guides'
-        $suppressedPrivate = New-TestEntry -Repo 'HiddenPrivate' -Category 'suppressed'
+        $suppressedPrivate = New-TestEntry -Repo 'AHiddenPrivate' -Category 'suppressed'
         $suppressedPrivate.suppressionReason = 'Repo is private; public profile links would 404 for visitors.'
-        $suppressedDuplicate = New-TestEntry -Repo 'HiddenDuplicate' -Category 'suppressed'
+        $suppressedVisitor = New-TestEntry -Repo 'MHiddenVisitor' -Category 'suppressed'
+        $suppressedVisitor.suppressionReason = 'Not visitor-facing.'
+        $suppressedDuplicate = New-TestEntry -Repo 'ZHiddenDuplicate' -Category 'suppressed'
         $suppressedDuplicate.suppressionReason = 'Renamed duplicate profile entry.'
         $repos = @(
             (New-TestRepoMeta -Name 'CurrentTool' -PushedAt '2026-06-01T00:00:00Z'),
@@ -654,7 +659,7 @@ Describe 'Report schema depth helpers' {
         $lookup = ConvertTo-Lookup $repos
 
         $result = Test-StaleProjectReview `
-            -Entries @($current, $stale, $oldRelease, $archive, $suppressedPrivate, $suppressedDuplicate) `
+            -Entries @($current, $stale, $oldRelease, $archive, $suppressedPrivate, $suppressedVisitor, $suppressedDuplicate) `
             -RepoLookup $lookup `
             -Now ([datetimeoffset]'2026-06-06T00:00:00Z')
 
@@ -665,16 +670,17 @@ Describe 'Report schema depth helpers' {
         $result.staleProjectCount | Should -Be 3
         $result.archiveReviewCount | Should -Be 1
         $result.noReleaseCount | Should -Be 3
-        $result.suppressedCount | Should -Be 2
+        $result.suppressedCount | Should -Be 3
         $result.warningCount | Should -Be 3
         ($result.rows | ForEach-Object { $_.repo }) | Should -Contain 'StaleTool'
         ($result.rows | ForEach-Object { $_.repo }) | Should -Contain 'OldReleaseTool'
         ($result.rows | ForEach-Object { $_.repo }) | Should -Contain 'ArchiveCandidate'
         ($result.rows | Where-Object { $_.repo -eq 'OldReleaseTool' }).signals | Should -Contain 'release-stale'
         ($result.rows | Where-Object { $_.repo -eq 'ArchiveCandidate' }).status | Should -Be 'archive-review'
+        (($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) -join ',') | Should -Be 'duplicate-or-superseded,not-visitor-facing,private-or-sensitive'
         ($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) | Should -Contain 'private-or-sensitive'
         ($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) | Should -Contain 'duplicate-or-superseded'
-        ($result | ConvertTo-Json -Depth 20) | Should -Not -Match 'HiddenPrivate|HiddenDuplicate'
+        ($result | ConvertTo-Json -Depth 20) | Should -Not -Match 'AHiddenPrivate|MHiddenVisitor|ZHiddenDuplicate'
     }
 
     It 'normalizes C++ language topic hints to cpp' {
