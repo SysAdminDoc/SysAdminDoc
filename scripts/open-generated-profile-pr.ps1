@@ -103,6 +103,10 @@ function Assert-GitHubActionsCanCreatePullRequests {
     $output = gh api "repos/$repository/actions/permissions/workflow" 2>&1
     $text = (($output | Out-String).Trim())
     if ($LASTEXITCODE -ne 0) {
+        if ($text -match 'Resource not accessible by integration') {
+            Write-Warning "Unable to verify GitHub Actions workflow permissions before creating $branch because GITHUB_TOKEN cannot read the repository workflow-permissions endpoint; continuing to gh pr create."
+            return
+        }
         throw "Unable to verify GitHub Actions workflow permissions before creating $branch. $text"
     }
 
@@ -170,6 +174,7 @@ git push origin $branch
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to push $branch (exit code $LASTEXITCODE)."
 }
+$branchPushed = $true
 
 $prBody = @"
 $PullRequestBodyIntro
@@ -184,7 +189,16 @@ $prUrl = gh pr create `
     --title $PullRequestTitle `
     --body $prBody
 if ($LASTEXITCODE -ne 0) {
-    throw "Failed to create generated profile pull request (exit code $LASTEXITCODE)."
+    $prCreateExitCode = $LASTEXITCODE
+    if ($branchPushed) {
+        git push origin --delete $branch
+        if ($LASTEXITCODE -eq 0) {
+            Write-Warning "Deleted generated branch $branch after pull-request creation failed."
+        } else {
+            Write-Warning "Failed to delete generated branch $branch after pull-request creation failed (exit code $LASTEXITCODE)."
+        }
+    }
+    throw "Failed to create generated profile pull request (exit code $prCreateExitCode)."
 }
 
 gh workflow run $ValidationWorkflow --ref $branch -f "mode=$ValidationMode"

@@ -30,9 +30,8 @@ https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-f
 
 ## Activation Order
 
-1. Enable GitHub Actions pull-request creation for `GITHUB_TOKEN`, or configure
-   `scripts/open-generated-profile-pr.ps1` to use an approved GitHub App/PAT
-   credential for `gh pr create`.
+1. GitHub Actions pull-request creation for `GITHUB_TOKEN` is enabled as of
+   Cycle 114. Keep default workflow permissions at `read`.
 2. Re-run the Profile sync `write-pr` workflow against a disposable generated
    branch and confirm it creates a pull request, dispatches branch-scoped
    Profile sync validation, and leaves no orphaned branch after cleanup.
@@ -68,6 +67,28 @@ disposable branch was deleted after evidence collection. The helper now
 preflights `repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow` before
 branch creation when running in GitHub Actions, so this disabled setting fails
 before a future automation branch is pushed.
+
+## Cycle 114 Live Setting Activation
+
+On 2026-06-07, the repository workflow-permissions setting was updated to keep
+`default_workflow_permissions=read` while setting
+`can_approve_pull_request_reviews=true`. Local admin-token evidence now reports
+`generatedPrCreationAllowed=true` and
+`recommendation=ready-for-generated-pr-delivery`.
+
+Hosted Profile sync run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086351848` then ran
+`write-pr` mode on `main` at
+`e0aaf1a5e94eb0be19e9a550ea75059f834db2a7`. The run regenerated profile
+artifacts and uploaded `profile-sync-report` artifact `7461985005`, but the
+helper failed before branch creation because `GITHUB_TOKEN` received
+`Resource not accessible by integration (HTTP 403)` when reading the repository
+workflow-permissions endpoint. No generated branch, pull request, or
+branch-scoped validation was created.
+
+The helper now treats that specific endpoint-read 403 as an unavailable
+preflight and continues to `gh pr create`. It also deletes the generated branch
+if a future `gh pr create` call fails after the branch is pushed.
 
 ## References
 

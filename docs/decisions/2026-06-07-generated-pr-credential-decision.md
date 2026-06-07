@@ -13,9 +13,9 @@ The manual `write-pr` job already narrows its write surface to `actions: write`,
 `contents: write`, and `pull-requests: write`; enabling the repository setting
 avoids introducing a new long-lived automation credential.
 
-## Current Evidence
+## Before Activation
 
-The live Actions workflow-permissions endpoint currently reports:
+Before Cycle 114, the live Actions workflow-permissions endpoint reported:
 
 - `default_workflow_permissions=read`
 - `can_approve_pull_request_reviews=false`
@@ -25,21 +25,41 @@ branch was pushed, but `gh pr create` failed with GitHub's
 `createPullRequest` permission block, so no pull request was created and no
 branch-scoped validation was dispatched.
 
+## Cycle 114 Activation
+
+Cycle 114 applied the selected repository setting. The live endpoint now
+reports:
+
+- `default_workflow_permissions=read`
+- `can_approve_pull_request_reviews=true`
+
+The local sync report now records:
+
+- `generatedPrCreationAllowed=true`
+- `recommendation=ready-for-generated-pr-delivery`
+- `generatedPrCredentialDecision.status=setting-enabled`
+
+Hosted run `27086351848` then proved a separate helper preflight issue:
+`GITHUB_TOKEN` cannot read the repository workflow-permissions endpoint, so the
+helper failed before creating or pushing `automation/profile-sync-27086351848`.
+The helper now continues past that known endpoint-read 403 and deletes the
+generated branch if pull-request creation fails after a future push.
+
 ## Selected Path
 
-Enable the repository setting with:
+The applied repository setting command was:
 
 ```powershell
 gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true
 ```
 
-Then rerun the hosted Profile sync `write-pr` workflow and verify:
+Next, rerun the hosted Profile sync `write-pr` workflow and verify:
 
 - A generated pull request is created.
 - Branch-scoped Profile sync validation is dispatched.
 - The generated branch cleanup policy leaves no orphaned generated branches.
 - `repositorySettings.actionsWorkflowPermissions.generatedPrCreationAllowed`
-  becomes `true` in the next sync report.
+  remains `true` in the next sync report.
 
 ## Rejected Path
 

@@ -366,7 +366,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeTrue
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.conclusion | Should -Be 'failure'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.failedStep | Should -Be 'Create pull request'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'deleted'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'not-created'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCreated | Should -BeFalse
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
@@ -2225,18 +2225,18 @@ Describe 'Required status check readiness' {
         $evidence.nextAction | Should -Match 'required-check preconditions'
         $writeEvidence.available | Should -BeTrue
         $writeEvidence.mode | Should -Be 'write-pr'
-        $writeEvidence.runId | Should -Be 27085061539
-        $writeEvidence.jobId | Should -Be 79937807362
+        $writeEvidence.runId | Should -Be 27086351848
+        $writeEvidence.jobId | Should -Be 79941483109
         $writeEvidence.conclusion | Should -Be 'failure'
         $writeEvidence.failedStep | Should -Be 'Create pull request'
         $writeEvidence.reportArtifactUploaded | Should -BeTrue
-        $writeEvidence.artifactId | Should -Be 7461506616
-        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27085061539'
-        $writeEvidence.generatedBranchPushed | Should -BeTrue
-        $writeEvidence.generatedBranchCleanup | Should -Be 'deleted'
+        $writeEvidence.artifactId | Should -Be 7461985005
+        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27086351848'
+        $writeEvidence.generatedBranchPushed | Should -BeFalse
+        $writeEvidence.generatedBranchCleanup | Should -Be 'not-created'
         $writeEvidence.pullRequestCreated | Should -BeFalse
         $writeEvidence.validationDispatched | Should -BeFalse
-        $writeEvidence.blocker | Should -Match 'pull-request creation'
+        $writeEvidence.blocker | Should -Match 'workflow-permissions endpoint'
     }
 }
 
@@ -2317,6 +2317,8 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper | Should -Match 'actions/permissions/workflow'
         $script:GeneratedPrHelper | Should -Match 'can_approve_pull_request_reviews'
         $script:GeneratedPrHelper | Should -Match 'Allow GitHub Actions to create and approve pull requests'
+        $script:GeneratedPrHelper | Should -Match 'Resource not accessible by integration'
+        $script:GeneratedPrHelper | Should -Match 'continuing to gh pr create'
 
         $preflightIndex = $script:GeneratedPrHelper.IndexOf('Assert-GitHubActionsCanCreatePullRequests', [StringComparison]::Ordinal)
         $branchIndex = $script:GeneratedPrHelper.IndexOf('git switch -c $branch', [StringComparison]::Ordinal)
@@ -2332,6 +2334,7 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper | Should -Match 'git switch -c \$branch'
         $script:GeneratedPrHelper | Should -Match 'git commit -m \$CommitMessage'
         $script:GeneratedPrHelper | Should -Match 'gh pr create'
+        $script:GeneratedPrHelper | Should -Match 'git push origin --delete \$branch'
 
         $script:GeneratedPrWorkflows.ProfileSync | Should -Match '-BranchPrefix "automation/profile-sync-"'
         $script:GeneratedPrWorkflows.AssetsRefresh | Should -Match '-BranchPrefix "automation/profile-assets-"'

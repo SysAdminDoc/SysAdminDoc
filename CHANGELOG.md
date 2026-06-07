@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.106] - 2026-06-07
+
+- Changed: Enabled the repository Actions workflow-permissions setting that allows GitHub Actions to create pull requests while keeping default workflow permissions at `read`.
+- Fixed: `scripts/open-generated-profile-pr.ps1` now continues past the known `GITHUB_TOKEN` 403 when reading the repository workflow-permissions endpoint, and deletes the generated branch if pull-request creation fails after a push.
+- Added: `generatedPrWriteEvidence` now records hosted `write-pr` run `27086351848`, including the post-setting preflight-read failure, uploaded report artifact, and no-branch-created outcome.
+
 ## [v4.9.105] - 2026-06-07
 
 - Added: `repositorySettings.actionsWorkflowPermissions.generatedPrCredentialDecision` now records the generated-PR credential path decision, selected repository-setting path, rejected App/PAT fallback path, and activation command.

@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.105
+Current version after this refresh: v4.9.106
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.106 batch enables the documented GitHub Actions pull-request
+  creation setting while keeping default workflow permissions at `read`.
+- Local admin-token evidence now reports
+  `canApprovePullRequestReviews=true`,
+  `generatedPrCreationAllowed=true`, and
+  `recommendation=ready-for-generated-pr-delivery`.
+- Hosted Profile sync run `27086351848` used `write-pr` mode on `main` at
+  `e0aaf1a5e94eb0be19e9a550ea75059f834db2a7`, regenerated profile artifacts,
+  uploaded `profile-sync-report` artifact `7461985005`, and then failed before
+  creating a branch because `GITHUB_TOKEN` could not read the repository
+  workflow-permissions endpoint during helper preflight.
+- `scripts/open-generated-profile-pr.ps1` now continues past that known
+  endpoint-read 403 and deletes the generated branch if `gh pr create` fails
+  after a future push.
 - The v4.9.105 batch records the generated PR credential decision before live
   repository settings are changed.
 - `docs/decisions/2026-06-07-generated-pr-credential-decision.md` chooses the
