@@ -3908,10 +3908,10 @@ function New-ScorecardAlertPostureRow {
     $nextAction = "Review the Scorecard check details and update this posture row."
     switch ($ruleId) {
         "CodeReviewID" {
-            $classification = "external-gated-pr-delivery"
+            $classification = "external-gated-reviewer-model"
             $localDisposition = "not-fixed-by-local-report"
-            $localEvidence = "Direct-main delivery remains active while required-check readiness and generated PR delivery are still blocked."
-            $nextAction = "Enable proven PR delivery or an approved bypass before requiring pull request reviews."
+            $localEvidence = "PR delivery and required checks are proven; pull request review enforcement remains warning-only until an independent reviewer or team model exists."
+            $nextAction = "Define an independent reviewer or team model before requiring pull request reviews; keep required-check PR delivery in the meantime."
         }
         "SecurityPolicyID" {
             if ($SecurityPolicyHasLinkedReportingTarget) {
@@ -3998,7 +3998,7 @@ function Get-ScorecardAlertPosture {
         }) -Keys @("ruleId"))
     $localActionableCount = @($rows | Where-Object { $_.classification -eq "actionable-local-gap" }).Count
     $needsHostedRefreshCount = @($rows | Where-Object { $_.classification -eq "local-fix-pending-scorecard-refresh" }).Count
-    $externalGatedCount = @($rows | Where-Object { $_.classification -in @("external-gated-pr-delivery", "external-program-optional") }).Count
+    $externalGatedCount = @($rows | Where-Object { $_.classification -in @("external-gated-pr-delivery", "external-gated-reviewer-model", "external-program-optional") }).Count
     $notApplicableCount = @($rows | Where-Object { $_.classification -in @("covered-by-local-static-analysis", "not-applicable-profile-generator") }).Count
     $recommendation = if ($localActionableCount -gt 0) {
         "fix-local-scorecard-alerts"
@@ -4585,7 +4585,7 @@ function Get-PrDeliveryTransitionChecklist {
     $enforcementNextAction = if ($RequiredChecksEnabled -and $requiredCheckEnforcementPassed) {
         "Keep monitoring required checks on routine pull requests and re-query branch protection after check-name changes."
     } elseif ($RequiredChecksEnabled) {
-        "Monitor required checks on the next normal PR and re-query branch protection after any check-name changes."
+        "Keep monitoring required checks on routine pull requests and re-query branch protection after any check-name changes."
     } else {
         "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."
     }
@@ -4622,6 +4622,99 @@ function Get-PrDeliveryTransitionChecklist {
         routineMaintenancePrDrillEvidence = $RoutineMaintenancePrDrillEvidence
         requiredCheckEnforcementEvidence = $RequiredCheckEnforcementEvidence
         items = @($items.ToArray())
+    }
+}
+
+function Get-ReviewPolicyPosture {
+    param(
+        [bool]$BranchProtectionAvailable,
+        [object]$RequiredPullRequestReviews,
+        [object]$RequiredCodeOwnerReviews,
+        [object]$RequiredStatusChecks,
+        [object]$RequiredCheckReadiness,
+        [object[]]$LocalFiles = @(),
+        [string]$BranchProtectionUnavailableReason
+    )
+
+    if (-not $BranchProtectionAvailable) {
+        return [ordered]@{
+            available = $false
+            status = "unavailable"
+            recommendation = "verify-branch-protection-review-policy"
+            branchProtectionUnavailableReason = if ([string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) { "branch protection evidence was not supplied" } else { $BranchProtectionUnavailableReason }
+            pullRequestReviewsRequired = $null
+            codeOwnerReviewsRequired = $null
+            requiredStatusChecksEnabled = $null
+            codeownersFilePresent = [bool](@($LocalFiles | Where-Object { [string](Get-MemberValue -Object $_ -Name "path") -eq ".github/CODEOWNERS" -and (Get-MemberValue -Object $_ -Name "exists") -eq $true }).Count -gt 0)
+            routinePrDeliveryProven = $false
+            requiredCheckEnforcementProven = $false
+            directMainBypassApproved = $false
+            reviewerModel = "unverified"
+            scorecardCodeReviewClassification = "needs-review"
+            documentationPath = "docs/decisions/2026-06-07-review-policy-posture.md"
+            evidence = "Branch-protection review settings were unavailable."
+            nextAction = "Re-query branch protection before changing pull request review or code-owner review requirements."
+        }
+    }
+
+    $pullRequestReviewsRequired = [bool]($RequiredPullRequestReviews -eq $true)
+    $codeOwnerReviewsRequired = [bool]($RequiredCodeOwnerReviews -eq $true)
+    $requiredStatusChecksEnabled = [bool]($RequiredStatusChecks -eq $true)
+    $transition = Get-MemberValue -Object $RequiredCheckReadiness -Name "prDeliveryTransition"
+    $routinePrDeliveryProven = [string](Get-NestedMemberValue -Object $transition -Path "routineMaintenancePrDrillEvidence.status") -eq "passed"
+    $requiredCheckEnforcementProven = [string](Get-NestedMemberValue -Object $transition -Path "requiredCheckEnforcementEvidence.status") -eq "passed"
+    $directMainBypassApproved = [bool](Get-NestedMemberValue -Object $transition -Path "directMainMaintenancePolicy.allowed")
+    $codeownersFilePresent = [bool](@($LocalFiles | Where-Object { [string](Get-MemberValue -Object $_ -Name "path") -eq ".github/CODEOWNERS" -and (Get-MemberValue -Object $_ -Name "exists") -eq $true }).Count -gt 0)
+
+    $status = if ($pullRequestReviewsRequired -and $codeOwnerReviewsRequired) {
+        "enforced-pr-and-code-owner-review"
+    } elseif ($pullRequestReviewsRequired) {
+        "enforced-pr-review"
+    } else {
+        "warning-only-single-maintainer"
+    }
+
+    $recommendation = if ($status -eq "enforced-pr-and-code-owner-review") {
+        "monitor-review-enforcement"
+    } elseif ($status -eq "enforced-pr-review") {
+        "decide-code-owner-review-requirement"
+    } else {
+        "keep-warning-only-until-reviewer-model"
+    }
+
+    $evidence = if ($status -eq "warning-only-single-maintainer") {
+        "Branch protection requires status checks and PR #16 proved required-check PR delivery, but branch protection does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model."
+    } elseif ($status -eq "enforced-pr-review") {
+        "Branch protection requires pull request reviews but does not require code-owner reviews."
+    } else {
+        "Branch protection requires pull request reviews and code-owner reviews."
+    }
+
+    $nextAction = if ($status -eq "warning-only-single-maintainer") {
+        "Define an independent reviewer or team model before requiring pull request reviews or code-owner reviews."
+    } elseif ($status -eq "enforced-pr-review") {
+        "Decide whether CODEOWNERS review should also be required after validating reviewer availability."
+    } else {
+        "Monitor review enforcement and update CODEOWNERS before adding new public-contract paths."
+    }
+
+    return [ordered]@{
+        available = $true
+        status = $status
+        recommendation = $recommendation
+        branchProtectionUnavailableReason = $null
+        pullRequestReviewsRequired = $pullRequestReviewsRequired
+        codeOwnerReviewsRequired = $codeOwnerReviewsRequired
+        requiredStatusChecksEnabled = $requiredStatusChecksEnabled
+        codeownersFilePresent = $codeownersFilePresent
+        routinePrDeliveryProven = $routinePrDeliveryProven
+        requiredCheckEnforcementProven = $requiredCheckEnforcementProven
+        directMainBypassApproved = $directMainBypassApproved
+        reviewerModel = "single-maintainer-profile-repo"
+        scorecardCodeReviewClassification = "external-gated-reviewer-model"
+        documentationPath = "docs/decisions/2026-06-07-review-policy-posture.md"
+        evidence = $evidence
+        nextAction = $nextAction
     }
 }
 
@@ -4750,6 +4843,15 @@ function Test-RepositoryCommunityBaseline {
         -RulesetCount $rulesetCount `
         -BranchProtectionUnavailableReason $BranchProtectionUnavailableReason `
         -RulesetsUnavailableReason $RulesetsUnavailableReason
+
+    $reviewPolicyPosture = Get-ReviewPolicyPosture `
+        -BranchProtectionAvailable $branchProtectionAvailable `
+        -RequiredPullRequestReviews $requiredPullRequestReviews `
+        -RequiredCodeOwnerReviews $requiredCodeOwnerReviews `
+        -RequiredStatusChecks $requiredStatusChecks `
+        -RequiredCheckReadiness $requiredCheckReadiness `
+        -LocalFiles $LocalFiles `
+        -BranchProtectionUnavailableReason $BranchProtectionUnavailableReason
 
     $languageNames = @()
     if ($languagesAvailable) {
@@ -4892,6 +4994,7 @@ function Test-RepositoryCommunityBaseline {
             generatedPrCredentialDecision = $generatedPrCredentialDecision
         }
         requiredCheckReadiness = $requiredCheckReadiness
+        reviewPolicyPosture = $reviewPolicyPosture
         warningCount = $repoWarnings.Count
         warnings = $repoWarnings.ToArray()
     }
