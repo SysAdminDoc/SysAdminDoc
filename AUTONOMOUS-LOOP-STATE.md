@@ -2,15 +2,16 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-07
-Last completed roadmap cycle: Cycle 121 - Projects-feed check-only normalization
+Last completed roadmap cycle: Cycle 122 - Provenance hash normalization and candidate-check evidence
 
 ## Latest Result
 
-- Fixed `ConvertTo-ProjectsSyncComparableJson` so check-only projects-feed validation normalizes equivalent `projects[].pushedAt` timestamp formats and continues treating `sourceCommit` plus `metadataSnapshotAt` as volatile equality fields.
-- Regenerated `projects.json` and `reports/profile-sync-report.json` with the updated generator hash; `projectsExportInSync=true` and fatal metadata drift is 0 on `main`.
-- Updated roadmap, research report, project context, completed work, and changelog to v4.9.113.
-- Local verification passed: profile sync write/check, rendered-profile smoke, profile summary render, Pester (172 tests), PSScriptAnalyzer, markdownlint, setup check-only, zizmor, actionlint, diff whitespace check, and commit-trailer/text scan.
+- Closed disposable PR #11 after it created all six candidate required-check names; five candidate checks passed and `Check generated README` failed on catalog/generator provenance hash drift.
+- Fixed `Get-RepoFileSha256` so feed provenance hashes normalize text newlines before SHA-256 and remain stable across Windows working trees and GitHub's LF checkout.
+- Added `candidateCheckExerciseEvidence` to the sync report/schema/summary and recorded PR #11 run IDs, artifact ID, pass/fail counts, failed check name, and closed-PR/deleted-branch cleanup.
+- Updated roadmap, research report, project context, completed work, and changelog to v4.9.114.
+- Local verification passed: profile sync write/check, rendered-profile smoke, profile summary render, Pester, PSScriptAnalyzer, markdownlint, setup check-only, zizmor, actionlint, diff whitespace check, and commit-trailer/text scan.
 
 ## Next Cycle
 
-Continue on this same assigned project. Retry the disposable candidate-check PR proof now that check-only feed comparison no longer fails on volatile provenance/timestamp formatting.
+Continue on this same assigned project. Rerun the disposable candidate-check PR proof now that feed provenance hashes are newline-normalized, then record the updated PR evidence and cleanup state.

@@ -211,8 +211,9 @@ routine PR delivery.
 Cycle 120 adds a machine-readable
 `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
 record for the remaining recent-check-run proof. The plan is still
-`readinessStatus=needs-live-validation` and `evidenceStatus=not-run`; it does
-not enable enforcement, approve a bypass, or merge a proof branch.
+`readinessStatus=needs-live-validation`; after the first proof attempt its
+`evidenceStatus` is `partial-failed`. This does not enable enforcement, approve
+a bypass, or merge a proof branch.
 
 The proof branch should use the `automation/required-check-proof-` prefix and a
 disposable pull request titled `chore: exercise required-check candidates`.
@@ -237,6 +238,32 @@ candidate checks, the relevant run IDs and conclusions are recorded, and the
 PR plus proof branch are closed and deleted. Required-check enforcement remains
 deferred until this proof and the direct-main maintenance policy are both
 resolved.
+
+## Cycle 122 Disposable PR Exercise Evidence
+
+Cycle 122 opened disposable PR #11 from
+`automation/required-check-proof-20260607-122` at
+`de62881b7ec7858683045ac8418c99f5e4010846`. The PR check rollup created all six
+candidate required-check names:
+
+- `PSScriptAnalyzer`: passed
+- `Pester (offline)`: passed
+- `Markdownlint`: passed
+- `Windows setup smoke`: passed
+- `zizmor`: passed
+- `Check generated README`: failed
+
+The failing Profile sync run was `27088934667`, and the retained
+`profile-sync-report` artifact was `7462931270`. The failure was useful proof:
+the hosted runner recalculated different `provenance.catalogSha256` and
+`provenance.generatorSha256` values from the same committed catalog/generator
+content because the provenance hash path used raw working-tree bytes. Local
+Windows-generated feed hashes could therefore differ from GitHub's LF checkout.
+
+The PR was closed and the proof branch was deleted after evidence collection.
+Required-check enforcement remains deferred. The next proof should rerun after
+the normalized provenance hash fix reaches `main` and regenerated feed/report
+artifacts are current.
 
 ## References
 

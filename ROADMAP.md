@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.113
+Current repo version: v4.9.114
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 121 - 2026-06-07.
+> Last researched: Cycle 122 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,20 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 121 - 2026-06-07.
+Last researched: Cycle 122 - 2026-06-07.
+
+2026-06-07 v4.9.114 refresh: normalized provenance hashing and disposable
+candidate-check evidence shipped. Cycle 122 opened disposable PR #11 from
+`automation/required-check-proof-20260607-122`, proved all six candidate
+required-check names were created, and recorded that five passed while
+`Check generated README` failed on fatal `provenance.catalogSha256` and
+`provenance.generatorSha256` drift. The PR was closed and the proof branch was
+deleted after evidence collection. The root cause was raw working-tree byte
+hashing in `Get-RepoFileSha256`, which could make Windows-generated feed hashes
+disagree with GitHub's LF checkout. Provenance hashes now normalize text
+newlines before SHA-256, and the sync report now records the partial failed
+candidate-check proof so the next cycle can rerun the disposable proof from a
+clean `main`.
 
 2026-06-07 v4.9.113 refresh: projects feed check-only normalization shipped.
 Cycle 121 used the disposable required-check proof rehearsal to expose that

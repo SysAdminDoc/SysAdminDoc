@@ -5,10 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.113
+Current version after this refresh: v4.9.114
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.114 batch fixes a cross-platform provenance hashing issue exposed
+  by disposable PR #11.
+- PR #11 created all six candidate required-check names. `PSScriptAnalyzer`,
+  `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, and `zizmor`
+  passed; `Check generated README` failed on fatal catalog/generator
+  provenance hash drift.
+- `Get-RepoFileSha256` now normalizes text newlines before SHA-256 so
+  Windows-generated feed provenance does not differ from GitHub's LF checkout
+  for unchanged catalog/generator content.
+- `requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence`
+  records PR #11, branch `automation/required-check-proof-20260607-122`, the
+  retained Profile sync artifact, pass/fail counts, failed check name, cleanup
+  state, and the next rerun action.
 - The v4.9.113 batch fixes a check-only projects-feed sync bug exposed while
   rehearsing the disposable required-check proof.
 - `ConvertTo-ProjectsSyncComparableJson` now normalizes `projects[].pushedAt`

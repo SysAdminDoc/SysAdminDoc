@@ -48,6 +48,7 @@ $requiredCheckReadiness = if ($repositorySettings -and $repositorySettings.PSObj
 $prDeliveryTransition = if ($requiredCheckReadiness -and $requiredCheckReadiness.PSObject.Properties.Name -contains 'prDeliveryTransition') { $requiredCheckReadiness.prDeliveryTransition } else { $null }
 $generatedPrDryRunEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'generatedPrDryRunEvidence') { $prDeliveryTransition.generatedPrDryRunEvidence } else { $null }
 $generatedPrWriteEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'generatedPrWriteEvidence') { $prDeliveryTransition.generatedPrWriteEvidence } else { $null }
+$candidateCheckExerciseLatestEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'candidateCheckExerciseEvidence') { $prDeliveryTransition.candidateCheckExerciseEvidence } else { $null }
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
@@ -116,10 +117,17 @@ $directMainMaintenancePolicyRecommendation = if ($directMainMaintenancePolicy -a
 $candidateCheckExercisePlan = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'candidateCheckExercisePlan') { $prDeliveryTransition.candidateCheckExercisePlan } else { $null }
 $candidateCheckExercisePlanStatus = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.status) { [string]$candidateCheckExercisePlan.status } else { "" }
 $candidateCheckExerciseReadiness = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.readinessStatus) { [string]$candidateCheckExercisePlan.readinessStatus } else { "" }
-$candidateCheckExerciseEvidence = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.evidenceStatus) { [string]$candidateCheckExercisePlan.evidenceStatus } else { "" }
+$candidateCheckExercisePlanEvidenceStatus = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.evidenceStatus) { [string]$candidateCheckExercisePlan.evidenceStatus } else { "" }
 $candidateCheckExerciseCandidateCount = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.candidateCheckCount) { [int]$candidateCheckExercisePlan.candidateCheckCount } else { 0 }
 $candidateCheckExerciseBranchPrefix = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.disposableBranchPrefix) { [string]$candidateCheckExercisePlan.disposableBranchPrefix } else { "" }
 $candidateCheckExerciseTouchPaths = if ($candidateCheckExercisePlan -and $candidateCheckExercisePlan.touchPaths) { @($candidateCheckExercisePlan.touchPaths) -join ", " } else { "" }
+$candidateCheckExerciseLatestAvailable = if ($candidateCheckExerciseLatestEvidence) { [bool]$candidateCheckExerciseLatestEvidence.available } else { $false }
+$candidateCheckExerciseLatestStatus = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.status) { [string]$candidateCheckExerciseLatestEvidence.status } else { "" }
+$candidateCheckExerciseLatestPullRequest = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.pullRequestNumber) { [int]$candidateCheckExerciseLatestEvidence.pullRequestNumber } else { 0 }
+$candidateCheckExerciseLatestSuccessful = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.successfulCandidateCheckCount) { [int]$candidateCheckExerciseLatestEvidence.successfulCandidateCheckCount } else { 0 }
+$candidateCheckExerciseLatestFailed = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.failedCandidateCheckCount) { [int]$candidateCheckExerciseLatestEvidence.failedCandidateCheckCount } else { 0 }
+$candidateCheckExerciseLatestFailedNames = if ($candidateCheckExerciseLatestEvidence -and $candidateCheckExerciseLatestEvidence.failedCandidateChecks) { @($candidateCheckExerciseLatestEvidence.failedCandidateChecks) -join ", " } else { "" }
+$candidateCheckExerciseLatestCleanup = if ($candidateCheckExerciseLatestEvidence -and $null -ne $candidateCheckExerciseLatestEvidence.cleanupState) { [string]$candidateCheckExerciseLatestEvidence.cleanupState } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -287,10 +295,16 @@ $summary = @"
 | Direct-main maintenance recommendation | $directMainMaintenancePolicyRecommendation |
 | Candidate check exercise plan | $candidateCheckExercisePlanStatus |
 | Candidate check exercise readiness | $candidateCheckExerciseReadiness |
-| Candidate check exercise evidence | $candidateCheckExerciseEvidence |
+| Candidate check exercise plan evidence | $candidateCheckExercisePlanEvidenceStatus |
 | Candidate check exercise candidates | $candidateCheckExerciseCandidateCount |
 | Candidate check exercise branch prefix | $candidateCheckExerciseBranchPrefix |
 | Candidate check exercise touch paths | $candidateCheckExerciseTouchPaths |
+| Candidate check exercise latest evidence | $candidateCheckExerciseLatestStatus |
+| Candidate check exercise PR | $candidateCheckExerciseLatestPullRequest |
+| Candidate check exercise passed checks | $candidateCheckExerciseLatestSuccessful |
+| Candidate check exercise failed checks | $candidateCheckExerciseLatestFailed |
+| Candidate check exercise failed names | $candidateCheckExerciseLatestFailedNames |
+| Candidate check exercise cleanup | $candidateCheckExerciseLatestCleanup |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
@@ -416,6 +430,10 @@ if ($prDeliveryTransitionLiveValidationCount -gt 0) {
 
 if ($generatedPrDryRunAvailable -and $generatedPrDryRunConclusion -ne "success") {
     Write-Output "::warning::Generated PR dry-run evidence is $generatedPrDryRunConclusion; preview reached: $generatedPrDryRunPreviewReached; failed step: $generatedPrDryRunFailedStep."
+}
+
+if ($candidateCheckExerciseLatestAvailable -and $candidateCheckExerciseLatestStatus -ne "passed") {
+    Write-Output "::warning::Candidate check exercise evidence is $candidateCheckExerciseLatestStatus; failed candidate checks: $candidateCheckExerciseLatestFailedNames."
 }
 
 if ($codeScanningStatus -eq "needs-live-validation") {

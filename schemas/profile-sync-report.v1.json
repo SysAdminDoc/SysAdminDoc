@@ -2252,6 +2252,7 @@
         "generatedPrWriteEvidence",
         "directMainMaintenancePolicy",
         "candidateCheckExercisePlan",
+        "candidateCheckExerciseEvidence",
         "items"
       ],
       "properties": {
@@ -2289,6 +2290,9 @@
         },
         "candidateCheckExercisePlan": {
           "$ref": "#/$defs/candidateCheckExercisePlan"
+        },
+        "candidateCheckExerciseEvidence": {
+          "$ref": "#/$defs/candidateCheckExerciseEvidence"
         },
         "items": {
           "type": "array",
@@ -2411,6 +2415,121 @@
           "type": "string"
         },
         "documentationPath": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
+        }
+      }
+    },
+    "candidateCheckExerciseEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "status",
+        "evidenceStatus",
+        "pullRequestNumber",
+        "pullRequestUrl",
+        "pullRequestState",
+        "branch",
+        "headSha",
+        "mergeSha",
+        "workflowRunIds",
+        "profileSyncRunId",
+        "testsRunId",
+        "workflowSecurityRunId",
+        "profileSyncArtifactId",
+        "expectedCandidateCheckCount",
+        "observedCandidateCheckCount",
+        "successfulCandidateCheckCount",
+        "failedCandidateCheckCount",
+        "skippedNonCandidateCheckCount",
+        "successfulCandidateChecks",
+        "failedCandidateChecks",
+        "skippedNonCandidateChecks",
+        "failureReason",
+        "cleanupState",
+        "evidenceSummary",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "evidenceStatus": {
+          "type": "string"
+        },
+        "pullRequestNumber": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "pullRequestUrl": {
+          "type": "string"
+        },
+        "pullRequestState": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "headSha": {
+          "type": "string"
+        },
+        "mergeSha": {
+          "type": "string"
+        },
+        "workflowRunIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonNegativeInteger"
+          }
+        },
+        "profileSyncRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "testsRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "workflowSecurityRunId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "profileSyncArtifactId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "expectedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "observedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "skippedNonCandidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "successfulCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "failedCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "skippedNonCandidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "failureReason": {
+          "type": "string"
+        },
+        "cleanupState": {
+          "type": "string"
+        },
+        "evidenceSummary": {
           "type": "string"
         },
         "nextAction": {
