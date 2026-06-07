@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.94
+Current version after this refresh: v4.9.95
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.95 batch applies the approved portfolio-only catalog mutation for
+  the 11 reviewed rows.
+- `CSV_Power_Tool`, `Flux`, `PillSleepTracker`, `UniversalCompiler`,
+  `GmailDownloader`, `bypassnroGen`, `LipSight`, `PDFedit`,
+  `QR-Code-Generator-Pro`, `Stock-Video-Collector`, and `Tunerize` now use
+  `includeInReadme=false` while preserving `includeInPortfolio=true`.
+- The generated README now has 166 project rows, Python is at the 30-row soft
+  limit, `readmeDensity.portfolioOnlyCandidateCount=0`, and
+  `routingRecommendation=keep-readme-routing-surface`.
+- `projects.json` still exports all 177 visible portfolio projects, including
+  the 11 demoted rows, and Pester guards the catalog flags, feed preservation,
+  and generated README removal.
 - The v4.9.94 batch adds a public decision note for the current
   portfolio-only demotion candidates.
 - `docs/decisions/2026-06-07-portfolio-only-demotion-review.md` approves the
@@ -73,7 +85,7 @@ Current version after this refresh: v4.9.94
   and https://cli.github.com/manual/gh_pr_create.
 - The v4.9.87 batch adds a non-mutating portfolio-only catalog review preview
   under `readmeDensity.portfolioOnlyPreview`.
-- The current preview shows the 11 selected Python candidates would reduce
+- The v4.9.87 preview showed the 11 selected Python candidates would reduce
   README project rows from 177 to 166, reduce Python from 41 rows to the
   30-row soft limit, resolve 1 over-limit category, and preserve portfolio
   routes.
@@ -91,13 +103,12 @@ Current version after this refresh: v4.9.94
   rows are non-featured, non-currently-building repo-only rows that still have
   portfolio routes, sorted by stars, release availability, age, category order,
   and repo name.
-- `readmeDensity.portfolioOnlyCandidates` currently identifies 11 Python rows:
+- `readmeDensity.portfolioOnlyCandidates` previously identified 11 Python rows:
   `CSV_Power_Tool`, `Flux`, `PillSleepTracker`, `UniversalCompiler`,
   `GmailDownloader`, `bypassnroGen`, `LipSight`, `PDFedit`,
   `QR-Code-Generator-Pro`, `Stock-Video-Collector`, and `Tunerize`.
-- The current recommendation remains `review-portfolio-only-candidates`, not an
-  automatic catalog change. Candidate-row demotion should wait for explicit
-  catalog override notes now that preview evidence exists.
+- The explicit v4.9.94 decision and v4.9.95 catalog mutation closed that
+  candidate set; the current report has 0 portfolio-only candidates.
 - The v4.9.85 batch adds a PR-delivery transition checklist to
   `repositorySettings.requiredCheckReadiness` before any required-check
   enforcement is enabled.
@@ -121,10 +132,10 @@ Current version after this refresh: v4.9.94
   lines, generated table rows, details sections, image tags, code blocks,
   `projects.json` bytes, sync-report bytes, generated profile-SVG bytes, and
   generated profile-SVG file count.
-- Current artifact status is `within-budget` with 0 warnings: README 65,901 /
-  98,304 bytes, 642 / 1,000 lines, 110 / 220 table rows, 11 / 15 details
-  sections, 1 / 10 image tags, 78 / 100 code blocks, `projects.json` 399,544 /
-  512,000 bytes, sync report 81,189 / 102,400 bytes, profile SVGs 22,658 /
+- Current artifact status is `within-budget` with 0 warnings: README 61,434 /
+  98,304 bytes, 587 / 1,000 lines, 110 / 220 table rows, 11 / 15 details
+  sections, 1 / 10 image tags, 67 / 100 code blocks, `projects.json` 399,555 /
+  512,000 bytes, sync report 89,794 / 102,400 bytes, profile SVGs 22,658 /
   131,072 bytes, and 10 / 16 SVG files.
 - `renderedProfileSmoke` is patched by `scripts/render-profile-smoke.ps1`
   after live smoke execution. The current smoke status is `passed` across 2
@@ -134,10 +145,10 @@ Current version after this refresh: v4.9.94
 - `readmeDensity` now records `routingRecommendation`, aggregate
   portfolio-only candidate counts, candidate categories, per-category
   soft-limit overflow counts, and category-level routing recommendations.
-- Current evidence keeps the README as the public routing surface but records
-  `review-portfolio-only-candidates`: the Python category has 41 generated
-  rows against the 30-row soft limit, so the report identifies 11 rows for
-  explicit portfolio-only review.
+- Current evidence keeps the README as the public routing surface and records
+  `keep-readme-routing-surface`: the approved Python demotion set has been
+  applied, Python now has 30 README rows, and no category exceeds the soft
+  limit.
 - `docs/decisions/2026-06-06-readme-density-routing.md` records the current
   decision and guardrails so rows are not manually demoted without catalog and
   downstream portfolio review.
@@ -361,8 +372,8 @@ Current version after this refresh: v4.9.94
 - The v4.9.57 batch closed the profile repository release/tag consistency gap by
   adding warning-only `profileReleaseConsistency` reporting beside
   `docVersionConsistency`.
-- The current live report compares expected planning version `v4.9.57` against
-  latest GitHub release `v3.0.0`, records the missing `v4.9.57` tag ref, and
+- The current live report compares expected planning version `v4.9.95` against
+  latest GitHub release `v3.0.0`, records the missing `v4.9.95` tag ref, and
   surfaces 2 warning-only release/tag rows.
 - The sync-report schema, summary helper, and Pester suite now cover missing,
   behind, and matching release/tag states.
@@ -379,7 +390,7 @@ Current version after this refresh: v4.9.94
   `licenseKey`, `licenseName`, and `licenseSpdxId` to visitor-facing
   `projects.json` rows.
 - The sync report now includes `projectLicenseMetadata`; the current live report
-  checks 177 visitor-facing rows, detects 174 project licenses, records 3
+  checks 166 README-facing rows, detects 163 project licenses, records 3
   missing-license rows, and records 9 non-standard GitHub `other` rows.
 - The projects feed schema, sync-report schema, summary helper, and Pester suite
   now cover the new project-license fields and warning aggregates.
@@ -714,7 +725,7 @@ Top opportunities, in priority order:
 Local repository evidence:
 
 - `README.md` public profile surface, generated sections, hero, badges, install snippets, category tables, and project counts.
-- `data/profile-catalog.json` canonical catalog: 187 entries, 177 included README entries, 9 explicit suppressions.
+- `data/profile-catalog.json` canonical catalog: 187 entries, 166 included README entries, 177 visible portfolio rows, and 10 explicit suppressions.
 - `scripts/sync-profile.ps1` generator, live metadata fetch, README rendering, projects feed export, privacy checks, link checks, and report writer.
 - `projects.json` public portfolio feed with `primaryAction`, `hasDownload`, `hasLiveDemo`, `hasDirectInstall`, latest release, pushed date, topic, and suppression metadata.
 - `reports/profile-sync-report.json` validation output.

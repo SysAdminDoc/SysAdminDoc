@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.95] - 2026-06-07
+
+- Changed: The 11 approved README density candidates now use `includeInReadme=false` while keeping `includeInPortfolio=true`, moving them to portfolio-only browsing without dropping them from `projects.json`.
+- Changed: Generated README density now reports 166 README rows, Python at the 30-row soft limit, 0 portfolio-only candidates, and `routingRecommendation=keep-readme-routing-surface`.
+- Added: Pester coverage now guards the approved catalog rows, portfolio feed preservation, and generated README removal.
+
 ## [v4.9.94] - 2026-06-07
 
 - Added: `docs/decisions/2026-06-07-portfolio-only-demotion-review.md` approves the current 11 reviewed README density candidates for a later portfolio-only catalog mutation.

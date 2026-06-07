@@ -1956,6 +1956,41 @@ Describe 'Portfolio-only demotion decision' {
     }
 }
 
+Describe 'Portfolio-only catalog mutation' {
+    BeforeAll {
+        $script:ApprovedPortfolioOnlyRepos = @(
+            'CSV_Power_Tool',
+            'Flux',
+            'PillSleepTracker',
+            'UniversalCompiler',
+            'GmailDownloader',
+            'bypassnroGen',
+            'LipSight',
+            'PDFedit',
+            'QR-Code-Generator-Pro',
+            'Stock-Video-Collector',
+            'Tunerize'
+        )
+        $script:PortfolioOnlyCatalog = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') -Raw | ConvertFrom-Json
+        $script:PortfolioOnlyFeed = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'projects.json') -Raw | ConvertFrom-Json
+        $script:GeneratedReadme = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Raw
+    }
+
+    It 'routes the approved rows to the portfolio feed only' {
+        foreach ($repo in $script:ApprovedPortfolioOnlyRepos) {
+            $catalogEntry = @($script:PortfolioOnlyCatalog.entries | Where-Object { $_.repo -eq $repo })
+            $catalogEntry | Should -HaveCount 1
+            $catalogEntry[0].includeInReadme | Should -BeFalse
+            $catalogEntry[0].includeInPortfolio | Should -BeTrue
+            [string]$catalogEntry[0].suppressionReason | Should -Be ''
+            $catalogEntry[0].readmeReviewNote | Should -Match 'Approved for portfolio-only routing in v4[.]9[.]95'
+
+            @($script:PortfolioOnlyFeed.projects | Where-Object { $_.repo -eq $repo }) | Should -HaveCount 1
+            $script:GeneratedReadme | Should -Not -Match ([regex]::Escape("github.com/SysAdminDoc/$repo"))
+        }
+    }
+}
+
 Describe 'Required status check readiness' {
     BeforeAll {
         $script:RequiredCheckWorkflows = [ordered]@{

@@ -846,7 +846,7 @@
       "repo": "Tunerize",
       "title": "Tunerize",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 2,
       "branch": "main",
@@ -864,7 +864,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1039,7 +1039,7 @@
       "repo": "Flux",
       "title": "Flux",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 10,
       "branch": "main",
@@ -1057,7 +1057,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1256,7 +1256,7 @@
       "repo": "LipSight",
       "title": "LipSight",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 19,
       "branch": "main",
@@ -1274,7 +1274,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1329,7 +1329,7 @@
       "repo": "GmailDownloader",
       "title": "GmailDownloader",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 22,
       "branch": "master",
@@ -1347,14 +1347,14 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
       "repo": "UniversalCompiler",
       "title": "UniversalCompiler",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 23,
       "branch": "main",
@@ -1372,14 +1372,14 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
       "repo": "bypassnroGen",
       "title": "bypassnroGen",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 25,
       "branch": "main",
@@ -1397,7 +1397,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1476,7 +1476,7 @@
       "repo": "PillSleepTracker",
       "title": "PillSleepTracker",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 29,
       "branch": "main",
@@ -1494,7 +1494,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1573,7 +1573,7 @@
       "repo": "QR-Code-Generator-Pro",
       "title": "QR-Code-Generator-Pro",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 33,
       "branch": "main",
@@ -1591,7 +1591,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1646,7 +1646,7 @@
       "repo": "PDFedit",
       "title": "PDFedit",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 36,
       "branch": "main",
@@ -1664,14 +1664,14 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
       "repo": "CSV_Power_Tool",
       "title": "CSV_Power_Tool",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 37,
       "branch": "main",
@@ -1689,7 +1689,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {
@@ -1720,7 +1720,7 @@
       "repo": "Stock-Video-Collector",
       "title": "Stock-Video-Collector",
       "category": "python",
-      "includeInReadme": true,
+      "includeInReadme": false,
       "includeInPortfolio": true,
       "order": 39,
       "branch": "main",
@@ -1738,7 +1738,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Portfolio-only review candidate from v4.9.87 preview; keep in README until explicit demotion is approved.",
+      "readmeReviewNote": "Approved for portfolio-only routing in v4.9.95; preserved in projects.json and portfolio feed.",
       "notes": null
     },
     {

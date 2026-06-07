@@ -17,6 +17,12 @@ This decision does not mutate `data/profile-catalog.json`, `README.md`, or
 implementation pass to change catalog inclusion flags for only the approved
 rows.
 
+## Implementation Follow-up
+
+Implemented in v4.9.95. The approved rows now use `includeInReadme=false` and
+`includeInPortfolio=true`, which removes them from generated README output while
+keeping them in `projects.json` for portfolio browsing.
+
 ## Rationale
 
 The existing README density decision kept the README as the public routing
