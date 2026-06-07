@@ -5,10 +5,16 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.75
+Current version after this refresh: v4.9.76
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.76 batch closes Dependabot PR #7 as obsolete after the same
+  `github/codeql-action/upload-sarif` 4.36.2 SHA landed directly on `main` in
+  `c18bd58`.
+- The PR close note points maintainers at the direct `main` update and matching
+  Pester/docs changes, leaving no active Dependabot workflow-action PRs at this
+  point in the loop.
 - The v4.9.75 batch applies Dependabot PR #7's
   `github/codeql-action/upload-sarif` 4.36.2 SHA directly on `main`.
 - Pester coverage now guards the reviewed 4.36.2 SHA and rejects reverting to

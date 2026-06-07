@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.75
+Current repo version: v4.9.76
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 83 - 2026-06-06.
+> Last researched: Cycle 84 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,14 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 83 - 2026-06-06.
+Last researched: Cycle 84 - 2026-06-06.
+
+2026-06-06 v4.9.76 refresh: obsolete Dependabot PR #7 closed.
+After the CodeQL upload-sarif 4.36.2 SHA landed on `main`, Dependabot PR #7
+remained open and unstable with the same one-file diff. The branch was closed
+as obsolete with a note pointing at `c18bd58` and the matching Pester/docs
+updates. Branch-protection/ruleset status-check enforcement remains
+external-gated while this loop pushes directly to `main`.
 
 2026-06-06 v4.9.75 refresh: routine CodeQL upload-sarif update applied.
 Dependabot PR #7's `github/codeql-action/upload-sarif` 4.36.2 SHA is applied
@@ -1866,7 +1873,7 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 83 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 84 - 2026-06-06.
 
 Current local state:
 
@@ -1874,19 +1881,20 @@ Current local state:
 - HEAD inspected before this cycle: `06e00df docs: reconcile shipped roadmap rows`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
-- Dependabot PR #7 was triaged: its Pester failure came from the intentional CodeQL upload-sarif SHA guard, and its profile-sync failure came from stale generated profile state on the PR branch. The 4.36.2 SHA was applied directly on `main` with matching Pester/docs updates.
+- Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
 - Cycle 82 reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and suppressed-feed redaction against their shipped evidence.
 - Cycle 83 applied the routine `github/codeql-action/upload-sarif` 4.36.2 update from Dependabot PR #7 on `main`.
+- Cycle 84 closed the now-obsolete PR #7 branch and recorded the closure.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 84: confirm PR #7 closes or becomes obsolete after the direct `main` update, then close/document it if needed.
-2. Cycle 85: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
-3. Cycle 86: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
-4. Cycle 87: audit downstream portfolio compatibility before changing any feed shape.
-5. Cycle 88: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+1. Cycle 85: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
+2. Cycle 86: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
+3. Cycle 87: audit downstream portfolio compatibility before changing any feed shape.
+4. Cycle 88: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+5. Cycle 89: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
 
 ### Quick Wins
 

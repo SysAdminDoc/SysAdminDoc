@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.76] - 2026-06-06
+
+- Changed: Closed Dependabot PR #7 as obsolete after the same CodeQL upload-sarif 4.36.2 SHA landed on `main`.
+- Changed: Loop state now points past the PR #7 follow-up toward the next roadmap audit items.
+
 ## [v4.9.75] - 2026-06-06
 
 - Changed: Updated the Scorecard SARIF upload step to the pinned `github/codeql-action/upload-sarif` 4.36.2 SHA from Dependabot PR #7.
