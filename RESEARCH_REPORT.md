@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-06
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.82
+Current version after this refresh: v4.9.83
 
 ## Verification Refresh — 2026-06-06
 
+- The v4.9.83 batch adds README density routing-decision reporting to the
+  sync report and profile sync summary.
+- `readmeDensity` now records `routingRecommendation`, aggregate
+  portfolio-only candidate counts, candidate categories, per-category
+  soft-limit overflow counts, and category-level routing recommendations.
+- Current evidence keeps the README as the public routing surface but records
+  `review-portfolio-only-candidates`: the Python category has 41 generated
+  rows against the 30-row soft limit, so the report identifies 11 rows for
+  explicit portfolio-only review.
+- `docs/decisions/2026-06-06-readme-density-routing.md` records the current
+  decision and guardrails so rows are not manually demoted without catalog and
+  downstream portfolio review.
 - The v4.9.82 batch adds machine-readable required-check readiness reporting
   under `repositorySettings.requiredCheckReadiness` without enabling
   branch-protection or ruleset enforcement.

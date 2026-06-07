@@ -859,8 +859,16 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $density.largestCategoryCount | Should -Be 2
         $density.repoOnlyProjectCount | Should -Be 2
         $density.lowSignalProjectCount | Should -Be 2
+        $density.portfolioOnlyCandidateCount | Should -Be 2
+        $density.portfolioOnlyCandidateCategoryCount | Should -Be 1
+        $density.portfolioOnlyCandidateCategories | Should -Contain 'powershell'
+        $density.routingRecommendation | Should -Be 'review-portfolio-only-candidates'
         $density.warningCount | Should -BeGreaterThan 0
         ($density.warnings -join ' ') | Should -Match 'portfolio-only review'
+        $powershellDensity = @($density.categoryRows | Where-Object { $_.category -eq 'powershell' })[0]
+        $powershellDensity.overCategorySoftLimitBy | Should -Be 1
+        $powershellDensity.portfolioOnlyCandidateCount | Should -Be 2
+        $powershellDensity.routingRecommendation | Should -Be 'review-portfolio-only-candidates'
     }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
@@ -1964,6 +1972,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'README density warnings'
             $summary | Should -Match 'README largest category'
             $summary | Should -Match 'README repo-only rows'
+            $summary | Should -Match 'README portfolio-only candidates'
+            $summary | Should -Match 'README routing recommendation'
             $summary | Should -Match 'Profile release/tag warnings'
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
@@ -1998,6 +2008,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
         $script:SummaryScript | Should -Match 'portfolioCompatibility'
         $script:SummaryScript | Should -Match 'readmeDensity'
+        $script:SummaryScript | Should -Match 'portfolioOnlyCandidateCount'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'requiredCheckReadiness'

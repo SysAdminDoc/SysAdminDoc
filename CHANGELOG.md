@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.83] - 2026-06-06
+
+- Added: `reports/profile-sync-report.json.readmeDensity` now records README routing recommendation fields, including portfolio-only candidate counts and per-category soft-limit overflow counts.
+- Added: `docs/decisions/2026-06-06-readme-density-routing.md` records that the README remains the public routing surface while the current Python-category density warning is reviewed.
+- Added: The profile sync summary now surfaces README portfolio-only candidate count and routing recommendation, with Pester coverage for the generated decision fields.
+
 ## [v4.9.82] - 2026-06-06
 
 - Added: `repositorySettings.requiredCheckReadiness` now records the candidate required checks, live status-check/ruleset enforcement state, admin-enforcement state, activation recommendation, and blocker list.
