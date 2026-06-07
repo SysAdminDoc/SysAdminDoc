@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.108] - 2026-06-07
+
+- Added: `generatedPrWriteEvidence` now records successful hosted `write-pr` run `27087015369`, PR #9, validation run `27087055596`, generated branch cleanup, and branch check-run counts.
+- Added: The sync report schema and Actions summary now distinguish successful branch-scoped workflow-dispatch validation from PR-attached check rollup evidence.
+- Changed: Required-check readiness remains blocked until PR-attached candidate checks or an approved bypass are proven; PR #9 was closed and `automation/profile-sync-27087015369` was deleted after evidence collection.
+
 ## [v4.9.107] - 2026-06-07
 
 - Added: `generatedPrWriteEvidence` now records generated PR #8, dispatched validation run `27086730286`, validation conclusion, PR state, and branch cleanup evidence.

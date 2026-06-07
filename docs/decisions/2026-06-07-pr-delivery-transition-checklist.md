@@ -25,7 +25,7 @@ https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-f
 | Candidate required checks | Ready | `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` are defined with stable workflow-backed names. | Keep job names unique and unchanged before enforcement. |
 | Candidate workflow coverage | Ready | Tests, Profile sync, and Workflow security all create checks on `pull_request` and `merge_group`, and PR triggers are not path-filtered. | Keep required-check candidate workflows always-created for PRs and merge queue runs. |
 | Recent successful check runs | Needs live validation | GitHub requires status checks to have completed recently in the repository before they can be selected as required checks. | Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes. |
-| PR delivery or bypass | Blocked | Current maintenance delivery still pushes directly to `main`, branch protection has `enforce_admins.enabled=true`, and live Actions workflow permissions block `GITHUB_TOKEN` pull-request creation. | Enable GitHub Actions pull-request creation or switch generated PR delivery to an approved GitHub App/PAT credential before rerunning `write-pr`. |
+| PR delivery or bypass | Blocked | Generated PR creation and branch-scoped workflow-dispatch validation now work, but PR #9 reported no PR-attached check rollup and routine maintenance still pushes directly to `main` while branch protection has `enforce_admins.enabled=true`. | Prove PR-attached generated maintenance checks or document and test a narrow approved bypass before enabling required checks. |
 | Enforcement mechanism | Blocked | Branch protection and repository rulesets are currently readable and non-enforcing for required checks. | After PR delivery is proven, enable either branch-protection required checks or one repository ruleset, then re-query live settings. |
 
 ## Activation Order
@@ -113,6 +113,31 @@ Profile sync now runs `sync-profile.ps1 -Write -Check` only for
 workflow-dispatch checks on `automation/profile-*` branches. Normal pull
 request, merge queue, scheduled, and main checks still use strict check-only
 validation.
+
+## Cycle 116 Branch Validation Proof
+
+Hosted Profile sync run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087015369` ran
+`write-pr` mode on `main` at
+`5509b9e0e63837d4c52c5d38d6f1ccf7621d4c7e`. The helper continued past the
+workflow-permissions endpoint 403, created commit
+`787a869f04a4b5a644730c4bba9552875541b76c` on
+`automation/profile-sync-27087015369`, pushed the branch, and opened PR #9:
+
+`https://github.com/SysAdminDoc/SysAdminDoc/pull/9`
+
+The helper dispatched branch-scoped Profile sync validation run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087055596`.
+Validation ran `sync-profile.ps1 -Write -Check`, passed, uploaded
+`profile-sync-report` artifact `7462246872`, and uploaded
+`rendered-profile-smoke` artifact `7462247041`. PR #9 was closed and
+`automation/profile-sync-27087015369` was deleted after evidence collection.
+
+GitHub commit check-runs for
+`787a869f04a4b5a644730c4bba9552875541b76c` showed three workflow-dispatch check
+runs, including successful `Check generated README`. However, `gh pr checks`
+and PR `statusCheckRollup` reported zero PR-attached checks, so this is branch
+validation proof rather than required-check enforcement proof.
 
 ## References
 
