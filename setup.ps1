@@ -1,4 +1,5 @@
 #Requires -Version 5.1
+# Required-check proof touch: disposable PR only.
 # SysAdminDoc setup.ps1 - installs Python 3 and Git via winget so the
 # README install one-liners work on a fresh machine.
 #

@@ -1,4 +1,5 @@
 name: Tests
+# Required-check proof touch: disposable PR only.
 
 on:
   workflow_dispatch:
