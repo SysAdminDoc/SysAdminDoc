@@ -211,6 +211,18 @@ $summary = @"
 Report generated at $($report.generatedAt).
 "@
 
+$githubStepSummaryHardLimitBytes = 1MB
+$githubStepSummarySoftLimitBytes = 65536
+$summaryByteCount = [Text.Encoding]::UTF8.GetByteCount($summary)
+if ($summaryByteCount -gt $githubStepSummaryHardLimitBytes) {
+    Write-Output "::error::Profile sync summary is $summaryByteCount byte(s), above GitHub's 1 MiB per-step summary limit."
+    throw "Profile sync summary exceeds GitHub step summary limit."
+}
+
+if ($summaryByteCount -gt $githubStepSummarySoftLimitBytes) {
+    Write-Output "::warning::Profile sync summary is $summaryByteCount byte(s), above the 65536-byte local soft budget."
+}
+
 if (-not [string]::IsNullOrWhiteSpace($SummaryPath)) {
     $summary | Out-File -FilePath $SummaryPath -Encoding utf8 -Append
 } else {
