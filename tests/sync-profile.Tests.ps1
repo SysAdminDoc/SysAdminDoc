@@ -388,7 +388,12 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'README.md'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain '.github/workflows/tests.yml'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'setup.ps1'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'not-run'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'partial-failed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.pullRequestNumber | Should -Be 11
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.status | Should -Be 'partial-failed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateCheckCount | Should -Be 5
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -Contain 'Check generated README'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -1325,6 +1330,25 @@ Describe 'New-ProjectsExportJson feed' {
         $provenanceJson | Should -Not -Match 'C:\\|/Users/|repos\\\\|VaultBox|RadAtlas|improve-repo'
     }
 
+    It 'normalizes text newlines before hashing feed provenance files' {
+        $previousRepoRoot = $script:RepoRoot
+        $hashRoot = Join-Path $TestDrive 'hash-root'
+        New-Item -ItemType Directory -Path $hashRoot -Force | Out-Null
+        $hashPath = Join-Path $hashRoot 'sample.txt'
+
+        try {
+            $script:RepoRoot = $hashRoot
+            [System.IO.File]::WriteAllText($hashPath, "alpha`r`nbravo`r`n", [System.Text.Encoding]::UTF8)
+            $crlfHash = Get-RepoFileSha256 -RelativePath 'sample.txt'
+            [System.IO.File]::WriteAllText($hashPath, "alpha`nbravo`n", [System.Text.Encoding]::UTF8)
+            $lfHash = Get-RepoFileSha256 -RelativePath 'sample.txt'
+
+            $crlfHash | Should -Be $lfHash
+        } finally {
+            $script:RepoRoot = $previousRepoRoot
+        }
+    }
+
     It 'excludes suppressed entries and includes portfolio entries' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
@@ -2253,9 +2277,30 @@ Describe 'Required status check readiness' {
         $plan.expectedPrChecks | Should -Contain 'zizmor'
         $plan.verificationSteps | Should -HaveCount 5
         $plan.cleanupRequired | Should -BeTrue
-        $plan.evidenceStatus | Should -Be 'not-run'
+        $plan.evidenceStatus | Should -Be 'partial-failed'
         $plan.documentationPath | Should -Be 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md'
-        $plan.nextAction | Should -Match 'Run the disposable PR proof'
+        $plan.nextAction | Should -Match 'Rerun the disposable PR proof'
+        $candidateEvidence = $transition.candidateCheckExerciseEvidence
+        $candidateEvidence.available | Should -BeTrue
+        $candidateEvidence.status | Should -Be 'partial-failed'
+        $candidateEvidence.evidenceStatus | Should -Be 'failed'
+        $candidateEvidence.pullRequestNumber | Should -Be 11
+        $candidateEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/11'
+        $candidateEvidence.pullRequestState | Should -Be 'closed'
+        $candidateEvidence.branch | Should -Be 'automation/required-check-proof-20260607-122'
+        $candidateEvidence.headSha | Should -Be 'de62881b7ec7858683045ac8418c99f5e4010846'
+        $candidateEvidence.mergeSha | Should -Be 'e27a7ee720f4f30073b5f42ed92ebe1a61d36db1'
+        $candidateEvidence.workflowRunIds | Should -Contain 27088934667
+        $candidateEvidence.profileSyncArtifactId | Should -Be 7462931270
+        $candidateEvidence.expectedCandidateCheckCount | Should -Be 6
+        $candidateEvidence.observedCandidateCheckCount | Should -Be 6
+        $candidateEvidence.successfulCandidateCheckCount | Should -Be 5
+        $candidateEvidence.failedCandidateCheckCount | Should -Be 1
+        $candidateEvidence.successfulCandidateChecks | Should -Contain 'Windows setup smoke'
+        $candidateEvidence.failedCandidateChecks | Should -Contain 'Check generated README'
+        $candidateEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
+        $candidateEvidence.failureReason | Should -Match 'provenance hash drift'
+        $candidateEvidence.nextAction | Should -Match 'Normalize provenance hashing'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
@@ -2591,6 +2636,8 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Generated PR PR checks attached'
             $summary | Should -Match 'Generated PR status context'
             $summary | Should -Match 'generated-profile/validation'
+            $summary | Should -Match 'Candidate check exercise latest evidence'
+            $summary | Should -Match 'Candidate check exercise failed names'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
             $summary | Should -Match 'Code scanning languages'
@@ -2638,7 +2685,9 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'directMainMaintenancePolicy'
         $script:SummaryScript | Should -Match 'Direct-main maintenance policy'
         $script:SummaryScript | Should -Match 'candidateCheckExercisePlan'
+        $script:SummaryScript | Should -Match 'candidateCheckExerciseEvidence'
         $script:SummaryScript | Should -Match 'Candidate check exercise plan'
+        $script:SummaryScript | Should -Match 'Candidate check exercise evidence is'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'

@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.114] - 2026-06-07
+
+- Fixed: feed provenance hashes now normalize text newlines before SHA-256 so Windows CRLF/mixed working-tree bytes do not drift from GitHub's LF checkout.
+- Added: `requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence` now records disposable PR #11, the six observed candidate checks, five passing results, the generated README failure, artifact ID, and cleanup state.
+- Changed: candidate-check exercise planning now points at rerunning the disposable proof after normalized provenance hashing lands on `main`.
+
 ## [v4.9.113] - 2026-06-07
 
 - Fixed: `projects.json` check-only comparison now normalizes equivalent `projects[].pushedAt` timestamp formats before deciding the generated feed is stale.

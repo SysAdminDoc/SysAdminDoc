@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T05:36:04.6582889-04:00",
+  "generatedAt": "2026-06-07T05:56:33.6082716-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a3cff4c6999cbfdfc86c9e0794fd196090be5c1f",
-    "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
-    "generatorSha256": "d22df435db8531c83e0349d8017d44243a73b4e6526284e432692c87220339f5",
+    "sourceCommit": "f53fa32ca7fca01acaf81c0f0022a98c8fa4bc33",
+    "catalogSha256": "ca7be2a35d8a6c6d8d15fb3f8df6e2f8d8358d724c34cc1005a08ac2387e0eef",
+    "generatorSha256": "66dcc34e705b23622c20d8d093ecd97c0091a12377a0fcffbc125907448fc509",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T05:34:24.189846-04:00",
+    "metadataSnapshotAt": "2026-06-07T05:55:18.3306921-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,7 +2270,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T05:34:24.189846-04:00",
+          "queriedAt": "2026-06-07T05:55:18.3306921-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 1,
@@ -2623,9 +2623,53 @@
             "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
           ],
           "cleanupRequired": true,
-          "evidenceStatus": "not-run",
+          "evidenceStatus": "partial-failed",
           "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
-          "nextAction": "Run the disposable PR proof immediately before enabling required checks, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+          "nextAction": "Rerun the disposable PR proof after normalized provenance hashing is on main, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+        },
+        "candidateCheckExerciseEvidence": {
+          "available": true,
+          "status": "partial-failed",
+          "evidenceStatus": "failed",
+          "pullRequestNumber": 11,
+          "pullRequestUrl": "https://github.com/SysAdminDoc/SysAdminDoc/pull/11",
+          "pullRequestState": "closed",
+          "branch": "automation/required-check-proof-20260607-122",
+          "headSha": "de62881b7ec7858683045ac8418c99f5e4010846",
+          "mergeSha": "e27a7ee720f4f30073b5f42ed92ebe1a61d36db1",
+          "workflowRunIds": [
+            27088934667,
+            27088934670,
+            27088934674
+          ],
+          "profileSyncRunId": 27088934667,
+          "testsRunId": 27088934674,
+          "workflowSecurityRunId": 27088934670,
+          "profileSyncArtifactId": 7462931270,
+          "expectedCandidateCheckCount": 6,
+          "observedCandidateCheckCount": 6,
+          "successfulCandidateCheckCount": 5,
+          "failedCandidateCheckCount": 1,
+          "skippedNonCandidateCheckCount": 3,
+          "successfulCandidateChecks": [
+            "PSScriptAnalyzer",
+            "Pester (offline)",
+            "Markdownlint",
+            "Windows setup smoke",
+            "zizmor"
+          ],
+          "failedCandidateChecks": [
+            "Check generated README"
+          ],
+          "skippedNonCandidateChecks": [
+            "Open generated README PR",
+            "Preview generated README PR",
+            "Generated profile validation status"
+          ],
+          "failureReason": "Check generated README failed on provenance hash drift because raw working-tree hashes differed between the Windows-generated feed and the hosted LF checkout for data/profile-catalog.json and scripts/sync-profile.ps1.",
+          "cleanupState": "closed-pr-and-deleted-branch",
+          "evidenceSummary": "Disposable PR #11 created all six candidate required-check names. PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed; Check generated README failed on provenance hash drift. The PR was closed and automation/required-check-proof-20260607-122 was deleted after evidence collection.",
+          "nextAction": "Normalize provenance hashing on main, regenerate the feed/report, then rerun the disposable candidate-check proof."
         },
         "items": [
           {
@@ -2646,8 +2690,8 @@
             "id": "recent-check-run-proof",
             "status": "needs-live-validation",
             "summary": "Each required check must have a recent successful run in this repository before it can be selected.",
-            "evidence": "GitHub required-status-check selection depends on recent successful checks in the target repository.",
-            "nextAction": "Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes."
+            "evidence": "Disposable PR #11 created all six candidate checks, but Check generated README failed on cross-platform provenance hash drift before the proof could be accepted.",
+            "nextAction": "Rerun the disposable PR proof after normalized provenance hashing is committed and verify every candidate check completes."
           },
           {
             "id": "pr-delivery-or-bypass",
@@ -2785,28 +2829,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.113",
+    "expectedVersion": "v4.9.114",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.113"
+        "value": "v4.9.114"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.113"
+        "value": "v4.9.114"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.113"
+        "value": "v4.9.114"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.113"
+        "value": "v4.9.114"
       }
     ],
     "dates": [
@@ -2833,7 +2877,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 125,
+      "headingCount": 126,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2843,14 +2887,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.113",
+    "expectedVersion": "v4.9.114",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.113",
+    "expectedTag": "v4.9.114",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2860,13 +2904,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.113",
+        "expectedVersion": "v4.9.114",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.113",
+        "expectedVersion": "v4.9.114",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2889,7 +2933,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 26835,
+      "elapsedMs": 3322,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2923,7 +2967,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.55,
+      "ageDays": 5.57,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2933,7 +2977,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 26835,
+    "elapsedMs": 3322,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3283,7 +3327,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 105476,
+        "value": 107912,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3311,7 +3355,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T05:37:23.8288650-04:00",
+    "generatedAt": "2026-06-07T05:56:42.7941380-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

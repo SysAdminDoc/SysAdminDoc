@@ -2323,7 +2323,15 @@ function Get-RepoFileSha256 {
         return $null
     }
 
-    return (Get-FileHash -LiteralPath $fullPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $content = [System.IO.File]::ReadAllText($fullPath, [System.Text.Encoding]::UTF8)
+    $normalizedContent = $content -replace "`r`n", "`n" -replace "`r", "`n"
+    $contentBytes = [System.Text.Encoding]::UTF8.GetBytes($normalizedContent)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($contentBytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+    } finally {
+        $sha256.Dispose()
+    }
 }
 
 function Get-GitHeadCommit {
@@ -4325,9 +4333,56 @@ function Get-CandidateCheckExercisePlan {
             "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
         )
         cleanupRequired = $true
-        evidenceStatus = "not-run"
+        evidenceStatus = "partial-failed"
         documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
-        nextAction = "Run the disposable PR proof immediately before enabling required checks, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+        nextAction = "Rerun the disposable PR proof after normalized provenance hashing is on main, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+    }
+}
+
+function Get-CandidateCheckExerciseEvidence {
+    return [ordered]@{
+        available = $true
+        status = "partial-failed"
+        evidenceStatus = "failed"
+        pullRequestNumber = 11
+        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/11"
+        pullRequestState = "closed"
+        branch = "automation/required-check-proof-20260607-122"
+        headSha = "de62881b7ec7858683045ac8418c99f5e4010846"
+        mergeSha = "e27a7ee720f4f30073b5f42ed92ebe1a61d36db1"
+        workflowRunIds = @(
+            27088934667,
+            27088934670,
+            27088934674
+        )
+        profileSyncRunId = 27088934667
+        testsRunId = 27088934674
+        workflowSecurityRunId = 27088934670
+        profileSyncArtifactId = 7462931270
+        expectedCandidateCheckCount = 6
+        observedCandidateCheckCount = 6
+        successfulCandidateCheckCount = 5
+        failedCandidateCheckCount = 1
+        skippedNonCandidateCheckCount = 3
+        successfulCandidateChecks = @(
+            "PSScriptAnalyzer",
+            "Pester (offline)",
+            "Markdownlint",
+            "Windows setup smoke",
+            "zizmor"
+        )
+        failedCandidateChecks = @(
+            "Check generated README"
+        )
+        skippedNonCandidateChecks = @(
+            "Open generated README PR",
+            "Preview generated README PR",
+            "Generated profile validation status"
+        )
+        failureReason = "Check generated README failed on provenance hash drift because raw working-tree hashes differed between the Windows-generated feed and the hosted LF checkout for data/profile-catalog.json and scripts/sync-profile.ps1."
+        cleanupState = "closed-pr-and-deleted-branch"
+        evidenceSummary = "Disposable PR #11 created all six candidate required-check names. PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed; Check generated README failed on provenance hash drift. The PR was closed and automation/required-check-proof-20260607-122 was deleted after evidence collection."
+        nextAction = "Normalize provenance hashing on main, regenerate the feed/report, then rerun the disposable candidate-check proof."
     }
 }
 
@@ -4363,8 +4418,8 @@ function Get-PrDeliveryTransitionChecklist {
                 -Id "recent-check-run-proof" `
                 -Status "needs-live-validation" `
                 -Summary "Each required check must have a recent successful run in this repository before it can be selected." `
-                -Evidence "GitHub required-status-check selection depends on recent successful checks in the target repository." `
-                -NextAction "Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes."))
+                -Evidence "Disposable PR #11 created all six candidate checks, but Check generated README failed on cross-platform provenance hash drift before the proof could be accepted." `
+                -NextAction "Rerun the disposable PR proof after normalized provenance hashing is committed and verify every candidate check completes."))
 
     $deliveryStatus = if ($EnforceAdmins -eq $true -or $ActionsPullRequestCreationAllowed -eq $false) { "blocked" } else { "needs-live-validation" }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
@@ -4427,6 +4482,7 @@ function Get-PrDeliveryTransitionChecklist {
         generatedPrWriteEvidence = Get-GeneratedPrWriteEvidence
         directMainMaintenancePolicy = Get-DirectMainMaintenancePolicy
         candidateCheckExercisePlan = Get-CandidateCheckExercisePlan
+        candidateCheckExerciseEvidence = Get-CandidateCheckExerciseEvidence
         items = @($items.ToArray())
     }
 }
