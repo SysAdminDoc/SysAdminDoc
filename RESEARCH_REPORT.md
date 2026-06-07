@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.106
+Current version after this refresh: v4.9.107
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.107 batch proves generated PR creation and records the next
+  branch-scoped validation issue.
+- Hosted Profile sync run `27086701950` created branch
+  `automation/profile-sync-27086701950`, pushed commit
+  `0e52dce09f34cd292af534f7b08aa35141c47b24`, opened PR #8, and dispatched
+  branch-scoped validation run `27086730286`.
+- Validation run `27086730286` failed at `Validate generated profile` because
+  generated branch validation used `sync-profile.ps1 -Check` against a fresh
+  live metadata snapshot and reported `projectsExportInSync=false`.
+- PR #8 was closed and `automation/profile-sync-27086701950` was deleted after
+  evidence collection.
+- Profile sync workflow-dispatch checks on `automation/profile-*` branches now
+  run `sync-profile.ps1 -Write -Check`; normal PR, merge queue, scheduled, and
+  main checks still use strict check-only validation.
 - The v4.9.106 batch enables the documented GitHub Actions pull-request
   creation setting while keeping default workflow permissions at `read`.
 - Local admin-token evidence now reports

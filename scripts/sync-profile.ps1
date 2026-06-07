@@ -4132,26 +4132,33 @@ function Get-GeneratedPrWriteEvidence {
         mode = "write-pr"
         event = "workflow_dispatch"
         branch = "main"
-        headSha = "e0aaf1a5e94eb0be19e9a550ea75059f834db2a7"
-        runId = [long]27086351848
-        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086351848"
-        createdAt = "2026-06-07T07:38:57Z"
-        conclusion = "failure"
+        headSha = "244613af3ced21adec9d557e0a80732a8f04fa07"
+        runId = [long]27086701950
+        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086701950"
+        createdAt = "2026-06-07T07:56:08Z"
+        conclusion = "success"
         jobName = "Open generated README PR"
-        jobId = [long]79941483109
-        failedStep = "Create pull request"
+        jobId = [long]79942449541
+        failedStep = $null
         regenerateStepPassed = $true
         reportArtifactUploaded = $true
-        artifactId = [long]7461985005
-        generatedBranch = "automation/profile-sync-27086351848"
-        generatedBranchPushed = $false
-        generatedBranchCleanup = "not-created"
-        pullRequestCreated = $false
-        pullRequestUrl = $null
-        validationDispatched = $false
-        blocker = "GITHUB_TOKEN cannot read the repository Actions workflow-permissions endpoint during helper preflight."
-        evidenceSummary = "Manual hosted write-pr drill after enabling the repository setting regenerated the profile and uploaded the report artifact, then failed before branch creation because the helper treated GITHUB_TOKEN's 403 on repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow as fatal. No generated branch, pull request, or validation dispatch was created."
-        nextAction = "Rerun write-pr with the helper fallback that continues past the known workflow-permissions endpoint 403 and deletes the generated branch if pull-request creation fails after a push."
+        artifactId = [long]7462114118
+        generatedBranch = "automation/profile-sync-27086701950"
+        generatedBranchPushed = $true
+        generatedBranchCleanup = "deleted-after-validation-failure"
+        pullRequestCreated = $true
+        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/8"
+        pullRequestNumber = [int]8
+        pullRequestState = "closed"
+        validationDispatched = $true
+        validationRunId = [long]27086730286
+        validationRunUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086730286"
+        validationConclusion = "failure"
+        validationFailedStep = "Validate generated profile"
+        validationArtifactId = [long]7462125092
+        blocker = "Branch-scoped generated validation used check-only mode against a fresh live metadata snapshot and reported projectsExportInSync=false."
+        evidenceSummary = "Manual hosted write-pr drill with the patched helper continued past the workflow-permissions endpoint 403, committed 0e52dce to automation/profile-sync-27086701950, pushed the branch, created PR #8, and dispatched Profile sync validation run 27086730286. The validation run failed in check-only mode with projectsExportInSync=false, so PR #8 was closed and the generated branch was deleted after evidence collection."
+        nextAction = "Rerun write-pr with generated automation branch validation using sync-profile.ps1 -Write -Check, then confirm the validation run succeeds before required-check enforcement."
     }
 }
 

@@ -94,6 +94,12 @@ $generatedPrWriteConclusion = if ($generatedPrWriteEvidence) { [string]$generate
 $generatedPrWriteFailedStep = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.failedStep) { [string]$generatedPrWriteEvidence.failedStep } else { "" }
 $generatedPrWriteBranchCleanup = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.generatedBranchCleanup) { [string]$generatedPrWriteEvidence.generatedBranchCleanup } else { "" }
 $generatedPrWriteUrl = if ($generatedPrWriteEvidence) { [string]$generatedPrWriteEvidence.runUrl } else { "" }
+$generatedPrWritePullRequestNumber = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.pullRequestNumber) { [int]$generatedPrWriteEvidence.pullRequestNumber } else { 0 }
+$generatedPrWritePullRequestState = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.pullRequestState) { [string]$generatedPrWriteEvidence.pullRequestState } else { "" }
+$generatedPrWriteValidationDispatched = if ($generatedPrWriteEvidence) { [bool]$generatedPrWriteEvidence.validationDispatched } else { $false }
+$generatedPrWriteValidationConclusion = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.validationConclusion) { [string]$generatedPrWriteEvidence.validationConclusion } else { "" }
+$generatedPrWriteValidationFailedStep = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.validationFailedStep) { [string]$generatedPrWriteEvidence.validationFailedStep } else { "" }
+$generatedPrWriteValidationUrl = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.validationRunUrl) { [string]$generatedPrWriteEvidence.validationRunUrl } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -241,6 +247,12 @@ $summary = @"
 | Generated PR write failed step | $generatedPrWriteFailedStep |
 | Generated PR write branch cleanup | $generatedPrWriteBranchCleanup |
 | Generated PR write URL | $generatedPrWriteUrl |
+| Generated PR write pull request | $generatedPrWritePullRequestNumber |
+| Generated PR write PR state | $generatedPrWritePullRequestState |
+| Generated PR validation dispatched | $generatedPrWriteValidationDispatched |
+| Generated PR validation conclusion | $generatedPrWriteValidationConclusion |
+| Generated PR validation failed step | $generatedPrWriteValidationFailedStep |
+| Generated PR validation URL | $generatedPrWriteValidationUrl |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

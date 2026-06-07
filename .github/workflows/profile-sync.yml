@@ -39,10 +39,18 @@ jobs:
           persist-credentials: false
 
       - name: Validate generated profile
+        if: ${{ github.event_name != 'workflow_dispatch' || !startsWith(github.ref_name, 'automation/profile-') }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: ./scripts/sync-profile.ps1 -Check
+
+      - name: Validate generated profile branch
+        if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'automation/profile-') }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Smoke live rendered profile
         shell: pwsh

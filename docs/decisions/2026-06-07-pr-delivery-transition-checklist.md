@@ -90,6 +90,30 @@ The helper now treats that specific endpoint-read 403 as an unavailable
 preflight and continues to `gh pr create`. It also deletes the generated branch
 if a future `gh pr create` call fails after the branch is pushed.
 
+## Cycle 115 Generated PR Proof
+
+Hosted Profile sync run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086701950` ran
+`write-pr` mode on `main` at
+`244613af3ced21adec9d557e0a80732a8f04fa07`. The patched helper continued past
+the workflow-permissions endpoint 403, created commit
+`0e52dce09f34cd292af534f7b08aa35141c47b24` on
+`automation/profile-sync-27086701950`, pushed the branch, and opened PR #8:
+
+`https://github.com/SysAdminDoc/SysAdminDoc/pull/8`
+
+The helper also dispatched branch-scoped Profile sync validation run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086730286`.
+Validation failed at `Validate generated profile` because the generated branch
+check ran `sync-profile.ps1 -Check` against a fresh live metadata snapshot and
+reported `projectsExportInSync=false`. PR #8 was closed and
+`automation/profile-sync-27086701950` was deleted after evidence collection.
+
+Profile sync now runs `sync-profile.ps1 -Write -Check` only for
+workflow-dispatch checks on `automation/profile-*` branches. Normal pull
+request, merge queue, scheduled, and main checks still use strict check-only
+validation.
+
 ## References
 
 - [GitHub Docs: About protected branches](https://docs.github.com/articles/types-of-required-status-checks)
