@@ -2,16 +2,16 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-06
-Last completed roadmap cycle: Cycle 82 - stale duplicate roadmap reconciliation
+Last completed roadmap cycle: Cycle 83 - routine CodeQL upload-sarif update
 
 ## Latest Result
 
-- Reconciled stale duplicate `ROADMAP.md` rows for Windows setup smoke, CI validation tool pins, public-repo enumeration limits, generated-artifact `.gitattributes`, generated automation branch cleanup, and public suppressed-feed redaction.
-- Added Pester coverage so those shipped roadmap rows cannot silently revert to unchecked duplicates.
-- Refreshed branch-protection evidence: required status checks remain unset, repository rulesets remain absent, protected `main` still has `enforce_admins=true`, and Dependabot PR #7 is the current open PR.
-- Recorded the current candidate check set, including `Markdownlint`; PR #7 currently has `Pester (offline)` and `Check generated README` failing while the other visible candidate checks pass.
-- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.74.
+- Applied Dependabot PR #7's `github/codeql-action/upload-sarif` 4.36.2 SHA directly to `scorecard.yml` on `main`.
+- Updated Pester coverage to require the reviewed 4.36.2 SHA and reject the older 4.36.1 and 3.35.5 SHAs.
+- Recorded the PR #7 failure root cause: Pester failed on the intentional reviewed-SHA guard, and profile sync failed because the Dependabot branch was stale against current generated state.
+- Branch-protection/ruleset enforcement remains external-gated while direct pushes remain the delivery path.
+- Updated `ROADMAP.md`, `COMPLETED.md`, `CHANGELOG.md`, `PROJECT_CONTEXT.md`, and `RESEARCH_REPORT.md` to v4.9.75.
 
 ## Next Cycle
 
-Continue on this same assigned project. Triage the failing checks on Dependabot PR #7 or document why that branch should wait, then continue with branch-protection/ruleset readiness without enabling enforcement while direct pushes remain the delivery path.
+Continue on this same assigned project. Confirm Dependabot PR #7 closes or becomes obsolete after the direct `main` update, then continue with branch-protection/ruleset readiness without enabling enforcement while direct pushes remain the delivery path.

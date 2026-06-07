@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.75] - 2026-06-06
+
+- Changed: Updated the Scorecard SARIF upload step to the pinned `github/codeql-action/upload-sarif` 4.36.2 SHA from Dependabot PR #7.
+- Added: Pester coverage now guards the reviewed 4.36.2 SHA and rejects both the older 4.36.1 and 3.35.5 SHAs.
+- Changed: Loop state now records the PR #7 failure root cause and direct-main update path.
+
 ## [v4.9.74] - 2026-06-06
 
 - Changed: Reconciled stale duplicate roadmap rows for Windows setup smoke, CI validation tool pins, public-repo enumeration, generated-artifact `.gitattributes`, generated automation branch cleanup, and public suppressed-feed redaction.
