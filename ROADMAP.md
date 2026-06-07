@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.105
+Current repo version: v4.9.106
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 113 - 2026-06-07.
+> Last researched: Cycle 114 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,24 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 113 - 2026-06-07.
+Last researched: Cycle 114 - 2026-06-07.
+
+2026-06-07 v4.9.106 refresh: Actions PR creation setting enabled and helper
+preflight fallback shipped. Cycle 114 applied the documented repository
+workflow-permissions change:
+`default_workflow_permissions=read`,
+`can_approve_pull_request_reviews=true`. The local sync report now shows
+`generatedPrCreationAllowed=true`, `recommendation=ready-for-generated-pr-delivery`,
+and `generatedPrCredentialDecision.status=setting-enabled`, reducing repository
+setting warnings from five to four. Hosted Profile sync run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086351848` then
+proved the next blocker: `GITHUB_TOKEN` cannot read the repository
+workflow-permissions endpoint, so the helper failed before creating or pushing
+`automation/profile-sync-27086351848`. `scripts/open-generated-profile-pr.ps1`
+now continues past that specific preflight 403 and deletes the generated branch
+if `gh pr create` fails after a push. `generatedPrWriteEvidence` records the
+run, uploaded report artifact `7461985005`, no-branch-created outcome, and the
+next action to rerun hosted `write-pr` with the patched helper.
 
 2026-06-07 v4.9.105 refresh: generated PR credential decision recorded.
 Cycle 113 resolved the generated PR delivery credential choice without changing

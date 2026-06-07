@@ -4132,26 +4132,26 @@ function Get-GeneratedPrWriteEvidence {
         mode = "write-pr"
         event = "workflow_dispatch"
         branch = "main"
-        headSha = "e0eba1d6d54a4112f9151e55245dd589f7c19d50"
-        runId = [long]27085061539
-        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27085061539"
-        createdAt = "2026-06-07T06:34:35Z"
+        headSha = "e0aaf1a5e94eb0be19e9a550ea75059f834db2a7"
+        runId = [long]27086351848
+        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086351848"
+        createdAt = "2026-06-07T07:38:57Z"
         conclusion = "failure"
         jobName = "Open generated README PR"
-        jobId = [long]79937807362
+        jobId = [long]79941483109
         failedStep = "Create pull request"
         regenerateStepPassed = $true
         reportArtifactUploaded = $true
-        artifactId = [long]7461506616
-        generatedBranch = "automation/profile-sync-27085061539"
-        generatedBranchPushed = $true
-        generatedBranchCleanup = "deleted"
+        artifactId = [long]7461985005
+        generatedBranch = "automation/profile-sync-27086351848"
+        generatedBranchPushed = $false
+        generatedBranchCleanup = "not-created"
         pullRequestCreated = $false
         pullRequestUrl = $null
         validationDispatched = $false
-        blocker = "GitHub Actions workflow permissions disallow GITHUB_TOKEN pull-request creation."
-        evidenceSummary = "Manual hosted write-pr drill regenerated the profile, uploaded the report artifact, pushed automation/profile-sync-27085061539, then failed at gh pr create with createPullRequest because repository workflow permissions do not allow GitHub Actions to create pull requests. The disposable branch was deleted after evidence collection."
-        nextAction = "Enable the repository workflow-permissions setting for GitHub Actions pull-request creation or switch generated PR delivery to an approved GitHub App/PAT credential before rerunning write-pr."
+        blocker = "GITHUB_TOKEN cannot read the repository Actions workflow-permissions endpoint during helper preflight."
+        evidenceSummary = "Manual hosted write-pr drill after enabling the repository setting regenerated the profile and uploaded the report artifact, then failed before branch creation because the helper treated GITHUB_TOKEN's 403 on repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow as fatal. No generated branch, pull request, or validation dispatch was created."
+        nextAction = "Rerun write-pr with the helper fallback that continues past the known workflow-permissions endpoint 403 and deletes the generated branch if pull-request creation fails after a push."
     }
 }
 
@@ -4286,6 +4286,8 @@ function Get-PrDeliveryTransitionChecklist {
     $deliveryStatus = if ($EnforceAdmins -eq $true -or $ActionsPullRequestCreationAllowed -eq $false) { "blocked" } else { "needs-live-validation" }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
         "Repository workflow permissions currently block GITHUB_TOKEN pull-request creation; hosted write-pr drill 27085061539 failed at createPullRequest after pushing a disposable generated branch that was later deleted."
+    } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
+        "Hosted write-pr drill 27086351848 showed GITHUB_TOKEN cannot read the repository workflow-permissions endpoint, so the helper must continue to gh pr create when that specific preflight read is unavailable."
     } elseif ($EnforceAdmins -eq $true) {
         "Protected main has admin enforcement enabled, so direct pushes would be rejected after required checks are enabled."
     } else {
@@ -4293,6 +4295,8 @@ function Get-PrDeliveryTransitionChecklist {
     }
     $deliveryNextAction = if ($ActionsPullRequestCreationAllowed -eq $false) {
         "Enable GitHub Actions pull-request creation for GITHUB_TOKEN or switch the helper to an approved GitHub App/PAT credential before rerunning generated PR delivery."
+    } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
+        "Rerun generated PR delivery with the preflight-unavailable fallback and verify gh pr create plus validation dispatch."
     } else {
         "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."
     }
