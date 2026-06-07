@@ -42,6 +42,7 @@ $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
+$requiredCheckReadiness = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'requiredCheckReadiness') { $repositorySettings.requiredCheckReadiness } else { $null }
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
@@ -63,6 +64,9 @@ $linkWarningCount = Get-Count $report.linkValidationWarnings
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
 $validationElapsedMs = if ($performance -and $performance.linkValidation) { [int]$performance.linkValidation.elapsedMs } else { 0 }
 $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.warningCount } else { 0 }
+$requiredCheckReadinessStatus = if ($requiredCheckReadiness) { [string]$requiredCheckReadiness.status } else { "unknown" }
+$requiredCheckCandidateCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.candidateCheckCount } else { 0 }
+$requiredCheckBlockerCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.blockerCount } else { 0 }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -136,6 +140,9 @@ $summary = @"
 | REST fallback release attempts | $restFallbackAttempted |
 | REST fallback no-release 404s | $restFallbackNoRelease404Count |
 | Repository setting warnings | $repositoryWarningCount |
+| Required check readiness | $requiredCheckReadinessStatus |
+| Required check candidates | $requiredCheckCandidateCount |
+| Required check blockers | $requiredCheckBlockerCount |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
@@ -211,6 +218,10 @@ if ($userscriptWarningCount -gt 0) {
 
 if ($repositoryWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $repositoryWarningCount repository setting warning(s)."
+}
+
+if ($requiredCheckBlockerCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $requiredCheckBlockerCount required-check activation blocker(s)."
 }
 
 if ($codeScanningStatus -eq "needs-live-validation") {

@@ -52,6 +52,14 @@ $ReadmeLowSignalSoftLimit = 15
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
+$RequiredStatusCheckCandidates = @(
+    [ordered]@{ name = "Pester (offline)"; workflow = ".github/workflows/tests.yml" },
+    [ordered]@{ name = "PSScriptAnalyzer"; workflow = ".github/workflows/tests.yml" },
+    [ordered]@{ name = "Markdownlint"; workflow = ".github/workflows/tests.yml" },
+    [ordered]@{ name = "Windows setup smoke"; workflow = ".github/workflows/tests.yml" },
+    [ordered]@{ name = "Check generated README"; workflow = ".github/workflows/profile-sync.yml" },
+    [ordered]@{ name = "zizmor"; workflow = ".github/workflows/workflow-security.yml" }
+)
 $CodeQlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
@@ -3439,6 +3447,57 @@ function Get-CodeScanningLocalEvidence {
     }
 }
 
+function Get-RequiredCheckReadiness {
+    param(
+        [bool]$BranchProtectionAvailable,
+        [bool]$RulesetsAvailable,
+        [Nullable[bool]]$RequiredStatusChecks,
+        [Nullable[bool]]$EnforceAdmins,
+        [int]$RulesetCount,
+        [string]$BranchProtectionUnavailableReason,
+        [string]$RulesetsUnavailableReason
+    )
+
+    $blockers = New-Object System.Collections.Generic.List[string]
+    $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetCount -gt 0)
+    if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
+        $blockers.Add("Branch protection evidence unavailable: $BranchProtectionUnavailableReason.")
+    } elseif ($RequiredStatusChecks -ne $true) {
+        $blockers.Add("Branch protection does not require status checks.")
+    }
+
+    if (-not $RulesetsAvailable -and -not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
+        $blockers.Add("Repository ruleset evidence unavailable: $RulesetsUnavailableReason.")
+    } elseif ($RulesetCount -eq 0) {
+        $blockers.Add("No repository rulesets are configured.")
+    }
+
+    if ($EnforceAdmins -eq $true) {
+        $blockers.Add("Protected main enforces admins; direct-push delivery needs PR delivery or an approved bypass before enabling required checks.")
+    }
+
+    $status = if (-not $BranchProtectionAvailable -and -not $RulesetsAvailable) {
+        "needs-live-validation"
+    } elseif ($requiredChecksEnabled) {
+        "enforcement-present"
+    } else {
+        "not-enabled"
+    }
+
+    return [ordered]@{
+        status = $status
+        recommendation = "defer-until-pr-delivery-or-bypass"
+        readyForEnforcement = [bool]($blockers.Count -eq 0)
+        branchProtectionRequiredStatusChecks = Get-NullableBool $RequiredStatusChecks
+        rulesetCount = [int]$RulesetCount
+        enforceAdmins = Get-NullableBool $EnforceAdmins
+        candidateCheckCount = @($RequiredStatusCheckCandidates).Count
+        candidateChecks = @($RequiredStatusCheckCandidates)
+        blockerCount = $blockers.Count
+        blockers = $blockers.ToArray()
+    }
+}
+
 function Test-RepositoryCommunityBaseline {
     param(
         [object]$Repository,
@@ -3529,6 +3588,14 @@ function Test-RepositoryCommunityBaseline {
     } elseif (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
         $repoWarnings.Add("Repository rulesets unavailable: $RulesetsUnavailableReason.")
     }
+    $requiredCheckReadiness = Get-RequiredCheckReadiness `
+        -BranchProtectionAvailable $branchProtectionAvailable `
+        -RulesetsAvailable $rulesetsAvailable `
+        -RequiredStatusChecks $requiredStatusChecks `
+        -EnforceAdmins $enforceAdmins `
+        -RulesetCount $rulesetCount `
+        -BranchProtectionUnavailableReason $BranchProtectionUnavailableReason `
+        -RulesetsUnavailableReason $RulesetsUnavailableReason
 
     $languageNames = @()
     if ($languagesAvailable) {
@@ -3660,6 +3727,7 @@ function Test-RepositoryCommunityBaseline {
             unavailableReason = if ($rulesetsAvailable) { $null } else { $RulesetsUnavailableReason }
             count = [int]$rulesetCount
         }
+        requiredCheckReadiness = $requiredCheckReadiness
         warningCount = $repoWarnings.Count
         warnings = $repoWarnings.ToArray()
     }

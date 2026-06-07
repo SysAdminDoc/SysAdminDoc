@@ -275,6 +275,15 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
+        $repoSettings.requiredCheckReadiness.status | Should -Be 'not-enabled'
+        $repoSettings.requiredCheckReadiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
+        $repoSettings.requiredCheckReadiness.readyForEnforcement | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.branchProtectionRequiredStatusChecks | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.rulesetCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.enforceAdmins | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.candidateCheckCount | Should -Be 6
+        ($repoSettings.requiredCheckReadiness.candidateChecks | ForEach-Object { $_.name }) | Should -Contain 'Pester (offline)'
+        ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
@@ -1788,8 +1797,9 @@ Describe 'Required status check readiness' {
     }
 
     It 'records non-enforcing activation preconditions for the candidate checks' {
-        foreach ($checkName in @('Pester \(offline\)', 'PSScriptAnalyzer', 'Markdownlint', 'Windows setup smoke', 'Check generated README', 'zizmor')) {
-            $script:RequiredCheckDecision | Should -Match $checkName
+        foreach ($candidate in @($RequiredStatusCheckCandidates)) {
+            $script:RequiredCheckDecision | Should -Match ([regex]::Escape([string]$candidate.name))
+            Test-Path -LiteralPath (Join-Path $script:RepoRoot ([string]$candidate.workflow)) | Should -BeTrue
         }
 
         $script:RequiredCheckDecision | Should -Match 'Do not enable branch-protection or ruleset required-status-check enforcement'
@@ -1798,6 +1808,12 @@ Describe 'Required status check readiness' {
         $script:RequiredCheckDecision | Should -Match '404 Required status checks not enabled'
         $script:RequiredCheckDecision | Should -Match 'pull requests, or an approved'
         $script:RequiredCheckDecision | Should -Match 'job names stay unique and stable'
+    }
+
+    It 'keeps the report candidate list aligned with the activation decision' {
+        @($RequiredStatusCheckCandidates) | Should -HaveCount 6
+        (($RequiredStatusCheckCandidates | ForEach-Object { $_.name }) -join '|') |
+            Should -Be 'Pester (offline)|PSScriptAnalyzer|Markdownlint|Windows setup smoke|Check generated README|zizmor'
     }
 }
 
@@ -1956,6 +1972,9 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'REST fallback release attempts'
             $summary | Should -Match 'REST fallback no-release 404s'
             $summary | Should -Match 'Repository setting warnings'
+            $summary | Should -Match 'Required check readiness'
+            $summary | Should -Match 'Required check candidates'
+            $summary | Should -Match 'Required check blockers'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
             $summary | Should -Match 'Code scanning languages'
@@ -1981,6 +2000,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
+        $script:SummaryScript | Should -Match 'requiredCheckReadiness'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'
