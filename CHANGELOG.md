@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.112] - 2026-06-07
+
+- Added: `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan` now records the disposable PR branch prefix, touch paths, expected candidate check names, cleanup policy, and pending evidence state for required-check freshness proof.
+- Added: Profile sync summaries now surface candidate-check exercise plan status, readiness, evidence state, candidate count, branch prefix, and touch paths.
+- Changed: The PR-delivery decision note now separates the planned disposable PR check exercise from direct-main maintenance policy approval and required-check enforcement.
+
 ## [v4.9.111] - 2026-06-07
 
 - Added: `requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy` now records the not-approved direct-main bypass state, recommendation, documentation path, and next action before required-check enforcement.

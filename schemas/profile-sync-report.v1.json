@@ -2251,6 +2251,7 @@
         "generatedPrDryRunEvidence",
         "generatedPrWriteEvidence",
         "directMainMaintenancePolicy",
+        "candidateCheckExercisePlan",
         "items"
       ],
       "properties": {
@@ -2285,6 +2286,9 @@
         },
         "directMainMaintenancePolicy": {
           "$ref": "#/$defs/directMainMaintenancePolicy"
+        },
+        "candidateCheckExercisePlan": {
+          "$ref": "#/$defs/candidateCheckExercisePlan"
         },
         "items": {
           "type": "array",
@@ -2327,6 +2331,86 @@
           "type": "string"
         },
         "evidence": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
+        }
+      }
+    },
+    "candidateCheckExercisePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "readinessStatus",
+        "requiredBeforeEnforcement",
+        "purpose",
+        "disposableBranchPrefix",
+        "pullRequestTitle",
+        "candidateCheckCount",
+        "candidateChecks",
+        "workflowCount",
+        "workflows",
+        "touchPaths",
+        "nonMutationPolicy",
+        "expectedPrChecks",
+        "verificationSteps",
+        "cleanupRequired",
+        "evidenceStatus",
+        "documentationPath",
+        "nextAction"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "readinessStatus": {
+          "type": "string"
+        },
+        "requiredBeforeEnforcement": {
+          "type": "boolean"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "disposableBranchPrefix": {
+          "type": "string"
+        },
+        "pullRequestTitle": {
+          "type": "string"
+        },
+        "candidateCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "candidateChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "workflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "workflows": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "touchPaths": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "nonMutationPolicy": {
+          "type": "string"
+        },
+        "expectedPrChecks": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "verificationSteps": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "cleanupRequired": {
+          "type": "boolean"
+        },
+        "evidenceStatus": {
+          "type": "string"
+        },
+        "documentationPath": {
           "type": "string"
         },
         "nextAction": {

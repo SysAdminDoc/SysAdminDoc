@@ -4284,6 +4284,53 @@ function Get-DirectMainMaintenancePolicy {
     }
 }
 
+function Get-CandidateCheckExercisePlan {
+    param(
+        [object[]]$Candidates = $RequiredStatusCheckCandidates
+    )
+
+    $candidateNames = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "name") })
+    $workflowNames = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "workflow") } | Sort-Object -Unique)
+
+    return [ordered]@{
+        status = "planned"
+        readinessStatus = "needs-live-validation"
+        requiredBeforeEnforcement = $true
+        purpose = "refresh-recent-check-run-proof"
+        disposableBranchPrefix = "automation/required-check-proof-"
+        pullRequestTitle = "chore: exercise required-check candidates"
+        candidateCheckCount = $candidateNames.Count
+        candidateChecks = @($candidateNames)
+        workflowCount = $workflowNames.Count
+        workflows = @($workflowNames)
+        touchPaths = @(
+            "README.md",
+            ".github/workflows/tests.yml",
+            "setup.ps1"
+        )
+        nonMutationPolicy = "Open a disposable PR only for check creation proof, do not merge it, do not enable branch protection or rulesets, then close the PR and delete the proof branch after evidence collection."
+        expectedPrChecks = @(
+            "Pester (offline)",
+            "PSScriptAnalyzer",
+            "Markdownlint",
+            "Windows setup smoke",
+            "Check generated README",
+            "zizmor"
+        )
+        verificationSteps = @(
+            "Create a temporary branch from current main with prefix automation/required-check-proof-.",
+            "Make a no-risk proof commit that touches README.md, .github/workflows/tests.yml, and setup.ps1 while preserving generated profile output.",
+            "Open a disposable pull request and wait for all candidate checks to appear in the PR check rollup.",
+            "Verify pull_request and merge_group-capable workflow check names match the candidate list.",
+            "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
+        )
+        cleanupRequired = $true
+        evidenceStatus = "not-run"
+        documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
+        nextAction = "Run the disposable PR proof immediately before enabling required checks, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+    }
+}
+
 function Get-PrDeliveryTransitionChecklist {
     param(
         [object]$WorkflowCoverage,
@@ -4379,6 +4426,7 @@ function Get-PrDeliveryTransitionChecklist {
         generatedPrDryRunEvidence = Get-GeneratedPrDryRunEvidence
         generatedPrWriteEvidence = Get-GeneratedPrWriteEvidence
         directMainMaintenancePolicy = Get-DirectMainMaintenancePolicy
+        candidateCheckExercisePlan = Get-CandidateCheckExercisePlan
         items = @($items.ToArray())
     }
 }

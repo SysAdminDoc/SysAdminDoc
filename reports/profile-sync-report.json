@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T05:07:14.3929959-04:00",
+  "generatedAt": "2026-06-07T05:16:30.7034492-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "8761fa8f25089f74b9938739e09fc96b0630cb6f",
+    "sourceCommit": "014db7f9b395d5b1399ce155847275b3f6e28444",
     "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
-    "generatorSha256": "dcbc0a8a0eb63d7f9b85134fbf4d30f008376583c3c92537c7edc8efaa747382",
+    "generatorSha256": "39646327d4f760df732580ed63bc819cbf69c0e9a216f11608e67f1aef4c25c6",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T05:05:57.2483987-04:00",
+    "metadataSnapshotAt": "2026-06-07T05:15:12.1763651-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,7 +2270,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T05:05:57.2483987-04:00",
+          "queriedAt": "2026-06-07T05:15:12.1763651-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 1,
@@ -2579,6 +2579,54 @@
           "evidence": "Routine autonomous maintenance currently commits directly to main, while live branch protection reports enforce_admins.enabled=true. GitHub branch protection and rulesets support bypass controls, but this repo has not selected an approved bypass actor or switched routine maintenance to PR delivery.",
           "nextAction": "Choose and test either an explicit direct-main bypass actor/policy or routine PR delivery before enabling admin-enforced required checks."
         },
+        "candidateCheckExercisePlan": {
+          "status": "planned",
+          "readinessStatus": "needs-live-validation",
+          "requiredBeforeEnforcement": true,
+          "purpose": "refresh-recent-check-run-proof",
+          "disposableBranchPrefix": "automation/required-check-proof-",
+          "pullRequestTitle": "chore: exercise required-check candidates",
+          "candidateCheckCount": 6,
+          "candidateChecks": [
+            "Pester (offline)",
+            "PSScriptAnalyzer",
+            "Markdownlint",
+            "Windows setup smoke",
+            "Check generated README",
+            "zizmor"
+          ],
+          "workflowCount": 3,
+          "workflows": [
+            ".github/workflows/profile-sync.yml",
+            ".github/workflows/tests.yml",
+            ".github/workflows/workflow-security.yml"
+          ],
+          "touchPaths": [
+            "README.md",
+            ".github/workflows/tests.yml",
+            "setup.ps1"
+          ],
+          "nonMutationPolicy": "Open a disposable PR only for check creation proof, do not merge it, do not enable branch protection or rulesets, then close the PR and delete the proof branch after evidence collection.",
+          "expectedPrChecks": [
+            "Pester (offline)",
+            "PSScriptAnalyzer",
+            "Markdownlint",
+            "Windows setup smoke",
+            "Check generated README",
+            "zizmor"
+          ],
+          "verificationSteps": [
+            "Create a temporary branch from current main with prefix automation/required-check-proof-.",
+            "Make a no-risk proof commit that touches README.md, .github/workflows/tests.yml, and setup.ps1 while preserving generated profile output.",
+            "Open a disposable pull request and wait for all candidate checks to appear in the PR check rollup.",
+            "Verify pull_request and merge_group-capable workflow check names match the candidate list.",
+            "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
+          ],
+          "cleanupRequired": true,
+          "evidenceStatus": "not-run",
+          "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
+          "nextAction": "Run the disposable PR proof immediately before enabling required checks, then record PR number, branch, check names, run IDs, conclusions, and cleanup state."
+        },
         "items": [
           {
             "id": "candidate-checks-defined",
@@ -2737,28 +2785,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.111",
+    "expectedVersion": "v4.9.112",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.111"
+        "value": "v4.9.112"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.111"
+        "value": "v4.9.112"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.111"
+        "value": "v4.9.112"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.111"
+        "value": "v4.9.112"
       }
     ],
     "dates": [
@@ -2785,7 +2833,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 123,
+      "headingCount": 124,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2795,14 +2843,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.111",
+    "expectedVersion": "v4.9.112",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.111",
+    "expectedTag": "v4.9.112",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2812,13 +2860,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.111",
+        "expectedVersion": "v4.9.112",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.111",
+        "expectedVersion": "v4.9.112",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2841,7 +2889,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3770,
+      "elapsedMs": 5144,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2875,7 +2923,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.53,
+      "ageDays": 5.54,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2885,7 +2933,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3770,
+    "elapsedMs": 5144,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3235,7 +3283,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 102980,
+        "value": 105476,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3263,7 +3311,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T05:07:31.2688987-04:00",
+    "generatedAt": "2026-06-07T05:16:46.8242809-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

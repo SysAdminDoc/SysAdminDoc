@@ -113,6 +113,13 @@ $directMainMaintenancePolicy = if ($prDeliveryTransition) { $prDeliveryTransitio
 $directMainMaintenancePolicyStatus = if ($directMainMaintenancePolicy -and $null -ne $directMainMaintenancePolicy.status) { [string]$directMainMaintenancePolicy.status } else { "" }
 $directMainMaintenancePolicyAllowed = if ($directMainMaintenancePolicy -and $null -ne $directMainMaintenancePolicy.allowed) { [bool]$directMainMaintenancePolicy.allowed } else { $false }
 $directMainMaintenancePolicyRecommendation = if ($directMainMaintenancePolicy -and $null -ne $directMainMaintenancePolicy.recommendation) { [string]$directMainMaintenancePolicy.recommendation } else { "" }
+$candidateCheckExercisePlan = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'candidateCheckExercisePlan') { $prDeliveryTransition.candidateCheckExercisePlan } else { $null }
+$candidateCheckExercisePlanStatus = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.status) { [string]$candidateCheckExercisePlan.status } else { "" }
+$candidateCheckExerciseReadiness = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.readinessStatus) { [string]$candidateCheckExercisePlan.readinessStatus } else { "" }
+$candidateCheckExerciseEvidence = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.evidenceStatus) { [string]$candidateCheckExercisePlan.evidenceStatus } else { "" }
+$candidateCheckExerciseCandidateCount = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.candidateCheckCount) { [int]$candidateCheckExercisePlan.candidateCheckCount } else { 0 }
+$candidateCheckExerciseBranchPrefix = if ($candidateCheckExercisePlan -and $null -ne $candidateCheckExercisePlan.disposableBranchPrefix) { [string]$candidateCheckExercisePlan.disposableBranchPrefix } else { "" }
+$candidateCheckExerciseTouchPaths = if ($candidateCheckExercisePlan -and $candidateCheckExercisePlan.touchPaths) { @($candidateCheckExercisePlan.touchPaths) -join ", " } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -278,6 +285,12 @@ $summary = @"
 | Direct-main maintenance policy | $directMainMaintenancePolicyStatus |
 | Direct-main maintenance allowed | $directMainMaintenancePolicyAllowed |
 | Direct-main maintenance recommendation | $directMainMaintenancePolicyRecommendation |
+| Candidate check exercise plan | $candidateCheckExercisePlanStatus |
+| Candidate check exercise readiness | $candidateCheckExerciseReadiness |
+| Candidate check exercise evidence | $candidateCheckExerciseEvidence |
+| Candidate check exercise candidates | $candidateCheckExerciseCandidateCount |
+| Candidate check exercise branch prefix | $candidateCheckExerciseBranchPrefix |
+| Candidate check exercise touch paths | $candidateCheckExerciseTouchPaths |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
