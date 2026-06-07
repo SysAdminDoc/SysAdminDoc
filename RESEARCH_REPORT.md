@@ -5,10 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.99
+Current version after this refresh: v4.9.100
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.100 batch adds the missing offline guard for the pinned OpenSSF
+  Scorecard action.
+- Upstream `ossf/scorecard-action` reports v2.4.3 as the latest release; the
+  current SHA `4eaacf0543bb3f2c246792bd56e8cdeffafb205a` is that release and
+  its action metadata runs `ghcr.io/ossf/scorecard-action:v2.4.3`.
+- Hosted workflow-dispatch run `27084740289` completed successfully on `main`
+  at `1929100890e84d3fa3109590627e469e067434da`, including the Scorecard run
+  and SARIF upload.
+- Pester now requires the exact Scorecard action SHA and rejects floating
+  `ossf/scorecard-action@v*` tags.
 - The v4.9.99 batch refreshes generated PR dry-run hosted evidence after the
   artifact-runtime and summary-size guard changes.
 - Hosted run `27084524165` used workflow-dispatch mode `dry-run-pr` on `main`

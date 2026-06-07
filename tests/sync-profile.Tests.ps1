@@ -2579,6 +2579,21 @@ Describe 'Workflow CodeQL upload action pin' {
     }
 }
 
+Describe 'Workflow Scorecard action pin' {
+    BeforeAll {
+        $script:ScorecardWorkflowForActionPin = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
+        $script:ScorecardActionV243Sha = '4eaacf0543bb3f2c246792bd56e8cdeffafb205a'
+    }
+
+    It 'uses the pinned Scorecard 2.4.3 Docker action SHA' {
+        $script:ScorecardWorkflowForActionPin | Should -Match "ossf/scorecard-action@$script:ScorecardActionV243Sha"
+    }
+
+    It 'does not use floating Scorecard action tags' {
+        $script:ScorecardWorkflowForActionPin | Should -Not -Match 'ossf/scorecard-action@v'
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw

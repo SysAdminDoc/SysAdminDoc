@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.100] - 2026-06-07
+
+- Added: Pester coverage now guards the `ossf/scorecard-action` pin at the reviewed 2.4.3 Docker action SHA and rejects floating Scorecard action tags.
+- Added: Hosted OpenSSF Scorecard run `27084740289` completed successfully on `main`, proving the current read-only workflow-level permissions, pinned Scorecard action, and SARIF upload path.
+
 ## [v4.9.99] - 2026-06-07
 
 - Changed: `generatedPrDryRunEvidence` now records successful hosted run `27084524165` on `main` at `f6cd6b970a1d92c5a13cac2b1c9abac031fab257`.
