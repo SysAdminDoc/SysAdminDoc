@@ -378,9 +378,10 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffState | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'not-approved'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-selected'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'defer-required-check-enforcement'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'prove-routine-pr-delivery-before-enforcement'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'completed'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'ready'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.requiredBeforeEnforcement | Should -BeTrue
@@ -396,7 +397,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
-        ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
+        ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'routine PR delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
@@ -2163,6 +2164,7 @@ Describe 'Required status check readiness' {
         }
         $script:RequiredCheckDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-required-check-enforcement-readiness.md') -Raw
         $script:PrDeliveryTransitionDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md') -Raw
+        $script:RoutinePrDeliveryDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md') -Raw
         $script:GeneratedPrCredentialDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-generated-pr-credential-decision.md') -Raw
     }
 
@@ -2247,6 +2249,14 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'generated-profile/validation.*PR status handoff'
         $script:PrDeliveryTransitionDecision | Should -Match 'direct-main maintenance'
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
+    }
+
+    It 'records routine maintenance PR delivery as the selected path' {
+        $script:RoutinePrDeliveryDecision | Should -Match 'Routine Maintenance PR Delivery'
+        $script:RoutinePrDeliveryDecision | Should -Match 'Select pull-request delivery'
+        $script:RoutinePrDeliveryDecision | Should -Match 'Do not approve a direct-main bypass'
+        $script:RoutinePrDeliveryDecision | Should -Match 'live merge drill'
+        $script:RoutinePrDeliveryDecision | Should -Match 'GitHub Docs: Creating rulesets'
     }
 
     It 'records the generated PR credential decision before changing repository settings' {
@@ -2364,11 +2374,12 @@ Describe 'Required status check readiness' {
         $writeEvidence.statusHandoffDescription | Should -Be 'Generated profile validation success.'
         $writeEvidence.blocker | Should -Match 'direct-main maintenance'
         $writeEvidence.nextAction | Should -Match 'direct-main maintenance'
-        $transition.directMainMaintenancePolicy.status | Should -Be 'not-approved'
+        $transition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-selected'
         $transition.directMainMaintenancePolicy.allowed | Should -BeFalse
         $transition.directMainMaintenancePolicy.requiredBeforeEnforcement | Should -BeTrue
-        $transition.directMainMaintenancePolicy.evidence | Should -Match 'enforce_admins.enabled=true'
-        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'direct-main bypass'
+        $transition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
+        $transition.directMainMaintenancePolicy.evidence | Should -Match 'No direct-main bypass actor is approved'
+        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'normal pull request'
     }
 }
 

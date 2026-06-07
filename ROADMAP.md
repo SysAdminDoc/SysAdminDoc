@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.117
+Current repo version: v4.9.118
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 125 - 2026-06-07.
+> Last researched: Cycle 126 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 125 - 2026-06-07.
+Last researched: Cycle 126 - 2026-06-07.
+
+2026-06-07 v4.9.118 refresh: routine maintenance PR delivery policy shipped.
+`docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md` now selects
+normal pull-request delivery for routine maintenance before required-check
+enforcement. No direct-main bypass actor is approved. The sync report records
+`directMainMaintenancePolicy.status=pr-delivery-selected`,
+`selectedPath=pull-request-delivery`, and the next proof as a live routine
+maintenance PR merge drill. Required-check enforcement remains disabled until
+that merge drill succeeds and is recorded.
 
 2026-06-07 v4.9.117 refresh: successful candidate-check proof shipped.
 Cycle 125 opened disposable PR #13 from
