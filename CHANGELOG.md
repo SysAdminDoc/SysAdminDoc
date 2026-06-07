@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.111] - 2026-06-07
+
+- Added: `requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy` now records the not-approved direct-main bypass state, recommendation, documentation path, and next action before required-check enforcement.
+- Added: Profile sync summaries now surface direct-main maintenance policy status, allowed state, and recommendation.
+- Changed: The PR-delivery decision note now documents that generated profile PR status handoff is proven while direct-main maintenance bypass or broader PR delivery remains unresolved.
+
 ## [v4.9.110] - 2026-06-07
 
 - Added: `generatedPrWriteEvidence` now records hosted `write-pr` run `27087776182`, PR #10, validation run `27087806797`, status-context success, artifact IDs, and generated branch cleanup.

@@ -109,6 +109,10 @@ $generatedPrWriteStatusHandoffContext = if ($generatedPrWriteEvidence -and $null
 $generatedPrWriteStatusHandoffProof = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffProof) { [string]$generatedPrWriteEvidence.statusHandoffProof } else { "" }
 $generatedPrWriteStatusHandoffState = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffState) { [string]$generatedPrWriteEvidence.statusHandoffState } else { "" }
 $generatedPrWriteStatusHandoffPermission = if ($generatedPrWriteEvidence -and $null -ne $generatedPrWriteEvidence.statusHandoffPermission) { [string]$generatedPrWriteEvidence.statusHandoffPermission } else { "" }
+$directMainMaintenancePolicy = if ($prDeliveryTransition) { $prDeliveryTransition.directMainMaintenancePolicy } else { $null }
+$directMainMaintenancePolicyStatus = if ($directMainMaintenancePolicy -and $null -ne $directMainMaintenancePolicy.status) { [string]$directMainMaintenancePolicy.status } else { "" }
+$directMainMaintenancePolicyAllowed = if ($directMainMaintenancePolicy -and $null -ne $directMainMaintenancePolicy.allowed) { [bool]$directMainMaintenancePolicy.allowed } else { $false }
+$directMainMaintenancePolicyRecommendation = if ($directMainMaintenancePolicy -and $null -ne $directMainMaintenancePolicy.recommendation) { [string]$directMainMaintenancePolicy.recommendation } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -271,6 +275,9 @@ $summary = @"
 | Generated PR status state | $generatedPrWriteStatusHandoffState |
 | Generated PR status permission | $generatedPrWriteStatusHandoffPermission |
 | Generated PR status proof | $generatedPrWriteStatusHandoffProof |
+| Direct-main maintenance policy | $directMainMaintenancePolicyStatus |
+| Direct-main maintenance allowed | $directMainMaintenancePolicyAllowed |
+| Direct-main maintenance recommendation | $directMainMaintenancePolicyRecommendation |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |

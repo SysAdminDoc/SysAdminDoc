@@ -187,6 +187,25 @@ evidence collection. Required-check enforcement remains blocked by the
 direct-main maintenance policy and candidate-check freshness, not by generated
 profile PR status handoff.
 
+## Cycle 119 Direct-Main Maintenance Policy
+
+Cycle 119 records the remaining direct-main maintenance decision as
+machine-readable report evidence. The sync report now includes
+`requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy` with:
+
+- `status=not-approved`
+- `allowed=false`
+- `requiredBeforeEnforcement=true`
+- `selectedPath=none`
+- `recommendation=defer-required-check-enforcement`
+
+This does not approve a bypass. It records the current state: routine
+maintenance still commits directly to `main`, live branch protection reports
+`enforce_admins.enabled=true`, and no bypass actor or broader PR-delivery policy
+has been selected. Required-check enforcement should remain deferred until the
+repo chooses and tests either an explicit direct-main bypass actor/policy or
+routine PR delivery.
+
 ## References
 
 - [GitHub Docs: About protected branches](https://docs.github.com/articles/types-of-required-status-checks)

@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.110
+Current repo version: v4.9.111
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 118 - 2026-06-07.
+> Last researched: Cycle 119 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 118 - 2026-06-07.
+Last researched: Cycle 119 - 2026-06-07.
+
+2026-06-07 v4.9.111 refresh: direct-main maintenance policy reporting
+shipped. Cycle 119 added `directMainMaintenancePolicy` under
+`requiredCheckReadiness.prDeliveryTransition` so the report now records that no
+direct-main bypass actor or PR-delivery switch is approved yet, that
+admin-enforced required checks should remain deferred, and that routine
+maintenance must choose and test either a narrow bypass or PR delivery before
+required-check enforcement. The sync report schema, Actions summary, decision
+note, Pester suite, and planning docs now guard that policy state.
 
 2026-06-07 v4.9.110 refresh: generated PR status-rollup proof shipped.
 Cycle 118 reran hosted Profile sync `write-pr` run
