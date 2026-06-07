@@ -244,8 +244,16 @@ Describe 'Repository settings and community-health baseline' {
             allow_deletions = [pscustomobject]@{ enabled = $false }
         }
         $languages = [pscustomobject]@{ PowerShell = 210925 }
+        $codeScanningEvidence = [ordered]@{
+            codeqlWorkflowPresent = $false
+            sarifUploadWorkflowPresent = $true
+            scorecardSarifUploadPresent = $true
+            psScriptAnalyzerWorkflowPresent = $true
+            actionlintWorkflowPresent = $true
+            zizmorWorkflowPresent = $true
+        }
 
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -Languages $languages -LocalFiles $script:LocalCommunityFilesOk
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence
         $repoSettings = $result['repositorySettings']
         $communityHealth = $result['communityHealth']
 
@@ -254,6 +262,17 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.secretScanningPushProtection | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityUpdates | Should -Be 'disabled'
         $repoSettings.security.codeScanning.status | Should -Be 'not-applicable'
+        $repoSettings.security.codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
+        $repoSettings.security.codeScanning.reason | Should -Match 'CodeQL-supported source language'
+        $repoSettings.security.codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
+        @($repoSettings.security.codeScanning.codeqlSupportedLanguages) | Should -HaveCount 0
+        $repoSettings.security.codeScanning.codeqlWorkflowPresent | Should -BeFalse
+        $repoSettings.security.codeScanning.sarifUploadWorkflowPresent | Should -BeTrue
+        $repoSettings.security.codeScanning.scorecardSarifUploadPresent | Should -BeTrue
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'actionlint'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'zizmor'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -267,6 +286,34 @@ Describe 'Repository settings and community-health baseline' {
         $communityHealth.localRequiredMissingCount | Should -Be 0
         $communityHealth.fatalCount | Should -Be 0
         ($communityHealth.warnings -join ' ') | Should -Match 'issue-template'
+    }
+
+    It 'warns when a CodeQL-supported language appears without an intentional CodeQL workflow' {
+        $repository = [pscustomobject]@{
+            security_and_analysis = [pscustomobject]@{
+                secret_scanning = [pscustomobject]@{ status = 'enabled' }
+                secret_scanning_push_protection = [pscustomobject]@{ status = 'enabled' }
+                dependabot_security_updates = [pscustomobject]@{ status = 'disabled' }
+            }
+        }
+        $codeScanningEvidence = [ordered]@{
+            codeqlWorkflowPresent = $false
+            sarifUploadWorkflowPresent = $true
+            scorecardSarifUploadPresent = $true
+            psScriptAnalyzerWorkflowPresent = $true
+            actionlintWorkflowPresent = $true
+            zizmorWorkflowPresent = $true
+        }
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -Languages ([pscustomobject]@{ PowerShell = 200; Python = 100 }) -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence
+        $codeScanning = $result['repositorySettings'].security.codeScanning
+
+        $codeScanning.status | Should -Be 'needs-live-validation'
+        $codeScanning.recommendation | Should -Be 'verify-code-scanning-for-supported-languages'
+        $codeScanning.codeqlSupportedLanguageDetected | Should -BeTrue
+        $codeScanning.codeqlSupportedLanguages | Should -Contain 'Python'
+        $codeScanning.codeqlWorkflowPresent | Should -BeFalse
+        ($result['repositorySettings'].warnings -join ' ') | Should -Match 'CodeQL-supported languages detected'
     }
 
     It 'marks missing required local intake files fatal' {
@@ -1435,6 +1482,25 @@ Describe 'Profile render-host decision record' {
     }
 }
 
+Describe 'Code scanning posture decision' {
+    It 'records PowerShell-only CodeQL as not applicable while retaining SARIF controls' {
+        $decision = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-code-scanning-posture.md')
+        $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
+        $codeScanning = $report.repositorySettings.security.codeScanning
+
+        $decision | Should -Match 'Do not add a CodeQL analysis workflow'
+        $decision | Should -Match 'not-applicable-powershell-only'
+        $decision | Should -Match 'does not call the code-scanning alerts API'
+        $codeScanning.status | Should -Be 'not-applicable'
+        $codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
+        $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
+        $codeScanning.codeqlWorkflowPresent | Should -BeFalse
+        $codeScanning.scorecardSarifUploadPresent | Should -BeTrue
+        $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
+        $codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+    }
+}
+
 Describe 'Profile release/tag consistency' {
     It 'warns when the latest profile release and tag are behind the planning version' {
         $doc = [ordered]@{ expectedVersion = 'v4.9.57' }
@@ -1794,6 +1860,10 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Userscript trust warnings'
             $summary | Should -Match 'Link targets checked'
             $summary | Should -Match 'Repository setting warnings'
+            $summary | Should -Match 'Code scanning status'
+            $summary | Should -Match 'Code scanning recommendation'
+            $summary | Should -Match 'Code scanning languages'
+            $summary | Should -Match 'Code scanning controls'
             $summary | Should -Match 'Community-health fatal gaps'
             $summary | Should -Not -Match 'AppManagerNG'
             $summary | Should -Not -Match 'VaultBox'
@@ -1813,6 +1883,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
         $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'repositorySettings'
+        $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'
         $script:SummaryScript | Should -Match '::error::'

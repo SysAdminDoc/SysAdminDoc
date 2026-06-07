@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.79] - 2026-06-06
+
+- Added: `repositorySettings.security.codeScanning` now records CodeQL support status, inspected languages, local workflow evidence, active controls, and the PowerShell-only not-applicable recommendation.
+- Added: `docs/decisions/2026-06-06-code-scanning-posture.md` records why missing CodeQL analysis is not a misconfiguration for the current PowerShell-only profile repo.
+- Added: The profile sync summary and Pester suite now surface and guard the code-scanning posture, including a warning path for future CodeQL-supported languages.
+
 ## [v4.9.78] - 2026-06-06
 
 - Added: `reports/profile-sync-report.json.readmeDensity` now records generated README line, details, table-row, category, repo-only, low-signal, and warning counts.

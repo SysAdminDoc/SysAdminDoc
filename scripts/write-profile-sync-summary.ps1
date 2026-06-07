@@ -63,6 +63,19 @@ $validationElapsedMs = if ($performance -and $performance.linkValidation) { [int
 $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.warningCount } else { 0 }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
+$codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
+$codeScanningStatus = if ($codeScanning) { [string]$codeScanning.status } else { "unknown" }
+$codeScanningRecommendation = if ($codeScanning) { [string]$codeScanning.recommendation } else { "unknown" }
+$codeScanningLanguages = if ($codeScanning -and $codeScanning.languagesInspected) {
+    @($codeScanning.languagesInspected) -join ", "
+} else {
+    ""
+}
+$codeScanningControls = if ($codeScanning -and $codeScanning.activeControls) {
+    @($codeScanning.activeControls) -join ", "
+} else {
+    ""
+}
 $profileReleaseWarningCount = if ($profileReleaseConsistency) { [int]$profileReleaseConsistency.warningCount } else { 0 }
 $userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
 $userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
@@ -108,6 +121,10 @@ $summary = @"
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
 | Repository setting warnings | $repositoryWarningCount |
+| Code scanning status | $codeScanningStatus |
+| Code scanning recommendation | $codeScanningRecommendation |
+| Code scanning languages | $codeScanningLanguages |
+| Code scanning controls | $codeScanningControls |
 | Community-health warnings | $communityWarningCount |
 | Community-health fatal gaps | $communityFatalCount |
 | Link validation elapsed ms | $validationElapsedMs |
@@ -167,6 +184,10 @@ if ($userscriptWarningCount -gt 0) {
 
 if ($repositoryWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $repositoryWarningCount repository setting warning(s)."
+}
+
+if ($codeScanningStatus -eq "needs-live-validation") {
+    Write-Output "::warning::Profile sync report detected CodeQL-supported language(s); verify code scanning coverage."
 }
 
 if ($communityWarningCount -gt 0) {
