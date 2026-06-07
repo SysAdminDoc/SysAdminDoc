@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.107] - 2026-06-07
+
+- Added: `generatedPrWriteEvidence` now records generated PR #8, dispatched validation run `27086730286`, validation conclusion, PR state, and branch cleanup evidence.
+- Fixed: Profile sync workflow-dispatch validation now runs `sync-profile.ps1 -Write -Check` on generated `automation/profile-*` branches, while normal PR and main checks still use strict `-Check`.
+- Changed: The disposable generated PR proof was closed and branch `automation/profile-sync-27086701950` was deleted after validation exposed the generated-branch check-mode issue.
+
 ## [v4.9.106] - 2026-06-07
 
 - Changed: Enabled the repository Actions workflow-permissions setting that allows GitHub Actions to create pull requests while keeping default workflow permissions at `read`.

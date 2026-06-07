@@ -45,6 +45,21 @@ helper failed before creating or pushing `automation/profile-sync-27086351848`.
 The helper now continues past that known endpoint-read 403 and deletes the
 generated branch if pull-request creation fails after a future push.
 
+## Cycle 115 PR Creation Proof
+
+Hosted run `27086701950` proved that the enabled repository setting and helper
+fallback can create generated pull requests. The run created branch
+`automation/profile-sync-27086701950`, committed
+`0e52dce09f34cd292af534f7b08aa35141c47b24`, opened PR #8, and dispatched
+branch-scoped Profile sync validation run `27086730286`.
+
+The validation run failed at `Validate generated profile` because the generated
+branch check ran `sync-profile.ps1 -Check` against a fresh live metadata
+snapshot and reported `projectsExportInSync=false`. PR #8 was closed and the
+generated branch was deleted after evidence collection. The Profile sync
+workflow now regenerates before checking only on dispatched
+`automation/profile-*` branches.
+
 ## Selected Path
 
 The applied repository setting command was:
@@ -56,7 +71,7 @@ gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f defa
 Next, rerun the hosted Profile sync `write-pr` workflow and verify:
 
 - A generated pull request is created.
-- Branch-scoped Profile sync validation is dispatched.
+- Branch-scoped Profile sync validation is dispatched and succeeds.
 - The generated branch cleanup policy leaves no orphaned generated branches.
 - `repositorySettings.actionsWorkflowPermissions.generatedPrCreationAllowed`
   remains `true` in the next sync report.

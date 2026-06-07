@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.106
+Current repo version: v4.9.107
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 114 - 2026-06-07.
+> Last researched: Cycle 115 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,25 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 114 - 2026-06-07.
+Last researched: Cycle 115 - 2026-06-07.
+
+2026-06-07 v4.9.107 refresh: generated PR creation proof and branch-validation
+fix shipped. Cycle 115 reran hosted Profile sync `write-pr` run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086701950` on
+`main` at `244613af3ced21adec9d557e0a80732a8f04fa07`. The patched helper
+continued past the workflow-permissions endpoint 403, committed
+`0e52dce09f34cd292af534f7b08aa35141c47b24` to
+`automation/profile-sync-27086701950`, pushed the branch, created PR #8
+(`https://github.com/SysAdminDoc/SysAdminDoc/pull/8`), and dispatched
+branch-scoped Profile sync validation run
+`https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086730286`.
+That validation run failed at `Validate generated profile` because generated
+branch validation used check-only mode against a fresh live metadata snapshot,
+reporting `projectsExportInSync=false`. PR #8 was closed and the generated
+branch was deleted after evidence collection. Profile sync now runs
+`sync-profile.ps1 -Write -Check` only for workflow-dispatch checks on
+`automation/profile-*` branches, preserving strict `-Check` for normal PR and
+main checks while avoiding false stale-snapshot failures for generated branches.
 
 2026-06-07 v4.9.106 refresh: Actions PR creation setting enabled and helper
 preflight fallback shipped. Cycle 114 applied the documented repository

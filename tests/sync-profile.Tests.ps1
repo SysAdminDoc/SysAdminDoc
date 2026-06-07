@@ -364,10 +364,13 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.conclusion | Should -Be 'failure'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.failedStep | Should -Be 'Create pull request'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'not-created'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCreated | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.conclusion | Should -Be 'success'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.failedStep | Should -BeNullOrEmpty
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'deleted-after-validation-failure'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCreated | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestNumber | Should -Be 8
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationDispatched | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationConclusion | Should -Be 'failure'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2225,18 +2228,26 @@ Describe 'Required status check readiness' {
         $evidence.nextAction | Should -Match 'required-check preconditions'
         $writeEvidence.available | Should -BeTrue
         $writeEvidence.mode | Should -Be 'write-pr'
-        $writeEvidence.runId | Should -Be 27086351848
-        $writeEvidence.jobId | Should -Be 79941483109
-        $writeEvidence.conclusion | Should -Be 'failure'
-        $writeEvidence.failedStep | Should -Be 'Create pull request'
+        $writeEvidence.runId | Should -Be 27086701950
+        $writeEvidence.jobId | Should -Be 79942449541
+        $writeEvidence.conclusion | Should -Be 'success'
+        $writeEvidence.failedStep | Should -BeNullOrEmpty
         $writeEvidence.reportArtifactUploaded | Should -BeTrue
-        $writeEvidence.artifactId | Should -Be 7461985005
-        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27086351848'
-        $writeEvidence.generatedBranchPushed | Should -BeFalse
-        $writeEvidence.generatedBranchCleanup | Should -Be 'not-created'
-        $writeEvidence.pullRequestCreated | Should -BeFalse
-        $writeEvidence.validationDispatched | Should -BeFalse
-        $writeEvidence.blocker | Should -Match 'workflow-permissions endpoint'
+        $writeEvidence.artifactId | Should -Be 7462114118
+        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27086701950'
+        $writeEvidence.generatedBranchPushed | Should -BeTrue
+        $writeEvidence.generatedBranchCleanup | Should -Be 'deleted-after-validation-failure'
+        $writeEvidence.pullRequestCreated | Should -BeTrue
+        $writeEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/8'
+        $writeEvidence.pullRequestNumber | Should -Be 8
+        $writeEvidence.pullRequestState | Should -Be 'closed'
+        $writeEvidence.validationDispatched | Should -BeTrue
+        $writeEvidence.validationRunId | Should -Be 27086730286
+        $writeEvidence.validationRunUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27086730286'
+        $writeEvidence.validationConclusion | Should -Be 'failure'
+        $writeEvidence.validationFailedStep | Should -Be 'Validate generated profile'
+        $writeEvidence.validationArtifactId | Should -Be 7462125092
+        $writeEvidence.blocker | Should -Match 'projectsExportInSync=false'
     }
 }
 
@@ -2296,6 +2307,15 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper | Should -Match '\[uri\]::EscapeDataString\("branch:\$branch"\)'
         $script:GeneratedPrHelper | Should -Match 'GITHUB_STEP_SUMMARY'
         $script:GeneratedPrHelper | Should -Match 'Generated profile PR validation handoff'
+    }
+
+    It 'regenerates before checking dispatched generated automation branches' {
+        $script:GeneratedPrWorkflows.ProfileSync | Should -Match "startsWith\(github[.]ref_name, 'automation/profile-'\)"
+        $script:GeneratedPrWorkflows.ProfileSync | Should -Match 'Validate generated profile branch'
+        $script:GeneratedPrWorkflows.ProfileSync | Should -Match 'sync-profile[.]ps1 -Write -Check'
+
+        $normalValidationStep = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)- name: Validate generated profile\r?\n.*?run: ./scripts/sync-profile[.]ps1 -Check').Value
+        $normalValidationStep | Should -Not -Match '-Write -Check'
     }
 
     It 'supports a side-effect-free generated PR dry run' {
@@ -2495,6 +2515,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'prDeliveryTransition'
         $script:SummaryScript | Should -Match 'generatedPrDryRunEvidence'
         $script:SummaryScript | Should -Match 'generatedPrWriteEvidence'
+        $script:SummaryScript | Should -Match 'Generated PR validation conclusion'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'
