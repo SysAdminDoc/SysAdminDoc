@@ -1541,9 +1541,13 @@ Describe 'Feed JSON Schema contracts' {
     It 'ignores volatile provenance fields in projects sync comparison' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $current = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $currentPayload = $current | ConvertFrom-Json
+        $currentPayload.projects[0].pushedAt = '2026-06-01T08:00:01Z'
+        $current = $currentPayload | ConvertTo-Json -Depth 20
         $expectedPayload = $current | ConvertFrom-Json
         $expectedPayload.provenance.metadataSnapshotAt = '2026-06-06T00:00:00Z'
         $expectedPayload.provenance.sourceCommit = '0000000000000000000000000000000000000000'
+        $expectedPayload.projects[0].pushedAt = '2026-06-01T08:00:01.0000000Z'
         $expected = $expectedPayload | ConvertTo-Json -Depth 20
 
         (ConvertTo-ProjectsSyncComparableJson -Json $current) | Should -Be (ConvertTo-ProjectsSyncComparableJson -Json $expected)

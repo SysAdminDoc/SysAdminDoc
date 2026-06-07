@@ -4873,6 +4873,19 @@ function ConvertTo-ProjectsSyncComparableJson {
             Set-MemberValue -Object $provenance -Name "metadataSnapshotAt" -Value $null
             Set-MemberValue -Object $provenance -Name "sourceCommit" -Value $null
         }
+        $projects = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name "projects"))
+        foreach ($project in $projects) {
+            $pushedAt = Get-MemberValue -Object $project -Name "pushedAt"
+            if (-not [string]::IsNullOrWhiteSpace([string]$pushedAt)) {
+                $parsedPushedAt = [datetimeoffset]::MinValue
+                if ([datetimeoffset]::TryParse([string]$pushedAt, [ref]$parsedPushedAt)) {
+                    Set-MemberValue `
+                        -Object $project `
+                        -Name "pushedAt" `
+                        -Value ($parsedPushedAt.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ", [Globalization.CultureInfo]::InvariantCulture))
+                }
+            }
+        }
         return ConvertTo-ComparableJson $payload
     } catch {
         return (($Json -replace "`r`n", "`n").TrimEnd())

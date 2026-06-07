@@ -5,10 +5,21 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.112
+Current version after this refresh: v4.9.113
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.113 batch fixes a check-only projects-feed sync bug exposed while
+  rehearsing the disposable required-check proof.
+- `ConvertTo-ProjectsSyncComparableJson` now normalizes `projects[].pushedAt`
+  values to UTC ISO text before comparing the committed feed with expected
+  output.
+- The comparison still ignores volatile `provenance.sourceCommit` and
+  `provenance.metadataSnapshotAt`, while stable provenance fields such as
+  catalog, generator, and schema hashes remain strict.
+- Pester coverage now proves equivalent pushed-at serialization does not fail
+  sync equality and that stable provenance hash drift still changes the
+  comparable output.
 - The v4.9.112 batch adds the disposable PR exercise plan for candidate-check
   freshness proof without enabling required-check enforcement.
 - `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan`
