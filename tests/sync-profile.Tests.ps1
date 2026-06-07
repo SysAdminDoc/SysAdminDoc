@@ -292,6 +292,10 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyCount | Should -Be 2
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.blockedCount | Should -Be 2
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.needsLiveValidationCount | Should -Be 1
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.available | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'failure'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -Be 'Regenerate profile'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeFalse
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
@@ -2006,6 +2010,27 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'Switch the loop to PR-based delivery'
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
     }
+
+    It 'records hosted generated PR dry-run evidence without marking delivery proven' {
+        $coverage = Test-RequiredCheckWorkflowCoverage
+        $transition = Get-PrDeliveryTransitionChecklist -WorkflowCoverage $coverage -RequiredChecksEnabled:$false -EnforceAdmins $true -BranchProtectionAvailable:$true -RulesetsAvailable:$true
+        $evidence = $transition.generatedPrDryRunEvidence
+
+        $transition.readyForRequiredCheckEnforcement | Should -BeFalse
+        $transition.status | Should -Be 'blocked'
+        $evidence.available | Should -BeTrue
+        $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
+        $evidence.mode | Should -Be 'dry-run-pr'
+        $evidence.event | Should -Be 'workflow_dispatch'
+        $evidence.runId | Should -Be 27082852047
+        $evidence.runUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27082852047'
+        $evidence.conclusion | Should -Be 'failure'
+        $evidence.failedStep | Should -Be 'Regenerate profile'
+        $evidence.previewStepReached | Should -BeFalse
+        $evidence.reportArtifactUploaded | Should -BeTrue
+        $evidence.artifactReadinessStatus | Should -Be 'needs-live-validation'
+        $evidence.nextAction | Should -Match 'rerun dry-run-pr'
+    }
 }
 
 Describe 'Roadmap reconciliation guards' {
@@ -2193,6 +2218,11 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Required check readiness'
             $summary | Should -Match 'Required check candidates'
             $summary | Should -Match 'Required check blockers'
+            $summary | Should -Match 'PR delivery transition'
+            $summary | Should -Match 'Generated PR dry-run evidence'
+            $summary | Should -Match 'Generated PR dry-run conclusion'
+            $summary | Should -Match 'Generated PR dry-run preview reached'
+            $summary | Should -Match 'Generated PR dry-run failed step'
             $summary | Should -Match 'Code scanning status'
             $summary | Should -Match 'Code scanning recommendation'
             $summary | Should -Match 'Code scanning languages'
@@ -2225,6 +2255,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'requiredCheckReadiness'
         $script:SummaryScript | Should -Match 'prDeliveryTransition'
+        $script:SummaryScript | Should -Match 'generatedPrDryRunEvidence'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

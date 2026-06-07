@@ -3945,6 +3945,32 @@ function New-PrDeliveryChecklistItem {
     }
 }
 
+function Get-GeneratedPrDryRunEvidence {
+    return [ordered]@{
+        available = $true
+        workflow = ".github/workflows/profile-sync.yml"
+        workflowName = "Profile sync"
+        mode = "dry-run-pr"
+        event = "workflow_dispatch"
+        branch = "main"
+        headSha = "3c103427ed7b2dbd6107c1a602aef70d9b698f43"
+        runId = [long]27082852047
+        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27082852047"
+        createdAt = "2026-06-07T04:38:49Z"
+        conclusion = "failure"
+        jobName = "Preview generated README PR"
+        jobId = [long]79931790291
+        failedStep = "Regenerate profile"
+        previewStepReached = $false
+        reportArtifactUploaded = $true
+        artifactReadinessStatus = "needs-live-validation"
+        artifactReadinessBlockedCount = 0
+        artifactReadinessNeedsLiveValidationCount = 3
+        evidenceSummary = "Manual hosted dry-run failed in Regenerate profile before the preview helper ran; the uploaded report artifact still showed generated outputs in sync."
+        nextAction = "Fix the hosted dry-run regenerate failure, rerun dry-run-pr, and update this evidence when the preview helper completes."
+    }
+}
+
 function Test-RequiredCheckWorkflowCoverage {
     param(
         [object[]]$Candidates = $RequiredStatusCheckCandidates
@@ -4087,6 +4113,7 @@ function Get-PrDeliveryTransitionChecklist {
         readyCount = $readyCount
         blockedCount = $blockedCount
         needsLiveValidationCount = $needsLiveValidationCount
+        generatedPrDryRunEvidence = Get-GeneratedPrDryRunEvidence
         items = @($items.ToArray())
     }
 }

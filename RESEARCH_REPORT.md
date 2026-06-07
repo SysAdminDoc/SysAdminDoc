@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.90
+Current version after this refresh: v4.9.91
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.91 batch records hosted generated PR dry-run evidence in
+  `requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence`.
+- Hosted run `27082852047` used workflow-dispatch mode `dry-run-pr` on `main`
+  at `3c103427ed7b2dbd6107c1a602aef70d9b698f43`, uploaded a profile sync
+  report artifact, and failed at `Regenerate profile` before the preview
+  helper ran.
+- The evidence keeps required-check readiness conservative: generated PR
+  delivery remains unproven until the hosted regenerate failure is fixed and
+  the preview helper completes.
 - The v4.9.90 batch stabilizes hash-backed aggregate report row ordering.
 - `projectLicenseMetadata.licenseCounts` and
   `staleProjectReview.suppressionReasonCounts` now sort by explicit report

@@ -2006,6 +2006,7 @@
         "readyCount",
         "blockedCount",
         "needsLiveValidationCount",
+        "generatedPrDryRunEvidence",
         "items"
       ],
       "properties": {
@@ -2032,11 +2033,119 @@
         "needsLiveValidationCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "generatedPrDryRunEvidence": {
+          "$ref": "#/$defs/generatedPrDryRunEvidence"
+        },
         "items": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/prDeliveryTransitionItem"
           }
+        }
+      }
+    },
+    "generatedPrDryRunEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "workflow",
+        "workflowName",
+        "mode",
+        "event",
+        "branch",
+        "headSha",
+        "runId",
+        "runUrl",
+        "createdAt",
+        "conclusion",
+        "jobName",
+        "jobId",
+        "failedStep",
+        "previewStepReached",
+        "reportArtifactUploaded",
+        "artifactReadinessStatus",
+        "artifactReadinessBlockedCount",
+        "artifactReadinessNeedsLiveValidationCount",
+        "evidenceSummary",
+        "nextAction"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "workflow": {
+          "type": "string"
+        },
+        "workflowName": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "headSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "runId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "runUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "conclusion": {
+          "type": "string",
+          "enum": [
+            "success",
+            "failure",
+            "cancelled",
+            "skipped",
+            "timed_out",
+            "action_required",
+            "neutral",
+            "unknown"
+          ]
+        },
+        "jobName": {
+          "type": "string"
+        },
+        "jobId": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failedStep": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "previewStepReached": {
+          "type": "boolean"
+        },
+        "reportArtifactUploaded": {
+          "type": "boolean"
+        },
+        "artifactReadinessStatus": {
+          "type": "string"
+        },
+        "artifactReadinessBlockedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "artifactReadinessNeedsLiveValidationCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "evidenceSummary": {
+          "type": "string"
+        },
+        "nextAction": {
+          "type": "string"
         }
       }
     },
