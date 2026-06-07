@@ -5,7 +5,7 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.72
+Current repo version: v4.9.73
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
@@ -33,6 +33,17 @@ pass, the implementing machine should:
    headings — the research machine owns those. Never force-push.
 
 Last researched: Cycle 48 - 2026-06-06.
+
+2026-06-06 v4.9.73 refresh: markdownlint guard shipped.
+The generated README-safe markdownlint leg now runs through `markdownlint-cli2`
+0.22.1 pinned in `package.json`/`package-lock.json`; `.markdownlint-cli2.yaml`
+allowlists the GitHub README constructs the generator intentionally emits while
+keeping the broader Markdown corpus linted. `tests.yml` has a pinned
+`actions/setup-node` v6.4.0 SHA, a `Markdownlint` job, and direct-push path
+coverage for Markdown/config/lockfile changes. `New-Readme` also stops emitting
+a duplicate blank line before the generated footer. Branch-protection/ruleset
+status-check enforcement remains external-gated while this loop pushes directly
+to `main`; continue with the next non-blocked research/maintenance item.
 
 2026-06-06 v4.9.72 refresh: stale-project/archive-review report shipped.
 `reports/profile-sync-report.json.staleProjectReview` now summarizes
@@ -1025,7 +1036,7 @@ These come from reading `scripts/sync-profile.ps1` (1,495 lines), the four workf
   - Evidence: root listing shows no `.editorconfig`/`.markdownlint*`; `New-Readme` normalizes only trailing `---` runs (`scripts/sync-profile.ps1:984`), not general whitespace.
   - Touches: `.editorconfig`, optional `.markdownlint.jsonc`, optional `tests.yml` lint leg.
   - Acceptance: an `.editorconfig` pins LF + final-newline + trim-trailing-whitespace; an optional markdownlint leg runs on PRs touching `README.md` with a curated ruleset (the generated tables are allowlisted).
-  - Completed: v4.9.37 added `.editorconfig`; v4.9.70 removed the Markdown trailing-whitespace exception, pinned `.gitattributes` and `.editorconfig` to LF, cleaned the PR template placeholders, and added Pester coverage for the LF/final-newline/trailing-whitespace contract. The markdownlint leg remains optional.
+  - Completed: v4.9.37 added `.editorconfig`; v4.9.70 removed the Markdown trailing-whitespace exception, pinned `.gitattributes` and `.editorconfig` to LF, cleaned the PR template placeholders, and added Pester coverage for the LF/final-newline/trailing-whitespace contract. v4.9.73 adds a pinned `markdownlint-cli2` ruleset, a `Markdownlint` Tests workflow job, Markdown/config/lockfile push triggers, npm Dependabot coverage, and Pester guards for the lint contract.
   - Complexity: S
 
 ### Privacy of the public surface
@@ -1906,6 +1917,7 @@ P2/P3, each doable in well under an hour:
 - [x] P3 — Internal title/description metadata for generated profile SVG panels (completed v4.9.68 with stable SVG title/description IDs, row-summary descriptions, and Pester XML coverage).
 - [x] P3 — Refresh stale catalog field names in completed-work docs (completed v4.9.69 with a schema-backed completed-work summary and Pester terminology guard).
 - [x] P3 — `.editorconfig` pinning LF + final-newline + trim-trailing-whitespace (completed v4.9.70 with Markdown trim enforcement, LF pinning for formatting policy files, PR template cleanup, and Pester formatting-contract coverage).
+- [x] P3 — Generated README-safe markdownlint check (completed v4.9.73 with pinned `markdownlint-cli2`, curated GitHub README rules, Tests workflow job, npm Dependabot coverage, and Pester contract checks).
 - [x] P3 — Recorded decision note on the retained third-party render hosts (completed v4.9.71 as a zero-retained-host decision with report-backed Pester coverage).
 - [x] P3 — Stale-project/archive-review report from `pushedAt`, latest releases, and suppression reasons (completed v4.9.72 with warning-only `staleProjectReview`, public-safe suppression grouping, schema support, summary rows, and Pester coverage).
 

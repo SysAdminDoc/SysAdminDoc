@@ -2142,7 +2142,6 @@ function New-Readme {
         $blocks.Add("")
     }
 
-    $blocks.Add("")
     $blocks.Add($footer)
     $blocks.Add("")
     return ($blocks -join [Environment]::NewLine)

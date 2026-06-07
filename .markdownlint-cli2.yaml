@@ -1,0 +1,33 @@
+config:
+  default: true
+  MD013: false
+  MD031: false
+  MD033:
+    allowed_elements:
+      - a
+      - b
+      - br
+      - code
+      - details
+      - i
+      - img
+      - kbd
+      - picture
+      - sub
+      - source
+      - summary
+  MD034: false
+  MD041: false
+  MD060: false
+
+globs:
+  - "*.md"
+  - ".github/**/*.md"
+  - "docs/**/*.md"
+
+ignores:
+  - "AGENTS.md"
+  - "CLAUDE.md"
+  - "TODO.md"
+  - "RESEARCH_FEATURE_PLAN.md"
+  - "node_modules"

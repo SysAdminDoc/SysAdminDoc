@@ -1320,6 +1320,12 @@ Describe 'Repository formatting contract' {
         $editorConfig | Should -Not -Match '(?m)^trim_trailing_whitespace\s*=\s*false\s*$'
         $gitAttributes | Should -Match '(?m)^\.gitattributes\s+text\s+eol=lf\s*$'
         $gitAttributes | Should -Match '(?m)^\.editorconfig\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^\.gitignore\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^\.github/CODEOWNERS\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^\.markdownlint-cli2\.yaml\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^package\.json\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^package-lock\.json\s+text\s+eol=lf\s*$'
+        $gitAttributes | Should -Match '(?m)^[*]\.yaml\s+text\s+eol=lf\s*$'
     }
 
     It 'keeps tracked Markdown free of trailing whitespace' {
@@ -1335,6 +1341,59 @@ Describe 'Repository formatting contract' {
         }
 
         @($violations) | Should -HaveCount 0
+    }
+}
+
+Describe 'Markdownlint contract' {
+    BeforeAll {
+        $script:MarkdownlintConfig = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.markdownlint-cli2.yaml')
+        $script:MarkdownlintPackage = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'package.json') | ConvertFrom-Json -AsHashtable
+        $script:MarkdownlintPackageLock = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'package-lock.json') | ConvertFrom-Json -AsHashtable
+        $script:MarkdownlintTestsWorkflow = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml')
+        $script:MarkdownlintCodeowners = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/CODEOWNERS')
+        $script:MarkdownlintDependabot = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml')
+        $script:MarkdownlintGitIgnore = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.gitignore')
+    }
+
+    It 'defines generated README-safe markdownlint rules' {
+        $script:MarkdownlintConfig | Should -Match '(?m)^  MD013:\s+false\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^  MD031:\s+false\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^  MD034:\s+false\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^  MD041:\s+false\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^  MD060:\s+false\s*$'
+        foreach ($tag in @('details', 'summary', 'kbd', 'br', 'sub', 'picture', 'source', 'img', 'a', 'b', 'i', 'code')) {
+            $script:MarkdownlintConfig | Should -Match "(?m)^\s+- $tag\s*$"
+        }
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[*][.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "docs/[*][*]/[*][.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[.]github/[*][*]/[*][.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "CLAUDE[.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "TODO[.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "RESEARCH_FEATURE_PLAN[.]md"\s*$'
+    }
+
+    It 'pins markdownlint through npm and keeps local installs ignored' {
+        $script:MarkdownlintPackage.scripts['lint:markdown'] | Should -Be 'markdownlint-cli2'
+        $script:MarkdownlintPackage.devDependencies['markdownlint-cli2'] | Should -Be '0.22.1'
+        $script:MarkdownlintPackageLock.name | Should -Be 'sysadmindoc-profile'
+        $script:MarkdownlintPackageLock.packages[''].devDependencies['markdownlint-cli2'] | Should -Be '0.22.1'
+        $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].version | Should -Be '0.22.1'
+        $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].integrity | Should -Match '^sha512-'
+        $script:MarkdownlintGitIgnore | Should -Match '(?m)^node_modules/\s*$'
+        $script:MarkdownlintCodeowners | Should -Match '(?m)^/[.]markdownlint-cli2[.]yaml\s+@SysAdminDoc\s*$'
+        $script:MarkdownlintCodeowners | Should -Match '(?m)^/package-lock[.]json\s+@SysAdminDoc\s*$'
+        $script:MarkdownlintDependabot | Should -Match '(?ms)package-ecosystem: "npm".*directory: "/"'
+    }
+
+    It 'runs markdownlint in Tests with a pinned setup-node action' {
+        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^  markdownlint:\s*$'
+        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^    name: Markdownlint\s*$'
+        $script:MarkdownlintTestsWorkflow | Should -Match 'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e'
+        $script:MarkdownlintTestsWorkflow | Should -Not -Match 'actions/setup-node@v'
+        $script:MarkdownlintTestsWorkflow | Should -Match 'node-version: "24"'
+        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^\s+cache: npm\s*$'
+        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^\s+npm ci\s*$'
+        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^\s+npm run lint:markdown\s*$'
     }
 }
 
@@ -1526,11 +1585,17 @@ Describe 'Required status check readiness' {
         }
     }
 
-    It 'runs offline tests for schema contract changes pushed to main' {
+    It 'runs offline tests for schema and markdown contract changes pushed to main' {
         $pushBlock = [regex]::Match($script:RequiredCheckWorkflows.Tests, '(?ms)^  push:\s*\r?\n(?<block>.*?)(?=^\S|\z)').Groups['block'].Value
 
         $pushBlock | Should -Match '(?m)^\s+paths:\s*$'
         $pushBlock | Should -Match '(?m)^\s+- "schemas/[*][*]"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "[*][.]md"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "docs/[*][*]/[*][.]md"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "[.]github/[*][*]/[*][.]md"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "[.]markdownlint-cli2[.]yaml"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "package[.]json"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "package-lock[.]json"\s*$'
     }
 
     It 'keeps the Windows setup smoke check always created for PRs and merge queue runs' {
@@ -1738,7 +1803,7 @@ Describe 'Workflow timeout budgets' {
             '.github/workflows/assets-refresh.yml' = 1
             '.github/workflows/profile-sync.yml' = 2
             '.github/workflows/scorecard.yml' = 1
-            '.github/workflows/tests.yml' = 3
+            '.github/workflows/tests.yml' = 4
             '.github/workflows/workflow-security.yml' = 1
         }
     }
@@ -1840,7 +1905,7 @@ Describe 'Workflow checkout action pin' {
         $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
 
-        $checkoutUses.Count | Should -Be 8
+        $checkoutUses.Count | Should -Be 9
         foreach ($match in $checkoutUses) {
             $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
         }

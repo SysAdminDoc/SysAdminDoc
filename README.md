@@ -639,5 +639,4 @@ Start with: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory
 
 </details>
 
-
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/footer-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/footer-light.svg"><img src="assets/profile/footer-dark.svg" alt="Decorative footer wave for the SysAdminDoc profile" /></picture>

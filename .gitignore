@@ -2,6 +2,7 @@
 *.log
 *.tmp
 .env
+node_modules/
 CLAUDE.md
 AGENTS.md
 CODEX_CHANGELOG.md

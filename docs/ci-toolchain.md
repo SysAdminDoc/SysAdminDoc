@@ -1,7 +1,7 @@
 # CI Validation Toolchain
 
 Last reviewed: 2026-06-06
-Profile release: v4.9.46
+Profile release: v4.9.73
 
 This file records the reviewed validation-tool pins used by GitHub Actions.
 Keep these pins in reviewable files instead of letting hosted runners resolve
@@ -13,6 +13,7 @@ the latest registry release during CI.
 | --- | --- | --- | --- |
 | Pester | `.github/workflows/tests.yml` | `5.7.1` | `Install-Module Pester -RequiredVersion 5.7.1` |
 | PSScriptAnalyzer | `.github/workflows/tests.yml` | `1.25.0` | `Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0` |
+| markdownlint-cli2 | `.github/workflows/tests.yml` | `0.22.1` | `package-lock.json` integrity plus `npm ci` |
 | actionlint | `.github/workflows/workflow-security.yml` | `1.7.12` | Release archive SHA-256 in workflow env |
 | zizmor | `.github/workflows/workflow-security.yml` | `1.25.2` | `requirements-ci.txt` hashes plus `--require-hashes --only-binary :all:` |
 
@@ -21,13 +22,16 @@ the latest registry release during CI.
 1. Check the upstream release notes and registry metadata for the target tool.
 2. Update the exact version in the workflow or `requirements-ci.txt`.
 3. For `zizmor`, refresh every PyPI distribution hash in `requirements-ci.txt`.
-4. For `actionlint`, refresh the release archive checksum in the workflow env.
-5. Update this file, the changelog, roadmap, completed-work log, and loop state.
-6. Run the local validation gate before commit:
+4. For `markdownlint-cli2`, update `package.json` and regenerate `package-lock.json` with `npm install --package-lock-only`.
+5. For `actionlint`, refresh the release archive checksum in the workflow env.
+6. Update this file, the changelog, roadmap, completed-work log, and loop state.
+7. Run the local validation gate before commit:
 
 ```powershell
 pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"
 pwsh -NoProfile -Command "Invoke-ScriptAnalyzer -Path scripts -Recurse -Settings ./PSScriptAnalyzerSettings.psd1; Invoke-ScriptAnalyzer -Path setup.ps1 -Settings ./PSScriptAnalyzerSettings.psd1"
+npm ci
+npm run lint:markdown
 pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Write -Check
 rtk git diff --check
 ```
