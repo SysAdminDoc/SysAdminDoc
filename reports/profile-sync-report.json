@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T07:20:41.3115281-04:00",
+  "generatedAt": "2026-06-07T07:31:10.5030292-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "64e02f3b4b9737f77b4629052dabc9f449e261bb",
+    "sourceCommit": "5a902210a5ab7a0f7749492d5767727ce792dece",
     "catalogSha256": "ca7be2a35d8a6c6d8d15fb3f8df6e2f8d8358d724c34cc1005a08ac2387e0eef",
-    "generatorSha256": "213f9207af5c4c3499d61b5766422e32f38f792f7b92f68e1b6f92da8492e2df",
+    "generatorSha256": "f981d6cfa5d7b6692bccec6ee80208e7fcd4b032e54480aef0fd902ba74eb9a8",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T07:19:24.0397394-04:00",
+    "metadataSnapshotAt": "2026-06-07T07:29:53.2304642-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,13 +2270,13 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T07:19:24.0397394-04:00",
-          "openAlertCount": 5,
+          "queriedAt": "2026-06-07T07:29:53.2304642-04:00",
+          "openAlertCount": 4,
           "localActionableCount": 0,
-          "needsHostedRefreshCount": 1,
+          "needsHostedRefreshCount": 0,
           "externalGatedCount": 2,
           "notApplicableCount": 2,
-          "recommendation": "rerun-scorecard-to-refresh-alerts",
+          "recommendation": "track-external-scorecard-governance-items",
           "rows": [
             {
               "alertNumber": 4,
@@ -2349,24 +2349,6 @@
               "toolVersion": "v5.3.0",
               "createdAt": "2026-06-07T06:18:17Z",
               "updatedAt": "2026-06-07T06:18:17Z"
-            },
-            {
-              "alertNumber": 2,
-              "ruleId": "SecurityPolicyID",
-              "checkName": "Security-Policy",
-              "state": "open",
-              "severity": "error",
-              "securitySeverity": "medium",
-              "classification": "local-fix-pending-scorecard-refresh",
-              "localDisposition": "fixed-locally",
-              "localEvidence": "SECURITY.md includes a direct private vulnerability reporting URL.",
-              "nextAction": "Rerun the Scorecard workflow and verify the Security-Policy alert closes or score improves.",
-              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/2",
-              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#security-policy",
-              "toolName": "Scorecard",
-              "toolVersion": "v5.3.0",
-              "createdAt": "2026-06-07T06:18:17Z",
-              "updatedAt": "2026-06-07T06:18:17Z"
             }
           ],
           "note": "Rows classify open Scorecard SARIF alerts as local fixes, hosted-refresh waits, accepted tool limitations, or external governance items; the posture remains warning-only."
@@ -2376,7 +2358,7 @@
     "branchProtection": {
       "available": true,
       "unavailableReason": null,
-      "requiredStatusChecks": false,
+      "requiredStatusChecks": true,
       "requiredPullRequestReviews": false,
       "requiredCodeOwnerReviews": false,
       "requiredConversationResolution": true,
@@ -2410,10 +2392,10 @@
       }
     },
     "requiredCheckReadiness": {
-      "status": "not-enabled",
-      "recommendation": "defer-until-pr-delivery-or-bypass",
-      "readyForEnforcement": false,
-      "branchProtectionRequiredStatusChecks": false,
+      "status": "enforcement-present",
+      "recommendation": "monitor-required-check-enforcement",
+      "readyForEnforcement": true,
+      "branchProtectionRequiredStatusChecks": true,
       "rulesetCount": 0,
       "enforceAdmins": true,
       "candidateCheckCount": 6,
@@ -2489,11 +2471,11 @@
         ]
       },
       "prDeliveryTransition": {
-        "status": "blocked",
-        "readyForRequiredCheckEnforcement": false,
+        "status": "ready",
+        "readyForRequiredCheckEnforcement": true,
         "checklistCount": 5,
-        "readyCount": 4,
-        "blockedCount": 1,
+        "readyCount": 5,
+        "blockedCount": 0,
         "needsLiveValidationCount": 0,
         "generatedPrDryRunEvidence": {
           "available": true,
@@ -2740,23 +2722,19 @@
           },
           {
             "id": "enforcement-mechanism",
-            "status": "blocked",
+            "status": "ready",
             "summary": "Choose branch protection or a repository ruleset only after PR delivery is ready.",
-            "evidence": "Live settings are readable and currently show no required-check enforcement.",
-            "nextAction": "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."
+            "evidence": "Required-check enforcement is already present.",
+            "nextAction": "Monitor required checks on the next normal PR and re-query branch protection after any check-name changes."
           }
         ]
       },
-      "blockerCount": 2,
-      "blockers": [
-        "Branch protection does not require status checks.",
-        "No repository rulesets are configured."
-      ]
+      "blockerCount": 0,
+      "blockers": []
     },
-    "warningCount": 4,
+    "warningCount": 3,
     "warnings": [
       "Dependabot security updates are not enabled.",
-      "Branch protection does not require status checks.",
       "Branch protection does not require pull request reviews.",
       "Branch protection does not require code owner reviews."
     ]
@@ -2866,28 +2844,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.120",
+    "expectedVersion": "v4.9.121",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.120"
+        "value": "v4.9.121"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.120"
+        "value": "v4.9.121"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.120"
+        "value": "v4.9.121"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.120"
+        "value": "v4.9.121"
       }
     ],
     "dates": [
@@ -2914,7 +2892,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 132,
+      "headingCount": 133,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2924,14 +2902,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.120",
+    "expectedVersion": "v4.9.121",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.120",
+    "expectedTag": "v4.9.121",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2941,13 +2919,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.120",
+        "expectedVersion": "v4.9.121",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.120",
+        "expectedVersion": "v4.9.121",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2970,7 +2948,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4129,
+      "elapsedMs": 5394,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3014,7 +2992,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4129,
+    "elapsedMs": 5394,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3364,7 +3342,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 109041,
+        "value": 107805,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3392,7 +3370,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T07:20:56.7657580-04:00",
+    "generatedAt": "2026-06-07T07:31:29.1660281-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

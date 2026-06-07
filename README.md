@@ -460,7 +460,7 @@ Start with: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**NovaCu
 | [**BillMinder**](https://github.com/SysAdminDoc/BillMinder) | Bill tracker with alarm-style reminders | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/BillMinder/releases/latest) |
 | [**OpenSwift**](https://github.com/SysAdminDoc/OpenSwift) &#11088;2 | SwiftKey-inspired Android keyboard — glide typing, prediction, themes, clipboard | [Repo](https://github.com/SysAdminDoc/OpenSwift) |
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;4 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
-| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;6 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
+| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;7 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
 | [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;3 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015; APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) &#11088;1 | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015; EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
 

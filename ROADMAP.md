@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.120
+Current repo version: v4.9.121
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 128 - 2026-06-07.
+> Last researched: Cycle 129 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,18 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 128 - 2026-06-07.
+Last researched: Cycle 129 - 2026-06-07.
+
+2026-06-07 v4.9.121 refresh: branch-protection required checks enabled.
+Cycle 129 enabled strict required status checks on protected `main` for
+`Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`,
+`Windows setup smoke`, `Check generated README`, and `zizmor`. Branch
+protection remains admin-enforced, keeps required conversation resolution,
+blocks force pushes and deletion, does not require PR reviews, and does not use
+repository rulesets. Required-check readiness now treats branch protection as
+the selected enforcement mechanism, so the transition checklist is ready with
+zero activation blockers. The next cycle should monitor the first normal PR
+under active required-check enforcement and record the hosted proof.
 
 2026-06-07 v4.9.120 refresh: routine PR delivery proof recorded.
 Cycle 127 opened and merged PR #14 from the `routine-pr-drill-evidence` branch
@@ -2303,7 +2314,7 @@ direct-push automation.*
     3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
     4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
     5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
-  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. v4.9.117 proves all six candidate check names on disposable PR #13. v4.9.118 selects routine pull-request delivery with no direct-main bypass. v4.9.119 adds `routineMaintenancePrDrillEvidence` as the evidence slot for the normal maintenance merge drill. v4.9.120 records merged PR #14 as the successful routine-maintenance PR delivery proof: all six candidate checks passed, the branch merged by rebase, and the proof branch was deleted. The remaining work is selecting and enabling branch protection or a repository ruleset for the six candidate checks, then re-querying live settings.
+  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. v4.9.117 proves all six candidate check names on disposable PR #13. v4.9.118 selects routine pull-request delivery with no direct-main bypass. v4.9.119 adds `routineMaintenancePrDrillEvidence` as the evidence slot for the normal maintenance merge drill. v4.9.120 records merged PR #14 as the successful routine-maintenance PR delivery proof: all six candidate checks passed, the branch merged by rebase, and the proof branch was deleted. v4.9.121 enables branch-protection required checks for the six candidate contexts with strict up-to-date enforcement and updates readiness reporting to treat branch protection as the selected enforcement mechanism. The remaining work is monitoring the first normal PR under active required-check enforcement and recording that hosted proof.
   - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
   - Risks: requiring `Check generated README` can force live-link/profile-smoke dependencies onto every PR; requiring `zizmor` before exact tool pinning can create supply-chain update friction; code-owner review is weak for a single-user repo unless the user wants self-review controls; merge queue is overkill unless PR volume increases.
   - Verify: open a disposable PR touching `README.md`, `.github/workflows/tests.yml`, and `setup.ps1`; confirm all required candidate jobs are created on PR and `merge_group`; query branch protection/rulesets after enforcement; confirm direct push behavior is intentionally blocked or bypassed according to the documented delivery model.

@@ -4,12 +4,10 @@ Date: 2026-06-07
 
 ## Decision
 
-Do not enable required-check enforcement yet. The repo has stable candidate
-checks, pull request triggers, and merge queue triggers, but the maintenance
-delivery path still pushes directly to `main`. Because protected `main` has
-admin enforcement enabled, required checks would reject that delivery path until
-the repo switches to PR-based delivery or documents and tests a narrow approved
-bypass.
+Required-check enforcement is enabled through branch protection as of
+Cycle 129. The repo has stable candidate checks, pull request triggers, and
+merge queue triggers, and routine maintenance has switched to PR-based delivery
+with no direct-main bypass approved.
 
 Cycle 110 live evidence confirmed one additional blocker: the repository's
 GitHub Actions workflow permissions currently use `default_workflow_permissions=read`
@@ -33,7 +31,7 @@ generated branch head SHA.
 | Candidate workflow coverage | Ready | Tests, Profile sync, and Workflow security all create checks on `pull_request` and `merge_group`, and PR triggers are not path-filtered. | Keep required-check candidate workflows always-created for PRs and merge queue runs. |
 | Recent successful check runs | Ready | Disposable PR #13 created all six candidate checks and each completed successfully in this repository. | Refresh the disposable proof if GitHub's recent-check selection window expires before enforcement. |
 | PR delivery or bypass | Ready | Generated PR creation, branch-scoped workflow-dispatch validation, and the `generated-profile/validation` PR status handoff are proven. Routine maintenance uses PR delivery with no direct-main bypass approved, and PR #14 merged by rebase after all six candidate checks passed. | Select and enable one required-check enforcement mechanism, then re-query branch protection or rulesets. |
-| Enforcement mechanism | Blocked | Branch protection and repository rulesets are currently readable and non-enforcing for required checks. | After PR delivery is proven, enable either branch-protection required checks or one repository ruleset, then re-query live settings. |
+| Enforcement mechanism | Ready | Branch protection requires `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor` with strict up-to-date enforcement. Repository rulesets remain unused. | Monitor required checks on the next normal PR and re-query branch protection after any check-name changes. |
 
 ## Activation Order
 
@@ -49,7 +47,8 @@ generated branch head SHA.
    within GitHub's selection window.
 6. Switch routine maintenance to PR delivery, or document an approved bypass and
    prove it works.
-7. Enable one enforcement mechanism only after the delivery path is proven.
+7. Branch-protection required checks are enabled as of Cycle 129 after the
+   delivery path was proven.
 8. Re-run `scripts/sync-profile.ps1 -Check` and confirm
    `repositorySettings.requiredCheckReadiness` and `prDeliveryTransition`
    reflect the new state.
