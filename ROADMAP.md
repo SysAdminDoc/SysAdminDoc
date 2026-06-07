@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.100
+Current repo version: v4.9.101
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 108 - 2026-06-07.
+> Last researched: Cycle 109 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,19 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 108 - 2026-06-07.
+Last researched: Cycle 109 - 2026-06-07.
+
+2026-06-07 v4.9.101 refresh: README density audit guard shipped. Cycle 109
+rechecked the generated README/report density after the latest live metadata
+refresh. GitHub's README documentation still notes that content beyond 500 KiB
+is truncated when viewed on GitHub; the current generated README remains well
+below that hard display threshold at about 61 KiB, with 587 lines, 110 table
+rows, and 166 README project rows. The largest categories are `powershell` and
+`python` at the 30-row soft cap, `readmeDensity.warningCount=0`,
+`portfolioOnlyCandidateCount=0`, `routingRecommendation=keep-readme-routing-surface`,
+and the report-only preview status is `no-candidates`. Pester now
+guards those committed report properties so the next live metadata refresh will
+fail locally if a new portfolio-only review queue appears.
 
 2026-06-07 v4.9.100 refresh: Scorecard action pin guard and hosted proof
 shipped. Cycle 108 reviewed the remaining workflow action pin surface after the
@@ -2131,12 +2143,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 108 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 109 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `1929100 feat: refresh generated pr dry-run evidence`
+- HEAD inspected before this cycle: `23bbd20 test: guard scorecard action pin`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -2167,14 +2179,15 @@ Current local state:
 - Cycle 106 added a GitHub Actions step-summary size guard and Pester budget check for the profile sync summary helper.
 - Cycle 107 refreshed hosted generated PR dry-run evidence after the artifact-runtime and summary-size guard changes; run `27084524165` reached the preview helper and planned `automation/profile-sync-27084524165` without side effects.
 - Cycle 108 added an offline guard for the pinned `ossf/scorecard-action` 2.4.3 SHA and captured successful hosted Scorecard run `27084740289` after the workflow permission repair.
+- Cycle 109 audited current README density after the latest metadata refresh and added a committed-report guard for zero warnings, zero portfolio-only candidates, and no over-soft-limit categories.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 109: audit README/report density again after the next live metadata refresh and route any new low-signal rows through the review pipeline.
-2. Cycle 110: exercise generated PR delivery against a disposable branch or PR only after a safe bypass/review model is documented.
-3. Cycle 111: review remaining Scorecard warning-only findings for any profile-repo items worth documenting or suppressing.
+1. Cycle 110: exercise generated PR delivery against a disposable branch or PR only after a safe bypass/review model is documented.
+2. Cycle 111: review remaining Scorecard warning-only findings for any profile-repo items worth documenting or suppressing.
+3. Cycle 112: audit profile-release/tag warning policy and decide whether to cut a matching profile release or document the intentional gap.
 
 ### Quick Wins
 
@@ -2195,6 +2208,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Hosted generated PR dry-run success evidence (completed v4.9.93 with successful run `27083372279`, preview-helper proof, planned branch, artifact upload, schema-backed report fields, and Pester guards).
 - [x] P2 — Hosted generated PR dry-run refresh after workflow-runtime hardening (completed v4.9.99 with successful run `27084524165`, Node 24 artifact-upload path proof, summary helper proof, planned branch, and no side effects).
 - [x] P2 — Scorecard action pin guard and hosted proof (completed v4.9.100 with the pinned `ossf/scorecard-action` 2.4.3 SHA, floating-tag rejection, and successful hosted run `27084740289`).
+- [x] P2 — README density post-demotion guard (completed v4.9.101 with committed-report Pester coverage for zero density warnings, zero portfolio-only candidates, and no over-soft-limit categories).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).
 - [x] P2 — Approved portfolio-only catalog mutation (completed v4.9.95 with the 11 approved rows removed from README output, preserved in `projects.json`, and covered by Pester).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).

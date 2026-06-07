@@ -5,10 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.100
+Current version after this refresh: v4.9.101
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.101 batch audits current README density after the latest metadata
+  refresh and adds committed-report regression coverage.
+- GitHub README documentation still states that content beyond 500 KiB is
+  truncated when viewed on GitHub, while the current generated profile README
+  remains about 61 KiB.
+- The current `readmeDensity` report has 587 lines, 110 table rows, 166 README
+  project rows, 0 warnings, 0 portfolio-only candidates, largest categories at
+  the 30-row soft cap, and `routingRecommendation=keep-readme-routing-surface`.
+- Pester now guards the committed report so future metadata drift fails locally
+  when a new portfolio-only review queue or over-soft-limit category appears.
 - The v4.9.100 batch adds the missing offline guard for the pinned OpenSSF
   Scorecard action.
 - Upstream `ossf/scorecard-action` reports v2.4.3 as the latest release; the

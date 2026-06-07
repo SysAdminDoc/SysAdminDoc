@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.101] - 2026-06-07
+
+- Added: Pester coverage now guards the committed `readmeDensity` report after the approved portfolio-only demotion, requiring zero density warnings, zero portfolio-only candidates, no over-soft-limit categories, and a `no-candidates` preview.
+- Changed: Planning docs now record the Cycle 109 density audit with the current 166 README project rows and largest categories at the 30-row soft cap.
+
 ## [v4.9.100] - 2026-06-07
 
 - Added: Pester coverage now guards the `ossf/scorecard-action` pin at the reviewed 2.4.3 Docker action SHA and rejects floating Scorecard action tags.
