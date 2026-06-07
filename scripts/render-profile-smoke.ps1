@@ -4,7 +4,7 @@ param(
     [string]$Url = "https://github.com/SysAdminDoc",
     [string]$OutputDir = "reports",
     [int]$Port = 9224,
-    [int]$TimeoutSec = 30
+    [int]$TimeoutSec = 60
 )
 
 Set-StrictMode -Version Latest
@@ -38,18 +38,27 @@ function Find-ChromeExecutable {
 }
 
 function Wait-ForDevTools {
-    param([int]$Port, [int]$TimeoutSec)
+    param(
+        [int]$Port,
+        [int]$TimeoutSec,
+        [System.Diagnostics.Process]$Process
+    )
 
     $deadline = [datetime]::UtcNow.AddSeconds($TimeoutSec)
+    $lastError = $null
     do {
+        if ($Process -and $Process.HasExited) {
+            throw "Chrome exited before DevTools became ready on port $Port. Exit code: $($Process.ExitCode)."
+        }
         try {
             return Invoke-RestMethod -Uri "http://127.0.0.1:$Port/json/version" -TimeoutSec 2
         } catch {
+            $lastError = $_.Exception.Message
             Start-Sleep -Milliseconds 250
         }
     } while ([datetime]::UtcNow -lt $deadline)
 
-    throw "Chrome DevTools endpoint did not become ready on port $Port."
+    throw "Chrome DevTools endpoint did not become ready on port $Port within $TimeoutSec seconds. Last error: $lastError"
 }
 
 function Send-CdpCommand {
@@ -219,60 +228,85 @@ $chrome = Find-ChromeExecutable
 $currentDirectory = (Get-Location).ProviderPath
 $resolvedOutputDir = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $currentDirectory $OutputDir }
 New-Item -ItemType Directory -Force -Path $resolvedOutputDir | Out-Null
-$profileDir = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-render-smoke-" + [guid]::NewGuid().ToString("N"))
-New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
 
-$chromeArgs = @(
-    "--headless=new",
-    "--disable-gpu",
-    "--hide-scrollbars",
-    "--no-sandbox",
-    "--remote-debugging-port=$Port",
-    "--user-data-dir=$profileDir",
-    "about:blank"
-)
+$results = $null
+$lastLaunchError = $null
+for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
+    $attemptPort = $Port + $attempt - 1
+    $profileDir = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-render-smoke-" + [guid]::NewGuid().ToString("N"))
+    New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
+    $stdoutPath = Join-Path $resolvedOutputDir "rendered-profile-smoke-chrome-$attempt.out.log"
+    $stderrPath = Join-Path $resolvedOutputDir "rendered-profile-smoke-chrome-$attempt.err.log"
 
-$startProcessParams = @{
-    FilePath = $chrome
-    ArgumentList = $chromeArgs
-    PassThru = $true
-}
-if ($IsWindows) {
-    $startProcessParams.WindowStyle = "Hidden"
-}
-$process = Start-Process @startProcessParams
-try {
-    Wait-ForDevTools -Port $Port -TimeoutSec $TimeoutSec | Out-Null
-    $target = Invoke-RestMethod -Uri "http://127.0.0.1:$Port/json/new?$([uri]::EscapeDataString($Url))" -Method Put -TimeoutSec 10
-    $socket = [System.Net.WebSockets.ClientWebSocket]::new()
-    $socket.ConnectAsync([uri]$target.webSocketDebuggerUrl, [Threading.CancellationToken]::None).GetAwaiter().GetResult() | Out-Null
+    $chromeArgs = @(
+        "--headless=new",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-background-networking",
+        "--disable-extensions",
+        "--hide-scrollbars",
+        "--no-default-browser-check",
+        "--no-first-run",
+        "--no-sandbox",
+        "--remote-debugging-address=127.0.0.1",
+        "--remote-debugging-port=$attemptPort",
+        "--user-data-dir=$profileDir",
+        "about:blank"
+    )
+
+    $startProcessParams = @{
+        FilePath = $chrome
+        ArgumentList = $chromeArgs
+        RedirectStandardOutput = $stdoutPath
+        RedirectStandardError = $stderrPath
+        PassThru = $true
+    }
+    if ($IsWindows) {
+        $startProcessParams.WindowStyle = "Hidden"
+    }
+    $process = Start-Process @startProcessParams
     try {
-        $commandId = 0
-        $viewports = @(
-            [ordered]@{ Name = "desktop"; Width = 1280; Height = 900 },
-            [ordered]@{ Name = "mobile"; Width = 390; Height = 900 }
-        )
-        $results = foreach ($viewport in $viewports) {
-            Invoke-RenderedSmoke `
-                -Socket $socket `
-                -CommandId ([ref]$commandId) `
-                -Url $Url `
-                -Name $viewport.Name `
-                -Width $viewport.Width `
-                -Height $viewport.Height `
-                -ScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name).png")
+        Wait-ForDevTools -Port $attemptPort -TimeoutSec $TimeoutSec -Process $process | Out-Null
+        $target = Invoke-RestMethod -Uri "http://127.0.0.1:$attemptPort/json/new?$([uri]::EscapeDataString($Url))" -Method Put -TimeoutSec 10
+        $socket = [System.Net.WebSockets.ClientWebSocket]::new()
+        $socket.ConnectAsync([uri]$target.webSocketDebuggerUrl, [Threading.CancellationToken]::None).GetAwaiter().GetResult() | Out-Null
+        try {
+            $commandId = 0
+            $viewports = @(
+                [ordered]@{ Name = "desktop"; Width = 1280; Height = 900 },
+                [ordered]@{ Name = "mobile"; Width = 390; Height = 900 }
+            )
+            $results = foreach ($viewport in $viewports) {
+                Invoke-RenderedSmoke `
+                    -Socket $socket `
+                    -CommandId ([ref]$commandId) `
+                    -Url $Url `
+                    -Name $viewport.Name `
+                    -Width $viewport.Width `
+                    -Height $viewport.Height `
+                    -ScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name).png")
+            }
+        } finally {
+            $socket.Dispose()
+        }
+    } catch {
+        $lastLaunchError = $_.Exception.Message
+        if ($attempt -lt 2) {
+            Write-Warning "Rendered profile smoke launch attempt $attempt failed: $lastLaunchError"
         }
     } finally {
-        $socket.Dispose()
+        if ($process -and -not $process.HasExited) {
+            Stop-Process -Id $process.Id -Force
+            Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue
+        }
+        if (Test-Path -LiteralPath $profileDir) {
+            Remove-Item -LiteralPath $profileDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
     }
-} finally {
-    if ($process -and -not $process.HasExited) {
-        Stop-Process -Id $process.Id -Force
-        Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue
-    }
-    if (Test-Path -LiteralPath $profileDir) {
-        Remove-Item -LiteralPath $profileDir -Recurse -Force -ErrorAction SilentlyContinue
-    }
+}
+
+if ($null -eq $results) {
+    throw "Rendered profile smoke could not start Chrome DevTools after retry. Last error: $lastLaunchError"
 }
 
 $report = [ordered]@{

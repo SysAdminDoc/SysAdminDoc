@@ -45,7 +45,9 @@ the selected enforcement mechanism, so the transition checklist is ready with
 zero activation blockers. Check-only metadata drift also downgrades transient
 release-asset inspection loss to informational when release identity is
 unchanged, so hosted PR validation is not blocked by a temporary GitHub release
-API outage. The next cycle should monitor the first normal PR under active
+API outage. Rendered profile smoke now gives Chrome DevTools a longer startup
+window, CI-friendly launch flags, captured browser logs, and one fresh-port
+retry. The next cycle should monitor the first normal PR under active
 required-check enforcement and record the hosted proof.
 
 2026-06-07 v4.9.120 refresh: routine PR delivery proof recorded.

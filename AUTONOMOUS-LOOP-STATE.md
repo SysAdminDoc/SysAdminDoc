@@ -10,6 +10,7 @@ Last completed roadmap cycle: Cycle 129 - Branch-protection required checks
 - Kept admin enforcement, required conversation resolution, blocked force pushes/deletion, no PR review requirement, and no repository rulesets.
 - Updated readiness reporting so branch protection is the selected enforcement mechanism with zero activation blockers.
 - Hardened hosted PR validation so transient release-asset inspection loss remains informational when release identity is unchanged.
+- Hardened rendered profile smoke with CI-friendly Chrome startup flags, captured browser logs, and one retry.
 - Updated roadmap, research report, project context, completed work, and changelog to v4.9.121.
 
 ## Next Cycle
