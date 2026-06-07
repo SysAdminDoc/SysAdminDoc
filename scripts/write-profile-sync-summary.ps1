@@ -44,6 +44,7 @@ $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
 $requiredCheckReadiness = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'requiredCheckReadiness') { $repositorySettings.requiredCheckReadiness } else { $null }
 $prDeliveryTransition = if ($requiredCheckReadiness -and $requiredCheckReadiness.PSObject.Properties.Name -contains 'prDeliveryTransition') { $requiredCheckReadiness.prDeliveryTransition } else { $null }
+$generatedPrDryRunEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'generatedPrDryRunEvidence') { $prDeliveryTransition.generatedPrDryRunEvidence } else { $null }
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
@@ -73,6 +74,11 @@ $requiredCheckBlockerCount = if ($requiredCheckReadiness) { [int]$requiredCheckR
 $prDeliveryTransitionStatus = if ($prDeliveryTransition) { [string]$prDeliveryTransition.status } else { "unknown" }
 $prDeliveryTransitionBlockedCount = if ($prDeliveryTransition) { [int]$prDeliveryTransition.blockedCount } else { 0 }
 $prDeliveryTransitionLiveValidationCount = if ($prDeliveryTransition) { [int]$prDeliveryTransition.needsLiveValidationCount } else { 0 }
+$generatedPrDryRunAvailable = if ($generatedPrDryRunEvidence) { [bool]$generatedPrDryRunEvidence.available } else { $false }
+$generatedPrDryRunConclusion = if ($generatedPrDryRunEvidence) { [string]$generatedPrDryRunEvidence.conclusion } else { "unknown" }
+$generatedPrDryRunPreviewReached = if ($generatedPrDryRunEvidence) { [bool]$generatedPrDryRunEvidence.previewStepReached } else { $false }
+$generatedPrDryRunFailedStep = if ($generatedPrDryRunEvidence -and $null -ne $generatedPrDryRunEvidence.failedStep) { [string]$generatedPrDryRunEvidence.failedStep } else { "" }
+$generatedPrDryRunUrl = if ($generatedPrDryRunEvidence) { [string]$generatedPrDryRunEvidence.runUrl } else { "" }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -189,6 +195,11 @@ $summary = @"
 | PR delivery transition | $prDeliveryTransitionStatus |
 | PR delivery blockers | $prDeliveryTransitionBlockedCount |
 | PR delivery live validations | $prDeliveryTransitionLiveValidationCount |
+| Generated PR dry-run evidence | $generatedPrDryRunAvailable |
+| Generated PR dry-run conclusion | $generatedPrDryRunConclusion |
+| Generated PR dry-run preview reached | $generatedPrDryRunPreviewReached |
+| Generated PR dry-run failed step | $generatedPrDryRunFailedStep |
+| Generated PR dry-run URL | $generatedPrDryRunUrl |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
@@ -288,6 +299,10 @@ if ($prDeliveryTransitionBlockedCount -gt 0) {
 
 if ($prDeliveryTransitionLiveValidationCount -gt 0) {
     Write-Output "::warning::Profile sync report has $prDeliveryTransitionLiveValidationCount PR-delivery transition live-validation item(s)."
+}
+
+if ($generatedPrDryRunAvailable -and $generatedPrDryRunConclusion -ne "success") {
+    Write-Output "::warning::Generated PR dry-run evidence is $generatedPrDryRunConclusion; preview reached: $generatedPrDryRunPreviewReached; failed step: $generatedPrDryRunFailedStep."
 }
 
 if ($codeScanningStatus -eq "needs-live-validation") {

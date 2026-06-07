@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.91] - 2026-06-07
+
+- Added: `repositorySettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence` now records the hosted `dry-run-pr` run ID, workflow-dispatch mode, head SHA, failure conclusion, failed step, skipped preview state, and uploaded report-artifact state.
+- Added: The profile sync summary now surfaces generated PR dry-run evidence, conclusion, preview status, failed step, and run URL.
+- Changed: Required-check readiness now keeps generated PR delivery unproven when hosted dry-run evidence fails before the preview helper runs.
+
 ## [v4.9.90] - 2026-06-07
 
 - Added: Report aggregate rows now use explicit key-based sorting before JSON output instead of depending on hashtable enumeration order.

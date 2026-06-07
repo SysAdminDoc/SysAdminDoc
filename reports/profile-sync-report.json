@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T00:34:38.5216584-04:00",
+  "generatedAt": "2026-06-07T00:51:33.4833132-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "99a5b08894051c2530618cb0eed06f2bb7c57394",
+    "sourceCommit": "3c103427ed7b2dbd6107c1a602aef70d9b698f43",
     "catalogSha256": "80bca1eae2728b762ac9813eb3446a3087745ae983737a2550f17b5cb1404f1e",
-    "generatorSha256": "7dc1f150c2c97229bea153e8fc51bb5f441e524a85409eb576c2af48c40a412b",
+    "generatorSha256": "4a5be59ec521ea234afcadc213ccf60703d847f8f61431369fa7efcc7f3d61f8",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T00:32:44.9303699-04:00",
+    "metadataSnapshotAt": "2026-06-07T00:49:46.3808265-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T04:29:57Z",
+        "pushedAt": "2026-06-07T04:47:20Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -2369,6 +2369,29 @@
         "readyCount": 2,
         "blockedCount": 2,
         "needsLiveValidationCount": 1,
+        "generatedPrDryRunEvidence": {
+          "available": true,
+          "workflow": ".github/workflows/profile-sync.yml",
+          "workflowName": "Profile sync",
+          "mode": "dry-run-pr",
+          "event": "workflow_dispatch",
+          "branch": "main",
+          "headSha": "3c103427ed7b2dbd6107c1a602aef70d9b698f43",
+          "runId": 27082852047,
+          "runUrl": "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27082852047",
+          "createdAt": "2026-06-07T04:38:49Z",
+          "conclusion": "failure",
+          "jobName": "Preview generated README PR",
+          "jobId": 79931790291,
+          "failedStep": "Regenerate profile",
+          "previewStepReached": false,
+          "reportArtifactUploaded": true,
+          "artifactReadinessStatus": "needs-live-validation",
+          "artifactReadinessBlockedCount": 0,
+          "artifactReadinessNeedsLiveValidationCount": 3,
+          "evidenceSummary": "Manual hosted dry-run failed in Regenerate profile before the preview helper ran; the uploaded report artifact still showed generated outputs in sync.",
+          "nextAction": "Fix the hosted dry-run regenerate failure, rerun dry-run-pr, and update this evidence when the preview helper completes."
+        },
         "items": [
           {
             "id": "candidate-checks-defined",
@@ -2527,28 +2550,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.90",
+    "expectedVersion": "v4.9.91",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.90"
+        "value": "v4.9.91"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.90"
+        "value": "v4.9.91"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.90"
+        "value": "v4.9.91"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.90"
+        "value": "v4.9.91"
       }
     ],
     "dates": [
@@ -2575,7 +2598,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 102,
+      "headingCount": 103,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2585,14 +2608,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.90",
+    "expectedVersion": "v4.9.91",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.90",
+    "expectedTag": "v4.9.91",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2602,13 +2625,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.90",
+        "expectedVersion": "v4.9.91",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.90",
+        "expectedVersion": "v4.9.91",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2620,7 +2643,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 4826,
+      "elapsedMs": 4067,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2654,7 +2677,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.34,
+      "ageDays": 5.36,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2664,7 +2687,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 4826,
+    "elapsedMs": 4067,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3247,7 +3270,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 96713,
+        "value": 97994,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3275,7 +3298,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T00:35:06.0441180-04:00",
+    "generatedAt": "2026-06-07T00:52:11.4959859-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,
