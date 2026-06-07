@@ -2,6 +2,10 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.96] - 2026-06-07
+
+- Added: Pester coverage now asserts exact deterministic ordering for `releaseAssetDrift.releaseAssetKindCounts`, `releaseAssetDrift.releaseTrustLevelCounts`, and `portfolioCompatibility.primaryActionKindCounts`.
+
 ## [v4.9.95] - 2026-06-07
 
 - Changed: The 11 approved README density candidates now use `includeInReadme=false` while keeping `includeInPortfolio=true`, moving them to portfolio-only browsing without dropping them from `projects.json`.

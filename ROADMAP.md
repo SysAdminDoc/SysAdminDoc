@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.95
+Current repo version: v4.9.96
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 103 - 2026-06-07.
+> Last researched: Cycle 104 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 103 - 2026-06-07.
+Last researched: Cycle 104 - 2026-06-07.
+
+2026-06-07 v4.9.96 refresh: deterministic report-row coverage extended.
+Cycle 104 audited report aggregate arrays that are already sorted in
+`scripts/sync-profile.ps1` but lacked exact-order regression tests. Pester now
+asserts deterministic ordering for `releaseAssetDrift.releaseAssetKindCounts`,
+`releaseAssetDrift.releaseTrustLevelCounts`, and
+`portfolioCompatibility.primaryActionKindCounts`, covering the release taxonomy,
+release trust, and downstream portfolio action summaries that appear in the
+sync report and Actions summary.
 
 2026-06-07 v4.9.95 refresh: approved portfolio-only catalog mutation
 shipped. The 11 rows approved in
@@ -2112,14 +2121,15 @@ Current local state:
 - Cycle 101 refreshed generated PR dry-run evidence from successful hosted run `27083372279`, including preview-helper proof and the planned generated branch.
 - Cycle 102 added a public portfolio-only demotion decision that approves the current 11 reviewed candidates for a later catalog mutation without changing generated output yet.
 - Cycle 103 applied the approved 11-row catalog mutation, removed those rows from generated README output, preserved them in the portfolio feed, and cleared the README density warning.
+- Cycle 104 extended exact-order Pester coverage to release asset kind counts, release trust level counts, and portfolio primary action kind counts.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 104: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
-2. Cycle 105: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
-3. Cycle 106: audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.
+1. Cycle 105: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
+2. Cycle 106: audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.
+3. Cycle 107: run another generated profile delivery rehearsal if workflow evidence indicates a new PR-delivery gap.
 
 ### Quick Wins
 
@@ -2142,6 +2152,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Approved portfolio-only catalog mutation (completed v4.9.95 with the 11 approved rows removed from README output, preserved in `projects.json`, and covered by Pester).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
 - [x] P2 — Deterministic aggregate report row ordering (completed v4.9.90 with explicit key sorting for license and suppression reason count rows plus Pester exact-order coverage).
+- [x] P2 — Extended deterministic report row-order assertions (completed v4.9.96 with exact-order Pester coverage for release asset kind counts, release trust counts, and portfolio primary action kind counts).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Concrete README portfolio-only review candidate rows (completed v4.9.86 with `portfolioOnlyCandidateSelectionPolicy`, `portfolioOnlyCandidates`, reason codes, summary sample output, schema coverage, and Pester guards).
 - [x] P2 — Portfolio-only catalog review preview mode (completed v4.9.87 with report-only row-delta/category-impact previewing, mutation flags, summary rows, schema coverage, and Pester guards).

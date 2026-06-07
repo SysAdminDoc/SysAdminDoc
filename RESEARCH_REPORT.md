@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.95
+Current version after this refresh: v4.9.96
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.96 batch extends deterministic report-row ordering coverage.
+- Pester now asserts exact order for
+  `releaseAssetDrift.releaseAssetKindCounts`,
+  `releaseAssetDrift.releaseTrustLevelCounts`, and
+  `portfolioCompatibility.primaryActionKindCounts`.
+- This protects release taxonomy, release trust, and downstream portfolio
+  action summary rows from future unordered aggregate churn.
 - The v4.9.95 batch applies the approved portfolio-only catalog mutation for
   the 11 reviewed rows.
 - `CSV_Power_Tool`, `Flux`, `PillSleepTracker`, `UniversalCompiler`,
@@ -372,8 +379,8 @@ Current version after this refresh: v4.9.95
 - The v4.9.57 batch closed the profile repository release/tag consistency gap by
   adding warning-only `profileReleaseConsistency` reporting beside
   `docVersionConsistency`.
-- The current live report compares expected planning version `v4.9.95` against
-  latest GitHub release `v3.0.0`, records the missing `v4.9.95` tag ref, and
+- The current live report compares expected planning version `v4.9.96` against
+  latest GitHub release `v3.0.0`, records the missing `v4.9.96` tag ref, and
   surfaces 2 warning-only release/tag rows.
 - The sync-report schema, summary helper, and Pester suite now cover missing,
   behind, and matching release/tag states.
