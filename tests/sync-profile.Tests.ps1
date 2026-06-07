@@ -2338,6 +2338,21 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match '::error::'
     }
 
+    It 'keeps the committed report summary below the local step-summary soft budget' {
+        $summaryPath = New-TemporaryFile
+        try {
+            pwsh -NoProfile -File $script:SummaryScriptPath -SummaryPath $summaryPath.FullName -Context 'Pester summary budget test'
+            $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
+            $summaryBytes = [Text.Encoding]::UTF8.GetByteCount($summary)
+
+            $summaryBytes | Should -BeLessThan 65536
+            $script:SummaryScript | Should -Match '1MB'
+            $script:SummaryScript | Should -Match '65536'
+        } finally {
+            Remove-Item -LiteralPath $summaryPath.FullName -Force -ErrorAction SilentlyContinue
+        }
+    }
+
     It 'wires summaries and retained report artifacts into profile workflows' {
         foreach ($workflow in @($script:ProfileSyncWorkflowForSummary, $script:AssetsRefreshWorkflowForSummary)) {
             $workflow | Should -Match 'write-profile-sync-summary[.]ps1'

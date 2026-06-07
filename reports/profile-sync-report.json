@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T01:55:25.8164854-04:00",
+  "generatedAt": "2026-06-07T02:03:22.1468404-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "58680f7c6c20ba0baaa3f36527fa7dac7cf3ad03",
+    "sourceCommit": "bffade3c1560c411b105cb6991ac83a5bd968edf",
     "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
     "generatorSha256": "557460f3b294ab5eb21c838951e3deb3288bc23010916e199879044d782c1186",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T01:54:09.2466062-04:00",
+    "metadataSnapshotAt": "2026-06-07T02:02:03.3886152-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T05:52:08Z",
+        "pushedAt": "2026-06-07T06:01:58Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -2550,28 +2550,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.97",
+    "expectedVersion": "v4.9.98",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.97"
+        "value": "v4.9.98"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.97"
+        "value": "v4.9.98"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.97"
+        "value": "v4.9.98"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.97"
+        "value": "v4.9.98"
       }
     ],
     "dates": [
@@ -2598,7 +2598,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 109,
+      "headingCount": 110,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2608,14 +2608,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.97",
+    "expectedVersion": "v4.9.98",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.97",
+    "expectedTag": "v4.9.98",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2625,13 +2625,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.97",
+        "expectedVersion": "v4.9.98",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.97",
+        "expectedVersion": "v4.9.98",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2643,7 +2643,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3611,
+      "elapsedMs": 3624,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2677,7 +2677,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.4,
+      "ageDays": 5.41,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2687,7 +2687,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3611,
+    "elapsedMs": 3624,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3037,7 +3037,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 89793,
+        "value": 89794,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3065,7 +3065,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T01:55:41.3308863-04:00",
+    "generatedAt": "2026-06-07T02:03:36.3387343-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

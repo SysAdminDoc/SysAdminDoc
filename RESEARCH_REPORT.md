@@ -5,10 +5,19 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.97
+Current version after this refresh: v4.9.98
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.98 batch adds a delivery-health guard for GitHub Actions job
+  summaries.
+- GitHub's workflow-command docs state each step summary is limited to 1 MiB;
+  exceeding that size creates an error annotation during summary upload.
+- `scripts/write-profile-sync-summary.ps1` now measures summary Markdown before
+  writing, fails before the hard limit, and warns above a 65536-byte local soft
+  budget.
+- Current local evidence puts the committed summary at about 3.5 KiB, and Pester
+  now guards that output below the local budget.
 - The v4.9.97 batch refreshes retained workflow artifact uploads for GitHub
   Actions Node 24 runtime readiness.
 - Raw action metadata confirmed the previous `actions/upload-artifact` 4.6.2
@@ -387,8 +396,8 @@ Current version after this refresh: v4.9.97
 - The v4.9.57 batch closed the profile repository release/tag consistency gap by
   adding warning-only `profileReleaseConsistency` reporting beside
   `docVersionConsistency`.
-- The current live report compares expected planning version `v4.9.97` against
-  latest GitHub release `v3.0.0`, records the missing `v4.9.97` tag ref, and
+- The current live report compares expected planning version `v4.9.98` against
+  latest GitHub release `v3.0.0`, records the missing `v4.9.98` tag ref, and
   surfaces 2 warning-only release/tag rows.
 - The sync-report schema, summary helper, and Pester suite now cover missing,
   behind, and matching release/tag states.

@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.97
+Current repo version: v4.9.98
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 105 - 2026-06-07.
+> Last researched: Cycle 106 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,15 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 105 - 2026-06-07.
+Last researched: Cycle 106 - 2026-06-07.
+
+2026-06-07 v4.9.98 refresh: workflow summary size budget guard shipped.
+Cycle 106 audited the delivery-health path for `GITHUB_STEP_SUMMARY` output
+after GitHub's workflow-command documentation confirmed a 1 MiB per-step job
+summary limit. `scripts/write-profile-sync-summary.ps1` now measures the
+generated Markdown before writing it, fails before the hard limit, and warns
+above a 65536-byte local soft budget. Pester now verifies the committed profile
+sync summary stays below that soft budget; the current summary is about 3.5 KiB.
 
 2026-06-07 v4.9.97 refresh: artifact upload action Node 24 readiness
 shipped. Cycle 105 reviewed the hosted Node.js 20 deprecation path for
@@ -2132,14 +2140,15 @@ Current local state:
 - Cycle 103 applied the approved 11-row catalog mutation, removed those rows from generated README output, preserved them in the portfolio feed, and cleared the README density warning.
 - Cycle 104 extended exact-order Pester coverage to release asset kind counts, release trust level counts, and portfolio primary action kind counts.
 - Cycle 105 pinned retained `actions/upload-artifact` workflow uses to the reviewed 6.0.0 Node 24 SHA and added Pester guards against floating tags and the older Node 20 SHA.
+- Cycle 106 added a GitHub Actions step-summary size guard and Pester budget check for the profile sync summary helper.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 106: audit the next README/report density or delivery-health surface and add a testable roadmap item if live evidence identifies one.
-2. Cycle 107: run another generated profile delivery rehearsal if workflow evidence indicates a new PR-delivery gap.
-3. Cycle 108: review the remaining GitHub Actions dependency pin surface for hosted runtime warnings or major-update readiness.
+1. Cycle 107: run another generated profile delivery rehearsal if workflow evidence indicates a new PR-delivery gap.
+2. Cycle 108: review the remaining GitHub Actions dependency pin surface for hosted runtime warnings or major-update readiness.
+3. Cycle 109: audit README/report density again after the next live metadata refresh and route any new low-signal rows through the review pipeline.
 
 ### Quick Wins
 
@@ -2171,6 +2180,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).
+- [x] P2 — Profile-sync Actions summary size budget (completed v4.9.98 with a 1 MiB hard-limit guard, 65536-byte local soft budget, and Pester coverage for the committed summary output).
 - [x] P2 — `actionlint` in `workflow-security.yml` alongside `zizmor` (completed v4.9.33 with checksum-verified actionlint 1.7.12 and Pester wiring coverage).
 - [x] P2 — Windows `setup.ps1 -CheckOnly` smoke job for setup/README changes (completed v4.9.41 with an always-created `Windows setup smoke` job).
 - [x] P2 — Exact pins for CI-installed `zizmor` and Pester validation tools (completed v4.9.46 with Pester 5.7.1 `-RequiredVersion`, hash-checked `zizmor` 1.25.2 requirements, toolchain docs, and Pester coverage).

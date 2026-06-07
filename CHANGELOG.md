@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.98] - 2026-06-07
+
+- Added: `scripts/write-profile-sync-summary.ps1` now checks the generated GitHub Actions Markdown summary against a 1 MiB hard limit and a 65536-byte local soft budget before writing it.
+- Added: Pester coverage now verifies the committed profile sync summary stays below the local step-summary soft budget.
+
 ## [v4.9.97] - 2026-06-07
 
 - Changed: Profile sync and profile-assets refresh now pin retained artifact uploads to `actions/upload-artifact` 6.0.0's Node 24 runtime SHA.
