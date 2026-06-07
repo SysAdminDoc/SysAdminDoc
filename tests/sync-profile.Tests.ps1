@@ -283,6 +283,16 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.enforceAdmins | Should -BeTrue
         $repoSettings.requiredCheckReadiness.candidateCheckCount | Should -Be 6
         ($repoSettings.requiredCheckReadiness.candidateChecks | ForEach-Object { $_.name }) | Should -Contain 'Pester (offline)'
+        $repoSettings.requiredCheckReadiness.workflowCoverage.status | Should -Be 'ready'
+        $repoSettings.requiredCheckReadiness.workflowCoverage.workflowCount | Should -Be 3
+        $repoSettings.requiredCheckReadiness.workflowCoverage.warningCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.status | Should -Be 'blocked'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyForRequiredCheckEnforcement | Should -BeFalse
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.checklistCount | Should -Be 5
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyCount | Should -Be 2
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.blockedCount | Should -Be 2
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.needsLiveValidationCount | Should -Be 1
+        ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
         ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'direct-push delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
@@ -1872,6 +1882,7 @@ Describe 'Required status check readiness' {
             WorkflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
         }
         $script:RequiredCheckDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-required-check-enforcement-readiness.md') -Raw
+        $script:PrDeliveryTransitionDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md') -Raw
     }
 
     It 'creates candidate required checks for every pull request and merge queue run' {
@@ -1929,6 +1940,30 @@ Describe 'Required status check readiness' {
         @($RequiredStatusCheckCandidates) | Should -HaveCount 6
         (($RequiredStatusCheckCandidates | ForEach-Object { $_.name }) -join '|') |
             Should -Be 'Pester (offline)|PSScriptAnalyzer|Markdownlint|Windows setup smoke|Check generated README|zizmor'
+    }
+
+    It 'reports PR-delivery transition workflow coverage for candidate checks' {
+        $coverage = Test-RequiredCheckWorkflowCoverage
+
+        $coverage.status | Should -Be 'ready'
+        $coverage.workflowCount | Should -Be 3
+        $coverage.candidateCheckCount | Should -Be 6
+        $coverage.warningCount | Should -Be 0
+        foreach ($workflow in @($coverage.workflows)) {
+            $workflow.exists | Should -BeTrue
+            $workflow.pullRequestTrigger | Should -BeTrue
+            $workflow.mergeGroupTrigger | Should -BeTrue
+            $workflow.pullRequestPathFiltered | Should -BeFalse
+            @($workflow.missingCandidateCheckNames) | Should -HaveCount 0
+        }
+    }
+
+    It 'records the PR-delivery transition checklist before enforcement' {
+        $script:PrDeliveryTransitionDecision | Should -Match 'PR Delivery Transition Checklist'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Candidate required checks'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Switch the loop to PR-based delivery'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
     }
 }
 
@@ -2127,6 +2162,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'requiredCheckReadiness'
+        $script:SummaryScript | Should -Match 'prDeliveryTransition'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

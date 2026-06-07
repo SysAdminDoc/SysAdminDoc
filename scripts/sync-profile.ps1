@@ -3665,8 +3665,9 @@ function Get-RequiredCheckReadiness {
         [string]$RulesetsUnavailableReason
     )
 
-    $blockers = New-Object System.Collections.Generic.List[string]
+    $workflowCoverage = Test-RequiredCheckWorkflowCoverage
     $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetCount -gt 0)
+    $blockers = New-Object System.Collections.Generic.List[string]
     if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
         $blockers.Add("Branch protection evidence unavailable: $BranchProtectionUnavailableReason.")
     } elseif ($RequiredStatusChecks -ne $true) {
@@ -3682,6 +3683,13 @@ function Get-RequiredCheckReadiness {
     if ($EnforceAdmins -eq $true) {
         $blockers.Add("Protected main enforces admins; direct-push delivery needs PR delivery or an approved bypass before enabling required checks.")
     }
+
+    $prDeliveryTransition = Get-PrDeliveryTransitionChecklist `
+        -WorkflowCoverage $workflowCoverage `
+        -RequiredChecksEnabled $requiredChecksEnabled `
+        -EnforceAdmins $EnforceAdmins `
+        -BranchProtectionAvailable $BranchProtectionAvailable `
+        -RulesetsAvailable $RulesetsAvailable
 
     $status = if (-not $BranchProtectionAvailable -and -not $RulesetsAvailable) {
         "needs-live-validation"
@@ -3700,8 +3708,175 @@ function Get-RequiredCheckReadiness {
         enforceAdmins = Get-NullableBool $EnforceAdmins
         candidateCheckCount = @($RequiredStatusCheckCandidates).Count
         candidateChecks = @($RequiredStatusCheckCandidates)
+        workflowCoverage = $workflowCoverage
+        prDeliveryTransition = $prDeliveryTransition
         blockerCount = $blockers.Count
         blockers = $blockers.ToArray()
+    }
+}
+
+function New-PrDeliveryChecklistItem {
+    param(
+        [string]$Id,
+        [ValidateSet("ready", "blocked", "needs-live-validation")]
+        [string]$Status,
+        [string]$Summary,
+        [string]$Evidence,
+        [string]$NextAction
+    )
+
+    return [ordered]@{
+        id = $Id
+        status = $Status
+        summary = $Summary
+        evidence = $Evidence
+        nextAction = $NextAction
+    }
+}
+
+function Test-RequiredCheckWorkflowCoverage {
+    param(
+        [object[]]$Candidates = $RequiredStatusCheckCandidates
+    )
+
+    $warnings = New-Object System.Collections.Generic.List[string]
+    $workflowRows = New-Object System.Collections.Generic.List[object]
+    $workflowPaths = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "workflow") } | Sort-Object -Unique)
+
+    foreach ($workflowPath in $workflowPaths) {
+        $candidateNames = @($Candidates | Where-Object {
+                [string](Get-MemberValue -Object $_ -Name "workflow") -eq $workflowPath
+            } | ForEach-Object {
+                [string](Get-MemberValue -Object $_ -Name "name")
+            })
+        $literalPath = Join-Path $RepoRoot $workflowPath
+        $exists = Test-Path -LiteralPath $literalPath
+        $text = if ($exists) { Get-Content -LiteralPath $literalPath -Raw } else { "" }
+        $hasPullRequest = [bool][regex]::IsMatch($text, '(?m)^  pull_request:\s*$')
+        $hasMergeGroup = [bool][regex]::IsMatch($text, '(?m)^  merge_group:\s*$')
+        $pullRequestPathFiltered = [bool][regex]::IsMatch($text, '(?ms)^  pull_request:\s*\r?\n\s+paths:')
+        $missingCandidateNames = @($candidateNames | Where-Object {
+                -not [regex]::IsMatch($text, "(?m)^\s+name:\s*$([regex]::Escape($_))\s*$")
+            })
+
+        if (-not $exists) {
+            $warnings.Add("Candidate required-check workflow is missing: $workflowPath.")
+        }
+        if ($exists -and -not $hasPullRequest) {
+            $warnings.Add("Candidate required-check workflow lacks pull_request trigger: $workflowPath.")
+        }
+        if ($exists -and -not $hasMergeGroup) {
+            $warnings.Add("Candidate required-check workflow lacks merge_group trigger: $workflowPath.")
+        }
+        if ($exists -and $pullRequestPathFiltered) {
+            $warnings.Add("Candidate required-check workflow path-filters pull_request runs: $workflowPath.")
+        }
+        foreach ($candidateName in $missingCandidateNames) {
+            $warnings.Add("Candidate required-check job name '$candidateName' was not found in $workflowPath.")
+        }
+
+        $workflowRows.Add([ordered]@{
+                workflow = $workflowPath
+                candidateChecks = @($candidateNames)
+                exists = [bool]$exists
+                pullRequestTrigger = $hasPullRequest
+                mergeGroupTrigger = $hasMergeGroup
+                pullRequestPathFiltered = $pullRequestPathFiltered
+                missingCandidateCheckNames = @($missingCandidateNames)
+            })
+    }
+
+    return [ordered]@{
+        status = if ($warnings.Count -eq 0) { "ready" } else { "blocked" }
+        workflowCount = $workflowRows.Count
+        candidateCheckCount = @($Candidates).Count
+        warningCount = $warnings.Count
+        warnings = $warnings.ToArray()
+        workflows = @($workflowRows.ToArray())
+    }
+}
+
+function Get-PrDeliveryTransitionChecklist {
+    param(
+        [object]$WorkflowCoverage,
+        [bool]$RequiredChecksEnabled,
+        [Nullable[bool]]$EnforceAdmins,
+        [bool]$BranchProtectionAvailable,
+        [bool]$RulesetsAvailable
+    )
+
+    $items = New-Object System.Collections.Generic.List[object]
+    $candidateCount = @($RequiredStatusCheckCandidates).Count
+    $candidateStatus = if ($candidateCount -gt 0) { "ready" } else { "blocked" }
+    $items.Add((New-PrDeliveryChecklistItem `
+                -Id "candidate-checks-defined" `
+                -Status $candidateStatus `
+                -Summary "Candidate required-check names are defined and must stay stable." `
+                -Evidence "$candidateCount candidate check(s) are configured." `
+                -NextAction "Keep required-check job names unique and unchanged before enabling enforcement."))
+
+    $workflowStatus = if ((Get-MemberValue -Object $WorkflowCoverage -Name "status") -eq "ready") { "ready" } else { "blocked" }
+    $items.Add((New-PrDeliveryChecklistItem `
+                -Id "candidate-workflow-coverage" `
+                -Status $workflowStatus `
+                -Summary "Candidate workflows must create checks for pull requests and merge queue runs." `
+                -Evidence "$((Get-MemberValue -Object $WorkflowCoverage -Name "workflowCount")) workflow file(s), $((Get-MemberValue -Object $WorkflowCoverage -Name "warningCount")) warning(s)." `
+                -NextAction "Fix missing pull_request or merge_group triggers before making any check required."))
+
+    $items.Add((New-PrDeliveryChecklistItem `
+                -Id "recent-check-run-proof" `
+                -Status "needs-live-validation" `
+                -Summary "Each required check must have a recent successful run in this repository before it can be selected." `
+                -Evidence "GitHub required-status-check selection depends on recent successful checks in the target repository." `
+                -NextAction "Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes."))
+
+    $deliveryStatus = if ($EnforceAdmins -eq $true) { "blocked" } else { "needs-live-validation" }
+    $deliveryEvidence = if ($EnforceAdmins -eq $true) {
+        "Protected main has admin enforcement enabled, so direct pushes would be rejected after required checks are enabled."
+    } else {
+        "Admin enforcement is not confirmed as blocking, but the delivery path still needs a live PR or documented bypass drill."
+    }
+    $items.Add((New-PrDeliveryChecklistItem `
+                -Id "pr-delivery-or-bypass" `
+                -Status $deliveryStatus `
+                -Summary "Direct-main delivery must be replaced by PR delivery or a documented bypass before enforcement." `
+                -Evidence $deliveryEvidence `
+                -NextAction "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."))
+
+    $enforcementStatus = if ($RequiredChecksEnabled) { "ready" } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) { "blocked" } else { "needs-live-validation" }
+    $enforcementEvidence = if ($RequiredChecksEnabled) {
+        "Required-check enforcement is already present."
+    } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) {
+        "Live settings are readable and currently show no required-check enforcement."
+    } else {
+        "Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism."
+    }
+    $items.Add((New-PrDeliveryChecklistItem `
+                -Id "enforcement-mechanism" `
+                -Status $enforcementStatus `
+                -Summary "Choose branch protection or a repository ruleset only after PR delivery is ready." `
+                -Evidence $enforcementEvidence `
+                -NextAction "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."))
+
+    $blockedCount = @($items | Where-Object { (Get-MemberValue -Object $_ -Name "status") -eq "blocked" }).Count
+    $needsLiveValidationCount = @($items | Where-Object { (Get-MemberValue -Object $_ -Name "status") -eq "needs-live-validation" }).Count
+    $readyCount = @($items | Where-Object { (Get-MemberValue -Object $_ -Name "status") -eq "ready" }).Count
+    $status = if ($blockedCount -gt 0) {
+        "blocked"
+    } elseif ($needsLiveValidationCount -gt 0) {
+        "needs-live-validation"
+    } else {
+        "ready"
+    }
+
+    return [ordered]@{
+        status = $status
+        readyForRequiredCheckEnforcement = [bool]($status -eq "ready")
+        checklistCount = $items.Count
+        readyCount = $readyCount
+        blockedCount = $blockedCount
+        needsLiveValidationCount = $needsLiveValidationCount
+        items = @($items.ToArray())
     }
 }
 

@@ -43,6 +43,7 @@ $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
 $repositorySettings = $report.repositorySettings
 $requiredCheckReadiness = if ($repositorySettings -and $repositorySettings.PSObject.Properties.Name -contains 'requiredCheckReadiness') { $repositorySettings.requiredCheckReadiness } else { $null }
+$prDeliveryTransition = if ($requiredCheckReadiness -and $requiredCheckReadiness.PSObject.Properties.Name -contains 'prDeliveryTransition') { $requiredCheckReadiness.prDeliveryTransition } else { $null }
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
@@ -69,6 +70,9 @@ $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.wa
 $requiredCheckReadinessStatus = if ($requiredCheckReadiness) { [string]$requiredCheckReadiness.status } else { "unknown" }
 $requiredCheckCandidateCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.candidateCheckCount } else { 0 }
 $requiredCheckBlockerCount = if ($requiredCheckReadiness) { [int]$requiredCheckReadiness.blockerCount } else { 0 }
+$prDeliveryTransitionStatus = if ($prDeliveryTransition) { [string]$prDeliveryTransition.status } else { "unknown" }
+$prDeliveryTransitionBlockedCount = if ($prDeliveryTransition) { [int]$prDeliveryTransition.blockedCount } else { 0 }
+$prDeliveryTransitionLiveValidationCount = if ($prDeliveryTransition) { [int]$prDeliveryTransition.needsLiveValidationCount } else { 0 }
 $communityWarningCount = if ($communityHealth) { [int]$communityHealth.warningCount } else { 0 }
 $communityFatalCount = if ($communityHealth) { [int]$communityHealth.fatalCount } else { 0 }
 $codeScanning = if ($repositorySettings -and $repositorySettings.security) { $repositorySettings.security.codeScanning } else { $null }
@@ -163,6 +167,9 @@ $summary = @"
 | Required check readiness | $requiredCheckReadinessStatus |
 | Required check candidates | $requiredCheckCandidateCount |
 | Required check blockers | $requiredCheckBlockerCount |
+| PR delivery transition | $prDeliveryTransitionStatus |
+| PR delivery blockers | $prDeliveryTransitionBlockedCount |
+| PR delivery live validations | $prDeliveryTransitionLiveValidationCount |
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
@@ -254,6 +261,14 @@ if ($repositoryWarningCount -gt 0) {
 
 if ($requiredCheckBlockerCount -gt 0) {
     Write-Output "::warning::Profile sync report has $requiredCheckBlockerCount required-check activation blocker(s)."
+}
+
+if ($prDeliveryTransitionBlockedCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $prDeliveryTransitionBlockedCount PR-delivery transition blocker(s)."
+}
+
+if ($prDeliveryTransitionLiveValidationCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $prDeliveryTransitionLiveValidationCount PR-delivery transition live-validation item(s)."
 }
 
 if ($codeScanningStatus -eq "needs-live-validation") {

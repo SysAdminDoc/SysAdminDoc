@@ -2,14 +2,14 @@
 
 > Single source of truth for all planned work. Items above the --- are existing plans; items below are research conducted 2026-06-03.
 
-Last research refresh: 2026-06-06
+Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
-Latest profile sync: 2026-06-06
-Current repo version: v4.9.84
+Latest profile sync: 2026-06-07
+Current repo version: v4.9.85
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 92 - 2026-06-06.
+> Last researched: Cycle 93 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,20 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 92 - 2026-06-06.
+Last researched: Cycle 93 - 2026-06-07.
+
+2026-06-07 v4.9.85 refresh: PR-delivery transition checklist
+shipped. `repositorySettings.requiredCheckReadiness.workflowCoverage` now
+records candidate required-check workflow coverage across Tests, Profile sync,
+and Workflow security. `prDeliveryTransition` records a five-item checklist for
+candidate checks, PR/merge-queue workflow coverage, recent check-run proof, PR
+delivery or bypass, and enforcement mechanism selection. Current state remains
+intentionally blocked for required-check enforcement: candidate checks and
+workflow coverage are ready, but recent check-run proof needs live validation,
+and direct-main delivery with `enforce_admins=true` must be replaced by PR
+delivery or a tested bypass. `docs/decisions/2026-06-07-pr-delivery-transition-checklist.md`
+records the activation order, and the profile sync summary surfaces transition
+status, blockers, and live-validation counts.
 
 2026-06-06 v4.9.84 refresh: generated artifact/render-budget reporting
 shipped. The sync report now includes `artifactBudgets` with 10 soft-budget
@@ -1871,6 +1884,7 @@ direct-push automation.*
     3. Create a disabled ruleset or branch-protection draft that targets `main` and requires `PSScriptAnalyzer`, `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, `Check generated README`, and `zizmor`.
     4. Run a real PR and merge-group proof so each required check is present with the exact UI check name.
     5. Enable active enforcement only after the proof PR is mergeable without direct pushes.
+  - Progress: v4.9.85 adds `requiredCheckReadiness.workflowCoverage` and `prDeliveryTransition` so the PR-delivery checklist is machine-readable before any enforcement setting changes. The transition report currently marks candidate checks and workflow coverage ready, while recent successful check-run proof needs live validation and PR delivery or bypass remains blocked.
   - Acceptance: no required check is path-filtered or conditionally skipped on PRs; required checks are pinned to the GitHub Actions app/source where possible; CODEOWNERS review is required only after a PR author/reviewer model is defined; a rollback note records how to temporarily disable the rule if automation is locked out; the roadmap/loop state stops recommending direct pushes after enforcement is active.
   - Risks: requiring `Check generated README` can force live-link/profile-smoke dependencies onto every PR; requiring `zizmor` before exact tool pinning can create supply-chain update friction; code-owner review is weak for a single-user repo unless the user wants self-review controls; merge queue is overkill unless PR volume increases.
   - Verify: open a disposable PR touching `README.md`, `.github/workflows/tests.yml`, and `setup.ps1`; confirm all required candidate jobs are created on PR and `merge_group`; query branch protection/rulesets after enforcement; confirm direct push behavior is intentionally blocked or bypassed according to the documented delivery model.
@@ -1960,12 +1974,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 92 - 2026-06-06.
+Last autonomous roadmap pass: Cycle 93 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `f4bd0de feat: report readme routing decision`
+- HEAD inspected before this cycle: `420fe50 feat: report generated artifact budgets`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -1980,14 +1994,15 @@ Current local state:
 - Cycle 90 added machine-readable required-check readiness reporting without enabling enforcement.
 - Cycle 91 added README density routing-decision reporting; current evidence keeps the README as the public routing surface while recording 11 Python-category rows for portfolio-only review.
 - Cycle 92 added generated artifact/render-budget reporting; current artifact budgets are within budget and live rendered smoke passes with 0 warnings.
+- Cycle 93 added PR-delivery transition checklist reporting; current candidate checks/workflow coverage are ready, but required-check enforcement remains blocked by direct-main delivery and live PR proof.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 93: draft a PR-delivery transition checklist before any required-check enforcement is enabled.
-2. Cycle 94: use the density-routing report to choose concrete Python rows for portfolio-only catalog review if the artifact budgets stay healthy.
-3. Cycle 95: add a portfolio-only catalog review preview mode before changing generated README rows.
+1. Cycle 94: use the density-routing report to choose concrete Python rows for portfolio-only catalog review if the artifact budgets stay healthy.
+2. Cycle 95: add a portfolio-only catalog review preview mode before changing generated README rows.
+3. Cycle 96: add a PR-delivery dry-run helper once branch-based delivery is approved.
 
 ### Quick Wins
 
@@ -2001,6 +2016,7 @@ P2/P3, each doable in well under an hour:
 - [x] P1 — Downstream portfolio compatibility snapshot before feed-shape changes (completed v4.9.80 with `portfolioCompatibility`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — REST fallback release-fetch policy/progress reporting (completed v4.9.81 with `validationPerformance.restFallbackReleaseFetch`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — Required-check readiness report without enabling enforcement (completed v4.9.82 with `repositorySettings.requiredCheckReadiness`, summary rows, schema coverage, and Pester guards).
+- [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — Generated artifact/render-budget report (completed v4.9.84 with `artifactBudgets`, `renderedProfileSmoke`, summary rows, schema coverage, live smoke report patching, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).

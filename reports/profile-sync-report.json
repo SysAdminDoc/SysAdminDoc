@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T23:06:59.5456149-04:00",
+  "generatedAt": "2026-06-06T23:22:56.8778388-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "f4bd0de20ecf6cf2c3de7bbab2e599a817c265f8",
+    "sourceCommit": "420fe504753ea54449e3fae9d22f774c9f3cdf14",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
-    "generatorSha256": "4b65c14deff8708f8921128733d7cbfe408f2aab9c81dbdee760bcd0f59c7b48",
+    "generatorSha256": "869c4a54f3055d88116c292e80269719e3739996a224b4aa175af49e5c356ca2",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T23:05:38.2371589-04:00",
+    "metadataSnapshotAt": "2026-06-06T23:21:14.182964-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T03:04:36Z",
+        "pushedAt": "2026-06-07T03:19:14Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,15 +892,9 @@
     "warningCount": 12,
     "licenseCounts": [
       {
-        "licenseSpdxId": "LGPL-3.0",
-        "licenseKey": "lgpl-3.0",
-        "licenseName": "GNU Lesser General Public License v3.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "BSD-3-Clause",
-        "licenseKey": "bsd-3-clause",
-        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
         "count": 1
       },
       {
@@ -908,6 +902,18 @@
         "licenseKey": "apache-2.0",
         "licenseName": "Apache License 2.0",
         "count": 2
+      },
+      {
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
+      },
+      {
+        "licenseSpdxId": "LGPL-3.0",
+        "licenseKey": "lgpl-3.0",
+        "licenseName": "GNU Lesser General Public License v3.0",
+        "count": 1
       },
       {
         "licenseSpdxId": "NOASSERTION",
@@ -922,21 +928,15 @@
         "count": 3
       },
       {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
-      },
-      {
         "licenseSpdxId": "MPL-2.0",
         "licenseKey": "mpl-2.0",
         "licenseName": "Mozilla Public License 2.0",
         "count": 1
       },
       {
-        "licenseSpdxId": "AGPL-3.0",
-        "licenseKey": "agpl-3.0",
-        "licenseName": "GNU Affero General Public License v3.0",
+        "licenseSpdxId": "BSD-3-Clause",
+        "licenseKey": "bsd-3-clause",
+        "licenseName": "BSD 3-Clause \"New\" or \"Revised\" License",
         "count": 1
       }
     ],
@@ -1116,16 +1116,16 @@
     ],
     "suppressionReasonCounts": [
       {
+        "reasonCode": "not-visitor-facing",
+        "publicReason": "Project omitted because it is not visitor-facing.",
+        "visibilityClass": "suppressed",
+        "count": 4
+      },
+      {
         "reasonCode": "private-or-sensitive",
         "publicReason": "Private or sensitive project omitted from the public feed.",
         "visibilityClass": "private-or-sensitive",
         "count": 2
-      },
-      {
-        "reasonCode": "duplicate-or-superseded",
-        "publicReason": "Duplicate or superseded project omitted from the public feed.",
-        "visibilityClass": "suppressed",
-        "count": 3
       },
       {
         "reasonCode": "placeholder",
@@ -1134,10 +1134,10 @@
         "count": 1
       },
       {
-        "reasonCode": "not-visitor-facing",
-        "publicReason": "Project omitted because it is not visitor-facing.",
+        "reasonCode": "duplicate-or-superseded",
+        "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
-        "count": 4
+        "count": 3
       }
     ],
     "rows": [],
@@ -2317,6 +2317,96 @@
           "workflow": ".github/workflows/workflow-security.yml"
         }
       ],
+      "workflowCoverage": {
+        "status": "ready",
+        "workflowCount": 3,
+        "candidateCheckCount": 6,
+        "warningCount": 0,
+        "warnings": [],
+        "workflows": [
+          {
+            "workflow": ".github/workflows/profile-sync.yml",
+            "candidateChecks": [
+              "Check generated README"
+            ],
+            "exists": true,
+            "pullRequestTrigger": true,
+            "mergeGroupTrigger": true,
+            "pullRequestPathFiltered": false,
+            "missingCandidateCheckNames": []
+          },
+          {
+            "workflow": ".github/workflows/tests.yml",
+            "candidateChecks": [
+              "Pester (offline)",
+              "PSScriptAnalyzer",
+              "Markdownlint",
+              "Windows setup smoke"
+            ],
+            "exists": true,
+            "pullRequestTrigger": true,
+            "mergeGroupTrigger": true,
+            "pullRequestPathFiltered": false,
+            "missingCandidateCheckNames": []
+          },
+          {
+            "workflow": ".github/workflows/workflow-security.yml",
+            "candidateChecks": [
+              "zizmor"
+            ],
+            "exists": true,
+            "pullRequestTrigger": true,
+            "mergeGroupTrigger": true,
+            "pullRequestPathFiltered": false,
+            "missingCandidateCheckNames": []
+          }
+        ]
+      },
+      "prDeliveryTransition": {
+        "status": "blocked",
+        "readyForRequiredCheckEnforcement": false,
+        "checklistCount": 5,
+        "readyCount": 2,
+        "blockedCount": 2,
+        "needsLiveValidationCount": 1,
+        "items": [
+          {
+            "id": "candidate-checks-defined",
+            "status": "ready",
+            "summary": "Candidate required-check names are defined and must stay stable.",
+            "evidence": "6 candidate check(s) are configured.",
+            "nextAction": "Keep required-check job names unique and unchanged before enabling enforcement."
+          },
+          {
+            "id": "candidate-workflow-coverage",
+            "status": "ready",
+            "summary": "Candidate workflows must create checks for pull requests and merge queue runs.",
+            "evidence": "3 workflow file(s), 0 warning(s).",
+            "nextAction": "Fix missing pull_request or merge_group triggers before making any check required."
+          },
+          {
+            "id": "recent-check-run-proof",
+            "status": "needs-live-validation",
+            "summary": "Each required check must have a recent successful run in this repository before it can be selected.",
+            "evidence": "GitHub required-status-check selection depends on recent successful checks in the target repository.",
+            "nextAction": "Open or refresh a disposable PR immediately before enforcement and verify every candidate check completes."
+          },
+          {
+            "id": "pr-delivery-or-bypass",
+            "status": "blocked",
+            "summary": "Direct-main delivery must be replaced by PR delivery or a documented bypass before enforcement.",
+            "evidence": "Protected main has admin enforcement enabled, so direct pushes would be rejected after required checks are enabled.",
+            "nextAction": "Switch the autonomous loop to branch-and-PR delivery, or document and test a narrow approved bypass."
+          },
+          {
+            "id": "enforcement-mechanism",
+            "status": "blocked",
+            "summary": "Choose branch protection or a repository ruleset only after PR delivery is ready.",
+            "evidence": "Live settings are readable and currently show no required-check enforcement.",
+            "nextAction": "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."
+          }
+        ]
+      },
       "blockerCount": 3,
       "blockers": [
         "Branch protection does not require status checks.",
@@ -2437,55 +2527,55 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.84",
-    "expectedDate": "2026-06-06",
+    "expectedVersion": "v4.9.85",
+    "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.84"
+        "value": "v4.9.85"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.84"
+        "value": "v4.9.85"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.84"
+        "value": "v4.9.85"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.84"
+        "value": "v4.9.85"
       }
     ],
     "dates": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogDate",
-        "value": "2026-06-06"
+        "value": "2026-06-07"
       },
       {
         "path": "ROADMAP.md",
         "field": "latestProfileSync",
-        "value": "2026-06-06"
+        "value": "2026-06-07"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "latestSyncDate",
-        "value": "2026-06-06"
+        "value": "2026-06-07"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "researchRefresh",
-        "value": "2026-06-06"
+        "value": "2026-06-07"
       }
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 96,
+      "headingCount": 97,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2495,14 +2585,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.84",
+    "expectedVersion": "v4.9.85",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.84",
+    "expectedTag": "v4.9.85",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2512,13 +2602,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.84",
+        "expectedVersion": "v4.9.85",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.84",
+        "expectedVersion": "v4.9.85",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2530,7 +2620,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 3503,
+      "elapsedMs": 4431,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2564,7 +2654,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.28,
+      "ageDays": 5.29,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2574,7 +2664,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 3503,
+    "elapsedMs": 4431,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2814,7 +2904,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 80686,
+        "value": 84637,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -2842,7 +2932,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-06T23:07:18.4339507-04:00",
+    "generatedAt": "2026-06-06T23:23:13.7032005-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,
