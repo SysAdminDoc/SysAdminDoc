@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "2e2d2e2b35e5dd9475748978de0b9a82bb738699",
+    "sourceCommit": "a024e2d9384959681d088bec3f8f179490f26e29",
     "catalogSha256": "80bca1eae2728b762ac9813eb3446a3087745ae983737a2550f17b5cb1404f1e",
     "generatorSha256": "557460f3b294ab5eb21c838951e3deb3288bc23010916e199879044d782c1186",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T01:10:50.2041571-04:00",
+    "metadataSnapshotAt": "2026-06-07T01:18:40.0540954-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -607,7 +607,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-07T05:07:23.0000000Z",
+      "pushedAt": "2026-06-07T05:14:29.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,

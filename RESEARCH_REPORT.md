@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.93
+Current version after this refresh: v4.9.94
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.94 batch adds a public decision note for the current
+  portfolio-only demotion candidates.
+- `docs/decisions/2026-06-07-portfolio-only-demotion-review.md` approves the
+  current 11 reviewed README density candidates for a later staged catalog
+  mutation while keeping this pass non-mutating for the catalog, README, and
+  feed.
+- Pester guards the approved repo list, no-mutation boundary, and preview
+  evidence (`projectRowDelta=-11` and `preservesPortfolioRoutes=true`).
 - The v4.9.93 batch refreshes generated PR dry-run evidence from successful
   hosted run `27083372279`.
 - The run used workflow-dispatch mode `dry-run-pr` on `main` at

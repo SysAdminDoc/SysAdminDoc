@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.93
+Current repo version: v4.9.94
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 101 - 2026-06-07.
+> Last researched: Cycle 102 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,17 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 101 - 2026-06-07.
+Last researched: Cycle 102 - 2026-06-07.
+
+2026-06-07 v4.9.94 refresh: portfolio-only demotion decision
+shipped. `docs/decisions/2026-06-07-portfolio-only-demotion-review.md`
+approves the current 11 reviewed README density candidates for a future staged
+catalog mutation: `CSV_Power_Tool`, `Flux`, `PillSleepTracker`,
+`UniversalCompiler`, `GmailDownloader`, `bypassnroGen`, `LipSight`, `PDFedit`,
+`QR-Code-Generator-Pro`, `Stock-Video-Collector`, and `Tunerize`. The decision
+records that this pass does not mutate the catalog, README, or feed; it
+approves only a later catalog change for the named rows. Pester guards the
+approved repo list, no-mutation boundary, and preview evidence.
 
 2026-06-07 v4.9.93 refresh: hosted generated PR dry-run success evidence
 shipped. Hosted workflow-dispatch run
@@ -2086,14 +2096,15 @@ Current local state:
 - Cycle 99 recorded the hosted generated PR dry-run evidence in required-check readiness; the run uploaded a report artifact but failed before the preview helper, so generated PR delivery remains unproven.
 - Cycle 100 added an explicit successful exit path after `sync-profile.ps1 -Check` passes, targeting the hosted dry-run regenerate step failure observed in run `27082852047`.
 - Cycle 101 refreshed generated PR dry-run evidence from successful hosted run `27083372279`, including preview-helper proof and the planned generated branch.
+- Cycle 102 added a public portfolio-only demotion decision that approves the current 11 reviewed candidates for a later catalog mutation without changing generated output yet.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 102: add a public decision note for approving or rejecting portfolio-only demotions after catalog review notes have enough evidence.
-2. Cycle 103: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
-3. Cycle 104: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
+1. Cycle 103: apply the approved portfolio-only catalog mutation for the 11 named rows and verify README/feed output.
+2. Cycle 104: extend deterministic row-order assertions to any new report arrays that show churn in future live snapshots.
+3. Cycle 105: review the hosted Node.js 20 deprecation warning for artifact upload actions and update the pinned workflow plan if needed.
 
 ### Quick Wins
 
@@ -2112,6 +2123,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Generated PR dry-run evidence report (completed v4.9.91 with hosted run ID, failure step, skipped preview state, uploaded report-artifact state, schema coverage, summary rows, and Pester guards).
 - [x] P2 — Hosted profile-check success exit hardening (completed v4.9.92 with explicit successful `sync-profile.ps1 -Check` exit and Pester entrypoint guard).
 - [x] P2 — Hosted generated PR dry-run success evidence (completed v4.9.93 with successful run `27083372279`, preview-helper proof, planned branch, artifact upload, schema-backed report fields, and Pester guards).
+- [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).
 - [x] P2 — Deterministic aggregate report row ordering (completed v4.9.90 with explicit key sorting for license and suppression reason count rows plus Pester exact-order coverage).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
