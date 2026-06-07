@@ -5,10 +5,24 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.87
+Current version after this refresh: v4.9.88
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.88 batch adds a side-effect-free generated PR dry-run helper.
+- `scripts/open-generated-profile-pr.ps1 -DryRun` reports planned branch,
+  base branch, commit message, PR title, validation workflow/mode,
+  validation-run URL, missing CI environment, and changed generated paths,
+  then exits before any branch creation, commit, push, PR creation, or workflow
+  dispatch.
+- The manual Profile sync workflow now has a read-only `dry-run-pr` mode that
+  regenerates the profile and calls the helper with `-DryRun`.
+- GitHub Actions documentation confirms that `GITHUB_TOKEN`-created PRs need
+  explicit workflow-dispatch or approval handling, and the GitHub CLI docs note
+  `gh pr create --dry-run` can still push git changes. The helper therefore
+  implements its own dry-run path instead of delegating to `gh pr create
+  --dry-run`. Sources: https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow
+  and https://cli.github.com/manual/gh_pr_create.
 - The v4.9.87 batch adds a non-mutating portfolio-only catalog review preview
   under `readmeDensity.portfolioOnlyPreview`.
 - The current preview shows the 11 selected Python candidates would reduce
