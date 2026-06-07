@@ -1862,6 +1862,11 @@ Describe 'Profile release/tag consistency' {
         $result.latestReleaseTag | Should -Be 'v4.9.20'
         $result.expectedTagExists | Should -BeFalse
         $result.warningCount | Should -Be 2
+        $result.releasePolicy.status | Should -Be 'documented-internal-version-gap'
+        $result.releasePolicy.warningDisposition | Should -Be 'informational'
+        $result.releasePolicy.releaseCreationRecommended | Should -BeFalse
+        $result.releasePolicy.tagCreationRecommended | Should -BeFalse
+        $result.releasePolicy.decisionDocumentPath | Should -Be 'docs/decisions/2026-06-07-profile-release-tag-policy.md'
         ($result.warnings | ForEach-Object { $_.kind }) | Should -Contain 'latest-release-behind'
         ($result.warnings | ForEach-Object { $_.kind }) | Should -Contain 'expected-version-tag-missing'
     }
@@ -1886,6 +1891,8 @@ Describe 'Profile release/tag consistency' {
         $result.latestReleaseAtLeastExpected | Should -BeTrue
         $result.expectedTagExists | Should -BeTrue
         $result.warningCount | Should -Be 0
+        $result.releasePolicy.status | Should -Be 'documented-internal-version-gap'
+        $result.releasePolicy.publicReleaseCadence | Should -Be 'manual-public-milestone-only'
     }
 }
 
@@ -2402,6 +2409,9 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Rendered smoke warnings'
             $summary | Should -Match 'Rendered smoke mobile root px'
             $summary | Should -Match 'Profile release/tag warnings'
+            $summary | Should -Match 'Profile release policy'
+            $summary | Should -Match 'Profile release warning disposition'
+            $summary | Should -Match 'Profile release creation recommended'
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
             $summary | Should -Match 'Link targets checked'
@@ -2443,6 +2453,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'forkParentDrift'
         $script:SummaryScript | Should -Match 'staleProjectReview'
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
+        $script:SummaryScript | Should -Match 'releasePolicy'
+        $script:SummaryScript | Should -Match '::notice::Profile sync report has'
         $script:SummaryScript | Should -Match 'userscriptInstallTrust'
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
         $script:SummaryScript | Should -Match 'portfolioCompatibility'

@@ -112,6 +112,10 @@ $scorecardExternalGatedCount = if ($scorecardAlertPosture) { [int]$scorecardAler
 $scorecardNotApplicableCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.notApplicableCount } else { 0 }
 $scorecardAlertRecommendation = if ($scorecardAlertPosture -and $null -ne $scorecardAlertPosture.recommendation) { [string]$scorecardAlertPosture.recommendation } else { "unknown" }
 $profileReleaseWarningCount = if ($profileReleaseConsistency) { [int]$profileReleaseConsistency.warningCount } else { 0 }
+$profileReleasePolicy = if ($profileReleaseConsistency -and $profileReleaseConsistency.PSObject.Properties.Name -contains 'releasePolicy') { $profileReleaseConsistency.releasePolicy } else { $null }
+$profileReleasePolicyStatus = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.status) { [string]$profileReleasePolicy.status } else { "unknown" }
+$profileReleaseWarningDisposition = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.warningDisposition) { [string]$profileReleasePolicy.warningDisposition } else { "unknown" }
+$profileReleaseCreationRecommended = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.releaseCreationRecommended) { [bool]$profileReleasePolicy.releaseCreationRecommended } else { $false }
 $userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
 $userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
 $catalogAccountedCount = if ($catalogFeedAccounting) {
@@ -188,6 +192,9 @@ $summary = @"
 | Rendered smoke viewports | $renderedSmokeViewportCount |
 | Rendered smoke mobile root px | $renderedSmokeMobileRootClientWidth |
 | Profile release/tag warnings | $profileReleaseWarningCount |
+| Profile release policy | $profileReleasePolicyStatus |
+| Profile release warning disposition | $profileReleaseWarningDisposition |
+| Profile release creation recommended | $profileReleaseCreationRecommended |
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
 | Missing descriptions | $missingDescriptionCount |
@@ -321,7 +328,11 @@ if ($staleProjectWarningCount -gt 0) {
 }
 
 if ($profileReleaseWarningCount -gt 0) {
-    Write-Output "::warning::Profile sync report has $profileReleaseWarningCount profile release/tag warning(s)."
+    if ($profileReleaseWarningDisposition -eq "informational") {
+        Write-Output "::notice::Profile sync report has $profileReleaseWarningCount informational profile release/tag warning(s); policy: $profileReleasePolicyStatus."
+    } else {
+        Write-Output "::warning::Profile sync report has $profileReleaseWarningCount profile release/tag warning(s)."
+    }
 }
 
 if ($userscriptWarningCount -gt 0) {

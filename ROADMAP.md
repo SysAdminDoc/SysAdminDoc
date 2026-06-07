@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.103
+Current repo version: v4.9.104
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 111 - 2026-06-07.
+> Last researched: Cycle 112 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,18 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 111 - 2026-06-07.
+Last researched: Cycle 112 - 2026-06-07.
+
+2026-06-07 v4.9.104 refresh: profile release/tag policy recorded.
+Cycle 112 audited the current `profileReleaseConsistency` drift against
+GitHub's release/tag model and chose not to create a `v4.9.x` release solely
+to clear an informational report row. `docs/decisions/2026-06-07-profile-release-tag-policy.md`
+now records that `v4.9.x` versions are profile-sync internal evidence versions,
+while GitHub Releases remain manual public milestones. The sync report now
+includes `profileReleaseConsistency.releasePolicy` with a documented internal
+version gap status, informational warning disposition, and false release/tag
+creation recommendations. The Actions summary helper surfaces that policy and
+turns policy-acknowledged release/tag drift into a notice.
 
 2026-06-07 v4.9.103 refresh: Scorecard alert posture reporting shipped.
 Cycle 111 reviewed the five open Scorecard code-scanning alerts from the
@@ -2174,12 +2185,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 111 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 112 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `e0eba1d test: guard readme density state`
+- HEAD inspected before this cycle: `5f018b4 feat: report scorecard alert posture`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -2213,14 +2224,15 @@ Current local state:
 - Cycle 109 audited current README density after the latest metadata refresh and added a committed-report guard for zero warnings, zero portfolio-only candidates, and no over-soft-limit categories.
 - Cycle 110 exercised the hosted generated PR `write-pr` path, captured the current Actions workflow-permissions blocker, deleted the disposable generated branch, and added a helper preflight before future branch pushes.
 - Cycle 111 reviewed open Scorecard code-scanning alerts, added warning-only `scorecardAlertPosture` report/schema/summary coverage, and fixed the Security-Policy linked-reporting gap in `SECURITY.md`.
+- Cycle 112 documented the profile release/tag policy, added `profileReleaseConsistency.releasePolicy`, and changed policy-acknowledged release/tag drift to an informational summary notice instead of cutting a `v4.9.x` release/tag.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 112: audit profile-release/tag warning policy and decide whether to cut a matching profile release or document the intentional gap.
-2. Cycle 113: decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
-3. Cycle 114: audit remaining repository-setting warnings, especially Dependabot security updates and branch-protection review settings, for report-only evidence or safe local guards.
+1. Cycle 113: decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
+2. Cycle 114: audit remaining repository-setting warnings, especially Dependabot security updates and branch-protection review settings, for report-only evidence or safe local guards.
+3. Cycle 115: audit userscript install-trust warnings and decide whether any branch-hosted install rows should move to release/tag-hosted URLs with explicit update metadata.
 
 ### Quick Wins
 
@@ -2242,6 +2254,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Hosted generated PR dry-run refresh after workflow-runtime hardening (completed v4.9.99 with successful run `27084524165`, Node 24 artifact-upload path proof, summary helper proof, planned branch, and no side effects).
 - [x] P2 — Scorecard action pin guard and hosted proof (completed v4.9.100 with the pinned `ossf/scorecard-action` 2.4.3 SHA, floating-tag rejection, and successful hosted run `27084740289`).
 - [x] P2 — Scorecard alert posture reporting (completed v4.9.103 with `scorecardAlertPosture`, a direct private-reporting URL in `SECURITY.md`, schema/summary/Pester coverage, and warning-only classification for the 5 current Scorecard alerts).
+- [x] P2 — Profile release/tag policy recording (completed v4.9.104 with a decision note, `profileReleaseConsistency.releasePolicy`, schema/summary/Pester coverage, and informational notice handling for the accepted internal-version gap).
 - [x] P2 — README density post-demotion guard (completed v4.9.101 with committed-report Pester coverage for zero density warnings, zero portfolio-only candidates, and no over-soft-limit categories).
 - [x] P2 — Generated PR write-path blocker guard (completed v4.9.102 with hosted run `27085061539`, Actions workflow-permissions reporting, disposable branch cleanup, and a helper preflight before branch creation).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).

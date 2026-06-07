@@ -5,10 +5,15 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.103
+Current version after this refresh: v4.9.104
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.104 batch records the profile release/tag policy decision:
+  `v4.9.x` profile-sync versions are internal evidence versions, while GitHub
+  Releases remain manual public milestones. The sync report now exposes
+  `profileReleaseConsistency.releasePolicy`, and summary annotations treat the
+  accepted release/tag gap as informational.
 - The v4.9.103 batch reviews the remaining open OpenSSF Scorecard
   code-scanning alerts after successful hosted run `27084740289`.
 - GitHub code scanning currently reports 5 open Scorecard alerts:
@@ -465,9 +470,12 @@ Current version after this refresh: v4.9.103
 - The v4.9.57 batch closed the profile repository release/tag consistency gap by
   adding warning-only `profileReleaseConsistency` reporting beside
   `docVersionConsistency`.
-- The current live report compares expected planning version `v4.9.98` against
-  latest GitHub release `v3.0.0`, records the missing `v4.9.98` tag ref, and
+- The current live report compares expected planning version `v4.9.104` against
+  latest GitHub release `v3.0.0`, records the missing `v4.9.104` tag ref, and
   surfaces 2 warning-only release/tag rows.
+- The v4.9.104 policy follow-up records the intentional gap in
+  `docs/decisions/2026-06-07-profile-release-tag-policy.md` and reports it as
+  `documented-internal-version-gap` with no release/tag creation recommended.
 - The sync-report schema, summary helper, and Pester suite now cover missing,
   behind, and matching release/tag states.
 - The v4.9.56 batch closed the GitHub fork-parent drift reporting gap by adding
