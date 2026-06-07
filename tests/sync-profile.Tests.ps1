@@ -12,8 +12,10 @@
 
 BeforeAll {
     $script:RepoRoot = Split-Path -Parent $PSScriptRoot
+    $script:SyncProfileScriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+    $script:SyncProfileScript = Get-Content -LiteralPath $script:SyncProfileScriptPath -Raw
     # Dot-source the library. The script's test seam stops before the fetch/main block.
-    . (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1')
+    . $script:SyncProfileScriptPath
     # Run offline so nothing reaches out to GitHub.
     $script:Offline = $true
 
@@ -1852,6 +1854,12 @@ Describe 'Seed catalog guard' {
         $LASTEXITCODE | Should -Be 0
         ($output | Out-String) | Should -Match 'LOSSY LEGACY SEED MODE'
         Test-Path -LiteralPath $catalogPath | Should -BeTrue
+    }
+}
+
+Describe 'Profile sync entrypoint' {
+    It 'exits explicitly after a successful check run' {
+        $script:SyncProfileScript | Should -Match '(?s)Write-Host "Profile sync check passed[.] Report: \$ReportPath"\s+# Keep hosted shells from surfacing handled native-command failures[.]\s+exit 0'
     }
 }
 

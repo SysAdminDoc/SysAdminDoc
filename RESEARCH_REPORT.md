@@ -5,10 +5,17 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.91
+Current version after this refresh: v4.9.92
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.92 batch adds an explicit success exit after
+  `scripts/sync-profile.ps1 -Check` passes.
+- This targets hosted shells where a handled native-command failure, such as a
+  nonfatal GitHub metadata lookup, can otherwise surface as the process status
+  after the sync report has already passed.
+- Pester now guards the entrypoint so a successful check run does not fall
+  through without an explicit zero exit.
 - The v4.9.91 batch records hosted generated PR dry-run evidence in
   `requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence`.
 - Hosted run `27082852047` used workflow-dispatch mode `dry-run-pr` on `main`

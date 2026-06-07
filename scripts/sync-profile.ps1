@@ -6886,5 +6886,7 @@ if ($catalogForRun) {
         }
 
         Write-Host "Profile sync check passed. Report: $ReportPath"
+        # Keep hosted shells from surfacing handled native-command failures.
+        exit 0
     }
 }

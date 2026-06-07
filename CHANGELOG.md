@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.92] - 2026-06-07
+
+- Fixed: `scripts/sync-profile.ps1 -Check` now exits explicitly with status 0 after a successful report validation.
+- Added: Pester coverage now guards the explicit success exit so handled native-command failures cannot leak into hosted shell status after the check has passed.
+
 ## [v4.9.91] - 2026-06-07
 
 - Added: `repositorySettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence` now records the hosted `dry-run-pr` run ID, workflow-dispatch mode, head SHA, failure conclusion, failed step, skipped preview state, and uploaded report-artifact state.
