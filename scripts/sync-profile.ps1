@@ -3865,6 +3865,157 @@ function Get-CodeScanningLocalEvidence {
     }
 }
 
+function Test-SecurityPolicyLinkedReportingTarget {
+    $path = Join-Path $RepoRoot "SECURITY.md"
+    if (-not (Test-Path -LiteralPath $path)) {
+        return $false
+    }
+
+    $text = Get-Content -LiteralPath $path -Raw
+    return [bool][regex]::IsMatch($text, '(?i)\bhttps?://|mailto:')
+}
+
+function New-ScorecardAlertPostureRow {
+    param(
+        [object]$Alert,
+        [bool]$SecurityPolicyHasLinkedReportingTarget
+    )
+
+    $rule = Get-MemberValue -Object $Alert -Name "rule"
+    $ruleId = [string](Get-MemberValue -Object $rule -Name "id")
+    $description = [string](Get-MemberValue -Object $rule -Name "description")
+    if ([string]::IsNullOrWhiteSpace($description)) {
+        $description = [string](Get-MemberValue -Object $rule -Name "name")
+    }
+    if ([string]::IsNullOrWhiteSpace($description)) {
+        $description = $ruleId
+    }
+
+    $classification = "needs-review"
+    $localDisposition = "review-alert"
+    $localEvidence = "Scorecard alert needs local review before classification."
+    $nextAction = "Review the Scorecard check details and update this posture row."
+    switch ($ruleId) {
+        "CodeReviewID" {
+            $classification = "external-gated-pr-delivery"
+            $localDisposition = "not-fixed-by-local-report"
+            $localEvidence = "Direct-main delivery remains active while required-check readiness and generated PR delivery are still blocked."
+            $nextAction = "Enable proven PR delivery or an approved bypass before requiring pull request reviews."
+        }
+        "SecurityPolicyID" {
+            if ($SecurityPolicyHasLinkedReportingTarget) {
+                $classification = "local-fix-pending-scorecard-refresh"
+                $localDisposition = "fixed-locally"
+                $localEvidence = "SECURITY.md includes a direct private vulnerability reporting URL."
+                $nextAction = "Rerun the Scorecard workflow and verify the Security-Policy alert closes or score improves."
+            } else {
+                $classification = "actionable-local-gap"
+                $localDisposition = "needs-local-fix"
+                $localEvidence = "SECURITY.md is present but lacks a URL or mailto reporting target."
+                $nextAction = "Add a public-safe private vulnerability reporting URL or security contact."
+            }
+        }
+        "SASTID" {
+            $classification = "covered-by-local-static-analysis"
+            $localDisposition = "accepted-scorecard-limitation"
+            $localEvidence = "The live language mix is PowerShell-only; CodeQL is not applicable, while PSScriptAnalyzer, actionlint, zizmor, and Scorecard SARIF run locally or in CI."
+            $nextAction = "Reopen the CodeQL posture decision when a CodeQL-supported language appears."
+        }
+        "CIIBestPracticesID" {
+            $classification = "external-program-optional"
+            $localDisposition = "manual-governance-choice"
+            $localEvidence = "OpenSSF Best Practices badge enrollment is an external manual governance program, not a local repository defect."
+            $nextAction = "Enroll in the OpenSSF Best Practices program only if the maintainer wants the external badge workflow."
+        }
+        "FuzzingID" {
+            $classification = "not-applicable-profile-generator"
+            $localDisposition = "accepted-scorecard-limitation"
+            $localEvidence = "This repository is a deterministic profile README/catalog generator with Pester fixtures rather than a binary parser or network service."
+            $nextAction = "Consider property-based generator tests if catalog input handling becomes broader or riskier."
+        }
+    }
+
+    $tool = Get-MemberValue -Object $Alert -Name "tool"
+    return [ordered]@{
+        alertNumber = Get-MemberValue -Object $Alert -Name "number"
+        ruleId = $ruleId
+        checkName = $description
+        state = [string](Get-MemberValue -Object $Alert -Name "state")
+        severity = [string](Get-MemberValue -Object $rule -Name "severity")
+        securitySeverity = [string](Get-MemberValue -Object $rule -Name "security_severity_level")
+        classification = $classification
+        localDisposition = $localDisposition
+        localEvidence = $localEvidence
+        nextAction = $nextAction
+        htmlUrl = Get-MemberValue -Object $Alert -Name "html_url"
+        helpUrl = Get-MemberValue -Object $rule -Name "help_uri"
+        toolName = [string](Get-MemberValue -Object $tool -Name "name")
+        toolVersion = [string](Get-MemberValue -Object $tool -Name "version")
+        createdAt = Get-MemberValue -Object $Alert -Name "created_at"
+        updatedAt = Get-MemberValue -Object $Alert -Name "updated_at"
+    }
+}
+
+function Get-ScorecardAlertPosture {
+    param(
+        [object[]]$Alerts,
+        [string]$UnavailableReason
+    )
+
+    $available = ($null -ne $Alerts -and [string]::IsNullOrWhiteSpace($UnavailableReason))
+    if (-not $available) {
+        return [ordered]@{
+            available = $false
+            unavailableReason = if ([string]::IsNullOrWhiteSpace($UnavailableReason)) { "scorecard alert evidence was not supplied" } else { $UnavailableReason }
+            provider = "github-code-scanning-alerts"
+            tool = "Scorecard"
+            queriedAt = $script:MetadataSnapshotAt
+            openAlertCount = 0
+            localActionableCount = 0
+            needsHostedRefreshCount = 0
+            externalGatedCount = 0
+            notApplicableCount = 0
+            recommendation = "verify-scorecard-alerts-with-security-api"
+            rows = @()
+            note = "Scorecard alert posture is informational and does not fail profile sync when the code-scanning alerts API is unavailable."
+        }
+    }
+
+    $securityPolicyHasLink = Test-SecurityPolicyLinkedReportingTarget
+    $rows = @(Get-SortedReportRows -Rows @($Alerts | ForEach-Object {
+            New-ScorecardAlertPostureRow -Alert $_ -SecurityPolicyHasLinkedReportingTarget $securityPolicyHasLink
+        }) -Keys @("ruleId"))
+    $localActionableCount = @($rows | Where-Object { $_.classification -eq "actionable-local-gap" }).Count
+    $needsHostedRefreshCount = @($rows | Where-Object { $_.classification -eq "local-fix-pending-scorecard-refresh" }).Count
+    $externalGatedCount = @($rows | Where-Object { $_.classification -in @("external-gated-pr-delivery", "external-program-optional") }).Count
+    $notApplicableCount = @($rows | Where-Object { $_.classification -in @("covered-by-local-static-analysis", "not-applicable-profile-generator") }).Count
+    $recommendation = if ($localActionableCount -gt 0) {
+        "fix-local-scorecard-alerts"
+    } elseif ($needsHostedRefreshCount -gt 0) {
+        "rerun-scorecard-to-refresh-alerts"
+    } elseif ($externalGatedCount -gt 0) {
+        "track-external-scorecard-governance-items"
+    } else {
+        "keep-current-scorecard-controls"
+    }
+
+    return [ordered]@{
+        available = $true
+        unavailableReason = $null
+        provider = "github-code-scanning-alerts"
+        tool = "Scorecard"
+        queriedAt = $script:MetadataSnapshotAt
+        openAlertCount = $rows.Count
+        localActionableCount = $localActionableCount
+        needsHostedRefreshCount = $needsHostedRefreshCount
+        externalGatedCount = $externalGatedCount
+        notApplicableCount = $notApplicableCount
+        recommendation = $recommendation
+        rows = @($rows)
+        note = "Rows classify open Scorecard SARIF alerts as local fixes, hosted-refresh waits, accepted tool limitations, or external governance items; the posture remains warning-only."
+    }
+}
+
 function Get-RequiredCheckReadiness {
     param(
         [bool]$BranchProtectionAvailable,
@@ -4170,12 +4321,14 @@ function Test-RepositoryCommunityBaseline {
         [object]$Languages,
         [object[]]$LocalFiles = @(),
         [object]$CodeScanningLocalEvidence,
+        [object[]]$ScorecardAlerts,
         [string]$RepositoryUnavailableReason,
         [string]$CommunityUnavailableReason,
         [string]$BranchProtectionUnavailableReason,
         [string]$RulesetsUnavailableReason,
         [string]$ActionsWorkflowPermissionsUnavailableReason,
-        [string]$LanguagesUnavailableReason
+        [string]$LanguagesUnavailableReason,
+        [string]$ScorecardAlertsUnavailableReason
     )
 
     $repoWarnings = New-Object System.Collections.Generic.List[string]
@@ -4191,6 +4344,7 @@ function Test-RepositoryCommunityBaseline {
     if ($null -eq $CodeScanningLocalEvidence) {
         $CodeScanningLocalEvidence = Get-CodeScanningLocalEvidence
     }
+    $scorecardAlertPosture = Get-ScorecardAlertPosture -Alerts $ScorecardAlerts -UnavailableReason $ScorecardAlertsUnavailableReason
 
     if (-not $repoAvailable -and -not [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason)) {
         $repoWarnings.Add("Repository settings unavailable: $RepositoryUnavailableReason.")
@@ -4200,6 +4354,9 @@ function Test-RepositoryCommunityBaseline {
     }
     if (-not $actionsWorkflowPermissionsAvailable -and -not [string]::IsNullOrWhiteSpace($ActionsWorkflowPermissionsUnavailableReason)) {
         $repoWarnings.Add("GitHub Actions workflow permissions unavailable: $ActionsWorkflowPermissionsUnavailableReason.")
+    }
+    if (-not [bool](Get-MemberValue -Object $scorecardAlertPosture -Name "available")) {
+        $repoWarnings.Add("Scorecard code-scanning alerts unavailable: $((Get-MemberValue -Object $scorecardAlertPosture -Name "unavailableReason")).")
     }
 
     $secretScanning = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning.status"
@@ -4391,6 +4548,7 @@ function Test-RepositoryCommunityBaseline {
                 sarifUploadWorkflowPresent = $sarifUploadWorkflowPresent
                 scorecardSarifUploadPresent = $scorecardSarifUploadPresent
                 activeControls = @($activeCodeScanningControls.ToArray())
+                scorecardAlertPosture = $scorecardAlertPosture
             }
         }
         branchProtection = [ordered]@{
@@ -4458,7 +4616,8 @@ function Get-RepositoryCommunityBaseline {
             -BranchProtectionUnavailableReason "offline" `
             -RulesetsUnavailableReason "offline" `
             -ActionsWorkflowPermissionsUnavailableReason "offline" `
-            -LanguagesUnavailableReason "offline"
+            -LanguagesUnavailableReason "offline" `
+            -ScorecardAlertsUnavailableReason "offline"
     }
     if (-not (Test-GitHubCliAuthenticated)) {
         return Test-RepositoryCommunityBaseline `
@@ -4468,7 +4627,8 @@ function Get-RepositoryCommunityBaseline {
             -BranchProtectionUnavailableReason "gh authentication unavailable" `
             -RulesetsUnavailableReason "gh authentication unavailable" `
             -ActionsWorkflowPermissionsUnavailableReason "gh authentication unavailable" `
-            -LanguagesUnavailableReason "gh authentication unavailable"
+            -LanguagesUnavailableReason "gh authentication unavailable" `
+            -ScorecardAlertsUnavailableReason "gh authentication unavailable"
     }
 
     $repositoryResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner"
@@ -4477,6 +4637,7 @@ function Get-RepositoryCommunityBaseline {
     $rulesetsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rulesets"
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
+    $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
@@ -4484,6 +4645,7 @@ function Get-RepositoryCommunityBaseline {
     $rulesetsValue = if ($rulesetsResult["ok"]) { @($rulesetsResult["value"]) } else { @() }
     $actionsWorkflowPermissionsValue = if ($actionsWorkflowPermissionsResult["ok"]) { $actionsWorkflowPermissionsResult["value"] } else { $null }
     $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
+    $scorecardAlertsValue = if ($scorecardAlertsResult["ok"]) { @($scorecardAlertsResult["value"]) } else { $null }
 
     return Test-RepositoryCommunityBaseline `
         -Repository $repositoryValue `
@@ -4493,12 +4655,14 @@ function Get-RepositoryCommunityBaseline {
         -ActionsWorkflowPermissions $actionsWorkflowPermissionsValue `
         -Languages $languagesValue `
         -LocalFiles $localFiles `
+        -ScorecardAlerts $scorecardAlertsValue `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
         -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
         -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
         -ActionsWorkflowPermissionsUnavailableReason $(if ($actionsWorkflowPermissionsResult["ok"]) { $null } else { $actionsWorkflowPermissionsResult["error"] }) `
-        -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] })
+        -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] }) `
+        -ScorecardAlertsUnavailableReason $(if ($scorecardAlertsResult["ok"]) { $null } else { $scorecardAlertsResult["error"] })
 }
 
 function ConvertTo-ComparableJson {

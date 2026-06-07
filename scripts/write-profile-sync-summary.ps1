@@ -104,6 +104,13 @@ $codeScanningControls = if ($codeScanning -and $codeScanning.activeControls) {
 } else {
     ""
 }
+$scorecardAlertPosture = if ($codeScanning -and $codeScanning.PSObject.Properties.Name -contains 'scorecardAlertPosture') { $codeScanning.scorecardAlertPosture } else { $null }
+$scorecardOpenAlertCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.openAlertCount } else { 0 }
+$scorecardLocalActionableCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.localActionableCount } else { 0 }
+$scorecardNeedsHostedRefreshCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.needsHostedRefreshCount } else { 0 }
+$scorecardExternalGatedCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.externalGatedCount } else { 0 }
+$scorecardNotApplicableCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.notApplicableCount } else { 0 }
+$scorecardAlertRecommendation = if ($scorecardAlertPosture -and $null -ne $scorecardAlertPosture.recommendation) { [string]$scorecardAlertPosture.recommendation } else { "unknown" }
 $profileReleaseWarningCount = if ($profileReleaseConsistency) { [int]$profileReleaseConsistency.warningCount } else { 0 }
 $userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
 $userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
@@ -222,6 +229,12 @@ $summary = @"
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
 | Code scanning controls | $codeScanningControls |
+| Scorecard open alerts | $scorecardOpenAlertCount |
+| Scorecard local actionable alerts | $scorecardLocalActionableCount |
+| Scorecard hosted-refresh alerts | $scorecardNeedsHostedRefreshCount |
+| Scorecard external-gated alerts | $scorecardExternalGatedCount |
+| Scorecard not-applicable alerts | $scorecardNotApplicableCount |
+| Scorecard alert recommendation | $scorecardAlertRecommendation |
 | Community-health warnings | $communityWarningCount |
 | Community-health fatal gaps | $communityFatalCount |
 | Link validation elapsed ms | $validationElapsedMs |
@@ -337,6 +350,14 @@ if ($generatedPrDryRunAvailable -and $generatedPrDryRunConclusion -ne "success")
 
 if ($codeScanningStatus -eq "needs-live-validation") {
     Write-Output "::warning::Profile sync report detected CodeQL-supported language(s); verify code scanning coverage."
+}
+
+if ($scorecardLocalActionableCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $scorecardLocalActionableCount locally actionable Scorecard alert(s)."
+}
+
+if ($scorecardNeedsHostedRefreshCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $scorecardNeedsHostedRefreshCount Scorecard alert(s) waiting on hosted refresh after local changes."
 }
 
 if ($communityWarningCount -gt 0) {

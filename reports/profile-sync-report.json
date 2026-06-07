@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T02:46:54.9563911-04:00",
+  "generatedAt": "2026-06-07T03:07:09.8253225-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "e0eba1d6d54a4112f9151e55245dd589f7c19d50",
+    "sourceCommit": "43c29603fe4a3f05f6e798d9c244b85ad433f5d2",
     "catalogSha256": "3c9f6d915cd6194dd10ec31f9fcce9bb59934798b111e51aa0eb26cc46448a79",
-    "generatorSha256": "ec4b42c40206197ea6badbf15243547da692a960ebeebc95c7633049d4da2384",
+    "generatorSha256": "fc6e66a98b830d8dd098af62915bfb6b8ff3962d78afbca2ba06cfd46d947580",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T02:45:38.4152014-04:00",
+    "metadataSnapshotAt": "2026-06-07T03:04:39.2544182-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T06:44:08Z",
+        "pushedAt": "2026-06-07T07:02:54Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -2264,7 +2264,113 @@
           "actionlint",
           "zizmor",
           "openssf-scorecard-sarif"
-        ]
+        ],
+        "scorecardAlertPosture": {
+          "available": true,
+          "unavailableReason": null,
+          "provider": "github-code-scanning-alerts",
+          "tool": "Scorecard",
+          "queriedAt": "2026-06-07T03:04:39.2544182-04:00",
+          "openAlertCount": 5,
+          "localActionableCount": 0,
+          "needsHostedRefreshCount": 1,
+          "externalGatedCount": 2,
+          "notApplicableCount": 2,
+          "recommendation": "rerun-scorecard-to-refresh-alerts",
+          "rows": [
+            {
+              "alertNumber": 4,
+              "ruleId": "CIIBestPracticesID",
+              "checkName": "CII-Best-Practices",
+              "state": "open",
+              "severity": "error",
+              "securitySeverity": "low",
+              "classification": "external-program-optional",
+              "localDisposition": "manual-governance-choice",
+              "localEvidence": "OpenSSF Best Practices badge enrollment is an external manual governance program, not a local repository defect.",
+              "nextAction": "Enroll in the OpenSSF Best Practices program only if the maintainer wants the external badge workflow.",
+              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/4",
+              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#cii-best-practices",
+              "toolName": "Scorecard",
+              "toolVersion": "v5.3.0",
+              "createdAt": "2026-06-07T06:18:17Z",
+              "updatedAt": "2026-06-07T06:18:17Z"
+            },
+            {
+              "alertNumber": 1,
+              "ruleId": "CodeReviewID",
+              "checkName": "Code-Review",
+              "state": "open",
+              "severity": "error",
+              "securitySeverity": "high",
+              "classification": "external-gated-pr-delivery",
+              "localDisposition": "not-fixed-by-local-report",
+              "localEvidence": "Direct-main delivery remains active while required-check readiness and generated PR delivery are still blocked.",
+              "nextAction": "Enable proven PR delivery or an approved bypass before requiring pull request reviews.",
+              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/1",
+              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#code-review",
+              "toolName": "Scorecard",
+              "toolVersion": "v5.3.0",
+              "createdAt": "2026-06-07T06:18:17Z",
+              "updatedAt": "2026-06-07T06:18:17Z"
+            },
+            {
+              "alertNumber": 5,
+              "ruleId": "FuzzingID",
+              "checkName": "Fuzzing",
+              "state": "open",
+              "severity": "error",
+              "securitySeverity": "medium",
+              "classification": "not-applicable-profile-generator",
+              "localDisposition": "accepted-scorecard-limitation",
+              "localEvidence": "This repository is a deterministic profile README/catalog generator with Pester fixtures rather than a binary parser or network service.",
+              "nextAction": "Consider property-based generator tests if catalog input handling becomes broader or riskier.",
+              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/5",
+              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#fuzzing",
+              "toolName": "Scorecard",
+              "toolVersion": "v5.3.0",
+              "createdAt": "2026-06-07T06:18:17Z",
+              "updatedAt": "2026-06-07T06:18:17Z"
+            },
+            {
+              "alertNumber": 3,
+              "ruleId": "SASTID",
+              "checkName": "SAST",
+              "state": "open",
+              "severity": "error",
+              "securitySeverity": "medium",
+              "classification": "covered-by-local-static-analysis",
+              "localDisposition": "accepted-scorecard-limitation",
+              "localEvidence": "The live language mix is PowerShell-only; CodeQL is not applicable, while PSScriptAnalyzer, actionlint, zizmor, and Scorecard SARIF run locally or in CI.",
+              "nextAction": "Reopen the CodeQL posture decision when a CodeQL-supported language appears.",
+              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/3",
+              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#sast",
+              "toolName": "Scorecard",
+              "toolVersion": "v5.3.0",
+              "createdAt": "2026-06-07T06:18:17Z",
+              "updatedAt": "2026-06-07T06:18:17Z"
+            },
+            {
+              "alertNumber": 2,
+              "ruleId": "SecurityPolicyID",
+              "checkName": "Security-Policy",
+              "state": "open",
+              "severity": "error",
+              "securitySeverity": "medium",
+              "classification": "local-fix-pending-scorecard-refresh",
+              "localDisposition": "fixed-locally",
+              "localEvidence": "SECURITY.md includes a direct private vulnerability reporting URL.",
+              "nextAction": "Rerun the Scorecard workflow and verify the Security-Policy alert closes or score improves.",
+              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/2",
+              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#security-policy",
+              "toolName": "Scorecard",
+              "toolVersion": "v5.3.0",
+              "createdAt": "2026-06-07T06:18:17Z",
+              "updatedAt": "2026-06-07T06:18:17Z"
+            }
+          ],
+          "note": "Rows classify open Scorecard SARIF alerts as local fixes, hosted-refresh waits, accepted tool limitations, or external governance items; the posture remains warning-only."
+        }
       }
     },
     "branchProtection": {
@@ -2587,28 +2693,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.102",
+    "expectedVersion": "v4.9.103",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.102"
+        "value": "v4.9.103"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.102"
+        "value": "v4.9.103"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.102"
+        "value": "v4.9.103"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.102"
+        "value": "v4.9.103"
       }
     ],
     "dates": [
@@ -2635,7 +2741,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 114,
+      "headingCount": 115,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2645,14 +2751,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.102",
+    "expectedVersion": "v4.9.103",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.102",
+    "expectedTag": "v4.9.103",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2662,13 +2768,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.102",
+        "expectedVersion": "v4.9.103",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.102",
+        "expectedVersion": "v4.9.103",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2680,10 +2786,10 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3120,
+      "elapsedMs": 70190,
       "failureCount": 0,
-      "warningCount": 0,
-      "warningHostCount": 0,
+      "warningCount": 4,
+      "warningHostCount": 1,
       "headerWarningHostCount": 0
     },
     "restFallbackReleaseFetch": {
@@ -2714,7 +2820,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.44,
+      "ageDays": 5.45,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2724,12 +2830,50 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3120,
-    "warningCountByHost": [],
+    "elapsedMs": 70190,
+    "warningCountByHost": [
+      {
+        "host": "github.com",
+        "count": 4
+      }
+    ],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
-  "linkValidationWarnings": [],
+  "linkValidationWarnings": [
+    {
+      "repo": "DefenderControl",
+      "type": "release",
+      "url": "https://github.com/SysAdminDoc/DefenderControl/releases/latest",
+      "host": "github.com",
+      "status": 504,
+      "error": "Response status code does not indicate success: 504 (Gateway Time-out)."
+    },
+    {
+      "repo": "Discrub",
+      "type": "release",
+      "url": "https://github.com/SysAdminDoc/Discrub/releases/latest",
+      "host": "github.com",
+      "status": 504,
+      "error": "Response status code does not indicate success: 504 (Gateway Time-out)."
+    },
+    {
+      "repo": "CallShield",
+      "type": "release",
+      "url": "https://github.com/SysAdminDoc/CallShield/releases/latest",
+      "host": "github.com",
+      "status": 504,
+      "error": "Response status code does not indicate success: 504 (Gateway Time-out)."
+    },
+    {
+      "repo": "SnapCrop",
+      "type": "release",
+      "url": "https://github.com/SysAdminDoc/SnapCrop/releases/latest",
+      "host": "github.com",
+      "status": 504,
+      "error": "Response status code does not indicate success: 504 (Gateway Time-out)."
+    }
+  ],
   "readmeSizeBudget": {
     "byteCount": 61434,
     "softLimitBytes": 98304,
@@ -3074,7 +3218,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 92230,
+        "value": 99594,
         "softLimit": 102400,
         "overSoftLimit": false,
         "warning": null,
@@ -3102,7 +3246,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T02:47:11.3770464-04:00",
+    "generatedAt": "2026-06-07T03:08:16.8797297-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,

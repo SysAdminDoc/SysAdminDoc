@@ -5,10 +5,25 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.102
+Current version after this refresh: v4.9.103
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.103 batch reviews the remaining open OpenSSF Scorecard
+  code-scanning alerts after successful hosted run `27084740289`.
+- GitHub code scanning currently reports 5 open Scorecard alerts:
+  `CodeReviewID`, `SecurityPolicyID`, `SASTID`, `CIIBestPracticesID`, and
+  `FuzzingID`.
+- `SECURITY.md` now links directly to
+  `https://github.com/SysAdminDoc/SysAdminDoc/security/advisories/new`, so the
+  Security-Policy alert is treated as fixed locally and waiting on a hosted
+  Scorecard refresh.
+- `repositorySettings.security.codeScanning.scorecardAlertPosture` records 0
+  locally actionable gaps, 1 hosted-refresh item, 2 external-gated governance
+  items, and 2 accepted Scorecard limitations for the current PowerShell-only
+  profile generator.
+- The sync report schema, profile summary helper, code-scanning decision note,
+  and Pester coverage now guard the warning-only Scorecard alert posture.
 - The v4.9.102 batch exercises generated PR delivery with a hosted `write-pr`
   run and turns the observed workflow-permissions blocker into a local guard.
 - GitHub documents the repository "Allow GitHub Actions to create and approve
