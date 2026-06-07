@@ -5,10 +5,22 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.98
+Current version after this refresh: v4.9.99
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.99 batch refreshes generated PR dry-run hosted evidence after the
+  artifact-runtime and summary-size guard changes.
+- Hosted run `27084524165` used workflow-dispatch mode `dry-run-pr` on `main`
+  at `f6cd6b970a1d92c5a13cac2b1c9abac031fab257`, passed `Regenerate
+  profile`, wrote the summary, uploaded `profile-sync-report`, and reached
+  `Preview pull request`.
+- The run used the reviewed Node 24 `actions/upload-artifact` SHA for the
+  retained report artifact, and the summary helper completed without a
+  summary-size warning or error.
+- The dry-run helper planned branch `automation/profile-sync-27084524165` and
+  confirmed no branch, commit, push, pull request, or validation dispatch would
+  be created.
 - The v4.9.98 batch adds a delivery-health guard for GitHub Actions job
   summaries.
 - GitHub's workflow-command docs state each step summary is limited to 1 MiB;

@@ -3953,20 +3953,20 @@ function Get-GeneratedPrDryRunEvidence {
         mode = "dry-run-pr"
         event = "workflow_dispatch"
         branch = "main"
-        headSha = "2e2d2e2b35e5dd9475748978de0b9a82bb738699"
-        runId = [long]27083372279
-        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27083372279"
-        createdAt = "2026-06-07T05:05:51Z"
+        headSha = "f6cd6b970a1d92c5a13cac2b1c9abac031fab257"
+        runId = [long]27084524165
+        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27084524165"
+        createdAt = "2026-06-07T06:06:38Z"
         conclusion = "success"
         jobName = "Preview generated README PR"
-        jobId = [long]79933169547
+        jobId = [long]79936227891
         failedStep = $null
         previewStepReached = $true
         reportArtifactUploaded = $true
         artifactReadinessStatus = "needs-live-validation"
         artifactReadinessBlockedCount = 0
         artifactReadinessNeedsLiveValidationCount = 3
-        evidenceSummary = "Manual hosted dry-run completed Regenerate profile, summary, artifact upload, and Preview pull request. The helper planned automation/profile-sync-27083372279 without creating a branch, commit, push, pull request, or validation dispatch."
+        evidenceSummary = "Manual hosted dry-run completed Regenerate profile, summary, artifact upload, and Preview pull request after workflow artifact-runtime and summary-size guard updates. The helper planned automation/profile-sync-27084524165 without creating a branch, commit, push, pull request, or validation dispatch."
         nextAction = "Keep refreshing this evidence after dry-run workflow changes; continue resolving live PR delivery and required-check preconditions before enforcement."
     }
 }

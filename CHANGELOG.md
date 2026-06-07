@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.99] - 2026-06-07
+
+- Changed: `generatedPrDryRunEvidence` now records successful hosted run `27084524165` on `main` at `f6cd6b970a1d92c5a13cac2b1c9abac031fab257`.
+- Added: The refreshed evidence confirms the Node 24 artifact-upload pin and summary-size guard path still reaches `Preview pull request`, plans `automation/profile-sync-27084524165`, uploads the report artifact, and creates no branch, commit, push, pull request, or validation dispatch.
+
 ## [v4.9.98] - 2026-06-07
 
 - Added: `scripts/write-profile-sync-summary.ps1` now checks the generated GitHub Actions Markdown summary against a 1 MiB hard limit and a 65536-byte local soft budget before writing it.
