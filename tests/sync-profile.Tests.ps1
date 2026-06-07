@@ -334,6 +334,15 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.actionsWorkflowPermissions.canApprovePullRequestReviews | Should -BeFalse
         $repoSettings.actionsWorkflowPermissions.generatedPrCreationAllowed | Should -BeFalse
         $repoSettings.actionsWorkflowPermissions.recommendation | Should -Be 'enable-actions-pr-creation-or-use-approved-automation-token'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.status | Should -Be 'decision-recorded'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.selectedPath | Should -Be 'enable-actions-pr-creation'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.rejectedPath | Should -Be 'approved-github-app-or-pat-token'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresRepositorySetting | Should -BeTrue
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresNewSecret | Should -BeFalse
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.currentSettingAllowsGeneratedPr | Should -BeFalse
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.decisionDocumentPath | Should -Be 'docs/decisions/2026-06-07-generated-pr-credential-decision.md'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.activationCommand | Should -Match 'can_approve_pull_request_reviews=true'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.nextAction | Should -Match 'rerun hosted write-pr'
         $repoSettings.requiredCheckReadiness.status | Should -Be 'not-enabled'
         $repoSettings.requiredCheckReadiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
         $repoSettings.requiredCheckReadiness.readyForEnforcement | Should -BeFalse
@@ -2097,6 +2106,7 @@ Describe 'Required status check readiness' {
         }
         $script:RequiredCheckDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-required-check-enforcement-readiness.md') -Raw
         $script:PrDeliveryTransitionDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md') -Raw
+        $script:GeneratedPrCredentialDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-generated-pr-credential-decision.md') -Raw
     }
 
     It 'creates candidate required checks for every pull request and merge queue run' {
@@ -2178,6 +2188,15 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
         $script:PrDeliveryTransitionDecision | Should -Match 'Enable GitHub Actions pull-request creation'
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
+    }
+
+    It 'records the generated PR credential decision before changing repository settings' {
+        $script:GeneratedPrCredentialDecision | Should -Match 'Generated PR Credential Decision'
+        $script:GeneratedPrCredentialDecision | Should -Match 'Decision: Enable GitHub Actions pull-request creation'
+        $script:GeneratedPrCredentialDecision | Should -Match 'Do not add a PAT or GitHub App secret'
+        $script:GeneratedPrCredentialDecision | Should -Match 'default_workflow_permissions=read'
+        $script:GeneratedPrCredentialDecision | Should -Match 'can_approve_pull_request_reviews=false'
+        $script:GeneratedPrCredentialDecision | Should -Match 'can_approve_pull_request_reviews=true'
     }
 
     It 'records hosted generated PR dry-run evidence without marking delivery proven' {
@@ -2467,6 +2486,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'actionsWorkflowPermissions'
+        $script:SummaryScript | Should -Match 'generatedPrCredentialDecision'
+        $script:SummaryScript | Should -Match 'Generated PR credential decision'
         $script:SummaryScript | Should -Match 'requiredCheckReadiness'
         $script:SummaryScript | Should -Match 'prDeliveryTransition'
         $script:SummaryScript | Should -Match 'generatedPrDryRunEvidence'

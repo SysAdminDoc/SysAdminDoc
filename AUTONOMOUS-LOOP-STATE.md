@@ -2,17 +2,16 @@
 
 Assigned project: `C:\Users\--\repos\SysAdminDoc`
 Current pass: 2026-06-07
-Last completed roadmap cycle: Cycle 112 - Profile release/tag policy
+Last completed roadmap cycle: Cycle 113 - Generated PR credential decision
 
 ## Latest Result
 
-- Audited the current profile release/tag drift: planning docs advanced past `v4.9.x` while the public GitHub release remains `v3.0.0`.
-- Chose not to cut a `v4.9.x` tag/release solely to clear an informational report row.
-- Added `docs/decisions/2026-06-07-profile-release-tag-policy.md` documenting `v4.9.x` as internal profile-sync evidence versions and public releases as manual milestones.
-- Added `profileReleaseConsistency.releasePolicy` plus schema, summary, and Pester coverage.
-- Changed policy-acknowledged profile release/tag drift to an informational summary notice.
-- Updated planning docs to v4.9.104.
+- Audited the generated PR delivery credential choice after hosted `write-pr` run `27085061539` proved the `createPullRequest` workflow-permissions blocker.
+- Chose the repository Actions pull-request creation setting as the primary path instead of introducing a long-lived GitHub App/PAT credential.
+- Added `docs/decisions/2026-06-07-generated-pr-credential-decision.md` with the selected path, rejected fallback path, live setting evidence, and activation command.
+- Added `repositorySettings.actionsWorkflowPermissions.generatedPrCredentialDecision` plus schema, summary, and Pester coverage.
+- Updated planning docs to v4.9.105.
 
 ## Next Cycle
 
-Continue on this same assigned project. Decide whether generated PR delivery should enable GitHub Actions PR creation or switch to an approved GitHub App/PAT credential.
+Continue on this same assigned project. Enable the repository Actions pull-request creation setting or, if live mutation is deferred again, reduce the remaining repository-setting warning surface starting with userscript install trust warnings.

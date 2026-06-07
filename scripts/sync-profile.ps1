@@ -4155,6 +4155,37 @@ function Get-GeneratedPrWriteEvidence {
     }
 }
 
+function Get-GeneratedPrCredentialDecision {
+    param(
+        [Nullable[bool]]$ActionsPullRequestCreationAllowed
+    )
+
+    $settingAllowsGeneratedPr = Get-NullableBool $ActionsPullRequestCreationAllowed
+    $status = if ($settingAllowsGeneratedPr -eq $true) {
+        "setting-enabled"
+    } else {
+        "decision-recorded"
+    }
+    $nextAction = if ($settingAllowsGeneratedPr -eq $true) {
+        "Rerun the hosted write-pr workflow and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
+    } else {
+        "Enable the repository Actions pull-request creation setting, rerun hosted write-pr, and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
+    }
+
+    return [ordered]@{
+        status = $status
+        selectedPath = "enable-actions-pr-creation"
+        rejectedPath = "approved-github-app-or-pat-token"
+        rationale = "The manual generated-PR job already scopes write privileges to actions:write, contents:write, and pull-requests:write; enabling the repository setting avoids adding a long-lived automation secret."
+        requiresRepositorySetting = $true
+        requiresNewSecret = $false
+        currentSettingAllowsGeneratedPr = $settingAllowsGeneratedPr
+        decisionDocumentPath = "docs/decisions/2026-06-07-generated-pr-credential-decision.md"
+        activationCommand = "gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true"
+        nextAction = $nextAction
+    }
+}
+
 function Test-RequiredCheckWorkflowCoverage {
     param(
         [object[]]$Candidates = $RequiredStatusCheckCandidates
@@ -4425,6 +4456,7 @@ function Test-RepositoryCommunityBaseline {
             $repoWarnings.Add("GitHub Actions workflow permissions do not allow GITHUB_TOKEN to create pull requests.")
         }
     }
+    $generatedPrCredentialDecision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed
 
     $requiredCheckReadiness = Get-RequiredCheckReadiness `
         -BranchProtectionAvailable $branchProtectionAvailable `
@@ -4574,6 +4606,7 @@ function Test-RepositoryCommunityBaseline {
             canApprovePullRequestReviews = $canApprovePullRequestReviews
             generatedPrCreationAllowed = if ($actionsWorkflowPermissionsAvailable) { $generatedPrCreationAllowed } else { $null }
             recommendation = if ($actionsWorkflowPermissionsAvailable -and -not $generatedPrCreationAllowed) { "enable-actions-pr-creation-or-use-approved-automation-token" } elseif ($actionsWorkflowPermissionsAvailable) { "ready-for-generated-pr-delivery" } else { "verify-actions-workflow-permissions" }
+            generatedPrCredentialDecision = $generatedPrCredentialDecision
         }
         requiredCheckReadiness = $requiredCheckReadiness
         warningCount = $repoWarnings.Count

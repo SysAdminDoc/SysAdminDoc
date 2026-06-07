@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.105] - 2026-06-07
+
+- Added: `repositorySettings.actionsWorkflowPermissions.generatedPrCredentialDecision` now records the generated-PR credential path decision, selected repository-setting path, rejected App/PAT fallback path, and activation command.
+- Added: `docs/decisions/2026-06-07-generated-pr-credential-decision.md` documents why generated PR delivery should enable GitHub Actions pull-request creation before adding a long-lived automation credential.
+- Changed: Profile sync summaries now surface the generated-PR credential decision, selected path, new-secret requirement, and whether the live setting currently allows generated PR creation.
+
 ## [v4.9.104] - 2026-06-07
 
 - Added: `profileReleaseConsistency.releasePolicy` now records the accepted internal-version gap policy for `v4.9.x` profile-sync versions versus sparse public GitHub releases.
