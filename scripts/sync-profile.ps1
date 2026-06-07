@@ -3099,10 +3099,12 @@ function Test-ReadmeDensity {
     $lowSignalProjectCount = 0
     $portfolioOnlyCandidateCount = 0
     $portfolioOnlyCandidateCategories = New-Object System.Collections.Generic.List[string]
+    $portfolioOnlyCandidates = New-Object System.Collections.Generic.List[object]
 
     foreach ($definition in $CategoryDefinitions) {
         $slug = [string]$definition.Slug
         $categoryEntries = @($Entries | Where-Object { [string]$_.category -eq $slug })
+        $categoryEntryRows = New-Object System.Collections.Generic.List[object]
         $repoOnlyCount = 0
         $actionableCount = 0
         $lowSignalCount = 0
@@ -3118,6 +3120,22 @@ function Test-ReadmeDensity {
             } else {
                 0
             }
+            $release = if ($meta) { Get-MemberValue -Object $meta -Name "latestRelease" } else { $null }
+            $pushedAt = if ($meta) { ConvertTo-IsoText (Get-MemberValue -Object $meta -Name "pushedAt") } else { $null }
+            $categoryEntryRows.Add([ordered]@{
+                    repo = [string]$entry.repo
+                    title = [string]$entry.title
+                    category = $slug
+                    order = [int]$entry.order
+                    primaryAction = $actionKind
+                    stars = [int]$stars
+                    includeInPortfolio = [bool]$entry.includeInPortfolio
+                    featured = [bool]$entry.featured
+                    currentlyBuilding = [bool]$entry.currentlyBuilding
+                    hasLatestRelease = [bool]($null -ne $release)
+                    pushedAt = if ([string]::IsNullOrWhiteSpace($pushedAt)) { $null } else { $pushedAt }
+                    latestReleaseTag = if ($release) { [string](Get-MemberValue -Object $release -Name "tagName") } else { $null }
+                })
 
             if ($actionKind -eq "repo") {
                 $repoOnlyCount++
@@ -3142,6 +3160,53 @@ function Test-ReadmeDensity {
             "review-portfolio-only-candidates"
         } else {
             "keep-in-readme"
+        }
+        $categoryCandidateRows = if ($categoryPortfolioOnlyCandidateCount -gt 0) {
+            @($categoryEntryRows.ToArray() | Where-Object {
+                    (Get-MemberValue -Object $_ -Name "primaryAction") -eq "repo" -and
+                    (Get-MemberValue -Object $_ -Name "includeInPortfolio") -eq $true -and
+                    (Get-MemberValue -Object $_ -Name "featured") -ne $true -and
+                    (Get-MemberValue -Object $_ -Name "currentlyBuilding") -ne $true
+                } | Sort-Object `
+                @{ Expression = { [int](Get-MemberValue -Object $_ -Name "stars") }; Ascending = $true },
+                @{ Expression = { [bool](Get-MemberValue -Object $_ -Name "hasLatestRelease") }; Ascending = $true },
+                @{ Expression = {
+                        $candidatePushedAt = Get-MemberValue -Object $_ -Name "pushedAt"
+                        if ([string]::IsNullOrWhiteSpace([string]$candidatePushedAt)) {
+                            [datetime]::MinValue
+                        } else {
+                            [datetime]::Parse([string]$candidatePushedAt, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AdjustToUniversal)
+                        }
+                    }; Ascending = $true },
+                @{ Expression = { [int](Get-MemberValue -Object $_ -Name "order") }; Descending = $true },
+                @{ Expression = { [string](Get-MemberValue -Object $_ -Name "repo") }; Ascending = $true } |
+                Select-Object -First $categoryPortfolioOnlyCandidateCount)
+        } else {
+            @()
+        }
+        foreach ($candidate in $categoryCandidateRows) {
+            $candidateStars = [int](Get-MemberValue -Object $candidate -Name "stars")
+            $reasonCodes = New-Object System.Collections.Generic.List[string]
+            if ($overCategorySoftLimitBy -gt 0) { $reasonCodes.Add("category-over-soft-limit") }
+            if ($lowSignalCandidateCount -gt 0 -and $candidateStars -eq 0) { $reasonCodes.Add("low-signal-zero-star") }
+            $reasonCodes.Add("repo-only-action")
+            if ((Get-MemberValue -Object $candidate -Name "hasLatestRelease") -ne $true) { $reasonCodes.Add("no-latest-release") }
+            if ((Get-MemberValue -Object $candidate -Name "includeInPortfolio") -eq $true) { $reasonCodes.Add("portfolio-route-available") }
+
+            $portfolioOnlyCandidates.Add([ordered]@{
+                    reviewRank = [int]($portfolioOnlyCandidates.Count + 1)
+                    category = $slug
+                    displayName = Get-CategoryDisplayName -Slug $slug
+                    repo = [string](Get-MemberValue -Object $candidate -Name "repo")
+                    title = [string](Get-MemberValue -Object $candidate -Name "title")
+                    stars = $candidateStars
+                    primaryAction = [string](Get-MemberValue -Object $candidate -Name "primaryAction")
+                    includeInPortfolio = [bool](Get-MemberValue -Object $candidate -Name "includeInPortfolio")
+                    pushedAt = Get-MemberValue -Object $candidate -Name "pushedAt"
+                    latestReleaseTag = Get-MemberValue -Object $candidate -Name "latestReleaseTag"
+                    reasonCodes = @($reasonCodes.ToArray())
+                    recommendation = "review-for-portfolio-only"
+                })
         }
 
         foreach ($warning in $categoryWarnings) {
@@ -3199,6 +3264,8 @@ function Test-ReadmeDensity {
         portfolioOnlyCandidateCount = [int]$portfolioOnlyCandidateCount
         portfolioOnlyCandidateCategoryCount = [int]$portfolioOnlyCandidateCategories.Count
         portfolioOnlyCandidateCategories = @($portfolioOnlyCandidateCategories.ToArray())
+        portfolioOnlyCandidateSelectionPolicy = "Review non-featured, non-currently-building repo-only rows that still have portfolio routes; sort by stars, release availability, age, category order, and repo name."
+        portfolioOnlyCandidates = @($portfolioOnlyCandidates.ToArray())
         routingRecommendation = $routingRecommendation
         warningCount = [int]($warningsArray.Count)
         warnings = $warningsArray

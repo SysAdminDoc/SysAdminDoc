@@ -106,6 +106,11 @@ $readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestC
 $readmeRepoOnlyProjectCount = if ($readmeDensity) { [int]$readmeDensity.repoOnlyProjectCount } else { 0 }
 $readmePortfolioOnlyCandidateCount = if ($readmeDensity) { [int]$readmeDensity.portfolioOnlyCandidateCount } else { 0 }
 $readmeRoutingRecommendation = if ($readmeDensity) { [string]$readmeDensity.routingRecommendation } else { "unknown" }
+$readmePortfolioOnlyCandidateSample = if ($readmeDensity -and $readmeDensity.PSObject.Properties.Name -contains 'portfolioOnlyCandidates') {
+    @($readmeDensity.portfolioOnlyCandidates | Select-Object -First 5 | ForEach-Object { [string]$_.repo }) -join ", "
+} else {
+    ""
+}
 $artifactBudgetStatus = if ($artifactBudgets) { [string]$artifactBudgets.status } else { "unknown" }
 $artifactBudgetWarningCount = if ($artifactBudgets) { [int]$artifactBudgets.warningCount } else { 0 }
 $artifactBudgetRowCount = if ($artifactBudgets) { Get-Count $artifactBudgets.rows } else { 0 }
@@ -137,6 +142,7 @@ $summary = @"
 | README largest category | $readmeLargestCategory ($readmeLargestCategoryCount) |
 | README repo-only rows | $readmeRepoOnlyProjectCount |
 | README portfolio-only candidates | $readmePortfolioOnlyCandidateCount |
+| README candidate sample | $readmePortfolioOnlyCandidateSample |
 | README routing recommendation | $readmeRoutingRecommendation |
 | Artifact budget status | $artifactBudgetStatus |
 | Artifact budget warnings | $artifactBudgetWarningCount |

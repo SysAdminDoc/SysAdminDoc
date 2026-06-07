@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.85
+Current repo version: v4.9.86
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 93 - 2026-06-07.
+> Last researched: Cycle 94 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,18 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 93 - 2026-06-07.
+Last researched: Cycle 94 - 2026-06-07.
+
+2026-06-07 v4.9.86 refresh: concrete README portfolio-only review
+candidate reporting shipped. `readmeDensity` now includes
+`portfolioOnlyCandidateSelectionPolicy` plus `portfolioOnlyCandidates`, a
+deterministic list of non-featured, non-currently-building repo-only rows that
+still have portfolio routes. Current Python review candidates are
+`CSV_Power_Tool`, `Flux`, `PillSleepTracker`, `UniversalCompiler`,
+`GmailDownloader`, `bypassnroGen`, `LipSight`, `PDFedit`,
+`QR-Code-Generator-Pro`, `Stock-Video-Collector`, and `Tunerize`. The profile
+sync summary now surfaces a short candidate sample, and Pester/schema coverage
+guards the selected row shape without changing generated README inclusion yet.
 
 2026-06-07 v4.9.85 refresh: PR-delivery transition checklist
 shipped. `repositorySettings.requiredCheckReadiness.workflowCoverage` now
@@ -1974,12 +1985,12 @@ weight and checked the current rendered profile smoke output.*
 
 ## Continuation State
 
-Last autonomous roadmap pass: Cycle 93 - 2026-06-07.
+Last autonomous roadmap pass: Cycle 94 - 2026-06-07.
 
 Current local state:
 
 - Repo: `C:\Users\--\repos\SysAdminDoc`
-- HEAD inspected before this cycle: `420fe50 feat: report generated artifact budgets`
+- HEAD inspected before this cycle: `462afa1 feat: report pr delivery transition`
 - Worktree before implementation: clean on `main...origin/main`.
 - Live GitHub branch protection check: required status checks are not enabled (`404 Required status checks not enabled`), no repository rulesets exist, and protected `main` still has `enforce_admins=true`, required conversation resolution, force-push blocking, and deletion blocking.
 - Dependabot PR #7 was triaged and closed as obsolete after the same 4.36.2 SHA landed directly on `main` in `c18bd58` with matching Pester/docs updates.
@@ -1995,14 +2006,15 @@ Current local state:
 - Cycle 91 added README density routing-decision reporting; current evidence keeps the README as the public routing surface while recording 11 Python-category rows for portfolio-only review.
 - Cycle 92 added generated artifact/render-budget reporting; current artifact budgets are within budget and live rendered smoke passes with 0 warnings.
 - Cycle 93 added PR-delivery transition checklist reporting; current candidate checks/workflow coverage are ready, but required-check enforcement remains blocked by direct-main delivery and live PR proof.
+- Cycle 94 added concrete README portfolio-only review candidate rows; current Python candidates are selected deterministically but README inclusion is unchanged.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
 - Branch-protection/ruleset required-check enforcement remains external-gated while direct pushes to `main` are the delivery path.
 
 Next research cycles:
 
-1. Cycle 94: use the density-routing report to choose concrete Python rows for portfolio-only catalog review if the artifact budgets stay healthy.
-2. Cycle 95: add a portfolio-only catalog review preview mode before changing generated README rows.
-3. Cycle 96: add a PR-delivery dry-run helper once branch-based delivery is approved.
+1. Cycle 95: add a portfolio-only catalog review preview mode before changing generated README rows.
+2. Cycle 96: add a PR-delivery dry-run helper once branch-based delivery is approved.
+3. Cycle 97: add candidate-row override notes to the catalog only after the preview mode is in place.
 
 ### Quick Wins
 
@@ -2018,6 +2030,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — Required-check readiness report without enabling enforcement (completed v4.9.82 with `repositorySettings.requiredCheckReadiness`, summary rows, schema coverage, and Pester guards).
 - [x] P2 — PR-delivery transition checklist before required-check enforcement (completed v4.9.85 with `workflowCoverage`, `prDeliveryTransition`, summary rows, schema coverage, a decision note, and Pester guards).
 - [x] P2 — README density routing-decision report (completed v4.9.83 with `routingRecommendation`, portfolio-only candidate counts, category soft-limit overflow, summary rows, schema coverage, a decision note, and Pester guards).
+- [x] P2 — Concrete README portfolio-only review candidate rows (completed v4.9.86 with `portfolioOnlyCandidateSelectionPolicy`, `portfolioOnlyCandidates`, reason codes, summary sample output, schema coverage, and Pester guards).
 - [x] P2 — Generated artifact/render-budget report (completed v4.9.84 with `artifactBudgets`, `renderedProfileSmoke`, summary rows, schema coverage, live smoke report patching, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).

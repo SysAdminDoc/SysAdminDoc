@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.86] - 2026-06-07
+
+- Added: `reports/profile-sync-report.json.readmeDensity.portfolioOnlyCandidates` now names concrete README rows for portfolio-only review.
+- Added: `readmeDensity.portfolioOnlyCandidateSelectionPolicy` records the deterministic review-row selection criteria.
+- Added: The profile sync summary now includes a README candidate sample for quick review in Actions output.
+
 ## [v4.9.85] - 2026-06-07
 
 - Added: `repositorySettings.requiredCheckReadiness.workflowCoverage` now records candidate required-check workflow trigger coverage for PR and merge-queue delivery.
