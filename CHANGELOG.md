@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.124] - 2026-06-07
+
+- Added: `repositorySettings.security.dependabotSecurityPosture` now records the disabled Dependabot security-updates setting, local Dependabot config presence, covered ecosystems, recommendation, and decision path.
+- Added: `docs/decisions/2026-06-07-dependabot-security-posture.md` documents why local version-update config is not equivalent to enabled Dependabot security updates.
+- Changed: Profile-sync summaries now show Dependabot security posture, recommendation, security-update state, local config presence, and local config ecosystems.
+
 ## [v4.9.123] - 2026-06-07
 
 - Added: `repositorySettings.reviewPolicyPosture` now records the pull-request review and code-owner review posture as warning-only until an independent reviewer or team model exists.

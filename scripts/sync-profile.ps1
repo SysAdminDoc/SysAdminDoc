@@ -3876,6 +3876,71 @@ function Get-CodeScanningLocalEvidence {
     }
 }
 
+function Get-DependabotSecurityPosture {
+    param([object]$DependabotSecurityUpdates)
+
+    $configPath = ".github/dependabot.yml"
+    $fullConfigPath = Join-Path $RepoRoot $configPath
+    $configPresent = Test-Path -LiteralPath $fullConfigPath
+    $ecosystems = @()
+    if ($configPresent) {
+        $configText = Get-Content -LiteralPath $fullConfigPath -Raw
+        $ecosystems = @([regex]::Matches($configText, 'package-ecosystem:\s*"?([^"\r\n]+)"?') | ForEach-Object {
+                $_.Groups[1].Value.Trim()
+            } | Sort-Object -Unique)
+    }
+
+    $statusText = if ($null -eq $DependabotSecurityUpdates) { "" } else { [string]$DependabotSecurityUpdates }
+    $available = -not [string]::IsNullOrWhiteSpace($statusText)
+    $securityUpdatesEnabled = [bool]($statusText -eq "enabled")
+    $status = if (-not $available) {
+        "unavailable"
+    } elseif ($securityUpdatesEnabled) {
+        "enabled"
+    } else {
+        "disabled"
+    }
+
+    $recommendation = if ($status -eq "enabled") {
+        "monitor-dependabot-security-updates"
+    } elseif ($status -eq "disabled") {
+        "enable-dependabot-security-updates-or-document-manual-triage"
+    } else {
+        "verify-dependabot-security-update-setting"
+    }
+
+    $evidence = if ($status -eq "disabled") {
+        "Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s), but repository security_and_analysis.dependabot_security_updates.status is disabled."
+    } elseif ($status -eq "enabled") {
+        "Dependabot security updates are enabled, and local version-update config is present for $($ecosystems.Count) ecosystem(s)."
+    } else {
+        "Dependabot security update setting was unavailable from repository metadata."
+    }
+
+    $nextAction = if ($status -eq "disabled") {
+        "Enable Dependabot security updates in repository settings, or record why manual security triage is sufficient for this profile repository."
+    } elseif ($status -eq "enabled") {
+        "Keep monitoring Dependabot alert volume and grouped version-update PRs."
+    } else {
+        "Re-query repository security_and_analysis metadata before changing Dependabot policy."
+    }
+
+    return [ordered]@{
+        available = $available
+        status = $status
+        recommendation = $recommendation
+        dependabotSecurityUpdatesStatus = if ($available) { $statusText } else { $null }
+        securityUpdatesEnabled = if ($available) { $securityUpdatesEnabled } else { $null }
+        localConfigPresent = [bool]$configPresent
+        localConfigPath = $configPath
+        localConfigEcosystems = @($ecosystems)
+        warningDisposition = if ($status -eq "disabled") { "repository-setting-warning" } else { "none" }
+        documentationPath = "docs/decisions/2026-06-07-dependabot-security-posture.md"
+        evidence = $evidence
+        nextAction = $nextAction
+    }
+}
+
 function Test-SecurityPolicyLinkedReportingTarget {
     $path = Join-Path $RepoRoot "SECURITY.md"
     if (-not (Test-Path -LiteralPath $path)) {
@@ -4771,6 +4836,7 @@ function Test-RepositoryCommunityBaseline {
     $secretScanningNonProviderPatterns = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_non_provider_patterns.status"
     $secretScanningValidityChecks = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_validity_checks.status"
     $dependabotSecurityUpdates = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.dependabot_security_updates.status"
+    $dependabotSecurityPosture = Get-DependabotSecurityPosture -DependabotSecurityUpdates $dependabotSecurityUpdates
 
     if ($repoAvailable) {
         if ($secretScanning -ne "enabled") {
@@ -4954,6 +5020,7 @@ function Test-RepositoryCommunityBaseline {
             secretScanningNonProviderPatterns = $secretScanningNonProviderPatterns
             secretScanningValidityChecks = $secretScanningValidityChecks
             dependabotSecurityUpdates = $dependabotSecurityUpdates
+            dependabotSecurityPosture = $dependabotSecurityPosture
             codeScanning = [ordered]@{
                 status = $codeScanningStatus
                 recommendation = $codeScanningRecommendation
