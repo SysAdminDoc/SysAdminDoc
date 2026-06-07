@@ -162,6 +162,11 @@ git commit -m $CommitMessage
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to commit generated profile artifacts (exit code $LASTEXITCODE)."
 }
+$generatedHeadSha = (git rev-parse HEAD)
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to read generated profile commit SHA (exit code $LASTEXITCODE)."
+}
+$generatedHeadSha = $generatedHeadSha.Trim()
 
 $basicToken = [Convert]::ToBase64String(
     [Text.Encoding]::ASCII.GetBytes("x-access-token:$env:GH_TOKEN")
@@ -176,10 +181,28 @@ if ($LASTEXITCODE -ne 0) {
 }
 $branchPushed = $true
 
+try {
+    & (Join-Path $PSScriptRoot 'set-generated-validation-status.ps1') `
+        -State pending `
+        -Repository $repository `
+        -Sha $generatedHeadSha `
+        -TargetUrl $validationRunsUrl `
+        -Description 'Generated profile validation pending.'
+} catch {
+    git push origin --delete $branch
+    if ($LASTEXITCODE -eq 0) {
+        Write-Warning "Deleted generated branch $branch after generated validation status publishing failed."
+    } else {
+        Write-Warning "Failed to delete generated branch $branch after generated validation status publishing failed (exit code $LASTEXITCODE)."
+    }
+    throw
+}
+
 $prBody = @"
 $PullRequestBodyIntro
 
 Validation handoff: this workflow dispatches Profile sync in check mode on the generated branch after opening the pull request.
+Status context: generated-profile/validation
 Validation runs: $validationRunsUrl
 "@
 
@@ -212,6 +235,7 @@ if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
         ''
         "- Pull request: $prUrl"
         ("- Dispatched: Profile sync check on ``{0}``" -f $branch)
+        "- Status context: generated-profile/validation"
         "- Validation runs: $validationRunsUrl"
     ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 }

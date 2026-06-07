@@ -55,7 +55,7 @@ $ReadmeDetailsSectionSoftLimit = 15
 $ReadmeImageTagSoftLimit = 10
 $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
-$ReportJsonSoftLimitBytes = 100KB
+$ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
 $RenderedSmokeMinimumRootClientWidth = 300
@@ -4161,10 +4161,17 @@ function Get-GeneratedPrWriteEvidence {
         generatedBranchSuccessfulCheckRunCount = [int]1
         pullRequestCheckRollupCount = [int]0
         pullRequestChecksAttached = $false
-        pullRequestCheckRollupNote = "gh pr checks and statusCheckRollup reported no PR-attached checks for PR #9, even though the workflow_dispatch validation produced commit check runs on 787a869f04a4b5a644730c4bba9552875541b76c."
-        blocker = "Required-check enforcement still needs PR-attached candidate checks or an approved bypass; the successful workflow_dispatch validation did not appear in the PR status check rollup."
-        evidenceSummary = "Manual hosted write-pr drill with the patched helper continued past the workflow-permissions endpoint 403, committed 787a869 to automation/profile-sync-27087015369, pushed the branch, created PR #9, and dispatched Profile sync validation run 27087055596. The generated branch validation used sync-profile.ps1 -Write -Check, passed, uploaded profile-sync-report artifact 7462246872 and rendered-profile-smoke artifact 7462247041, then PR #9 was closed and the generated branch was deleted after evidence collection. GitHub commit check-runs showed three workflow_dispatch check runs on the generated branch commit, but the PR check rollup reported zero attached checks."
-        nextAction = "Prove PR-attached required-check delivery, or document and test a narrow bypass, before enabling required-check enforcement."
+        pullRequestCheckRollupNote = "gh pr checks and statusCheckRollup reported no PR-attached checks for PR #9, even though the workflow_dispatch validation produced commit check runs on 787a869f04a4b5a644730c4bba9552875541b76c. Cycle 117 adds a generated-profile/validation commit-status handoff; live PR rollup proof is pending."
+        statusHandoffImplemented = $true
+        statusHandoffContext = "generated-profile/validation"
+        statusHandoffApi = "commit-statuses"
+        statusHandoffPermission = "statuses: write"
+        statusHandoffPendingPublisher = "scripts/open-generated-profile-pr.ps1"
+        statusHandoffFinalPublisher = ".github/workflows/profile-sync.yml generated-validation-status job"
+        statusHandoffProof = "pending-next-hosted-write-pr"
+        blocker = "Required-check enforcement still needs a hosted rerun proving generated-profile/validation attaches to generated PR statusCheckRollup, or an approved bypass."
+        evidenceSummary = "Manual hosted write-pr drill with the patched helper continued past the workflow-permissions endpoint 403, committed 787a869 to automation/profile-sync-27087015369, pushed the branch, created PR #9, and dispatched Profile sync validation run 27087055596. The generated branch validation used sync-profile.ps1 -Write -Check, passed, uploaded profile-sync-report artifact 7462246872 and rendered-profile-smoke artifact 7462247041, then PR #9 was closed and the generated branch was deleted after evidence collection. GitHub commit check-runs showed three workflow_dispatch check runs on the generated branch commit, but the PR check rollup reported zero attached checks. Cycle 117 adds a commit-status handoff that publishes generated-profile/validation as pending before PR creation and success/failure after the dispatched validation job."
+        nextAction = "Rerun hosted write-pr and verify generated-profile/validation appears in the generated PR statusCheckRollup before enabling required-check enforcement."
     }
 }
 
@@ -4180,7 +4187,7 @@ function Get-GeneratedPrCredentialDecision {
         "decision-recorded"
     }
     $nextAction = if ($settingAllowsGeneratedPr -eq $true) {
-        "Prove PR-attached generated maintenance checks or document and test a narrow approved bypass before required-check enforcement."
+        "Rerun hosted write-pr with the generated-profile/validation commit-status handoff and verify PR statusCheckRollup attachment before required-check enforcement."
     } else {
         "Enable the repository Actions pull-request creation setting, rerun hosted write-pr, and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
     }
@@ -4311,7 +4318,7 @@ function Get-PrDeliveryTransitionChecklist {
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Rerun generated PR delivery with the preflight-unavailable fallback and verify gh pr create plus validation dispatch."
     } else {
-        "Switch the autonomous loop to PR-attached delivery, or document and test a narrow approved bypass."
+        "Rerun generated PR delivery with the generated-profile/validation commit-status handoff, then verify PR statusCheckRollup attachment or document an approved bypass."
     }
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "pr-delivery-or-bypass" `

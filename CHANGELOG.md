@@ -2,6 +2,13 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.109] - 2026-06-07
+
+- Added: Generated profile PRs now publish a `generated-profile/validation` commit-status context before PR creation and update it after branch-scoped validation completes.
+- Added: `scripts/set-generated-validation-status.ps1` centralizes the commit-status API call with an offline dry-run payload mode, and Pester guards the helper/workflow wiring.
+- Changed: Generated PR write evidence, schema, and Actions summaries now record the status-handoff context, permission, publisher paths, and pending hosted proof state.
+- Changed: The generated sync-report artifact soft budget is now 112 KiB so the final smoke-patched report remains within the committed artifact-budget contract.
+
 ## [v4.9.108] - 2026-06-07
 
 - Added: `generatedPrWriteEvidence` now records successful hosted `write-pr` run `27087015369`, PR #9, validation run `27087055596`, generated branch cleanup, and branch check-run counts.

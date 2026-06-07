@@ -2435,6 +2435,13 @@
         "pullRequestCheckRollupCount",
         "pullRequestChecksAttached",
         "pullRequestCheckRollupNote",
+        "statusHandoffImplemented",
+        "statusHandoffContext",
+        "statusHandoffApi",
+        "statusHandoffPermission",
+        "statusHandoffPendingPublisher",
+        "statusHandoffFinalPublisher",
+        "statusHandoffProof",
         "blocker",
         "evidenceSummary",
         "nextAction"
@@ -2550,6 +2557,27 @@
           "type": "boolean"
         },
         "pullRequestCheckRollupNote": {
+          "type": "string"
+        },
+        "statusHandoffImplemented": {
+          "type": "boolean"
+        },
+        "statusHandoffContext": {
+          "type": "string"
+        },
+        "statusHandoffApi": {
+          "type": "string"
+        },
+        "statusHandoffPermission": {
+          "type": "string"
+        },
+        "statusHandoffPendingPublisher": {
+          "type": "string"
+        },
+        "statusHandoffFinalPublisher": {
+          "type": "string"
+        },
+        "statusHandoffProof": {
           "type": "string"
         },
         "blocker": {
