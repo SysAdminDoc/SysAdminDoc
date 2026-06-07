@@ -34,7 +34,9 @@ policy that must be proven before enforcement can be safely enabled.
 ## Current Evidence
 
 - Branch protection is readable and reports `enforce_admins.enabled=true`,
-  `required_status_checks=null`, `required_pull_request_reviews=null`,
+  strict required status checks for `Pester (offline)`, `PSScriptAnalyzer`,
+  `Markdownlint`, `Windows setup smoke`, `Check generated README`, and
+  `zizmor`, `required_pull_request_reviews=null`,
   `required_conversation_resolution.enabled=true`,
   `allow_force_pushes.enabled=false`, and `allow_deletions.enabled=false`.
 - Repository rulesets are readable and currently return `[]`.

@@ -5,10 +5,20 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.120
+Current version after this refresh: v4.9.121
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.121 batch enables strict branch-protection required checks on
+  protected `main` for `Pester (offline)`, `PSScriptAnalyzer`, `Markdownlint`,
+  `Windows setup smoke`, `Check generated README`, and `zizmor`.
+- Branch protection remains admin-enforced, keeps required conversation
+  resolution, blocks force pushes and deletion, does not require PR reviews,
+  and does not use repository rulesets.
+- Required-check readiness now treats branch protection as the selected
+  enforcement mechanism; `requiredCheckReadiness.status=enforcement-present`,
+  `recommendation=monitor-required-check-enforcement`, and the PR-delivery
+  transition checklist has zero blockers.
 - The v4.9.120 batch records the successful routine-maintenance PR delivery
   proof from PR #14.
 - PR #14 merged by rebase from the `routine-pr-drill-evidence` branch after all six
