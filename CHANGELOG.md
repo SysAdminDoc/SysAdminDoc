@@ -2,6 +2,11 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.93] - 2026-06-07
+
+- Changed: `generatedPrDryRunEvidence` now records successful hosted run `27083372279` on `main` at `2e2d2e2b35e5dd9475748978de0b9a82bb738699`.
+- Added: The evidence now confirms the hosted dry run reached `Preview pull request`, planned `automation/profile-sync-27083372279`, uploaded the report artifact, and created no branch, commit, push, pull request, or validation dispatch.
+
 ## [v4.9.92] - 2026-06-07
 
 - Fixed: `scripts/sync-profile.ps1 -Check` now exits explicitly with status 0 after a successful report validation.
