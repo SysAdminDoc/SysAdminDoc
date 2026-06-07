@@ -5,10 +5,18 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.117
+Current version after this refresh: v4.9.118
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.118 batch selects routine pull-request delivery before
+  required-check enforcement.
+- `docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md` keeps
+  direct-main bypass unapproved, records the selected branch/PR/check/merge
+  procedure, and cites the current live branch-protection/ruleset evidence.
+- `directMainMaintenancePolicy` now records `status=pr-delivery-selected`,
+  `selectedPath=pull-request-delivery`, and the next action to run a live
+  routine maintenance PR merge drill before any required-check enforcement.
 - The v4.9.117 batch records the successful disposable candidate-check proof
   from PR #13.
 - PR #13 created all six candidate required-check names, and `Check generated
@@ -88,12 +96,12 @@ Current version after this refresh: v4.9.117
 - The v4.9.111 batch makes the remaining direct-main maintenance blocker
   machine-readable.
 - `requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy`
-  now records `status=not-approved`, `allowed=false`,
+  originally recorded `status=not-approved`, `allowed=false`,
   `requiredBeforeEnforcement=true`, and
   `recommendation=defer-required-check-enforcement`.
 - The report evidence states that routine maintenance still commits directly to
   `main` while live branch protection has `enforce_admins.enabled=true`; no
-  bypass actor or broader PR-delivery policy has been selected.
+  bypass actor or broader PR-delivery policy had been selected at that point.
 - The profile sync summary now surfaces direct-main maintenance policy status,
   allowed state, and recommendation, and Pester guards the report and summary
   shape.

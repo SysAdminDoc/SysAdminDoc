@@ -4055,7 +4055,7 @@ function Get-RequiredCheckReadiness {
     }
 
     if ($EnforceAdmins -eq $true) {
-        $blockers.Add("Protected main enforces admins; direct-push delivery needs PR delivery or an approved bypass before enabling required checks.")
+        $blockers.Add("Protected main enforces admins; routine PR delivery is selected but still needs a live merge drill before enabling required checks.")
     }
 
     $prDeliveryTransition = Get-PrDeliveryTransitionChecklist `
@@ -4284,14 +4284,14 @@ function Test-RequiredCheckWorkflowCoverage {
 
 function Get-DirectMainMaintenancePolicy {
     return [ordered]@{
-        status = "not-approved"
+        status = "pr-delivery-selected"
         allowed = $false
         requiredBeforeEnforcement = $true
-        selectedPath = "none"
-        recommendation = "defer-required-check-enforcement"
-        documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
-        evidence = "Routine autonomous maintenance currently commits directly to main, while live branch protection reports enforce_admins.enabled=true. GitHub branch protection and rulesets support bypass controls, but this repo has not selected an approved bypass actor or switched routine maintenance to PR delivery."
-        nextAction = "Choose and test either an explicit direct-main bypass actor/policy or routine PR delivery before enabling admin-enforced required checks."
+        selectedPath = "pull-request-delivery"
+        recommendation = "prove-routine-pr-delivery-before-enforcement"
+        documentationPath = "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md"
+        evidence = "No direct-main bypass actor is approved. Routine maintenance is selected to use pull-request delivery before required-check enforcement; a live routine maintenance merge drill is still required."
+        nextAction = "Run the next routine maintenance change through a normal pull request, wait for the six candidate checks, merge it without bypass, then record the PR evidence."
     }
 }
 
@@ -4423,13 +4423,19 @@ function Get-PrDeliveryTransitionChecklist {
                 -Evidence "Disposable PR #13 created all six candidate checks and every candidate check completed successfully." `
                 -NextAction "Refresh this disposable PR proof if GitHub's recent-check selection window expires before enforcement."))
 
-    $deliveryStatus = if ($EnforceAdmins -eq $true -or $ActionsPullRequestCreationAllowed -eq $false) { "blocked" } else { "needs-live-validation" }
+    $deliveryStatus = if ($ActionsPullRequestCreationAllowed -eq $false) {
+        "blocked"
+    } elseif ($EnforceAdmins -eq $true) {
+        "needs-live-validation"
+    } else {
+        "needs-live-validation"
+    }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
         "Repository workflow permissions currently block GITHUB_TOKEN pull-request creation; hosted write-pr drill 27085061539 failed at createPullRequest after pushing a disposable generated branch that was later deleted."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Hosted write-pr drill 27086351848 showed GITHUB_TOKEN cannot read the repository workflow-permissions endpoint, so the helper must continue to gh pr create when that specific preflight read is unavailable."
     } elseif ($EnforceAdmins -eq $true) {
-        "Hosted write-pr run 27087776182 opened PR #10, dispatched validation run 27087806797, and proved generated-profile/validation appears in PR statusCheckRollup as success; protected main still enforces admins, so direct-main maintenance needs an explicit bypass or PR-delivery policy."
+        "Hosted write-pr run 27087776182 opened PR #10, dispatched validation run 27087806797, and proved generated-profile/validation appears in PR statusCheckRollup as success. Protected main still enforces admins, so routine maintenance is selected for PR delivery and needs a live merge drill before enforcement."
     } else {
         "Admin enforcement is not confirmed as blocking, but the delivery path still needs a live PR or documented bypass drill."
     }
@@ -4438,7 +4444,7 @@ function Get-PrDeliveryTransitionChecklist {
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Rerun generated PR delivery with the preflight-unavailable fallback and verify gh pr create plus validation dispatch."
     } else {
-        "Document or implement the direct-main maintenance bypass/PR-delivery policy before enabling admin-enforced required-check protection."
+        "Run a routine maintenance PR merge drill before enabling admin-enforced required-check protection."
     }
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "pr-delivery-or-bypass" `

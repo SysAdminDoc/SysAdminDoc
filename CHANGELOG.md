@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.118] - 2026-06-07
+
+- Added: `docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md` now selects pull-request delivery for routine maintenance before required-check enforcement.
+- Changed: `directMainMaintenancePolicy` now keeps direct-main bypass unapproved while recording `selectedPath=pull-request-delivery` and the live routine PR merge drill as the next required proof.
+- Added: Pester coverage now guards the routine maintenance PR-delivery decision note and the updated blocker/readiness state.
+
 ## [v4.9.117] - 2026-06-07
 
 - Added: `candidateCheckExerciseEvidence` now records disposable PR #13, the six observed candidate checks, six passing results, profile-sync artifact ID, PR merge ref, and closed-PR/deleted-branch cleanup state.
