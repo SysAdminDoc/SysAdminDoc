@@ -5,10 +5,23 @@ Consolidated from legacy research and feature-planning documents on 2026-06-03. 
 Research refresh: 2026-06-07
 Deep-research addenda: 2026-06-03 and 2026-06-04 (see addenda below)
 Repository: SysAdminDoc/SysAdminDoc
-Current version after this refresh: v4.9.119
+Current version after this refresh: v4.9.120
 
 ## Verification Refresh — 2026-06-07
 
+- The v4.9.120 batch records the successful routine-maintenance PR delivery
+  proof from PR #14.
+- PR #14 merged by rebase from the `routine-pr-drill-evidence` branch after all six
+  candidate checks passed: `Check generated README`, `PSScriptAnalyzer`,
+  `Pester (offline)`, `Markdownlint`, `Windows setup smoke`, and `zizmor`.
+- `routineMaintenancePrDrillEvidence` now records PR #14, head SHA
+  `65475b7b47fc1e33a96843a131108b2660b18d19`, merge SHA
+  `64e02f3b4b9737f77b4629052dabc9f449e261bb`, workflow run IDs
+  `27090770215`, `27090770193`, and `27090770203`, the rebase merge method,
+  and deleted-branch cleanup.
+- `directMainMaintenancePolicy.status` is now `pr-delivery-proven`; required
+  check enforcement remains disabled until branch protection or a repository
+  ruleset is selected, enabled, and re-queried.
 - The v4.9.119 batch adds
   `requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence`
   as the pending report evidence slot for the normal routine-maintenance PR

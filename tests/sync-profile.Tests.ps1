@@ -378,10 +378,10 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffState | Should -Be 'success'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-selected'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-proven'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'prove-routine-pr-delivery-before-enforcement'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'select-required-check-enforcement-mechanism'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'completed'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'ready'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.requiredBeforeEnforcement | Should -BeTrue
@@ -396,14 +396,19 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -BeNullOrEmpty
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.available | Should -BeFalse
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.status | Should -Be 'pending'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.evidenceStatus | Should -Be 'not-run'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.available | Should -BeTrue
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.status | Should -Be 'passed'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.evidenceStatus | Should -Be 'successful'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.selectedPath | Should -Be 'pull-request-delivery'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.pullRequestNumber | Should -Be 14
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.headSha | Should -Be '65475b7b47fc1e33a96843a131108b2660b18d19'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.mergeSha | Should -Be '64e02f3b4b9737f77b4629052dabc9f449e261bb'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.expectedCandidateCheckCount | Should -Be 6
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.cleanupState | Should -Be 'not-started'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.successfulCandidateCheckCount | Should -Be 6
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.mergeMethod | Should -Be 'rebase'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
         ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
-        ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Match 'routine PR delivery'
+        ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Not -Match 'routine PR delivery'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
@@ -2257,11 +2262,11 @@ Describe 'Required status check readiness' {
         $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
     }
 
-    It 'records routine maintenance PR delivery as the selected path' {
+    It 'records routine maintenance PR delivery as the selected and proven path' {
         $script:RoutinePrDeliveryDecision | Should -Match 'Routine Maintenance PR Delivery'
         $script:RoutinePrDeliveryDecision | Should -Match 'Select pull-request delivery'
         $script:RoutinePrDeliveryDecision | Should -Match 'Do not approve a direct-main bypass'
-        $script:RoutinePrDeliveryDecision | Should -Match 'live merge drill'
+        $script:RoutinePrDeliveryDecision | Should -Match 'PR #14 proved normal routine-maintenance PR delivery'
         $script:RoutinePrDeliveryDecision | Should -Match 'routineMaintenancePrDrillEvidence'
         $script:RoutinePrDeliveryDecision | Should -Match 'GitHub Docs: Creating rulesets'
     }
@@ -2303,7 +2308,7 @@ Describe 'Required status check readiness' {
         $plan.cleanupRequired | Should -BeTrue
         $plan.evidenceStatus | Should -Be 'passed'
         $plan.documentationPath | Should -Be 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md'
-        $plan.nextAction | Should -Match 'direct-main maintenance'
+        $plan.nextAction | Should -Match 'PR #14'
         $candidateEvidence = $transition.candidateCheckExerciseEvidence
         $candidateEvidence.available | Should -BeTrue
         $candidateEvidence.status | Should -Be 'passed'
@@ -2325,23 +2330,32 @@ Describe 'Required status check readiness' {
         $candidateEvidence.failedCandidateChecks | Should -BeNullOrEmpty
         $candidateEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
         $candidateEvidence.failureReason | Should -BeNullOrEmpty
-        $candidateEvidence.nextAction | Should -Match 'direct-main maintenance'
+        $candidateEvidence.nextAction | Should -Match 'Keep this proof fresh'
         $routinePrDrill = $transition.routineMaintenancePrDrillEvidence
-        $routinePrDrill.available | Should -BeFalse
-        $routinePrDrill.status | Should -Be 'pending'
-        $routinePrDrill.evidenceStatus | Should -Be 'not-run'
+        $routinePrDrill.available | Should -BeTrue
+        $routinePrDrill.status | Should -Be 'passed'
+        $routinePrDrill.evidenceStatus | Should -Be 'successful'
         $routinePrDrill.requiredBeforeEnforcement | Should -BeTrue
         $routinePrDrill.selectedPath | Should -Be 'pull-request-delivery'
-        $routinePrDrill.pullRequestNumber | Should -Be 0
-        $routinePrDrill.workflowRunIds | Should -BeNullOrEmpty
+        $routinePrDrill.pullRequestNumber | Should -Be 14
+        $routinePrDrill.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/14'
+        $routinePrDrill.branch | Should -Be 'routine-pr-drill-evidence'
+        $routinePrDrill.headSha | Should -Be '65475b7b47fc1e33a96843a131108b2660b18d19'
+        $routinePrDrill.mergeSha | Should -Be '64e02f3b4b9737f77b4629052dabc9f449e261bb'
+        $routinePrDrill.workflowRunIds | Should -Contain 27090770215
+        $routinePrDrill.profileSyncRunId | Should -Be 27090770215
+        $routinePrDrill.testsRunId | Should -Be 27090770193
+        $routinePrDrill.workflowSecurityRunId | Should -Be 27090770203
         $routinePrDrill.expectedCandidateCheckCount | Should -Be 6
-        $routinePrDrill.observedCandidateCheckCount | Should -Be 0
-        $routinePrDrill.successfulCandidateCheckCount | Should -Be 0
+        $routinePrDrill.observedCandidateCheckCount | Should -Be 6
+        $routinePrDrill.successfulCandidateCheckCount | Should -Be 6
         $routinePrDrill.failedCandidateCheckCount | Should -Be 0
-        $routinePrDrill.mergeMethod | Should -BeNullOrEmpty
-        $routinePrDrill.cleanupState | Should -Be 'not-started'
+        $routinePrDrill.successfulCandidateChecks | Should -Contain 'Check generated README'
+        $routinePrDrill.successfulCandidateChecks | Should -Contain 'zizmor'
+        $routinePrDrill.mergeMethod | Should -Be 'rebase'
+        $routinePrDrill.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
         $routinePrDrill.documentationPath | Should -Be 'docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md'
-        $routinePrDrill.nextAction | Should -Match 'normal routine maintenance PR'
+        $routinePrDrill.nextAction | Should -Match 'required-check enforcement'
         $evidence.available | Should -BeTrue
         $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
         $evidence.mode | Should -Be 'dry-run-pr'
@@ -2397,12 +2411,12 @@ Describe 'Required status check readiness' {
         $writeEvidence.statusHandoffDescription | Should -Be 'Generated profile validation success.'
         $writeEvidence.blocker | Should -Match 'direct-main maintenance'
         $writeEvidence.nextAction | Should -Match 'direct-main maintenance'
-        $transition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-selected'
+        $transition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-proven'
         $transition.directMainMaintenancePolicy.allowed | Should -BeFalse
         $transition.directMainMaintenancePolicy.requiredBeforeEnforcement | Should -BeTrue
         $transition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
         $transition.directMainMaintenancePolicy.evidence | Should -Match 'No direct-main bypass actor is approved'
-        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'normal pull request'
+        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'required-check enforcement'
     }
 }
 

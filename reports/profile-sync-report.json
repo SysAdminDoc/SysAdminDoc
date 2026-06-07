@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T07:05:11.7892771-04:00",
+  "generatedAt": "2026-06-07T07:20:41.3115281-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "b19e4bbc5c736e68c472cbee8fe42d0fe9294c71",
+    "sourceCommit": "64e02f3b4b9737f77b4629052dabc9f449e261bb",
     "catalogSha256": "ca7be2a35d8a6c6d8d15fb3f8df6e2f8d8358d724c34cc1005a08ac2387e0eef",
-    "generatorSha256": "43ff3bbaba3339e627824f797aafec159a88f48f678b93c73c869a2d215cbe5b",
+    "generatorSha256": "213f9207af5c4c3499d61b5766422e32f38f792f7b92f68e1b6f92da8492e2df",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T07:03:53.3419562-04:00",
+    "metadataSnapshotAt": "2026-06-07T07:19:24.0397394-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2270,7 +2270,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T07:03:53.3419562-04:00",
+          "queriedAt": "2026-06-07T07:19:24.0397394-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 1,
@@ -2492,9 +2492,9 @@
         "status": "blocked",
         "readyForRequiredCheckEnforcement": false,
         "checklistCount": 5,
-        "readyCount": 3,
+        "readyCount": 4,
         "blockedCount": 1,
-        "needsLiveValidationCount": 1,
+        "needsLiveValidationCount": 0,
         "generatedPrDryRunEvidence": {
           "available": true,
           "workflow": ".github/workflows/profile-sync.yml",
@@ -2570,14 +2570,14 @@
           "nextAction": "Document or implement the direct-main maintenance bypass/PR-delivery policy needed before enabling admin-enforced required-check protection."
         },
         "directMainMaintenancePolicy": {
-          "status": "pr-delivery-selected",
+          "status": "pr-delivery-proven",
           "allowed": false,
           "requiredBeforeEnforcement": true,
           "selectedPath": "pull-request-delivery",
-          "recommendation": "prove-routine-pr-delivery-before-enforcement",
+          "recommendation": "select-required-check-enforcement-mechanism",
           "documentationPath": "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md",
-          "evidence": "No direct-main bypass actor is approved. Routine maintenance is selected to use pull-request delivery before required-check enforcement; a live routine maintenance merge drill is still required.",
-          "nextAction": "Run the next routine maintenance change through a normal pull request, wait for the six candidate checks, merge it without bypass, then record the PR evidence."
+          "evidence": "No direct-main bypass actor is approved. Routine maintenance uses pull-request delivery; PR #14 merged by rebase after all six candidate checks passed.",
+          "nextAction": "Select branch protection or repository ruleset required-check enforcement, enable the six candidate checks, then re-query live settings."
         },
         "candidateCheckExercisePlan": {
           "status": "completed",
@@ -2625,7 +2625,7 @@
           "cleanupRequired": true,
           "evidenceStatus": "passed",
           "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
-          "nextAction": "Keep this proof fresh before enforcement; resolve the direct-main maintenance bypass or PR-delivery policy before enabling required checks."
+          "nextAction": "Keep this proof fresh before enforcement; routine PR delivery is now proven by PR #14."
         },
         "candidateCheckExerciseEvidence": {
           "available": true,
@@ -2668,35 +2668,46 @@
           "failureReason": "",
           "cleanupState": "closed-pr-and-deleted-branch",
           "evidenceSummary": "Disposable PR #13 created all six candidate required-check names. Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed. The PR was closed and automation/required-check-proof-20260607-125 was deleted after evidence collection.",
-          "nextAction": "Resolve the direct-main maintenance bypass or PR-delivery policy before enabling required-check enforcement; refresh this proof if GitHub's recent-check selection window expires."
+          "nextAction": "Keep this proof fresh before enabling required-check enforcement; refresh it if GitHub's recent-check selection window expires."
         },
         "routineMaintenancePrDrillEvidence": {
-          "available": false,
-          "status": "pending",
-          "evidenceStatus": "not-run",
+          "available": true,
+          "status": "passed",
+          "evidenceStatus": "successful",
           "requiredBeforeEnforcement": true,
           "selectedPath": "pull-request-delivery",
-          "pullRequestNumber": 0,
-          "pullRequestUrl": "",
-          "pullRequestState": "",
-          "branch": "",
-          "headSha": "",
-          "mergeSha": "",
-          "workflowRunIds": [],
-          "profileSyncRunId": 0,
-          "testsRunId": 0,
-          "workflowSecurityRunId": 0,
+          "pullRequestNumber": 14,
+          "pullRequestUrl": "https://github.com/SysAdminDoc/SysAdminDoc/pull/14",
+          "pullRequestState": "merged",
+          "branch": "routine-pr-drill-evidence",
+          "headSha": "65475b7b47fc1e33a96843a131108b2660b18d19",
+          "mergeSha": "64e02f3b4b9737f77b4629052dabc9f449e261bb",
+          "workflowRunIds": [
+            27090770215,
+            27090770193,
+            27090770203
+          ],
+          "profileSyncRunId": 27090770215,
+          "testsRunId": 27090770193,
+          "workflowSecurityRunId": 27090770203,
           "expectedCandidateCheckCount": 6,
-          "observedCandidateCheckCount": 0,
-          "successfulCandidateCheckCount": 0,
+          "observedCandidateCheckCount": 6,
+          "successfulCandidateCheckCount": 6,
           "failedCandidateCheckCount": 0,
-          "successfulCandidateChecks": [],
+          "successfulCandidateChecks": [
+            "Check generated README",
+            "PSScriptAnalyzer",
+            "Pester (offline)",
+            "Markdownlint",
+            "Windows setup smoke",
+            "zizmor"
+          ],
           "failedCandidateChecks": [],
-          "mergeMethod": "",
-          "cleanupState": "not-started",
-          "evidenceSummary": "Routine maintenance pull-request delivery is selected but not yet proven by a merged non-generated maintenance PR.",
+          "mergeMethod": "rebase",
+          "cleanupState": "merged-pr-and-deleted-branch",
+          "evidenceSummary": "Routine maintenance PR #14 merged by rebase after all six candidate checks passed. GitHub deleted the routine-pr-drill-evidence branch after merge. Squash and merge-commit methods are disabled for this repository.",
           "documentationPath": "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md",
-          "nextAction": "Open and merge a normal routine maintenance PR, wait for the six candidate checks, delete the branch, then record the PR number, head SHA, merge SHA, run IDs, and cleanup state."
+          "nextAction": "Select branch protection or repository ruleset required-check enforcement and re-query live settings after enabling the six candidate checks."
         },
         "items": [
           {
@@ -2722,10 +2733,10 @@
           },
           {
             "id": "pr-delivery-or-bypass",
-            "status": "needs-live-validation",
+            "status": "ready",
             "summary": "Direct-main delivery must be replaced by PR delivery or a documented bypass before enforcement.",
-            "evidence": "Hosted write-pr run 27087776182 opened PR #10, dispatched validation run 27087806797, and proved generated-profile/validation appears in PR statusCheckRollup as success. Protected main still enforces admins, so routine maintenance is selected for PR delivery and needs a live merge drill before enforcement.",
-            "nextAction": "Run a routine maintenance PR merge drill before enabling admin-enforced required-check protection."
+            "evidence": "Routine maintenance PR #14 merged by rebase after Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor all passed. The proof branch was deleted after merge.",
+            "nextAction": "Select and enable one required-check enforcement mechanism, then re-query branch protection or rulesets."
           },
           {
             "id": "enforcement-mechanism",
@@ -2736,11 +2747,10 @@
           }
         ]
       },
-      "blockerCount": 3,
+      "blockerCount": 2,
       "blockers": [
         "Branch protection does not require status checks.",
-        "No repository rulesets are configured.",
-        "Protected main enforces admins; routine PR delivery is selected but still needs a live merge drill before enabling required checks."
+        "No repository rulesets are configured."
       ]
     },
     "warningCount": 4,
@@ -2856,28 +2866,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.119",
+    "expectedVersion": "v4.9.120",
     "expectedDate": "2026-06-07",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.119"
+        "value": "v4.9.120"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.119"
+        "value": "v4.9.120"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.119"
+        "value": "v4.9.120"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.119"
+        "value": "v4.9.120"
       }
     ],
     "dates": [
@@ -2904,7 +2914,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 131,
+      "headingCount": 132,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2914,14 +2924,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.119",
+    "expectedVersion": "v4.9.120",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.119",
+    "expectedTag": "v4.9.120",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2931,13 +2941,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.119",
+        "expectedVersion": "v4.9.120",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.119",
+        "expectedVersion": "v4.9.120",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2960,7 +2970,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3618,
+      "elapsedMs": 4129,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2994,7 +3004,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.62,
+      "ageDays": 5.63,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -3004,14 +3014,14 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3618,
+    "elapsedMs": 4129,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 61434,
+    "byteCount": 61407,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -3291,7 +3301,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 61434,
+        "value": 61407,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -3354,7 +3364,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 108894,
+        "value": 109041,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3382,7 +3392,7 @@
   },
   "renderedProfileSmoke": {
     "status": "passed",
-    "generatedAt": "2026-06-07T07:05:28.5736139-04:00",
+    "generatedAt": "2026-06-07T07:20:56.7657580-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,
