@@ -2732,6 +2732,7 @@
         "includeInPortfolio",
         "pushedAt",
         "latestReleaseTag",
+        "catalogReviewNote",
         "reasonCodes",
         "recommendation"
       ],
@@ -2764,6 +2765,9 @@
           "$ref": "#/$defs/nullableString"
         },
         "latestReleaseTag": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "catalogReviewNote": {
           "$ref": "#/$defs/nullableString"
         },
         "reasonCodes": {

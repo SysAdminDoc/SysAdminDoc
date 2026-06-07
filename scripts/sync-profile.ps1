@@ -601,6 +601,7 @@ function New-CatalogEntry {
         upstreamLicense = $null
         aliasOf = $null
         suppressionReason = $null
+        readmeReviewNote = $null
         notes = $null
     }
 }
@@ -644,6 +645,7 @@ function ConvertTo-EntryHashtable {
     Set-IfMissing $hash "upstreamLicense" $null
     Set-IfMissing $hash "aliasOf" $null
     Set-IfMissing $hash "suppressionReason" $null
+    Set-IfMissing $hash "readmeReviewNote" $null
     Set-IfMissing $hash "notes" $null
 
     return $hash
@@ -3239,6 +3241,7 @@ function Test-ReadmeDensity {
                     hasLatestRelease = [bool]($null -ne $release)
                     pushedAt = if ([string]::IsNullOrWhiteSpace($pushedAt)) { $null } else { $pushedAt }
                     latestReleaseTag = if ($release) { [string](Get-MemberValue -Object $release -Name "tagName") } else { $null }
+                    catalogReviewNote = if ([string]::IsNullOrWhiteSpace([string]$entry.readmeReviewNote)) { $null } else { [string]$entry.readmeReviewNote }
                 })
 
             if ($actionKind -eq "repo") {
@@ -3308,6 +3311,7 @@ function Test-ReadmeDensity {
                     includeInPortfolio = [bool](Get-MemberValue -Object $candidate -Name "includeInPortfolio")
                     pushedAt = Get-MemberValue -Object $candidate -Name "pushedAt"
                     latestReleaseTag = Get-MemberValue -Object $candidate -Name "latestReleaseTag"
+                    catalogReviewNote = Get-MemberValue -Object $candidate -Name "catalogReviewNote"
                     reasonCodes = @($reasonCodes.ToArray())
                     recommendation = "review-for-portfolio-only"
                 })

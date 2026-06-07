@@ -178,6 +178,9 @@
         "suppressionReason": {
           "$ref": "#/$defs/nullableString"
         },
+        "readmeReviewNote": {
+          "$ref": "#/$defs/nullableString"
+        },
         "notes": {
           "$ref": "#/$defs/nullableString"
         }
