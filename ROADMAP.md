@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-07
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-07
-Current repo version: v4.9.112
+Current repo version: v4.9.113
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 120 - 2026-06-07.
+> Last researched: Cycle 121 - 2026-06-07.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,17 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 120 - 2026-06-07.
+Last researched: Cycle 121 - 2026-06-07.
+
+2026-06-07 v4.9.113 refresh: projects feed check-only normalization shipped.
+Cycle 121 used the disposable required-check proof rehearsal to expose that
+`sync-profile.ps1 -Check` could mark `projects.json` stale after a normal commit
+because volatile provenance and equivalent `pushedAt` timestamp serialization
+changed while stable feed content did not. `ConvertTo-ProjectsSyncComparableJson`
+now normalizes `projects[].pushedAt` to UTC ISO text and continues ignoring
+`sourceCommit` and `metadataSnapshotAt` for sync equality, while Pester proves
+stable provenance hash drift is still detected. The regenerated feed/report are
+back in sync on `main`, unblocking a later disposable PR proof.
 
 2026-06-07 v4.9.112 refresh: candidate-check exercise plan shipped.
 Cycle 120 added `candidateCheckExercisePlan` under
@@ -2342,6 +2352,7 @@ Current local state:
 - Cycle 109 audited current README density after the latest metadata refresh and added a committed-report guard for zero warnings, zero portfolio-only candidates, and no over-soft-limit categories.
 - Cycle 110 exercised the hosted generated PR `write-pr` path, captured the current Actions workflow-permissions blocker, deleted the disposable generated branch, and added a helper preflight before future branch pushes.
 - Cycle 111 reviewed open Scorecard code-scanning alerts, added warning-only `scorecardAlertPosture` report/schema/summary coverage, and fixed the Security-Policy linked-reporting gap in `SECURITY.md`.
+- Cycle 121 fixed projects-feed check-only comparison so equivalent `pushedAt` timestamp serialization and volatile source-commit/snapshot provenance do not fail ordinary PR validation; stable provenance drift remains fatal.
 - Cycle 120 added the candidate-check exercise plan for the disposable PR proof needed before required-check enforcement, with report/schema/summary/Pester coverage and `evidenceStatus=not-run`.
 - Cycle 112 documented the profile release/tag policy, added `profileReleaseConsistency.releasePolicy`, and changed policy-acknowledged release/tag drift to an informational summary notice instead of cutting a `v4.9.x` release/tag.
 - Current feed/report contracts include public-safe redacted suppression records, feed and report provenance, sync-report schema validation, release/download trust metadata, userscript install trust, stale-project/archive-review reporting, downstream portfolio compatibility, REST fallback release-fetch state, required-check readiness, and the generated README-safe markdownlint lane.
@@ -2377,6 +2388,7 @@ P2/P3, each doable in well under an hour:
 - [x] P2 — README density post-demotion guard (completed v4.9.101 with committed-report Pester coverage for zero density warnings, zero portfolio-only candidates, and no over-soft-limit categories).
 - [x] P2 — Generated PR write-path blocker guard (completed v4.9.102 with hosted run `27085061539`, Actions workflow-permissions reporting, disposable branch cleanup, and a helper preflight before branch creation).
 - [x] P2 — Candidate-check disposable PR exercise plan (completed v4.9.112 with `candidateCheckExercisePlan`, proof branch/touch-path/check-name/cleanup fields, summary rows, schema coverage, decision-note coverage, and Pester guards).
+- [x] P2 — Projects-feed check-only provenance normalization (completed v4.9.113 with `projects[].pushedAt` timestamp normalization, volatile source-commit/snapshot equality handling, regenerated feed/report, and Pester coverage that still catches stable provenance drift).
 - [x] P2 — Portfolio-only demotion decision note (completed v4.9.94 with an approved 11-row decision, no-mutation boundary, preview evidence, and Pester guard).
 - [x] P2 — Approved portfolio-only catalog mutation (completed v4.9.95 with the 11 approved rows removed from README output, preserved in `projects.json`, and covered by Pester).
 - [x] P2 — Catalog-backed README candidate review notes (completed v4.9.89 with optional `readmeReviewNote` catalog context and `catalogReviewNote` candidate report fields that do not export to `projects.json`).

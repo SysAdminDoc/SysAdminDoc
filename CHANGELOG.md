@@ -2,6 +2,12 @@
 
 All notable changes to SysAdminDoc will be documented in this file.
 
+## [v4.9.113] - 2026-06-07
+
+- Fixed: `projects.json` check-only comparison now normalizes equivalent `projects[].pushedAt` timestamp formats before deciding the generated feed is stale.
+- Fixed: PR/check-only validation no longer fails just because volatile feed provenance `sourceCommit` moves to the current commit while stable provenance remains unchanged.
+- Added: Pester coverage now proves volatile source commit, metadata snapshot, and equivalent pushed-at serialization do not mask stable provenance drift.
+
 ## [v4.9.112] - 2026-06-07
 
 - Added: `requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan` now records the disposable PR branch prefix, touch paths, expected candidate check names, cleanup policy, and pending evidence state for required-check freshness proof.
