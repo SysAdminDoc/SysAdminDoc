@@ -5,11 +5,11 @@
 Last research refresh: 2026-06-06
 Evidence bundle: `RESEARCH_REPORT.md` (latest source: `docs/research-feature-plan-2026-06-05.md`)
 Latest profile sync: 2026-06-06
-Current repo version: v4.9.77
+Current repo version: v4.9.78
 Research baseline HEAD: `3d4ed8f Release v4.7.0 -- catalog refresh, drop private-repo refs`
 P0 implementation baseline: `1fe3830 Consolidate profile research roadmap`
 
-> Last researched: Cycle 85 - 2026-06-06.
+> Last researched: Cycle 86 - 2026-06-06.
 
 ## ▶ Implementer Instructions (for the build machine)
 
@@ -32,7 +32,16 @@ pass, the implementing machine should:
 5. Never edit this Implementer Instructions block or the 🔬 Researcher Queue
    headings — the research machine owns those. Never force-push.
 
-Last researched: Cycle 85 - 2026-06-06.
+Last researched: Cycle 86 - 2026-06-06.
+
+2026-06-06 v4.9.78 refresh: README density reporting shipped.
+The sync report now includes `readmeDensity`, recording generated README line
+count, details-section count, project table rows, per-category project counts,
+repo-only rows, and low-signal zero-star repo-only rows. The current density
+audit is warning-only and gives the next portfolio-only browsing pass measured
+inputs instead of hand-counted Markdown. The profile sync summary surfaces the
+density warning count, largest category, and repo-only row count, and Pester
+guards the calculator, schema contract, and summary helper.
 
 2026-06-06 v4.9.77 refresh: required-check enforcement readiness recorded.
 The current candidate required checks are `Pester (offline)`,
@@ -1901,11 +1910,11 @@ Current local state:
 
 Next research cycles:
 
-1. Cycle 86: inspect generated README category density and whether the GitHub README should demote low-signal rows in favor of portfolio-only browsing.
-2. Cycle 87: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
-3. Cycle 88: audit downstream portfolio compatibility before changing any feed shape.
-4. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
-5. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
+1. Cycle 87: record code-scanning posture so missing CodeQL is not chased for a PowerShell-only profile repo.
+2. Cycle 88: audit downstream portfolio compatibility before changing any feed shape.
+3. Cycle 89: revisit REST fallback rate-limit behavior and partial-data abort thresholds now that feed provenance is specified.
+4. Cycle 90: audit branch-protection/ruleset readiness again without enabling enforcement while direct pushes remain active.
+5. Cycle 91: decide whether density-warning rows should move to portfolio-only browsing, using `readmeDensity` evidence.
 
 ### Quick Wins
 
@@ -1914,6 +1923,7 @@ P2/P3, each doable in well under an hour:
 - [x] P1 — Fix the advertised Windows PowerShell `setup.ps1 -CheckOnly` parser failure (completed v4.9.41 with ASCII-only `setup.ps1`, Windows PowerShell verification, and Pester coverage).
 
 - [x] P2 — Generated-README size budget guard (completed v4.9.51 with `readmeSizeBudget`, a 96 KiB informational soft cap, schema coverage, and Pester warning checks).
+- [x] P2 — Generated README density report for portfolio-only review inputs (completed v4.9.78 with `readmeDensity`, summary-helper output, schema coverage, and Pester guards).
 - [x] P2 — SECURITY.md with a public-safe disclosure path and guided issue/PR intake (completed v4.9.29 with `SECURITY.md`, issue forms, issue chooser config, PR template, and Pester coverage).
 - [x] P1 — Generated-profile validation on PRs for catalog/feed/profile contract paths (completed v4.9.28 with a read-only `pull_request` trigger and Pester path coverage).
 - [x] P2 — Profile-sync Actions job summary from `reports/profile-sync-report.json` (completed v4.9.31 with `scripts/write-profile-sync-summary.ps1`, workflow wiring, retained artifacts, and Pester coverage).

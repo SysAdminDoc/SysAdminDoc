@@ -745,6 +745,27 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $budget.overSoftLimit | Should -BeTrue
         $budget.warning | Should -Match 'consider collapsing low-traffic categories'
     }
+    It 'reports README density and low-signal category warnings without failing sync' {
+        $first = New-TestEntry -Repo 'RepoOnlyA' -Category 'powershell' -Description 'repo only A' -Order 1
+        $second = New-TestEntry -Repo 'RepoOnlyB' -Category 'powershell' -Description 'repo only B' -Order 2
+        $density = Test-ReadmeDensity `
+            -ExpectedReadme "one`ntwo`n<details>`n| [**RepoOnlyA**](https://github.com/SysAdminDoc/RepoOnlyA) | PowerShell |" `
+            -Entries @($first, $second) `
+            -RepoLookup (ConvertTo-Lookup @()) `
+            -CategorySoftLimit 1 `
+            -LowSignalSoftLimit 1
+
+        $density.lineCount | Should -Be 4
+        $density.detailsSectionCount | Should -Be 1
+        $density.tableRowCount | Should -Be 1
+        $density.projectRowCount | Should -Be 2
+        $density.largestCategory | Should -Be 'powershell'
+        $density.largestCategoryCount | Should -Be 2
+        $density.repoOnlyProjectCount | Should -Be 2
+        $density.lowSignalProjectCount | Should -Be 2
+        $density.warningCount | Should -BeGreaterThan 0
+        ($density.warnings -join ' ') | Should -Match 'portfolio-only review'
+    }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeFalse
@@ -1765,6 +1786,9 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Archive review candidates'
             $summary | Should -Match 'Catalog rows accounted'
             $summary | Should -Match 'Catalog accounting fatal gaps'
+            $summary | Should -Match 'README density warnings'
+            $summary | Should -Match 'README largest category'
+            $summary | Should -Match 'README repo-only rows'
             $summary | Should -Match 'Profile release/tag warnings'
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
@@ -1787,6 +1811,7 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
         $script:SummaryScript | Should -Match 'userscriptInstallTrust'
         $script:SummaryScript | Should -Match 'catalogFeedAccounting'
+        $script:SummaryScript | Should -Match 'readmeDensity'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

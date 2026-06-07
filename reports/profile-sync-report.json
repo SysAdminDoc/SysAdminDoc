@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-06T21:11:30.5032724-04:00",
+  "generatedAt": "2026-06-06T21:32:49.7678196-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "16cd21c5a0dd728c3ff122f331476edf7b87b574",
+    "sourceCommit": "72baddfef09692bb655b47408132ed2f095be2d8",
     "catalogSha256": "4b4b2d473c71f737a9d970889568348a574f5bd2159619caedbb3c935b6a5c87",
-    "generatorSha256": "58284fe9d1d00fc0f96630c4857f2206a463e254c0ac1fdb14d195972bd38111",
+    "generatorSha256": "c416b12769d7cf2568a1e9e854d124026f784b6d31178318ae9b8f6febcd1063",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-06T21:10:08.2543014-04:00",
+    "metadataSnapshotAt": "2026-06-06T21:31:29.4127906-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T01:07:42.0000000Z",
+        "pushedAt": "2026-06-07T01:28:39.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -892,6 +892,36 @@
     "warningCount": 12,
     "licenseCounts": [
       {
+        "licenseSpdxId": "AGPL-3.0",
+        "licenseKey": "agpl-3.0",
+        "licenseName": "GNU Affero General Public License v3.0",
+        "count": 1
+      },
+      {
+        "licenseSpdxId": "Apache-2.0",
+        "licenseKey": "apache-2.0",
+        "licenseName": "Apache License 2.0",
+        "count": 2
+      },
+      {
+        "licenseSpdxId": "MIT",
+        "licenseKey": "mit",
+        "licenseName": "MIT License",
+        "count": 156
+      },
+      {
+        "licenseSpdxId": "GPL-3.0",
+        "licenseKey": "gpl-3.0",
+        "licenseName": "GNU General Public License v3.0",
+        "count": 3
+      },
+      {
+        "licenseSpdxId": "MPL-2.0",
+        "licenseKey": "mpl-2.0",
+        "licenseName": "Mozilla Public License 2.0",
+        "count": 1
+      },
+      {
         "licenseSpdxId": "LGPL-3.0",
         "licenseKey": "lgpl-3.0",
         "licenseName": "GNU Lesser General Public License v3.0",
@@ -908,36 +938,6 @@
         "licenseKey": "other",
         "licenseName": "Other",
         "count": 9
-      },
-      {
-        "licenseSpdxId": "Apache-2.0",
-        "licenseKey": "apache-2.0",
-        "licenseName": "Apache License 2.0",
-        "count": 2
-      },
-      {
-        "licenseSpdxId": "GPL-3.0",
-        "licenseKey": "gpl-3.0",
-        "licenseName": "GNU General Public License v3.0",
-        "count": 3
-      },
-      {
-        "licenseSpdxId": "AGPL-3.0",
-        "licenseKey": "agpl-3.0",
-        "licenseName": "GNU Affero General Public License v3.0",
-        "count": 1
-      },
-      {
-        "licenseSpdxId": "MIT",
-        "licenseKey": "mit",
-        "licenseName": "MIT License",
-        "count": 156
-      },
-      {
-        "licenseSpdxId": "MPL-2.0",
-        "licenseKey": "mpl-2.0",
-        "licenseName": "Mozilla Public License 2.0",
-        "count": 1
       }
     ],
     "missingLicenses": [
@@ -1116,28 +1116,28 @@
     ],
     "suppressionReasonCounts": [
       {
-        "reasonCode": "not-visitor-facing",
-        "publicReason": "Project omitted because it is not visitor-facing.",
-        "visibilityClass": "suppressed",
-        "count": 4
-      },
-      {
         "reasonCode": "duplicate-or-superseded",
         "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
         "count": 3
       },
       {
-        "reasonCode": "placeholder",
-        "publicReason": "Placeholder project omitted from the public feed.",
+        "reasonCode": "not-visitor-facing",
+        "publicReason": "Project omitted because it is not visitor-facing.",
         "visibilityClass": "suppressed",
-        "count": 1
+        "count": 4
       },
       {
         "reasonCode": "private-or-sensitive",
         "publicReason": "Private or sensitive project omitted from the public feed.",
         "visibilityClass": "private-or-sensitive",
         "count": 2
+      },
+      {
+        "reasonCode": "placeholder",
+        "publicReason": "Placeholder project omitted from the public feed.",
+        "visibilityClass": "suppressed",
+        "count": 1
       }
     ],
     "rows": [],
@@ -2321,28 +2321,28 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.77",
+    "expectedVersion": "v4.9.78",
     "expectedDate": "2026-06-06",
     "versions": [
       {
         "path": "CHANGELOG.md",
         "field": "latestChangelogVersion",
-        "value": "v4.9.77"
+        "value": "v4.9.78"
       },
       {
         "path": "ROADMAP.md",
         "field": "currentRepoVersion",
-        "value": "v4.9.77"
+        "value": "v4.9.78"
       },
       {
         "path": "PROJECT_CONTEXT.md",
         "field": "version",
-        "value": "v4.9.77"
+        "value": "v4.9.78"
       },
       {
         "path": "RESEARCH_REPORT.md",
         "field": "currentVersionAfterRefresh",
-        "value": "v4.9.77"
+        "value": "v4.9.78"
       }
     ],
     "dates": [
@@ -2369,7 +2369,7 @@
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 89,
+      "headingCount": 90,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2379,14 +2379,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.77",
+    "expectedVersion": "v4.9.78",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.77",
+    "expectedTag": "v4.9.78",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2396,13 +2396,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.77",
+        "expectedVersion": "v4.9.78",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.77",
+        "expectedVersion": "v4.9.78",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2414,7 +2414,7 @@
       "skipped": false,
       "targetCount": 188,
       "throttleLimit": 16,
-      "elapsedMs": 4011,
+      "elapsedMs": 3264,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2433,7 +2433,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 5.2,
+      "ageDays": 5.22,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2443,7 +2443,7 @@
   "linkValidationSummary": {
     "targetCount": 188,
     "throttleLimit": 16,
-    "elapsedMs": 4011,
+    "elapsedMs": 3264,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2454,6 +2454,127 @@
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
+  },
+  "readmeDensity": {
+    "lineCount": 642,
+    "detailsSectionCount": 11,
+    "tableRowCount": 110,
+    "projectRowCount": 177,
+    "categoryCount": 10,
+    "categorySoftLimit": 30,
+    "lowSignalSoftLimit": 15,
+    "largestCategory": "python",
+    "largestCategoryCount": 41,
+    "repoOnlyProjectCount": 68,
+    "lowSignalProjectCount": 44,
+    "warningCount": 1,
+    "warnings": [
+      "python has 41 README rows, above the 30 row category soft limit."
+    ],
+    "categoryRows": [
+      {
+        "category": "powershell",
+        "displayName": "PowerShell",
+        "projectCount": 30,
+        "actionableCount": 11,
+        "repoOnlyCount": 19,
+        "lowSignalCount": 14,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "python",
+        "displayName": "Python",
+        "projectCount": 41,
+        "actionableCount": 24,
+        "repoOnlyCount": 17,
+        "lowSignalCount": 10,
+        "warningCount": 1,
+        "warnings": [
+          "python has 41 README rows, above the 30 row category soft limit."
+        ]
+      },
+      {
+        "category": "web",
+        "displayName": "Web",
+        "projectCount": 27,
+        "actionableCount": 26,
+        "repoOnlyCount": 1,
+        "lowSignalCount": 1,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "extensions",
+        "displayName": "Extensions",
+        "projectCount": 23,
+        "actionableCount": 20,
+        "repoOnlyCount": 3,
+        "lowSignalCount": 2,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "android",
+        "displayName": "Android",
+        "projectCount": 19,
+        "actionableCount": 14,
+        "repoOnlyCount": 5,
+        "lowSignalCount": 0,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "security",
+        "displayName": "Security",
+        "projectCount": 3,
+        "actionableCount": 0,
+        "repoOnlyCount": 3,
+        "lowSignalCount": 1,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "media",
+        "displayName": "Media",
+        "projectCount": 6,
+        "actionableCount": 2,
+        "repoOnlyCount": 4,
+        "lowSignalCount": 3,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "desktop",
+        "displayName": "Desktop",
+        "projectCount": 19,
+        "actionableCount": 11,
+        "repoOnlyCount": 8,
+        "lowSignalCount": 6,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "guides",
+        "displayName": "Guides",
+        "projectCount": 4,
+        "actionableCount": 1,
+        "repoOnlyCount": 3,
+        "lowSignalCount": 3,
+        "warningCount": 0,
+        "warnings": []
+      },
+      {
+        "category": "misc",
+        "displayName": "Misc",
+        "projectCount": 5,
+        "actionableCount": 0,
+        "repoOnlyCount": 5,
+        "lowSignalCount": 4,
+        "warningCount": 0,
+        "warnings": []
+      }
+    ]
   },
   "readmeExperienceChecks": {
     "passed": true,

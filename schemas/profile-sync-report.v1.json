@@ -42,6 +42,7 @@
     "linkValidationFailures",
     "linkValidationWarnings",
     "readmeSizeBudget",
+    "readmeDensity",
     "readmeExperienceChecks"
   ],
   "properties": {
@@ -186,6 +187,9 @@
     },
     "readmeSizeBudget": {
       "$ref": "#/$defs/readmeSizeBudget"
+    },
+    "readmeDensity": {
+      "$ref": "#/$defs/readmeDensity"
     },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
@@ -2249,6 +2253,119 @@
         },
         "warning": {
           "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "readmeDensity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineCount",
+        "detailsSectionCount",
+        "tableRowCount",
+        "projectRowCount",
+        "categoryCount",
+        "categorySoftLimit",
+        "lowSignalSoftLimit",
+        "largestCategory",
+        "largestCategoryCount",
+        "repoOnlyProjectCount",
+        "lowSignalProjectCount",
+        "warningCount",
+        "warnings",
+        "categoryRows"
+      ],
+      "properties": {
+        "lineCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsSectionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "tableRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "projectRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "categoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "categorySoftLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "lowSignalSoftLimit": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "largestCategory": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "largestCategoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "repoOnlyProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "lowSignalProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "categoryRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/readmeDensityCategoryRow"
+          }
+        }
+      }
+    },
+    "readmeDensityCategoryRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "displayName",
+        "projectCount",
+        "actionableCount",
+        "repoOnlyCount",
+        "lowSignalCount",
+        "warningCount",
+        "warnings"
+      ],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "projectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "actionableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "repoOnlyCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "lowSignalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

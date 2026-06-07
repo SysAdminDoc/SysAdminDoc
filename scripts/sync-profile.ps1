@@ -47,6 +47,8 @@ $LinkValidationThrottle = 16
 $RestFallbackMaxReleaseFetches = 240
 $RestFallbackUnauthenticatedReleaseFetchLimit = 50
 $ReadmeSoftLimitBytes = 96KB
+$ReadmeCategorySoftLimit = 30
+$ReadmeLowSignalSoftLimit = 15
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
@@ -2799,6 +2801,109 @@ function Test-ReadmeSizeBudget {
     }
 }
 
+function Test-ReadmeDensity {
+    param(
+        [string]$ExpectedReadme,
+        [object[]]$Entries,
+        [hashtable]$RepoLookup,
+        [int]$CategorySoftLimit = $ReadmeCategorySoftLimit,
+        [int]$LowSignalSoftLimit = $ReadmeLowSignalSoftLimit
+    )
+
+    $safeReadme = if ($null -eq $ExpectedReadme) { "" } else { $ExpectedReadme }
+    $lineCount = if ([string]::IsNullOrEmpty($safeReadme)) {
+        0
+    } else {
+        [regex]::Split($safeReadme.TrimEnd(), '\r?\n').Count
+    }
+    $detailsSectionCount = [regex]::Matches($safeReadme, '(?m)^<details>\s*$').Count
+    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/').Count
+    $categoryRows = New-Object System.Collections.Generic.List[object]
+    $warnings = New-Object System.Collections.Generic.List[string]
+    $repoOnlyProjectCount = 0
+    $lowSignalProjectCount = 0
+
+    foreach ($definition in $CategoryDefinitions) {
+        $slug = [string]$definition.Slug
+        $categoryEntries = @($Entries | Where-Object { [string]$_.category -eq $slug })
+        $repoOnlyCount = 0
+        $actionableCount = 0
+        $lowSignalCount = 0
+        $categoryWarnings = New-Object System.Collections.Generic.List[string]
+
+        foreach ($entry in $categoryEntries) {
+            $meta = Get-RepoMeta $entry $RepoLookup
+            $action = Get-PrimaryAction $entry $meta $entry.category
+            $actionKind = [string]$action["kind"]
+            $stars = if ($meta -and $null -ne (Get-MemberValue -Object $meta -Name "stargazerCount")) {
+                [int](Get-MemberValue -Object $meta -Name "stargazerCount")
+            } else {
+                0
+            }
+
+            if ($actionKind -eq "repo") {
+                $repoOnlyCount++
+                if ($stars -eq 0) {
+                    $lowSignalCount++
+                }
+            } else {
+                $actionableCount++
+            }
+        }
+
+        if ($categoryEntries.Count -gt $CategorySoftLimit) {
+            $categoryWarnings.Add(("{0} has {1} README rows, above the {2} row category soft limit." -f $slug, $categoryEntries.Count, $CategorySoftLimit))
+        }
+        if ($lowSignalCount -ge $LowSignalSoftLimit -and $lowSignalCount -gt 0) {
+            $categoryWarnings.Add(("{0} has {1} repo-only zero-star row(s); consider portfolio-only review for low-signal entries." -f $slug, $lowSignalCount))
+        }
+
+        foreach ($warning in $categoryWarnings) {
+            $warnings.Add($warning)
+        }
+
+        $repoOnlyProjectCount += $repoOnlyCount
+        $lowSignalProjectCount += $lowSignalCount
+        $categoryRows.Add([ordered]@{
+            category = $slug
+            displayName = Get-CategoryDisplayName -Slug $slug
+            projectCount = [int]$categoryEntries.Count
+            actionableCount = [int]$actionableCount
+            repoOnlyCount = [int]$repoOnlyCount
+            lowSignalCount = [int]$lowSignalCount
+            warningCount = [int]$categoryWarnings.Count
+            warnings = @($categoryWarnings)
+        })
+    }
+
+    $largestCategory = @($categoryRows | Sort-Object @{ Expression = { [int]$_.projectCount }; Descending = $true }, category | Select-Object -First 1)
+    $largestCategoryName = $null
+    $largestCategoryCount = 0
+    if ($largestCategory.Count -gt 0) {
+        $largestCategoryName = [string]$largestCategory[0].category
+        $largestCategoryCount = [int]$largestCategory[0].projectCount
+    }
+    $warningsArray = @($warnings.ToArray())
+    $categoryRowsArray = @($categoryRows.ToArray())
+
+    return [ordered]@{
+        lineCount = [int]$lineCount
+        detailsSectionCount = [int]$detailsSectionCount
+        tableRowCount = [int]$tableRowCount
+        projectRowCount = [int](@($Entries).Count)
+        categoryCount = [int]($CategoryDefinitions.Count)
+        categorySoftLimit = [int]$CategorySoftLimit
+        lowSignalSoftLimit = [int]$LowSignalSoftLimit
+        largestCategory = $largestCategoryName
+        largestCategoryCount = $largestCategoryCount
+        repoOnlyProjectCount = [int]$repoOnlyProjectCount
+        lowSignalProjectCount = [int]$lowSignalProjectCount
+        warningCount = [int]($warningsArray.Count)
+        warnings = $warningsArray
+        categoryRows = $categoryRowsArray
+    }
+}
+
 function Test-CatalogShape {
     param([hashtable]$Catalog)
 
@@ -5545,6 +5650,7 @@ function Test-ProfileState {
     $urlSchemeViolations = @(Test-CatalogUrlSchemes -Entries $included)
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $readmeSizeBudget = Test-ReadmeSizeBudget -ExpectedReadme $ExpectedReadme
+    $readmeDensity = Test-ReadmeDensity -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -5633,6 +5739,7 @@ function Test-ProfileState {
         linkValidationFailures = @($linkFailures)
         linkValidationWarnings = @($linkWarnings)
         readmeSizeBudget = $readmeSizeBudget
+        readmeDensity = $readmeDensity
         readmeExperienceChecks = $experienceChecks
     }
     $reportSchemaValidation = Test-JsonSchemaContract -Value $report -SchemaPath $ReportSchemaPath
