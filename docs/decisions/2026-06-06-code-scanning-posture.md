@@ -50,8 +50,8 @@ Current verification:
   `github/codeql-action/upload-sarif`.
 - `.github/workflows/tests.yml` runs `PSScriptAnalyzer`.
 - `.github/workflows/workflow-security.yml` runs `actionlint` and `zizmor`.
-- The latest reviewed Scorecard alert posture records 5 open Scorecard alerts:
-  1 local hosted-refresh item after the `SECURITY.md` reporting-link fix, 2
+- The latest reviewed Scorecard alert posture records 4 open Scorecard alerts:
+  0 local hosted-refresh items after the `SECURITY.md` reporting-link fix, 2
   external-gated governance items, and 2 accepted Scorecard limitations for the
   current PowerShell-only profile generator.
 

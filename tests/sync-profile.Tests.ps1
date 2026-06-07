@@ -1912,11 +1912,11 @@ Describe 'Code scanning posture decision' {
         $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
         $codeScanning.scorecardAlertPosture.available | Should -BeTrue
-        $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be 5
-        $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 1
+        $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be 4
+        $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
-        $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'rerun-scorecard-to-refresh-alerts'
-        ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }).localDisposition | Should -Be 'fixed-locally'
+        $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'track-external-scorecard-governance-items'
+        ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }) | Should -BeNullOrEmpty
     }
 }
 
@@ -2252,14 +2252,14 @@ Describe 'Required status check readiness' {
         }
     }
 
-    It 'records the PR-delivery transition checklist before enforcement' {
+    It 'records the PR-delivery transition checklist and enforcement mechanism' {
         $script:PrDeliveryTransitionDecision | Should -Match 'PR Delivery Transition Checklist'
         $script:PrDeliveryTransitionDecision | Should -Match 'Candidate required checks'
         $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
         $script:PrDeliveryTransitionDecision | Should -Match 'Disposable PR Exercise Plan'
         $script:PrDeliveryTransitionDecision | Should -Match 'generated-profile/validation.*PR status handoff'
         $script:PrDeliveryTransitionDecision | Should -Match 'direct-main maintenance'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Do not enable required-check enforcement'
+        $script:PrDeliveryTransitionDecision | Should -Match 'Required-check enforcement is enabled through branch protection'
     }
 
     It 'records routine maintenance PR delivery as the selected and proven path' {
@@ -2417,6 +2417,28 @@ Describe 'Required status check readiness' {
         $transition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
         $transition.directMainMaintenancePolicy.evidence | Should -Match 'No direct-main bypass actor is approved'
         $transition.directMainMaintenancePolicy.nextAction | Should -Match 'required-check enforcement'
+    }
+
+    It 'treats branch-protection required checks as the selected enforcement mechanism' {
+        $coverage = Test-RequiredCheckWorkflowCoverage
+        $transition = Get-PrDeliveryTransitionChecklist -WorkflowCoverage $coverage -RequiredChecksEnabled:$true -EnforceAdmins $true -ActionsPullRequestCreationAllowed $true -BranchProtectionAvailable:$true -RulesetsAvailable:$true
+        $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$true -RulesetsAvailable:$true -RequiredStatusChecks $true -EnforceAdmins $true -ActionsPullRequestCreationAllowed $true -RulesetCount 0 -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
+
+        $transition.status | Should -Be 'ready'
+        $transition.readyForRequiredCheckEnforcement | Should -BeTrue
+        $transition.readyCount | Should -Be 5
+        $transition.blockedCount | Should -Be 0
+        $transition.needsLiveValidationCount | Should -Be 0
+        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).status | Should -Be 'ready'
+        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).nextAction | Should -Match 'Monitor required checks'
+
+        $readiness.status | Should -Be 'enforcement-present'
+        $readiness.recommendation | Should -Be 'monitor-required-check-enforcement'
+        $readiness.readyForEnforcement | Should -BeTrue
+        $readiness.branchProtectionRequiredStatusChecks | Should -BeTrue
+        $readiness.rulesetCount | Should -Be 0
+        $readiness.blockerCount | Should -Be 0
+        $readiness.blockers | Should -BeNullOrEmpty
     }
 }
 

@@ -2109,7 +2109,8 @@
         "recommendation": {
           "type": "string",
           "enum": [
-            "defer-until-pr-delivery-or-bypass"
+            "defer-until-pr-delivery-or-bypass",
+            "monitor-required-check-enforcement"
           ]
         },
         "readyForEnforcement": {

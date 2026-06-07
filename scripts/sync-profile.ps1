@@ -4052,7 +4052,7 @@ function Get-RequiredCheckReadiness {
 
     if (-not $RulesetsAvailable -and -not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
         $blockers.Add("Repository ruleset evidence unavailable: $RulesetsUnavailableReason.")
-    } elseif ($RulesetCount -eq 0) {
+    } elseif ($RulesetCount -eq 0 -and $RequiredStatusChecks -ne $true) {
         $blockers.Add("No repository rulesets are configured.")
     }
 
@@ -4077,9 +4077,15 @@ function Get-RequiredCheckReadiness {
         "not-enabled"
     }
 
+    $recommendation = if ($requiredChecksEnabled -and $blockers.Count -eq 0) {
+        "monitor-required-check-enforcement"
+    } else {
+        "defer-until-pr-delivery-or-bypass"
+    }
+
     return [ordered]@{
         status = $status
-        recommendation = "defer-until-pr-delivery-or-bypass"
+        recommendation = $recommendation
         readyForEnforcement = [bool]($blockers.Count -eq 0)
         branchProtectionRequiredStatusChecks = Get-NullableBool $RequiredStatusChecks
         rulesetCount = [int]$RulesetCount
@@ -4518,12 +4524,17 @@ function Get-PrDeliveryTransitionChecklist {
     } else {
         "Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism."
     }
+    $enforcementNextAction = if ($RequiredChecksEnabled) {
+        "Monitor required checks on the next normal PR and re-query branch protection after any check-name changes."
+    } else {
+        "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."
+    }
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "enforcement-mechanism" `
                 -Status $enforcementStatus `
                 -Summary "Choose branch protection or a repository ruleset only after PR delivery is ready." `
                 -Evidence $enforcementEvidence `
-                -NextAction "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."))
+                -NextAction $enforcementNextAction))
 
     $blockedCount = @($items | Where-Object { (Get-MemberValue -Object $_ -Name "status") -eq "blocked" }).Count
     $needsLiveValidationCount = @($items | Where-Object { (Get-MemberValue -Object $_ -Name "status") -eq "needs-live-validation" }).Count
