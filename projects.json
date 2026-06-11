@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "e682cfa9a5bfd6b78961dabedc1aa0457b35c2bf",
+    "sourceCommit": "52c43873afe6a624c5cf8eb466a1b306ac00c70b",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
     "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T02:10:19.3047770-04:00",
+    "metadataSnapshotAt": "2026-06-11T02:19:18.1768794-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2919,7 +2919,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:01:40.0000000Z",
+      "pushedAt": "2026-06-11T06:14:42.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -4931,7 +4931,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:10:12.0000000Z",
+      "pushedAt": "2026-06-11T06:17:11.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5495,7 +5495,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:51:32.0000000Z",
+      "pushedAt": "2026-06-11T06:18:40.0000000Z",
       "topics": [
         "compliance",
         "mitre",
@@ -7409,7 +7409,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:56:22.0000000Z",
+      "pushedAt": "2026-06-11T06:14:37.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -8997,7 +8997,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:59:58.0000000Z",
+      "pushedAt": "2026-06-11T06:11:28.0000000Z",
       "topics": [
         "ai",
         "automation",
