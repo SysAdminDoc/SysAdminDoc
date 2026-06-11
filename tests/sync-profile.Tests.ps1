@@ -452,6 +452,51 @@ Describe 'Repository settings and community-health baseline' {
         ($communityHealth.warnings -join ' ') | Should -Match 'issue-template'
     }
 
+    It 'uses automated-security-fixes fallback when repository metadata omits Dependabot status' {
+        $repository = [pscustomobject]@{
+            security_and_analysis = [pscustomobject]@{
+                secret_scanning = [pscustomobject]@{ status = 'enabled' }
+                secret_scanning_push_protection = [pscustomobject]@{ status = 'enabled' }
+            }
+        }
+        $codeScanningEvidence = [ordered]@{
+            codeqlWorkflowPresent = $false
+            sarifUploadWorkflowPresent = $true
+            scorecardSarifUploadPresent = $true
+            psScriptAnalyzerWorkflowPresent = $true
+            actionlintWorkflowPresent = $true
+            zizmorWorkflowPresent = $true
+        }
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -DependabotSecurityUpdatesStatus 'enabled'
+        $repoSettings = $result['repositorySettings']
+
+        $repoSettings.security.dependabotSecurityUpdates | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
+        ($repoSettings.warnings -join ' ') | Should -Not -Match 'Dependabot security updates are not enabled'
+    }
+
+    It 'does not report unavailable repository security metadata as disabled' {
+        $repository = [pscustomobject]@{
+            security_and_analysis = [pscustomobject]@{}
+        }
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -LocalFiles $script:LocalCommunityFilesOk -DependabotSecurityUpdatesUnavailableReason 'Resource not accessible by integration (HTTP 403)'
+        $repoSettings = $result['repositorySettings']
+        $warnings = $repoSettings.warnings -join ' '
+
+        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'unavailable'
+        $repoSettings.security.dependabotSecurityPosture.evidence | Should -Match 'automated-security-fixes endpoint'
+        $warnings | Should -Match 'Secret scanning status is unavailable'
+        $warnings | Should -Match 'Secret scanning push protection status is unavailable'
+        $warnings | Should -Match 'Dependabot security update status is unavailable'
+        $warnings | Should -Not -Match 'Secret scanning is not enabled'
+        $warnings | Should -Not -Match 'Secret scanning push protection is not enabled'
+        $warnings | Should -Not -Match 'Dependabot security updates are not enabled'
+    }
+
     It 'warns when a CodeQL-supported language appears without an intentional CodeQL workflow' {
         $repository = [pscustomobject]@{
             security_and_analysis = [pscustomobject]@{
