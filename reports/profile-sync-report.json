@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-11T02:00:03.5399594-04:00",
+  "generatedAt": "2026-06-11T02:13:06.3811487-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "ff4927fd2cd96af6f18e6613d5f94654dc1fc06a",
+    "sourceCommit": "e682cfa9a5bfd6b78961dabedc1aa0457b35c2bf",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
     "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T01:57:33.9222478-04:00",
+    "metadataSnapshotAt": "2026-06-11T02:10:19.3047770-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -535,7 +535,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-11T05:39:34.0000000Z",
+        "pushedAt": "2026-06-11T06:08:31.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -1671,7 +1671,7 @@
       },
       {
         "repo": "ZeusWatch",
-        "latestReleaseTag": "v1.21.4",
+        "latestReleaseTag": "v1.21.5",
         "executableAssetKinds": [
           "apk"
         ],
@@ -2305,7 +2305,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-11T01:57:33.9222478-04:00",
+          "queriedAt": "2026-06-11T02:10:19.3047770-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -3019,7 +3019,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4772,
+      "elapsedMs": 4832,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3053,7 +3053,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 9.4,
+      "ageDays": 9.41,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -3063,7 +3063,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4772,
+    "elapsedMs": 4832,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3413,7 +3413,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 112498,
+        "value": 112499,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
