@@ -570,6 +570,29 @@ Describe 'REST fallback release request guard' {
         $repos[1].name | Should -Be 'B'
     }
 
+    It 'maps REST repo metadata when optional fields are omitted' {
+        $repo = [pscustomobject]@{
+            name = 'OptionalFieldsRepo'
+            description = 'REST fallback fixture'
+            stargazers_count = 3
+            default_branch = 'main'
+            fork = $false
+            private = $false
+            archived = $false
+            pushed_at = '2026-06-11T07:00:00Z'
+            html_url = 'https://github.com/SysAdminDoc/OptionalFieldsRepo'
+        }
+
+        $mapped = ConvertFrom-RestRepoMetadata -Repo $repo -Release $null
+
+        $mapped.name | Should -Be 'OptionalFieldsRepo'
+        $mapped.defaultBranchRef.name | Should -Be 'main'
+        $mapped.parent | Should -BeNullOrEmpty
+        $mapped.repositoryTopics | Should -HaveCount 0
+        $mapped.licenseInfo | Should -BeNullOrEmpty
+        $mapped.primaryLanguage | Should -BeNullOrEmpty
+    }
+
     It 'requires authentication when release requests exceed the unauthenticated budget' {
         $result = Test-RestFallbackReleaseFetchBudget -RepoCount 184 -Authenticated:$false -MaxReleaseFetches 240 -UnauthenticatedReleaseFetchLimit 50
 

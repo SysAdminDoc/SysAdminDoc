@@ -181,7 +181,7 @@ function Get-GitHubReposFromRest {
 
     $allRepos = New-Object System.Collections.Generic.List[object]
     foreach ($repo in @(ConvertFrom-RestRepoPageJson -Json $repoOutput)) {
-        if (-not $repo.archived -and -not $repo.private) {
+        if (-not [bool](Get-MemberValue -Object $repo -Name "archived") -and -not [bool](Get-MemberValue -Object $repo -Name "private")) {
             $allRepos.Add($repo)
         }
     }
@@ -205,8 +205,12 @@ function Get-GitHubReposFromRest {
     $mapped = New-Object System.Collections.Generic.List[object]
     foreach ($repo in $allRepos) {
         $release = $null
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        if ([string]::IsNullOrWhiteSpace($repoName)) {
+            continue
+        }
         $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
-        $releaseJson = & gh api "repos/$Owner/$($repo.name)/releases/latest" 2>&1
+        $releaseJson = & gh api "repos/$Owner/$repoName/releases/latest" 2>&1
         $releaseOutput = (($releaseJson | Out-String).Trim())
         if ($LASTEXITCODE -eq 0) {
             $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
@@ -214,10 +218,10 @@ function Get-GitHubReposFromRest {
                 $releaseData = $releaseOutput | ConvertFrom-Json
                 $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
                 $release = [pscustomobject]@{
-                    tagName = $releaseData.tag_name
-                    url = $releaseData.html_url
-                    name = $releaseData.name
-                    publishedAt = $releaseData.published_at
+                    tagName = Get-MemberValue -Object $releaseData -Name "tag_name"
+                    url = Get-MemberValue -Object $releaseData -Name "html_url"
+                    name = Get-MemberValue -Object $releaseData -Name "name"
+                    publishedAt = Get-MemberValue -Object $releaseData -Name "published_at"
                     releaseAssetNames = $assetNames
                     releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
                     assetApiInspected = $true
@@ -226,44 +230,16 @@ function Get-GitHubReposFromRest {
         } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
             $script:RestFallbackReleaseFetchState["status"] = "aborted"
             $script:RestFallbackReleaseFetchState["fatal"] = $true
-            $script:RestFallbackReleaseFetchState["abortRepo"] = [string]$repo.name
+            $script:RestFallbackReleaseFetchState["abortRepo"] = $repoName
             $script:RestFallbackReleaseFetchState["abortHttpStatus"] = Get-GhApiHttpStatus -Output $releaseOutput
             $script:RestFallbackReleaseFetchState["abortMessage"] = "Latest-release fetch failed after $($script:RestFallbackReleaseFetchState["attemptedReleaseFetches"]) attempted request(s)."
-            Write-Warning "REST release fallback failed for $($repo.name); aborting to avoid partial release metadata. Last gh output: $releaseOutput"
-            throw "REST repo metadata fallback failed while fetching latest release for $($repo.name). Refusing to emit partial release metadata."
+            Write-Warning "REST release fallback failed for $repoName; aborting to avoid partial release metadata. Last gh output: $releaseOutput"
+            throw "REST repo metadata fallback failed while fetching latest release for $repoName. Refusing to emit partial release metadata."
         } else {
             $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
         }
 
-        $topics = @()
-        if ($repo.topics) {
-            $topics = @($repo.topics | ForEach-Object { [pscustomobject]@{ name = $_ } })
-        }
-
-        $mapped.Add([pscustomobject]@{
-            name = $repo.name
-            description = $repo.description
-            stargazerCount = [int]$repo.stargazers_count
-            defaultBranchRef = [pscustomobject]@{ name = $repo.default_branch }
-            latestRelease = $release
-            licenseInfo = $repo.license
-            isFork = [bool]$repo.fork
-            parent = if ($repo.parent) {
-                [pscustomobject]@{
-                    nameWithOwner = $repo.parent.full_name
-                    url = $repo.parent.html_url
-                }
-            } else {
-                $null
-            }
-            isPrivate = [bool]$repo.private
-            visibility = "PUBLIC"
-            isArchived = [bool]$repo.archived
-            repositoryTopics = $topics
-            pushedAt = $repo.pushed_at
-            url = $repo.html_url
-            primaryLanguage = if ([string]::IsNullOrWhiteSpace([string]$repo.language)) { $null } else { [pscustomobject]@{ name = $repo.language } }
-        })
+        $mapped.Add((ConvertFrom-RestRepoMetadata -Repo $repo -Release $release))
     }
 
     $script:RepositoryMetadataProvider = "rest-fallback"
@@ -271,6 +247,52 @@ function Get-GitHubReposFromRest {
     $script:RepositoryEnumerationTruncated = $false
     $script:RestFallbackReleaseFetchState["status"] = "completed"
     return $mapped.ToArray()
+}
+
+function ConvertFrom-RestRepoMetadata {
+    param(
+        [object]$Repo,
+        [object]$Release
+    )
+
+    $topicsValue = Get-MemberValue -Object $Repo -Name "topics"
+    $topics = @()
+    if ($topicsValue) {
+        $topics = @($topicsValue | ForEach-Object { [pscustomobject]@{ name = [string]$_ } })
+    }
+
+    $parentValue = Get-MemberValue -Object $Repo -Name "parent"
+    $parent = $null
+    if ($parentValue) {
+        $parentName = Get-MemberValue -Object $parentValue -Name "full_name"
+        $parentUrl = Get-MemberValue -Object $parentValue -Name "html_url"
+        if (-not [string]::IsNullOrWhiteSpace([string]$parentName) -or -not [string]::IsNullOrWhiteSpace([string]$parentUrl)) {
+            $parent = [pscustomobject]@{
+                nameWithOwner = if ([string]::IsNullOrWhiteSpace([string]$parentName)) { $null } else { [string]$parentName }
+                url = if ([string]::IsNullOrWhiteSpace([string]$parentUrl)) { $null } else { [string]$parentUrl }
+            }
+        }
+    }
+
+    $language = Get-MemberValue -Object $Repo -Name "language"
+
+    return [pscustomobject]@{
+        name = Get-MemberValue -Object $Repo -Name "name"
+        description = Get-MemberValue -Object $Repo -Name "description"
+        stargazerCount = [int](Get-MemberValue -Object $Repo -Name "stargazers_count")
+        defaultBranchRef = [pscustomobject]@{ name = Get-MemberValue -Object $Repo -Name "default_branch" }
+        latestRelease = $Release
+        licenseInfo = Get-MemberValue -Object $Repo -Name "license"
+        isFork = [bool](Get-MemberValue -Object $Repo -Name "fork")
+        parent = $parent
+        isPrivate = [bool](Get-MemberValue -Object $Repo -Name "private")
+        visibility = "PUBLIC"
+        isArchived = [bool](Get-MemberValue -Object $Repo -Name "archived")
+        repositoryTopics = $topics
+        pushedAt = Get-MemberValue -Object $Repo -Name "pushed_at"
+        url = Get-MemberValue -Object $Repo -Name "html_url"
+        primaryLanguage = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [pscustomobject]@{ name = [string]$language } }
+    }
 }
 
 function ConvertFrom-RestRepoPageJson {
