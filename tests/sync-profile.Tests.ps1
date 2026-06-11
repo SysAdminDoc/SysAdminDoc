@@ -251,7 +251,7 @@ Describe 'Repository settings and community-health baseline' {
                 secret_scanning_push_protection = [pscustomobject]@{ status = 'enabled' }
                 secret_scanning_non_provider_patterns = [pscustomobject]@{ status = 'disabled' }
                 secret_scanning_validity_checks = [pscustomobject]@{ status = 'disabled' }
-                dependabot_security_updates = [pscustomobject]@{ status = 'disabled' }
+                dependabot_security_updates = [pscustomobject]@{ status = 'enabled' }
             }
         }
         $community = [pscustomobject]@{
@@ -302,10 +302,10 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.available | Should -BeTrue
         $repoSettings.security.secretScanning | Should -Be 'enabled'
         $repoSettings.security.secretScanningPushProtection | Should -Be 'enabled'
-        $repoSettings.security.dependabotSecurityUpdates | Should -Be 'disabled'
-        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'disabled'
-        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'enable-dependabot-security-updates-or-document-manual-triage'
-        $repoSettings.security.dependabotSecurityPosture.securityUpdatesEnabled | Should -BeFalse
+        $repoSettings.security.dependabotSecurityUpdates | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
+        $repoSettings.security.dependabotSecurityPosture.securityUpdatesEnabled | Should -BeTrue
         $repoSettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeTrue
         $repoSettings.security.dependabotSecurityPosture.localConfigPath | Should -Be '.github/dependabot.yml'
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
@@ -323,6 +323,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'actionlint'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'zizmor'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $scorecardPosture.available | Should -BeTrue
         $scorecardPosture.openAlertCount | Should -Be 5
         $scorecardPosture.localActionableCount | Should -Be 0
@@ -439,7 +440,6 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.reviewPolicyPosture.documentationPath | Should -Be 'decision:review-policy-posture'
         $repoSettings.reviewPolicyPosture.nextAction | Should -Match 'independent reviewer'
         $repoSettings.warningCount | Should -BeGreaterThan 0
-        ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
         ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
         ($repoSettings.warnings -join ' ') | Should -Match 'create pull requests'
         ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'secret_value|ghp_|gho_|github_pat_'
@@ -1913,7 +1913,8 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardSarifUploadPresent | Should -BeTrue
         $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
-        $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'disabled'
+        $codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
+        $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeTrue
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
