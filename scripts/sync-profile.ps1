@@ -3878,7 +3878,10 @@ function Get-CodeScanningLocalEvidence {
 }
 
 function Get-DependabotSecurityPosture {
-    param([object]$DependabotSecurityUpdates)
+    param(
+        [object]$DependabotSecurityUpdates,
+        [string]$UnavailableReason
+    )
 
     $configPath = ".github/dependabot.yml"
     $fullConfigPath = Join-Path $RepoRoot $configPath
@@ -3914,8 +3917,10 @@ function Get-DependabotSecurityPosture {
         "Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s), but repository security_and_analysis.dependabot_security_updates.status is disabled."
     } elseif ($status -eq "enabled") {
         "Dependabot security updates are enabled, and local version-update config is present for $($ecosystems.Count) ecosystem(s)."
+    } elseif (-not [string]::IsNullOrWhiteSpace($UnavailableReason)) {
+        "Dependabot security update setting was unavailable from repository metadata and automated-security-fixes endpoint: $UnavailableReason."
     } else {
-        "Dependabot security update setting was unavailable from repository metadata."
+        "Dependabot security update setting was unavailable from repository metadata and automated-security-fixes endpoint."
     }
 
     $nextAction = if ($status -eq "disabled") {
@@ -3923,7 +3928,7 @@ function Get-DependabotSecurityPosture {
     } elseif ($status -eq "enabled") {
         "Keep monitoring Dependabot alert volume and grouped version-update PRs."
     } else {
-        "Re-query repository security_and_analysis metadata before changing Dependabot policy."
+        "Re-query repository security_and_analysis metadata or the automated-security-fixes endpoint before changing Dependabot policy."
     }
 
     return [ordered]@{
@@ -4795,6 +4800,8 @@ function Test-RepositoryCommunityBaseline {
         [object[]]$LocalFiles = @(),
         [object]$CodeScanningLocalEvidence,
         [object[]]$ScorecardAlerts,
+        [string]$DependabotSecurityUpdatesStatus,
+        [string]$DependabotSecurityUpdatesUnavailableReason,
         [string]$RepositoryUnavailableReason,
         [string]$CommunityUnavailableReason,
         [string]$BranchProtectionUnavailableReason,
@@ -4836,18 +4843,31 @@ function Test-RepositoryCommunityBaseline {
     $secretScanningPushProtection = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_push_protection.status"
     $secretScanningNonProviderPatterns = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_non_provider_patterns.status"
     $secretScanningValidityChecks = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_validity_checks.status"
-    $dependabotSecurityUpdates = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.dependabot_security_updates.status"
-    $dependabotSecurityPosture = Get-DependabotSecurityPosture -DependabotSecurityUpdates $dependabotSecurityUpdates
+    $repositoryDependabotSecurityUpdates = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.dependabot_security_updates.status"
+    $dependabotSecurityUpdates = if (-not [string]::IsNullOrWhiteSpace([string]$repositoryDependabotSecurityUpdates)) {
+        $repositoryDependabotSecurityUpdates
+    } else {
+        $DependabotSecurityUpdatesStatus
+    }
+    $dependabotSecurityPosture = Get-DependabotSecurityPosture `
+        -DependabotSecurityUpdates $dependabotSecurityUpdates `
+        -UnavailableReason $DependabotSecurityUpdatesUnavailableReason
 
     if ($repoAvailable) {
-        if ($secretScanning -ne "enabled") {
+        if ([string]::IsNullOrWhiteSpace([string]$secretScanning)) {
+            $repoWarnings.Add("Secret scanning status is unavailable.")
+        } elseif ($secretScanning -ne "enabled") {
             $repoWarnings.Add("Secret scanning is not enabled.")
         }
-        if ($secretScanningPushProtection -ne "enabled") {
+        if ([string]::IsNullOrWhiteSpace([string]$secretScanningPushProtection)) {
+            $repoWarnings.Add("Secret scanning push protection status is unavailable.")
+        } elseif ($secretScanningPushProtection -ne "enabled") {
             $repoWarnings.Add("Secret scanning push protection is not enabled.")
         }
-        if ($dependabotSecurityUpdates -ne "enabled") {
+        if ((Get-MemberValue -Object $dependabotSecurityPosture -Name "status") -eq "disabled") {
             $repoWarnings.Add("Dependabot security updates are not enabled.")
+        } elseif ((Get-MemberValue -Object $dependabotSecurityPosture -Name "status") -eq "unavailable") {
+            $repoWarnings.Add("Dependabot security update status is unavailable.")
         }
     }
 
@@ -5125,6 +5145,7 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
     $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
+    $dependabotSecurityUpdatesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/automated-security-fixes"
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
@@ -5133,6 +5154,18 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsValue = if ($actionsWorkflowPermissionsResult["ok"]) { $actionsWorkflowPermissionsResult["value"] } else { $null }
     $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
     $scorecardAlertsValue = if ($scorecardAlertsResult["ok"]) { @($scorecardAlertsResult["value"]) } else { $null }
+    $dependabotSecurityUpdatesValue = if ($dependabotSecurityUpdatesResult["ok"]) {
+        $automatedFixesEnabled = Get-MemberValue -Object $dependabotSecurityUpdatesResult["value"] -Name "enabled"
+        if ($null -eq $automatedFixesEnabled) {
+            $null
+        } elseif ([bool]$automatedFixesEnabled) {
+            "enabled"
+        } else {
+            "disabled"
+        }
+    } else {
+        $null
+    }
 
     return Test-RepositoryCommunityBaseline `
         -Repository $repositoryValue `
@@ -5143,6 +5176,8 @@ function Get-RepositoryCommunityBaseline {
         -Languages $languagesValue `
         -LocalFiles $localFiles `
         -ScorecardAlerts $scorecardAlertsValue `
+        -DependabotSecurityUpdatesStatus $dependabotSecurityUpdatesValue `
+        -DependabotSecurityUpdatesUnavailableReason $(if ($dependabotSecurityUpdatesResult["ok"]) { $null } else { $dependabotSecurityUpdatesResult["error"] }) `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
         -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
