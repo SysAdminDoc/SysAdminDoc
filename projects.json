@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "ff4927fd2cd96af6f18e6613d5f94654dc1fc06a",
+    "sourceCommit": "e682cfa9a5bfd6b78961dabedc1aa0457b35c2bf",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
     "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T01:57:33.9222478-04:00",
+    "metadataSnapshotAt": "2026-06-11T02:10:19.3047770-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -54,15 +54,15 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 7,
-      "latestReleaseTag": "v1.21.4",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.4",
+      "latestReleaseTag": "v1.21.5",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.5",
       "releaseAssetKinds": [
         "apk"
       ],
       "releaseAssetNames": [
-        "ZeusWatch-freenet-v1.21.4.apk",
-        "ZeusWatch-standard-v1.21.4.apk",
-        "ZeusWatch-wear-v1.21.4.apk"
+        "ZeusWatch-freenet-v1.21.5.apk",
+        "ZeusWatch-standard-v1.21.5.apk",
+        "ZeusWatch-wear-v1.21.5.apk"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -153,7 +153,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:39:34.0000000Z",
+      "pushedAt": "2026-06-11T06:08:31.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -2919,7 +2919,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:51:58.0000000Z",
+      "pushedAt": "2026-06-11T06:01:40.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -4931,7 +4931,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:53:02.0000000Z",
+      "pushedAt": "2026-06-11T06:10:12.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5573,7 +5573,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:51:18.0000000Z",
+      "pushedAt": "2026-06-11T06:10:22.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -8997,7 +8997,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:54:52.0000000Z",
+      "pushedAt": "2026-06-11T05:59:58.0000000Z",
       "topics": [
         "ai",
         "automation",
