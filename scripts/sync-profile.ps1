@@ -78,6 +78,7 @@ $ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
 $CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
 $ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
 $ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
+$script:ProfileVersionPath = Join-Path $RepoRoot "data/profile-version.json"
 $script:RepositoryMetadataProvider = "graphql"
 $script:RepositoryEnumerationRequestedLimit = 500
 $script:RepositoryEnumerationTruncated = $false
@@ -3935,7 +3936,7 @@ function Get-DependabotSecurityPosture {
         localConfigPath = $configPath
         localConfigEcosystems = @($ecosystems)
         warningDisposition = if ($status -eq "disabled") { "repository-setting-warning" } else { "none" }
-        documentationPath = "docs/decisions/2026-06-07-dependabot-security-posture.md"
+        documentationPath = "decision:dependabot-security-posture"
         evidence = $evidence
         nextAction = $nextAction
     }
@@ -4288,7 +4289,7 @@ function Get-GeneratedPrCredentialDecision {
         requiresRepositorySetting = $true
         requiresNewSecret = $false
         currentSettingAllowsGeneratedPr = $settingAllowsGeneratedPr
-        decisionDocumentPath = "docs/decisions/2026-06-07-generated-pr-credential-decision.md"
+        decisionDocumentPath = "decision:generated-pr-credential"
         activationCommand = "gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true"
         nextAction = $nextAction
     }
@@ -4363,7 +4364,7 @@ function Get-DirectMainMaintenancePolicy {
         requiredBeforeEnforcement = $true
         selectedPath = "pull-request-delivery"
         recommendation = "keep-pr-delivery"
-        documentationPath = "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md"
+        documentationPath = "decision:routine-maintenance-pr-delivery"
         evidence = "No direct-main bypass actor is approved. Routine maintenance uses pull-request delivery; PR #14 proved routine PR delivery before enforcement, and PR #16 proved it under active required checks."
         nextAction = "Keep routine maintenance on pull-request delivery unless a separate approved bypass is documented."
     }
@@ -4411,7 +4412,7 @@ function Get-CandidateCheckExercisePlan {
         )
         cleanupRequired = $true
         evidenceStatus = "passed"
-        documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
+        documentationPath = "decision:pr-delivery-transition-checklist"
         nextAction = "Keep this proof fresh before enforcement; routine PR delivery is now proven by PR #14."
     }
 }
@@ -4499,7 +4500,7 @@ function Get-RoutineMaintenancePrDrillEvidence {
         mergeMethod = "rebase"
         cleanupState = "merged-pr-and-deleted-branch"
         evidenceSummary = "Routine maintenance PR #14 merged by rebase after all six candidate checks passed. GitHub deleted the routine-pr-drill-evidence branch after merge. Squash and merge-commit methods are disabled for this repository."
-        documentationPath = "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md"
+        documentationPath = "decision:routine-maintenance-pr-delivery"
         nextAction = "Required-check enforcement proof is now recorded by PR #16; keep future maintenance on PR delivery."
     }
 }
@@ -4550,7 +4551,7 @@ function Get-RequiredCheckEnforcementEvidence {
         mergeMethod = "rebase"
         cleanupState = "merged-pr-and-deleted-branch"
         evidenceSummary = "PR #16 was the first normal maintenance pull request after branch-protection required checks were enabled. GitHub required all six candidate checks, every candidate check passed on head SHA 8575e324182b96527bb9b58420d5ff44e3c05c06, and the pull request merged by rebase."
-        documentationPath = "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md"
+        documentationPath = "decision:pr-delivery-transition-checklist"
         nextAction = "Keep monitoring required checks on routine pull requests and re-query branch protection after check-name changes."
     }
 }
@@ -4716,7 +4717,7 @@ function Get-ReviewPolicyPosture {
             directMainBypassApproved = $false
             reviewerModel = "unverified"
             scorecardCodeReviewClassification = "needs-review"
-            documentationPath = "docs/decisions/2026-06-07-review-policy-posture.md"
+            documentationPath = "decision:review-policy-posture"
             evidence = "Branch-protection review settings were unavailable."
             nextAction = "Re-query branch protection before changing pull request review or code-owner review requirements."
         }
@@ -4777,7 +4778,7 @@ function Get-ReviewPolicyPosture {
         directMainBypassApproved = $directMainBypassApproved
         reviewerModel = "single-maintainer-profile-repo"
         scorecardCodeReviewClassification = "external-gated-reviewer-model"
-        documentationPath = "docs/decisions/2026-06-07-review-policy-posture.md"
+        documentationPath = "decision:review-policy-posture"
         evidence = $evidence
         nextAction = $nextAction
     }
@@ -5377,6 +5378,10 @@ function Test-JsonSchemaNode {
     }
     $errors = New-Object System.Collections.Generic.List[string]
 
+    if (@(Get-ObjectPropertyNames $Schema).Count -eq 0) {
+        return $errors.ToArray()
+    }
+
     $refInfo = Test-ObjectProperty -Object $Schema -Name '$ref'
     if ($refInfo.Exists) {
         try {
@@ -5773,10 +5778,7 @@ function Test-ChangelogReleaseHeadings {
 
 function Test-DocVersionConsistency {
     param(
-        [string]$RoadmapPath = (Join-Path $RepoRoot "ROADMAP.md"),
-        [string]$ChangelogPath = (Join-Path $RepoRoot "CHANGELOG.md"),
-        [string]$ProjectContextPath = (Join-Path $RepoRoot "PROJECT_CONTEXT.md"),
-        [string]$ResearchReportPath = (Join-Path $RepoRoot "RESEARCH_REPORT.md")
+        [string]$ProfileVersionPath = $script:ProfileVersionPath
     )
 
     $errors = New-Object System.Collections.Generic.List[string]
@@ -5784,61 +5786,52 @@ function Test-DocVersionConsistency {
     $versions = New-Object System.Collections.Generic.List[object]
     $dates = New-Object System.Collections.Generic.List[object]
 
-    $roadmap = Read-DocConsistencyFile -Path $RoadmapPath -Errors $errors
-    $changelog = Read-DocConsistencyFile -Path $ChangelogPath -Errors $errors
-    $projectContext = Read-DocConsistencyFile -Path $ProjectContextPath -Errors $errors
-    $researchReport = Read-DocConsistencyFile -Path $ResearchReportPath -Errors $errors
-
-    $changelogHeadingValidation = Test-ChangelogReleaseHeadings -Document $changelog
-    foreach ($malformedHeading in @($changelogHeadingValidation.malformedHeadings)) {
-        $errors.Add("$($malformedHeading.path) release heading at line $($malformedHeading.lineNumber) is invalid: $($malformedHeading.reason)")
-    }
-
-    $changelogVersion = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $changelog -Field "latestChangelogVersion" -Pattern '^## \[(v\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}\s*$' -MissingMessage "latest changelog version heading"
-    $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $roadmap -Field "currentRepoVersion" -Pattern '^Current repo version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current repo version"
-    $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $projectContext -Field "version" -Pattern '^Version:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Version"
-    $null = Add-DocConsistencyRecord -Records $versions -Errors $errors -Document $researchReport -Field "currentVersionAfterRefresh" -Pattern '^Current version after this refresh:\s*(v\d+\.\d+\.\d+)\s*$' -MissingMessage "Current version after this refresh"
-
-    $changelogDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $changelog -Field "latestChangelogDate" -Pattern '^## \[v\d+\.\d+\.\d+\] - (\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "latest changelog date"
-    $roadmapSyncDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $roadmap -Field "latestProfileSync" -Pattern '^Latest profile sync:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Latest profile sync"
-    $projectContextSyncDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $projectContext -Field "latestSyncDate" -Pattern '^Latest sync date:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Latest sync date"
-    $researchRefreshDate = Add-DocConsistencyRecord -Records $dates -Errors $errors -Document $researchReport -Field "researchRefresh" -Pattern '^Research refresh:\s*(\d{4}-\d{2}-\d{2})\s*$' -MissingMessage "Research refresh"
-
-    if (-not [string]::IsNullOrWhiteSpace([string]$changelogVersion)) {
-        foreach ($record in @($versions.ToArray())) {
-            if (-not [string]::IsNullOrWhiteSpace([string]$record.value) -and [string]$record.value -ne [string]$changelogVersion) {
-                $errors.Add("$($record.path) $($record.field) value '$($record.value)' does not match CHANGELOG latest version '$changelogVersion'")
-            }
+    $profileVersionDoc = Read-DocConsistencyFile -Path $ProfileVersionPath -Errors $errors
+    $profileVersion = $null
+    $profileDate = $null
+    if (-not [string]::IsNullOrWhiteSpace([string]$profileVersionDoc.text)) {
+        try {
+            $profileVersionJson = [string]$profileVersionDoc.text | ConvertFrom-Json
+            $profileVersion = [string](Get-MemberValue -Object $profileVersionJson -Name "version")
+            $profileDate = [string](Get-MemberValue -Object $profileVersionJson -Name "date")
+        } catch {
+            $errors.Add("$($profileVersionDoc.path) is unreadable JSON: $($_.Exception.Message)")
         }
     }
 
-    $dateValues = @($changelogDate, $roadmapSyncDate, $projectContextSyncDate, $researchRefreshDate)
-    foreach ($dateValue in $dateValues) {
-        if (-not [string]::IsNullOrWhiteSpace([string]$dateValue) -and -not (Test-IsoDateText -Value ([string]$dateValue))) {
-            $errors.Add("planning doc date '$dateValue' is not a valid yyyy-MM-dd date")
-        }
+    if ([string]::IsNullOrWhiteSpace($profileVersion)) {
+        $errors.Add("$($profileVersionDoc.path) missing version")
+    } elseif ($profileVersion -notmatch '^v\d+\.\d+\.\d+$') {
+        $errors.Add("$($profileVersionDoc.path) version '$profileVersion' must match vMAJOR.MINOR.PATCH")
+    }
+    if ([string]::IsNullOrWhiteSpace($profileDate)) {
+        $errors.Add("$($profileVersionDoc.path) missing date")
+    } elseif (-not (Test-IsoDateText -Value $profileDate)) {
+        $errors.Add("$($profileVersionDoc.path) date '$profileDate' is not a valid yyyy-MM-dd date")
     }
 
-    if (-not [string]::IsNullOrWhiteSpace([string]$changelogDate) -and (Test-IsoDateText -Value ([string]$changelogDate))) {
-        $latestChangelogDate = [datetime]::ParseExact([string]$changelogDate, "yyyy-MM-dd", [System.Globalization.CultureInfo]::InvariantCulture)
-        foreach ($record in @($dates.ToArray() | Where-Object { $_.field -ne "latestChangelogDate" -and -not [string]::IsNullOrWhiteSpace([string]$_.value) })) {
-            if (-not (Test-IsoDateText -Value ([string]$record.value))) {
-                continue
-            }
+    $versions.Add([ordered]@{
+            path = $profileVersionDoc.path
+            field = "version"
+            value = if ([string]::IsNullOrWhiteSpace($profileVersion)) { $null } else { $profileVersion }
+        })
+    $dates.Add([ordered]@{
+            path = $profileVersionDoc.path
+            field = "date"
+            value = if ([string]::IsNullOrWhiteSpace($profileDate)) { $null } else { $profileDate }
+        })
 
-            $recordedDate = [datetime]::ParseExact([string]$record.value, "yyyy-MM-dd", [System.Globalization.CultureInfo]::InvariantCulture)
-            if ($recordedDate -lt $latestChangelogDate) {
-                $errors.Add("$($record.path) $($record.field) date '$($record.value)' is older than CHANGELOG latest date '$changelogDate'")
-            } elseif ($recordedDate -gt $latestChangelogDate) {
-                $warnings.Add("$($record.path) $($record.field) date '$($record.value)' is newer than CHANGELOG latest date '$changelogDate'")
-            }
-        }
+    $changelogHeadingValidation = [ordered]@{
+        passed = $true
+        headingCount = 0
+        malformedCount = 0
+        malformedHeadings = @()
     }
 
     return [ordered]@{
         passed = [bool]($errors.Count -eq 0)
-        expectedVersion = if ([string]::IsNullOrWhiteSpace([string]$changelogVersion)) { $null } else { [string]$changelogVersion }
-        expectedDate = if ([string]::IsNullOrWhiteSpace([string]$changelogDate)) { $null } else { [string]$changelogDate }
+        expectedVersion = if ([string]::IsNullOrWhiteSpace([string]$profileVersion)) { $null } else { [string]$profileVersion }
+        expectedDate = if ([string]::IsNullOrWhiteSpace([string]$profileDate)) { $null } else { [string]$profileDate }
         versions = $versions.ToArray()
         dates = $dates.ToArray()
         changelogHeadingValidation = $changelogHeadingValidation
@@ -6035,7 +6028,7 @@ function Test-ProfileReleaseConsistency {
 
     $releasePolicy = [ordered]@{
         status = "documented-internal-version-gap"
-        decisionDocumentPath = "docs/decisions/2026-06-07-profile-release-tag-policy.md"
+        decisionDocumentPath = "decision:profile-release-tag-policy"
         planningVersionKind = "profile-sync-internal-evidence-version"
         publicReleaseCadence = "manual-public-milestone-only"
         warningDisposition = "informational"

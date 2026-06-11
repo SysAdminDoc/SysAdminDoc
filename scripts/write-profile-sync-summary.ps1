@@ -235,7 +235,7 @@ $summary = @"
 | Projects export in sync | $($report.projectsExportInSync) |
 | Profile assets in sync | $($report.profileAssetsInSync) |
 | Schema validation passed | $($report.schemaValidation.passed) |
-| Planning docs aligned | $($report.docVersionConsistency.passed) |
+| Profile version metadata valid | $($report.docVersionConsistency.passed) |
 | Catalog rows accounted | $catalogAccountedCount |
 | Catalog accounting fatal gaps | $catalogAccountingFatalCount |
 | Portfolio compatibility | $portfolioCompatibilityStatus |

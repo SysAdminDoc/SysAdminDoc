@@ -21,9 +21,9 @@ config:
   MD060: false
 
 globs:
-  - "*.md"
-  - ".github/**/*.md"
-  - "docs/**/*.md"
+  - "README.md"
+  - "SECURITY.md"
+  - ".github/pull_request_template.md"
 
 ignores:
   - "AGENTS.md"

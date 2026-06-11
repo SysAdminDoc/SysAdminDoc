@@ -310,7 +310,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.dependabotSecurityPosture.localConfigPath | Should -Be '.github/dependabot.yml'
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
-        $repoSettings.security.dependabotSecurityPosture.documentationPath | Should -Be 'docs/decisions/2026-06-07-dependabot-security-posture.md'
+        $repoSettings.security.dependabotSecurityPosture.documentationPath | Should -Be 'decision:dependabot-security-posture'
         $repoSettings.security.codeScanning.status | Should -Be 'not-applicable'
         $repoSettings.security.codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $repoSettings.security.codeScanning.reason | Should -Match 'CodeQL-supported source language'
@@ -349,7 +349,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresRepositorySetting | Should -BeTrue
         $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresNewSecret | Should -BeFalse
         $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.currentSettingAllowsGeneratedPr | Should -BeFalse
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.decisionDocumentPath | Should -Be 'docs/decisions/2026-06-07-generated-pr-credential-decision.md'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.decisionDocumentPath | Should -Be 'decision:generated-pr-credential'
         $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.activationCommand | Should -Match 'can_approve_pull_request_reviews=true'
         $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.nextAction | Should -Match 'rerun hosted write-pr'
         $repoSettings.requiredCheckReadiness.status | Should -Be 'not-enabled'
@@ -436,7 +436,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.reviewPolicyPosture.requiredStatusChecksEnabled | Should -BeFalse
         $repoSettings.reviewPolicyPosture.codeownersFilePresent | Should -BeTrue
         $repoSettings.reviewPolicyPosture.scorecardCodeReviewClassification | Should -Be 'external-gated-reviewer-model'
-        $repoSettings.reviewPolicyPosture.documentationPath | Should -Be 'docs/decisions/2026-06-07-review-policy-posture.md'
+        $repoSettings.reviewPolicyPosture.documentationPath | Should -Be 'decision:review-policy-posture'
         $repoSettings.reviewPolicyPosture.nextAction | Should -Match 'independent reviewer'
         $repoSettings.warningCount | Should -BeGreaterThan 0
         ($repoSettings.warnings -join ' ') | Should -Match 'Dependabot security updates'
@@ -1534,10 +1534,10 @@ Describe 'New-ProjectsExportJson feed' {
         $accountingJson = $result | ConvertTo-Json -Depth 20
 
         $result.passed | Should -BeTrue
-        $result.catalogEntryCount | Should -Be 187
-        $result.visitorFacingCatalogCount | Should -Be 177
+        $result.catalogEntryCount | Should -Be 189
+        $result.visitorFacingCatalogCount | Should -Be 179
         $result.suppressedCatalogCount | Should -Be 10
-        $result.exportedProjectCount | Should -Be 177
+        $result.exportedProjectCount | Should -Be 179
         $result.exportedSuppressedCount | Should -Be 10
         $result.unaccountedRowCount | Should -Be 0
         $accountingJson | Should -Not -Match 'VaultBox|improve-repo|RadAtlas|github.com/SysAdminDoc'
@@ -1653,6 +1653,30 @@ Describe 'Feed JSON Schema contracts' {
         $result.valid | Should -BeTrue
     }
 
+    It 'allows arbitrary metadata drift old and new values in the report schema' {
+        $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
+        $metadataDrift = @(
+            [ordered]@{
+                repo = 'ZeusWatch'
+                field = 'releaseAssetNames'
+                oldValue = @('ZeusWatch-v1.21.3.apk', 'ZeusWatch-v1.21.3.apk.sha256')
+                newValue = @('ZeusWatch-v1.21.4.apk')
+                severity = 'fatal'
+                failing = $true
+            }
+        )
+        if ($report -is [System.Collections.IDictionary]) {
+            $report['metadataDrift'] = $metadataDrift
+        } else {
+            $report.metadataDrift = $metadataDrift
+        }
+
+        $result = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
+
+        $result.valid | Should -BeTrue
+        @($result.errors) | Should -HaveCount 0
+    }
+
     It 'rejects profile sync reports missing a required section' {
         $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
         if ($report -is [System.Collections.IDictionary]) {
@@ -1686,135 +1710,93 @@ Describe 'Feed JSON Schema contracts' {
 
 Describe 'Doc version consistency gate' {
     BeforeAll {
-        function New-TestPlanningDocSet {
+        function New-TestProfileVersionFile {
             param(
                 [string]$Version = 'v4.9.20',
                 [string]$Date = '2026-06-04',
-                [string]$RoadmapVersion = $Version,
-                [string]$ProjectContextVersion = $Version,
-                [string]$ResearchReportVersion = $Version,
-                [string]$ChangelogDate = $Date,
-                [string]$RoadmapDate = $Date,
-                [string]$ProjectContextDate = $Date,
-                [string]$ResearchRefreshDate = $Date,
-                [string[]]$ChangelogExtraLines = @()
+                [switch]$MalformedJson
             )
 
             $root = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
             New-Item -ItemType Directory -Path $root | Out-Null
-            $paths = [ordered]@{
-                RoadmapPath = Join-Path $root 'ROADMAP.md'
-                ChangelogPath = Join-Path $root 'CHANGELOG.md'
-                ProjectContextPath = Join-Path $root 'PROJECT_CONTEXT.md'
-                ResearchReportPath = Join-Path $root 'RESEARCH_REPORT.md'
+            $path = Join-Path $root 'profile-version.json'
+            if ($MalformedJson) {
+                Set-Content -LiteralPath $path -Value '{' -Encoding utf8
+                return $path
             }
 
-            Set-Content -LiteralPath $paths.RoadmapPath -Value @(
-                '# Roadmap'
-                ''
-                "Latest profile sync: $RoadmapDate"
-                "Current repo version: $RoadmapVersion"
-            ) -Encoding utf8
-            $changelogLines = @(
-                '# Changelog'
-                ''
-                "## [$Version] - $ChangelogDate"
-                ''
-                '- Changed: test.'
-            ) + $ChangelogExtraLines
-            Set-Content -LiteralPath $paths.ChangelogPath -Value $changelogLines -Encoding utf8
-            Set-Content -LiteralPath $paths.ProjectContextPath -Value @(
-                '# Project Context'
-                ''
-                "Latest sync date: $ProjectContextDate"
-                "Version: $ProjectContextVersion"
-            ) -Encoding utf8
-            Set-Content -LiteralPath $paths.ResearchReportPath -Value @(
-                '# Research Report'
-                ''
-                "Research refresh: $ResearchRefreshDate"
-                "Current version after this refresh: $ResearchReportVersion"
-            ) -Encoding utf8
+            [ordered]@{
+                version = $Version
+                date = $Date
+                source = 'test'
+                publicReleaseCadence = 'manual-public-milestone-only'
+            } | ConvertTo-Json | Set-Content -LiteralPath $path -Encoding utf8
 
-            return $paths
+            return $path
         }
     }
 
-    It 'passes when tracked planning docs share the latest version and sync date' {
-        $paths = New-TestPlanningDocSet
+    It 'passes when the tracked profile version file exposes a valid version and date' {
+        $path = New-TestProfileVersionFile
 
-        $result = Test-DocVersionConsistency @paths
+        $result = Test-DocVersionConsistency -ProfileVersionPath $path
 
         $result.passed | Should -BeTrue
         $result.expectedVersion | Should -Be 'v4.9.20'
         $result.expectedDate | Should -Be '2026-06-04'
         $result.changelogHeadingValidation.passed | Should -BeTrue
-        $result.changelogHeadingValidation.headingCount | Should -Be 1
+        $result.changelogHeadingValidation.headingCount | Should -Be 0
         $result.changelogHeadingValidation.malformedCount | Should -Be 0
         @($result.errors) | Should -HaveCount 0
     }
 
-    It 'rejects a tracked planning doc version mismatch' {
-        $paths = New-TestPlanningDocSet -ProjectContextVersion 'v4.9.19'
+    It 'rejects an invalid tracked profile version value' {
+        $path = New-TestProfileVersionFile -Version '4.9'
 
-        $result = Test-DocVersionConsistency @paths
+        $result = Test-DocVersionConsistency -ProfileVersionPath $path
 
         $result.passed | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match 'PROJECT_CONTEXT\.md'
-        ($result.errors -join "`n") | Should -Match 'does not match CHANGELOG latest version'
+        ($result.errors -join "`n") | Should -Match 'must match vMAJOR\.MINOR\.PATCH'
     }
 
-    It 'rejects sync dates older than the latest changelog release date' {
-        $paths = New-TestPlanningDocSet -ChangelogDate '2026-06-05' -RoadmapDate '2026-06-04'
+    It 'rejects an invalid tracked profile version date' {
+        $path = New-TestProfileVersionFile -Date '2026-99-99'
 
-        $result = Test-DocVersionConsistency @paths
+        $result = Test-DocVersionConsistency -ProfileVersionPath $path
 
         $result.passed | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match 'ROADMAP\.md'
-        ($result.errors -join "`n") | Should -Match 'older than CHANGELOG latest date'
+        ($result.errors -join "`n") | Should -Match 'not a valid yyyy-MM-dd date'
     }
 
-    It 'reports malformed historical changelog release headings with line numbers' {
-        $paths = New-TestPlanningDocSet -ChangelogExtraLines @(
-            '## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)'
-        )
+    It 'rejects unreadable tracked profile version JSON' {
+        $path = New-TestProfileVersionFile -MalformedJson
 
-        $result = Test-DocVersionConsistency @paths
+        $result = Test-DocVersionConsistency -ProfileVersionPath $path
 
         $result.passed | Should -BeFalse
-        $result.changelogHeadingValidation.passed | Should -BeFalse
-        $result.changelogHeadingValidation.headingCount | Should -Be 2
-        $result.changelogHeadingValidation.malformedCount | Should -Be 1
-        $result.changelogHeadingValidation.malformedHeadings[0].lineNumber | Should -Be 6
-        $result.changelogHeadingValidation.malformedHeadings[0].text | Should -Be '## [v3.0.0] - %Y->- (HEAD -> main, origin/main, origin/HEAD)'
-        ($result.errors -join "`n") | Should -Match 'CHANGELOG\.md release heading at line 6 is invalid'
+        ($result.errors -join "`n") | Should -Match 'unreadable JSON'
     }
 
-    It 'rejects impossible historical changelog release dates' {
-        $paths = New-TestPlanningDocSet -ChangelogExtraLines @(
-            '## [v3.0.0] - 2026-99-99'
-        )
+    It 'does not require local-only planning markdown in a CI-shaped checkout' {
+        $path = New-TestProfileVersionFile
 
-        $result = Test-DocVersionConsistency @paths
+        $result = Test-DocVersionConsistency -ProfileVersionPath $path
 
-        $result.passed | Should -BeFalse
-        $result.changelogHeadingValidation.passed | Should -BeFalse
-        $result.changelogHeadingValidation.malformedHeadings[0].reason | Should -Be 'release date is not a valid yyyy-MM-dd date'
+        $result.passed | Should -BeTrue
+        ($result.versions + $result.dates | ForEach-Object { $_.path }) | Should -Not -Match 'CHANGELOG|PROJECT_CONTEXT|RESEARCH_REPORT|ROADMAP'
     }
 }
 
 Describe 'Public planning document terminology' {
-    It 'does not present privateReason as a current catalog field in completed work' {
-        $completed = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'COMPLETED.md')
-        $catalogLine = @($completed -split "`r?`n" | Where-Object { $_ -match 'Build a canonical catalog source file' })[0]
+    It 'does not present privateReason as a current catalog field in tracked schemas' {
+        $schema = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-catalog.v1.json')
 
-        $catalogLine | Should -Not -Match 'privateReason'
-        $catalogLine | Should -Match ([regex]::Escape('schemas/profile-catalog.v1.json'))
-        $catalogLine | Should -Match 'suppressionReason'
-        $catalogLine | Should -Match 'allowPublicMedical'
-        $catalogLine | Should -Match 'aliasOf'
-        $catalogLine | Should -Match 'forkOf'
-        $catalogLine | Should -Match 'upstreamLicense'
+        $schema | Should -Not -Match 'privateReason'
+        $schema | Should -Match 'suppressionReason'
+        $schema | Should -Match 'allowPublicMedical'
+        $schema | Should -Match 'aliasOf'
+        $schema | Should -Match 'forkOf'
+        $schema | Should -Match 'upstreamLicense'
     }
 }
 
@@ -1874,9 +1856,10 @@ Describe 'Markdownlint contract' {
         foreach ($tag in @('details', 'summary', 'kbd', 'br', 'sub', 'picture', 'source', 'img', 'a', 'b', 'i', 'code')) {
             $script:MarkdownlintConfig | Should -Match "(?m)^\s+- $tag\s*$"
         }
-        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[*][.]md"\s*$'
-        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "docs/[*][*]/[*][.]md"\s*$'
-        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[.]github/[*][*]/[*][.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "README[.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "SECURITY[.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[.]github/pull_request_template[.]md"\s*$'
+        $script:MarkdownlintConfig | Should -Not -Match 'docs/[*][*]/[*][.]md'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "CLAUDE[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "TODO[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "RESEARCH_FEATURE_PLAN[.]md"\s*$'
@@ -1908,15 +1891,9 @@ Describe 'Markdownlint contract' {
 }
 
 Describe 'Profile render-host decision record' {
-    It 'records that no live third-party profile render hosts are retained' {
-        $decision = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-profile-render-hosts.md')
+    It 'reports that no live third-party profile render hosts are retained' {
         $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
 
-        $decision | Should -Match 'Do not retain live third-party render hosts'
-        $decision | Should -Match 'thirdPartyRenderHostCount=0'
-        $decision | Should -Match 'thirdPartyMetricHostCount=0'
-        $decision | Should -Match 'thirdPartyBadgeHostCount=0'
-        $decision | Should -Match 'motionSafeChrome=true'
         $report.readmeExperienceChecks.thirdPartyRenderHostCount | Should -Be 0
         $report.readmeExperienceChecks.thirdPartyMetricHostCount | Should -Be 0
         $report.readmeExperienceChecks.thirdPartyBadgeHostCount | Should -Be 0
@@ -1925,14 +1902,10 @@ Describe 'Profile render-host decision record' {
 }
 
 Describe 'Code scanning posture decision' {
-    It 'records PowerShell-only CodeQL as not applicable while retaining SARIF controls' {
-        $decision = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-code-scanning-posture.md')
+    It 'reports PowerShell-only CodeQL as not applicable while retaining SARIF controls' {
         $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
         $codeScanning = $report.repositorySettings.security.codeScanning
 
-        $decision | Should -Match 'Do not add a CodeQL analysis workflow'
-        $decision | Should -Match 'not-applicable-powershell-only'
-        $decision | Should -Match 'Scorecard alert posture'
         $codeScanning.status | Should -Be 'not-applicable'
         $codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
@@ -1982,7 +1955,7 @@ Describe 'Profile release/tag consistency' {
         $result.releasePolicy.warningDisposition | Should -Be 'informational'
         $result.releasePolicy.releaseCreationRecommended | Should -BeFalse
         $result.releasePolicy.tagCreationRecommended | Should -BeFalse
-        $result.releasePolicy.decisionDocumentPath | Should -Be 'docs/decisions/2026-06-07-profile-release-tag-policy.md'
+        $result.releasePolicy.decisionDocumentPath | Should -Be 'decision:profile-release-tag-policy'
         ($result.warnings | ForEach-Object { $_.kind }) | Should -Contain 'latest-release-behind'
         ($result.warnings | ForEach-Object { $_.kind }) | Should -Contain 'expected-version-tag-missing'
     }
@@ -2131,11 +2104,11 @@ Describe 'Rendered profile smoke wiring' {
 
 Describe 'Portfolio-only demotion decision' {
     BeforeAll {
-        $script:PortfolioOnlyDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-portfolio-only-demotion-review.md') -Raw
+        $script:PortfolioOnlyDecisionCatalog = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') -Raw | ConvertFrom-Json
+        $script:PortfolioOnlyDecisionReport = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
     }
 
-    It 'approves only the reviewed README density candidates for a later catalog change' {
-        $script:PortfolioOnlyDecision | Should -Match 'Status: Approved for staged catalog change'
+    It 'keeps the reviewed README density candidates encoded in tracked catalog data' {
         foreach ($repo in @(
                 'CSV_Power_Tool',
                 'Flux',
@@ -2149,12 +2122,13 @@ Describe 'Portfolio-only demotion decision' {
                 'Stock-Video-Collector',
                 'Tunerize'
             )) {
-            $script:PortfolioOnlyDecision | Should -Match ([regex]::Escape($repo))
+            $entry = @($script:PortfolioOnlyDecisionCatalog.entries | Where-Object { $_.repo -eq $repo })
+            $entry | Should -HaveCount 1
+            $entry[0].includeInReadme | Should -BeFalse
+            $entry[0].includeInPortfolio | Should -BeTrue
+            $entry[0].readmeReviewNote | Should -Match 'Approved for portfolio-only routing'
         }
-        $script:PortfolioOnlyDecision | Should -Match 'does not mutate `data/profile-catalog[.]json`, `README[.]md`, or'
-        $script:PortfolioOnlyDecision | Should -Match 'Change only the 11 approved rows'
-        $script:PortfolioOnlyDecision | Should -Match 'projectRowDelta`:\s*\r?\n\s+`-11`'
-        $script:PortfolioOnlyDecision | Should -Match 'preservesPortfolioRoutes`:\s*\r?\n\s+`true`'
+        $script:PortfolioOnlyDecisionReport.readmeDensity.portfolioOnlyPreview.preservesPortfolioRoutes | Should -BeTrue
     }
 }
 
@@ -2219,10 +2193,6 @@ Describe 'Required status check readiness' {
             ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
             WorkflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
         }
-        $script:RequiredCheckDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-06-required-check-enforcement-readiness.md') -Raw
-        $script:PrDeliveryTransitionDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md') -Raw
-        $script:RoutinePrDeliveryDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md') -Raw
-        $script:GeneratedPrCredentialDecision = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/decisions/2026-06-07-generated-pr-credential-decision.md') -Raw
     }
 
     It 'creates candidate required checks for every pull request and merge queue run' {
@@ -2243,9 +2213,10 @@ Describe 'Required status check readiness' {
 
         $pushBlock | Should -Match '(?m)^\s+paths:\s*$'
         $pushBlock | Should -Match '(?m)^\s+- "schemas/[*][*]"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "[*][.]md"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "docs/[*][*]/[*][.]md"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "[.]github/[*][*]/[*][.]md"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "README[.]md"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "SECURITY[.]md"\s*$'
+        $pushBlock | Should -Match '(?m)^\s+- "[.]github/[*][*]"\s*$'
+        $pushBlock | Should -Not -Match 'docs/[*][*]/[*][.]md'
         $pushBlock | Should -Match '(?m)^\s+- "[.]markdownlint-cli2[.]yaml"\s*$'
         $pushBlock | Should -Match '(?m)^\s+- "package[.]json"\s*$'
         $pushBlock | Should -Match '(?m)^\s+- "package-lock[.]json"\s*$'
@@ -2262,18 +2233,10 @@ Describe 'Required status check readiness' {
         $testsWorkflow | Should -Match '-CheckOnly'
     }
 
-    It 'records non-enforcing activation preconditions for the candidate checks' {
+    It 'keeps required-check candidates backed by existing workflows' {
         foreach ($candidate in @($RequiredStatusCheckCandidates)) {
-            $script:RequiredCheckDecision | Should -Match ([regex]::Escape([string]$candidate.name))
             Test-Path -LiteralPath (Join-Path $script:RepoRoot ([string]$candidate.workflow)) | Should -BeTrue
         }
-
-        $script:RequiredCheckDecision | Should -Match 'Do not enable branch-protection or ruleset required-status-check enforcement'
-        $script:RequiredCheckDecision | Should -Match 'direct pushes to `main`'
-        $script:RequiredCheckDecision | Should -Match 'enforce_admins\.enabled=true'
-        $script:RequiredCheckDecision | Should -Match '404 Required status checks not enabled'
-        $script:RequiredCheckDecision | Should -Match 'pull requests, or an approved'
-        $script:RequiredCheckDecision | Should -Match 'job names stay unique and stable'
     }
 
     It 'keeps the report candidate list aligned with the activation decision' {
@@ -2298,34 +2261,20 @@ Describe 'Required status check readiness' {
         }
     }
 
-    It 'records the PR-delivery transition checklist and enforcement mechanism' {
-        $script:PrDeliveryTransitionDecision | Should -Match 'PR Delivery Transition Checklist'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Candidate required checks'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Recent successful check runs'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Disposable PR Exercise Plan'
-        $script:PrDeliveryTransitionDecision | Should -Match 'generated-profile/validation.*PR status handoff'
-        $script:PrDeliveryTransitionDecision | Should -Match 'direct-main maintenance'
-        $script:PrDeliveryTransitionDecision | Should -Match 'Required-check enforcement is enabled through branch protection'
-    }
+    It 'records generated PR credential and PR delivery decisions in report data' {
+        $decision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $false
+        $policy = Get-DirectMainMaintenancePolicy
+        $enforcementEvidence = Get-RequiredCheckEnforcementEvidence
 
-    It 'records routine maintenance PR delivery as the selected and proven path' {
-        $script:RoutinePrDeliveryDecision | Should -Match 'Routine Maintenance PR Delivery'
-        $script:RoutinePrDeliveryDecision | Should -Match 'Select pull-request delivery'
-        $script:RoutinePrDeliveryDecision | Should -Match 'Direct-main bypass remains unapproved'
-        $script:RoutinePrDeliveryDecision | Should -Match 'PR #14 proved normal routine-maintenance PR delivery'
-        $script:RoutinePrDeliveryDecision | Should -Match 'PR #16 proved normal routine-maintenance PR delivery under active'
-        $script:RoutinePrDeliveryDecision | Should -Match 'routineMaintenancePrDrillEvidence'
-        $script:RoutinePrDeliveryDecision | Should -Match 'requiredCheckEnforcementEvidence'
-        $script:RoutinePrDeliveryDecision | Should -Match 'GitHub Docs: Creating rulesets'
-    }
-
-    It 'records the generated PR credential decision before changing repository settings' {
-        $script:GeneratedPrCredentialDecision | Should -Match 'Generated PR Credential Decision'
-        $script:GeneratedPrCredentialDecision | Should -Match 'Decision: Enable GitHub Actions pull-request creation'
-        $script:GeneratedPrCredentialDecision | Should -Match 'Do not add a PAT or GitHub App secret'
-        $script:GeneratedPrCredentialDecision | Should -Match 'default_workflow_permissions=read'
-        $script:GeneratedPrCredentialDecision | Should -Match 'can_approve_pull_request_reviews=false'
-        $script:GeneratedPrCredentialDecision | Should -Match 'can_approve_pull_request_reviews=true'
+        $decision.status | Should -Be 'decision-recorded'
+        $decision.selectedPath | Should -Be 'enable-actions-pr-creation'
+        $decision.rejectedPath | Should -Be 'approved-github-app-or-pat-token'
+        $decision.decisionDocumentPath | Should -Be 'decision:generated-pr-credential'
+        $policy.allowed | Should -BeFalse
+        $policy.selectedPath | Should -Be 'pull-request-delivery'
+        $policy.documentationPath | Should -Be 'decision:routine-maintenance-pr-delivery'
+        $enforcementEvidence.status | Should -Be 'passed'
+        $enforcementEvidence.enforcementMechanism | Should -Be 'branch-protection'
     }
 
     It 'records hosted generated PR dry-run evidence without marking delivery proven' {
@@ -2355,7 +2304,7 @@ Describe 'Required status check readiness' {
         $plan.verificationSteps | Should -HaveCount 5
         $plan.cleanupRequired | Should -BeTrue
         $plan.evidenceStatus | Should -Be 'passed'
-        $plan.documentationPath | Should -Be 'docs/decisions/2026-06-07-pr-delivery-transition-checklist.md'
+        $plan.documentationPath | Should -Be 'decision:pr-delivery-transition-checklist'
         $plan.nextAction | Should -Match 'PR #14'
         $candidateEvidence = $transition.candidateCheckExerciseEvidence
         $candidateEvidence.available | Should -BeTrue
@@ -2402,7 +2351,7 @@ Describe 'Required status check readiness' {
         $routinePrDrill.successfulCandidateChecks | Should -Contain 'zizmor'
         $routinePrDrill.mergeMethod | Should -Be 'rebase'
         $routinePrDrill.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
-        $routinePrDrill.documentationPath | Should -Be 'docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md'
+        $routinePrDrill.documentationPath | Should -Be 'decision:routine-maintenance-pr-delivery'
         $routinePrDrill.nextAction | Should -Match 'PR #16'
         $enforcementEvidence = $transition.requiredCheckEnforcementEvidence
         $enforcementEvidence.available | Should -BeTrue
@@ -2520,36 +2469,23 @@ Describe 'Required status check readiness' {
     }
 }
 
-Describe 'Roadmap reconciliation guards' {
+Describe 'Tracked profile version metadata' {
     BeforeAll {
-        $script:RoadmapForReconciliation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'ROADMAP.md') -Raw
+        $script:ProfileVersionMetadata = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'data/profile-version.json') -Raw | ConvertFrom-Json
     }
 
-    It 'does not leave shipped duplicate roadmap rows unchecked' {
-        $shippedRows = [ordered]@{
-            'Add a Windows runner smoke check for `setup.ps1 -CheckOnly`' = 'v4.9.41'
-            'Pin and audit CI-installed validation tools' = 'v4.9.46'
-            'Add a public-repo enumeration limit guard' = 'v4.9.36'
-            'Add a `.gitattributes` generated-artifact diff policy' = 'v4.9.37'
-            'Enable cleanup for generated automation PR branches' = 'v4.9.61'
-            'Redact private suppression rows from the public feed' = 'v4.9.42'
-        }
-
-        foreach ($entry in $shippedRows.GetEnumerator()) {
-            $titlePattern = [regex]::Escape($entry.Key)
-            $versionPattern = [regex]::Escape($entry.Value)
-
-            $script:RoadmapForReconciliation | Should -Not -Match "(?m)^- \[ \].*$titlePattern"
-            $script:RoadmapForReconciliation | Should -Match "(?m)^- \[x\].*$titlePattern"
-            $script:RoadmapForReconciliation | Should -Match "Completed: $versionPattern"
-        }
+    It 'keeps the CI-visible version source in tracked JSON' {
+        $script:ProfileVersionMetadata.version | Should -Match '^v\d+\.\d+\.\d+$'
+        $script:ProfileVersionMetadata.date | Should -Match '^\d{4}-\d{2}-\d{2}$'
+        $script:ProfileVersionMetadata.source | Should -Be 'profile-sync-internal-evidence-version'
+        $script:ProfileVersionMetadata.publicReleaseCadence | Should -Be 'manual-public-milestone-only'
     }
 
-    It 'records current branch-protection evidence after enabling enforcement' {
-        $script:RoadmapForReconciliation | Should -Match 'required status checks are enabled'
-        $script:RoadmapForReconciliation | Should -Match 'PR #16'
-        $script:RoadmapForReconciliation | Should -Match 'Markdownlint'
-        $script:RoadmapForReconciliation | Should -Match 'Branch-protection required-check enforcement is active'
+    It 'does not depend on local-only planning markdown for the version gate' {
+        $result = Test-DocVersionConsistency -ProfileVersionPath (Join-Path $script:RepoRoot 'data/profile-version.json')
+
+        $result.passed | Should -BeTrue
+        ($result.versions + $result.dates | ForEach-Object { $_.path }) | Should -Not -Match 'ROADMAP|CHANGELOG|PROJECT_CONTEXT|RESEARCH_REPORT'
     }
 }
 
@@ -2988,7 +2924,6 @@ Describe 'CI validation tool pins' {
         $script:TestsWorkflowForToolPins = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
         $script:WorkflowSecurityForToolPins = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
         $script:CiRequirements = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'requirements-ci.txt') -Raw
-        $script:CiToolchainDoc = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'docs/ci-toolchain.md') -Raw
     }
 
     It 'installs exact PowerShell validation module versions' {
@@ -3005,11 +2940,10 @@ Describe 'CI validation tool pins' {
         $script:CiRequirements | Should -Match '--hash=sha256:f26ffeb16659c8922c7b08203ca5a4f8bf5e1a7e8d190734961c40877cf778ea'
     }
 
-    It 'documents the reviewed update path' {
-        $script:CiToolchainDoc | Should -Match 'Pester\s+\| `.github/workflows/tests[.]yml`\s+\| `5[.]7[.]1`'
-        $script:CiToolchainDoc | Should -Match 'zizmor\s+\| `.github/workflows/workflow-security[.]yml`\s+\| `1[.]25[.]2`'
-        $script:CiToolchainDoc | Should -Match 'Update Process'
-        $script:CiToolchainDoc | Should -Match 'requirements-ci[.]txt'
+    It 'keeps CI tool pins in tracked workflow and requirements files' {
+        $script:TestsWorkflowForToolPins | Should -Match 'Install-Module Pester -RequiredVersion 5[.]7[.]1'
+        $script:WorkflowSecurityForToolPins | Should -Match 'ACTIONLINT_VERSION: "1[.]7[.]12"'
+        $script:CiRequirements | Should -Match '(?m)^zizmor==1[.]25[.]2\s+\\'
     }
 }
 
