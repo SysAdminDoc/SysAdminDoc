@@ -12,7 +12,10 @@ RESEARCH_FEATURE_PLAN.md
 TODO.md
 reports/rendered-profile-smoke*.json
 reports/rendered-profile-smoke*.png
+testResults.xml
 
 # Markdown files local-only (except README)
 *.md
 !README.md
+!SECURITY.md
+!.github/pull_request_template.md
