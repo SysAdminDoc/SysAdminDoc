@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-11T02:21:45.3044396-04:00",
+  "generatedAt": "2026-06-11T02:36:50.6105991-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "52c43873afe6a624c5cf8eb466a1b306ac00c70b",
+    "sourceCommit": "c0702bb74e7a27ee954a622e0dddfafdc8c6b6a0",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
     "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T02:19:18.1768794-04:00",
+    "metadataSnapshotAt": "2026-06-11T02:34:43.2142961-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-11T05:50:42.0000000Z",
+        "pushedAt": "2026-06-11T06:25:42.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -535,7 +535,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-11T06:08:31.0000000Z",
+        "pushedAt": "2026-06-11T06:29:50.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -608,7 +608,7 @@
       {
         "repo": "OpenTasker",
         "language": "Kotlin",
-        "pushedAt": "2026-06-11T05:49:52.0000000Z",
+        "pushedAt": "2026-06-11T06:20:31.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -2262,23 +2262,23 @@
       "secretScanningPushProtection": "enabled",
       "secretScanningNonProviderPatterns": "disabled",
       "secretScanningValidityChecks": "disabled",
-      "dependabotSecurityUpdates": "disabled",
+      "dependabotSecurityUpdates": "enabled",
       "dependabotSecurityPosture": {
         "available": true,
-        "status": "disabled",
-        "recommendation": "enable-dependabot-security-updates-or-document-manual-triage",
-        "dependabotSecurityUpdatesStatus": "disabled",
-        "securityUpdatesEnabled": false,
+        "status": "enabled",
+        "recommendation": "monitor-dependabot-security-updates",
+        "dependabotSecurityUpdatesStatus": "enabled",
+        "securityUpdatesEnabled": true,
         "localConfigPresent": true,
         "localConfigPath": ".github/dependabot.yml",
         "localConfigEcosystems": [
           "github-actions",
           "npm"
         ],
-        "warningDisposition": "repository-setting-warning",
+        "warningDisposition": "none",
         "documentationPath": "decision:dependabot-security-posture",
-        "evidence": "Local Dependabot version-update config is present for 2 ecosystem(s), but repository security_and_analysis.dependabot_security_updates.status is disabled.",
-        "nextAction": "Enable Dependabot security updates in repository settings, or record why manual security triage is sufficient for this profile repository."
+        "evidence": "Dependabot security updates are enabled, and local version-update config is present for 2 ecosystem(s).",
+        "nextAction": "Keep monitoring Dependabot alert volume and grouped version-update PRs."
       },
       "codeScanning": {
         "status": "not-applicable",
@@ -2295,6 +2295,7 @@
         "activeControls": [
           "secret-scanning",
           "secret-scanning-push-protection",
+          "dependabot-security-updates",
           "psscriptanalyzer",
           "actionlint",
           "zizmor",
@@ -2305,7 +2306,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-11T02:19:18.1768794-04:00",
+          "queriedAt": "2026-06-11T02:34:43.2142961-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2833,9 +2834,8 @@
       "evidence": "Branch protection requires status checks and PR #16 proved required-check PR delivery, but branch protection does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model.",
       "nextAction": "Define an independent reviewer or team model before requiring pull request reviews or code-owner reviews."
     },
-    "warningCount": 3,
+    "warningCount": 2,
     "warnings": [
-      "Dependabot security updates are not enabled.",
       "Branch protection does not require pull request reviews.",
       "Branch protection does not require code owner reviews."
     ]
@@ -2945,13 +2945,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.126",
+    "expectedVersion": "v4.9.127",
     "expectedDate": "2026-06-11",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.126"
+        "value": "v4.9.127"
       }
     ],
     "dates": [
@@ -2973,14 +2973,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.126",
+    "expectedVersion": "v4.9.127",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.126",
+    "expectedTag": "v4.9.127",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2990,13 +2990,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.126",
+        "expectedVersion": "v4.9.127",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.126",
+        "expectedVersion": "v4.9.127",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -3019,7 +3019,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 8891,
+      "elapsedMs": 3853,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3053,7 +3053,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 9.42,
+      "ageDays": 9.43,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -3063,7 +3063,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 8891,
+    "elapsedMs": 3853,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3413,7 +3413,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 112499,
+        "value": 112317,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
