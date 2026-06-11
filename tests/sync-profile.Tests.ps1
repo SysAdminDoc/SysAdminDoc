@@ -2958,6 +2958,11 @@ Describe 'Dependabot GitHub Actions update grouping' {
         $script:DependabotConfig | Should -Match '(?ms)groups:\s*\r?\n\s+routine-actions:\s*\r?\n\s+patterns:\s*\r?\n\s+- "[*]"\s*\r?\n\s+update-types:\s*\r?\n\s+- "minor"\s*\r?\n\s+- "patch"'
         $script:DependabotConfig | Should -Not -Match '(?m)^\s+- "major"\s*$'
     }
+
+    It 'delays fresh version updates with Dependabot cooldown windows' {
+        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "github-actions".*?cooldown:\s*\r?\n\s+default-days: 7'
+        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "npm".*?cooldown:\s*\r?\n\s+default-days: 7\s*\r?\n\s+semver-major-days: 30\s*\r?\n\s+semver-minor-days: 7\s*\r?\n\s+semver-patch-days: 3'
+    }
 }
 
 Describe 'Workflow checkout action pin' {
