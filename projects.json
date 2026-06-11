@@ -5,20 +5,20 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "565590cbf07ba9c92c33dd608c11ea078c7d6717",
-    "catalogSha256": "ca7be2a35d8a6c6d8d15fb3f8df6e2f8d8358d724c34cc1005a08ac2387e0eef",
-    "generatorSha256": "e58b8c7f12e89774bf1dcfe60be9d87f0bafa2cb44472d5929f48aa167db36b7",
+    "sourceCommit": "ff4927fd2cd96af6f18e6613d5f94654dc1fc06a",
+    "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
+    "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T08:36:42.2166171-04:00",
+    "metadataSnapshotAt": "2026-06-11T01:57:33.9222478-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
-      "returnedCount": 184,
+      "returnedCount": 186,
       "truncated": false
     }
   },
-  "publicRepoCount": 184,
-  "projectCount": 177,
+  "publicRepoCount": 186,
+  "projectCount": 179,
   "suppressedCount": 10,
   "projects": [
     {
@@ -54,24 +54,19 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 7,
-      "latestReleaseTag": "v1.21.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.1",
+      "latestReleaseTag": "v1.21.4",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.4",
       "releaseAssetKinds": [
-        "apk",
-        "other"
+        "apk"
       ],
       "releaseAssetNames": [
-        "ZeusWatch-freenet-v1.21.1.apk",
-        "ZeusWatch-standard-v1.21.1.apk",
-        "ZeusWatch-v1.21.1.apk",
-        "ZeusWatch-v1.21.1.apk.sha256",
-        "ZeusWatch-wear-v1.21.1.apk"
+        "ZeusWatch-freenet-v1.21.4.apk",
+        "ZeusWatch-standard-v1.21.4.apk",
+        "ZeusWatch-wear-v1.21.4.apk"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [
-          "ZeusWatch-v1.21.1.apk.sha256"
-        ],
+        "checksumAssets": [],
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -83,10 +78,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T08:00:01.0000000Z",
+      "pushedAt": "2026-06-11T05:49:17.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -132,7 +127,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 11,
+      "stars": 12,
       "latestReleaseTag": "v3.73.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NovaCut/releases/tag/v3.73.2",
       "releaseAssetKinds": [
@@ -158,7 +153,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-05T06:11:00.0000000Z",
+      "pushedAt": "2026-06-11T05:39:34.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -197,7 +192,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 8,
+      "stars": 12,
       "latestReleaseTag": "v6.5.9",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/HostShield/releases/tag/v6.5.9",
       "releaseAssetKinds": [
@@ -223,7 +218,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T21:34:33.0000000Z",
+      "pushedAt": "2026-06-11T05:52:48.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -295,7 +290,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-07T12:34:39.0000000Z",
+      "pushedAt": "2026-06-11T03:52:59.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -374,7 +369,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:57:23.0000000Z",
+      "pushedAt": "2026-06-09T12:13:21.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -439,7 +434,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:10.0000000Z",
+      "pushedAt": "2026-06-09T11:46:18.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -514,7 +509,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:00:28.0000000Z",
+      "pushedAt": "2026-06-11T05:54:44.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -574,7 +569,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Java",
-      "stars": 21,
+      "stars": 22,
       "latestReleaseTag": "v0.5.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppManagerNG/releases/tag/v0.5.0",
       "releaseAssetKinds": [
@@ -607,7 +602,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-07T07:07:28.0000000Z",
+      "pushedAt": "2026-06-11T05:50:42.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -676,7 +671,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T19:29:49.0000000Z",
+      "pushedAt": "2026-06-10T17:46:53.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -746,7 +741,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:41:48.0000000Z",
+      "pushedAt": "2026-06-09T11:39:11.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -825,7 +820,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T02:21:22.0000000Z",
+      "pushedAt": "2026-06-09T11:47:27.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -891,7 +886,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T02:21:26.0000000Z",
+      "pushedAt": "2026-06-09T12:15:07.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -956,7 +951,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:59:07.0000000Z",
+      "pushedAt": "2026-06-09T12:01:23.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1021,7 +1016,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T02:21:17.0000000Z",
+      "pushedAt": "2026-06-09T11:31:57.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1086,7 +1081,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T07:07:24.0000000Z",
+      "pushedAt": "2026-06-09T11:54:41.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1151,7 +1146,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T17:31:33.0000000Z",
+      "pushedAt": "2026-06-11T05:56:43.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1199,7 +1194,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 7,
+      "stars": 8,
       "latestReleaseTag": "v0.2.59",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.59",
       "releaseAssetKinds": [
@@ -1225,7 +1220,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-06T14:14:13.0000000Z",
+      "pushedAt": "2026-06-11T05:49:52.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1294,7 +1289,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-03T05:06:03.0000000Z",
+      "pushedAt": "2026-06-09T14:18:05.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1365,7 +1360,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-02T04:02:40.0000000Z",
+      "pushedAt": "2026-06-09T13:29:12.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1434,7 +1429,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:10:57.0000000Z",
+      "pushedAt": "2026-06-09T11:51:40.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1503,7 +1498,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-31T07:54:51.0000000Z",
+      "pushedAt": "2026-06-09T13:48:42.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1572,7 +1567,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T09:09:43.0000000Z",
+      "pushedAt": "2026-06-09T13:49:39.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1645,7 +1640,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-25T14:16:03.0000000Z",
+      "pushedAt": "2026-06-09T13:41:20.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1715,7 +1710,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T14:07:33.0000000Z",
+      "pushedAt": "2026-06-08T05:11:43.0000000Z",
       "topics": [
         "cleanup",
         "csharp",
@@ -1851,7 +1846,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T07:40:10.0000000Z",
+      "pushedAt": "2026-06-09T12:06:58.0000000Z",
       "topics": [
         "context-menu",
         "csharp",
@@ -1926,7 +1921,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-09T19:59:57.0000000Z",
+      "pushedAt": "2026-06-09T11:36:54.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1995,7 +1990,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T02:22:07.0000000Z",
+      "pushedAt": "2026-06-09T12:01:35.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2067,7 +2062,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T02:22:50.0000000Z",
+      "pushedAt": "2026-06-09T11:55:16.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2128,7 +2123,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:05:34.0000000Z",
+      "pushedAt": "2026-06-09T12:09:04.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2196,7 +2191,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:19:48.0000000Z",
+      "pushedAt": "2026-06-09T12:10:46.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2264,7 +2259,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:05:11.0000000Z",
+      "pushedAt": "2026-06-09T12:16:04.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2393,7 +2388,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T07:13:57.0000000Z",
+      "pushedAt": "2026-06-09T11:58:30.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2459,7 +2454,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T07:27:03.0000000Z",
+      "pushedAt": "2026-06-09T12:04:39.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2518,7 +2513,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-01T06:32:09.0000000Z",
+      "pushedAt": "2026-06-09T11:30:14.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2587,7 +2582,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-27T09:50:54.0000000Z",
+      "pushedAt": "2026-06-09T11:45:41.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2656,7 +2651,125 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-02T05:17:50.0000000Z",
+      "pushedAt": "2026-06-09T14:49:14.0000000Z",
+      "topics": [],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "REDplusplus",
+      "title": "REDplusplus",
+      "category": "desktop",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "RED++ -- Remove Empty Directories. Find, display, and delete empty directories recursively with custom filter rules.",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "licenseKey": "lgpl-3.0",
+      "licenseName": "GNU Lesser General Public License v3.0",
+      "licenseSpdxId": "LGPL-3.0",
+      "repoUrl": "https://github.com/SysAdminDoc/REDplusplus",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": null,
+      "downloadKind": "repo",
+      "primaryAction": {
+        "kind": "repo",
+        "label": "Repo",
+        "url": "https://github.com/SysAdminDoc/REDplusplus"
+      },
+      "hasDownload": false,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "C#",
+      "stars": 0,
+      "latestReleaseTag": null,
+      "latestReleaseUrl": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
+      "releaseAssetInspected": false,
+      "releaseTrust": {
+        "checksumAssets": [],
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [],
+        "trustLevel": "unknown",
+        "notesPublic": null
+      },
+      "pushedAt": "2026-06-10T20:53:33.0000000Z",
+      "topics": [],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "RcloneBrowserNG",
+      "title": "RcloneBrowserNG",
+      "category": "desktop",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "Modern rclone GUI -- file browser, transfer manager, mount handler. Qt/C++ cross-platform desktop app. Community continuation of RcloneBrowser.",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "licenseKey": "other",
+      "licenseName": "Other",
+      "licenseSpdxId": "NOASSERTION",
+      "repoUrl": "https://github.com/SysAdminDoc/RcloneBrowserNG",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": null,
+      "downloadKind": "repo",
+      "primaryAction": {
+        "kind": "repo",
+        "label": "Repo",
+        "url": "https://github.com/SysAdminDoc/RcloneBrowserNG"
+      },
+      "hasDownload": false,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "master",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "C++",
+      "stars": 0,
+      "latestReleaseTag": null,
+      "latestReleaseUrl": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
+      "releaseAssetInspected": false,
+      "releaseTrust": {
+        "checksumAssets": [],
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [],
+        "trustLevel": "unknown",
+        "notesPublic": null
+      },
+      "pushedAt": "2026-06-10T22:25:38.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2696,41 +2809,33 @@
       "installKind": null,
       "language": "JavaScript",
       "stars": 10,
-      "latestReleaseTag": "v4.46.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Astra-Deck/releases/tag/v4.46.0",
+      "latestReleaseTag": "v4.46.2",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Astra-Deck/releases/tag/v4.46.2",
       "releaseAssetKinds": [
         "crx",
-        "other",
         "userscript",
         "xpi",
         "zip"
       ],
       "releaseAssetNames": [
-        "astra-deck-github-full-chrome-v4.46.0.crx",
-        "astra-deck-github-full-chrome-v4.46.0.zip",
-        "astra-deck-github-full-firefox-v4.46.0.xpi",
-        "astra-deck-github-full-firefox-v4.46.0.zip",
-        "astra-deck-npm-sbom.cdx.json",
-        "astra-deck-store-safe-chrome-v4.46.0.crx",
-        "astra-deck-store-safe-chrome-v4.46.0.zip",
-        "astra-deck-store-safe-firefox-v4.46.0.xpi",
-        "astra-deck-store-safe-firefox-v4.46.0.zip",
-        "release-manifest.json",
-        "SHA256SUMS",
-        "ytkit-v4.46.0.user.js"
+        "astra-deck-github-full-chrome-v4.46.2.crx",
+        "astra-deck-github-full-chrome-v4.46.2.zip",
+        "astra-deck-github-full-firefox-v4.46.2.xpi",
+        "astra-deck-github-full-firefox-v4.46.2.zip",
+        "astra-deck-store-safe-chrome-v4.46.2.crx",
+        "astra-deck-store-safe-chrome-v4.46.2.zip",
+        "astra-deck-store-safe-firefox-v4.46.2.xpi",
+        "astra-deck-store-safe-firefox-v4.46.2.zip",
+        "ytkit-v4.46.2.user.js"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [
-          "SHA256SUMS"
-        ],
+        "checksumAssets": [],
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
-        "sbomAssets": [
-          "astra-deck-npm-sbom.cdx.json"
-        ],
+        "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
@@ -2740,10 +2845,10 @@
           "xpi",
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T18:56:08.0000000Z",
+      "pushedAt": "2026-06-11T05:17:49.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -2814,7 +2919,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-07T04:48:52.0000000Z",
+      "pushedAt": "2026-06-11T05:51:58.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -2888,7 +2993,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:16:22.0000000Z",
+      "pushedAt": "2026-06-09T11:30:03.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2956,7 +3061,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:10:09.0000000Z",
+      "pushedAt": "2026-06-09T12:16:43.0000000Z",
       "topics": [
         "chrome-extension",
         "css",
@@ -3023,7 +3128,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-27T09:49:56.0000000Z",
+      "pushedAt": "2026-06-11T05:19:09.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -3094,7 +3199,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-03T15:46:50.0000000Z",
+      "pushedAt": "2026-06-09T12:11:35.0000000Z",
       "topics": [
         "ad-blocker",
         "javascript",
@@ -3160,7 +3265,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-28T23:09:36.0000000Z",
+      "pushedAt": "2026-06-09T11:33:17.0000000Z",
       "topics": [
         "claude-ai",
         "dark-theme",
@@ -3231,7 +3336,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:58:03.0000000Z",
+      "pushedAt": "2026-06-09T11:33:39.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3357,7 +3462,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:13.0000000Z",
+      "pushedAt": "2026-06-09T11:50:54.0000000Z",
       "topics": [
         "downloader",
         "media",
@@ -3489,7 +3594,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:11.0000000Z",
+      "pushedAt": "2026-06-09T11:31:23.0000000Z",
       "topics": [
         "chrome-extension",
         "context-menu",
@@ -3627,7 +3732,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:42.0000000Z",
+      "pushedAt": "2026-06-09T12:07:21.0000000Z",
       "topics": [
         "github",
         "greasyfork",
@@ -3672,7 +3777,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "JavaScript",
-      "stars": 0,
+      "stars": 2,
       "latestReleaseTag": "v3.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NDNS/releases/tag/v3.4.0",
       "releaseAssetKinds": [
@@ -3694,7 +3799,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-03T15:40:02.0000000Z",
+      "pushedAt": "2026-06-09T11:52:03.0000000Z",
       "topics": [
         "javascript",
         "nextdns",
@@ -3761,7 +3866,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:18:06.0000000Z",
+      "pushedAt": "2026-06-09T11:59:16.0000000Z",
       "topics": [
         "dark-theme",
         "enhancement",
@@ -3828,7 +3933,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:00:44.0000000Z",
+      "pushedAt": "2026-06-09T11:37:39.0000000Z",
       "topics": [
         "dark-mode",
         "doordash",
@@ -3894,7 +3999,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:28.0000000Z",
+      "pushedAt": "2026-06-09T11:35:23.0000000Z",
       "topics": [
         "automatic",
         "dark-mode",
@@ -3959,7 +4064,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:00:49.0000000Z",
+      "pushedAt": "2026-06-09T11:40:42.0000000Z",
       "topics": [
         "gemini",
         "google-ai",
@@ -4035,7 +4140,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-27T09:53:08.0000000Z",
+      "pushedAt": "2026-06-09T11:59:39.0000000Z",
       "topics": [
         "dark-theme",
         "javascript",
@@ -4106,7 +4211,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T06:41:13.0000000Z",
+      "pushedAt": "2026-06-09T12:12:31.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4177,7 +4282,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:41:46.0000000Z",
+      "pushedAt": "2026-06-09T11:29:04.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4236,7 +4341,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-01T08:15:59.0000000Z",
+      "pushedAt": "2026-06-09T11:43:49.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4362,7 +4467,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:19:55.0000000Z",
+      "pushedAt": "2026-06-09T12:12:48.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4486,7 +4591,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T19:34:17.0000000Z",
+      "pushedAt": "2026-06-11T05:53:47.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -4551,7 +4656,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:46.0000000Z",
+      "pushedAt": "2026-06-09T12:08:41.0000000Z",
       "topics": [
         "compression",
         "dark-theme",
@@ -4620,7 +4725,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T06:30:30.0000000Z",
+      "pushedAt": "2026-06-09T11:29:51.0000000Z",
       "topics": [
         "background-removal",
         "compositing",
@@ -4687,7 +4792,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:52.0000000Z",
+      "pushedAt": "2026-06-09T12:18:13.0000000Z",
       "topics": [
         "downloader",
         "livestream",
@@ -4753,7 +4858,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:59.0000000Z",
+      "pushedAt": "2026-06-09T11:51:06.0000000Z",
       "topics": [
         "conversion",
         "dark-theme",
@@ -4826,7 +4931,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-03T16:23:52.0000000Z",
+      "pushedAt": "2026-06-11T05:53:02.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -4901,7 +5006,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T07:20:49.0000000Z",
+      "pushedAt": "2026-06-09T12:02:55.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4962,7 +5067,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:11:10.0000000Z",
+      "pushedAt": "2026-06-09T12:14:55.0000000Z",
       "topics": [
         "ai-orchestration",
         "anthropic-claude",
@@ -5225,7 +5330,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:05:22.0000000Z",
+      "pushedAt": "2026-06-09T14:44:42.0000000Z",
       "topics": [
         "file-management",
         "photo-management",
@@ -5269,19 +5374,42 @@
       "entrypoint": "NVMe_Driver_Patcher.ps1",
       "installKind": "powershell",
       "language": "C#",
-      "stars": 41,
-      "latestReleaseTag": "v4.6.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v4.6.1",
+      "stars": 43,
+      "latestReleaseTag": "v5.0.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v5.0.0",
       "releaseAssetKinds": [
-        "exe"
+        "exe",
+        "other",
+        "script"
       ],
       "releaseAssetNames": [
-        "NVMeDriverPatcher.exe"
+        "NVMeDriverPatcher-5.0.0.msi",
+        "NVMeDriverPatcher-5.0.0.msi.sha256",
+        "NVMeDriverPatcher.Cli.exe",
+        "NVMeDriverPatcher.Cli.exe.sha256",
+        "NVMeDriverPatcher.exe",
+        "NVMeDriverPatcher.exe.sha256",
+        "NVMeDriverPatcher.Tray.exe",
+        "NVMeDriverPatcher.Tray.exe.sha256",
+        "NVMeDriverPatcher.Watchdog.exe",
+        "NVMeDriverPatcher.Watchdog.exe.sha256",
+        "NVMe_Driver_Patcher.ps1",
+        "NVMe_Driver_Patcher.ps1.sha256",
+        "SHA256SUMS.txt",
+        "SysAdminDoc.NVMeDriverPatcher.yaml"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "hasChecksumForEveryExecutable": false,
+        "checksumAssets": [
+          "NVMe_Driver_Patcher.ps1.sha256",
+          "NVMeDriverPatcher-5.0.0.msi.sha256",
+          "NVMeDriverPatcher.Cli.exe.sha256",
+          "NVMeDriverPatcher.exe.sha256",
+          "NVMeDriverPatcher.Tray.exe.sha256",
+          "NVMeDriverPatcher.Watchdog.exe.sha256",
+          "SHA256SUMS.txt"
+        ],
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
@@ -5290,12 +5418,13 @@
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
-          "exe"
+          "exe",
+          "script"
         ],
-        "trustLevel": "metadata-only",
+        "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:39.0000000Z",
+      "pushedAt": "2026-06-11T03:42:24.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -5366,7 +5495,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:15.0000000Z",
+      "pushedAt": "2026-06-11T05:51:32.0000000Z",
       "topics": [
         "compliance",
         "mitre",
@@ -5444,7 +5573,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-04T17:34:00.0000000Z",
+      "pushedAt": "2026-06-11T05:51:18.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -5511,7 +5640,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:57:16.0000000Z",
+      "pushedAt": "2026-06-09T12:10:24.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5572,7 +5701,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:16:47.0000000Z",
+      "pushedAt": "2026-06-09T11:36:08.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5633,7 +5762,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:18:43.0000000Z",
+      "pushedAt": "2026-06-09T11:59:28.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5702,7 +5831,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:53:24.0000000Z",
+      "pushedAt": "2026-06-09T11:36:31.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5769,7 +5898,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:53:27.0000000Z",
+      "pushedAt": "2026-06-09T11:37:17.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5830,7 +5959,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:16:50.0000000Z",
+      "pushedAt": "2026-06-09T11:36:42.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5891,7 +6020,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:19:20.0000000Z",
+      "pushedAt": "2026-06-09T12:05:03.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5952,7 +6081,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:17:06.0000000Z",
+      "pushedAt": "2026-06-09T11:39:33.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -5991,7 +6120,7 @@
       "entrypoint": "NetForge.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 1,
+      "stars": 2,
       "latestReleaseTag": "v1.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NetForge/releases/tag/v1.1.0",
       "releaseAssetKinds": [
@@ -6013,7 +6142,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:18:12.0000000Z",
+      "pushedAt": "2026-06-09T11:52:26.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -6074,7 +6203,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:19:16.0000000Z",
+      "pushedAt": "2026-06-09T12:04:05.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -6135,7 +6264,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:57:19.0000000Z",
+      "pushedAt": "2026-06-09T12:10:01.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -6196,7 +6325,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:56:57.0000000Z",
+      "pushedAt": "2026-06-09T12:01:46.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -6265,7 +6394,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:18:17.0000000Z",
+      "pushedAt": "2026-06-09T11:53:29.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -6326,7 +6455,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:16:51.0000000Z",
+      "pushedAt": "2026-06-09T11:37:05.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -6534,7 +6663,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:17.0000000Z",
+      "pushedAt": "2026-06-09T11:56:01.0000000Z",
       "topics": [
         "file-deletion",
         "filesystem",
@@ -6608,7 +6737,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:03.0000000Z",
+      "pushedAt": "2026-06-09T11:51:17.0000000Z",
       "topics": [
         "brightness",
         "dark-theme",
@@ -6676,7 +6805,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:50.0000000Z",
+      "pushedAt": "2026-06-09T12:10:12.0000000Z",
       "topics": [
         "branding",
         "gui",
@@ -6741,7 +6870,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:48.0000000Z",
+      "pushedAt": "2026-06-09T12:09:15.0000000Z",
       "topics": [
         "everything",
         "gui",
@@ -6807,7 +6936,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:21.0000000Z",
+      "pushedAt": "2026-06-09T11:56:47.0000000Z",
       "topics": [
         "gui",
         "pfblockerng",
@@ -6873,7 +7002,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:11.0000000Z",
+      "pushedAt": "2026-06-09T12:14:32.0000000Z",
       "topics": [
         "incident-response",
         "notepadplusplus",
@@ -6949,7 +7078,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:07.0000000Z",
+      "pushedAt": "2026-06-09T11:44:56.0000000Z",
       "topics": [
         "automation",
         "jdownloader",
@@ -7013,7 +7142,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T18:57:05.0000000Z",
+      "pushedAt": "2026-06-09T12:05:15.0000000Z",
       "topics": [
         "jeffrey-snover",
         "powershell",
@@ -7082,7 +7211,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:34.0000000Z",
+      "pushedAt": "2026-06-09T11:38:25.0000000Z",
       "topics": [
         "archive",
         "dark-theme",
@@ -7149,7 +7278,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-04-26T20:17:35.0000000Z",
+      "pushedAt": "2026-06-09T11:29:28.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -7208,7 +7337,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-19T16:40:49.0000000Z",
+      "pushedAt": "2026-06-09T11:32:20.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -7280,7 +7409,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-19T03:33:34.0000000Z",
+      "pushedAt": "2026-06-11T05:56:22.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -7355,7 +7484,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-04-26T02:13:24.0000000Z",
+      "pushedAt": "2026-06-09T12:06:13.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -7425,7 +7554,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:11:19.0000000Z",
+      "pushedAt": "2026-06-09T12:08:19.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -7490,7 +7619,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:18:30.0000000Z",
+      "pushedAt": "2026-06-09T11:57:21.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -7558,7 +7687,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:57:03.0000000Z",
+      "pushedAt": "2026-06-09T12:03:28.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -7621,7 +7750,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:27.0000000Z",
+      "pushedAt": "2026-06-09T11:57:56.0000000Z",
       "topics": [
         "dark-theme",
         "firewall",
@@ -7692,7 +7821,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:00:51.0000000Z",
+      "pushedAt": "2026-06-09T11:43:15.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -7759,7 +7888,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-01T07:10:42.0000000Z",
+      "pushedAt": "2026-06-09T11:57:44.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -7897,7 +8026,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:38.0000000Z",
+      "pushedAt": "2026-06-09T11:39:45.0000000Z",
       "topics": [
         "bittorrent",
         "client",
@@ -7968,7 +8097,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:43.0000000Z",
+      "pushedAt": "2026-06-09T11:41:33.0000000Z",
       "topics": [
         "dark-theme",
         "git",
@@ -8113,7 +8242,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:30.0000000Z",
+      "pushedAt": "2026-06-09T11:58:19.0000000Z",
       "topics": [
         "dark-theme",
         "file-search",
@@ -8188,7 +8317,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-01T06:46:09.0000000Z",
+      "pushedAt": "2026-06-09T11:39:22.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -8273,7 +8402,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-17T20:01:00.0000000Z",
+      "pushedAt": "2026-06-09T11:42:30.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -8341,7 +8470,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:17:10.0000000Z",
+      "pushedAt": "2026-06-09T11:40:08.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -8402,7 +8531,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:33.0000000Z",
+      "pushedAt": "2026-06-09T11:38:36.0000000Z",
       "topics": [
         "dark-theme",
         "file-explorer",
@@ -8469,7 +8598,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:36.0000000Z",
+      "pushedAt": "2026-06-09T11:38:48.0000000Z",
       "topics": [
         "ai",
         "face-slimming",
@@ -8536,7 +8665,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:55.0000000Z",
+      "pushedAt": "2026-06-09T11:47:04.0000000Z",
       "topics": [
         "ai",
         "lip-reading",
@@ -8607,7 +8736,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:17:54.0000000Z",
+      "pushedAt": "2026-06-09T11:47:15.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -8668,7 +8797,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:34.0000000Z",
+      "pushedAt": "2026-06-09T12:01:12.0000000Z",
       "topics": [
         "ai",
         "music-generation",
@@ -8734,7 +8863,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:17:22.0000000Z",
+      "pushedAt": "2026-06-09T11:41:56.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -8793,7 +8922,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:40.0000000Z",
+      "pushedAt": "2026-06-09T12:06:46.0000000Z",
       "topics": [
         "compiler",
         "gui",
@@ -8837,7 +8966,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 19,
+      "stars": 20,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -8868,7 +8997,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-07T12:32:23.0000000Z",
+      "pushedAt": "2026-06-11T05:54:52.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -8935,7 +9064,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:15.0000000Z",
+      "pushedAt": "2026-06-09T12:12:20.0000000Z",
       "topics": [
         "bypass-generator",
         "gui",
@@ -9005,7 +9134,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:05.0000000Z",
+      "pushedAt": "2026-06-09T11:48:35.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -9146,7 +9275,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:09.0000000Z",
+      "pushedAt": "2026-06-09T11:30:37.0000000Z",
       "topics": [
         "installed-apps",
         "pyqt6",
@@ -9211,7 +9340,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:22.0000000Z",
+      "pushedAt": "2026-06-09T11:57:09.0000000Z",
       "topics": [
         "desktop-widget",
         "medication",
@@ -9400,8 +9529,8 @@
       "installKind": "python",
       "language": "Python",
       "stars": 3,
-      "latestReleaseTag": "v6.0.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/tag/v6.0.0",
+      "latestReleaseTag": "v6.8.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/tag/v6.8.0",
       "releaseAssetKinds": [
         "exe",
         "other"
@@ -9409,8 +9538,7 @@
       "releaseAssetNames": [
         "BookmarkOrganizerPro-Linux",
         "BookmarkOrganizerPro-macOS",
-        "BookmarkOrganizerPro-Windows.exe",
-        "BookmarkOrganizerPro.exe"
+        "BookmarkOrganizerPro-Windows.exe"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -9429,7 +9557,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-06T21:40:22.0000000Z",
+      "pushedAt": "2026-06-09T11:32:09.0000000Z",
       "topics": [
         "ai",
         "bookmarks",
@@ -9496,7 +9624,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:28.0000000Z",
+      "pushedAt": "2026-06-09T11:58:07.0000000Z",
       "topics": [
         "generator",
         "gui",
@@ -9706,7 +9834,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:19.0000000Z",
+      "pushedAt": "2026-06-09T11:55:28.0000000Z",
       "topics": [
         "dark-theme",
         "editor",
@@ -9772,7 +9900,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:27.0000000Z",
+      "pushedAt": "2026-06-09T11:32:31.0000000Z",
       "topics": [
         "csv",
         "data-processing",
@@ -9841,7 +9969,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:04.0000000Z",
+      "pushedAt": "2026-06-09T11:28:53.0000000Z",
       "topics": [
         "ai",
         "dark-theme",
@@ -9910,7 +10038,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:38.0000000Z",
+      "pushedAt": "2026-06-09T12:02:09.0000000Z",
       "topics": [
         "crawler",
         "gui",
@@ -9978,7 +10106,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:17:18.0000000Z",
+      "pushedAt": "2026-06-09T11:41:22.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -10047,7 +10175,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-03T16:10:16.0000000Z",
+      "pushedAt": "2026-06-09T11:39:56.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -10108,7 +10236,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:18:03.0000000Z",
+      "pushedAt": "2026-06-09T12:15:30.0000000Z",
       "topics": [
         "customization",
         "javascript",
@@ -10179,7 +10307,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-22T03:15:02.0000000Z",
+      "pushedAt": "2026-06-09T11:31:46.0000000Z",
       "topics": [
         "chrome-extension",
         "dark-theme",
@@ -10244,7 +10372,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:30.0000000Z",
+      "pushedAt": "2026-06-09T11:38:14.0000000Z",
       "topics": [
         "configuration",
         "eset",
@@ -10311,7 +10439,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:13.0000000Z",
+      "pushedAt": "2026-06-09T11:55:04.0000000Z",
       "topics": [
         "browser",
         "canvas",
@@ -10376,7 +10504,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:01:26.0000000Z",
+      "pushedAt": "2026-06-09T12:02:32.0000000Z",
       "topics": [
         "dark-theme",
         "javascript",
@@ -10444,7 +10572,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:24.0000000Z",
+      "pushedAt": "2026-06-09T14:34:52.0000000Z",
       "topics": [
         "flight-tracking",
         "javascript",
@@ -10511,7 +10639,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:01:36.0000000Z",
+      "pushedAt": "2026-06-09T12:07:44.0000000Z",
       "topics": [
         "aircraft-tracker",
         "html",
@@ -10578,7 +10706,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:18:19.0000000Z",
+      "pushedAt": "2026-06-09T11:53:40.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -10705,7 +10833,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:23.0000000Z",
+      "pushedAt": "2026-06-09T11:34:36.0000000Z",
       "topics": [
         "curated",
         "directory",
@@ -10770,7 +10898,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:07.0000000Z",
+      "pushedAt": "2026-06-09T11:51:28.0000000Z",
       "topics": [
         "html",
         "multi-stream",
@@ -10834,7 +10962,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:40.0000000Z",
+      "pushedAt": "2026-06-09T11:41:10.0000000Z",
       "topics": [
         "browser-based",
         "gif-editor",
@@ -10905,7 +11033,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:47.0000000Z",
+      "pushedAt": "2026-06-09T11:44:12.0000000Z",
       "topics": [
         "batch",
         "browser-based",
@@ -10971,7 +11099,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:21.0000000Z",
+      "pushedAt": "2026-06-09T11:33:51.0000000Z",
       "topics": [
         "browser-based",
         "ffmpeg",
@@ -11099,7 +11227,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:45.0000000Z",
+      "pushedAt": "2026-06-09T11:44:01.0000000Z",
       "topics": [
         "browser-based",
         "converter",
@@ -11163,7 +11291,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:02:13.0000000Z",
+      "pushedAt": "2026-06-09T11:31:34.0000000Z",
       "topics": [
         "base64",
         "browser-based",
@@ -11231,7 +11359,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:49.0000000Z",
+      "pushedAt": "2026-06-09T11:44:23.0000000Z",
       "topics": [
         "browser-based",
         "html",
@@ -11383,9 +11511,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": null,
+      "licenseName": null,
+      "licenseSpdxId": null,
       "repoUrl": "https://github.com/SysAdminDoc/kindred",
       "liveUrl": null,
       "installUrl": null,
@@ -11425,7 +11553,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-04-26T02:25:38.0000000Z",
+      "pushedAt": "2026-06-09T12:13:44.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -11486,7 +11614,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:00:41.0000000Z",
+      "pushedAt": "2026-06-09T11:35:57.0000000Z",
       "topics": [
         "degoogle",
         "google",
@@ -11554,7 +11682,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:32.0000000Z",
+      "pushedAt": "2026-06-09T12:00:37.0000000Z",
       "topics": [
         "browser-based",
         "html",
@@ -11620,7 +11748,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:44.0000000Z",
+      "pushedAt": "2026-06-09T12:07:32.0000000Z",
       "topics": [
         "greasyfork",
         "html",
@@ -11686,7 +11814,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:03:01.0000000Z",
+      "pushedAt": "2026-06-09T11:48:12.0000000Z",
       "topics": [
         "browser-tool",
         "forensics",
@@ -11753,7 +11881,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:57.0000000Z",
+      "pushedAt": "2026-06-09T11:48:01.0000000Z",
       "topics": [
         "browser-based",
         "html",
@@ -11819,7 +11947,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T19:02:25.0000000Z",
+      "pushedAt": "2026-06-09T11:34:49.0000000Z",
       "topics": [
         "calendar",
         "cron-scheduler",
@@ -11884,7 +12012,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-26T19:03:09.0000000Z",
+      "pushedAt": "2026-06-09T11:51:51.0000000Z",
       "topics": [
         "html",
         "nato-alphabet",
@@ -11950,7 +12078,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-26T18:58:53.0000000Z",
+      "pushedAt": "2026-06-09T11:43:38.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -12009,7 +12137,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-02T05:36:34.0000000Z",
+      "pushedAt": "2026-06-09T11:30:25.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,

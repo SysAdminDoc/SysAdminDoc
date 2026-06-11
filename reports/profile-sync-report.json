@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-07T08:38:03.5031208-04:00",
+  "generatedAt": "2026-06-11T02:00:03.5399594-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -56,21 +56,21 @@
       "inSync": true
     }
   ],
-  "publicRepoCount": 184,
-  "catalogEntryCount": 187,
-  "includedReadmeCount": 166,
+  "publicRepoCount": 186,
+  "catalogEntryCount": 189,
+  "includedReadmeCount": 168,
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "565590cbf07ba9c92c33dd608c11ea078c7d6717",
-    "catalogSha256": "ca7be2a35d8a6c6d8d15fb3f8df6e2f8d8358d724c34cc1005a08ac2387e0eef",
-    "generatorSha256": "e58b8c7f12e89774bf1dcfe60be9d87f0bafa2cb44472d5929f48aa167db36b7",
+    "sourceCommit": "ff4927fd2cd96af6f18e6613d5f94654dc1fc06a",
+    "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
+    "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-07T08:36:42.2166171-04:00",
+    "metadataSnapshotAt": "2026-06-11T01:57:33.9222478-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
-      "returnedCount": 184,
+      "returnedCount": 186,
       "truncated": false
     }
   },
@@ -80,7 +80,7 @@
     "issues": []
   },
   "metadataHygiene": {
-    "missingTopicCount": 69,
+    "missingTopicCount": 71,
     "missingDescriptionCount": 0,
     "topicHintPolicy": {
       "mutatesRepositories": false,
@@ -91,7 +91,7 @@
       {
         "repo": "AdapterLock",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T20:17:35Z",
+        "pushedAt": "2026-06-09T11:29:28.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -103,7 +103,7 @@
       {
         "repo": "AI-Usage_Tracker",
         "language": "JavaScript",
-        "pushedAt": "2026-05-26T18:41:46Z",
+        "pushedAt": "2026-06-09T11:29:04.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -114,7 +114,7 @@
       {
         "repo": "AmazonEnhanced",
         "language": "JavaScript",
-        "pushedAt": "2026-04-26T02:16:22Z",
+        "pushedAt": "2026-06-09T11:30:03.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -125,7 +125,7 @@
       {
         "repo": "android-debloat-list",
         "language": "PHP",
-        "pushedAt": "2026-05-18T23:31:07Z",
+        "pushedAt": "2026-05-18T23:31:07.0000000Z",
         "category": "guides",
         "topicHints": [
           "documentation",
@@ -136,7 +136,7 @@
       {
         "repo": "AndroidEmulatorPlus",
         "language": "C#",
-        "pushedAt": "2026-06-01T06:32:09Z",
+        "pushedAt": "2026-06-09T11:30:14.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -147,7 +147,7 @@
       {
         "repo": "ApocalypseWatch",
         "language": "JavaScript",
-        "pushedAt": "2026-05-02T05:36:34Z",
+        "pushedAt": "2026-06-09T11:30:25.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-07T07:07:28Z",
+        "pushedAt": "2026-06-11T05:50:42.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -170,7 +170,7 @@
       {
         "repo": "BillMinder",
         "language": "Kotlin",
-        "pushedAt": "2026-05-18T02:21:17Z",
+        "pushedAt": "2026-06-09T11:31:57.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -180,7 +180,7 @@
       {
         "repo": "Brave-Portable-Updater",
         "language": "PowerShell",
-        "pushedAt": "2026-05-19T16:40:49Z",
+        "pushedAt": "2026-06-09T11:32:20.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -193,7 +193,7 @@
       {
         "repo": "CallShield",
         "language": "Kotlin",
-        "pushedAt": "2026-06-06T19:29:49Z",
+        "pushedAt": "2026-06-10T17:46:53.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -203,7 +203,7 @@
       {
         "repo": "ClearGem",
         "language": "JavaScript",
-        "pushedAt": "2026-05-26T18:58:03Z",
+        "pushedAt": "2026-06-09T11:33:39.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -215,7 +215,7 @@
       {
         "repo": "Debloat-Win11",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:16:47Z",
+        "pushedAt": "2026-06-09T11:36:08.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -227,7 +227,7 @@
       {
         "repo": "DefenderControl",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:53:24Z",
+        "pushedAt": "2026-06-09T11:36:31.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -239,7 +239,7 @@
       {
         "repo": "DefenderShield",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:16:50Z",
+        "pushedAt": "2026-06-09T11:36:42.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -252,7 +252,7 @@
       {
         "repo": "Devicer",
         "language": "C#",
-        "pushedAt": "2026-05-09T19:59:57Z",
+        "pushedAt": "2026-06-09T11:36:54.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -263,7 +263,7 @@
       {
         "repo": "Disable-AdobeTelemetry",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:16:51Z",
+        "pushedAt": "2026-06-09T11:37:05.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -275,7 +275,7 @@
       {
         "repo": "DisableDefender",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:53:27Z",
+        "pushedAt": "2026-06-09T11:37:17.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -288,7 +288,7 @@
       {
         "repo": "Discrub",
         "language": "TypeScript",
-        "pushedAt": "2026-06-01T06:41:13Z",
+        "pushedAt": "2026-06-09T12:12:31.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -299,7 +299,7 @@
       {
         "repo": "Droidsmith",
         "language": "Rust",
-        "pushedAt": "2026-06-02T04:02:40Z",
+        "pushedAt": "2026-06-09T13:29:12.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -310,7 +310,7 @@
       {
         "repo": "facebook-exit-guide",
         "language": "HTML",
-        "pushedAt": "2026-04-26T02:19:55Z",
+        "pushedAt": "2026-06-09T12:12:48.0000000Z",
         "category": "guides",
         "topicHints": [
           "documentation",
@@ -321,7 +321,7 @@
       {
         "repo": "FirewallForge",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:17:06Z",
+        "pushedAt": "2026-06-09T11:39:33.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -334,7 +334,7 @@
       {
         "repo": "FoxPort",
         "language": "Python",
-        "pushedAt": "2026-06-03T16:10:16Z",
+        "pushedAt": "2026-06-09T11:39:56.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -345,7 +345,7 @@
       {
         "repo": "FrameSnap",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:10Z",
+        "pushedAt": "2026-06-09T11:40:08.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -358,7 +358,7 @@
       {
         "repo": "GifText",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:18Z",
+        "pushedAt": "2026-06-09T11:41:22.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -370,7 +370,7 @@
       {
         "repo": "GmailDownloader",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:22Z",
+        "pushedAt": "2026-06-09T11:41:56.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -382,7 +382,7 @@
       {
         "repo": "HEICShift",
         "language": "Python",
-        "pushedAt": "2026-05-17T20:01:00Z",
+        "pushedAt": "2026-06-09T11:42:30.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -395,7 +395,7 @@
       {
         "repo": "HurricaneMap",
         "language": "JavaScript",
-        "pushedAt": "2026-05-26T18:58:53Z",
+        "pushedAt": "2026-06-09T11:43:38.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -407,7 +407,7 @@
       {
         "repo": "Images",
         "language": "C#",
-        "pushedAt": "2026-05-25T14:16:03Z",
+        "pushedAt": "2026-06-09T13:41:20.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -419,7 +419,7 @@
       {
         "repo": "IMDb_Enhanced",
         "language": "JavaScript",
-        "pushedAt": "2026-06-01T08:15:59Z",
+        "pushedAt": "2026-06-09T11:43:49.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -430,7 +430,7 @@
       {
         "repo": "iOSIconPack",
         "language": "Python",
-        "pushedAt": "2026-05-26T18:57:23Z",
+        "pushedAt": "2026-06-09T12:13:21.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -442,7 +442,7 @@
       {
         "repo": "Keepr",
         "language": "TypeScript",
-        "pushedAt": "2026-05-27T09:50:54Z",
+        "pushedAt": "2026-06-09T11:45:41.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -454,7 +454,7 @@
       {
         "repo": "kindred",
         "language": "HTML",
-        "pushedAt": "2026-04-26T02:25:38Z",
+        "pushedAt": "2026-06-09T12:13:44.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -467,7 +467,7 @@
       {
         "repo": "LlamaLink",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:17:54Z",
+        "pushedAt": "2026-06-09T11:47:15.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -479,7 +479,7 @@
       {
         "repo": "LocalAndroidStore",
         "language": "Kotlin",
-        "pushedAt": "2026-05-18T02:21:22Z",
+        "pushedAt": "2026-06-09T11:47:27.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -489,7 +489,7 @@
       {
         "repo": "LocalChromeStore",
         "language": "C#",
-        "pushedAt": "2026-05-31T07:54:51Z",
+        "pushedAt": "2026-06-09T13:48:42.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -500,7 +500,7 @@
       {
         "repo": "LocalDesktopStore",
         "language": "C#",
-        "pushedAt": "2026-05-18T09:09:43Z",
+        "pushedAt": "2026-06-09T13:49:39.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -511,7 +511,7 @@
       {
         "repo": "MyPortfolio",
         "language": "C#",
-        "pushedAt": "2026-04-26T02:10:57Z",
+        "pushedAt": "2026-06-09T11:51:40.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -522,7 +522,7 @@
       {
         "repo": "NetForge",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:18:12Z",
+        "pushedAt": "2026-06-09T11:52:26.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -535,7 +535,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-05T06:11:00Z",
+        "pushedAt": "2026-06-11T05:39:34.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -546,7 +546,7 @@
       {
         "repo": "NuclearDellRemover",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:18:17Z",
+        "pushedAt": "2026-06-09T11:53:29.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -558,7 +558,7 @@
       {
         "repo": "NukeMap",
         "language": "JavaScript",
-        "pushedAt": "2026-04-26T02:18:19Z",
+        "pushedAt": "2026-06-09T11:53:40.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -569,7 +569,7 @@
       {
         "repo": "null",
         "language": null,
-        "pushedAt": "2026-05-26T19:01:18Z",
+        "pushedAt": "2026-06-09T12:14:44.0000000Z",
         "category": "suppressed",
         "topicHints": [
           "utility"
@@ -578,7 +578,7 @@
       {
         "repo": "one-ui-home-clone",
         "language": "Kotlin",
-        "pushedAt": "2026-05-18T02:21:26Z",
+        "pushedAt": "2026-06-09T12:15:07.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -588,7 +588,7 @@
       {
         "repo": "OpenLumen",
         "language": "Kotlin",
-        "pushedAt": "2026-06-03T05:06:03Z",
+        "pushedAt": "2026-06-09T14:18:05.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -598,7 +598,7 @@
       {
         "repo": "OpenSwift",
         "language": "Kotlin",
-        "pushedAt": "2026-06-01T07:07:24Z",
+        "pushedAt": "2026-06-09T11:54:41.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -608,7 +608,7 @@
       {
         "repo": "OpenTasker",
         "language": "Kotlin",
-        "pushedAt": "2026-05-06T14:14:13Z",
+        "pushedAt": "2026-06-11T05:49:52.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -618,7 +618,7 @@
       {
         "repo": "OrganizeContacts",
         "language": "C#",
-        "pushedAt": "2026-05-18T02:22:50Z",
+        "pushedAt": "2026-06-09T11:55:16.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -629,7 +629,7 @@
       {
         "repo": "PhoneFork",
         "language": "C#",
-        "pushedAt": "2026-05-18T23:53:38Z",
+        "pushedAt": "2026-05-18T23:53:38.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -641,7 +641,7 @@
       {
         "repo": "project-nomad",
         "language": "TypeScript",
-        "pushedAt": "2026-05-18T23:53:57Z",
+        "pushedAt": "2026-05-18T23:53:57.0000000Z",
         "category": "suppressed",
         "topicHints": [
           "typescript"
@@ -650,7 +650,7 @@
       {
         "repo": "PromptCompanion",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:18:30Z",
+        "pushedAt": "2026-06-09T11:57:21.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -662,7 +662,7 @@
       {
         "repo": "qBittorrent-Vanced",
         "language": "C++",
-        "pushedAt": "2026-05-26T19:05:11Z",
+        "pushedAt": "2026-06-09T12:16:04.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -673,7 +673,29 @@
       {
         "repo": "QuotaGlass",
         "language": "C#",
-        "pushedAt": "2026-06-01T07:13:57Z",
+        "pushedAt": "2026-06-09T11:58:30.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "csharp"
+        ]
+      },
+      {
+        "repo": "RcloneBrowserNG",
+        "language": "C++",
+        "pushedAt": "2026-06-10T22:25:38.0000000Z",
+        "category": "desktop",
+        "topicHints": [
+          "desktop-app",
+          "windows",
+          "cpp"
+        ]
+      },
+      {
+        "repo": "REDplusplus",
+        "language": "C#",
+        "pushedAt": "2026-06-10T20:53:33.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -684,7 +706,7 @@
       {
         "repo": "Restore-WindowsDefaults",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:18:43Z",
+        "pushedAt": "2026-06-09T11:59:28.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -696,7 +718,7 @@
       {
         "repo": "SnapCrop",
         "language": "Kotlin",
-        "pushedAt": "2026-05-26T18:59:07Z",
+        "pushedAt": "2026-06-09T12:01:23.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -706,7 +728,7 @@
       {
         "repo": "Snapture",
         "language": "C#",
-        "pushedAt": "2026-05-18T02:22:07Z",
+        "pushedAt": "2026-06-09T12:01:35.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -717,7 +739,7 @@
       {
         "repo": "SoftwareScannerGUI",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:56:57Z",
+        "pushedAt": "2026-06-09T12:01:46.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -729,7 +751,7 @@
       {
         "repo": "StreamKeep",
         "language": "Python",
-        "pushedAt": "2026-06-01T07:20:49Z",
+        "pushedAt": "2026-06-09T12:02:55.0000000Z",
         "category": "media",
         "topicHints": [
           "media",
@@ -741,7 +763,7 @@
       {
         "repo": "SunoJump",
         "language": "Python",
-        "pushedAt": "2026-05-26T18:57:03Z",
+        "pushedAt": "2026-06-09T12:03:28.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -753,7 +775,7 @@
       {
         "repo": "SystemUpdatePro",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:19:16Z",
+        "pushedAt": "2026-06-09T12:04:05.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -765,7 +787,7 @@
       {
         "repo": "TaskCopy",
         "language": "C#",
-        "pushedAt": "2026-06-01T07:27:03Z",
+        "pushedAt": "2026-06-09T12:04:39.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -777,7 +799,7 @@
       {
         "repo": "TelemetrySlayer",
         "language": "PowerShell",
-        "pushedAt": "2026-04-26T02:19:20Z",
+        "pushedAt": "2026-06-09T12:05:03.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -789,7 +811,7 @@
       {
         "repo": "TsunamiSimulator",
         "language": "Rust",
-        "pushedAt": "2026-06-02T05:17:50Z",
+        "pushedAt": "2026-06-09T14:49:14.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -800,7 +822,7 @@
       {
         "repo": "Tunerize",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:13:24Z",
+        "pushedAt": "2026-06-09T12:06:13.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -812,7 +834,7 @@
       {
         "repo": "uBlockVanced",
         "language": "JavaScript",
-        "pushedAt": "2026-05-19T00:03:52Z",
+        "pushedAt": "2026-05-19T00:03:52.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -823,7 +845,7 @@
       {
         "repo": "Vertigo",
         "language": "Python",
-        "pushedAt": "2026-04-26T02:11:19Z",
+        "pushedAt": "2026-06-09T12:08:19.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -836,7 +858,7 @@
       {
         "repo": "Vigil",
         "language": "HTML",
-        "pushedAt": "2026-05-26T19:05:34Z",
+        "pushedAt": "2026-06-09T12:09:04.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -847,7 +869,7 @@
       {
         "repo": "WinForge",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:57:16Z",
+        "pushedAt": "2026-06-09T12:10:24.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -859,7 +881,7 @@
       {
         "repo": "WolfPack",
         "language": "Fluent",
-        "pushedAt": "2026-04-26T02:19:48Z",
+        "pushedAt": "2026-06-09T12:10:46.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -871,7 +893,7 @@
       {
         "repo": "WURepair",
         "language": "PowerShell",
-        "pushedAt": "2026-05-26T18:57:19Z",
+        "pushedAt": "2026-06-09T12:10:01.0000000Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -885,11 +907,11 @@
     "missingDescriptions": []
   },
   "projectLicenseMetadata": {
-    "checkedCount": 166,
-    "detectedCount": 163,
-    "missingCount": 3,
+    "checkedCount": 168,
+    "detectedCount": 164,
+    "missingCount": 4,
     "unknownCount": 9,
-    "warningCount": 12,
+    "warningCount": 13,
     "licenseCounts": [
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -919,7 +941,7 @@
         "licenseSpdxId": "LGPL-3.0",
         "licenseKey": "lgpl-3.0",
         "licenseName": "GNU Lesser General Public License v3.0",
-        "count": 1
+        "count": 2
       },
       {
         "licenseSpdxId": "MIT",
@@ -950,6 +972,10 @@
         "reason": "GitHub did not report a detected repository license"
       },
       {
+        "repo": "kindred",
+        "reason": "GitHub did not report a detected repository license"
+      },
+      {
         "repo": "SPECTRE",
         "reason": "GitHub did not report a detected repository license"
       }
@@ -971,13 +997,6 @@
       },
       {
         "repo": "Astra-Deck",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "kindred",
         "licenseKey": "other",
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
@@ -1006,6 +1025,13 @@
       },
       {
         "repo": "PromptCompanion",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license"
+      },
+      {
+        "repo": "RcloneBrowserNG",
         "licenseKey": "other",
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
@@ -1091,13 +1117,13 @@
     "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
   },
   "staleProjectReview": {
-    "checkedProjectCount": 177,
+    "checkedProjectCount": 179,
     "staleAfterDays": 365,
     "releaseStaleAfterDays": 540,
     "archiveAfterDays": 730,
     "staleProjectCount": 0,
     "archiveReviewCount": 0,
-    "noReleaseCount": 36,
+    "noReleaseCount": 38,
     "suppressedCount": 10,
     "warningCount": 0,
     "statusCounts": [
@@ -1107,7 +1133,7 @@
       },
       {
         "kind": "current",
-        "count": 177
+        "count": 179
       },
       {
         "kind": "stale-review",
@@ -1144,7 +1170,7 @@
     "note": "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
   },
   "releaseAssetDrift": {
-    "checkedCatalogRows": 166,
+    "checkedCatalogRows": 168,
     "releaseBearingRows": 135,
     "releaseActionRows": 71,
     "assetApiInspected": true,
@@ -1164,11 +1190,11 @@
       },
       {
         "kind": "other",
-        "count": 36
+        "count": 35
       },
       {
         "kind": "script",
-        "count": 8
+        "count": 9
       },
       {
         "kind": "source-archive",
@@ -1190,15 +1216,15 @@
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum",
-        "count": 23
+        "count": 22
       },
       {
         "trustLevel": "metadata-only",
-        "count": 112
+        "count": 113
       },
       {
         "trustLevel": "unknown",
-        "count": 31
+        "count": 33
       }
     ],
     "executableDownloadsMissingChecksums": [
@@ -1223,14 +1249,14 @@
       },
       {
         "repo": "Astra-Deck",
-        "latestReleaseTag": "v4.46.0",
+        "latestReleaseTag": "v4.46.2",
         "executableAssetKinds": [
           "crx",
           "userscript",
           "xpi",
           "zip"
         ],
-        "trustLevel": "checksum"
+        "trustLevel": "metadata-only"
       },
       {
         "repo": "Aura",
@@ -1250,7 +1276,7 @@
       },
       {
         "repo": "Bookmark-Organizer-Pro",
-        "latestReleaseTag": "v6.0.0",
+        "latestReleaseTag": "v6.8.0",
         "executableAssetKinds": [
           "exe"
         ],
@@ -1626,14 +1652,6 @@
         "trustLevel": "metadata-only"
       },
       {
-        "repo": "win11-nvme-driver-patcher",
-        "latestReleaseTag": "v4.6.1",
-        "executableAssetKinds": [
-          "exe"
-        ],
-        "trustLevel": "metadata-only"
-      },
-      {
         "repo": "Wingetter",
         "latestReleaseTag": "v6.1.0",
         "executableAssetKinds": [
@@ -1653,11 +1671,11 @@
       },
       {
         "repo": "ZeusWatch",
-        "latestReleaseTag": "v1.21.1",
+        "latestReleaseTag": "v1.21.4",
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum"
+        "trustLevel": "metadata-only"
       }
     ],
     "debugArtifactRows": [
@@ -2150,10 +2168,10 @@
   },
   "catalogFeedAccounting": {
     "passed": true,
-    "catalogEntryCount": 187,
-    "visitorFacingCatalogCount": 177,
+    "catalogEntryCount": 189,
+    "visitorFacingCatalogCount": 179,
     "suppressedCatalogCount": 10,
-    "exportedProjectCount": 177,
+    "exportedProjectCount": 179,
     "exportedSuppressedCount": 10,
     "projectCountMatches": true,
     "suppressedCountMatches": true,
@@ -2168,9 +2186,9 @@
     "status": "compatible",
     "consumerContract": "sysadmindoc.github.io profile-feed importer",
     "feedSourceUrl": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json",
-    "projectCount": 177,
+    "projectCount": 179,
     "suppressedCount": 10,
-    "topLevelProjectCount": 177,
+    "topLevelProjectCount": 179,
     "topLevelSuppressedCount": 10,
     "projectCountMatchesTopLevel": true,
     "suppressedCountMatchesTopLevel": true,
@@ -2216,7 +2234,7 @@
       },
       {
         "kind": "repo",
-        "count": 68
+        "count": 70
       }
     ],
     "warningCount": 0,
@@ -2258,7 +2276,7 @@
           "npm"
         ],
         "warningDisposition": "repository-setting-warning",
-        "documentationPath": "docs/decisions/2026-06-07-dependabot-security-posture.md",
+        "documentationPath": "decision:dependabot-security-posture",
         "evidence": "Local Dependabot version-update config is present for 2 ecosystem(s), but repository security_and_analysis.dependabot_security_updates.status is disabled.",
         "nextAction": "Enable Dependabot security updates in repository settings, or record why manual security triage is sufficient for this profile repository."
       },
@@ -2287,7 +2305,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-07T08:36:42.2166171-04:00",
+          "queriedAt": "2026-06-11T01:57:33.9222478-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2403,7 +2421,7 @@
         "requiresRepositorySetting": true,
         "requiresNewSecret": false,
         "currentSettingAllowsGeneratedPr": true,
-        "decisionDocumentPath": "docs/decisions/2026-06-07-generated-pr-credential-decision.md",
+        "decisionDocumentPath": "decision:generated-pr-credential",
         "activationCommand": "gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true",
         "nextAction": "Use the proven generated-profile/validation PR status handoff as the generated-maintenance path, then document the direct-main maintenance bypass or PR-delivery policy before required-check enforcement."
       }
@@ -2574,7 +2592,7 @@
           "requiredBeforeEnforcement": true,
           "selectedPath": "pull-request-delivery",
           "recommendation": "keep-pr-delivery",
-          "documentationPath": "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md",
+          "documentationPath": "decision:routine-maintenance-pr-delivery",
           "evidence": "No direct-main bypass actor is approved. Routine maintenance uses pull-request delivery; PR #14 proved routine PR delivery before enforcement, and PR #16 proved it under active required checks.",
           "nextAction": "Keep routine maintenance on pull-request delivery unless a separate approved bypass is documented."
         },
@@ -2623,7 +2641,7 @@
           ],
           "cleanupRequired": true,
           "evidenceStatus": "passed",
-          "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
+          "documentationPath": "decision:pr-delivery-transition-checklist",
           "nextAction": "Keep this proof fresh before enforcement; routine PR delivery is now proven by PR #14."
         },
         "candidateCheckExerciseEvidence": {
@@ -2705,7 +2723,7 @@
           "mergeMethod": "rebase",
           "cleanupState": "merged-pr-and-deleted-branch",
           "evidenceSummary": "Routine maintenance PR #14 merged by rebase after all six candidate checks passed. GitHub deleted the routine-pr-drill-evidence branch after merge. Squash and merge-commit methods are disabled for this repository.",
-          "documentationPath": "docs/decisions/2026-06-07-routine-maintenance-pr-delivery.md",
+          "documentationPath": "decision:routine-maintenance-pr-delivery",
           "nextAction": "Required-check enforcement proof is now recorded by PR #16; keep future maintenance on PR delivery."
         },
         "requiredCheckEnforcementEvidence": {
@@ -2753,7 +2771,7 @@
           "mergeMethod": "rebase",
           "cleanupState": "merged-pr-and-deleted-branch",
           "evidenceSummary": "PR #16 was the first normal maintenance pull request after branch-protection required checks were enabled. GitHub required all six candidate checks, every candidate check passed on head SHA 8575e324182b96527bb9b58420d5ff44e3c05c06, and the pull request merged by rebase.",
-          "documentationPath": "docs/decisions/2026-06-07-pr-delivery-transition-checklist.md",
+          "documentationPath": "decision:pr-delivery-transition-checklist",
           "nextAction": "Keep monitoring required checks on routine pull requests and re-query branch protection after check-name changes."
         },
         "items": [
@@ -2811,7 +2829,7 @@
       "directMainBypassApproved": false,
       "reviewerModel": "single-maintainer-profile-repo",
       "scorecardCodeReviewClassification": "external-gated-reviewer-model",
-      "documentationPath": "docs/decisions/2026-06-07-review-policy-posture.md",
+      "documentationPath": "decision:review-policy-posture",
       "evidence": "Branch protection requires status checks and PR #16 proved required-check PR delivery, but branch protection does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model.",
       "nextAction": "Define an independent reviewer or team model before requiring pull request reviews or code-owner reviews."
     },
@@ -2927,55 +2945,25 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.124",
-    "expectedDate": "2026-06-07",
+    "expectedVersion": "v4.9.125",
+    "expectedDate": "2026-06-11",
     "versions": [
       {
-        "path": "CHANGELOG.md",
-        "field": "latestChangelogVersion",
-        "value": "v4.9.124"
-      },
-      {
-        "path": "ROADMAP.md",
-        "field": "currentRepoVersion",
-        "value": "v4.9.124"
-      },
-      {
-        "path": "PROJECT_CONTEXT.md",
+        "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.124"
-      },
-      {
-        "path": "RESEARCH_REPORT.md",
-        "field": "currentVersionAfterRefresh",
-        "value": "v4.9.124"
+        "value": "v4.9.125"
       }
     ],
     "dates": [
       {
-        "path": "CHANGELOG.md",
-        "field": "latestChangelogDate",
-        "value": "2026-06-07"
-      },
-      {
-        "path": "ROADMAP.md",
-        "field": "latestProfileSync",
-        "value": "2026-06-07"
-      },
-      {
-        "path": "PROJECT_CONTEXT.md",
-        "field": "latestSyncDate",
-        "value": "2026-06-07"
-      },
-      {
-        "path": "RESEARCH_REPORT.md",
-        "field": "researchRefresh",
-        "value": "2026-06-07"
+        "path": "data/profile-version.json",
+        "field": "date",
+        "value": "2026-06-11"
       }
     ],
     "changelogHeadingValidation": {
       "passed": true,
-      "headingCount": 136,
+      "headingCount": 0,
       "malformedCount": 0,
       "malformedHeadings": []
     },
@@ -2985,14 +2973,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.124",
+    "expectedVersion": "v4.9.125",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
-    "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
+    "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.124",
+    "expectedTag": "v4.9.125",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -3002,20 +2990,20 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.124",
+        "expectedVersion": "v4.9.125",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.124",
+        "expectedVersion": "v4.9.125",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
     ],
     "releasePolicy": {
       "status": "documented-internal-version-gap",
-      "decisionDocumentPath": "docs/decisions/2026-06-07-profile-release-tag-policy.md",
+      "decisionDocumentPath": "decision:profile-release-tag-policy",
       "planningVersionKind": "profile-sync-internal-evidence-version",
       "publicReleaseCadence": "manual-public-milestone-only",
       "warningDisposition": "informational",
@@ -3031,7 +3019,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 7567,
+      "elapsedMs": 4772,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3064,41 +3052,41 @@
     "fatalCount": 0,
     "informationalCount": 0,
     "generatedAt": {
-      "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 5.68,
+      "value": "2026-06-01T16:18:55.0998940-04:00",
+      "ageDays": 9.4,
       "staleAfterDays": 7,
-      "stale": false,
-      "warning": null
+      "stale": true,
+      "warning": "projects.json generatedAt is older than 7 days"
     }
   },
   "linkValidationSkipped": false,
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 7567,
+    "elapsedMs": 4772,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 61407,
+    "byteCount": 61947,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
   },
   "readmeDensity": {
-    "lineCount": 587,
+    "lineCount": 589,
     "detailsSectionCount": 11,
-    "tableRowCount": 110,
-    "projectRowCount": 166,
+    "tableRowCount": 112,
+    "projectRowCount": 168,
     "categoryCount": 10,
     "categorySoftLimit": 30,
     "lowSignalSoftLimit": 15,
     "largestCategory": "powershell",
     "largestCategoryCount": 30,
-    "repoOnlyProjectCount": 57,
-    "lowSignalProjectCount": 34,
+    "repoOnlyProjectCount": 59,
+    "lowSignalProjectCount": 35,
     "portfolioOnlyCandidateCount": 0,
     "portfolioOnlyCandidateCategoryCount": 0,
     "portfolioOnlyCandidateCategories": [],
@@ -3110,8 +3098,8 @@
       "candidateSource": "readmeDensity.portfolioOnlyCandidates",
       "candidateCount": 0,
       "candidateRepos": [],
-      "currentProjectRowCount": 166,
-      "previewProjectRowCount": 166,
+      "currentProjectRowCount": 168,
+      "previewProjectRowCount": 168,
       "projectRowDelta": 0,
       "currentLargestCategory": "powershell",
       "previewLargestCategory": "powershell",
@@ -3192,8 +3180,8 @@
         {
           "category": "desktop",
           "displayName": "Desktop",
-          "currentProjectCount": 19,
-          "previewProjectCount": 19,
+          "currentProjectCount": 21,
+          "previewProjectCount": 21,
           "projectRowDelta": 0,
           "currentOverSoftLimitBy": 0,
           "previewOverSoftLimitBy": 0
@@ -3267,7 +3255,7 @@
         "projectCount": 23,
         "actionableCount": 20,
         "repoOnlyCount": 3,
-        "lowSignalCount": 2,
+        "lowSignalCount": 1,
         "overCategorySoftLimitBy": 0,
         "portfolioOnlyCandidateCount": 0,
         "routingRecommendation": "keep-in-readme",
@@ -3316,10 +3304,10 @@
       {
         "category": "desktop",
         "displayName": "Desktop",
-        "projectCount": 19,
+        "projectCount": 21,
         "actionableCount": 11,
-        "repoOnlyCount": 8,
-        "lowSignalCount": 6,
+        "repoOnlyCount": 10,
+        "lowSignalCount": 8,
         "overCategorySoftLimitBy": 0,
         "portfolioOnlyCandidateCount": 0,
         "routingRecommendation": "keep-in-readme",
@@ -3362,7 +3350,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 61407,
+        "value": 61947,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -3371,7 +3359,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 587,
+        "value": 589,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -3380,7 +3368,7 @@
       {
         "artifact": "README.md",
         "metric": "tableRows",
-        "value": 110,
+        "value": 112,
         "softLimit": 220,
         "overSoftLimit": false,
         "warning": null,
@@ -3416,7 +3404,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 399555,
+        "value": 404004,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3425,7 +3413,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 112401,
+        "value": 112498,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3452,17 +3440,17 @@
     ]
   },
   "renderedProfileSmoke": {
-    "status": "passed",
-    "generatedAt": "2026-06-07T08:38:17.6232990-04:00",
-    "url": "https://github.com/SysAdminDoc",
-    "viewportCount": 2,
-    "passedViewportCount": 2,
+    "status": "not-run",
+    "generatedAt": null,
+    "url": null,
+    "viewportCount": 0,
+    "passedViewportCount": 0,
     "failedViewportCount": 0,
     "failedImageCount": 0,
     "missingSectionCount": 0,
     "overflowCount": 0,
-    "minimumRootClientWidth": 308,
-    "mobileRootClientWidth": 308,
+    "minimumRootClientWidth": null,
+    "mobileRootClientWidth": null,
     "warningCount": 0,
     "warnings": []
   },
@@ -3491,7 +3479,7 @@
     "currentlyBuildingActionColumn": true,
     "categoryAnchorCount": 10,
     "missingCategoryAnchors": [],
-    "primaryActionCoverage": 166,
+    "primaryActionCoverage": 168,
     "missingPrimaryActions": [],
     "unlabeledDownloadButtons": 0
   }
