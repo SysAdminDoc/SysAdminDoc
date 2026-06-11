@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "c0702bb74e7a27ee954a622e0dddfafdc8c6b6a0",
+    "sourceCommit": "edb83d13b4a0e7c0ccb818e075d9e5d46cde77b7",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
     "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T02:34:43.2142961-04:00",
+    "metadataSnapshotAt": "2026-06-11T02:50:15.3100397-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -54,15 +54,15 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 7,
-      "latestReleaseTag": "v1.21.5",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.5",
+      "latestReleaseTag": "v1.21.6",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.6",
       "releaseAssetKinds": [
         "apk"
       ],
       "releaseAssetNames": [
-        "ZeusWatch-freenet-v1.21.5.apk",
-        "ZeusWatch-standard-v1.21.5.apk",
-        "ZeusWatch-wear-v1.21.5.apk"
+        "ZeusWatch-freenet-v1.21.6.apk",
+        "ZeusWatch-standard-v1.21.6.apk",
+        "ZeusWatch-wear-v1.21.6.apk"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -81,7 +81,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:27:09.0000000Z",
+      "pushedAt": "2026-06-11T06:46:53.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -153,7 +153,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:29:50.0000000Z",
+      "pushedAt": "2026-06-11T06:46:22.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -218,7 +218,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:31:58.0000000Z",
+      "pushedAt": "2026-06-11T06:47:50.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -509,7 +509,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:54:44.0000000Z",
+      "pushedAt": "2026-06-11T06:44:46.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -602,7 +602,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:25:42.0000000Z",
+      "pushedAt": "2026-06-11T06:40:18.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1220,7 +1220,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:20:31.0000000Z",
+      "pushedAt": "2026-06-11T06:42:20.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2848,7 +2848,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:30:03.0000000Z",
+      "pushedAt": "2026-06-11T06:36:38.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -2919,7 +2919,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:14:42.0000000Z",
+      "pushedAt": "2026-06-11T06:34:44.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -3128,7 +3128,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T05:19:09.0000000Z",
+      "pushedAt": "2026-06-11T06:44:01.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -4591,7 +4591,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:22:57.0000000Z",
+      "pushedAt": "2026-06-11T06:47:17.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -4931,7 +4931,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:34:40.0000000Z",
+      "pushedAt": "2026-06-11T06:48:00.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5495,7 +5495,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:18:40.0000000Z",
+      "pushedAt": "2026-06-11T06:48:54.0000000Z",
       "topics": [
         "compliance",
         "mitre",
@@ -5573,7 +5573,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:33:41.0000000Z",
+      "pushedAt": "2026-06-11T06:48:33.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -7409,7 +7409,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:28:21.0000000Z",
+      "pushedAt": "2026-06-11T06:46:14.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -8997,7 +8997,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T06:28:38.0000000Z",
+      "pushedAt": "2026-06-11T06:40:18.0000000Z",
       "topics": [
         "ai",
         "automation",
