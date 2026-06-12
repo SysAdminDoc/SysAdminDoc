@@ -3086,6 +3086,7 @@ Describe 'Workflow timeout budgets' {
         $script:WorkflowTimeoutBudgets = [ordered]@{
             '.github/workflows/automation-branch-cleanup.yml' = 1
             '.github/workflows/assets-refresh.yml' = 1
+            '.github/workflows/dependabot-auto-merge.yml' = 1
             '.github/workflows/profile-sync.yml' = 4
             '.github/workflows/scorecard.yml' = 1
             '.github/workflows/tests.yml' = 4
@@ -3179,6 +3180,7 @@ Describe 'CI validation tool pins' {
 Describe 'Dependabot GitHub Actions update grouping' {
     BeforeAll {
         $script:DependabotConfig = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') -Raw
+        $script:DependabotAutoMergeWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/dependabot-auto-merge.yml') -Raw
     }
 
     It 'groups routine minor and patch action updates while leaving majors separate' {
@@ -3191,6 +3193,27 @@ Describe 'Dependabot GitHub Actions update grouping' {
     It 'delays fresh version updates with Dependabot cooldown windows' {
         $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "github-actions".*?cooldown:\s*\r?\n\s+default-days: 7'
         $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "npm".*?cooldown:\s*\r?\n\s+default-days: 7\s*\r?\n\s+semver-major-days: 30\s*\r?\n\s+semver-minor-days: 7\s*\r?\n\s+semver-patch-days: 3'
+    }
+
+    It 'enables auto-merge only for Dependabot GitHub Actions minor and patch updates' {
+        $script:DependabotAutoMergeWorkflow | Should -Match '(?m)^  pull_request_target:\s*$'
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match '(?m)^  pull_request:\s*$'
+        $script:DependabotAutoMergeWorkflow | Should -Match "github[.]event[.]pull_request[.]user[.]login == 'dependabot\[bot\]'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "github[.]repository == 'SysAdminDoc/SysAdminDoc'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]package-ecosystem == 'github-actions'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]update-type == 'version-update:semver-minor'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]update-type == 'version-update:semver-patch'"
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match "version-update:semver-major.*gh pr merge"
+    }
+
+    It 'pins fetch-metadata v2 and uses scoped write permissions without checking out PR code' {
+        $script:DependabotAutoMergeWorkflow | Should -Match 'permissions: \{\}'
+        $script:DependabotAutoMergeWorkflow | Should -Match '(?ms)permissions:\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match 'actions/checkout@'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a'
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match 'dependabot/fetch-metadata@v'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'gh pr merge --auto --merge "\$PR_URL"'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'GH_TOKEN: \$\{\{ github[.]token \}\}'
     }
 }
 
