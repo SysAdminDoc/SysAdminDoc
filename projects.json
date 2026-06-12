@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5b94235f738cb76ae88f54b10411fa45bd8ff8ff",
-    "catalogSha256": "31e6d89ae28dec320d1ddcc11f4fa7b6ff56f4478e6ef7ae1e3d1b9a68ceace5",
+    "sourceCommit": "c00cbc62e2291d5ff16be2e054bdcc4e1de7084a",
+    "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
     "generatorSha256": "7e58087f49efc11b138635cf1a323c1bdd9748cf4592a496e6d4f02178789e4b",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T07:47:14.6536457-04:00",
+    "metadataSnapshotAt": "2026-06-12T07:55:21.1587185-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -298,7 +298,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:34:51.0000000Z",
+      "pushedAt": "2026-06-12T11:49:04.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -2718,7 +2718,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T11:20:48.0000000Z",
+      "pushedAt": "2026-06-12T11:55:00.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2777,7 +2777,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T11:40:39.0000000Z",
+      "pushedAt": "2026-06-12T11:55:21.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4491,9 +4491,9 @@
       "suppressed": false,
       "suppressionReason": null,
       "description": "Curated Android debloat list with vulnerability notes — companion to AppManagerNG",
-      "forkOf": null,
-      "forkOfUrl": null,
-      "upstreamLicense": null,
+      "forkOf": "MuntashirAkon/android-debloat-list",
+      "forkOfUrl": "https://github.com/MuntashirAkon/android-debloat-list",
+      "upstreamLicense": "AGPL-3.0",
       "licenseKey": "agpl-3.0",
       "licenseName": "GNU Affero General Public License v3.0",
       "licenseSpdxId": "AGPL-3.0",
@@ -5432,7 +5432,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:44:18.0000000Z",
+      "pushedAt": "2026-06-12T11:47:25.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -9005,7 +9005,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:46:08.0000000Z",
+      "pushedAt": "2026-06-12T11:50:55.0000000Z",
       "topics": [
         "ai",
         "automation",
