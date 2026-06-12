@@ -1222,8 +1222,13 @@
         "missingVersionCount",
         "missingUpdateUrlCount",
         "missingDownloadUrlCount",
+        "updateUrlProbeFailureCount",
+        "downloadUrlProbeFailureCount",
+        "updateUrlRefMismatchCount",
+        "downloadUrlRefMismatchCount",
         "broadScopeCount",
         "warningCount",
+        "fatalCount",
         "rows",
         "note"
       ],
@@ -1264,10 +1269,25 @@
         "missingDownloadUrlCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "updateUrlProbeFailureCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "downloadUrlProbeFailureCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "updateUrlRefMismatchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "downloadUrlRefMismatchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "broadScopeCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "fatalCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "rows": {
@@ -1301,6 +1321,14 @@
         "version",
         "updateUrl",
         "downloadUrl",
+        "updateUrlSourceRef",
+        "updateUrlRefMatchesSource",
+        "updateUrlProbeSucceeded",
+        "updateUrlProbeStatusCode",
+        "downloadUrlSourceRef",
+        "downloadUrlRefMatchesSource",
+        "downloadUrlProbeSucceeded",
+        "downloadUrlProbeStatusCode",
         "matchCount",
         "includeCount",
         "grantCount",
@@ -1308,6 +1336,7 @@
         "requireCount",
         "broadScope",
         "warningCount",
+        "fatalCount",
         "warnings"
       ],
       "properties": {
@@ -1365,6 +1394,30 @@
         "downloadUrl": {
           "$ref": "#/$defs/nullableUri"
         },
+        "updateUrlSourceRef": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "updateUrlRefMatchesSource": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "updateUrlProbeSucceeded": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "updateUrlProbeStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "downloadUrlSourceRef": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "downloadUrlRefMatchesSource": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "downloadUrlProbeSucceeded": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "downloadUrlProbeStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
         "matchCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -1386,6 +1439,9 @@
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "warnings": {
           "type": "array",
           "items": {
@@ -1399,7 +1455,8 @@
       "additionalProperties": false,
       "required": [
         "kind",
-        "message"
+        "message",
+        "fatal"
       ],
       "properties": {
         "kind": {
@@ -1407,6 +1464,9 @@
         },
         "message": {
           "type": "string"
+        },
+        "fatal": {
+          "type": "boolean"
         }
       }
     },

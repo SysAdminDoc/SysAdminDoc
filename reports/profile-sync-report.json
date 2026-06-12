@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-11T03:29:30.3284895-04:00",
+  "generatedAt": "2026-06-12T07:22:38.5458488-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "076bd80f4a887726a4a2d0292891330a73544663",
+    "sourceCommit": "473d905a7c494404456f5adb807844ddd0efdb7b",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
-    "generatorSha256": "d89345e15e8d35dee3e2490c0e73a32f40dfa7b47684257c6baf145f8b32309d",
+    "generatorSha256": "c66e54960eb5b6c079994a7fa2af6ea6d1558fe6e8e1becacc3c830e566c35a9",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T03:25:13.7741521-04:00",
+    "metadataSnapshotAt": "2026-06-12T07:20:59.1585622-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-11T07:06:04.0000000Z",
+        "pushedAt": "2026-06-12T04:23:41.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -193,7 +193,7 @@
       {
         "repo": "CallShield",
         "language": "Kotlin",
-        "pushedAt": "2026-06-10T17:46:53.0000000Z",
+        "pushedAt": "2026-06-12T11:14:16.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -203,7 +203,7 @@
       {
         "repo": "ClearGem",
         "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:33:39.0000000Z",
+        "pushedAt": "2026-06-12T11:20:41.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -419,7 +419,7 @@
       {
         "repo": "IMDb_Enhanced",
         "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:43:49.0000000Z",
+        "pushedAt": "2026-06-12T11:20:42.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -535,7 +535,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-11T07:16:13.0000000Z",
+        "pushedAt": "2026-06-12T04:00:56.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -684,7 +684,7 @@
       {
         "repo": "RcloneBrowserNG",
         "language": "C++",
-        "pushedAt": "2026-06-10T22:25:38.0000000Z",
+        "pushedAt": "2026-06-12T11:18:50.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -695,7 +695,7 @@
       {
         "repo": "REDplusplus",
         "language": "C#",
-        "pushedAt": "2026-06-10T20:53:33.0000000Z",
+        "pushedAt": "2026-06-12T11:20:48.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -1190,7 +1190,7 @@
       },
       {
         "kind": "other",
-        "count": 35
+        "count": 36
       },
       {
         "kind": "script",
@@ -1216,11 +1216,11 @@
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum",
-        "count": 22
+        "count": 23
       },
       {
         "trustLevel": "metadata-only",
-        "count": 113
+        "count": 112
       },
       {
         "trustLevel": "unknown",
@@ -1671,11 +1671,11 @@
       },
       {
         "repo": "ZeusWatch",
-        "latestReleaseTag": "v1.21.8",
+        "latestReleaseTag": "v1.23.0",
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "metadata-only"
+        "trustLevel": "checksum"
       }
     ],
     "debugArtifactRows": [
@@ -1839,10 +1839,15 @@
     "metadataBlockCount": 11,
     "missingMetadataBlockCount": 0,
     "missingVersionCount": 0,
-    "missingUpdateUrlCount": 2,
-    "missingDownloadUrlCount": 2,
+    "missingUpdateUrlCount": 0,
+    "missingDownloadUrlCount": 0,
+    "updateUrlProbeFailureCount": 0,
+    "downloadUrlProbeFailureCount": 0,
+    "updateUrlRefMismatchCount": 0,
+    "downloadUrlRefMismatchCount": 0,
     "broadScopeCount": 3,
-    "warningCount": 7,
+    "warningCount": 3,
+    "fatalCount": 0,
     "rows": [
       {
         "repo": "Chapterizer",
@@ -1859,25 +1864,25 @@
         "metadataBlockClosed": true,
         "name": "Chapterizer",
         "version": "3.0.0",
-        "updateUrl": null,
-        "downloadUrl": null,
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 2,
         "includeCount": 0,
         "grantCount": 6,
         "connectCount": 1,
         "requireCount": 0,
         "broadScope": false,
-        "warningCount": 2,
-        "warnings": [
-          {
-            "kind": "update-url-missing",
-            "message": "Userscript metadata is missing an explicit @updateURL."
-          },
-          {
-            "kind": "download-url-missing",
-            "message": "Userscript metadata is missing an explicit @downloadURL."
-          }
-        ]
+        "warningCount": 0,
+        "fatalCount": 0,
+        "warnings": []
       },
       {
         "repo": "Claude-Ultimate-Enhancer",
@@ -1896,6 +1901,14 @@
         "version": "1.1.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 3,
@@ -1903,6 +1916,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -1920,8 +1934,16 @@
         "metadataBlockClosed": true,
         "name": "ClearGem",
         "version": "1.0.2",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
+        "updateUrlSourceRef": "master",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "master",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 2,
         "includeCount": 0,
         "grantCount": 2,
@@ -1929,6 +1951,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -1948,6 +1971,14 @@
         "version": "3.0.0",
         "updateUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 6,
@@ -1955,10 +1986,12 @@
         "requireCount": 0,
         "broadScope": true,
         "warningCount": 1,
+        "fatalCount": 0,
         "warnings": [
           {
             "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope."
+            "message": "Userscript metadata includes an all-sites @match or @include scope.",
+            "fatal": false
           }
         ]
       },
@@ -1979,6 +2012,14 @@
         "version": "2.6.1",
         "updateUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 2,
         "includeCount": 0,
         "grantCount": 4,
@@ -1986,6 +2027,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -2005,6 +2047,14 @@
         "version": "42",
         "updateUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 4,
@@ -2012,6 +2062,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -2029,25 +2080,25 @@
         "metadataBlockClosed": true,
         "name": "IMDb Enhanced",
         "version": "2.3.1",
-        "updateUrl": null,
-        "downloadUrl": null,
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 10,
         "includeCount": 0,
         "grantCount": 7,
         "connectCount": 8,
         "requireCount": 0,
         "broadScope": false,
-        "warningCount": 2,
-        "warnings": [
-          {
-            "kind": "update-url-missing",
-            "message": "Userscript metadata is missing an explicit @updateURL."
-          },
-          {
-            "kind": "download-url-missing",
-            "message": "Userscript metadata is missing an explicit @downloadURL."
-          }
-        ]
+        "warningCount": 0,
+        "fatalCount": 0,
+        "warnings": []
       },
       {
         "repo": "MediaDL",
@@ -2066,6 +2117,14 @@
         "version": "4.0.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 5,
@@ -2073,10 +2132,12 @@
         "requireCount": 0,
         "broadScope": true,
         "warningCount": 1,
+        "fatalCount": 0,
         "warnings": [
           {
             "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope."
+            "message": "Userscript metadata includes an all-sites @match or @include scope.",
+            "fatal": false
           }
         ]
       },
@@ -2097,6 +2158,14 @@
         "version": "2.8.1",
         "updateUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 3,
         "includeCount": 0,
         "grantCount": 7,
@@ -2104,6 +2173,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -2123,6 +2193,14 @@
         "version": "1.0.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 8,
@@ -2130,10 +2208,12 @@
         "requireCount": 0,
         "broadScope": true,
         "warningCount": 1,
+        "fatalCount": 0,
         "warnings": [
           {
             "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope."
+            "message": "Userscript metadata includes an all-sites @match or @include scope.",
+            "fatal": false
           }
         ]
       },
@@ -2154,6 +2234,14 @@
         "version": "0.4.1",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 7,
         "includeCount": 0,
         "grantCount": 5,
@@ -2161,6 +2249,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       }
     ],
@@ -2306,7 +2395,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-11T03:25:13.7741521-04:00",
+          "queriedAt": "2026-06-12T07:20:59.1585622-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -3019,7 +3108,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 5098,
+      "elapsedMs": 4045,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3053,7 +3142,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 9.47,
+      "ageDays": 10.63,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -3063,7 +3152,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 5098,
+    "elapsedMs": 4045,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3343,9 +3432,11 @@
     ]
   },
   "artifactBudgets": {
-    "status": "within-budget",
-    "warningCount": 0,
-    "warnings": [],
+    "status": "warning",
+    "warningCount": 1,
+    "warnings": [
+      "reports/profile-sync-report.json bytes is 116477, above the 114688 soft limit."
+    ],
     "rows": [
       {
         "artifact": "README.md",
@@ -3404,7 +3495,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 404004,
+        "value": 404316,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3413,10 +3504,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 112317,
+        "value": 116477,
         "softLimit": 114688,
-        "overSoftLimit": false,
-        "warning": null,
+        "overSoftLimit": true,
+        "warning": "reports/profile-sync-report.json bytes is 116477, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {

@@ -980,8 +980,12 @@ Describe 'Report schema depth helpers' {
 // ==/UserScript==
 '@
         }
+        $probeByUrl = @{
+            'https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.meta.js' = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            'https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.user.js' = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+        }
 
-        $result = Test-UserscriptInstallTrust -Entries @($broad, $scoped) -ContentByUrl $contentByUrl
+        $result = Test-UserscriptInstallTrust -Entries @($broad, $scoped) -ContentByUrl $contentByUrl -ProbeByUrl $probeByUrl
 
         $result.checkedCount | Should -Be 2
         $result.rawGitHubCount | Should -Be 2
@@ -992,16 +996,79 @@ Describe 'Report schema depth helpers' {
         $result.missingUpdateUrlCount | Should -Be 1
         $result.missingDownloadUrlCount | Should -Be 1
         $result.warningCount | Should -Be 3
+        $result.fatalCount | Should -Be 0
+        $result.updateUrlProbeFailureCount | Should -Be 0
+        $result.downloadUrlProbeFailureCount | Should -Be 0
+        $result.updateUrlRefMismatchCount | Should -Be 0
+        $result.downloadUrlRefMismatchCount | Should -Be 0
         $broadRow = $result.rows | Where-Object { $_.repo -eq 'BroadScript' }
         $broadRow.name | Should -Be 'Broad Script'
         $broadRow.sourceRef | Should -Be 'main'
         $broadRow.sourceRefType | Should -Be 'branch'
+        $broadRow.fatalCount | Should -Be 0
         ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'scope-broad'
         ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-missing'
         ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-missing'
+        @($broadRow.warnings | Where-Object { $_.fatal }).Count | Should -Be 0
         $scopedRow = $result.rows | Where-Object { $_.repo -eq 'ScopedScript' }
         $scopedRow.sourceRefType | Should -Be 'tag'
+        $scopedRow.updateUrlSourceRef | Should -Be 'v1.2.3'
+        $scopedRow.updateUrlRefMatchesSource | Should -BeTrue
+        $scopedRow.updateUrlProbeSucceeded | Should -BeTrue
+        $scopedRow.updateUrlProbeStatusCode | Should -Be 200
+        $scopedRow.downloadUrlSourceRef | Should -Be 'v1.2.3'
+        $scopedRow.downloadUrlRefMatchesSource | Should -BeTrue
+        $scopedRow.downloadUrlProbeSucceeded | Should -BeTrue
+        $scopedRow.downloadUrlProbeStatusCode | Should -Be 200
         $scopedRow.warningCount | Should -Be 0
+    }
+
+    It 'flags userscript update and download URL ref mismatches and dead raw URLs' {
+        $entry = New-TestEntry -Repo 'MismatchScript' -Category 'extensions'
+        $entry.downloadKind = 'userscript'
+        $entry.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/MismatchScript/master/MismatchScript.user.js'
+        $updateUrl = 'https://raw.githubusercontent.com/SysAdminDoc/MismatchScript/main/MismatchScript.meta.js'
+        $downloadUrl = 'https://raw.githubusercontent.com/SysAdminDoc/MismatchScript/main/MismatchScript.user.js'
+        $contentByUrl = @{
+            $entry.userscriptUrl = @"
+// ==UserScript==
+// @name        Mismatch Script
+// @version     1.0.0
+// @match       https://example.com/*
+// @updateURL   $updateUrl
+// @downloadURL $downloadUrl
+// @grant       none
+// ==/UserScript==
+"@
+        }
+        $probeByUrl = @{
+            $updateUrl = [ordered]@{ ok = $false; status = 404; error = 'Not Found'; fatal = $true }
+            $downloadUrl = [ordered]@{ ok = $false; status = 404; error = 'Not Found'; fatal = $true }
+        }
+
+        $result = Test-UserscriptInstallTrust -Entries @($entry) -ContentByUrl $contentByUrl -ProbeByUrl $probeByUrl
+        $row = $result.rows[0]
+
+        $result.warningCount | Should -Be 4
+        $result.fatalCount | Should -Be 2
+        $result.updateUrlProbeFailureCount | Should -Be 1
+        $result.downloadUrlProbeFailureCount | Should -Be 1
+        $result.updateUrlRefMismatchCount | Should -Be 1
+        $result.downloadUrlRefMismatchCount | Should -Be 1
+        $row.sourceRef | Should -Be 'master'
+        $row.updateUrlSourceRef | Should -Be 'main'
+        $row.downloadUrlSourceRef | Should -Be 'main'
+        $row.updateUrlRefMatchesSource | Should -BeFalse
+        $row.downloadUrlRefMatchesSource | Should -BeFalse
+        $row.updateUrlProbeSucceeded | Should -BeFalse
+        $row.downloadUrlProbeSucceeded | Should -BeFalse
+        $row.updateUrlProbeStatusCode | Should -Be 404
+        $row.downloadUrlProbeStatusCode | Should -Be 404
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-ref-mismatch'
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-ref-mismatch'
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-unreachable'
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-unreachable'
+        ($row.warnings | Where-Object { $_.fatal }).Count | Should -Be 2
     }
 }
 
