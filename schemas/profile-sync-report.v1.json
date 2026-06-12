@@ -4664,6 +4664,7 @@
       "additionalProperties": false,
       "required": [
         "repo",
+        "category",
         "field",
         "oldValue",
         "newValue",
@@ -4672,6 +4673,9 @@
       ],
       "properties": {
         "repo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "category": {
           "$ref": "#/$defs/nullableString"
         },
         "field": {

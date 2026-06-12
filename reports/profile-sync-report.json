@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-12T07:59:16.3062509-04:00",
+  "generatedAt": "2026-06-12T08:08:09.4882205-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "c00cbc62e2291d5ff16be2e054bdcc4e1de7084a",
+    "sourceCommit": "d44865dce08d033b59a7b255ecc45460575aed02",
     "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
-    "generatorSha256": "7e58087f49efc11b138635cf1a323c1bdd9748cf4592a496e6d4f02178789e4b",
+    "generatorSha256": "6f6ef478f85f20c541455576a941bfd69cd1e2861770714fa2b37147762e2d31",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T07:55:21.1587185-04:00",
+    "metadataSnapshotAt": "2026-06-12T08:04:49.1614582-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -535,7 +535,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-12T11:39:36.0000000Z",
+        "pushedAt": "2026-06-12T12:01:29.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -684,7 +684,7 @@
       {
         "repo": "RcloneBrowserNG",
         "language": "C++",
-        "pushedAt": "2026-06-12T11:55:21.0000000Z",
+        "pushedAt": "2026-06-12T12:05:12.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -695,7 +695,7 @@
       {
         "repo": "REDplusplus",
         "language": "C#",
-        "pushedAt": "2026-06-12T11:55:00.0000000Z",
+        "pushedAt": "2026-06-12T12:04:51.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -2334,7 +2334,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-12T07:55:21.1587185-04:00",
+          "queriedAt": "2026-06-12T08:04:49.1614582-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -3047,7 +3047,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4132,
+      "elapsedMs": 4001,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3081,7 +3081,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 10.65,
+      "ageDays": 10.66,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -3091,7 +3091,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4132,
+    "elapsedMs": 4001,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
