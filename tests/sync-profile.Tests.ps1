@@ -1807,6 +1807,7 @@ Describe 'Feed JSON Schema contracts' {
         $metadataDrift = @(
             [ordered]@{
                 repo = 'ZeusWatch'
+                category = 'android'
                 field = 'releaseAssetNames'
                 oldValue = @('ZeusWatch-v1.21.3.apk', 'ZeusWatch-v1.21.3.apk.sha256')
                 newValue = @('ZeusWatch-v1.21.4.apk')
@@ -2894,8 +2895,53 @@ Describe 'Profile sync report summaries' {
         }
     }
 
+    It 'lists fatal metadata drift rows in summaries and GitHub annotations' {
+        $reportPath = New-TemporaryFile
+        $summaryPath = New-TemporaryFile
+        try {
+            $report = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
+            $report.metadataDrift = @(
+                [pscustomobject]@{
+                    repo = 'BadRepo'
+                    category = 'web'
+                    field = 'primaryAction.url'
+                    oldValue = 'https://old.example/install'
+                    newValue = 'https://new.example/install'
+                    severity = 'fatal'
+                    failing = $true
+                },
+                [pscustomobject]@{
+                    repo = $null
+                    category = $null
+                    field = 'provenance.catalogSha256'
+                    oldValue = 'aaa'
+                    newValue = 'bbb'
+                    severity = 'fatal'
+                    failing = $true
+                }
+            )
+            $report.metadataDriftSummary.fatalCount = 2
+            $report | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $reportPath.FullName -Encoding utf8
+
+            $output = pwsh -NoProfile -File $script:SummaryScriptPath -ReportPath $reportPath.FullName -SummaryPath $summaryPath.FullName -Context 'Fatal drift test' 2>&1
+            $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
+
+            $summary | Should -Match 'Fatal Metadata Drift Details'
+            $summary | Should -Match 'BadRepo'
+            $summary | Should -Match 'web'
+            $summary | Should -Match 'primaryAction[.]url'
+            ($output -join "`n") | Should -Match '::error file=projects[.]json,title=Fatal metadata drift::repo=BadRepo; category=web; field=primaryAction[.]url'
+            ($output -join "`n") | Should -Match 'repo=top-level; category=top-level; field=provenance[.]catalogSha256'
+        } finally {
+            Remove-Item -LiteralPath $reportPath.FullName -Force -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath $summaryPath.FullName -Force -ErrorAction SilentlyContinue
+        }
+    }
+
     It 'emits GitHub annotations and uses aggregate report sections only' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
+        $script:SummaryScript | Should -Match 'metadataDrift'
+        $script:SummaryScript | Should -Match 'Fatal Metadata Drift Details'
         $script:SummaryScript | Should -Match 'linkValidationSummary'
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'forkParentDrift'

@@ -19,6 +19,74 @@ function Get-Count {
     return @($Value).Count
 }
 
+function ConvertTo-CompactSummaryValue {
+    param(
+        [object]$Value,
+        [int]$MaxLength = 180
+    )
+
+    if ($null -eq $Value) {
+        return "null"
+    }
+
+    $text = $null
+    if ($Value -is [string]) {
+        $text = [string]$Value
+    } else {
+        try {
+            $text = $Value | ConvertTo-Json -Depth 8 -Compress
+        } catch {
+            $text = [string]$Value
+        }
+    }
+
+    $text = (($text -replace '\s+', ' ').Trim())
+    if ($text.Length -gt $MaxLength) {
+        return ($text.Substring(0, [Math]::Max(0, $MaxLength - 3)) + "...")
+    }
+
+    return $text
+}
+
+function ConvertTo-MarkdownCell {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return ""
+    }
+
+    return (($Value -replace '\|', '\|') -replace "\r?\n", " ")
+}
+
+function ConvertTo-GitHubAnnotationValue {
+    param([string]$Value)
+
+    if ($null -eq $Value) {
+        return ""
+    }
+
+    return $Value.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
+}
+
+function Get-ObjectPropertyOrDefault {
+    param(
+        [object]$Object,
+        [string]$Name,
+        [object]$Default = $null
+    )
+
+    if ($null -eq $Object -or $Object.PSObject.Properties.Name -notcontains $Name) {
+        return $Default
+    }
+
+    $value = $Object.$Name
+    if ($null -eq $value) {
+        return $Default
+    }
+
+    return $value
+}
+
 if (-not (Test-Path -LiteralPath $ReportPath)) {
     $message = "Profile sync report not found at $ReportPath."
     Write-Output "::warning::$message"
@@ -63,10 +131,18 @@ $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopic
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
 $missingLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.missingCount } else { 0 }
 $unknownLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.unknownCount } else { 0 }
+$intentionalLicenseExceptionCount = if ($projectLicenseMetadata -and $projectLicenseMetadata.PSObject.Properties.Name -contains 'intentionalExceptionCount') { [int]$projectLicenseMetadata.intentionalExceptionCount } else { 0 }
+$unresolvedUnknownLicenseCount = if ($projectLicenseMetadata -and $projectLicenseMetadata.PSObject.Properties.Name -contains 'unresolvedUnknownCount') { [int]$projectLicenseMetadata.unresolvedUnknownCount } else { $unknownLicenseCount }
 $forkParentWarningCount = if ($forkParentDrift) { [int]$forkParentDrift.warningCount } else { 0 }
 $staleProjectWarningCount = if ($staleProjectReview) { [int]$staleProjectReview.warningCount } else { 0 }
 $archiveReviewCount = if ($staleProjectReview) { [int]$staleProjectReview.archiveReviewCount } else { 0 }
 $fatalDriftCount = if ($driftSummary) { [int]$driftSummary.fatalCount } else { 0 }
+$metadataDriftRows = if ($report.PSObject.Properties.Name -contains 'metadataDrift') { @($report.metadataDrift) } else { @() }
+$fatalDriftRows = @($metadataDriftRows | Where-Object {
+        $severity = [string](Get-ObjectPropertyOrDefault -Object $_ -Name "severity" -Default "")
+        $failing = [bool](Get-ObjectPropertyOrDefault -Object $_ -Name "failing" -Default $false)
+        $severity -eq "fatal" -or $failing
+    })
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
@@ -267,6 +343,8 @@ $summary = @"
 | Missing descriptions | $missingDescriptionCount |
 | Missing project licenses | $missingLicenseCount |
 | Unknown project licenses | $unknownLicenseCount |
+| Intentional license exceptions | $intentionalLicenseExceptionCount |
+| Unresolved unknown project licenses | $unresolvedUnknownLicenseCount |
 | Fork-parent warnings | $forkParentWarningCount |
 | Stale project review rows | $staleProjectWarningCount |
 | Archive review candidates | $archiveReviewCount |
@@ -374,6 +452,24 @@ $summary = @"
 Report generated at $($report.generatedAt).
 "@
 
+if ($fatalDriftRows.Count -gt 0) {
+    $detailLines = New-Object System.Collections.Generic.List[string]
+    $detailLines.Add("")
+    $detailLines.Add("#### Fatal Metadata Drift Details")
+    $detailLines.Add("")
+    $detailLines.Add("| Repo | Category | Field | Current | Expected |")
+    $detailLines.Add("| --- | --- | --- | --- | --- |")
+    foreach ($row in $fatalDriftRows) {
+        $repoLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "repo" -Default "top-level")
+        $categoryLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "category" -Default "top-level")
+        $fieldLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "field" -Default "unknown")
+        $currentValue = ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $row -Name "oldValue")
+        $expectedValue = ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $row -Name "newValue")
+        $detailLines.Add("| $(ConvertTo-MarkdownCell $repoLabel) | $(ConvertTo-MarkdownCell $categoryLabel) | $(ConvertTo-MarkdownCell $fieldLabel) | $(ConvertTo-MarkdownCell $currentValue) | $(ConvertTo-MarkdownCell $expectedValue) |")
+    }
+    $summary = $summary.TrimEnd() + "`n" + ($detailLines -join "`n") + "`n"
+}
+
 $githubStepSummaryHardLimitBytes = 1MB
 $githubStepSummarySoftLimitBytes = 65536
 $summaryByteCount = [Text.Encoding]::UTF8.GetByteCount($summary)
@@ -394,6 +490,15 @@ if (-not [string]::IsNullOrWhiteSpace($SummaryPath)) {
 
 if ($fatalDriftCount -gt 0) {
     Write-Output "::error::Profile sync report has $fatalDriftCount fatal metadata drift row(s)."
+    foreach ($row in $fatalDriftRows) {
+        $repoLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "repo" -Default "top-level")
+        $categoryLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "category" -Default "top-level")
+        $fieldLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "field" -Default "unknown")
+        $currentValue = ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $row -Name "oldValue") -MaxLength 120
+        $expectedValue = ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $row -Name "newValue") -MaxLength 120
+        $annotation = "repo=$repoLabel; category=$categoryLabel; field=$fieldLabel; current=$currentValue; expected=$expectedValue"
+        Write-Output "::error file=projects.json,title=Fatal metadata drift::$(ConvertTo-GitHubAnnotationValue $annotation)"
+    }
 }
 
 if ($catalogAccountingFatalCount -gt 0) {
@@ -440,8 +545,12 @@ if ($missingLicenseCount -gt 0) {
     Write-Output "::warning::Profile sync report has $missingLicenseCount visitor-facing project(s) without detected license metadata."
 }
 
-if ($unknownLicenseCount -gt 0) {
-    Write-Output "::warning::Profile sync report has $unknownLicenseCount visitor-facing project(s) with non-standard license metadata."
+if ($unresolvedUnknownLicenseCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $unresolvedUnknownLicenseCount visitor-facing project(s) with unresolved non-standard license metadata."
+}
+
+if ($intentionalLicenseExceptionCount -gt 0) {
+    Write-Output "::notice::Profile sync report has $intentionalLicenseExceptionCount documented non-standard license exception(s)."
 }
 
 if ($forkParentWarningCount -gt 0) {

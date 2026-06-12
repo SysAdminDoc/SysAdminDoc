@@ -6149,6 +6149,7 @@ function New-MetadataRowIndex {
 function New-MetadataDriftRecord {
     param(
         [string]$Repo,
+        [string]$Category,
         [string]$Field,
         [object]$OldValue,
         [object]$NewValue,
@@ -6157,6 +6158,7 @@ function New-MetadataDriftRecord {
 
     return [ordered]@{
         repo = if ([string]::IsNullOrWhiteSpace($Repo)) { $null } else { $Repo }
+        category = if ([string]::IsNullOrWhiteSpace($Category)) { $null } else { $Category }
         field = $Field
         oldValue = $OldValue
         newValue = $NewValue
@@ -6225,13 +6227,13 @@ function Test-MetadataDrift {
         }
         $current = $CurrentProjectsJson | ConvertFrom-Json
     } catch {
-        $drift.Add((New-MetadataDriftRecord -Repo $null -Field "projects.json" -OldValue "unreadable" -NewValue "valid generated feed" -Severity "fatal"))
+        $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field "projects.json" -OldValue "unreadable" -NewValue "valid generated feed" -Severity "fatal"))
     }
 
     try {
         $expected = $ExpectedProjectsJson | ConvertFrom-Json
     } catch {
-        $drift.Add((New-MetadataDriftRecord -Repo $null -Field "expectedProjects" -OldValue "generated feed" -NewValue "unreadable" -Severity "fatal"))
+        $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field "expectedProjects" -OldValue "generated feed" -NewValue "unreadable" -Severity "fatal"))
     }
 
     $generatedAtText = if ($current) { ConvertTo-IsoText (Get-MemberValue -Object $current -Name "generatedAt") } else { $null }
@@ -6265,7 +6267,7 @@ function Test-MetadataDrift {
             $oldValue = Get-MemberValue -Object $current -Name $field
             $newValue = Get-MemberValue -Object $expected -Name $field
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
             }
         }
 
@@ -6284,7 +6286,7 @@ function Test-MetadataDrift {
             $oldValue = Get-NestedMemberValue -Object $current -Path $field
             $newValue = Get-NestedMemberValue -Object $expected -Path $field
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
             }
         }
 
@@ -6292,7 +6294,7 @@ function Test-MetadataDrift {
             $oldValue = Get-NestedMemberValue -Object $current -Path $field
             $newValue = Get-NestedMemberValue -Object $expected -Path $field
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "info"))
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "info"))
             }
         }
 
@@ -6351,13 +6353,18 @@ function Test-MetadataDrift {
             } else {
                 [string](Get-MemberValue -Object $currentRows[$key] -Name "repo")
             }
+            $category = if ($hasExpected) {
+                [string](Get-MemberValue -Object $expectedRows[$key] -Name "category")
+            } else {
+                [string](Get-MemberValue -Object $currentRows[$key] -Name "category")
+            }
 
             if (-not $hasCurrent) {
-                $drift.Add((New-MetadataDriftRecord -Repo $repo -Field "row" -OldValue $null -NewValue "present" -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $repo -Category $category -Field "row" -OldValue $null -NewValue "present" -Severity "fatal"))
                 continue
             }
             if (-not $hasExpected) {
-                $drift.Add((New-MetadataDriftRecord -Repo $repo -Field "row" -OldValue "present" -NewValue $null -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $repo -Category $category -Field "row" -OldValue "present" -NewValue $null -Severity "fatal"))
                 continue
             }
 
@@ -6370,7 +6377,7 @@ function Test-MetadataDrift {
                         -ExpectedRow $expectedRows[$key] `
                         -Field $field
                     $severity = if ($infoFields -contains $field -or $releaseAssetInspectionDrift) { "info" } else { "fatal" }
-                    $drift.Add((New-MetadataDriftRecord -Repo $repo -Field $field -OldValue $oldValue -NewValue $newValue -Severity $severity))
+                    $drift.Add((New-MetadataDriftRecord -Repo $repo -Category $category -Field $field -OldValue $oldValue -NewValue $newValue -Severity $severity))
                 }
             }
         }
