@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-12T07:22:38.5458488-04:00",
+  "generatedAt": "2026-06-12T07:49:05.2593290-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "473d905a7c494404456f5adb807844ddd0efdb7b",
-    "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
-    "generatorSha256": "c66e54960eb5b6c079994a7fa2af6ea6d1558fe6e8e1becacc3c830e566c35a9",
+    "sourceCommit": "5b94235f738cb76ae88f54b10411fa45bd8ff8ff",
+    "catalogSha256": "31e6d89ae28dec320d1ddcc11f4fa7b6ff56f4478e6ef7ae1e3d1b9a68ceace5",
+    "generatorSha256": "7e58087f49efc11b138635cf1a323c1bdd9748cf4592a496e6d4f02178789e4b",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T07:20:59.1585622-04:00",
+    "metadataSnapshotAt": "2026-06-12T07:47:14.6536457-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -147,7 +147,7 @@
       {
         "repo": "ApocalypseWatch",
         "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:30:25.0000000Z",
+        "pushedAt": "2026-06-12T11:39:28.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -158,7 +158,7 @@
       {
         "repo": "AppManagerNG",
         "language": "Java",
-        "pushedAt": "2026-06-12T04:23:41.0000000Z",
+        "pushedAt": "2026-06-12T11:39:49.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -193,7 +193,7 @@
       {
         "repo": "CallShield",
         "language": "Kotlin",
-        "pushedAt": "2026-06-12T11:14:16.0000000Z",
+        "pushedAt": "2026-06-12T11:39:00.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -419,7 +419,7 @@
       {
         "repo": "IMDb_Enhanced",
         "language": "JavaScript",
-        "pushedAt": "2026-06-12T11:20:42.0000000Z",
+        "pushedAt": "2026-06-12T11:39:21.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -454,7 +454,7 @@
       {
         "repo": "kindred",
         "language": "HTML",
-        "pushedAt": "2026-06-09T12:13:44.0000000Z",
+        "pushedAt": "2026-06-12T11:39:25.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -535,7 +535,7 @@
       {
         "repo": "NovaCut",
         "language": "Kotlin",
-        "pushedAt": "2026-06-12T04:00:56.0000000Z",
+        "pushedAt": "2026-06-12T11:39:36.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -588,7 +588,7 @@
       {
         "repo": "OpenLumen",
         "language": "Kotlin",
-        "pushedAt": "2026-06-09T14:18:05.0000000Z",
+        "pushedAt": "2026-06-12T11:39:40.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -650,7 +650,7 @@
       {
         "repo": "PromptCompanion",
         "language": "Python",
-        "pushedAt": "2026-06-09T11:57:21.0000000Z",
+        "pushedAt": "2026-06-12T11:39:43.0000000Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -684,7 +684,7 @@
       {
         "repo": "RcloneBrowserNG",
         "language": "C++",
-        "pushedAt": "2026-06-12T11:18:50.0000000Z",
+        "pushedAt": "2026-06-12T11:40:39.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -811,7 +811,7 @@
       {
         "repo": "TsunamiSimulator",
         "language": "Rust",
-        "pushedAt": "2026-06-09T14:49:14.0000000Z",
+        "pushedAt": "2026-06-12T11:39:48.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -908,10 +908,12 @@
   },
   "projectLicenseMetadata": {
     "checkedCount": 168,
-    "detectedCount": 164,
-    "missingCount": 4,
-    "unknownCount": 9,
-    "warningCount": 13,
+    "detectedCount": 168,
+    "missingCount": 0,
+    "unknownCount": 2,
+    "intentionalExceptionCount": 2,
+    "unresolvedUnknownCount": 0,
+    "warningCount": 0,
     "licenseCounts": [
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -935,7 +937,7 @@
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
-        "count": 3
+        "count": 5
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -947,7 +949,7 @@
         "licenseSpdxId": "MIT",
         "licenseKey": "mit",
         "licenseName": "MIT License",
-        "count": 145
+        "count": 154
       },
       {
         "licenseSpdxId": "MPL-2.0",
@@ -959,90 +961,28 @@
         "licenseSpdxId": "NOASSERTION",
         "licenseKey": "other",
         "licenseName": "Other",
-        "count": 9
+        "count": 2
       }
     ],
-    "missingLicenses": [
-      {
-        "repo": "AI_Realism",
-        "reason": "GitHub did not report a detected repository license"
-      },
-      {
-        "repo": "IMDb_Enhanced",
-        "reason": "GitHub did not report a detected repository license"
-      },
-      {
-        "repo": "kindred",
-        "reason": "GitHub did not report a detected repository license"
-      },
-      {
-        "repo": "SPECTRE",
-        "reason": "GitHub did not report a detected repository license"
-      }
-    ],
+    "missingLicenses": [],
     "unknownLicenses": [
       {
-        "repo": "ApocalypseWatch",
+        "repo": "kindred",
         "licenseKey": "other",
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "AppManagerNG",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "Astra-Deck",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
+        "reason": "GitHub reported an unrecognized or non-standard license",
+        "intentionalException": true,
+        "exceptionReason": "GitHub Pages is disabled; profile links to the repository until a live site is published. Intentional Business Source License 1.1; GitHub reports it as Other."
       },
       {
         "repo": "LTSC-MicrosoftStore",
         "licenseKey": "other",
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "NovaCut",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "OpenLumen",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "PromptCompanion",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "RcloneBrowserNG",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "TsunamiSimulator",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
+        "reason": "GitHub reported an unrecognized or non-standard license",
+        "intentionalException": true,
+        "exceptionReason": "Catalog preserves upstream license attribution: Other"
       }
     ]
   },
@@ -2395,7 +2335,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-12T07:20:59.1585622-04:00",
+          "queriedAt": "2026-06-12T07:47:14.6536457-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -3108,7 +3048,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4045,
+      "elapsedMs": 3880,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3142,7 +3082,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 10.63,
+      "ageDays": 10.65,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -3152,7 +3092,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4045,
+    "elapsedMs": 3880,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3432,11 +3372,9 @@
     ]
   },
   "artifactBudgets": {
-    "status": "warning",
-    "warningCount": 1,
-    "warnings": [
-      "reports/profile-sync-report.json bytes is 116477, above the 114688 soft limit."
-    ],
+    "status": "within-budget",
+    "warningCount": 0,
+    "warnings": [],
     "rows": [
       {
         "artifact": "README.md",
@@ -3495,7 +3433,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 404316,
+        "value": 404517,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3504,10 +3442,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 116477,
+        "value": 114590,
         "softLimit": 114688,
-        "overSoftLimit": true,
-        "warning": "reports/profile-sync-report.json bytes is 116477, above the 114688 soft limit.",
+        "overSoftLimit": false,
+        "warning": null,
         "note": "Serialized sync-report size budget."
       },
       {

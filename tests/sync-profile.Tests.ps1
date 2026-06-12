@@ -801,26 +801,40 @@ Describe 'Report schema depth helpers' {
         $winTool = New-TestEntry -Repo 'BWinTool' -Category 'powershell'
         $apiTool = New-TestEntry -Repo 'CApiTool' -Category 'web'
         $pyTool = New-TestEntry -Repo 'DPyTool' -Category 'python'
+        $customFork = New-TestEntry -Repo 'ECustomFork' -Category 'misc'
+        $customFork.upstreamLicense = 'Other'
+        $sourceAvailable = New-TestEntry -Repo 'FSourceAvailable' -Category 'web'
+        $sourceAvailable.notes = 'Intentional Business Source License 1.1; GitHub reports it as Other.'
         $repos = @(
             (New-TestRepoMeta -Name 'AWebTool' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' })),
             (New-TestRepoMeta -Name 'BWinTool' -LicenseInfo ([pscustomobject]@{ key = 'mit'; name = 'MIT License' })),
             (New-TestRepoMeta -Name 'CApiTool' -LicenseInfo ([pscustomobject]@{ key = 'apache-2.0'; name = 'Apache License 2.0' })),
-            (New-TestRepoMeta -Name 'DPyTool' -LicenseInfo $null)
+            (New-TestRepoMeta -Name 'DPyTool' -LicenseInfo $null),
+            (New-TestRepoMeta -Name 'ECustomFork' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' })),
+            (New-TestRepoMeta -Name 'FSourceAvailable' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' }))
         )
         $lookup = ConvertTo-Lookup $repos
 
-        $result = Test-ProjectLicenseMetadata -Entries @($webTool, $winTool, $apiTool, $pyTool) -RepoLookup $lookup
+        $result = Test-ProjectLicenseMetadata -Entries @($webTool, $winTool, $apiTool, $pyTool, $customFork, $sourceAvailable) -RepoLookup $lookup
 
-        $result.checkedCount | Should -Be 4
-        $result.detectedCount | Should -Be 3
+        $result.checkedCount | Should -Be 6
+        $result.detectedCount | Should -Be 5
         $result.missingCount | Should -Be 1
-        $result.unknownCount | Should -Be 1
+        $result.unknownCount | Should -Be 3
+        $result.intentionalExceptionCount | Should -Be 2
+        $result.unresolvedUnknownCount | Should -Be 1
         $result.warningCount | Should -Be 2
         ($result.missingLicenses | ForEach-Object { $_.repo }) | Should -Contain 'DPyTool'
         ($result.unknownLicenses | ForEach-Object { $_.repo }) | Should -Contain 'AWebTool'
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'AWebTool' }).intentionalException | Should -BeFalse
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'ECustomFork' }).intentionalException | Should -BeTrue
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'ECustomFork' }).exceptionReason | Should -Match 'upstream license'
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'FSourceAvailable' }).intentionalException | Should -BeTrue
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'FSourceAvailable' }).exceptionReason | Should -Match 'Business Source License'
         (($result.licenseCounts | ForEach-Object { $_.licenseSpdxId }) -join ',') | Should -Be 'Apache-2.0,MIT,NOASSERTION'
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'MIT' }).count | Should -Be 1
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).licenseKey | Should -Be 'other'
+        ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).count | Should -Be 3
     }
 
     It 'classifies GitHub fork parents against catalog attribution' {

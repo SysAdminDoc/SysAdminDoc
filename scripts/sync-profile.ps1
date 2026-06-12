@@ -6572,6 +6572,8 @@ function Test-ProjectLicenseMetadata {
     $licenseCounts = @{}
     $checkedCount = 0
     $detectedCount = 0
+    $intentionalExceptionCount = 0
+    $unresolvedUnknownCount = 0
 
     foreach ($entry in @($Entries | Sort-Object repo)) {
         $checkedCount++
@@ -6591,12 +6593,28 @@ function Test-ProjectLicenseMetadata {
 
         $detectedCount++
         if ($licenseKey -eq "other" -or $licenseSpdxId -eq "NOASSERTION") {
+            $entryNotes = [string]$entry.notes
+            $upstreamLicense = [string]$entry.upstreamLicense
+            $exceptionReason = $null
+            if (-not [string]::IsNullOrWhiteSpace($upstreamLicense) -and $upstreamLicense -match '^(Other|Custom|NOASSERTION)$') {
+                $exceptionReason = "Catalog preserves upstream license attribution: $upstreamLicense"
+            } elseif (-not [string]::IsNullOrWhiteSpace($entryNotes) -and $entryNotes -match '(?i)(business source|BSL|custom license|NOASSERTION|source license)') {
+                $exceptionReason = $entryNotes
+            }
+            $intentionalException = -not [string]::IsNullOrWhiteSpace($exceptionReason)
+            if ($intentionalException) {
+                $intentionalExceptionCount++
+            } else {
+                $unresolvedUnknownCount++
+            }
             $unknownLicenses.Add([ordered]@{
                 repo = [string]$entry.repo
                 licenseKey = if ([string]::IsNullOrWhiteSpace($licenseKey)) { $null } else { $licenseKey }
                 licenseName = if ([string]::IsNullOrWhiteSpace($licenseName)) { $null } else { $licenseName }
                 licenseSpdxId = if ([string]::IsNullOrWhiteSpace($licenseSpdxId)) { $null } else { $licenseSpdxId }
                 reason = "GitHub reported an unrecognized or non-standard license"
+                intentionalException = [bool]$intentionalException
+                exceptionReason = if ([string]::IsNullOrWhiteSpace($exceptionReason)) { $null } else { $exceptionReason }
             })
         }
 
@@ -6623,7 +6641,9 @@ function Test-ProjectLicenseMetadata {
         detectedCount = $detectedCount
         missingCount = $missingLicenses.Count
         unknownCount = $unknownLicenses.Count
-        warningCount = $missingLicenses.Count + $unknownLicenses.Count
+        intentionalExceptionCount = [int]$intentionalExceptionCount
+        unresolvedUnknownCount = [int]$unresolvedUnknownCount
+        warningCount = $missingLicenses.Count + $unresolvedUnknownCount
         licenseCounts = Get-SortedReportRows -Rows @($licenseCounts.Values) -Keys @("licenseSpdxId", "licenseKey", "licenseName")
         missingLicenses = $missingLicenses.ToArray()
         unknownLicenses = $unknownLicenses.ToArray()

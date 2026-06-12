@@ -2219,7 +2219,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published."
+      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published. Intentional Business Source License 1.1; GitHub reports it as Other."
     },
     {
       "repo": "DeGoogler",
@@ -3881,7 +3881,7 @@
       "upstreamLicense": "Other",
       "aliasOf": null,
       "suppressionReason": null,
-      "notes": null
+      "notes": "Preserves upstream custom license; GitHub reports it as Other."
     },
     {
       "repo": "RcloneBrowser",

@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "473d905a7c494404456f5adb807844ddd0efdb7b",
-    "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
-    "generatorSha256": "c66e54960eb5b6c079994a7fa2af6ea6d1558fe6e8e1becacc3c830e566c35a9",
+    "sourceCommit": "5b94235f738cb76ae88f54b10411fa45bd8ff8ff",
+    "catalogSha256": "31e6d89ae28dec320d1ddcc11f4fa7b6ff56f4478e6ef7ae1e3d1b9a68ceace5",
+    "generatorSha256": "7e58087f49efc11b138635cf1a323c1bdd9748cf4592a496e6d4f02178789e4b",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T07:20:59.1585622-04:00",
+    "metadataSnapshotAt": "2026-06-12T07:47:14.6536457-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -115,9 +115,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/NovaCut",
       "liveUrl": null,
       "installUrl": null,
@@ -161,7 +161,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T04:00:56.0000000Z",
+      "pushedAt": "2026-06-12T11:39:36.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -226,7 +226,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:18:07.0000000Z",
+      "pushedAt": "2026-06-12T11:36:11.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -298,7 +298,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:14:44.0000000Z",
+      "pushedAt": "2026-06-12T11:34:51.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -517,7 +517,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T03:59:37.0000000Z",
+      "pushedAt": "2026-06-12T11:29:57.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -557,9 +557,9 @@
       "forkOf": "MuntashirAkon/AppManager",
       "forkOfUrl": "https://github.com/MuntashirAkon/AppManager",
       "upstreamLicense": "GPL-3.0-or-later",
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "gpl-3.0",
+      "licenseName": "GNU General Public License v3.0",
+      "licenseSpdxId": "GPL-3.0",
       "repoUrl": "https://github.com/SysAdminDoc/AppManagerNG",
       "liveUrl": null,
       "installUrl": null,
@@ -610,7 +610,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T04:23:41.0000000Z",
+      "pushedAt": "2026-06-12T11:39:49.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -679,7 +679,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:14:16.0000000Z",
+      "pushedAt": "2026-06-12T11:39:00.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1154,7 +1154,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T04:16:09.0000000Z",
+      "pushedAt": "2026-06-12T11:25:58.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1247,9 +1247,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "gpl-3.0",
+      "licenseName": "GNU General Public License v3.0",
+      "licenseSpdxId": "GPL-3.0",
       "repoUrl": "https://github.com/SysAdminDoc/OpenLumen",
       "liveUrl": null,
       "installUrl": null,
@@ -1297,7 +1297,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T14:18:05.0000000Z",
+      "pushedAt": "2026-06-12T11:39:40.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2609,9 +2609,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/TsunamiSimulator",
       "liveUrl": null,
       "installUrl": null,
@@ -2659,7 +2659,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T14:49:14.0000000Z",
+      "pushedAt": "2026-06-12T11:39:48.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2737,9 +2737,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/RcloneBrowserNG",
       "liveUrl": null,
       "installUrl": null,
@@ -2777,7 +2777,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T11:18:50.0000000Z",
+      "pushedAt": "2026-06-12T11:40:39.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2796,9 +2796,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/Astra-Deck",
       "liveUrl": null,
       "installUrl": null,
@@ -2856,7 +2856,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:25:59.0000000Z",
+      "pushedAt": "2026-06-12T11:41:38.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -2927,7 +2927,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:15:47.0000000Z",
+      "pushedAt": "2026-06-12T11:41:32.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -4309,9 +4309,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": null,
-      "licenseName": null,
-      "licenseSpdxId": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/IMDb_Enhanced",
       "liveUrl": null,
       "installUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
@@ -4349,7 +4349,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T11:20:42.0000000Z",
+      "pushedAt": "2026-06-12T11:39:21.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4368,9 +4368,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": null,
-      "licenseName": null,
-      "licenseSpdxId": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/AI_Realism",
       "liveUrl": null,
       "installUrl": null,
@@ -4408,7 +4408,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-18T23:30:40.0000000Z",
+      "pushedAt": "2026-06-12T11:39:20.0000000Z",
       "topics": [
         "ai",
         "guide",
@@ -4599,7 +4599,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:19:20.0000000Z",
+      "pushedAt": "2026-06-12T11:33:44.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -5154,7 +5154,7 @@
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
-      "notes": null
+      "notes": "Preserves upstream custom license; GitHub reports it as Other."
     },
     {
       "repo": "RcloneBrowser",
@@ -5432,7 +5432,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:18:21.0000000Z",
+      "pushedAt": "2026-06-12T11:44:18.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -7581,9 +7581,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/PromptCompanion",
       "liveUrl": null,
       "installUrl": null,
@@ -7627,7 +7627,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T11:57:21.0000000Z",
+      "pushedAt": "2026-06-12T11:39:43.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -9005,7 +9005,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:13:40.0000000Z",
+      "pushedAt": "2026-06-12T11:46:08.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -10733,9 +10733,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": null,
-      "licenseName": null,
-      "licenseSpdxId": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/SPECTRE",
       "liveUrl": "https://sysadmindoc.github.io/SPECTRE/",
       "installUrl": null,
@@ -10773,7 +10773,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-18T23:59:48.0000000Z",
+      "pushedAt": "2026-06-12T11:39:23.0000000Z",
       "topics": [
         "html",
         "intelligence",
@@ -11519,9 +11519,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": null,
-      "licenseName": null,
-      "licenseSpdxId": null,
+      "licenseKey": "other",
+      "licenseName": "Other",
+      "licenseSpdxId": "NOASSERTION",
       "repoUrl": "https://github.com/SysAdminDoc/kindred",
       "liveUrl": null,
       "installUrl": null,
@@ -11561,12 +11561,12 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T12:13:44.0000000Z",
+      "pushedAt": "2026-06-12T11:39:25.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
-      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published."
+      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published. Intentional Business Source License 1.1; GitHub reports it as Other."
     },
     {
       "repo": "DeGoogler",
@@ -12105,9 +12105,9 @@
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": "other",
-      "licenseName": "Other",
-      "licenseSpdxId": "NOASSERTION",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
       "repoUrl": "https://github.com/SysAdminDoc/ApocalypseWatch",
       "liveUrl": "https://sysadmindoc.github.io/ApocalypseWatch/",
       "installUrl": null,
@@ -12145,7 +12145,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-09T11:30:25.0000000Z",
+      "pushedAt": "2026-06-12T11:39:28.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
