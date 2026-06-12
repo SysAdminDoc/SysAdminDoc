@@ -7181,12 +7181,82 @@ function Get-UserscriptContent {
 function New-UserscriptTrustWarning {
     param(
         [string]$Kind,
-        [string]$Message
+        [string]$Message,
+        [bool]$Fatal = $false
     )
 
     return [ordered]@{
         kind = $Kind
         message = $Message
+        fatal = [bool]$Fatal
+    }
+}
+
+function Get-UserscriptUrlProbe {
+    param(
+        [string]$Url,
+        [hashtable]$ProbeByUrl = @{}
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Url)) {
+        return [ordered]@{
+            checked = $false
+            ok = $null
+            statusCode = $null
+            error = $null
+            fatal = $false
+        }
+    }
+
+    if ($ProbeByUrl.ContainsKey($Url)) {
+        $probe = $ProbeByUrl[$Url]
+        return [ordered]@{
+            checked = $true
+            ok = [bool](Get-MemberValue -Object $probe -Name "ok")
+            statusCode = Get-MemberValue -Object $probe -Name "status"
+            error = Get-MemberValue -Object $probe -Name "error"
+            fatal = [bool](Get-MemberValue -Object $probe -Name "fatal")
+        }
+    }
+
+    $result = Test-HttpUrl -Url $Url -TimeoutSec 12 -Retries 1
+    return [ordered]@{
+        checked = $true
+        ok = [bool]$result.ok
+        statusCode = $result.status
+        error = $result.error
+        fatal = [bool]$result.fatal
+    }
+}
+
+function Get-UserscriptMetadataUrlTrust {
+    param(
+        [string]$Url,
+        [object]$InstallSource,
+        [hashtable]$ProbeByUrl = @{}
+    )
+
+    $source = Get-RawGitHubSourceInfo -Url $Url
+    $refMatches = $null
+    if ([bool](Get-MemberValue -Object $InstallSource -Name "rawGitHub") -and [bool]$source.rawGitHub) {
+        $installRepository = [string](Get-MemberValue -Object $InstallSource -Name "sourceRepository")
+        $installRef = [string](Get-MemberValue -Object $InstallSource -Name "sourceRef")
+        if (-not [string]::IsNullOrWhiteSpace($installRepository) -and -not [string]::IsNullOrWhiteSpace($installRef)) {
+            $refMatches = [bool](
+                $source.sourceRepository -eq $installRepository -and
+                $source.sourceRef -eq $installRef
+            )
+        }
+    }
+
+    $probe = Get-UserscriptUrlProbe -Url $Url -ProbeByUrl $ProbeByUrl
+    return [ordered]@{
+        sourceRef = $source.sourceRef
+        refMatchesSource = $refMatches
+        probeSucceeded = if ([bool]$probe.checked) { $probe.ok } else { $null }
+        probeStatusCode = $probe.statusCode
+        probeError = $probe.error
+        probeFatal = [bool]$probe.fatal
     }
 }
 
@@ -7194,6 +7264,7 @@ function Test-UserscriptInstallTrust {
     param(
         [hashtable[]]$Entries,
         [hashtable]$ContentByUrl = @{},
+        [hashtable]$ProbeByUrl = @{},
         [switch]$Skip
     )
 
@@ -7216,8 +7287,13 @@ function Test-UserscriptInstallTrust {
             missingVersionCount = 0
             missingUpdateUrlCount = 0
             missingDownloadUrlCount = 0
+            updateUrlProbeFailureCount = 0
+            downloadUrlProbeFailureCount = 0
+            updateUrlRefMismatchCount = 0
+            downloadUrlRefMismatchCount = 0
             broadScopeCount = 0
             warningCount = 0
+            fatalCount = 0
             rows = @()
             note = "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
         }
@@ -7252,6 +7328,8 @@ function Test-UserscriptInstallTrust {
         $requires = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "require")
         $scopeValues = @($matchValues + $includes)
         $broadScopes = @($scopeValues | Where-Object { Test-UserscriptBroadScope -Value ([string]$_) })
+        $updateUrlTrust = Get-UserscriptMetadataUrlTrust -Url $updateUrl -InstallSource $source -ProbeByUrl $ProbeByUrl
+        $downloadUrlTrust = Get-UserscriptMetadataUrlTrust -Url $downloadUrl -InstallSource $source -ProbeByUrl $ProbeByUrl
 
         if (-not $fetchStatus.succeeded) {
             $warnings.Add((New-UserscriptTrustWarning -Kind "userscript-fetch-failed" -Message "Could not fetch the raw userscript for metadata inspection."))
@@ -7275,12 +7353,27 @@ function Test-UserscriptInstallTrust {
             }
             if ([string]::IsNullOrWhiteSpace($updateUrl)) {
                 $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-missing" -Message "Userscript metadata is missing an explicit @updateURL."))
+            } else {
+                if ($null -ne $updateUrlTrust.refMatchesSource -and -not [bool]$updateUrlTrust.refMatchesSource) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-ref-mismatch" -Message "Userscript @updateURL does not use the same repository/ref as the catalog install URL."))
+                }
+                if ($null -ne $updateUrlTrust.probeSucceeded -and -not [bool]$updateUrlTrust.probeSucceeded) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-unreachable" -Message "Userscript @updateURL could not be reached." -Fatal:([bool]$updateUrlTrust.probeFatal)))
+                }
             }
             if ([string]::IsNullOrWhiteSpace($downloadUrl)) {
                 $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-missing" -Message "Userscript metadata is missing an explicit @downloadURL."))
+            } else {
+                if ($null -ne $downloadUrlTrust.refMatchesSource -and -not [bool]$downloadUrlTrust.refMatchesSource) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-ref-mismatch" -Message "Userscript @downloadURL does not use the same repository/ref as the catalog install URL."))
+                }
+                if ($null -ne $downloadUrlTrust.probeSucceeded -and -not [bool]$downloadUrlTrust.probeSucceeded) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-unreachable" -Message "Userscript @downloadURL could not be reached." -Fatal:([bool]$downloadUrlTrust.probeFatal)))
+                }
             }
         }
 
+        $rowFatalCount = @($warnings | Where-Object { $_.fatal }).Count
         $rows.Add([ordered]@{
             repo = [string]$entry.repo
             url = $url
@@ -7298,6 +7391,14 @@ function Test-UserscriptInstallTrust {
             version = if ([string]::IsNullOrWhiteSpace($version)) { $null } else { $version }
             updateUrl = if ([string]::IsNullOrWhiteSpace($updateUrl)) { $null } else { $updateUrl }
             downloadUrl = if ([string]::IsNullOrWhiteSpace($downloadUrl)) { $null } else { $downloadUrl }
+            updateUrlSourceRef = if ([string]::IsNullOrWhiteSpace([string]$updateUrlTrust.sourceRef)) { $null } else { [string]$updateUrlTrust.sourceRef }
+            updateUrlRefMatchesSource = $updateUrlTrust.refMatchesSource
+            updateUrlProbeSucceeded = $updateUrlTrust.probeSucceeded
+            updateUrlProbeStatusCode = $updateUrlTrust.probeStatusCode
+            downloadUrlSourceRef = if ([string]::IsNullOrWhiteSpace([string]$downloadUrlTrust.sourceRef)) { $null } else { [string]$downloadUrlTrust.sourceRef }
+            downloadUrlRefMatchesSource = $downloadUrlTrust.refMatchesSource
+            downloadUrlProbeSucceeded = $downloadUrlTrust.probeSucceeded
+            downloadUrlProbeStatusCode = $downloadUrlTrust.probeStatusCode
             matchCount = $matchValues.Count
             includeCount = $includes.Count
             grantCount = $grants.Count
@@ -7305,14 +7406,17 @@ function Test-UserscriptInstallTrust {
             requireCount = $requires.Count
             broadScope = [bool]($broadScopes.Count -gt 0)
             warningCount = $warnings.Count
+            fatalCount = $rowFatalCount
             warnings = $warnings.ToArray()
         })
     }
 
     $rowArray = @($rows.ToArray())
     $warningTotal = 0
+    $fatalTotal = 0
     foreach ($row in $rowArray) {
         $warningTotal += [int]$row.warningCount
+        $fatalTotal += [int]$row.fatalCount
     }
 
     return [ordered]@{
@@ -7328,8 +7432,13 @@ function Test-UserscriptInstallTrust {
         missingVersionCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.version) }).Count
         missingUpdateUrlCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.updateUrl) }).Count
         missingDownloadUrlCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.downloadUrl) }).Count
+        updateUrlProbeFailureCount = @($rowArray | Where-Object { $null -ne $_.updateUrlProbeSucceeded -and -not $_.updateUrlProbeSucceeded }).Count
+        downloadUrlProbeFailureCount = @($rowArray | Where-Object { $null -ne $_.downloadUrlProbeSucceeded -and -not $_.downloadUrlProbeSucceeded }).Count
+        updateUrlRefMismatchCount = @($rowArray | Where-Object { $null -ne $_.updateUrlRefMatchesSource -and -not $_.updateUrlRefMatchesSource }).Count
+        downloadUrlRefMismatchCount = @($rowArray | Where-Object { $null -ne $_.downloadUrlRefMatchesSource -and -not $_.downloadUrlRefMatchesSource }).Count
         broadScopeCount = @($rowArray | Where-Object { $_.broadScope }).Count
         warningCount = [int]$warningTotal
+        fatalCount = [int]$fatalTotal
         rows = $rowArray
         note = "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
     }

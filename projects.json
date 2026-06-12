@@ -5,11 +5,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "076bd80f4a887726a4a2d0292891330a73544663",
+    "sourceCommit": "473d905a7c494404456f5adb807844ddd0efdb7b",
     "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
-    "generatorSha256": "d89345e15e8d35dee3e2490c0e73a32f40dfa7b47684257c6baf145f8b32309d",
+    "generatorSha256": "c66e54960eb5b6c079994a7fa2af6ea6d1558fe6e8e1becacc3c830e566c35a9",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T03:25:13.7741521-04:00",
+    "metadataSnapshotAt": "2026-06-12T07:20:59.1585622-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -54,19 +54,27 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 7,
-      "latestReleaseTag": "v1.21.8",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.21.8",
+      "latestReleaseTag": "v1.23.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ZeusWatch/releases/tag/v1.23.0",
       "releaseAssetKinds": [
-        "apk"
+        "apk",
+        "other"
       ],
       "releaseAssetNames": [
-        "ZeusWatch-freenet-v1.21.8.apk",
-        "ZeusWatch-standard-v1.21.8.apk",
-        "ZeusWatch-wear-v1.21.8.apk"
+        "SHA256SUMS.txt",
+        "ZeusWatch-freenet-arm64-v8a-v1.23.0.apk",
+        "ZeusWatch-freenet-armeabi-v7a-v1.23.0.apk",
+        "ZeusWatch-freenet-universal-v1.23.0.apk",
+        "ZeusWatch-standard-arm64-v8a-v1.23.0.apk",
+        "ZeusWatch-standard-armeabi-v7a-v1.23.0.apk",
+        "ZeusWatch-standard-universal-v1.23.0.apk",
+        "ZeusWatch-wear-v1.23.0.apk"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
+        "checksumAssets": [
+          "SHA256SUMS.txt"
+        ],
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -78,10 +86,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "metadata-only",
+        "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:06:17.0000000Z",
+      "pushedAt": "2026-06-12T04:21:13.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -127,7 +135,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 12,
+      "stars": 13,
       "latestReleaseTag": "v3.73.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NovaCut/releases/tag/v3.73.2",
       "releaseAssetKinds": [
@@ -153,7 +161,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:16:13.0000000Z",
+      "pushedAt": "2026-06-12T04:00:56.0000000Z",
       "topics": [],
       "featured": true,
       "featuredRank": 9,
@@ -218,7 +226,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:14:06.0000000Z",
+      "pushedAt": "2026-06-12T11:18:07.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -290,7 +298,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T03:52:59.0000000Z",
+      "pushedAt": "2026-06-12T11:14:44.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -509,7 +517,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:16:20.0000000Z",
+      "pushedAt": "2026-06-12T03:59:37.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -569,7 +577,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Java",
-      "stars": 22,
+      "stars": 23,
       "latestReleaseTag": "v0.5.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppManagerNG/releases/tag/v0.5.0",
       "releaseAssetKinds": [
@@ -602,7 +610,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:06:04.0000000Z",
+      "pushedAt": "2026-06-12T04:23:41.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -671,7 +679,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-10T17:46:53.0000000Z",
+      "pushedAt": "2026-06-12T11:14:16.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1146,7 +1154,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:13:53.0000000Z",
+      "pushedAt": "2026-06-12T04:16:09.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -2710,7 +2718,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-10T20:53:33.0000000Z",
+      "pushedAt": "2026-06-12T11:20:48.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2769,7 +2777,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-10T22:25:38.0000000Z",
+      "pushedAt": "2026-06-12T11:18:50.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2848,7 +2856,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:21:47.0000000Z",
+      "pushedAt": "2026-06-11T07:25:59.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -2919,7 +2927,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:14:53.0000000Z",
+      "pushedAt": "2026-06-12T11:15:47.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -3177,7 +3185,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "JavaScript",
-      "stars": 3,
+      "stars": 4,
       "latestReleaseTag": "v0.0.3",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/YoutubeAdblock/releases/tag/v0.0.3",
       "releaseAssetKinds": [
@@ -3336,7 +3344,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T11:33:39.0000000Z",
+      "pushedAt": "2026-06-12T11:20:41.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3395,7 +3403,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-05-18T23:33:33.0000000Z",
+      "pushedAt": "2026-06-12T11:20:41.0000000Z",
       "topics": [
         "chapters",
         "filler-words",
@@ -4341,7 +4349,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-09T11:43:49.0000000Z",
+      "pushedAt": "2026-06-12T11:20:42.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -4591,7 +4599,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:17:31.0000000Z",
+      "pushedAt": "2026-06-12T11:19:20.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -4905,7 +4913,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 18,
+      "stars": 20,
       "latestReleaseTag": "v3.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.16.0",
       "releaseAssetKinds": [
@@ -4931,7 +4939,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:22:31.0000000Z",
+      "pushedAt": "2026-06-11T18:49:09.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5374,7 +5382,7 @@
       "entrypoint": "NVMe_Driver_Patcher.ps1",
       "installKind": "powershell",
       "language": "C#",
-      "stars": 43,
+      "stars": 44,
       "latestReleaseTag": "v5.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v5.0.0",
       "releaseAssetKinds": [
@@ -5424,7 +5432,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T03:42:24.0000000Z",
+      "pushedAt": "2026-06-12T11:18:21.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -5495,7 +5503,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:19:27.0000000Z",
+      "pushedAt": "2026-06-11T07:35:24.0000000Z",
       "topics": [
         "compliance",
         "mitre",
@@ -5540,7 +5548,7 @@
       "entrypoint": "LibreSpot.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 11,
+      "stars": 12,
       "latestReleaseTag": "v3.7.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LibreSpot/releases/tag/v3.7.2",
       "releaseAssetKinds": [
@@ -5573,7 +5581,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:19:44.0000000Z",
+      "pushedAt": "2026-06-11T07:38:28.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -5801,7 +5809,7 @@
       "entrypoint": "DefenderControl.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 4,
+      "stars": 5,
       "latestReleaseTag": "v3.2.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DefenderControl/releases/tag/v3.2.1",
       "releaseAssetKinds": [
@@ -5870,7 +5878,7 @@
       "entrypoint": "DisableDefender.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 7,
+      "stars": 8,
       "latestReleaseTag": "v0.0.4",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DisableDefender/releases/tag/v0.0.4",
       "releaseAssetKinds": [
@@ -7409,7 +7417,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:23:53.0000000Z",
+      "pushedAt": "2026-06-11T07:40:04.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -8966,7 +8974,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 20,
+      "stars": 21,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -8997,7 +9005,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-11T07:13:07.0000000Z",
+      "pushedAt": "2026-06-12T11:13:40.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -10016,7 +10024,7 @@
       "entrypoint": "artlist_scraper.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 0,
+      "stars": 1,
       "latestReleaseTag": "v0.7.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/tag/v0.7.1",
       "releaseAssetKinds": [
