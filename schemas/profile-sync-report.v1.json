@@ -582,6 +582,8 @@
         "detectedCount",
         "missingCount",
         "unknownCount",
+        "intentionalExceptionCount",
+        "unresolvedUnknownCount",
         "warningCount",
         "licenseCounts",
         "missingLicenses",
@@ -598,6 +600,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "unknownCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "intentionalExceptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unresolvedUnknownCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCount": {
@@ -671,7 +679,9 @@
         "licenseKey",
         "licenseName",
         "licenseSpdxId",
-        "reason"
+        "reason",
+        "intentionalException",
+        "exceptionReason"
       ],
       "properties": {
         "repo": {
@@ -688,6 +698,12 @@
         },
         "reason": {
           "type": "string"
+        },
+        "intentionalException": {
+          "type": "boolean"
+        },
+        "exceptionReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
