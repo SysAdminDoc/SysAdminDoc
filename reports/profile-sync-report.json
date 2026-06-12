@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-12T07:49:05.2593290-04:00",
+  "generatedAt": "2026-06-12T07:59:16.3062509-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -62,11 +62,11 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5b94235f738cb76ae88f54b10411fa45bd8ff8ff",
-    "catalogSha256": "31e6d89ae28dec320d1ddcc11f4fa7b6ff56f4478e6ef7ae1e3d1b9a68ceace5",
+    "sourceCommit": "c00cbc62e2291d5ff16be2e054bdcc4e1de7084a",
+    "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
     "generatorSha256": "7e58087f49efc11b138635cf1a323c1bdd9748cf4592a496e6d4f02178789e4b",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T07:47:14.6536457-04:00",
+    "metadataSnapshotAt": "2026-06-12T07:55:21.1587185-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -684,7 +684,7 @@
       {
         "repo": "RcloneBrowserNG",
         "language": "C++",
-        "pushedAt": "2026-06-12T11:40:39.0000000Z",
+        "pushedAt": "2026-06-12T11:55:21.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -695,7 +695,7 @@
       {
         "repo": "REDplusplus",
         "language": "C#",
-        "pushedAt": "2026-06-12T11:20:48.0000000Z",
+        "pushedAt": "2026-06-12T11:55:00.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -989,18 +989,33 @@
   "forkParentDrift": {
     "checkedCount": 10,
     "githubForkCount": 8,
-    "catalogForkOfCount": 7,
-    "matchingGitHubForkCount": 5,
+    "catalogForkOfCount": 10,
+    "matchingGitHubForkCount": 8,
     "catalogContinuationCount": 2,
-    "missingCatalogAttributionCount": 3,
+    "missingCatalogAttributionCount": 0,
     "parentMismatchCount": 0,
     "parentUnavailableCount": 0,
-    "warningCount": 3,
+    "warningCount": 0,
     "matchingGitHubForks": [
+      {
+        "repo": "android-debloat-list",
+        "catalogForkOf": "MuntashirAkon/android-debloat-list",
+        "githubParent": "MuntashirAkon/android-debloat-list"
+      },
       {
         "repo": "LTSC-MicrosoftStore",
         "catalogForkOf": "minihub/LTSC-Add-MicrosoftStore",
         "githubParent": "minihub/LTSC-Add-MicrosoftStore"
+      },
+      {
+        "repo": "mnamer",
+        "catalogForkOf": "jkwill87/mnamer",
+        "githubParent": "jkwill87/mnamer"
+      },
+      {
+        "repo": "project-nomad",
+        "catalogForkOf": "Crosstalk-Solutions/project-nomad",
+        "githubParent": "Crosstalk-Solutions/project-nomad"
       },
       {
         "repo": "RcloneBrowser",
@@ -1035,23 +1050,7 @@
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
       }
     ],
-    "missingCatalogAttribution": [
-      {
-        "repo": "android-debloat-list",
-        "githubParent": "MuntashirAkon/android-debloat-list",
-        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-      },
-      {
-        "repo": "mnamer",
-        "githubParent": "jkwill87/mnamer",
-        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-      },
-      {
-        "repo": "project-nomad",
-        "githubParent": "Crosstalk-Solutions/project-nomad",
-        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-      }
-    ],
+    "missingCatalogAttribution": [],
     "parentMismatches": [],
     "parentUnavailable": [],
     "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
@@ -2335,7 +2334,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-12T07:47:14.6536457-04:00",
+          "queriedAt": "2026-06-12T07:55:21.1587185-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -3048,7 +3047,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3880,
+      "elapsedMs": 4132,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3092,14 +3091,14 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3880,
+    "elapsedMs": 4132,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 61947,
+    "byteCount": 62083,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -3379,7 +3378,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 61947,
+        "value": 62083,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -3433,7 +3432,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 404517,
+        "value": 404606,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3442,7 +3441,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 114590,
+        "value": 114446,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
