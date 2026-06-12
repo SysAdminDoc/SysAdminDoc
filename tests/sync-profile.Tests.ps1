@@ -3149,6 +3149,18 @@ Describe 'CI validation tool pins' {
         $script:TestsWorkflowForToolPins | Should -Not -Match 'Install-Module Pester -MinimumVersion'
     }
 
+    It 'enables Pester coverage for the profile generator and writes the percentage to the job summary' {
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]Run[.]PassThru = \$true'
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]Enabled = \$true'
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]Path = ''scripts/sync-profile[.]ps1'''
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]UseBreakpoints = \$false'
+        $script:TestsWorkflowForToolPins | Should -Match '\$coveragePercent = \[math\]::Round\(\[decimal\]\$coverage[.]CoveragePercent, 2\)'
+        $script:TestsWorkflowForToolPins | Should -Match 'Pester coverage: \$coveragePercent%'
+        $script:TestsWorkflowForToolPins | Should -Match 'GITHUB_STEP_SUMMARY'
+        $script:TestsWorkflowForToolPins | Should -Match 'Commands covered'
+        $script:TestsWorkflowForToolPins | Should -Match 'CoveragePercentTarget'
+    }
+
     It 'installs zizmor from hash-checked pinned requirements' {
         $script:WorkflowSecurityForToolPins | Should -Match 'python -m pip install --disable-pip-version-check --no-deps\s+--require-hashes --only-binary=:all: -r requirements-ci[.]txt'
         $script:WorkflowSecurityForToolPins | Should -Not -Match 'pip install --upgrade zizmor'
