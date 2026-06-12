@@ -5,14 +5,14 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "2be588385cc84e6a364997d70117b13b5afb1c2c",
+    "sourceCommit": "1a0a8dab147050c2d47c87461c8cd2e9eaf9ea21",
     "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
-    "generatorSha256": "1174d2de7e3a7a313d7477e7901c3fa66f4edd89882d6530ce959dcec436028e",
+    "generatorSha256": "0b4575b9539c967619d349c0a68542ba76b60fb913ed36934485fe5f0a70d296",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T08:15:50.9804947-04:00",
-    "metadataProvider": "rest-fallback",
+    "metadataSnapshotAt": "2026-06-12T08:28:02.7239804-04:00",
+    "metadataProvider": "graphql",
     "repoEnumeration": {
-      "requestedLimit": 0,
+      "requestedLimit": 500,
       "returnedCount": 186,
       "truncated": false
     }
@@ -162,7 +162,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T12:01:29.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin",
+        "video"
+      ],
       "featured": true,
       "featuredRank": 9,
       "currentlyBuilding": false,
@@ -226,7 +230,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:01:07.0000000Z",
+      "pushedAt": "2026-06-12T12:19:51.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -298,7 +302,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:14:14.0000000Z",
+      "pushedAt": "2026-06-12T12:26:51.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -378,7 +382,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:13:21.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "image-tools",
+        "kotlin",
+        "python"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -517,7 +526,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:00:46.0000000Z",
+      "pushedAt": "2026-06-12T12:24:51.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -611,7 +620,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T12:09:49.0000000Z",
-      "topics": [],
+      "topics": [
+        "active-development",
+        "android",
+        "java",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": true,
@@ -679,8 +693,11 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:39:00.0000000Z",
-      "topics": [],
+      "pushedAt": "2026-06-12T12:21:13.0000000Z",
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -829,7 +846,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:47:27.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -895,7 +915,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:15:07.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -960,7 +983,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:01:23.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1025,7 +1051,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:31:57.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1090,7 +1119,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:54:41.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1154,7 +1186,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:09:59.0000000Z",
+      "pushedAt": "2026-06-12T12:20:55.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1229,7 +1261,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-11T07:19:23.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1298,7 +1333,10 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T11:39:40.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1369,7 +1407,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T13:29:12.0000000Z",
-      "topics": [],
+      "topics": [
+        "android",
+        "kotlin",
+        "rust"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1438,7 +1480,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:51:40.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1507,7 +1553,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T13:48:42.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1576,7 +1626,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T13:49:39.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1649,7 +1703,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T13:41:20.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "image-tools",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1930,7 +1989,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:36:54.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -1999,7 +2062,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:01:35.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2071,7 +2138,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:55:16.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2132,7 +2203,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:09:04.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "html",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2200,7 +2275,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:10:46.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "fluent",
+        "privacy",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2268,7 +2348,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:16:04.0000000Z",
-      "topics": [],
+      "topics": [
+        "cpp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2327,7 +2411,12 @@
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:53:38.0000000Z",
-      "topics": [],
+      "topics": [
+        "active-development",
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": true,
@@ -2397,7 +2486,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:58:30.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2463,7 +2556,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:04:39.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "image-tools",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2522,7 +2620,11 @@
         "notesPublic": null
       },
       "pushedAt": "2026-06-09T11:30:14.0000000Z",
-      "topics": [],
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2591,7 +2693,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:45:41.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "privacy",
+        "typescript",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2660,7 +2767,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T11:39:48.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "rust",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2718,8 +2829,12 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T12:14:55.0000000Z",
-      "topics": [],
+      "pushedAt": "2026-06-12T12:19:42.0000000Z",
+      "topics": [
+        "csharp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2777,8 +2892,12 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T12:11:18.0000000Z",
-      "topics": [],
+      "pushedAt": "2026-06-12T12:26:17.0000000Z",
+      "topics": [
+        "cpp",
+        "desktop-app",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -2927,7 +3046,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:10:58.0000000Z",
+      "pushedAt": "2026-06-12T12:27:17.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -3002,7 +3121,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:30:03.0000000Z",
-      "topics": [],
+      "topics": [
+        "browser-extension",
+        "javascript",
+        "userscript"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -3345,7 +3468,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T11:20:41.0000000Z",
-      "topics": [],
+      "topics": [
+        "browser-extension",
+        "image-tools",
+        "javascript",
+        "userscript"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -3542,7 +3670,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-05-19T00:03:52.0000000Z",
-      "topics": [],
+      "topics": [
+        "browser-extension",
+        "javascript",
+        "userscript"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -4220,7 +4352,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:12:31.0000000Z",
-      "topics": [],
+      "topics": [
+        "browser-extension",
+        "typescript",
+        "userscript"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -4291,7 +4427,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:29:04.0000000Z",
-      "topics": [],
+      "topics": [
+        "browser-extension",
+        "javascript",
+        "userscript"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -4350,7 +4490,11 @@
         "notesPublic": null
       },
       "pushedAt": "2026-06-12T11:39:21.0000000Z",
-      "topics": [],
+      "topics": [
+        "browser-extension",
+        "javascript",
+        "userscript"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -4476,7 +4620,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:12:48.0000000Z",
-      "topics": [],
+      "topics": [
+        "documentation",
+        "guide",
+        "html"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -4535,7 +4683,11 @@
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:31:07.0000000Z",
-      "topics": [],
+      "topics": [
+        "documentation",
+        "guide",
+        "php"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5015,7 +5167,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:02:55.0000000Z",
-      "topics": [],
+      "topics": [
+        "conversion",
+        "media",
+        "python",
+        "script"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5649,7 +5806,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:10:24.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5710,7 +5872,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:36:08.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5771,7 +5938,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:59:28.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5840,7 +6012,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:36:31.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5907,7 +6084,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:37:17.0000000Z",
-      "topics": [],
+      "topics": [
+        "networking",
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -5968,7 +6151,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:36:42.0000000Z",
-      "topics": [],
+      "topics": [
+        "networking",
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6029,7 +6218,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:05:03.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6090,7 +6284,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:39:33.0000000Z",
-      "topics": [],
+      "topics": [
+        "networking",
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6151,7 +6351,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:52:26.0000000Z",
-      "topics": [],
+      "topics": [
+        "networking",
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6212,7 +6418,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:04:05.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6273,7 +6484,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:10:01.0000000Z",
-      "topics": [],
+      "topics": [
+        "networking",
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6334,7 +6551,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:01:46.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6403,7 +6625,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:53:29.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -6464,7 +6691,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:37:05.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -7287,7 +7519,12 @@
         "notesPublic": null
       },
       "pushedAt": "2026-06-09T11:29:28.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -7346,7 +7583,13 @@
         "notesPublic": null
       },
       "pushedAt": "2026-06-09T11:32:20.0000000Z",
-      "topics": [],
+      "topics": [
+        "powershell",
+        "privacy",
+        "script",
+        "sysadmin",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -7493,7 +7736,12 @@
         "notesPublic": null
       },
       "pushedAt": "2026-06-09T12:06:13.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -7563,7 +7811,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:08:19.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "video",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -7628,7 +7882,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T11:39:43.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -7696,7 +7955,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:03:28.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -8411,7 +8675,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:42:30.0000000Z",
-      "topics": [],
+      "topics": [
+        "conversion",
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -8479,7 +8749,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:40:08.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "video",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -8745,7 +9021,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:47:15.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -8872,7 +9153,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:41:56.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -9005,7 +9291,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:07:25.0000000Z",
+      "pushedAt": "2026-06-12T12:22:48.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -10115,7 +10401,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:41:22.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "script",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -10184,7 +10475,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:39:56.0000000Z",
-      "topics": [],
+      "topics": [
+        "desktop-app",
+        "python",
+        "windows"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -10715,7 +11010,11 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:53:40.0000000Z",
-      "topics": [],
+      "topics": [
+        "github-pages",
+        "javascript",
+        "web-app"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -11562,7 +11861,13 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T11:39:25.0000000Z",
-      "topics": [],
+      "topics": [
+        "github-pages",
+        "html",
+        "javascript",
+        "privacy",
+        "web-app"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -12087,7 +12392,12 @@
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T11:43:38.0000000Z",
-      "topics": [],
+      "topics": [
+        "github-pages",
+        "javascript",
+        "weather",
+        "web-app"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
@@ -12146,7 +12456,11 @@
         "notesPublic": null
       },
       "pushedAt": "2026-06-12T11:39:28.0000000Z",
-      "topics": [],
+      "topics": [
+        "github-pages",
+        "javascript",
+        "web-app"
+      ],
       "featured": false,
       "featuredRank": null,
       "currentlyBuilding": false,
