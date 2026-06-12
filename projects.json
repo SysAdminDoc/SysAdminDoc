@@ -5,14 +5,14 @@
   "provenance": {
     "version": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "d44865dce08d033b59a7b255ecc45460575aed02",
+    "sourceCommit": "2be588385cc84e6a364997d70117b13b5afb1c2c",
     "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
-    "generatorSha256": "6f6ef478f85f20c541455576a941bfd69cd1e2861770714fa2b37147762e2d31",
+    "generatorSha256": "1174d2de7e3a7a313d7477e7901c3fa66f4edd89882d6530ce959dcec436028e",
     "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T08:04:49.1614582-04:00",
-    "metadataProvider": "graphql",
+    "metadataSnapshotAt": "2026-06-12T08:15:50.9804947-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
+      "requestedLimit": 0,
       "returnedCount": 186,
       "truncated": false
     }
@@ -89,7 +89,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:04:06.0000000Z",
+      "pushedAt": "2026-06-12T12:08:15.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -298,7 +298,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:01:14.0000000Z",
+      "pushedAt": "2026-06-12T12:14:14.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -610,7 +610,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:39:49.0000000Z",
+      "pushedAt": "2026-06-12T12:09:49.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1154,7 +1154,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:25:58.0000000Z",
+      "pushedAt": "2026-06-12T12:09:59.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -2718,7 +2718,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T12:04:51.0000000Z",
+      "pushedAt": "2026-06-12T12:14:55.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2777,7 +2777,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T12:05:12.0000000Z",
+      "pushedAt": "2026-06-12T12:11:18.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -2927,7 +2927,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:41:32.0000000Z",
+      "pushedAt": "2026-06-12T12:10:58.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -4599,7 +4599,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:33:44.0000000Z",
+      "pushedAt": "2026-06-12T12:13:41.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -9005,7 +9005,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T11:59:19.0000000Z",
+      "pushedAt": "2026-06-12T12:07:25.0000000Z",
       "topics": [
         "ai",
         "automation",

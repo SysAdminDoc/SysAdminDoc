@@ -53,6 +53,7 @@ jobs:
         run: ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Smoke live rendered profile
+        if: always()
         shell: pwsh
         run: ./scripts/render-profile-smoke.ps1
 
