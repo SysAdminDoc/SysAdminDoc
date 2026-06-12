@@ -3522,11 +3522,14 @@ function New-RenderedProfileSmokeSummary {
             overflowCount = 0
             minimumRootClientWidth = $null
             mobileRootClientWidth = $null
+            skipReason = $null
             warningCount = 0
             warnings = @()
         }
     }
 
+    $skipped = [bool](Get-MemberValue -Object $SmokeReport -Name "skipped")
+    $skipReason = [string](Get-MemberValue -Object $SmokeReport -Name "skipReason")
     $viewports = @(Get-MemberValue -Object $SmokeReport -Name "viewports")
     $passedViewportCount = @($viewports | Where-Object { [bool](Get-MemberValue -Object $_ -Name "passed") }).Count
     $failedViewportCount = @($viewports | Where-Object { -not [bool](Get-MemberValue -Object $_ -Name "passed") }).Count
@@ -3572,9 +3575,13 @@ function New-RenderedProfileSmokeSummary {
     if ($null -ne $mobileRootClientWidth -and $mobileRootClientWidth -lt $MinimumRootClientWidth) {
         $warnings.Add("Rendered profile mobile root width is $mobileRootClientWidth px, below the $MinimumRootClientWidth px budget.")
     }
+    if ($skipped) {
+        $reason = if ([string]::IsNullOrWhiteSpace($skipReason)) { "reason unavailable" } else { $skipReason }
+        $warnings.Add("Rendered profile smoke did not run: $reason")
+    }
 
     return [ordered]@{
-        status = if ([bool](Get-MemberValue -Object $SmokeReport -Name "passed") -and $warnings.Count -eq 0) { "passed" } else { "warning" }
+        status = if ($skipped) { "not-run" } elseif ([bool](Get-MemberValue -Object $SmokeReport -Name "passed") -and $warnings.Count -eq 0) { "passed" } else { "warning" }
         generatedAt = Get-MemberValue -Object $SmokeReport -Name "generatedAt"
         url = Get-MemberValue -Object $SmokeReport -Name "url"
         viewportCount = [int]$viewports.Count
@@ -3585,6 +3592,7 @@ function New-RenderedProfileSmokeSummary {
         overflowCount = [int]$overflowCount
         minimumRootClientWidth = $minimumRootClientWidthValue
         mobileRootClientWidth = $mobileRootClientWidth
+        skipReason = if ([string]::IsNullOrWhiteSpace($skipReason)) { $null } else { $skipReason }
         warningCount = [int]$warnings.Count
         warnings = @($warnings.ToArray())
     }

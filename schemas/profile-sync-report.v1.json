@@ -4411,6 +4411,7 @@
         "overflowCount",
         "minimumRootClientWidth",
         "mobileRootClientWidth",
+        "skipReason",
         "warningCount",
         "warnings"
       ],
@@ -4452,6 +4453,9 @@
         },
         "mobileRootClientWidth": {
           "$ref": "#/$defs/nullableInteger"
+        },
+        "skipReason": {
+          "$ref": "#/$defs/nullableString"
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"

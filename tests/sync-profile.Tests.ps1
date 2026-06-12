@@ -1325,6 +1325,24 @@ Write-Host ok
         $summary.warningCount | Should -BeGreaterThan 0
         ($summary.warnings -join ' ') | Should -Match 'below the 300 px budget'
     }
+    It 'summarizes skipped rendered smoke artifacts with an explicit reason' {
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $false
+            skipped = $true
+            skipReason = 'Chrome was not found'
+            viewports = @()
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.status | Should -Be 'not-run'
+        $summary.viewportCount | Should -Be 0
+        $summary.skipReason | Should -Be 'Chrome was not found'
+        $summary.warningCount | Should -Be 1
+        ($summary.warnings -join ' ') | Should -Match 'Chrome was not found'
+    }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeFalse
@@ -2223,6 +2241,8 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'viewport\.Name'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
         $script:RenderSmokeScript | Should -Match 'renderedProfileSmoke'
+        $script:RenderSmokeScript | Should -Match 'skipReason'
+        $script:RenderSmokeScript | Should -Match 'Write-RenderedSmokeArtifact'
     }
 
     It 'asserts key rendered sections and overflow/image health' {
@@ -2246,6 +2266,7 @@ Describe 'Rendered profile smoke wiring' {
 
     It 'runs from profile-sync and uploads public-safe smoke artifacts' {
         $script:ProfileSyncWorkflow | Should -Match 'Smoke live rendered profile'
+        $script:ProfileSyncWorkflow | Should -Match '(?s)- name: Smoke live rendered profile\s+if: always\(\)'
         $script:ProfileSyncWorkflow | Should -Match ([regex]::Escape('./scripts/render-profile-smoke.ps1'))
         $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke[.]json'
         $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke-[*][.]png'
