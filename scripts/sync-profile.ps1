@@ -55,6 +55,7 @@ $ReadmeDetailsSectionSoftLimit = 15
 $ReadmeImageTagSoftLimit = 10
 $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
+$ProjectsFeedSchemaVersion = 1
 $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
@@ -2379,6 +2380,7 @@ function New-ProjectsProvenance {
 
     return [ordered]@{
         version = 1
+        feedSchemaVersion = $ProjectsFeedSchemaVersion
         sourceRepository = "$Owner/$Owner"
         sourceCommit = Get-GitHeadCommit
         catalogSha256 = Get-RepoFileSha256 -RelativePath "data/profile-catalog.json"
@@ -6397,6 +6399,7 @@ function Test-MetadataDrift {
 
         $provenanceFatalFields = @(
             "provenance.version",
+            "provenance.feedSchemaVersion",
             "provenance.sourceRepository",
             "provenance.catalogSha256",
             "provenance.generatorSha256",

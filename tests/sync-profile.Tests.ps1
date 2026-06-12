@@ -1551,6 +1551,7 @@ Describe 'New-ProjectsExportJson feed' {
         $provenanceJson = $json.provenance | ConvertTo-Json -Depth 20
 
         $json.provenance.version | Should -Be 1
+        $json.provenance.feedSchemaVersion | Should -Be 1
         $json.provenance.sourceRepository | Should -Be 'SysAdminDoc/SysAdminDoc'
         if ($null -ne $json.provenance.sourceCommit) {
             $json.provenance.sourceCommit | Should -Match '^[a-f0-9]{40}$'
@@ -1564,6 +1565,16 @@ Describe 'New-ProjectsExportJson feed' {
         $json.provenance.repoEnumeration.returnedCount | Should -Be 0
         $json.provenance.repoEnumeration.truncated | Should -BeFalse
         $provenanceJson | Should -Not -Match 'C:\\|/Users/|repos\\\\|VaultBox|RadAtlas|improve-repo'
+    }
+
+    It 'documents the downstream feed schema version bump contract' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-projects.v1.json') -Raw
+
+        $schema | Should -Match '"feedSchemaVersion"'
+        $schema | Should -Match 'Downstream projects[.]json feed contract version'
+        $schema | Should -Match 'breaking feed changes'
+        $schema | Should -Match 'new required fields'
+        $schema | Should -Match 'Optional additive fields do not require a bump'
     }
 
     It 'normalizes text newlines before hashing feed provenance files' {
@@ -3705,6 +3716,7 @@ Describe 'Test-MetadataDrift report' {
             source = 'SysAdminDoc/SysAdminDoc data/profile-catalog.json'
             provenance = [ordered]@{
                 version = 1
+                feedSchemaVersion = 1
                 sourceRepository = 'SysAdminDoc/SysAdminDoc'
                 sourceCommit = '1111111111111111111111111111111111111111'
                 catalogSha256 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
@@ -3726,6 +3738,7 @@ Describe 'Test-MetadataDrift report' {
         }
         $expected = $current | ConvertTo-Json -Depth 20 | ConvertFrom-Json -AsHashtable
         $expected.provenance.sourceCommit = '2222222222222222222222222222222222222222'
+        $expected.provenance.feedSchemaVersion = 2
         $expected.provenance.catalogSha256 = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'
         $expected.provenance.metadataSnapshotAt = '2026-06-06T01:00:00Z'
 
@@ -3737,6 +3750,10 @@ Describe 'Test-MetadataDrift report' {
         $catalogHash | Should -HaveCount 1
         $catalogHash[0].severity | Should -Be 'fatal'
 
+        $feedSchemaVersion = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.feedSchemaVersion' })
+        $feedSchemaVersion | Should -HaveCount 1
+        $feedSchemaVersion[0].severity | Should -Be 'fatal'
+
         $sourceCommit = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.sourceCommit' })
         $sourceCommit | Should -HaveCount 1
         $sourceCommit[0].severity | Should -Be 'info'
@@ -3745,7 +3762,7 @@ Describe 'Test-MetadataDrift report' {
         $snapshot | Should -HaveCount 1
         $snapshot[0].severity | Should -Be 'info'
 
-        $result.fatalCount | Should -Be 1
+        $result.fatalCount | Should -Be 2
         $result.informationalCount | Should -Be 2
     }
 }

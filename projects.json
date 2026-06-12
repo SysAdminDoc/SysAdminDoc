@@ -4,15 +4,16 @@
   "source": "SysAdminDoc/SysAdminDoc data/profile-catalog.json",
   "provenance": {
     "version": 1,
+    "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "0ea0b60530691552fba0d1fedd9036937a574964",
+    "sourceCommit": "422dcdadc786fb6fce51d373cb57cd10e8f46768",
     "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
-    "generatorSha256": "ccadd1a2437a59523d8f8a44dbcb3da0a2f077da1f46378ba7e143c36d49659b",
-    "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-12T09:07:26.5437663-04:00",
-    "metadataProvider": "graphql",
+    "generatorSha256": "713a983b972c25f5412647d618463ed9b41db563de1e4daeb4e2e85376f9d95d",
+    "projectSchemaSha256": "6265c49f0c33494431252f374df2d7ec7aee92cbdeecd019d74be3768d61dc1f",
+    "metadataSnapshotAt": "2026-06-12T09:19:21.2408118-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
+      "requestedLimit": 0,
       "returnedCount": 186,
       "truncated": false
     }
@@ -89,7 +90,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:59:11.0000000Z",
+      "pushedAt": "2026-06-12T13:11:37.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -302,7 +303,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T13:02:07.0000000Z",
+      "pushedAt": "2026-06-12T13:19:17.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -619,7 +620,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:52:32.0000000Z",
+      "pushedAt": "2026-06-12T13:10:51.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -693,7 +694,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T13:02:11.0000000Z",
+      "pushedAt": "2026-06-12T13:17:05.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1186,7 +1187,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:56:01.0000000Z",
+      "pushedAt": "2026-06-12T13:07:39.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -3046,7 +3047,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T12:59:32.0000000Z",
+      "pushedAt": "2026-06-12T13:15:52.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
