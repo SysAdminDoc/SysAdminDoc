@@ -1860,6 +1860,7 @@
         "secretScanningValidityChecks",
         "dependabotSecurityUpdates",
         "dependabotSecurityPosture",
+        "scorecardScore",
         "codeScanning"
       ],
       "properties": {
@@ -1881,8 +1882,62 @@
         "dependabotSecurityPosture": {
           "$ref": "#/$defs/dependabotSecurityPosture"
         },
+        "scorecardScore": {
+          "$ref": "#/$defs/scorecardScore"
+        },
         "codeScanning": {
           "$ref": "#/$defs/codeScanningStatus"
+        }
+      }
+    },
+    "scorecardScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "score",
+        "maxScore",
+        "provider",
+        "sourceUrl",
+        "date",
+        "analyzedRepo",
+        "analyzedCommit",
+        "unavailableReason"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "maxScore": {
+          "type": "number",
+          "const": 10
+        },
+        "provider": {
+          "type": "string",
+          "const": "securityscorecards-api"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "date": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "analyzedRepo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "analyzedCommit": {
+          "$ref": "#/$defs/nullableCommitSha"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
