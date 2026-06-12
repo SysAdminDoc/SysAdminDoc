@@ -3853,6 +3853,49 @@ function Invoke-GhApiJsonSafe {
     }
 }
 
+function Get-PublicSafeRestError {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+    $statusCode = $null
+    if ($ErrorRecord.Exception -and $ErrorRecord.Exception.Response -and $ErrorRecord.Exception.Response.StatusCode) {
+        $statusCode = [int]$ErrorRecord.Exception.Response.StatusCode
+    }
+    if ($null -ne $statusCode) {
+        return "HTTP $statusCode"
+    }
+
+    $message = if ($ErrorRecord.Exception) { [string]$ErrorRecord.Exception.Message } else { [string]$ErrorRecord }
+    if ([string]::IsNullOrWhiteSpace($message)) {
+        return "request failed"
+    }
+    return ($message -replace '[\r\n]+', ' ').Trim()
+}
+
+function Invoke-RestJsonSafe {
+    param([string]$Uri)
+
+    try {
+        $value = Invoke-RestMethod `
+            -Uri $Uri `
+            -Method Get `
+            -Headers @{ Accept = "application/json"; "User-Agent" = "SysAdminDoc-profile-sync" } `
+            -TimeoutSec 20 `
+            -MaximumRedirection 5
+
+        return [ordered]@{
+            ok = $true
+            value = $value
+            error = $null
+        }
+    } catch {
+        return [ordered]@{
+            ok = $false
+            value = $null
+            error = Get-PublicSafeRestError -ErrorRecord $_
+        }
+    }
+}
+
 function Get-CommunityLocalFileStatus {
     $checks = @(
         [ordered]@{ path = "README.md"; required = $true },
@@ -3985,6 +4028,69 @@ function Test-SecurityPolicyLinkedReportingTarget {
 
     $text = Get-Content -LiteralPath $path -Raw
     return [bool][regex]::IsMatch($text, '(?i)\bhttps?://|mailto:')
+}
+
+function Get-ScorecardScoreApiUrl {
+    return "https://api.securityscorecards.dev/projects/github.com/$Owner/$Owner"
+}
+
+function ConvertTo-NullableDouble {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [double] -or $Value -is [float] -or $Value -is [decimal] -or $Value -is [int] -or $Value -is [long]) {
+        return [double]$Value
+    }
+
+    $parsed = [double]0
+    if ([double]::TryParse(
+            [string]$Value,
+            [System.Globalization.NumberStyles]::Float,
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [ref]$parsed
+        )) {
+        return $parsed
+    }
+    return $null
+}
+
+function Get-ScorecardScoreSnapshot {
+    param(
+        [object]$ScorecardScoreResult,
+        [string]$UnavailableReason
+    )
+
+    $sourceUrl = Get-ScorecardScoreApiUrl
+    $score = ConvertTo-NullableDouble (Get-MemberValue -Object $ScorecardScoreResult -Name "score")
+    $resultRepo = Get-MemberValue -Object $ScorecardScoreResult -Name "repo"
+    $missingReason = if ([string]::IsNullOrWhiteSpace($UnavailableReason)) { "scorecard score evidence was not supplied" } else { $UnavailableReason }
+    if ($null -eq $ScorecardScoreResult -or $null -eq $score -or -not [string]::IsNullOrWhiteSpace($UnavailableReason)) {
+        return [ordered]@{
+            available = $false
+            score = $null
+            maxScore = 10
+            provider = "securityscorecards-api"
+            sourceUrl = $sourceUrl
+            date = $null
+            analyzedRepo = $null
+            analyzedCommit = $null
+            unavailableReason = if ($null -eq $ScorecardScoreResult -or -not [string]::IsNullOrWhiteSpace($UnavailableReason)) { $missingReason } else { "scorecard API result omitted a numeric score" }
+        }
+    }
+
+    return [ordered]@{
+        available = $true
+        score = $score
+        maxScore = 10
+        provider = "securityscorecards-api"
+        sourceUrl = $sourceUrl
+        date = ConvertTo-IsoText (Get-MemberValue -Object $ScorecardScoreResult -Name "date")
+        analyzedRepo = [string](Get-MemberValue -Object $resultRepo -Name "name")
+        analyzedCommit = [string](Get-MemberValue -Object $resultRepo -Name "commit")
+        unavailableReason = $null
+    }
 }
 
 function New-ScorecardAlertPostureRow {
@@ -4830,6 +4936,7 @@ function Test-RepositoryCommunityBaseline {
         [object[]]$LocalFiles = @(),
         [object]$CodeScanningLocalEvidence,
         [object[]]$ScorecardAlerts,
+        [object]$ScorecardScoreResult,
         [string]$DependabotSecurityUpdatesStatus,
         [string]$DependabotSecurityUpdatesUnavailableReason,
         [string]$RepositoryUnavailableReason,
@@ -4838,7 +4945,8 @@ function Test-RepositoryCommunityBaseline {
         [string]$RulesetsUnavailableReason,
         [string]$ActionsWorkflowPermissionsUnavailableReason,
         [string]$LanguagesUnavailableReason,
-        [string]$ScorecardAlertsUnavailableReason
+        [string]$ScorecardAlertsUnavailableReason,
+        [string]$ScorecardScoreUnavailableReason
     )
 
     $repoWarnings = New-Object System.Collections.Generic.List[string]
@@ -4855,6 +4963,7 @@ function Test-RepositoryCommunityBaseline {
         $CodeScanningLocalEvidence = Get-CodeScanningLocalEvidence
     }
     $scorecardAlertPosture = Get-ScorecardAlertPosture -Alerts $ScorecardAlerts -UnavailableReason $ScorecardAlertsUnavailableReason
+    $scorecardScore = Get-ScorecardScoreSnapshot -ScorecardScoreResult $ScorecardScoreResult -UnavailableReason $ScorecardScoreUnavailableReason
 
     if (-not $repoAvailable -and -not [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason)) {
         $repoWarnings.Add("Repository settings unavailable: $RepositoryUnavailableReason.")
@@ -5072,6 +5181,7 @@ function Test-RepositoryCommunityBaseline {
             secretScanningValidityChecks = $secretScanningValidityChecks
             dependabotSecurityUpdates = $dependabotSecurityUpdates
             dependabotSecurityPosture = $dependabotSecurityPosture
+            scorecardScore = $scorecardScore
             codeScanning = [ordered]@{
                 status = $codeScanningStatus
                 recommendation = $codeScanningRecommendation
@@ -5154,7 +5264,8 @@ function Get-RepositoryCommunityBaseline {
             -RulesetsUnavailableReason "offline" `
             -ActionsWorkflowPermissionsUnavailableReason "offline" `
             -LanguagesUnavailableReason "offline" `
-            -ScorecardAlertsUnavailableReason "offline"
+            -ScorecardAlertsUnavailableReason "offline" `
+            -ScorecardScoreUnavailableReason "offline"
     }
     if (-not (Test-GitHubCliAuthenticated)) {
         return Test-RepositoryCommunityBaseline `
@@ -5165,7 +5276,8 @@ function Get-RepositoryCommunityBaseline {
             -RulesetsUnavailableReason "gh authentication unavailable" `
             -ActionsWorkflowPermissionsUnavailableReason "gh authentication unavailable" `
             -LanguagesUnavailableReason "gh authentication unavailable" `
-            -ScorecardAlertsUnavailableReason "gh authentication unavailable"
+            -ScorecardAlertsUnavailableReason "gh authentication unavailable" `
+            -ScorecardScoreUnavailableReason "gh authentication unavailable"
     }
 
     $repositoryResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner"
@@ -5175,6 +5287,7 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
     $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
+    $scorecardScoreResult = Invoke-RestJsonSafe -Uri (Get-ScorecardScoreApiUrl)
     $dependabotSecurityUpdatesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/automated-security-fixes"
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
@@ -5184,6 +5297,7 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsValue = if ($actionsWorkflowPermissionsResult["ok"]) { $actionsWorkflowPermissionsResult["value"] } else { $null }
     $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
     $scorecardAlertsValue = if ($scorecardAlertsResult["ok"]) { @($scorecardAlertsResult["value"]) } else { $null }
+    $scorecardScoreValue = if ($scorecardScoreResult["ok"]) { $scorecardScoreResult["value"] } else { $null }
     $dependabotSecurityUpdatesValue = if ($dependabotSecurityUpdatesResult["ok"]) {
         $automatedFixesEnabled = Get-MemberValue -Object $dependabotSecurityUpdatesResult["value"] -Name "enabled"
         if ($null -eq $automatedFixesEnabled) {
@@ -5206,6 +5320,7 @@ function Get-RepositoryCommunityBaseline {
         -Languages $languagesValue `
         -LocalFiles $localFiles `
         -ScorecardAlerts $scorecardAlertsValue `
+        -ScorecardScoreResult $scorecardScoreValue `
         -DependabotSecurityUpdatesStatus $dependabotSecurityUpdatesValue `
         -DependabotSecurityUpdatesUnavailableReason $(if ($dependabotSecurityUpdatesResult["ok"]) { $null } else { $dependabotSecurityUpdatesResult["error"] }) `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
@@ -5214,7 +5329,8 @@ function Get-RepositoryCommunityBaseline {
         -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
         -ActionsWorkflowPermissionsUnavailableReason $(if ($actionsWorkflowPermissionsResult["ok"]) { $null } else { $actionsWorkflowPermissionsResult["error"] }) `
         -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] }) `
-        -ScorecardAlertsUnavailableReason $(if ($scorecardAlertsResult["ok"]) { $null } else { $scorecardAlertsResult["error"] })
+        -ScorecardAlertsUnavailableReason $(if ($scorecardAlertsResult["ok"]) { $null } else { $scorecardAlertsResult["error"] }) `
+        -ScorecardScoreUnavailableReason $(if ($scorecardScoreResult["ok"]) { $null } else { $scorecardScoreResult["error"] })
 }
 
 function ConvertTo-ComparableJson {

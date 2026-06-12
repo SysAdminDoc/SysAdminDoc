@@ -293,11 +293,20 @@ Describe 'Repository settings and community-health baseline' {
             New-TestScorecardAlert -Number 4 -RuleId 'CIIBestPracticesID' -Description 'CII-Best-Practices' -SecuritySeverity 'low'
             New-TestScorecardAlert -Number 5 -RuleId 'FuzzingID' -Description 'Fuzzing'
         )
+        $scorecardScoreResult = [pscustomobject]@{
+            date = '2026-06-11T10:08:14Z'
+            score = 7.4
+            repo = [pscustomobject]@{
+                name = 'github.com/SysAdminDoc/SysAdminDoc'
+                commit = '0123456789abcdef0123456789abcdef01234567'
+            }
+        }
 
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -ScorecardAlerts $scorecardAlerts
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -ScorecardAlerts $scorecardAlerts -ScorecardScoreResult $scorecardScoreResult
         $repoSettings = $result['repositorySettings']
         $communityHealth = $result['communityHealth']
         $scorecardPosture = $repoSettings.security.codeScanning.scorecardAlertPosture
+        $scorecardScore = $repoSettings.security.scorecardScore
 
         $repoSettings.available | Should -BeTrue
         $repoSettings.security.secretScanning | Should -Be 'enabled'
@@ -311,6 +320,15 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
         $repoSettings.security.dependabotSecurityPosture.documentationPath | Should -Be 'decision:dependabot-security-posture'
+        $scorecardScore.available | Should -BeTrue
+        $scorecardScore.score | Should -Be 7.4
+        $scorecardScore.maxScore | Should -Be 10.0
+        $scorecardScore.provider | Should -Be 'securityscorecards-api'
+        $scorecardScore.sourceUrl | Should -Be 'https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc'
+        $scorecardScore.date | Should -Be '2026-06-11T10:08:14Z'
+        $scorecardScore.analyzedRepo | Should -Be 'github.com/SysAdminDoc/SysAdminDoc'
+        $scorecardScore.analyzedCommit | Should -Be '0123456789abcdef0123456789abcdef01234567'
+        $scorecardScore.unavailableReason | Should -BeNullOrEmpty
         $repoSettings.security.codeScanning.status | Should -Be 'not-applicable'
         $repoSettings.security.codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $repoSettings.security.codeScanning.reason | Should -Match 'CodeQL-supported source language'
@@ -489,6 +507,9 @@ Describe 'Repository settings and community-health baseline' {
 
         $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'unavailable'
         $repoSettings.security.dependabotSecurityPosture.evidence | Should -Match 'automated-security-fixes endpoint'
+        $repoSettings.security.scorecardScore.available | Should -BeFalse
+        $repoSettings.security.scorecardScore.score | Should -BeNullOrEmpty
+        $repoSettings.security.scorecardScore.unavailableReason | Should -Be 'scorecard score evidence was not supplied'
         $warnings | Should -Match 'Secret scanning status is unavailable'
         $warnings | Should -Match 'Secret scanning push protection status is unavailable'
         $warnings | Should -Match 'Dependabot security update status is unavailable'
@@ -2091,6 +2112,16 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'track-external-scorecard-governance-items'
+        $report.repositorySettings.security.scorecardScore.provider | Should -Be 'securityscorecards-api'
+        $report.repositorySettings.security.scorecardScore.sourceUrl | Should -Be 'https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc'
+        if ($report.repositorySettings.security.scorecardScore.available) {
+            $report.repositorySettings.security.scorecardScore.score | Should -BeGreaterOrEqual 0
+            $report.repositorySettings.security.scorecardScore.score | Should -BeLessOrEqual 10
+            $report.repositorySettings.security.scorecardScore.maxScore | Should -Be 10
+            $report.repositorySettings.security.scorecardScore.analyzedRepo | Should -Be 'github.com/SysAdminDoc/SysAdminDoc'
+        } else {
+            $report.repositorySettings.security.scorecardScore.unavailableReason | Should -Not -BeNullOrEmpty
+        }
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }) | Should -BeNullOrEmpty
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-reviewer-model'
         $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
