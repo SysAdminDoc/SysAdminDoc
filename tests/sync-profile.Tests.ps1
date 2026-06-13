@@ -3131,7 +3131,7 @@ Describe 'Workflow timeout budgets' {
             '.github/workflows/dependabot-auto-merge.yml' = 1
             '.github/workflows/profile-sync.yml' = 4
             '.github/workflows/scorecard.yml' = 1
-            '.github/workflows/tests.yml' = 4
+            '.github/workflows/tests.yml' = 5
             '.github/workflows/workflow-security.yml' = 1
         }
     }
@@ -3270,7 +3270,7 @@ Describe 'Workflow checkout action pin' {
         $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
 
-        $checkoutUses.Count | Should -Be 11
+        $checkoutUses.Count | Should -Be 12
         foreach ($match in $checkoutUses) {
             $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
         }
@@ -3346,6 +3346,19 @@ Describe 'Workflow Scorecard action pin' {
 
     It 'does not use floating Scorecard action tags' {
         $script:ScorecardWorkflowForActionPin | Should -Not -Match 'ossf/scorecard-action@v'
+    }
+}
+
+Describe 'Workflow dependency review action pin' {
+    BeforeAll {
+        $script:TestsWorkflowForDepReview = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
+        $script:DepReviewV500Sha = 'a1d282b36b6f3519aa1f3fc636f609c47dddb294'
+    }
+
+    It 'uses the pinned dependency-review-action 5.0.0 SHA on pull_request only' {
+        $script:TestsWorkflowForDepReview | Should -Match "actions/dependency-review-action@$script:DepReviewV500Sha"
+        $script:TestsWorkflowForDepReview | Should -Not -Match 'actions/dependency-review-action@v'
+        $script:TestsWorkflowForDepReview | Should -Match "(?ms)dependency-review:.*?if:.*?github\.event_name == 'pull_request'"
     }
 }
 
