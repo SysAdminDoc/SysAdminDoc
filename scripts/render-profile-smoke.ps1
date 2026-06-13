@@ -224,10 +224,62 @@ function Invoke-RenderedSmoke {
     }
 }
 
-$chrome = Find-ChromeExecutable
 $currentDirectory = (Get-Location).ProviderPath
 $resolvedOutputDir = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $currentDirectory $OutputDir }
 New-Item -ItemType Directory -Force -Path $resolvedOutputDir | Out-Null
+
+function Write-RenderedSmokeArtifact {
+    param([object]$Report)
+
+    $reportPath = Join-Path $resolvedOutputDir "rendered-profile-smoke.json"
+    $Report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $reportPath -Encoding utf8
+    $syncReportPath = Join-Path $currentDirectory "reports/profile-sync-report.json"
+    if (Test-Path -LiteralPath $syncReportPath) {
+        try {
+            $syncReport = Get-Content -LiteralPath $syncReportPath -Raw | ConvertFrom-Json -AsHashtable
+            $syncReport["renderedProfileSmoke"] = New-RenderedProfileSmokeSummary -SmokeReport $Report
+            for ($budgetPass = 0; $budgetPass -lt 2; $budgetPass++) {
+                $draftSyncReportJson = $syncReport | ConvertTo-Json -Depth 30
+                foreach ($row in @($syncReport["artifactBudgets"]["rows"])) {
+                    if ($row["artifact"] -eq "reports/profile-sync-report.json" -and $row["metric"] -eq "bytes") {
+                        $value = [System.Text.Encoding]::UTF8.GetByteCount($draftSyncReportJson + [Environment]::NewLine)
+                        $row["value"] = [int]$value
+                        $row["overSoftLimit"] = [bool]($value -gt [int]$row["softLimit"])
+                        $row["warning"] = if ($row["overSoftLimit"]) {
+                            "reports/profile-sync-report.json bytes is $value, above the $($row["softLimit"]) soft limit."
+                        } else {
+                            $null
+                        }
+                    }
+                }
+            }
+            $syncReport | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $syncReportPath -Encoding utf8
+            Write-Host "Updated profile sync report renderedProfileSmoke summary: $syncReportPath"
+        } catch {
+            Write-Warning "Could not update profile sync report renderedProfileSmoke summary: $($_.Exception.Message)"
+        }
+    }
+
+    return $reportPath
+}
+
+$chrome = $null
+try {
+    $chrome = Find-ChromeExecutable
+} catch {
+    $skipReason = $_.Exception.Message
+    $skipReport = [ordered]@{
+        generatedAt = [datetimeoffset]::Now.ToString("o")
+        url = $Url
+        chrome = $null
+        passed = $false
+        skipped = $true
+        skipReason = $skipReason
+        viewports = @()
+    }
+    $reportPath = Write-RenderedSmokeArtifact -Report $skipReport
+    Write-Error "Rendered profile smoke could not run. See $reportPath. Reason: $skipReason"
+}
 
 $results = $null
 $lastLaunchError = $null
@@ -306,7 +358,18 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
 }
 
 if ($null -eq $results) {
-    throw "Rendered profile smoke could not start Chrome DevTools after retry. Last error: $lastLaunchError"
+    $skipReason = "Chrome DevTools could not start after retry. Last error: $lastLaunchError"
+    $skipReport = [ordered]@{
+        generatedAt = [datetimeoffset]::Now.ToString("o")
+        url = $Url
+        chrome = $chrome
+        passed = $false
+        skipped = $true
+        skipReason = $skipReason
+        viewports = @()
+    }
+    $reportPath = Write-RenderedSmokeArtifact -Report $skipReport
+    throw "Rendered profile smoke could not start Chrome DevTools after retry. See $reportPath. Last error: $lastLaunchError"
 }
 
 $report = [ordered]@{
@@ -314,36 +377,11 @@ $report = [ordered]@{
     url = $Url
     chrome = $chrome
     passed = (@($results | Where-Object { -not $_.passed }).Count -eq 0)
+    skipped = $false
+    skipReason = $null
     viewports = @($results)
 }
-$reportPath = Join-Path $resolvedOutputDir "rendered-profile-smoke.json"
-$report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $reportPath -Encoding utf8
-$syncReportPath = Join-Path $currentDirectory "reports/profile-sync-report.json"
-if (Test-Path -LiteralPath $syncReportPath) {
-    try {
-        $syncReport = Get-Content -LiteralPath $syncReportPath -Raw | ConvertFrom-Json -AsHashtable
-        $syncReport["renderedProfileSmoke"] = New-RenderedProfileSmokeSummary -SmokeReport $report
-        for ($budgetPass = 0; $budgetPass -lt 2; $budgetPass++) {
-            $draftSyncReportJson = $syncReport | ConvertTo-Json -Depth 30
-            foreach ($row in @($syncReport["artifactBudgets"]["rows"])) {
-                if ($row["artifact"] -eq "reports/profile-sync-report.json" -and $row["metric"] -eq "bytes") {
-                    $value = [System.Text.Encoding]::UTF8.GetByteCount($draftSyncReportJson + [Environment]::NewLine)
-                    $row["value"] = [int]$value
-                    $row["overSoftLimit"] = [bool]($value -gt [int]$row["softLimit"])
-                    $row["warning"] = if ($row["overSoftLimit"]) {
-                        "reports/profile-sync-report.json bytes is $value, above the $($row["softLimit"]) soft limit."
-                    } else {
-                        $null
-                    }
-                }
-            }
-        }
-        $syncReport | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $syncReportPath -Encoding utf8
-        Write-Host "Updated profile sync report renderedProfileSmoke summary: $syncReportPath"
-    } catch {
-        Write-Warning "Could not update profile sync report renderedProfileSmoke summary: $($_.Exception.Message)"
-    }
-}
+$reportPath = Write-RenderedSmokeArtifact -Report $report
 
 if (-not $report.passed) {
     Write-Error "Rendered profile smoke failed. See $reportPath."

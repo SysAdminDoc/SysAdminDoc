@@ -293,11 +293,20 @@ Describe 'Repository settings and community-health baseline' {
             New-TestScorecardAlert -Number 4 -RuleId 'CIIBestPracticesID' -Description 'CII-Best-Practices' -SecuritySeverity 'low'
             New-TestScorecardAlert -Number 5 -RuleId 'FuzzingID' -Description 'Fuzzing'
         )
+        $scorecardScoreResult = [pscustomobject]@{
+            date = '2026-06-11T10:08:14Z'
+            score = 7.4
+            repo = [pscustomobject]@{
+                name = 'github.com/SysAdminDoc/SysAdminDoc'
+                commit = '0123456789abcdef0123456789abcdef01234567'
+            }
+        }
 
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -ScorecardAlerts $scorecardAlerts
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -ScorecardAlerts $scorecardAlerts -ScorecardScoreResult $scorecardScoreResult
         $repoSettings = $result['repositorySettings']
         $communityHealth = $result['communityHealth']
         $scorecardPosture = $repoSettings.security.codeScanning.scorecardAlertPosture
+        $scorecardScore = $repoSettings.security.scorecardScore
 
         $repoSettings.available | Should -BeTrue
         $repoSettings.security.secretScanning | Should -Be 'enabled'
@@ -311,6 +320,15 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
         $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
         $repoSettings.security.dependabotSecurityPosture.documentationPath | Should -Be 'decision:dependabot-security-posture'
+        $scorecardScore.available | Should -BeTrue
+        $scorecardScore.score | Should -Be 7.4
+        $scorecardScore.maxScore | Should -Be 10.0
+        $scorecardScore.provider | Should -Be 'securityscorecards-api'
+        $scorecardScore.sourceUrl | Should -Be 'https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc'
+        $scorecardScore.date | Should -Be '2026-06-11T10:08:14Z'
+        $scorecardScore.analyzedRepo | Should -Be 'github.com/SysAdminDoc/SysAdminDoc'
+        $scorecardScore.analyzedCommit | Should -Be '0123456789abcdef0123456789abcdef01234567'
+        $scorecardScore.unavailableReason | Should -BeNullOrEmpty
         $repoSettings.security.codeScanning.status | Should -Be 'not-applicable'
         $repoSettings.security.codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $repoSettings.security.codeScanning.reason | Should -Match 'CodeQL-supported source language'
@@ -452,6 +470,54 @@ Describe 'Repository settings and community-health baseline' {
         ($communityHealth.warnings -join ' ') | Should -Match 'issue-template'
     }
 
+    It 'uses automated-security-fixes fallback when repository metadata omits Dependabot status' {
+        $repository = [pscustomobject]@{
+            security_and_analysis = [pscustomobject]@{
+                secret_scanning = [pscustomobject]@{ status = 'enabled' }
+                secret_scanning_push_protection = [pscustomobject]@{ status = 'enabled' }
+            }
+        }
+        $codeScanningEvidence = [ordered]@{
+            codeqlWorkflowPresent = $false
+            sarifUploadWorkflowPresent = $true
+            scorecardSarifUploadPresent = $true
+            psScriptAnalyzerWorkflowPresent = $true
+            actionlintWorkflowPresent = $true
+            zizmorWorkflowPresent = $true
+        }
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -DependabotSecurityUpdatesStatus 'enabled'
+        $repoSettings = $result['repositorySettings']
+
+        $repoSettings.security.dependabotSecurityUpdates | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
+        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
+        ($repoSettings.warnings -join ' ') | Should -Not -Match 'Dependabot security updates are not enabled'
+    }
+
+    It 'does not report unavailable repository security metadata as disabled' {
+        $repository = [pscustomobject]@{
+            security_and_analysis = [pscustomobject]@{}
+        }
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -LocalFiles $script:LocalCommunityFilesOk -DependabotSecurityUpdatesUnavailableReason 'Resource not accessible by integration (HTTP 403)'
+        $repoSettings = $result['repositorySettings']
+        $warnings = $repoSettings.warnings -join ' '
+
+        $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'unavailable'
+        $repoSettings.security.dependabotSecurityPosture.evidence | Should -Match 'automated-security-fixes endpoint'
+        $repoSettings.security.scorecardScore.available | Should -BeFalse
+        $repoSettings.security.scorecardScore.score | Should -BeNullOrEmpty
+        $repoSettings.security.scorecardScore.unavailableReason | Should -Be 'scorecard score evidence was not supplied'
+        $warnings | Should -Match 'Secret scanning status is unavailable'
+        $warnings | Should -Match 'Secret scanning push protection status is unavailable'
+        $warnings | Should -Match 'Dependabot security update status is unavailable'
+        $warnings | Should -Not -Match 'Secret scanning is not enabled'
+        $warnings | Should -Not -Match 'Secret scanning push protection is not enabled'
+        $warnings | Should -Not -Match 'Dependabot security updates are not enabled'
+    }
+
     It 'warns when a CodeQL-supported language appears without an intentional CodeQL workflow' {
         $repository = [pscustomobject]@{
             security_and_analysis = [pscustomobject]@{
@@ -523,6 +589,29 @@ Describe 'REST fallback release request guard' {
         $repos | Should -HaveCount 2
         $repos[0].name | Should -Be 'A'
         $repos[1].name | Should -Be 'B'
+    }
+
+    It 'maps REST repo metadata when optional fields are omitted' {
+        $repo = [pscustomobject]@{
+            name = 'OptionalFieldsRepo'
+            description = 'REST fallback fixture'
+            stargazers_count = 3
+            default_branch = 'main'
+            fork = $false
+            private = $false
+            archived = $false
+            pushed_at = '2026-06-11T07:00:00Z'
+            html_url = 'https://github.com/SysAdminDoc/OptionalFieldsRepo'
+        }
+
+        $mapped = ConvertFrom-RestRepoMetadata -Repo $repo -Release $null
+
+        $mapped.name | Should -Be 'OptionalFieldsRepo'
+        $mapped.defaultBranchRef.name | Should -Be 'main'
+        $mapped.parent | Should -BeNullOrEmpty
+        $mapped.repositoryTopics | Should -HaveCount 0
+        $mapped.licenseInfo | Should -BeNullOrEmpty
+        $mapped.primaryLanguage | Should -BeNullOrEmpty
     }
 
     It 'requires authentication when release requests exceed the unauthenticated budget' {
@@ -733,26 +822,40 @@ Describe 'Report schema depth helpers' {
         $winTool = New-TestEntry -Repo 'BWinTool' -Category 'powershell'
         $apiTool = New-TestEntry -Repo 'CApiTool' -Category 'web'
         $pyTool = New-TestEntry -Repo 'DPyTool' -Category 'python'
+        $customFork = New-TestEntry -Repo 'ECustomFork' -Category 'misc'
+        $customFork.upstreamLicense = 'Other'
+        $sourceAvailable = New-TestEntry -Repo 'FSourceAvailable' -Category 'web'
+        $sourceAvailable.notes = 'Intentional Business Source License 1.1; GitHub reports it as Other.'
         $repos = @(
             (New-TestRepoMeta -Name 'AWebTool' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' })),
             (New-TestRepoMeta -Name 'BWinTool' -LicenseInfo ([pscustomobject]@{ key = 'mit'; name = 'MIT License' })),
             (New-TestRepoMeta -Name 'CApiTool' -LicenseInfo ([pscustomobject]@{ key = 'apache-2.0'; name = 'Apache License 2.0' })),
-            (New-TestRepoMeta -Name 'DPyTool' -LicenseInfo $null)
+            (New-TestRepoMeta -Name 'DPyTool' -LicenseInfo $null),
+            (New-TestRepoMeta -Name 'ECustomFork' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' })),
+            (New-TestRepoMeta -Name 'FSourceAvailable' -LicenseInfo ([pscustomobject]@{ key = 'other'; name = 'Other' }))
         )
         $lookup = ConvertTo-Lookup $repos
 
-        $result = Test-ProjectLicenseMetadata -Entries @($webTool, $winTool, $apiTool, $pyTool) -RepoLookup $lookup
+        $result = Test-ProjectLicenseMetadata -Entries @($webTool, $winTool, $apiTool, $pyTool, $customFork, $sourceAvailable) -RepoLookup $lookup
 
-        $result.checkedCount | Should -Be 4
-        $result.detectedCount | Should -Be 3
+        $result.checkedCount | Should -Be 6
+        $result.detectedCount | Should -Be 5
         $result.missingCount | Should -Be 1
-        $result.unknownCount | Should -Be 1
+        $result.unknownCount | Should -Be 3
+        $result.intentionalExceptionCount | Should -Be 2
+        $result.unresolvedUnknownCount | Should -Be 1
         $result.warningCount | Should -Be 2
         ($result.missingLicenses | ForEach-Object { $_.repo }) | Should -Contain 'DPyTool'
         ($result.unknownLicenses | ForEach-Object { $_.repo }) | Should -Contain 'AWebTool'
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'AWebTool' }).intentionalException | Should -BeFalse
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'ECustomFork' }).intentionalException | Should -BeTrue
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'ECustomFork' }).exceptionReason | Should -Match 'upstream license'
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'FSourceAvailable' }).intentionalException | Should -BeTrue
+        ($result.unknownLicenses | Where-Object { $_.repo -eq 'FSourceAvailable' }).exceptionReason | Should -Match 'Business Source License'
         (($result.licenseCounts | ForEach-Object { $_.licenseSpdxId }) -join ',') | Should -Be 'Apache-2.0,MIT,NOASSERTION'
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'MIT' }).count | Should -Be 1
         ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).licenseKey | Should -Be 'other'
+        ($result.licenseCounts | Where-Object { $_.licenseSpdxId -eq 'NOASSERTION' }).count | Should -Be 3
     }
 
     It 'classifies GitHub fork parents against catalog attribution' {
@@ -912,8 +1015,12 @@ Describe 'Report schema depth helpers' {
 // ==/UserScript==
 '@
         }
+        $probeByUrl = @{
+            'https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.meta.js' = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            'https://raw.githubusercontent.com/SysAdminDoc/ScopedScript/v1.2.3/ScopedScript.user.js' = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+        }
 
-        $result = Test-UserscriptInstallTrust -Entries @($broad, $scoped) -ContentByUrl $contentByUrl
+        $result = Test-UserscriptInstallTrust -Entries @($broad, $scoped) -ContentByUrl $contentByUrl -ProbeByUrl $probeByUrl
 
         $result.checkedCount | Should -Be 2
         $result.rawGitHubCount | Should -Be 2
@@ -924,16 +1031,79 @@ Describe 'Report schema depth helpers' {
         $result.missingUpdateUrlCount | Should -Be 1
         $result.missingDownloadUrlCount | Should -Be 1
         $result.warningCount | Should -Be 3
+        $result.fatalCount | Should -Be 0
+        $result.updateUrlProbeFailureCount | Should -Be 0
+        $result.downloadUrlProbeFailureCount | Should -Be 0
+        $result.updateUrlRefMismatchCount | Should -Be 0
+        $result.downloadUrlRefMismatchCount | Should -Be 0
         $broadRow = $result.rows | Where-Object { $_.repo -eq 'BroadScript' }
         $broadRow.name | Should -Be 'Broad Script'
         $broadRow.sourceRef | Should -Be 'main'
         $broadRow.sourceRefType | Should -Be 'branch'
+        $broadRow.fatalCount | Should -Be 0
         ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'scope-broad'
         ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-missing'
         ($broadRow.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-missing'
+        @($broadRow.warnings | Where-Object { $_.fatal }).Count | Should -Be 0
         $scopedRow = $result.rows | Where-Object { $_.repo -eq 'ScopedScript' }
         $scopedRow.sourceRefType | Should -Be 'tag'
+        $scopedRow.updateUrlSourceRef | Should -Be 'v1.2.3'
+        $scopedRow.updateUrlRefMatchesSource | Should -BeTrue
+        $scopedRow.updateUrlProbeSucceeded | Should -BeTrue
+        $scopedRow.updateUrlProbeStatusCode | Should -Be 200
+        $scopedRow.downloadUrlSourceRef | Should -Be 'v1.2.3'
+        $scopedRow.downloadUrlRefMatchesSource | Should -BeTrue
+        $scopedRow.downloadUrlProbeSucceeded | Should -BeTrue
+        $scopedRow.downloadUrlProbeStatusCode | Should -Be 200
         $scopedRow.warningCount | Should -Be 0
+    }
+
+    It 'flags userscript update and download URL ref mismatches and dead raw URLs' {
+        $entry = New-TestEntry -Repo 'MismatchScript' -Category 'extensions'
+        $entry.downloadKind = 'userscript'
+        $entry.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/MismatchScript/master/MismatchScript.user.js'
+        $updateUrl = 'https://raw.githubusercontent.com/SysAdminDoc/MismatchScript/main/MismatchScript.meta.js'
+        $downloadUrl = 'https://raw.githubusercontent.com/SysAdminDoc/MismatchScript/main/MismatchScript.user.js'
+        $contentByUrl = @{
+            $entry.userscriptUrl = @"
+// ==UserScript==
+// @name        Mismatch Script
+// @version     1.0.0
+// @match       https://example.com/*
+// @updateURL   $updateUrl
+// @downloadURL $downloadUrl
+// @grant       none
+// ==/UserScript==
+"@
+        }
+        $probeByUrl = @{
+            $updateUrl = [ordered]@{ ok = $false; status = 404; error = 'Not Found'; fatal = $true }
+            $downloadUrl = [ordered]@{ ok = $false; status = 404; error = 'Not Found'; fatal = $true }
+        }
+
+        $result = Test-UserscriptInstallTrust -Entries @($entry) -ContentByUrl $contentByUrl -ProbeByUrl $probeByUrl
+        $row = $result.rows[0]
+
+        $result.warningCount | Should -Be 4
+        $result.fatalCount | Should -Be 2
+        $result.updateUrlProbeFailureCount | Should -Be 1
+        $result.downloadUrlProbeFailureCount | Should -Be 1
+        $result.updateUrlRefMismatchCount | Should -Be 1
+        $result.downloadUrlRefMismatchCount | Should -Be 1
+        $row.sourceRef | Should -Be 'master'
+        $row.updateUrlSourceRef | Should -Be 'main'
+        $row.downloadUrlSourceRef | Should -Be 'main'
+        $row.updateUrlRefMatchesSource | Should -BeFalse
+        $row.downloadUrlRefMatchesSource | Should -BeFalse
+        $row.updateUrlProbeSucceeded | Should -BeFalse
+        $row.downloadUrlProbeSucceeded | Should -BeFalse
+        $row.updateUrlProbeStatusCode | Should -Be 404
+        $row.downloadUrlProbeStatusCode | Should -Be 404
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-ref-mismatch'
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-ref-mismatch'
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'update-url-unreachable'
+        ($row.warnings | ForEach-Object { $_.kind }) | Should -Contain 'download-url-unreachable'
+        ($row.warnings | Where-Object { $_.fatal }).Count | Should -Be 2
     }
 }
 
@@ -1176,6 +1346,24 @@ Write-Host ok
         $summary.warningCount | Should -BeGreaterThan 0
         ($summary.warnings -join ' ') | Should -Match 'below the 300 px budget'
     }
+    It 'summarizes skipped rendered smoke artifacts with an explicit reason' {
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $false
+            skipped = $true
+            skipReason = 'Chrome was not found'
+            viewports = @()
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.status | Should -Be 'not-run'
+        $summary.viewportCount | Should -Be 0
+        $summary.skipReason | Should -Be 'Chrome was not found'
+        $summary.warningCount | Should -Be 1
+        ($summary.warnings -join ' ') | Should -Match 'Chrome was not found'
+    }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeFalse
@@ -1363,6 +1551,7 @@ Describe 'New-ProjectsExportJson feed' {
         $provenanceJson = $json.provenance | ConvertTo-Json -Depth 20
 
         $json.provenance.version | Should -Be 1
+        $json.provenance.feedSchemaVersion | Should -Be 1
         $json.provenance.sourceRepository | Should -Be 'SysAdminDoc/SysAdminDoc'
         if ($null -ne $json.provenance.sourceCommit) {
             $json.provenance.sourceCommit | Should -Match '^[a-f0-9]{40}$'
@@ -1376,6 +1565,16 @@ Describe 'New-ProjectsExportJson feed' {
         $json.provenance.repoEnumeration.returnedCount | Should -Be 0
         $json.provenance.repoEnumeration.truncated | Should -BeFalse
         $provenanceJson | Should -Not -Match 'C:\\|/Users/|repos\\\\|VaultBox|RadAtlas|improve-repo'
+    }
+
+    It 'documents the downstream feed schema version bump contract' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-projects.v1.json') -Raw
+
+        $schema | Should -Match '"feedSchemaVersion"'
+        $schema | Should -Match 'Downstream projects[.]json feed contract version'
+        $schema | Should -Match 'breaking feed changes'
+        $schema | Should -Match 'new required fields'
+        $schema | Should -Match 'Optional additive fields do not require a bump'
     }
 
     It 'normalizes text newlines before hashing feed provenance files' {
@@ -1658,6 +1857,7 @@ Describe 'Feed JSON Schema contracts' {
         $metadataDrift = @(
             [ordered]@{
                 repo = 'ZeusWatch'
+                category = 'android'
                 field = 'releaseAssetNames'
                 oldValue = @('ZeusWatch-v1.21.3.apk', 'ZeusWatch-v1.21.3.apk.sha256')
                 newValue = @('ZeusWatch-v1.21.4.apk')
@@ -1923,6 +2123,16 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'track-external-scorecard-governance-items'
+        $report.repositorySettings.security.scorecardScore.provider | Should -Be 'securityscorecards-api'
+        $report.repositorySettings.security.scorecardScore.sourceUrl | Should -Be 'https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc'
+        if ($report.repositorySettings.security.scorecardScore.available) {
+            $report.repositorySettings.security.scorecardScore.score | Should -BeGreaterOrEqual 0
+            $report.repositorySettings.security.scorecardScore.score | Should -BeLessOrEqual 10
+            $report.repositorySettings.security.scorecardScore.maxScore | Should -Be 10
+            $report.repositorySettings.security.scorecardScore.analyzedRepo | Should -Be 'github.com/SysAdminDoc/SysAdminDoc'
+        } else {
+            $report.repositorySettings.security.scorecardScore.unavailableReason | Should -Not -BeNullOrEmpty
+        }
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }) | Should -BeNullOrEmpty
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-reviewer-model'
         $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
@@ -2073,6 +2283,8 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'viewport\.Name'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
         $script:RenderSmokeScript | Should -Match 'renderedProfileSmoke'
+        $script:RenderSmokeScript | Should -Match 'skipReason'
+        $script:RenderSmokeScript | Should -Match 'Write-RenderedSmokeArtifact'
     }
 
     It 'asserts key rendered sections and overflow/image health' {
@@ -2096,6 +2308,7 @@ Describe 'Rendered profile smoke wiring' {
 
     It 'runs from profile-sync and uploads public-safe smoke artifacts' {
         $script:ProfileSyncWorkflow | Should -Match 'Smoke live rendered profile'
+        $script:ProfileSyncWorkflow | Should -Match '(?s)- name: Smoke live rendered profile\s+if: always\(\)'
         $script:ProfileSyncWorkflow | Should -Match ([regex]::Escape('./scripts/render-profile-smoke.ps1'))
         $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke[.]json'
         $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke-[*][.]png'
@@ -2745,8 +2958,53 @@ Describe 'Profile sync report summaries' {
         }
     }
 
+    It 'lists fatal metadata drift rows in summaries and GitHub annotations' {
+        $reportPath = New-TemporaryFile
+        $summaryPath = New-TemporaryFile
+        try {
+            $report = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
+            $report.metadataDrift = @(
+                [pscustomobject]@{
+                    repo = 'BadRepo'
+                    category = 'web'
+                    field = 'primaryAction.url'
+                    oldValue = 'https://old.example/install'
+                    newValue = 'https://new.example/install'
+                    severity = 'fatal'
+                    failing = $true
+                },
+                [pscustomobject]@{
+                    repo = $null
+                    category = $null
+                    field = 'provenance.catalogSha256'
+                    oldValue = 'aaa'
+                    newValue = 'bbb'
+                    severity = 'fatal'
+                    failing = $true
+                }
+            )
+            $report.metadataDriftSummary.fatalCount = 2
+            $report | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $reportPath.FullName -Encoding utf8
+
+            $output = pwsh -NoProfile -File $script:SummaryScriptPath -ReportPath $reportPath.FullName -SummaryPath $summaryPath.FullName -Context 'Fatal drift test' 2>&1
+            $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
+
+            $summary | Should -Match 'Fatal Metadata Drift Details'
+            $summary | Should -Match 'BadRepo'
+            $summary | Should -Match 'web'
+            $summary | Should -Match 'primaryAction[.]url'
+            ($output -join "`n") | Should -Match '::error file=projects[.]json,title=Fatal metadata drift::repo=BadRepo; category=web; field=primaryAction[.]url'
+            ($output -join "`n") | Should -Match 'repo=top-level; category=top-level; field=provenance[.]catalogSha256'
+        } finally {
+            Remove-Item -LiteralPath $reportPath.FullName -Force -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath $summaryPath.FullName -Force -ErrorAction SilentlyContinue
+        }
+    }
+
     It 'emits GitHub annotations and uses aggregate report sections only' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
+        $script:SummaryScript | Should -Match 'metadataDrift'
+        $script:SummaryScript | Should -Match 'Fatal Metadata Drift Details'
         $script:SummaryScript | Should -Match 'linkValidationSummary'
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'forkParentDrift'
@@ -2870,9 +3128,10 @@ Describe 'Workflow timeout budgets' {
         $script:WorkflowTimeoutBudgets = [ordered]@{
             '.github/workflows/automation-branch-cleanup.yml' = 1
             '.github/workflows/assets-refresh.yml' = 1
+            '.github/workflows/dependabot-auto-merge.yml' = 1
             '.github/workflows/profile-sync.yml' = 4
             '.github/workflows/scorecard.yml' = 1
-            '.github/workflows/tests.yml' = 4
+            '.github/workflows/tests.yml' = 5
             '.github/workflows/workflow-security.yml' = 1
         }
     }
@@ -2933,6 +3192,18 @@ Describe 'CI validation tool pins' {
         $script:TestsWorkflowForToolPins | Should -Not -Match 'Install-Module Pester -MinimumVersion'
     }
 
+    It 'enables Pester coverage for the profile generator and writes the percentage to the job summary' {
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]Run[.]PassThru = \$true'
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]Enabled = \$true'
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]Path = ''scripts/sync-profile[.]ps1'''
+        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]UseBreakpoints = \$false'
+        $script:TestsWorkflowForToolPins | Should -Match '\$coveragePercent = \[math\]::Round\(\[decimal\]\$coverage[.]CoveragePercent, 2\)'
+        $script:TestsWorkflowForToolPins | Should -Match 'Pester coverage: \$coveragePercent%'
+        $script:TestsWorkflowForToolPins | Should -Match 'GITHUB_STEP_SUMMARY'
+        $script:TestsWorkflowForToolPins | Should -Match 'Commands covered'
+        $script:TestsWorkflowForToolPins | Should -Match 'CoveragePercentTarget'
+    }
+
     It 'installs zizmor from hash-checked pinned requirements' {
         $script:WorkflowSecurityForToolPins | Should -Match 'python -m pip install --disable-pip-version-check --no-deps\s+--require-hashes --only-binary=:all: -r requirements-ci[.]txt'
         $script:WorkflowSecurityForToolPins | Should -Not -Match 'pip install --upgrade zizmor'
@@ -2951,6 +3222,7 @@ Describe 'CI validation tool pins' {
 Describe 'Dependabot GitHub Actions update grouping' {
     BeforeAll {
         $script:DependabotConfig = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') -Raw
+        $script:DependabotAutoMergeWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/dependabot-auto-merge.yml') -Raw
     }
 
     It 'groups routine minor and patch action updates while leaving majors separate' {
@@ -2963,6 +3235,27 @@ Describe 'Dependabot GitHub Actions update grouping' {
     It 'delays fresh version updates with Dependabot cooldown windows' {
         $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "github-actions".*?cooldown:\s*\r?\n\s+default-days: 7'
         $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "npm".*?cooldown:\s*\r?\n\s+default-days: 7\s*\r?\n\s+semver-major-days: 30\s*\r?\n\s+semver-minor-days: 7\s*\r?\n\s+semver-patch-days: 3'
+    }
+
+    It 'enables auto-merge only for Dependabot GitHub Actions minor and patch updates' {
+        $script:DependabotAutoMergeWorkflow | Should -Match '(?m)^  pull_request_target:\s*$'
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match '(?m)^  pull_request:\s*$'
+        $script:DependabotAutoMergeWorkflow | Should -Match "github[.]event[.]pull_request[.]user[.]login == 'dependabot\[bot\]'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "github[.]repository == 'SysAdminDoc/SysAdminDoc'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]package-ecosystem == 'github-actions'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]update-type == 'version-update:semver-minor'"
+        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]update-type == 'version-update:semver-patch'"
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match "version-update:semver-major.*gh pr merge"
+    }
+
+    It 'pins fetch-metadata v3 and uses scoped write permissions without checking out PR code' {
+        $script:DependabotAutoMergeWorkflow | Should -Match 'permissions: \{\}'
+        $script:DependabotAutoMergeWorkflow | Should -Match '(?ms)permissions:\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match 'actions/checkout@'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98'
+        $script:DependabotAutoMergeWorkflow | Should -Not -Match 'dependabot/fetch-metadata@v'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'gh pr merge --auto --merge "\$PR_URL"'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'GH_TOKEN: \$\{\{ github[.]token \}\}'
     }
 }
 
@@ -2977,7 +3270,7 @@ Describe 'Workflow checkout action pin' {
         $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
 
-        $checkoutUses.Count | Should -Be 11
+        $checkoutUses.Count | Should -Be 12
         foreach ($match in $checkoutUses) {
             $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
         }
@@ -2993,17 +3286,17 @@ Describe 'Workflow checkout action pin' {
 Describe 'Workflow artifact upload action pin' {
     BeforeAll {
         $script:WorkflowFilesForUploadArtifact = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
+        $script:UploadArtifactV701Sha = '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         $script:UploadArtifactV600Sha = 'b7c566a772e6b6bfb58ed0dc250532a479d7789f'
-        $script:UploadArtifactV462Sha = 'ea165f8d65b6e75b540449e92b4886f43607fa02'
     }
 
-    It 'uses the pinned upload-artifact 6.0.0 action SHA everywhere artifacts are retained' {
+    It 'uses the pinned upload-artifact 7.0.1 action SHA everywhere artifacts are retained' {
         $allWorkflows = ($script:WorkflowFilesForUploadArtifact | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $uploadArtifactUses = [regex]::Matches($allWorkflows, 'actions/upload-artifact@(?<sha>[a-f0-9]{40})')
 
         $uploadArtifactUses.Count | Should -Be 5
         foreach ($match in $uploadArtifactUses) {
-            $match.Groups['sha'].Value | Should -Be $script:UploadArtifactV600Sha
+            $match.Groups['sha'].Value | Should -Be $script:UploadArtifactV701Sha
         }
     }
 
@@ -3013,9 +3306,9 @@ Describe 'Workflow artifact upload action pin' {
         }
     }
 
-    It 'does not use the older upload-artifact 4.6.2 action SHA' {
+    It 'does not use the older upload-artifact 6.0.0 action SHA' {
         foreach ($workflowFile in $script:WorkflowFilesForUploadArtifact) {
-            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:UploadArtifactV462Sha
+            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:UploadArtifactV600Sha
         }
     }
 }
@@ -3053,6 +3346,19 @@ Describe 'Workflow Scorecard action pin' {
 
     It 'does not use floating Scorecard action tags' {
         $script:ScorecardWorkflowForActionPin | Should -Not -Match 'ossf/scorecard-action@v'
+    }
+}
+
+Describe 'Workflow dependency review action pin' {
+    BeforeAll {
+        $script:TestsWorkflowForDepReview = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
+        $script:DepReviewV500Sha = 'a1d282b36b6f3519aa1f3fc636f609c47dddb294'
+    }
+
+    It 'uses the pinned dependency-review-action 5.0.0 SHA on pull_request only' {
+        $script:TestsWorkflowForDepReview | Should -Match "actions/dependency-review-action@$script:DepReviewV500Sha"
+        $script:TestsWorkflowForDepReview | Should -Not -Match 'actions/dependency-review-action@v'
+        $script:TestsWorkflowForDepReview | Should -Match "(?ms)dependency-review:.*?if:.*?github\.event_name == 'pull_request'"
     }
 }
 
@@ -3423,6 +3729,7 @@ Describe 'Test-MetadataDrift report' {
             source = 'SysAdminDoc/SysAdminDoc data/profile-catalog.json'
             provenance = [ordered]@{
                 version = 1
+                feedSchemaVersion = 1
                 sourceRepository = 'SysAdminDoc/SysAdminDoc'
                 sourceCommit = '1111111111111111111111111111111111111111'
                 catalogSha256 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
@@ -3444,6 +3751,7 @@ Describe 'Test-MetadataDrift report' {
         }
         $expected = $current | ConvertTo-Json -Depth 20 | ConvertFrom-Json -AsHashtable
         $expected.provenance.sourceCommit = '2222222222222222222222222222222222222222'
+        $expected.provenance.feedSchemaVersion = 2
         $expected.provenance.catalogSha256 = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'
         $expected.provenance.metadataSnapshotAt = '2026-06-06T01:00:00Z'
 
@@ -3455,6 +3763,10 @@ Describe 'Test-MetadataDrift report' {
         $catalogHash | Should -HaveCount 1
         $catalogHash[0].severity | Should -Be 'fatal'
 
+        $feedSchemaVersion = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.feedSchemaVersion' })
+        $feedSchemaVersion | Should -HaveCount 1
+        $feedSchemaVersion[0].severity | Should -Be 'fatal'
+
         $sourceCommit = @($result.metadataDrift | Where-Object { $_.field -eq 'provenance.sourceCommit' })
         $sourceCommit | Should -HaveCount 1
         $sourceCommit[0].severity | Should -Be 'info'
@@ -3463,7 +3775,7 @@ Describe 'Test-MetadataDrift report' {
         $snapshot | Should -HaveCount 1
         $snapshot[0].severity | Should -Be 'info'
 
-        $result.fatalCount | Should -Be 1
+        $result.fatalCount | Should -Be 2
         $result.informationalCount | Should -Be 2
     }
 }

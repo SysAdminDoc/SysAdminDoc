@@ -2219,7 +2219,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published."
+      "notes": "GitHub Pages is disabled; profile links to the repository until a live site is published. Intentional Business Source License 1.1; GitHub reports it as Other."
     },
     {
       "repo": "DeGoogler",
@@ -3829,6 +3829,8 @@
       "currentlyBuilding": false,
       "currentlyBuildingText": null,
       "allowPublicMedical": false,
+      "forkOf": "MuntashirAkon/android-debloat-list",
+      "upstreamLicense": "AGPL-3.0",
       "aliasOf": null,
       "suppressionReason": null,
       "notes": null
@@ -3881,7 +3883,7 @@
       "upstreamLicense": "Other",
       "aliasOf": null,
       "suppressionReason": null,
-      "notes": null
+      "notes": "Preserves upstream custom license; GitHub reports it as Other."
     },
     {
       "repo": "RcloneBrowser",
@@ -4511,6 +4513,8 @@
       "currentlyBuilding": false,
       "currentlyBuildingText": null,
       "allowPublicMedical": false,
+      "forkOf": "Crosstalk-Solutions/project-nomad",
+      "upstreamLicense": "Apache-2.0",
       "aliasOf": null,
       "suppressionReason": "Superseded in the profile by project-nomad-desktop until the web/source repo has a current visitor-facing launch path.",
       "notes": null
@@ -4535,6 +4539,8 @@
       "currentlyBuilding": false,
       "currentlyBuildingText": null,
       "allowPublicMedical": false,
+      "forkOf": "jkwill87/mnamer",
+      "upstreamLicense": "MIT",
       "aliasOf": null,
       "suppressionReason": "Third-party media-renaming package/fork; not included until zero-config install and positioning are verified.",
       "notes": null

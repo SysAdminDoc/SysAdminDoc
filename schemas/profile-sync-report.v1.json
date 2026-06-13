@@ -314,6 +314,7 @@
       "additionalProperties": false,
       "required": [
         "version",
+        "feedSchemaVersion",
         "sourceRepository",
         "sourceCommit",
         "catalogSha256",
@@ -326,6 +327,11 @@
       "properties": {
         "version": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "feedSchemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Downstream projects.json feed contract version. Increment this value for breaking feed changes, including new required fields, removed fields, renamed fields, or incompatible semantic changes. Optional additive fields do not require a bump."
         },
         "sourceRepository": {
           "type": "string",
@@ -582,6 +588,8 @@
         "detectedCount",
         "missingCount",
         "unknownCount",
+        "intentionalExceptionCount",
+        "unresolvedUnknownCount",
         "warningCount",
         "licenseCounts",
         "missingLicenses",
@@ -598,6 +606,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "unknownCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "intentionalExceptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unresolvedUnknownCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCount": {
@@ -671,7 +685,9 @@
         "licenseKey",
         "licenseName",
         "licenseSpdxId",
-        "reason"
+        "reason",
+        "intentionalException",
+        "exceptionReason"
       ],
       "properties": {
         "repo": {
@@ -688,6 +704,12 @@
         },
         "reason": {
           "type": "string"
+        },
+        "intentionalException": {
+          "type": "boolean"
+        },
+        "exceptionReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
@@ -1222,8 +1244,13 @@
         "missingVersionCount",
         "missingUpdateUrlCount",
         "missingDownloadUrlCount",
+        "updateUrlProbeFailureCount",
+        "downloadUrlProbeFailureCount",
+        "updateUrlRefMismatchCount",
+        "downloadUrlRefMismatchCount",
         "broadScopeCount",
         "warningCount",
+        "fatalCount",
         "rows",
         "note"
       ],
@@ -1264,10 +1291,25 @@
         "missingDownloadUrlCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "updateUrlProbeFailureCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "downloadUrlProbeFailureCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "updateUrlRefMismatchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "downloadUrlRefMismatchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "broadScopeCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "fatalCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "rows": {
@@ -1301,6 +1343,14 @@
         "version",
         "updateUrl",
         "downloadUrl",
+        "updateUrlSourceRef",
+        "updateUrlRefMatchesSource",
+        "updateUrlProbeSucceeded",
+        "updateUrlProbeStatusCode",
+        "downloadUrlSourceRef",
+        "downloadUrlRefMatchesSource",
+        "downloadUrlProbeSucceeded",
+        "downloadUrlProbeStatusCode",
         "matchCount",
         "includeCount",
         "grantCount",
@@ -1308,6 +1358,7 @@
         "requireCount",
         "broadScope",
         "warningCount",
+        "fatalCount",
         "warnings"
       ],
       "properties": {
@@ -1365,6 +1416,30 @@
         "downloadUrl": {
           "$ref": "#/$defs/nullableUri"
         },
+        "updateUrlSourceRef": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "updateUrlRefMatchesSource": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "updateUrlProbeSucceeded": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "updateUrlProbeStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "downloadUrlSourceRef": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "downloadUrlRefMatchesSource": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "downloadUrlProbeSucceeded": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "downloadUrlProbeStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
         "matchCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -1386,6 +1461,9 @@
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "warnings": {
           "type": "array",
           "items": {
@@ -1399,7 +1477,8 @@
       "additionalProperties": false,
       "required": [
         "kind",
-        "message"
+        "message",
+        "fatal"
       ],
       "properties": {
         "kind": {
@@ -1407,6 +1486,9 @@
         },
         "message": {
           "type": "string"
+        },
+        "fatal": {
+          "type": "boolean"
         }
       }
     },
@@ -1784,6 +1866,7 @@
         "secretScanningValidityChecks",
         "dependabotSecurityUpdates",
         "dependabotSecurityPosture",
+        "scorecardScore",
         "codeScanning"
       ],
       "properties": {
@@ -1805,8 +1888,62 @@
         "dependabotSecurityPosture": {
           "$ref": "#/$defs/dependabotSecurityPosture"
         },
+        "scorecardScore": {
+          "$ref": "#/$defs/scorecardScore"
+        },
         "codeScanning": {
           "$ref": "#/$defs/codeScanningStatus"
+        }
+      }
+    },
+    "scorecardScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "score",
+        "maxScore",
+        "provider",
+        "sourceUrl",
+        "date",
+        "analyzedRepo",
+        "analyzedCommit",
+        "unavailableReason"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "maxScore": {
+          "type": "number",
+          "const": 10
+        },
+        "provider": {
+          "type": "string",
+          "const": "securityscorecards-api"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "date": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "analyzedRepo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "analyzedCommit": {
+          "$ref": "#/$defs/nullableCommitSha"
+        },
+        "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
@@ -4335,6 +4472,7 @@
         "overflowCount",
         "minimumRootClientWidth",
         "mobileRootClientWidth",
+        "skipReason",
         "warningCount",
         "warnings"
       ],
@@ -4376,6 +4514,9 @@
         },
         "mobileRootClientWidth": {
           "$ref": "#/$defs/nullableInteger"
+        },
+        "skipReason": {
+          "$ref": "#/$defs/nullableString"
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -4588,6 +4729,7 @@
       "additionalProperties": false,
       "required": [
         "repo",
+        "category",
         "field",
         "oldValue",
         "newValue",
@@ -4596,6 +4738,9 @@
       ],
       "properties": {
         "repo": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "category": {
           "$ref": "#/$defs/nullableString"
         },
         "field": {

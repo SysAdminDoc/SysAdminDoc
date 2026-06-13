@@ -74,8 +74,32 @@ jobs:
           $config = New-PesterConfiguration
           $config.Run.Path = 'tests'
           $config.Run.Throw = $true
+          $config.Run.PassThru = $true
           $config.Output.Verbosity = 'Detailed'
-          Invoke-Pester -Configuration $config
+          $config.CodeCoverage.Enabled = $true
+          $config.CodeCoverage.Path = 'scripts/sync-profile.ps1'
+          $config.CodeCoverage.UseBreakpoints = $false
+          $result = Invoke-Pester -Configuration $config
+          $coverage = $result.CodeCoverage
+          if ($null -eq $coverage) {
+            throw "Pester did not return a code coverage result."
+          }
+          $coveragePercent = [math]::Round([decimal]$coverage.CoveragePercent, 2)
+          $coverageLine = "Pester coverage: $coveragePercent% ($($coverage.CommandsExecutedCount)/$($coverage.CommandsAnalyzedCount) commands) across $($coverage.FilesAnalyzedCount) file(s)."
+          Write-Host $coverageLine
+          if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
+            @(
+              "### Pester coverage"
+              ""
+              "| Metric | Value |"
+              "| --- | ---: |"
+              "| Coverage | $coveragePercent% |"
+              "| Commands covered | $($coverage.CommandsExecutedCount) / $($coverage.CommandsAnalyzedCount) |"
+              "| Files analyzed | $($coverage.FilesAnalyzedCount) |"
+              "| Target | $($coverage.CoveragePercentTarget)% |"
+              ""
+            ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          }
 
   markdownlint:
     name: Markdownlint
@@ -99,6 +123,22 @@ jobs:
         run: |
           npm ci
           npm run lint:markdown
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+
+      - name: Review dependencies
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
 
   windows-setup-smoke:
     name: Windows setup smoke

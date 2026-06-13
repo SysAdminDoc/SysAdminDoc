@@ -55,6 +55,7 @@ $ReadmeDetailsSectionSoftLimit = 15
 $ReadmeImageTagSoftLimit = 10
 $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
+$ProjectsFeedSchemaVersion = 1
 $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
@@ -181,7 +182,7 @@ function Get-GitHubReposFromRest {
 
     $allRepos = New-Object System.Collections.Generic.List[object]
     foreach ($repo in @(ConvertFrom-RestRepoPageJson -Json $repoOutput)) {
-        if (-not $repo.archived -and -not $repo.private) {
+        if (-not [bool](Get-MemberValue -Object $repo -Name "archived") -and -not [bool](Get-MemberValue -Object $repo -Name "private")) {
             $allRepos.Add($repo)
         }
     }
@@ -205,8 +206,12 @@ function Get-GitHubReposFromRest {
     $mapped = New-Object System.Collections.Generic.List[object]
     foreach ($repo in $allRepos) {
         $release = $null
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        if ([string]::IsNullOrWhiteSpace($repoName)) {
+            continue
+        }
         $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
-        $releaseJson = & gh api "repos/$Owner/$($repo.name)/releases/latest" 2>&1
+        $releaseJson = & gh api "repos/$Owner/$repoName/releases/latest" 2>&1
         $releaseOutput = (($releaseJson | Out-String).Trim())
         if ($LASTEXITCODE -eq 0) {
             $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
@@ -214,10 +219,10 @@ function Get-GitHubReposFromRest {
                 $releaseData = $releaseOutput | ConvertFrom-Json
                 $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
                 $release = [pscustomobject]@{
-                    tagName = $releaseData.tag_name
-                    url = $releaseData.html_url
-                    name = $releaseData.name
-                    publishedAt = $releaseData.published_at
+                    tagName = Get-MemberValue -Object $releaseData -Name "tag_name"
+                    url = Get-MemberValue -Object $releaseData -Name "html_url"
+                    name = Get-MemberValue -Object $releaseData -Name "name"
+                    publishedAt = Get-MemberValue -Object $releaseData -Name "published_at"
                     releaseAssetNames = $assetNames
                     releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
                     assetApiInspected = $true
@@ -226,44 +231,16 @@ function Get-GitHubReposFromRest {
         } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
             $script:RestFallbackReleaseFetchState["status"] = "aborted"
             $script:RestFallbackReleaseFetchState["fatal"] = $true
-            $script:RestFallbackReleaseFetchState["abortRepo"] = [string]$repo.name
+            $script:RestFallbackReleaseFetchState["abortRepo"] = $repoName
             $script:RestFallbackReleaseFetchState["abortHttpStatus"] = Get-GhApiHttpStatus -Output $releaseOutput
             $script:RestFallbackReleaseFetchState["abortMessage"] = "Latest-release fetch failed after $($script:RestFallbackReleaseFetchState["attemptedReleaseFetches"]) attempted request(s)."
-            Write-Warning "REST release fallback failed for $($repo.name); aborting to avoid partial release metadata. Last gh output: $releaseOutput"
-            throw "REST repo metadata fallback failed while fetching latest release for $($repo.name). Refusing to emit partial release metadata."
+            Write-Warning "REST release fallback failed for $repoName; aborting to avoid partial release metadata. Last gh output: $releaseOutput"
+            throw "REST repo metadata fallback failed while fetching latest release for $repoName. Refusing to emit partial release metadata."
         } else {
             $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
         }
 
-        $topics = @()
-        if ($repo.topics) {
-            $topics = @($repo.topics | ForEach-Object { [pscustomobject]@{ name = $_ } })
-        }
-
-        $mapped.Add([pscustomobject]@{
-            name = $repo.name
-            description = $repo.description
-            stargazerCount = [int]$repo.stargazers_count
-            defaultBranchRef = [pscustomobject]@{ name = $repo.default_branch }
-            latestRelease = $release
-            licenseInfo = $repo.license
-            isFork = [bool]$repo.fork
-            parent = if ($repo.parent) {
-                [pscustomobject]@{
-                    nameWithOwner = $repo.parent.full_name
-                    url = $repo.parent.html_url
-                }
-            } else {
-                $null
-            }
-            isPrivate = [bool]$repo.private
-            visibility = "PUBLIC"
-            isArchived = [bool]$repo.archived
-            repositoryTopics = $topics
-            pushedAt = $repo.pushed_at
-            url = $repo.html_url
-            primaryLanguage = if ([string]::IsNullOrWhiteSpace([string]$repo.language)) { $null } else { [pscustomobject]@{ name = $repo.language } }
-        })
+        $mapped.Add((ConvertFrom-RestRepoMetadata -Repo $repo -Release $release))
     }
 
     $script:RepositoryMetadataProvider = "rest-fallback"
@@ -271,6 +248,52 @@ function Get-GitHubReposFromRest {
     $script:RepositoryEnumerationTruncated = $false
     $script:RestFallbackReleaseFetchState["status"] = "completed"
     return $mapped.ToArray()
+}
+
+function ConvertFrom-RestRepoMetadata {
+    param(
+        [object]$Repo,
+        [object]$Release
+    )
+
+    $topicsValue = Get-MemberValue -Object $Repo -Name "topics"
+    $topics = @()
+    if ($topicsValue) {
+        $topics = @($topicsValue | ForEach-Object { [pscustomobject]@{ name = [string]$_ } })
+    }
+
+    $parentValue = Get-MemberValue -Object $Repo -Name "parent"
+    $parent = $null
+    if ($parentValue) {
+        $parentName = Get-MemberValue -Object $parentValue -Name "full_name"
+        $parentUrl = Get-MemberValue -Object $parentValue -Name "html_url"
+        if (-not [string]::IsNullOrWhiteSpace([string]$parentName) -or -not [string]::IsNullOrWhiteSpace([string]$parentUrl)) {
+            $parent = [pscustomobject]@{
+                nameWithOwner = if ([string]::IsNullOrWhiteSpace([string]$parentName)) { $null } else { [string]$parentName }
+                url = if ([string]::IsNullOrWhiteSpace([string]$parentUrl)) { $null } else { [string]$parentUrl }
+            }
+        }
+    }
+
+    $language = Get-MemberValue -Object $Repo -Name "language"
+
+    return [pscustomobject]@{
+        name = Get-MemberValue -Object $Repo -Name "name"
+        description = Get-MemberValue -Object $Repo -Name "description"
+        stargazerCount = [int](Get-MemberValue -Object $Repo -Name "stargazers_count")
+        defaultBranchRef = [pscustomobject]@{ name = Get-MemberValue -Object $Repo -Name "default_branch" }
+        latestRelease = $Release
+        licenseInfo = Get-MemberValue -Object $Repo -Name "license"
+        isFork = [bool](Get-MemberValue -Object $Repo -Name "fork")
+        parent = $parent
+        isPrivate = [bool](Get-MemberValue -Object $Repo -Name "private")
+        visibility = "PUBLIC"
+        isArchived = [bool](Get-MemberValue -Object $Repo -Name "archived")
+        repositoryTopics = $topics
+        pushedAt = Get-MemberValue -Object $Repo -Name "pushed_at"
+        url = Get-MemberValue -Object $Repo -Name "html_url"
+        primaryLanguage = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [pscustomobject]@{ name = [string]$language } }
+    }
 }
 
 function ConvertFrom-RestRepoPageJson {
@@ -2357,6 +2380,7 @@ function New-ProjectsProvenance {
 
     return [ordered]@{
         version = 1
+        feedSchemaVersion = $ProjectsFeedSchemaVersion
         sourceRepository = "$Owner/$Owner"
         sourceCommit = Get-GitHeadCommit
         catalogSha256 = Get-RepoFileSha256 -RelativePath "data/profile-catalog.json"
@@ -3500,11 +3524,14 @@ function New-RenderedProfileSmokeSummary {
             overflowCount = 0
             minimumRootClientWidth = $null
             mobileRootClientWidth = $null
+            skipReason = $null
             warningCount = 0
             warnings = @()
         }
     }
 
+    $skipped = [bool](Get-MemberValue -Object $SmokeReport -Name "skipped")
+    $skipReason = [string](Get-MemberValue -Object $SmokeReport -Name "skipReason")
     $viewports = @(Get-MemberValue -Object $SmokeReport -Name "viewports")
     $passedViewportCount = @($viewports | Where-Object { [bool](Get-MemberValue -Object $_ -Name "passed") }).Count
     $failedViewportCount = @($viewports | Where-Object { -not [bool](Get-MemberValue -Object $_ -Name "passed") }).Count
@@ -3550,9 +3577,13 @@ function New-RenderedProfileSmokeSummary {
     if ($null -ne $mobileRootClientWidth -and $mobileRootClientWidth -lt $MinimumRootClientWidth) {
         $warnings.Add("Rendered profile mobile root width is $mobileRootClientWidth px, below the $MinimumRootClientWidth px budget.")
     }
+    if ($skipped) {
+        $reason = if ([string]::IsNullOrWhiteSpace($skipReason)) { "reason unavailable" } else { $skipReason }
+        $warnings.Add("Rendered profile smoke did not run: $reason")
+    }
 
     return [ordered]@{
-        status = if ([bool](Get-MemberValue -Object $SmokeReport -Name "passed") -and $warnings.Count -eq 0) { "passed" } else { "warning" }
+        status = if ($skipped) { "not-run" } elseif ([bool](Get-MemberValue -Object $SmokeReport -Name "passed") -and $warnings.Count -eq 0) { "passed" } else { "warning" }
         generatedAt = Get-MemberValue -Object $SmokeReport -Name "generatedAt"
         url = Get-MemberValue -Object $SmokeReport -Name "url"
         viewportCount = [int]$viewports.Count
@@ -3563,6 +3594,7 @@ function New-RenderedProfileSmokeSummary {
         overflowCount = [int]$overflowCount
         minimumRootClientWidth = $minimumRootClientWidthValue
         mobileRootClientWidth = $mobileRootClientWidth
+        skipReason = if ([string]::IsNullOrWhiteSpace($skipReason)) { $null } else { $skipReason }
         warningCount = [int]$warnings.Count
         warnings = @($warnings.ToArray())
     }
@@ -3823,6 +3855,49 @@ function Invoke-GhApiJsonSafe {
     }
 }
 
+function Get-PublicSafeRestError {
+    param([System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+    $statusCode = $null
+    if ($ErrorRecord.Exception -and $ErrorRecord.Exception.Response -and $ErrorRecord.Exception.Response.StatusCode) {
+        $statusCode = [int]$ErrorRecord.Exception.Response.StatusCode
+    }
+    if ($null -ne $statusCode) {
+        return "HTTP $statusCode"
+    }
+
+    $message = if ($ErrorRecord.Exception) { [string]$ErrorRecord.Exception.Message } else { [string]$ErrorRecord }
+    if ([string]::IsNullOrWhiteSpace($message)) {
+        return "request failed"
+    }
+    return ($message -replace '[\r\n]+', ' ').Trim()
+}
+
+function Invoke-RestJsonSafe {
+    param([string]$Uri)
+
+    try {
+        $value = Invoke-RestMethod `
+            -Uri $Uri `
+            -Method Get `
+            -Headers @{ Accept = "application/json"; "User-Agent" = "SysAdminDoc-profile-sync" } `
+            -TimeoutSec 20 `
+            -MaximumRedirection 5
+
+        return [ordered]@{
+            ok = $true
+            value = $value
+            error = $null
+        }
+    } catch {
+        return [ordered]@{
+            ok = $false
+            value = $null
+            error = Get-PublicSafeRestError -ErrorRecord $_
+        }
+    }
+}
+
 function Get-CommunityLocalFileStatus {
     $checks = @(
         [ordered]@{ path = "README.md"; required = $true },
@@ -3878,7 +3953,10 @@ function Get-CodeScanningLocalEvidence {
 }
 
 function Get-DependabotSecurityPosture {
-    param([object]$DependabotSecurityUpdates)
+    param(
+        [object]$DependabotSecurityUpdates,
+        [string]$UnavailableReason
+    )
 
     $configPath = ".github/dependabot.yml"
     $fullConfigPath = Join-Path $RepoRoot $configPath
@@ -3914,8 +3992,10 @@ function Get-DependabotSecurityPosture {
         "Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s), but repository security_and_analysis.dependabot_security_updates.status is disabled."
     } elseif ($status -eq "enabled") {
         "Dependabot security updates are enabled, and local version-update config is present for $($ecosystems.Count) ecosystem(s)."
+    } elseif (-not [string]::IsNullOrWhiteSpace($UnavailableReason)) {
+        "Dependabot security update setting was unavailable from repository metadata and automated-security-fixes endpoint: $UnavailableReason."
     } else {
-        "Dependabot security update setting was unavailable from repository metadata."
+        "Dependabot security update setting was unavailable from repository metadata and automated-security-fixes endpoint."
     }
 
     $nextAction = if ($status -eq "disabled") {
@@ -3923,7 +4003,7 @@ function Get-DependabotSecurityPosture {
     } elseif ($status -eq "enabled") {
         "Keep monitoring Dependabot alert volume and grouped version-update PRs."
     } else {
-        "Re-query repository security_and_analysis metadata before changing Dependabot policy."
+        "Re-query repository security_and_analysis metadata or the automated-security-fixes endpoint before changing Dependabot policy."
     }
 
     return [ordered]@{
@@ -3950,6 +4030,69 @@ function Test-SecurityPolicyLinkedReportingTarget {
 
     $text = Get-Content -LiteralPath $path -Raw
     return [bool][regex]::IsMatch($text, '(?i)\bhttps?://|mailto:')
+}
+
+function Get-ScorecardScoreApiUrl {
+    return "https://api.securityscorecards.dev/projects/github.com/$Owner/$Owner"
+}
+
+function ConvertTo-NullableDouble {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [double] -or $Value -is [float] -or $Value -is [decimal] -or $Value -is [int] -or $Value -is [long]) {
+        return [double]$Value
+    }
+
+    $parsed = [double]0
+    if ([double]::TryParse(
+            [string]$Value,
+            [System.Globalization.NumberStyles]::Float,
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [ref]$parsed
+        )) {
+        return $parsed
+    }
+    return $null
+}
+
+function Get-ScorecardScoreSnapshot {
+    param(
+        [object]$ScorecardScoreResult,
+        [string]$UnavailableReason
+    )
+
+    $sourceUrl = Get-ScorecardScoreApiUrl
+    $score = ConvertTo-NullableDouble (Get-MemberValue -Object $ScorecardScoreResult -Name "score")
+    $resultRepo = Get-MemberValue -Object $ScorecardScoreResult -Name "repo"
+    $missingReason = if ([string]::IsNullOrWhiteSpace($UnavailableReason)) { "scorecard score evidence was not supplied" } else { $UnavailableReason }
+    if ($null -eq $ScorecardScoreResult -or $null -eq $score -or -not [string]::IsNullOrWhiteSpace($UnavailableReason)) {
+        return [ordered]@{
+            available = $false
+            score = $null
+            maxScore = 10
+            provider = "securityscorecards-api"
+            sourceUrl = $sourceUrl
+            date = $null
+            analyzedRepo = $null
+            analyzedCommit = $null
+            unavailableReason = if ($null -eq $ScorecardScoreResult -or -not [string]::IsNullOrWhiteSpace($UnavailableReason)) { $missingReason } else { "scorecard API result omitted a numeric score" }
+        }
+    }
+
+    return [ordered]@{
+        available = $true
+        score = $score
+        maxScore = 10
+        provider = "securityscorecards-api"
+        sourceUrl = $sourceUrl
+        date = ConvertTo-IsoText (Get-MemberValue -Object $ScorecardScoreResult -Name "date")
+        analyzedRepo = [string](Get-MemberValue -Object $resultRepo -Name "name")
+        analyzedCommit = [string](Get-MemberValue -Object $resultRepo -Name "commit")
+        unavailableReason = $null
+    }
 }
 
 function New-ScorecardAlertPostureRow {
@@ -4795,13 +4938,17 @@ function Test-RepositoryCommunityBaseline {
         [object[]]$LocalFiles = @(),
         [object]$CodeScanningLocalEvidence,
         [object[]]$ScorecardAlerts,
+        [object]$ScorecardScoreResult,
+        [string]$DependabotSecurityUpdatesStatus,
+        [string]$DependabotSecurityUpdatesUnavailableReason,
         [string]$RepositoryUnavailableReason,
         [string]$CommunityUnavailableReason,
         [string]$BranchProtectionUnavailableReason,
         [string]$RulesetsUnavailableReason,
         [string]$ActionsWorkflowPermissionsUnavailableReason,
         [string]$LanguagesUnavailableReason,
-        [string]$ScorecardAlertsUnavailableReason
+        [string]$ScorecardAlertsUnavailableReason,
+        [string]$ScorecardScoreUnavailableReason
     )
 
     $repoWarnings = New-Object System.Collections.Generic.List[string]
@@ -4818,6 +4965,7 @@ function Test-RepositoryCommunityBaseline {
         $CodeScanningLocalEvidence = Get-CodeScanningLocalEvidence
     }
     $scorecardAlertPosture = Get-ScorecardAlertPosture -Alerts $ScorecardAlerts -UnavailableReason $ScorecardAlertsUnavailableReason
+    $scorecardScore = Get-ScorecardScoreSnapshot -ScorecardScoreResult $ScorecardScoreResult -UnavailableReason $ScorecardScoreUnavailableReason
 
     if (-not $repoAvailable -and -not [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason)) {
         $repoWarnings.Add("Repository settings unavailable: $RepositoryUnavailableReason.")
@@ -4836,18 +4984,31 @@ function Test-RepositoryCommunityBaseline {
     $secretScanningPushProtection = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_push_protection.status"
     $secretScanningNonProviderPatterns = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_non_provider_patterns.status"
     $secretScanningValidityChecks = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.secret_scanning_validity_checks.status"
-    $dependabotSecurityUpdates = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.dependabot_security_updates.status"
-    $dependabotSecurityPosture = Get-DependabotSecurityPosture -DependabotSecurityUpdates $dependabotSecurityUpdates
+    $repositoryDependabotSecurityUpdates = Get-NestedMemberValue -Object $Repository -Path "security_and_analysis.dependabot_security_updates.status"
+    $dependabotSecurityUpdates = if (-not [string]::IsNullOrWhiteSpace([string]$repositoryDependabotSecurityUpdates)) {
+        $repositoryDependabotSecurityUpdates
+    } else {
+        $DependabotSecurityUpdatesStatus
+    }
+    $dependabotSecurityPosture = Get-DependabotSecurityPosture `
+        -DependabotSecurityUpdates $dependabotSecurityUpdates `
+        -UnavailableReason $DependabotSecurityUpdatesUnavailableReason
 
     if ($repoAvailable) {
-        if ($secretScanning -ne "enabled") {
+        if ([string]::IsNullOrWhiteSpace([string]$secretScanning)) {
+            $repoWarnings.Add("Secret scanning status is unavailable.")
+        } elseif ($secretScanning -ne "enabled") {
             $repoWarnings.Add("Secret scanning is not enabled.")
         }
-        if ($secretScanningPushProtection -ne "enabled") {
+        if ([string]::IsNullOrWhiteSpace([string]$secretScanningPushProtection)) {
+            $repoWarnings.Add("Secret scanning push protection status is unavailable.")
+        } elseif ($secretScanningPushProtection -ne "enabled") {
             $repoWarnings.Add("Secret scanning push protection is not enabled.")
         }
-        if ($dependabotSecurityUpdates -ne "enabled") {
+        if ((Get-MemberValue -Object $dependabotSecurityPosture -Name "status") -eq "disabled") {
             $repoWarnings.Add("Dependabot security updates are not enabled.")
+        } elseif ((Get-MemberValue -Object $dependabotSecurityPosture -Name "status") -eq "unavailable") {
+            $repoWarnings.Add("Dependabot security update status is unavailable.")
         }
     }
 
@@ -5022,6 +5183,7 @@ function Test-RepositoryCommunityBaseline {
             secretScanningValidityChecks = $secretScanningValidityChecks
             dependabotSecurityUpdates = $dependabotSecurityUpdates
             dependabotSecurityPosture = $dependabotSecurityPosture
+            scorecardScore = $scorecardScore
             codeScanning = [ordered]@{
                 status = $codeScanningStatus
                 recommendation = $codeScanningRecommendation
@@ -5104,7 +5266,8 @@ function Get-RepositoryCommunityBaseline {
             -RulesetsUnavailableReason "offline" `
             -ActionsWorkflowPermissionsUnavailableReason "offline" `
             -LanguagesUnavailableReason "offline" `
-            -ScorecardAlertsUnavailableReason "offline"
+            -ScorecardAlertsUnavailableReason "offline" `
+            -ScorecardScoreUnavailableReason "offline"
     }
     if (-not (Test-GitHubCliAuthenticated)) {
         return Test-RepositoryCommunityBaseline `
@@ -5115,7 +5278,8 @@ function Get-RepositoryCommunityBaseline {
             -RulesetsUnavailableReason "gh authentication unavailable" `
             -ActionsWorkflowPermissionsUnavailableReason "gh authentication unavailable" `
             -LanguagesUnavailableReason "gh authentication unavailable" `
-            -ScorecardAlertsUnavailableReason "gh authentication unavailable"
+            -ScorecardAlertsUnavailableReason "gh authentication unavailable" `
+            -ScorecardScoreUnavailableReason "gh authentication unavailable"
     }
 
     $repositoryResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner"
@@ -5125,6 +5289,8 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
     $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
+    $scorecardScoreResult = Invoke-RestJsonSafe -Uri (Get-ScorecardScoreApiUrl)
+    $dependabotSecurityUpdatesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/automated-security-fixes"
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
@@ -5133,6 +5299,19 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsValue = if ($actionsWorkflowPermissionsResult["ok"]) { $actionsWorkflowPermissionsResult["value"] } else { $null }
     $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
     $scorecardAlertsValue = if ($scorecardAlertsResult["ok"]) { @($scorecardAlertsResult["value"]) } else { $null }
+    $scorecardScoreValue = if ($scorecardScoreResult["ok"]) { $scorecardScoreResult["value"] } else { $null }
+    $dependabotSecurityUpdatesValue = if ($dependabotSecurityUpdatesResult["ok"]) {
+        $automatedFixesEnabled = Get-MemberValue -Object $dependabotSecurityUpdatesResult["value"] -Name "enabled"
+        if ($null -eq $automatedFixesEnabled) {
+            $null
+        } elseif ([bool]$automatedFixesEnabled) {
+            "enabled"
+        } else {
+            "disabled"
+        }
+    } else {
+        $null
+    }
 
     return Test-RepositoryCommunityBaseline `
         -Repository $repositoryValue `
@@ -5143,13 +5322,17 @@ function Get-RepositoryCommunityBaseline {
         -Languages $languagesValue `
         -LocalFiles $localFiles `
         -ScorecardAlerts $scorecardAlertsValue `
+        -ScorecardScoreResult $scorecardScoreValue `
+        -DependabotSecurityUpdatesStatus $dependabotSecurityUpdatesValue `
+        -DependabotSecurityUpdatesUnavailableReason $(if ($dependabotSecurityUpdatesResult["ok"]) { $null } else { $dependabotSecurityUpdatesResult["error"] }) `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
         -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
         -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
         -ActionsWorkflowPermissionsUnavailableReason $(if ($actionsWorkflowPermissionsResult["ok"]) { $null } else { $actionsWorkflowPermissionsResult["error"] }) `
         -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] }) `
-        -ScorecardAlertsUnavailableReason $(if ($scorecardAlertsResult["ok"]) { $null } else { $scorecardAlertsResult["error"] })
+        -ScorecardAlertsUnavailableReason $(if ($scorecardAlertsResult["ok"]) { $null } else { $scorecardAlertsResult["error"] }) `
+        -ScorecardScoreUnavailableReason $(if ($scorecardScoreResult["ok"]) { $null } else { $scorecardScoreResult["error"] })
 }
 
 function ConvertTo-ComparableJson {
@@ -6092,6 +6275,7 @@ function New-MetadataRowIndex {
 function New-MetadataDriftRecord {
     param(
         [string]$Repo,
+        [string]$Category,
         [string]$Field,
         [object]$OldValue,
         [object]$NewValue,
@@ -6100,6 +6284,7 @@ function New-MetadataDriftRecord {
 
     return [ordered]@{
         repo = if ([string]::IsNullOrWhiteSpace($Repo)) { $null } else { $Repo }
+        category = if ([string]::IsNullOrWhiteSpace($Category)) { $null } else { $Category }
         field = $Field
         oldValue = $OldValue
         newValue = $NewValue
@@ -6168,13 +6353,13 @@ function Test-MetadataDrift {
         }
         $current = $CurrentProjectsJson | ConvertFrom-Json
     } catch {
-        $drift.Add((New-MetadataDriftRecord -Repo $null -Field "projects.json" -OldValue "unreadable" -NewValue "valid generated feed" -Severity "fatal"))
+        $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field "projects.json" -OldValue "unreadable" -NewValue "valid generated feed" -Severity "fatal"))
     }
 
     try {
         $expected = $ExpectedProjectsJson | ConvertFrom-Json
     } catch {
-        $drift.Add((New-MetadataDriftRecord -Repo $null -Field "expectedProjects" -OldValue "generated feed" -NewValue "unreadable" -Severity "fatal"))
+        $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field "expectedProjects" -OldValue "generated feed" -NewValue "unreadable" -Severity "fatal"))
     }
 
     $generatedAtText = if ($current) { ConvertTo-IsoText (Get-MemberValue -Object $current -Name "generatedAt") } else { $null }
@@ -6208,12 +6393,13 @@ function Test-MetadataDrift {
             $oldValue = Get-MemberValue -Object $current -Name $field
             $newValue = Get-MemberValue -Object $expected -Name $field
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
             }
         }
 
         $provenanceFatalFields = @(
             "provenance.version",
+            "provenance.feedSchemaVersion",
             "provenance.sourceRepository",
             "provenance.catalogSha256",
             "provenance.generatorSha256",
@@ -6227,7 +6413,7 @@ function Test-MetadataDrift {
             $oldValue = Get-NestedMemberValue -Object $current -Path $field
             $newValue = Get-NestedMemberValue -Object $expected -Path $field
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
             }
         }
 
@@ -6235,7 +6421,7 @@ function Test-MetadataDrift {
             $oldValue = Get-NestedMemberValue -Object $current -Path $field
             $newValue = Get-NestedMemberValue -Object $expected -Path $field
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
-                $drift.Add((New-MetadataDriftRecord -Repo $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "info"))
+                $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "info"))
             }
         }
 
@@ -6294,13 +6480,18 @@ function Test-MetadataDrift {
             } else {
                 [string](Get-MemberValue -Object $currentRows[$key] -Name "repo")
             }
+            $category = if ($hasExpected) {
+                [string](Get-MemberValue -Object $expectedRows[$key] -Name "category")
+            } else {
+                [string](Get-MemberValue -Object $currentRows[$key] -Name "category")
+            }
 
             if (-not $hasCurrent) {
-                $drift.Add((New-MetadataDriftRecord -Repo $repo -Field "row" -OldValue $null -NewValue "present" -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $repo -Category $category -Field "row" -OldValue $null -NewValue "present" -Severity "fatal"))
                 continue
             }
             if (-not $hasExpected) {
-                $drift.Add((New-MetadataDriftRecord -Repo $repo -Field "row" -OldValue "present" -NewValue $null -Severity "fatal"))
+                $drift.Add((New-MetadataDriftRecord -Repo $repo -Category $category -Field "row" -OldValue "present" -NewValue $null -Severity "fatal"))
                 continue
             }
 
@@ -6313,7 +6504,7 @@ function Test-MetadataDrift {
                         -ExpectedRow $expectedRows[$key] `
                         -Field $field
                     $severity = if ($infoFields -contains $field -or $releaseAssetInspectionDrift) { "info" } else { "fatal" }
-                    $drift.Add((New-MetadataDriftRecord -Repo $repo -Field $field -OldValue $oldValue -NewValue $newValue -Severity $severity))
+                    $drift.Add((New-MetadataDriftRecord -Repo $repo -Category $category -Field $field -OldValue $oldValue -NewValue $newValue -Severity $severity))
                 }
             }
         }
@@ -6515,6 +6706,8 @@ function Test-ProjectLicenseMetadata {
     $licenseCounts = @{}
     $checkedCount = 0
     $detectedCount = 0
+    $intentionalExceptionCount = 0
+    $unresolvedUnknownCount = 0
 
     foreach ($entry in @($Entries | Sort-Object repo)) {
         $checkedCount++
@@ -6534,12 +6727,28 @@ function Test-ProjectLicenseMetadata {
 
         $detectedCount++
         if ($licenseKey -eq "other" -or $licenseSpdxId -eq "NOASSERTION") {
+            $entryNotes = [string]$entry.notes
+            $upstreamLicense = [string]$entry.upstreamLicense
+            $exceptionReason = $null
+            if (-not [string]::IsNullOrWhiteSpace($upstreamLicense) -and $upstreamLicense -match '^(Other|Custom|NOASSERTION)$') {
+                $exceptionReason = "Catalog preserves upstream license attribution: $upstreamLicense"
+            } elseif (-not [string]::IsNullOrWhiteSpace($entryNotes) -and $entryNotes -match '(?i)(business source|BSL|custom license|NOASSERTION|source license)') {
+                $exceptionReason = $entryNotes
+            }
+            $intentionalException = -not [string]::IsNullOrWhiteSpace($exceptionReason)
+            if ($intentionalException) {
+                $intentionalExceptionCount++
+            } else {
+                $unresolvedUnknownCount++
+            }
             $unknownLicenses.Add([ordered]@{
                 repo = [string]$entry.repo
                 licenseKey = if ([string]::IsNullOrWhiteSpace($licenseKey)) { $null } else { $licenseKey }
                 licenseName = if ([string]::IsNullOrWhiteSpace($licenseName)) { $null } else { $licenseName }
                 licenseSpdxId = if ([string]::IsNullOrWhiteSpace($licenseSpdxId)) { $null } else { $licenseSpdxId }
                 reason = "GitHub reported an unrecognized or non-standard license"
+                intentionalException = [bool]$intentionalException
+                exceptionReason = if ([string]::IsNullOrWhiteSpace($exceptionReason)) { $null } else { $exceptionReason }
             })
         }
 
@@ -6566,7 +6775,9 @@ function Test-ProjectLicenseMetadata {
         detectedCount = $detectedCount
         missingCount = $missingLicenses.Count
         unknownCount = $unknownLicenses.Count
-        warningCount = $missingLicenses.Count + $unknownLicenses.Count
+        intentionalExceptionCount = [int]$intentionalExceptionCount
+        unresolvedUnknownCount = [int]$unresolvedUnknownCount
+        warningCount = $missingLicenses.Count + $unresolvedUnknownCount
         licenseCounts = Get-SortedReportRows -Rows @($licenseCounts.Values) -Keys @("licenseSpdxId", "licenseKey", "licenseName")
         missingLicenses = $missingLicenses.ToArray()
         unknownLicenses = $unknownLicenses.ToArray()
@@ -7124,12 +7335,82 @@ function Get-UserscriptContent {
 function New-UserscriptTrustWarning {
     param(
         [string]$Kind,
-        [string]$Message
+        [string]$Message,
+        [bool]$Fatal = $false
     )
 
     return [ordered]@{
         kind = $Kind
         message = $Message
+        fatal = [bool]$Fatal
+    }
+}
+
+function Get-UserscriptUrlProbe {
+    param(
+        [string]$Url,
+        [hashtable]$ProbeByUrl = @{}
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Url)) {
+        return [ordered]@{
+            checked = $false
+            ok = $null
+            statusCode = $null
+            error = $null
+            fatal = $false
+        }
+    }
+
+    if ($ProbeByUrl.ContainsKey($Url)) {
+        $probe = $ProbeByUrl[$Url]
+        return [ordered]@{
+            checked = $true
+            ok = [bool](Get-MemberValue -Object $probe -Name "ok")
+            statusCode = Get-MemberValue -Object $probe -Name "status"
+            error = Get-MemberValue -Object $probe -Name "error"
+            fatal = [bool](Get-MemberValue -Object $probe -Name "fatal")
+        }
+    }
+
+    $result = Test-HttpUrl -Url $Url -TimeoutSec 12 -Retries 1
+    return [ordered]@{
+        checked = $true
+        ok = [bool]$result.ok
+        statusCode = $result.status
+        error = $result.error
+        fatal = [bool]$result.fatal
+    }
+}
+
+function Get-UserscriptMetadataUrlTrust {
+    param(
+        [string]$Url,
+        [object]$InstallSource,
+        [hashtable]$ProbeByUrl = @{}
+    )
+
+    $source = Get-RawGitHubSourceInfo -Url $Url
+    $refMatches = $null
+    if ([bool](Get-MemberValue -Object $InstallSource -Name "rawGitHub") -and [bool]$source.rawGitHub) {
+        $installRepository = [string](Get-MemberValue -Object $InstallSource -Name "sourceRepository")
+        $installRef = [string](Get-MemberValue -Object $InstallSource -Name "sourceRef")
+        if (-not [string]::IsNullOrWhiteSpace($installRepository) -and -not [string]::IsNullOrWhiteSpace($installRef)) {
+            $refMatches = [bool](
+                $source.sourceRepository -eq $installRepository -and
+                $source.sourceRef -eq $installRef
+            )
+        }
+    }
+
+    $probe = Get-UserscriptUrlProbe -Url $Url -ProbeByUrl $ProbeByUrl
+    return [ordered]@{
+        sourceRef = $source.sourceRef
+        refMatchesSource = $refMatches
+        probeSucceeded = if ([bool]$probe.checked) { $probe.ok } else { $null }
+        probeStatusCode = $probe.statusCode
+        probeError = $probe.error
+        probeFatal = [bool]$probe.fatal
     }
 }
 
@@ -7137,6 +7418,7 @@ function Test-UserscriptInstallTrust {
     param(
         [hashtable[]]$Entries,
         [hashtable]$ContentByUrl = @{},
+        [hashtable]$ProbeByUrl = @{},
         [switch]$Skip
     )
 
@@ -7159,8 +7441,13 @@ function Test-UserscriptInstallTrust {
             missingVersionCount = 0
             missingUpdateUrlCount = 0
             missingDownloadUrlCount = 0
+            updateUrlProbeFailureCount = 0
+            downloadUrlProbeFailureCount = 0
+            updateUrlRefMismatchCount = 0
+            downloadUrlRefMismatchCount = 0
             broadScopeCount = 0
             warningCount = 0
+            fatalCount = 0
             rows = @()
             note = "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
         }
@@ -7195,6 +7482,8 @@ function Test-UserscriptInstallTrust {
         $requires = @(Get-UserscriptMetadataValues -Metadata $metadata -Key "require")
         $scopeValues = @($matchValues + $includes)
         $broadScopes = @($scopeValues | Where-Object { Test-UserscriptBroadScope -Value ([string]$_) })
+        $updateUrlTrust = Get-UserscriptMetadataUrlTrust -Url $updateUrl -InstallSource $source -ProbeByUrl $ProbeByUrl
+        $downloadUrlTrust = Get-UserscriptMetadataUrlTrust -Url $downloadUrl -InstallSource $source -ProbeByUrl $ProbeByUrl
 
         if (-not $fetchStatus.succeeded) {
             $warnings.Add((New-UserscriptTrustWarning -Kind "userscript-fetch-failed" -Message "Could not fetch the raw userscript for metadata inspection."))
@@ -7218,12 +7507,27 @@ function Test-UserscriptInstallTrust {
             }
             if ([string]::IsNullOrWhiteSpace($updateUrl)) {
                 $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-missing" -Message "Userscript metadata is missing an explicit @updateURL."))
+            } else {
+                if ($null -ne $updateUrlTrust.refMatchesSource -and -not [bool]$updateUrlTrust.refMatchesSource) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-ref-mismatch" -Message "Userscript @updateURL does not use the same repository/ref as the catalog install URL."))
+                }
+                if ($null -ne $updateUrlTrust.probeSucceeded -and -not [bool]$updateUrlTrust.probeSucceeded) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "update-url-unreachable" -Message "Userscript @updateURL could not be reached." -Fatal:([bool]$updateUrlTrust.probeFatal)))
+                }
             }
             if ([string]::IsNullOrWhiteSpace($downloadUrl)) {
                 $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-missing" -Message "Userscript metadata is missing an explicit @downloadURL."))
+            } else {
+                if ($null -ne $downloadUrlTrust.refMatchesSource -and -not [bool]$downloadUrlTrust.refMatchesSource) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-ref-mismatch" -Message "Userscript @downloadURL does not use the same repository/ref as the catalog install URL."))
+                }
+                if ($null -ne $downloadUrlTrust.probeSucceeded -and -not [bool]$downloadUrlTrust.probeSucceeded) {
+                    $warnings.Add((New-UserscriptTrustWarning -Kind "download-url-unreachable" -Message "Userscript @downloadURL could not be reached." -Fatal:([bool]$downloadUrlTrust.probeFatal)))
+                }
             }
         }
 
+        $rowFatalCount = @($warnings | Where-Object { $_.fatal }).Count
         $rows.Add([ordered]@{
             repo = [string]$entry.repo
             url = $url
@@ -7241,6 +7545,14 @@ function Test-UserscriptInstallTrust {
             version = if ([string]::IsNullOrWhiteSpace($version)) { $null } else { $version }
             updateUrl = if ([string]::IsNullOrWhiteSpace($updateUrl)) { $null } else { $updateUrl }
             downloadUrl = if ([string]::IsNullOrWhiteSpace($downloadUrl)) { $null } else { $downloadUrl }
+            updateUrlSourceRef = if ([string]::IsNullOrWhiteSpace([string]$updateUrlTrust.sourceRef)) { $null } else { [string]$updateUrlTrust.sourceRef }
+            updateUrlRefMatchesSource = $updateUrlTrust.refMatchesSource
+            updateUrlProbeSucceeded = $updateUrlTrust.probeSucceeded
+            updateUrlProbeStatusCode = $updateUrlTrust.probeStatusCode
+            downloadUrlSourceRef = if ([string]::IsNullOrWhiteSpace([string]$downloadUrlTrust.sourceRef)) { $null } else { [string]$downloadUrlTrust.sourceRef }
+            downloadUrlRefMatchesSource = $downloadUrlTrust.refMatchesSource
+            downloadUrlProbeSucceeded = $downloadUrlTrust.probeSucceeded
+            downloadUrlProbeStatusCode = $downloadUrlTrust.probeStatusCode
             matchCount = $matchValues.Count
             includeCount = $includes.Count
             grantCount = $grants.Count
@@ -7248,14 +7560,17 @@ function Test-UserscriptInstallTrust {
             requireCount = $requires.Count
             broadScope = [bool]($broadScopes.Count -gt 0)
             warningCount = $warnings.Count
+            fatalCount = $rowFatalCount
             warnings = $warnings.ToArray()
         })
     }
 
     $rowArray = @($rows.ToArray())
     $warningTotal = 0
+    $fatalTotal = 0
     foreach ($row in $rowArray) {
         $warningTotal += [int]$row.warningCount
+        $fatalTotal += [int]$row.fatalCount
     }
 
     return [ordered]@{
@@ -7271,8 +7586,13 @@ function Test-UserscriptInstallTrust {
         missingVersionCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.version) }).Count
         missingUpdateUrlCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.updateUrl) }).Count
         missingDownloadUrlCount = @($rowArray | Where-Object { [string]::IsNullOrWhiteSpace([string]$_.downloadUrl) }).Count
+        updateUrlProbeFailureCount = @($rowArray | Where-Object { $null -ne $_.updateUrlProbeSucceeded -and -not $_.updateUrlProbeSucceeded }).Count
+        downloadUrlProbeFailureCount = @($rowArray | Where-Object { $null -ne $_.downloadUrlProbeSucceeded -and -not $_.downloadUrlProbeSucceeded }).Count
+        updateUrlRefMismatchCount = @($rowArray | Where-Object { $null -ne $_.updateUrlRefMatchesSource -and -not $_.updateUrlRefMatchesSource }).Count
+        downloadUrlRefMismatchCount = @($rowArray | Where-Object { $null -ne $_.downloadUrlRefMatchesSource -and -not $_.downloadUrlRefMatchesSource }).Count
         broadScopeCount = @($rowArray | Where-Object { $_.broadScope }).Count
         warningCount = [int]$warningTotal
+        fatalCount = [int]$fatalTotal
         rows = $rowArray
         note = "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
     }

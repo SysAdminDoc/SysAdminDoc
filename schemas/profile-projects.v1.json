@@ -113,6 +113,7 @@
       "additionalProperties": false,
       "required": [
         "version",
+        "feedSchemaVersion",
         "sourceRepository",
         "sourceCommit",
         "catalogSha256",
@@ -126,6 +127,11 @@
         "version": {
           "type": "integer",
           "minimum": 1
+        },
+        "feedSchemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Downstream projects.json feed contract version. Increment this value for breaking feed changes, including new required fields, removed fields, renamed fields, or incompatible semantic changes. Optional additive fields do not require a bump."
         },
         "sourceRepository": {
           "type": "string",

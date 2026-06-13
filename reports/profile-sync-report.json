@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-11T02:53:34.4338367-04:00",
+  "generatedAt": "2026-06-12T09:21:44.3212566-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -61,15 +61,16 @@
   "includedReadmeCount": 168,
   "provenance": {
     "version": 1,
+    "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "edb83d13b4a0e7c0ccb818e075d9e5d46cde77b7",
-    "catalogSha256": "fc2950cefc2fc3469c00bd4a140c63fad17deaa816c1edd45c63cafe2cb159d3",
-    "generatorSha256": "66527301e87d49d5f71f020dbc418cecf897493fe24bcd35aeeca1510570b4e5",
-    "projectSchemaSha256": "448a946a1085a9cf365f2b65b04afadd7cb12b2e6d2a9bb9ec81e05597b18bbc",
-    "metadataSnapshotAt": "2026-06-11T02:50:15.3100397-04:00",
-    "metadataProvider": "graphql",
+    "sourceCommit": "422dcdadc786fb6fce51d373cb57cd10e8f46768",
+    "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
+    "generatorSha256": "713a983b972c25f5412647d618463ed9b41db563de1e4daeb4e2e85376f9d95d",
+    "projectSchemaSha256": "6265c49f0c33494431252f374df2d7ec7aee92cbdeecd019d74be3768d61dc1f",
+    "metadataSnapshotAt": "2026-06-12T09:19:21.2408118-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
+      "requestedLimit": 0,
       "returnedCount": 186,
       "truncated": false
     }
@@ -80,838 +81,24 @@
     "issues": []
   },
   "metadataHygiene": {
-    "missingTopicCount": 71,
+    "missingTopicCount": 0,
     "missingDescriptionCount": 0,
     "topicHintPolicy": {
       "mutatesRepositories": false,
       "applyModeAvailable": false,
       "requiresExplicitAllowlist": true
     },
-    "missingTopics": [
-      {
-        "repo": "AdapterLock",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:29:28.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "AI-Usage_Tracker",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:29:04.0000000Z",
-        "category": "extensions",
-        "topicHints": [
-          "browser-extension",
-          "userscript",
-          "javascript"
-        ]
-      },
-      {
-        "repo": "AmazonEnhanced",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:30:03.0000000Z",
-        "category": "extensions",
-        "topicHints": [
-          "browser-extension",
-          "userscript",
-          "javascript"
-        ]
-      },
-      {
-        "repo": "android-debloat-list",
-        "language": "PHP",
-        "pushedAt": "2026-05-18T23:31:07.0000000Z",
-        "category": "guides",
-        "topicHints": [
-          "documentation",
-          "guide",
-          "php"
-        ]
-      },
-      {
-        "repo": "AndroidEmulatorPlus",
-        "language": "C#",
-        "pushedAt": "2026-06-09T11:30:14.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "ApocalypseWatch",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:30:25.0000000Z",
-        "category": "web",
-        "topicHints": [
-          "web-app",
-          "javascript",
-          "github-pages"
-        ]
-      },
-      {
-        "repo": "AppManagerNG",
-        "language": "Java",
-        "pushedAt": "2026-06-11T06:40:18.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin",
-          "active-development",
-          "java"
-        ]
-      },
-      {
-        "repo": "BillMinder",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-09T11:31:57.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "Brave-Portable-Updater",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:32:20.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script",
-          "privacy"
-        ]
-      },
-      {
-        "repo": "CallShield",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-10T17:46:53.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "ClearGem",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:33:39.0000000Z",
-        "category": "extensions",
-        "topicHints": [
-          "browser-extension",
-          "userscript",
-          "javascript",
-          "image-tools"
-        ]
-      },
-      {
-        "repo": "Debloat-Win11",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:36:08.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "DefenderControl",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:36:31.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "DefenderShield",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:36:42.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script",
-          "networking"
-        ]
-      },
-      {
-        "repo": "Devicer",
-        "language": "C#",
-        "pushedAt": "2026-06-09T11:36:54.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "Disable-AdobeTelemetry",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:37:05.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "DisableDefender",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:37:17.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script",
-          "networking"
-        ]
-      },
-      {
-        "repo": "Discrub",
-        "language": "TypeScript",
-        "pushedAt": "2026-06-09T12:12:31.0000000Z",
-        "category": "extensions",
-        "topicHints": [
-          "browser-extension",
-          "userscript",
-          "typescript"
-        ]
-      },
-      {
-        "repo": "Droidsmith",
-        "language": "Rust",
-        "pushedAt": "2026-06-09T13:29:12.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin",
-          "rust"
-        ]
-      },
-      {
-        "repo": "facebook-exit-guide",
-        "language": "HTML",
-        "pushedAt": "2026-06-09T12:12:48.0000000Z",
-        "category": "guides",
-        "topicHints": [
-          "documentation",
-          "guide",
-          "html"
-        ]
-      },
-      {
-        "repo": "FirewallForge",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:39:33.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script",
-          "networking"
-        ]
-      },
-      {
-        "repo": "FoxPort",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:39:56.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows"
-        ]
-      },
-      {
-        "repo": "FrameSnap",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:40:08.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script",
-          "video"
-        ]
-      },
-      {
-        "repo": "GifText",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:41:22.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script"
-        ]
-      },
-      {
-        "repo": "GmailDownloader",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:41:56.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script"
-        ]
-      },
-      {
-        "repo": "HEICShift",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:42:30.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script",
-          "conversion"
-        ]
-      },
-      {
-        "repo": "HurricaneMap",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:43:38.0000000Z",
-        "category": "web",
-        "topicHints": [
-          "web-app",
-          "javascript",
-          "github-pages",
-          "weather"
-        ]
-      },
-      {
-        "repo": "Images",
-        "language": "C#",
-        "pushedAt": "2026-06-09T13:41:20.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp",
-          "image-tools"
-        ]
-      },
-      {
-        "repo": "IMDb_Enhanced",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:43:49.0000000Z",
-        "category": "extensions",
-        "topicHints": [
-          "browser-extension",
-          "userscript",
-          "javascript"
-        ]
-      },
-      {
-        "repo": "iOSIconPack",
-        "language": "Python",
-        "pushedAt": "2026-06-09T12:13:21.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin",
-          "python",
-          "image-tools"
-        ]
-      },
-      {
-        "repo": "Keepr",
-        "language": "TypeScript",
-        "pushedAt": "2026-06-09T11:45:41.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "typescript",
-          "privacy"
-        ]
-      },
-      {
-        "repo": "kindred",
-        "language": "HTML",
-        "pushedAt": "2026-06-09T12:13:44.0000000Z",
-        "category": "web",
-        "topicHints": [
-          "web-app",
-          "javascript",
-          "github-pages",
-          "html",
-          "privacy"
-        ]
-      },
-      {
-        "repo": "LlamaLink",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:47:15.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script"
-        ]
-      },
-      {
-        "repo": "LocalAndroidStore",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-09T11:47:27.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "LocalChromeStore",
-        "language": "C#",
-        "pushedAt": "2026-06-09T13:48:42.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "LocalDesktopStore",
-        "language": "C#",
-        "pushedAt": "2026-06-09T13:49:39.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "MyPortfolio",
-        "language": "C#",
-        "pushedAt": "2026-06-09T11:51:40.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "NetForge",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:52:26.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script",
-          "networking"
-        ]
-      },
-      {
-        "repo": "NovaCut",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-11T06:46:22.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin",
-          "video"
-        ]
-      },
-      {
-        "repo": "NuclearDellRemover",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:53:29.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "NukeMap",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-09T11:53:40.0000000Z",
-        "category": "web",
-        "topicHints": [
-          "web-app",
-          "javascript",
-          "github-pages"
-        ]
-      },
-      {
-        "repo": "null",
-        "language": null,
-        "pushedAt": "2026-06-09T12:14:44.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "utility"
-        ]
-      },
-      {
-        "repo": "one-ui-home-clone",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-09T12:15:07.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "OpenLumen",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-09T14:18:05.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "OpenSwift",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-09T11:54:41.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "OpenTasker",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-11T06:42:20.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "OrganizeContacts",
-        "language": "C#",
-        "pushedAt": "2026-06-09T11:55:16.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "PhoneFork",
-        "language": "C#",
-        "pushedAt": "2026-05-18T23:53:38.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "active-development",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "project-nomad",
-        "language": "TypeScript",
-        "pushedAt": "2026-05-18T23:53:57.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "typescript"
-        ]
-      },
-      {
-        "repo": "PromptCompanion",
-        "language": "Python",
-        "pushedAt": "2026-06-09T11:57:21.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script"
-        ]
-      },
-      {
-        "repo": "qBittorrent-Vanced",
-        "language": "C++",
-        "pushedAt": "2026-06-09T12:16:04.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "cpp"
-        ]
-      },
-      {
-        "repo": "QuotaGlass",
-        "language": "C#",
-        "pushedAt": "2026-06-09T11:58:30.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "RcloneBrowserNG",
-        "language": "C++",
-        "pushedAt": "2026-06-10T22:25:38.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "cpp"
-        ]
-      },
-      {
-        "repo": "REDplusplus",
-        "language": "C#",
-        "pushedAt": "2026-06-10T20:53:33.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "Restore-WindowsDefaults",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T11:59:28.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "SnapCrop",
-        "language": "Kotlin",
-        "pushedAt": "2026-06-09T12:01:23.0000000Z",
-        "category": "android",
-        "topicHints": [
-          "android",
-          "kotlin"
-        ]
-      },
-      {
-        "repo": "Snapture",
-        "language": "C#",
-        "pushedAt": "2026-06-09T12:01:35.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp"
-        ]
-      },
-      {
-        "repo": "SoftwareScannerGUI",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T12:01:46.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "StreamKeep",
-        "language": "Python",
-        "pushedAt": "2026-06-09T12:02:55.0000000Z",
-        "category": "media",
-        "topicHints": [
-          "media",
-          "conversion",
-          "script",
-          "python"
-        ]
-      },
-      {
-        "repo": "SunoJump",
-        "language": "Python",
-        "pushedAt": "2026-06-09T12:03:28.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script"
-        ]
-      },
-      {
-        "repo": "SystemUpdatePro",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T12:04:05.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "TaskCopy",
-        "language": "C#",
-        "pushedAt": "2026-06-09T12:04:39.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "csharp",
-          "image-tools"
-        ]
-      },
-      {
-        "repo": "TelemetrySlayer",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T12:05:03.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "TsunamiSimulator",
-        "language": "Rust",
-        "pushedAt": "2026-06-09T14:49:14.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "rust"
-        ]
-      },
-      {
-        "repo": "Tunerize",
-        "language": "Python",
-        "pushedAt": "2026-06-09T12:06:13.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script"
-        ]
-      },
-      {
-        "repo": "uBlockVanced",
-        "language": "JavaScript",
-        "pushedAt": "2026-05-19T00:03:52.0000000Z",
-        "category": "extensions",
-        "topicHints": [
-          "browser-extension",
-          "userscript",
-          "javascript"
-        ]
-      },
-      {
-        "repo": "Vertigo",
-        "language": "Python",
-        "pushedAt": "2026-06-09T12:08:19.0000000Z",
-        "category": "python",
-        "topicHints": [
-          "python",
-          "desktop-app",
-          "windows",
-          "script",
-          "video"
-        ]
-      },
-      {
-        "repo": "Vigil",
-        "language": "HTML",
-        "pushedAt": "2026-06-09T12:09:04.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "html"
-        ]
-      },
-      {
-        "repo": "WinForge",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T12:10:24.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script"
-        ]
-      },
-      {
-        "repo": "WolfPack",
-        "language": "Fluent",
-        "pushedAt": "2026-06-09T12:10:46.0000000Z",
-        "category": "desktop",
-        "topicHints": [
-          "desktop-app",
-          "windows",
-          "fluent",
-          "privacy"
-        ]
-      },
-      {
-        "repo": "WURepair",
-        "language": "PowerShell",
-        "pushedAt": "2026-06-09T12:10:01.0000000Z",
-        "category": "powershell",
-        "topicHints": [
-          "powershell",
-          "windows",
-          "sysadmin",
-          "script",
-          "networking"
-        ]
-      }
-    ],
+    "missingTopics": [],
     "missingDescriptions": []
   },
   "projectLicenseMetadata": {
     "checkedCount": 168,
-    "detectedCount": 164,
-    "missingCount": 4,
-    "unknownCount": 9,
-    "warningCount": 13,
+    "detectedCount": 168,
+    "missingCount": 0,
+    "unknownCount": 2,
+    "intentionalExceptionCount": 2,
+    "unresolvedUnknownCount": 0,
+    "warningCount": 0,
     "licenseCounts": [
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -935,7 +122,7 @@
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
-        "count": 3
+        "count": 5
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -947,7 +134,7 @@
         "licenseSpdxId": "MIT",
         "licenseKey": "mit",
         "licenseName": "MIT License",
-        "count": 145
+        "count": 154
       },
       {
         "licenseSpdxId": "MPL-2.0",
@@ -959,108 +146,61 @@
         "licenseSpdxId": "NOASSERTION",
         "licenseKey": "other",
         "licenseName": "Other",
-        "count": 9
+        "count": 2
       }
     ],
-    "missingLicenses": [
-      {
-        "repo": "AI_Realism",
-        "reason": "GitHub did not report a detected repository license"
-      },
-      {
-        "repo": "IMDb_Enhanced",
-        "reason": "GitHub did not report a detected repository license"
-      },
-      {
-        "repo": "kindred",
-        "reason": "GitHub did not report a detected repository license"
-      },
-      {
-        "repo": "SPECTRE",
-        "reason": "GitHub did not report a detected repository license"
-      }
-    ],
+    "missingLicenses": [],
     "unknownLicenses": [
       {
-        "repo": "ApocalypseWatch",
+        "repo": "kindred",
         "licenseKey": "other",
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "AppManagerNG",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "Astra-Deck",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
+        "reason": "GitHub reported an unrecognized or non-standard license",
+        "intentionalException": true,
+        "exceptionReason": "GitHub Pages is disabled; profile links to the repository until a live site is published. Intentional Business Source License 1.1; GitHub reports it as Other."
       },
       {
         "repo": "LTSC-MicrosoftStore",
         "licenseKey": "other",
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "NovaCut",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "OpenLumen",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "PromptCompanion",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "RcloneBrowserNG",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
-      },
-      {
-        "repo": "TsunamiSimulator",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license"
+        "reason": "GitHub reported an unrecognized or non-standard license",
+        "intentionalException": true,
+        "exceptionReason": "Catalog preserves upstream license attribution: Other"
       }
     ]
   },
   "forkParentDrift": {
     "checkedCount": 10,
     "githubForkCount": 8,
-    "catalogForkOfCount": 7,
-    "matchingGitHubForkCount": 5,
+    "catalogForkOfCount": 10,
+    "matchingGitHubForkCount": 8,
     "catalogContinuationCount": 2,
-    "missingCatalogAttributionCount": 3,
+    "missingCatalogAttributionCount": 0,
     "parentMismatchCount": 0,
     "parentUnavailableCount": 0,
-    "warningCount": 3,
+    "warningCount": 0,
     "matchingGitHubForks": [
+      {
+        "repo": "android-debloat-list",
+        "catalogForkOf": "MuntashirAkon/android-debloat-list",
+        "githubParent": "MuntashirAkon/android-debloat-list"
+      },
       {
         "repo": "LTSC-MicrosoftStore",
         "catalogForkOf": "minihub/LTSC-Add-MicrosoftStore",
         "githubParent": "minihub/LTSC-Add-MicrosoftStore"
+      },
+      {
+        "repo": "mnamer",
+        "catalogForkOf": "jkwill87/mnamer",
+        "githubParent": "jkwill87/mnamer"
+      },
+      {
+        "repo": "project-nomad",
+        "catalogForkOf": "Crosstalk-Solutions/project-nomad",
+        "githubParent": "Crosstalk-Solutions/project-nomad"
       },
       {
         "repo": "RcloneBrowser",
@@ -1095,23 +235,7 @@
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
       }
     ],
-    "missingCatalogAttribution": [
-      {
-        "repo": "android-debloat-list",
-        "githubParent": "MuntashirAkon/android-debloat-list",
-        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-      },
-      {
-        "repo": "mnamer",
-        "githubParent": "jkwill87/mnamer",
-        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-      },
-      {
-        "repo": "project-nomad",
-        "githubParent": "Crosstalk-Solutions/project-nomad",
-        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-      }
-    ],
+    "missingCatalogAttribution": [],
     "parentMismatches": [],
     "parentUnavailable": [],
     "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
@@ -1190,7 +314,7 @@
       },
       {
         "kind": "other",
-        "count": 35
+        "count": 36
       },
       {
         "kind": "script",
@@ -1216,11 +340,11 @@
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum",
-        "count": 22
+        "count": 23
       },
       {
         "trustLevel": "metadata-only",
-        "count": 113
+        "count": 112
       },
       {
         "trustLevel": "unknown",
@@ -1671,11 +795,11 @@
       },
       {
         "repo": "ZeusWatch",
-        "latestReleaseTag": "v1.21.6",
+        "latestReleaseTag": "v1.23.0",
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "metadata-only"
+        "trustLevel": "checksum"
       }
     ],
     "debugArtifactRows": [
@@ -1839,10 +963,15 @@
     "metadataBlockCount": 11,
     "missingMetadataBlockCount": 0,
     "missingVersionCount": 0,
-    "missingUpdateUrlCount": 2,
-    "missingDownloadUrlCount": 2,
+    "missingUpdateUrlCount": 0,
+    "missingDownloadUrlCount": 0,
+    "updateUrlProbeFailureCount": 0,
+    "downloadUrlProbeFailureCount": 0,
+    "updateUrlRefMismatchCount": 0,
+    "downloadUrlRefMismatchCount": 0,
     "broadScopeCount": 3,
-    "warningCount": 7,
+    "warningCount": 3,
+    "fatalCount": 0,
     "rows": [
       {
         "repo": "Chapterizer",
@@ -1859,25 +988,25 @@
         "metadataBlockClosed": true,
         "name": "Chapterizer",
         "version": "3.0.0",
-        "updateUrl": null,
-        "downloadUrl": null,
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 2,
         "includeCount": 0,
         "grantCount": 6,
         "connectCount": 1,
         "requireCount": 0,
         "broadScope": false,
-        "warningCount": 2,
-        "warnings": [
-          {
-            "kind": "update-url-missing",
-            "message": "Userscript metadata is missing an explicit @updateURL."
-          },
-          {
-            "kind": "download-url-missing",
-            "message": "Userscript metadata is missing an explicit @downloadURL."
-          }
-        ]
+        "warningCount": 0,
+        "fatalCount": 0,
+        "warnings": []
       },
       {
         "repo": "Claude-Ultimate-Enhancer",
@@ -1896,6 +1025,14 @@
         "version": "1.1.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 3,
@@ -1903,6 +1040,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -1920,8 +1058,16 @@
         "metadataBlockClosed": true,
         "name": "ClearGem",
         "version": "1.0.2",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/main/cleargem.user.js",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
+        "updateUrlSourceRef": "master",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "master",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 2,
         "includeCount": 0,
         "grantCount": 2,
@@ -1929,6 +1075,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -1948,6 +1095,14 @@
         "version": "3.0.0",
         "updateUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 6,
@@ -1955,10 +1110,12 @@
         "requireCount": 0,
         "broadScope": true,
         "warningCount": 1,
+        "fatalCount": 0,
         "warnings": [
           {
             "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope."
+            "message": "Userscript metadata includes an all-sites @match or @include scope.",
+            "fatal": false
           }
         ]
       },
@@ -1979,6 +1136,14 @@
         "version": "2.6.1",
         "updateUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 2,
         "includeCount": 0,
         "grantCount": 4,
@@ -1986,6 +1151,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -2005,6 +1171,14 @@
         "version": "42",
         "updateUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 4,
@@ -2012,6 +1186,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -2029,25 +1204,25 @@
         "metadataBlockClosed": true,
         "name": "IMDb Enhanced",
         "version": "2.3.1",
-        "updateUrl": null,
-        "downloadUrl": null,
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 10,
         "includeCount": 0,
         "grantCount": 7,
         "connectCount": 8,
         "requireCount": 0,
         "broadScope": false,
-        "warningCount": 2,
-        "warnings": [
-          {
-            "kind": "update-url-missing",
-            "message": "Userscript metadata is missing an explicit @updateURL."
-          },
-          {
-            "kind": "download-url-missing",
-            "message": "Userscript metadata is missing an explicit @downloadURL."
-          }
-        ]
+        "warningCount": 0,
+        "fatalCount": 0,
+        "warnings": []
       },
       {
         "repo": "MediaDL",
@@ -2066,6 +1241,14 @@
         "version": "4.0.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 5,
@@ -2073,10 +1256,12 @@
         "requireCount": 0,
         "broadScope": true,
         "warningCount": 1,
+        "fatalCount": 0,
         "warnings": [
           {
             "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope."
+            "message": "Userscript metadata includes an all-sites @match or @include scope.",
+            "fatal": false
           }
         ]
       },
@@ -2097,6 +1282,14 @@
         "version": "2.8.1",
         "updateUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
         "downloadUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
+        "updateUrlSourceRef": null,
+        "updateUrlRefMatchesSource": null,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": null,
+        "downloadUrlRefMatchesSource": null,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 3,
         "includeCount": 0,
         "grantCount": 7,
@@ -2104,6 +1297,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       },
       {
@@ -2123,6 +1317,14 @@
         "version": "1.0.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
         "grantCount": 8,
@@ -2130,10 +1332,12 @@
         "requireCount": 0,
         "broadScope": true,
         "warningCount": 1,
+        "fatalCount": 0,
         "warnings": [
           {
             "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope."
+            "message": "Userscript metadata includes an all-sites @match or @include scope.",
+            "fatal": false
           }
         ]
       },
@@ -2154,6 +1358,14 @@
         "version": "0.4.1",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
         "matchCount": 7,
         "includeCount": 0,
         "grantCount": 5,
@@ -2161,6 +1373,7 @@
         "requireCount": 0,
         "broadScope": false,
         "warningCount": 0,
+        "fatalCount": 0,
         "warnings": []
       }
     ],
@@ -2280,6 +1493,17 @@
         "evidence": "Dependabot security updates are enabled, and local version-update config is present for 2 ecosystem(s).",
         "nextAction": "Keep monitoring Dependabot alert volume and grouped version-update PRs."
       },
+      "scorecardScore": {
+        "available": true,
+        "score": 7.4,
+        "maxScore": 10,
+        "provider": "securityscorecards-api",
+        "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
+        "date": "2026-06-11T10:08:14.0000000Z",
+        "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
+        "analyzedCommit": "c179b213130010602adad739335ec311831f075e",
+        "unavailableReason": null
+      },
       "codeScanning": {
         "status": "not-applicable",
         "recommendation": "not-applicable-powershell-only",
@@ -2306,7 +1530,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-11T02:50:15.3100397-04:00",
+          "queriedAt": "2026-06-12T09:19:21.2408118-04:00",
           "openAlertCount": 4,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2945,13 +2169,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.127",
+    "expectedVersion": "v4.9.128",
     "expectedDate": "2026-06-11",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.127"
+        "value": "v4.9.128"
       }
     ],
     "dates": [
@@ -2973,14 +2197,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.127",
+    "expectedVersion": "v4.9.128",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.127",
+    "expectedTag": "v4.9.128",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2990,13 +2214,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.127",
+        "expectedVersion": "v4.9.128",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.127",
+        "expectedVersion": "v4.9.128",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -3019,22 +2243,22 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 5656,
+      "elapsedMs": 4099,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
       "headerWarningHostCount": 0
     },
     "restFallbackReleaseFetch": {
-      "used": false,
-      "status": "not-used",
-      "repoCount": 0,
-      "authenticated": false,
+      "used": true,
+      "status": "completed",
+      "repoCount": 186,
+      "authenticated": true,
       "maxReleaseFetches": 240,
       "unauthenticatedReleaseFetchLimit": 50,
-      "attemptedReleaseFetches": 0,
-      "successfulReleaseFetches": 0,
-      "noRelease404Count": 0,
+      "attemptedReleaseFetches": 186,
+      "successfulReleaseFetches": 147,
+      "noRelease404Count": 39,
       "fatal": false,
       "abortRepo": null,
       "abortHttpStatus": null,
@@ -3053,7 +2277,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 9.44,
+      "ageDays": 10.71,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -3063,14 +2287,14 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 5656,
+    "elapsedMs": 4099,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 61947,
+    "byteCount": 62083,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -3350,7 +2574,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 61947,
+        "value": 62083,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -3404,7 +2628,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 404004,
+        "value": 410295,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3413,7 +2637,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 112317,
+        "value": 94793,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3451,6 +2675,7 @@
     "overflowCount": 0,
     "minimumRootClientWidth": null,
     "mobileRootClientWidth": null,
+    "skipReason": null,
     "warningCount": 0,
     "warnings": []
   },

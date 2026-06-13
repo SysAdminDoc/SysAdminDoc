@@ -1,0 +1,58 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  github-actions-minor-patch:
+    name: GitHub Actions minor/patch auto-merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: >-
+      ${{
+        github.event.pull_request.user.login == 'dependabot[bot]' &&
+        github.repository == 'SysAdminDoc/SysAdminDoc' &&
+        github.event.pull_request.draft == false
+      }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98
+
+      - name: Enable auto-merge for minor and patch Actions updates
+        if: >-
+          ${{
+            steps.metadata.outputs.package-ecosystem == 'github-actions' &&
+            (
+              steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+              steps.metadata.outputs.update-type == 'version-update:semver-patch'
+            )
+          }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --merge "$PR_URL"
+
+      - name: Record skipped Dependabot update
+        if: >-
+          ${{
+            steps.metadata.outputs.package-ecosystem != 'github-actions' ||
+            (
+              steps.metadata.outputs.update-type != 'version-update:semver-minor' &&
+              steps.metadata.outputs.update-type != 'version-update:semver-patch'
+            )
+          }}
+        run: |
+          echo "Dependabot PR was not eligible for auto-merge."
+          echo "package-ecosystem=${{ steps.metadata.outputs.package-ecosystem }}"
+          echo "update-type=${{ steps.metadata.outputs.update-type }}"
