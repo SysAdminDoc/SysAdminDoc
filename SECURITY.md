@@ -4,7 +4,7 @@ This repository publishes the public SysAdminDoc GitHub profile README, generate
 
 ## Reporting
 
-Use [GitHub private vulnerability reporting](https://github.com/SysAdminDoc/SysAdminDoc/security/advisories/new) for this repository when it is available from the **Security** tab. Do not include secrets, private repository names, personal data, medical data, customer data, or exploit details in a public issue.
+Use [GitHub private vulnerability reporting](https://github.com/SysAdminDoc/SysAdminDoc/security/advisories/new) to report security issues privately. Do not include secrets, private repository names, personal data, medical data, customer data, or exploit details in a public issue.
 
 If the report is not security-sensitive, use the public issue forms for broken links, profile corrections, or workflow problems.
 
