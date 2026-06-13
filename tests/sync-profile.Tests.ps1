@@ -3248,11 +3248,11 @@ Describe 'Dependabot GitHub Actions update grouping' {
         $script:DependabotAutoMergeWorkflow | Should -Not -Match "version-update:semver-major.*gh pr merge"
     }
 
-    It 'pins fetch-metadata v2 and uses scoped write permissions without checking out PR code' {
+    It 'pins fetch-metadata v3 and uses scoped write permissions without checking out PR code' {
         $script:DependabotAutoMergeWorkflow | Should -Match 'permissions: \{\}'
         $script:DependabotAutoMergeWorkflow | Should -Match '(?ms)permissions:\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
         $script:DependabotAutoMergeWorkflow | Should -Not -Match 'actions/checkout@'
-        $script:DependabotAutoMergeWorkflow | Should -Match 'dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a'
+        $script:DependabotAutoMergeWorkflow | Should -Match 'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98'
         $script:DependabotAutoMergeWorkflow | Should -Not -Match 'dependabot/fetch-metadata@v'
         $script:DependabotAutoMergeWorkflow | Should -Match 'gh pr merge --auto --merge "\$PR_URL"'
         $script:DependabotAutoMergeWorkflow | Should -Match 'GH_TOKEN: \$\{\{ github[.]token \}\}'
@@ -3286,17 +3286,17 @@ Describe 'Workflow checkout action pin' {
 Describe 'Workflow artifact upload action pin' {
     BeforeAll {
         $script:WorkflowFilesForUploadArtifact = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
+        $script:UploadArtifactV701Sha = '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
         $script:UploadArtifactV600Sha = 'b7c566a772e6b6bfb58ed0dc250532a479d7789f'
-        $script:UploadArtifactV462Sha = 'ea165f8d65b6e75b540449e92b4886f43607fa02'
     }
 
-    It 'uses the pinned upload-artifact 6.0.0 action SHA everywhere artifacts are retained' {
+    It 'uses the pinned upload-artifact 7.0.1 action SHA everywhere artifacts are retained' {
         $allWorkflows = ($script:WorkflowFilesForUploadArtifact | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
         $uploadArtifactUses = [regex]::Matches($allWorkflows, 'actions/upload-artifact@(?<sha>[a-f0-9]{40})')
 
         $uploadArtifactUses.Count | Should -Be 5
         foreach ($match in $uploadArtifactUses) {
-            $match.Groups['sha'].Value | Should -Be $script:UploadArtifactV600Sha
+            $match.Groups['sha'].Value | Should -Be $script:UploadArtifactV701Sha
         }
     }
 
@@ -3306,9 +3306,9 @@ Describe 'Workflow artifact upload action pin' {
         }
     }
 
-    It 'does not use the older upload-artifact 4.6.2 action SHA' {
+    It 'does not use the older upload-artifact 6.0.0 action SHA' {
         foreach ($workflowFile in $script:WorkflowFilesForUploadArtifact) {
-            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:UploadArtifactV462Sha
+            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:UploadArtifactV600Sha
         }
     }
 }
