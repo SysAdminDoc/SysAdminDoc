@@ -3237,6 +3237,12 @@ Describe 'Dependabot GitHub Actions update grouping' {
         $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "npm".*?cooldown:\s*\r?\n\s+default-days: 7\s*\r?\n\s+semver-major-days: 30\s*\r?\n\s+semver-minor-days: 7\s*\r?\n\s+semver-patch-days: 3'
     }
 
+    It 'covers the hash-pinned CI Python toolchain with a pip ecosystem entry' {
+        $script:DependabotConfig | Should -Match 'package-ecosystem: "pip"'
+        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "pip".*?directory: "/"'
+        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "pip".*?cooldown:\s*\r?\n\s+default-days: 7'
+    }
+
     It 'enables auto-merge only for Dependabot GitHub Actions minor and patch updates' {
         $script:DependabotAutoMergeWorkflow | Should -Match '(?m)^  pull_request_target:\s*$'
         $script:DependabotAutoMergeWorkflow | Should -Not -Match '(?m)^  pull_request:\s*$'
@@ -3359,6 +3365,14 @@ Describe 'Workflow dependency review action pin' {
         $script:TestsWorkflowForDepReview | Should -Match "actions/dependency-review-action@$script:DepReviewV500Sha"
         $script:TestsWorkflowForDepReview | Should -Not -Match 'actions/dependency-review-action@v'
         $script:TestsWorkflowForDepReview | Should -Match "(?ms)dependency-review:.*?if:.*?github\.event_name == 'pull_request'"
+    }
+
+    It 'configures an explicit dependency-review policy' {
+        $script:TestsWorkflowForDepReview | Should -Match '(?ms)actions/dependency-review-action@.*?with:'
+        $script:TestsWorkflowForDepReview | Should -Match 'fail-on-severity:\s*moderate'
+        $script:TestsWorkflowForDepReview | Should -Match 'deny-licenses:\s*GPL-2\.0, GPL-3\.0, AGPL-3\.0, LGPL-2\.1, LGPL-3\.0'
+        $script:TestsWorkflowForDepReview | Should -Match 'comment-summary-in-pr:\s*on-failure'
+        $script:TestsWorkflowForDepReview | Should -Match '(?ms)dependency-review:.*?permissions:.*?pull-requests:\s*write'
     }
 }
 

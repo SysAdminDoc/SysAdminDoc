@@ -131,6 +131,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
@@ -139,6 +140,14 @@ jobs:
 
       - name: Review dependencies
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294
+        with:
+          # Fail PRs that introduce moderate-or-higher vulnerabilities.
+          fail-on-severity: moderate
+          # Deny strong/network copyleft licenses incompatible with this MIT repo.
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0, LGPL-2.1, LGPL-3.0
+          # Surface vulnerable packages and their patched versions on the PR.
+          comment-summary-in-pr: on-failure
+          show-openssf-scorecard: false
 
   windows-setup-smoke:
     name: Windows setup smoke
