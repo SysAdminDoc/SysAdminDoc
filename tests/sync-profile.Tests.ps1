@@ -3376,6 +3376,85 @@ Describe 'Workflow dependency review action pin' {
     }
 }
 
+Describe 'Workflow privileged-trigger and untrusted-expression guardrails' {
+    BeforeAll {
+        $script:GuardWorkflowFiles = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
+
+        function Get-WorkflowRunBlockText {
+            param([string]$Content)
+
+            $lines = $Content -split "\r?\n"
+            $blocks = New-Object System.Collections.Generic.List[string]
+            $inBlock = $false
+            $blockIndent = -1
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+                $line = $lines[$i]
+                if (-not $inBlock) {
+                    $match = [regex]::Match($line, '^(?<indent>\s*)(-\s+)?run:\s*(?<inline>\S.*)?$')
+                    if ($match.Success) {
+                        $inline = $match.Groups['inline'].Value
+                        if ($inline -and $inline -notmatch '^[|>]') {
+                            $blocks.Add($inline)
+                        } else {
+                            $inBlock = $true
+                            $blockIndent = $match.Groups['indent'].Value.Length
+                        }
+                    }
+                } else {
+                    if ([string]::IsNullOrWhiteSpace($line)) { continue }
+                    $currentIndent = ($line -replace '\S.*$', '').Length
+                    if ($currentIndent -le $blockIndent) {
+                        $inBlock = $false
+                        $i--
+                        continue
+                    }
+                    $blocks.Add($line)
+                }
+            }
+
+            return ($blocks -join "`n")
+        }
+
+        # Attacker-controllable contexts that must never be interpolated directly into run: blocks.
+        $script:UntrustedRunContextPattern = '(?x)' +
+            'github\.head_ref' +
+            '|github\.event\.(issue|pull_request|discussion)\.(title|body)' +
+            '|github\.event\.comment\.body' +
+            '|github\.event\.review\.body' +
+            '|github\.event\.head_commit\.message' +
+            '|github\.event\.pull_request\.head\.(ref|label)' +
+            '|github\.event\.workflow_run\.head_branch'
+
+        $script:PrivilegedTriggerPattern = '(?m)^\s\s(pull_request_target|workflow_run|issue_comment):\s*$'
+    }
+
+    It 'never interpolates untrusted GitHub contexts directly inside run blocks' {
+        foreach ($workflowFile in $script:GuardWorkflowFiles) {
+            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
+            $runText = Get-WorkflowRunBlockText -Content $content
+            $found = @([regex]::Matches($runText, $script:UntrustedRunContextPattern) | ForEach-Object { $_.Value })
+            $found | Should -BeNullOrEmpty -Because "$($workflowFile.Name) must pass untrusted GitHub context values through env vars referenced as `$ENV, not direct `${{ }} interpolation inside run:"
+        }
+    }
+
+    It 'keeps privileged-trigger workflows from checking out or caching PR-controlled code' {
+        $privilegedFiles = @($script:GuardWorkflowFiles | Where-Object {
+                $onMatch = [regex]::Match((Get-Content -LiteralPath $_.FullName -Raw), '(?ms)^on:\s*\r?\n(?<body>.*?)(?=\r?\n\S)')
+                $onText = if ($onMatch.Success) { $onMatch.Groups['body'].Value } else { '' }
+                $onText -match $script:PrivilegedTriggerPattern
+            })
+
+        # dependabot-auto-merge uses pull_request_target and must stay the only guarded privileged workflow.
+        $privilegedFiles.Name | Should -Contain 'dependabot-auto-merge.yml'
+
+        foreach ($workflowFile in $privilegedFiles) {
+            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
+            $content | Should -Not -Match 'actions/checkout@' -Because "$($workflowFile.Name) is privileged-triggered and must not check out PR-controlled code"
+            $content | Should -Not -Match 'actions/cache@' -Because "$($workflowFile.Name) is privileged-triggered and must not restore PR-controlled caches"
+        }
+    }
+}
+
 Describe 'Public-safe intake files' {
     It 'publishes a security policy that avoids public sensitive disclosure' {
         $securityPolicy = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'SECURITY.md') -Raw
