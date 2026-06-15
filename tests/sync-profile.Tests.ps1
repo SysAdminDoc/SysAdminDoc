@@ -1129,6 +1129,57 @@ Describe 'Report schema depth helpers' {
         $scopedRow.downloadUrlProbeSucceeded | Should -BeTrue
         $scopedRow.downloadUrlProbeStatusCode | Should -Be 200
         $scopedRow.warningCount | Should -Be 0
+
+        # Release-channel readiness classifier (no install-URL change).
+        $broadRow.releaseChannelReadiness | Should -Be 'blocked'
+        $broadRow.releaseChannelEvidence.metadataComplete | Should -BeFalse
+        $broadRow.releaseChannelNextAction | Should -Match '@updateURL'
+        $scopedRow.releaseChannelReadiness | Should -Be 'ready'
+        $scopedRow.releaseChannelEvidence.metadataComplete | Should -BeTrue
+        $scopedRow.releaseChannelEvidence.sourceRefType | Should -Be 'tag'
+        $result.releaseChannelBlockedCount | Should -Be 1
+        $result.releaseChannelReadyCount | Should -Be 1
+        $result.releaseChannelKeepBranchCount | Should -Be 0
+    }
+
+    It 'classifies a complete branch-hosted userscript as keep-branch' {
+        $entry = New-TestEntry -Repo 'BranchScript' -Category 'extensions'
+        $entry.downloadKind = 'userscript'
+        $entry.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/BranchScript/main/BranchScript.user.js'
+        $contentByUrl = @{
+            $entry.userscriptUrl = @'
+// ==UserScript==
+// @name        Branch Script
+// @version     2.0.0
+// @match       https://example.com/*
+// @updateURL   https://raw.githubusercontent.com/SysAdminDoc/BranchScript/main/BranchScript.meta.js
+// @downloadURL https://raw.githubusercontent.com/SysAdminDoc/BranchScript/main/BranchScript.user.js
+// @grant       none
+// ==/UserScript==
+'@
+        }
+        $probeByUrl = @{
+            'https://raw.githubusercontent.com/SysAdminDoc/BranchScript/main/BranchScript.meta.js' = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            'https://raw.githubusercontent.com/SysAdminDoc/BranchScript/main/BranchScript.user.js' = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+        }
+
+        $result = Test-UserscriptInstallTrust -Entries @($entry) -ContentByUrl $contentByUrl -ProbeByUrl $probeByUrl
+        $row = $result.rows[0]
+        $row.releaseChannelReadiness | Should -Be 'keep-branch'
+        $row.releaseChannelEvidence.metadataComplete | Should -BeTrue
+        $row.releaseChannelEvidence.sourceRefType | Should -Be 'branch'
+        $row.releaseChannelEvidence.updateUrlAligned | Should -BeTrue
+        $row.releaseChannelNextAction | Should -Match 'branch-hosted'
+        $result.releaseChannelKeepBranchCount | Should -Be 1
+
+        # Field parity for the new row fields against the report schema.
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $rowKeys = @($row.Keys) | Sort-Object
+        $schemaRowKeys = @($schema.'$defs'.userscriptTrustRow.properties.PSObject.Properties.Name) | Sort-Object
+        ($rowKeys -join ',') | Should -Be ($schemaRowKeys -join ',')
+        $evidenceKeys = @($row.releaseChannelEvidence.Keys) | Sort-Object
+        $schemaEvidenceKeys = @($schema.'$defs'.userscriptTrustRow.properties.releaseChannelEvidence.properties.PSObject.Properties.Name) | Sort-Object
+        ($evidenceKeys -join ',') | Should -Be ($schemaEvidenceKeys -join ',')
     }
 
     It 'flags userscript update and download URL ref mismatches and dead raw URLs' {

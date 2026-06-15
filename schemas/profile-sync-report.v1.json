@@ -1431,6 +1431,15 @@
         "broadScopeCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "releaseChannelReadyCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "releaseChannelKeepBranchCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "releaseChannelBlockedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -1582,6 +1591,41 @@
         },
         "broadScope": {
           "type": "boolean"
+        },
+        "releaseChannelReadiness": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "keep-branch",
+            "blocked"
+          ]
+        },
+        "releaseChannelNextAction": {
+          "type": "string"
+        },
+        "releaseChannelEvidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "metadataComplete",
+            "sourceRefType",
+            "hasVersion",
+            "updateUrlAligned"
+          ],
+          "properties": {
+            "metadataComplete": {
+              "type": "boolean"
+            },
+            "sourceRefType": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "hasVersion": {
+              "type": "boolean"
+            },
+            "updateUrlAligned": {
+              "type": "boolean"
+            }
+          }
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"

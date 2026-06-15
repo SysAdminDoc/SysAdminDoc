@@ -274,6 +274,9 @@ $profileReleaseWarningDisposition = if ($profileReleasePolicy -and $null -ne $pr
 $profileReleaseCreationRecommended = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.releaseCreationRecommended) { [bool]$profileReleasePolicy.releaseCreationRecommended } else { $false }
 $userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
 $userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
+$userscriptReleaseReadyCount = if ($userscriptInstallTrust -and $userscriptInstallTrust.PSObject.Properties.Name -contains 'releaseChannelReadyCount') { [int]$userscriptInstallTrust.releaseChannelReadyCount } else { 0 }
+$userscriptReleaseKeepBranchCount = if ($userscriptInstallTrust -and $userscriptInstallTrust.PSObject.Properties.Name -contains 'releaseChannelKeepBranchCount') { [int]$userscriptInstallTrust.releaseChannelKeepBranchCount } else { 0 }
+$userscriptReleaseBlockedCount = if ($userscriptInstallTrust -and $userscriptInstallTrust.PSObject.Properties.Name -contains 'releaseChannelBlockedCount') { [int]$userscriptInstallTrust.releaseChannelBlockedCount } else { 0 }
 $catalogAccountedCount = if ($catalogFeedAccounting) {
     [int]$catalogFeedAccounting.visitorFacingCatalogCount + [int]$catalogFeedAccounting.suppressedCatalogCount
 } else {
@@ -422,6 +425,9 @@ $summary = @"
 | Executable trust top priority | $executableShortlistTopRepo |
 | Userscript installs checked | $userscriptInstallCount |
 | Userscript trust warnings | $userscriptWarningCount |
+| Userscript release-channel keep-branch | $userscriptReleaseKeepBranchCount |
+| Userscript release-channel ready | $userscriptReleaseReadyCount |
+| Userscript release-channel blocked | $userscriptReleaseBlockedCount |
 | Link targets checked | $($linkSummary.targetCount) |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
