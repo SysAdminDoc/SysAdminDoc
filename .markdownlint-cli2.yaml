@@ -12,6 +12,7 @@ config:
       - i
       - img
       - kbd
+      - p
       - picture
       - sub
       - source

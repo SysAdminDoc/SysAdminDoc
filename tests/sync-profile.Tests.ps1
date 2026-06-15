@@ -2177,7 +2177,7 @@ Describe 'Markdownlint contract' {
         $script:MarkdownlintConfig | Should -Match '(?m)^  MD034:\s+false\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^  MD041:\s+false\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^  MD060:\s+false\s*$'
-        foreach ($tag in @('details', 'summary', 'kbd', 'br', 'sub', 'picture', 'source', 'img', 'a', 'b', 'i', 'code')) {
+        foreach ($tag in @('details', 'summary', 'kbd', 'br', 'sub', 'p', 'picture', 'source', 'img', 'a', 'b', 'i', 'code')) {
             $script:MarkdownlintConfig | Should -Match "(?m)^\s+- $tag\s*$"
         }
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "README[.]md"\s*$'
