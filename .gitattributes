@@ -18,3 +18,4 @@ package-lock.json text eol=lf
 *.yaml  text eol=lf
 *.ps1   text eol=lf
 *.psd1  text eol=lf
+*.txt   text eol=lf

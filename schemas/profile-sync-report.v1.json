@@ -344,7 +344,8 @@
       ],
       "properties": {
         "version": {
-          "$ref": "#/$defs/nonNegativeInteger"
+          "type": "integer",
+          "minimum": 1
         },
         "feedSchemaVersion": {
           "type": "integer",

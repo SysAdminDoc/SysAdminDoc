@@ -1,5 +1,5 @@
 # CI validation tools installed by GitHub Actions.
-# Update pins and hashes through docs/ci-toolchain.md.
+# Update pins and hashes with: pip download zizmor==<version> --only-binary=:all: --require-hashes
 zizmor==1.25.2 \
     --hash=sha256:17cc8cfd9d472e8b11945a869c198d25cfdf4a33f36fa7a1f9674099f5fb509d \
     --hash=sha256:d3e301eb4465e2da77857cf01ab4ef0184cf3818e826800b270ab01ae7338977 \

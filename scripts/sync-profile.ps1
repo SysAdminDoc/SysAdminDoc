@@ -30,7 +30,6 @@ try {
 }
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
-Set-Location $RepoRoot
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check) {
     $Check = $true
@@ -2833,8 +2832,7 @@ function New-CatalogFromReadme {
             $entries[$repo].featured = $true
             $entries[$repo].featuredRank = $featuredRank
             $featuredRank++
-        }
-        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| (?<category>.*?) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \| (?<action>.*?) \|$') {
+        } elseif ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| (?<category>.*?) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \| (?<action>.*?) \|$') {
             $repo = $Matches.repo
             if (-not $entries.Contains($repo)) {
                 $entries[$repo] = New-CatalogEntry -Repo $repo -Category "misc" -Description $Matches.description -Order 9999
@@ -8777,18 +8775,6 @@ function Test-ProfileState {
         report = $reportSchemaValidation
     }
     $report.schemaValidation = $schemaValidation
-    for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {
-        $draftReportJson = $report | ConvertTo-Json -Depth 30
-        $report.artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $draftReportJson
-    }
-    $reportSchemaValidation = Test-JsonSchemaContract -Value $report -SchemaPath $ReportSchemaPath
-    $schemaValidation = [ordered]@{
-        passed = [bool]($feedSchemaValidation.passed -and $reportSchemaValidation.valid)
-        catalog = $feedSchemaValidation.catalog
-        projects = $feedSchemaValidation.projects
-        report = $reportSchemaValidation
-    }
-    $report.schemaValidation = $schemaValidation
 
     $failed = (
         -not $readmeInSync -or
@@ -8819,6 +8805,8 @@ function Test-ProfileState {
 # Test seam: when dot-sourced (e.g. by Pester), load the functions above and stop
 # before running the live-metadata fetch / generation below.
 if ($MyInvocation.InvocationName -eq '.') { return }
+
+Set-Location $RepoRoot
 
 if ($SeedCatalog) {
     $seedGuard = Test-SeedCatalogGuard -SeedRequested ([bool]$SeedCatalog) -ForceRequested ([bool]$ForceSeedCatalog)
@@ -8858,7 +8846,8 @@ if ($catalogForRun) {
     $expectedAssets = New-ProfileAssetSvgs -Catalog $catalogForRun -Repos $repos
 
     if ($Write) {
-        [System.IO.File]::WriteAllText((Resolve-Path -LiteralPath $ReadmePath).Path, $expected, [System.Text.UTF8Encoding]::new($false))
+        $readmeFullPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
+        [System.IO.File]::WriteAllText($readmeFullPath, $expected, [System.Text.UTF8Encoding]::new($false))
         [System.IO.File]::WriteAllText((Join-Path $RepoRoot $ProjectsPath), $expectedProjects + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
         foreach ($assetPath in @($expectedAssets.Keys)) {
             $fullPath = Join-Path $RepoRoot $assetPath

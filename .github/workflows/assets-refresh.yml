@@ -35,12 +35,12 @@ jobs:
         run: ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Write sync report summary
-        if: always()
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: ./scripts/write-profile-sync-summary.ps1 -Context "Profile assets refresh" -AllowMissing
 
       - name: Upload sync report
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: profile-assets-sync-report
