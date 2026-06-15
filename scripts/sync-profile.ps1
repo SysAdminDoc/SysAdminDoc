@@ -60,6 +60,10 @@ $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
 $RenderedSmokeMinimumRootClientWidth = 300
+# Extra tolerance (minutes) added to a scheduled workflow's max inter-run gap
+# before its latest successful scheduled run is treated as stale. Covers runner
+# queue delays and the GitHub-documented cron drift on busy schedules.
+$ScheduledWorkflowGraceMinutes = 1440
 # Paths whose changes can alter the committed sync report / rendered smoke evidence.
 # Used to detect a committed report that predates the latest report-affecting commit.
 $ReportAffectingPaths = @(
@@ -3691,6 +3695,268 @@ function Test-ReportEvidenceFreshness {
         reportAffectingPaths = @($ReportAffectingPathList)
         warnings = @($warnings.ToArray())
         warningCount = [int]$warnings.Count
+    }
+}
+
+function Get-CronNumericSet {
+    param(
+        [string]$Field,
+        [int]$Min,
+        [int]$Max
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Field)) { return $null }
+    if ($Field -notmatch '^[0-9]+(,[0-9]+)*$') { return $null }
+    $values = @($Field -split ',' | ForEach-Object { [int]$_ })
+    foreach ($value in $values) {
+        if ($value -lt $Min -or $value -gt $Max) { return $null }
+    }
+    return @($values | Sort-Object -Unique)
+}
+
+function Get-CronWeekMinuteOffsets {
+    param([string]$Cron)
+
+    if ([string]::IsNullOrWhiteSpace($Cron)) { return $null }
+    $parts = @($Cron.Trim() -split '\s+')
+    if ($parts.Count -ne 5) { return $null }
+
+    $minuteField, $hourField, $domField, $monthField, $dowField = $parts
+    # Only day-of-week weekly schedules are supported precisely; anything that
+    # constrains day-of-month or month is treated as complex (cadence unknown).
+    if ($domField -ne '*' -or $monthField -ne '*') { return $null }
+
+    $minutes = Get-CronNumericSet -Field $minuteField -Min 0 -Max 59
+    $hours = Get-CronNumericSet -Field $hourField -Min 0 -Max 23
+    if ($null -eq $minutes -or $null -eq $hours) { return $null }
+
+    if ($dowField -eq '*') {
+        $days = @(0..6)
+    } else {
+        $days = Get-CronNumericSet -Field $dowField -Min 0 -Max 7
+        if ($null -eq $days) { return $null }
+        # cron treats both 0 and 7 as Sunday.
+        $days = @($days | ForEach-Object { if ($_ -eq 7) { 0 } else { $_ } } | Sort-Object -Unique)
+    }
+
+    $offsets = New-Object System.Collections.Generic.List[int]
+    foreach ($day in $days) {
+        foreach ($hour in $hours) {
+            foreach ($minute in $minutes) {
+                $offsets.Add(($day * 1440) + ($hour * 60) + $minute)
+            }
+        }
+    }
+    return @($offsets.ToArray() | Sort-Object -Unique)
+}
+
+function Get-CronMaxGapMinutes {
+    param([string[]]$Crons)
+
+    $all = New-Object System.Collections.Generic.List[int]
+    foreach ($cron in @($Crons)) {
+        $offsets = Get-CronWeekMinuteOffsets -Cron $cron
+        if ($null -eq $offsets) { return $null }
+        foreach ($offset in $offsets) { $all.Add([int]$offset) }
+    }
+
+    $sorted = @($all.ToArray() | Sort-Object -Unique)
+    if ($sorted.Count -eq 0) { return $null }
+    if ($sorted.Count -eq 1) { return 10080 }
+
+    $maxGap = 0
+    for ($i = 1; $i -lt $sorted.Count; $i++) {
+        $gap = $sorted[$i] - $sorted[$i - 1]
+        if ($gap -gt $maxGap) { $maxGap = $gap }
+    }
+    $wrapGap = ($sorted[0] + 10080) - $sorted[$sorted.Count - 1]
+    if ($wrapGap -gt $maxGap) { $maxGap = $wrapGap }
+    return [int]$maxGap
+}
+
+function Get-ScheduledWorkflowDefinitions {
+    param([string]$WorkflowDirectory = (Join-Path $RepoRoot ".github/workflows"))
+
+    $definitions = New-Object System.Collections.Generic.List[object]
+    if (-not (Test-Path -LiteralPath $WorkflowDirectory)) { return @() }
+
+    foreach ($file in @(Get-ChildItem -LiteralPath $WorkflowDirectory -Filter '*.yml' -File | Sort-Object Name)) {
+        $content = Get-Content -LiteralPath $file.FullName -Raw
+        $crons = @([regex]::Matches($content, '(?m)^\s*-\s*cron:\s*["'']?(?<cron>[^"''\r\n]+?)["'']?\s*$') | ForEach-Object { $_.Groups['cron'].Value.Trim() })
+        if ($crons.Count -eq 0) { continue }
+
+        $nameMatch = [regex]::Match($content, '(?m)^name:\s*(?<name>.+?)\s*$')
+        $name = if ($nameMatch.Success) { $nameMatch.Groups['name'].Value.Trim() } else { $file.BaseName }
+        $hasDispatch = [bool][regex]::IsMatch($content, '(?m)^\s*workflow_dispatch:')
+
+        $definitions.Add([ordered]@{
+                workflowFile = ".github/workflows/$($file.Name)"
+                name = $name
+                crons = @($crons)
+                hasWorkflowDispatch = $hasDispatch
+            })
+    }
+    return @($definitions.ToArray())
+}
+
+function Get-ScheduledWorkflowRunLookup {
+    param([object[]]$Definitions)
+
+    $lookup = @{}
+    foreach ($definition in @($Definitions)) {
+        $key = [string]$definition.workflowFile
+        if ($Offline) {
+            $lookup[$key] = [ordered]@{
+                available = $false
+                state = "unknown"
+                latestScheduledConclusion = $null
+                latestScheduledRunAt = $null
+                latestSuccessfulScheduledAt = $null
+                error = "offline mode"
+            }
+            continue
+        }
+
+        $fileName = Split-Path -Leaf $key
+        $stateResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/workflows/$fileName"
+        $state = if ($stateResult.ok -and $null -ne $stateResult.value) { [string]$stateResult.value.state } else { "unknown" }
+        $runsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/workflows/$fileName/runs?event=schedule&per_page=20"
+        if (-not $runsResult.ok) {
+            $lookup[$key] = [ordered]@{
+                available = $false
+                state = $state
+                latestScheduledConclusion = $null
+                latestScheduledRunAt = $null
+                latestSuccessfulScheduledAt = $null
+                error = $runsResult.error
+            }
+            continue
+        }
+
+        $runs = @($runsResult.value.workflow_runs)
+        $latest = if ($runs.Count -gt 0) { $runs[0] } else { $null }
+        $success = @($runs | Where-Object { [string]$_.conclusion -eq "success" } | Select-Object -First 1)
+        $latestRunAt = if ($latest) { $value = Get-MemberValue -Object $latest -Name "run_started_at"; if ([string]::IsNullOrWhiteSpace([string]$value)) { Get-MemberValue -Object $latest -Name "created_at" } else { $value } } else { $null }
+        $successRunAt = if ($success.Count -gt 0) { $value = Get-MemberValue -Object $success[0] -Name "run_started_at"; if ([string]::IsNullOrWhiteSpace([string]$value)) { Get-MemberValue -Object $success[0] -Name "created_at" } else { $value } } else { $null }
+
+        $lookup[$key] = [ordered]@{
+            available = $true
+            state = $state
+            latestScheduledConclusion = if ($latest) { [string](Get-MemberValue -Object $latest -Name "conclusion") } else { $null }
+            latestScheduledRunAt = if ([string]::IsNullOrWhiteSpace([string]$latestRunAt)) { $null } else { [string]$latestRunAt }
+            latestSuccessfulScheduledAt = if ([string]::IsNullOrWhiteSpace([string]$successRunAt)) { $null } else { [string]$successRunAt }
+            error = $null
+        }
+    }
+    return $lookup
+}
+
+function Test-ScheduledWorkflowFreshness {
+    param(
+        [object[]]$Definitions,
+        [AllowNull()][hashtable]$RunLookup,
+        [AllowNull()][object]$Now,
+        [int]$GraceMinutes = $ScheduledWorkflowGraceMinutes
+    )
+
+    if ($null -eq $RunLookup) { $RunLookup = @{} }
+    $nowOffset = ConvertTo-DateTimeOffsetOrNull $Now
+    if ($null -eq $nowOffset) { $nowOffset = [datetimeoffset]::Now }
+
+    $failingConclusions = @("failure", "cancelled", "timed_out", "startup_failure", "action_required", "stale")
+    $disabledStates = @("disabled_manually", "disabled_inactivity")
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    foreach ($definition in @($Definitions)) {
+        $key = [string]$definition.workflowFile
+        $cadence = Get-CronMaxGapMinutes -Crons $definition.crons
+
+        $lookup = if ($RunLookup.ContainsKey($key)) { $RunLookup[$key] } else { $null }
+        $available = if ($lookup) { [bool](Get-MemberValue -Object $lookup -Name "available") } else { $false }
+        $state = if ($lookup -and -not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $lookup -Name "state"))) { [string](Get-MemberValue -Object $lookup -Name "state") } else { "unknown" }
+        $latestConclusion = if ($lookup) { [string](Get-MemberValue -Object $lookup -Name "latestScheduledConclusion") } else { $null }
+        $latestRunAt = if ($lookup) { Get-MemberValue -Object $lookup -Name "latestScheduledRunAt" } else { $null }
+        $latestSuccessAt = if ($lookup) { Get-MemberValue -Object $lookup -Name "latestSuccessfulScheduledAt" } else { $null }
+        $lookupError = if ($lookup) { [string](Get-MemberValue -Object $lookup -Name "error") } else { "no scheduled run evidence supplied" }
+
+        $warning = $null
+        $ageMinutes = $null
+        $stale = $false
+        $failing = $false
+        if (-not $available) {
+            $status = "unavailable"
+            $reason = if ([string]::IsNullOrWhiteSpace($lookupError)) { "scheduled run evidence unavailable" } else { $lookupError }
+            $warning = "Scheduled workflow '$($definition.name)' run evidence is unavailable: $reason."
+        } elseif ($disabledStates -contains $state) {
+            $status = "disabled"
+            $warning = "Scheduled workflow '$($definition.name)' is $state and is not running on its cron."
+        } else {
+            if (-not [string]::IsNullOrWhiteSpace($latestConclusion) -and $failingConclusions -contains $latestConclusion) {
+                $failing = $true
+            }
+            $successOffset = ConvertTo-DateTimeOffsetOrNull $latestSuccessAt
+            if ($null -ne $successOffset) {
+                $ageMinutes = [int][math]::Round(($nowOffset - $successOffset).TotalMinutes, 0)
+                if ($null -ne $cadence -and $ageMinutes -gt ($cadence + $GraceMinutes)) {
+                    $stale = $true
+                }
+            } else {
+                $stale = $true
+            }
+
+            if ($failing) {
+                $status = "failing"
+                $warning = "Scheduled workflow '$($definition.name)' latest scheduled run concluded '$latestConclusion'."
+            } elseif ($stale) {
+                $status = "stale"
+                if ($null -eq $successOffset) {
+                    $warning = "Scheduled workflow '$($definition.name)' has no recorded successful scheduled run."
+                } else {
+                    $warning = "Scheduled workflow '$($definition.name)' last succeeded $ageMinutes minute(s) ago, beyond its $cadence-minute cadence plus $GraceMinutes-minute grace."
+                }
+            } else {
+                $status = "ok"
+            }
+        }
+
+        $rows.Add([ordered]@{
+                workflowFile = $key
+                name = [string]$definition.name
+                crons = @($definition.crons)
+                hasWorkflowDispatch = [bool]$definition.hasWorkflowDispatch
+                cadenceMinutes = $cadence
+                graceMinutes = [int]$GraceMinutes
+                state = $state
+                latestScheduledConclusion = if ([string]::IsNullOrWhiteSpace([string]$latestConclusion)) { $null } else { [string]$latestConclusion }
+                latestScheduledRunAt = if ([string]::IsNullOrWhiteSpace([string]$latestRunAt)) { $null } else { [string]$latestRunAt }
+                latestSuccessfulScheduledAt = if ([string]::IsNullOrWhiteSpace([string]$latestSuccessAt)) { $null } else { [string]$latestSuccessAt }
+                ageMinutes = $ageMinutes
+                stale = [bool]$stale
+                failing = [bool]$failing
+                available = [bool]$available
+                status = $status
+                warning = $warning
+            })
+    }
+
+    $rowArray = @($rows.ToArray())
+    $rowArray = @($rowArray | Sort-Object -Property @{ Expression = { [string]$_.workflowFile } })
+    $staleCount = @($rowArray | Where-Object { $_.status -eq "stale" }).Count
+    $failingCount = @($rowArray | Where-Object { $_.status -eq "failing" }).Count
+    $unavailableCount = @($rowArray | Where-Object { $_.status -eq "unavailable" }).Count
+    $disabledCount = @($rowArray | Where-Object { $_.status -eq "disabled" }).Count
+    $warningCount = @($rowArray | Where-Object { $null -ne $_.warning }).Count
+
+    return [ordered]@{
+        status = if ($warningCount -eq 0) { "ok" } else { "warning" }
+        scheduledWorkflowCount = [int]$rowArray.Count
+        staleCount = [int]$staleCount
+        failingCount = [int]$failingCount
+        unavailableCount = [int]$unavailableCount
+        disabledCount = [int]$disabledCount
+        warningCount = [int]$warningCount
+        graceMinutes = [int]$GraceMinutes
+        rows = $rowArray
     }
 }
 
@@ -7888,6 +8154,9 @@ function Test-ProfileState {
     }
     $latestReportCommit = Get-LatestReportAffectingCommit
     $evidenceFreshness = Test-ReportEvidenceFreshness -CommittedReport $committedReportForFreshness -LatestCommitDate $latestReportCommit.date -LatestCommitSha $latestReportCommit.sha
+    $scheduledWorkflowDefinitions = Get-ScheduledWorkflowDefinitions
+    $scheduledWorkflowRunLookup = Get-ScheduledWorkflowRunLookup -Definitions $scheduledWorkflowDefinitions
+    $scheduledWorkflowFreshness = Test-ScheduledWorkflowFreshness -Definitions $scheduledWorkflowDefinitions -RunLookup $scheduledWorkflowRunLookup -Now (Get-Date)
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -7983,6 +8252,7 @@ function Test-ProfileState {
         artifactBudgets = $artifactBudgets
         renderedProfileSmoke = $renderedProfileSmoke
         evidenceFreshness = $evidenceFreshness
+        scheduledWorkflowFreshness = $scheduledWorkflowFreshness
         readmeExperienceChecks = $experienceChecks
     }
     for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {

@@ -206,6 +206,9 @@
     "evidenceFreshness": {
       "$ref": "#/$defs/evidenceFreshness"
     },
+    "scheduledWorkflowFreshness": {
+      "$ref": "#/$defs/scheduledWorkflowFreshness"
+    },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
     }
@@ -4592,6 +4595,133 @@
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
+        }
+      }
+    },
+    "scheduledWorkflowFreshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "scheduledWorkflowCount",
+        "staleCount",
+        "failingCount",
+        "unavailableCount",
+        "disabledCount",
+        "warningCount",
+        "graceMinutes",
+        "rows"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "warning"
+          ]
+        },
+        "scheduledWorkflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "staleCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failingCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unavailableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "disabledCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "graceMinutes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "workflowFile",
+              "name",
+              "crons",
+              "hasWorkflowDispatch",
+              "cadenceMinutes",
+              "graceMinutes",
+              "state",
+              "latestScheduledConclusion",
+              "latestScheduledRunAt",
+              "latestSuccessfulScheduledAt",
+              "ageMinutes",
+              "stale",
+              "failing",
+              "available",
+              "status",
+              "warning"
+            ],
+            "properties": {
+              "workflowFile": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "crons": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "hasWorkflowDispatch": {
+                "type": "boolean"
+              },
+              "cadenceMinutes": {
+                "$ref": "#/$defs/nullableInteger"
+              },
+              "graceMinutes": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "state": {
+                "type": "string"
+              },
+              "latestScheduledConclusion": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "latestScheduledRunAt": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "latestSuccessfulScheduledAt": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "ageMinutes": {
+                "$ref": "#/$defs/nullableInteger"
+              },
+              "stale": {
+                "type": "boolean"
+              },
+              "failing": {
+                "type": "boolean"
+              },
+              "available": {
+                "type": "boolean"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "stale",
+                  "failing",
+                  "unavailable",
+                  "disabled"
+                ]
+              },
+              "warning": {
+                "$ref": "#/$defs/nullableString"
+              }
+            }
+          }
         }
       }
     },

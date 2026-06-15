@@ -3967,3 +3967,119 @@ Describe 'Report evidence freshness gate' {
         ($schemaRequired -join ',') | Should -Be ($schemaKeys -join ',')
     }
 }
+
+Describe 'Scheduled workflow freshness gate' {
+    It 'derives the max inter-run cadence from cron day-of-week schedules' {
+        Get-CronMaxGapMinutes -Crons @('19 8 * * 3') | Should -Be 10080
+        Get-CronMaxGapMinutes -Crons @('37 7 * * 2,5') | Should -Be 5760
+        Get-CronMaxGapMinutes -Crons @('0 0 * * *') | Should -Be 1440
+        Get-CronMaxGapMinutes -Crons @('0 0 1 * *') | Should -BeNullOrEmpty
+    }
+
+    It 'parses scheduled workflow definitions from the repository workflows' {
+        $definitions = Get-ScheduledWorkflowDefinitions
+        @($definitions).Count | Should -BeGreaterThan 0
+        $profileSync = @($definitions | Where-Object { $_.workflowFile -eq '.github/workflows/profile-sync.yml' })
+        $profileSync | Should -HaveCount 1
+        $profileSync[0].crons | Should -Contain '37 7 * * 2,5'
+        $profileSync[0].name | Should -Be 'Profile sync'
+        $profileSync[0].hasWorkflowDispatch | Should -BeTrue
+        # tests.yml has no schedule trigger and must be excluded.
+        @($definitions | Where-Object { $_.workflowFile -eq '.github/workflows/tests.yml' }) | Should -BeNullOrEmpty
+    }
+
+    It 'reports ok when the latest successful scheduled run is within cadence plus grace' {
+        $definitions = @([ordered]@{ workflowFile = '.github/workflows/assets-refresh.yml'; name = 'Profile assets refresh'; crons = @('19 8 * * 3'); hasWorkflowDispatch = $true })
+        $lookup = @{
+            '.github/workflows/assets-refresh.yml' = [ordered]@{
+                available = $true
+                state = 'active'
+                latestScheduledConclusion = 'success'
+                latestScheduledRunAt = '2026-06-10T08:19:00Z'
+                latestSuccessfulScheduledAt = '2026-06-10T08:19:00Z'
+                error = $null
+            }
+        }
+
+        $result = Test-ScheduledWorkflowFreshness -Definitions $definitions -RunLookup $lookup -Now ([datetimeoffset]::Parse('2026-06-12T08:19:00Z'))
+        $result.status | Should -Be 'ok'
+        $result.scheduledWorkflowCount | Should -Be 1
+        $result.warningCount | Should -Be 0
+        $result.rows[0].status | Should -Be 'ok'
+        $result.rows[0].cadenceMinutes | Should -Be 10080
+    }
+
+    It 'flags failing and stale scheduled runs as warnings' {
+        $definitions = @(
+            [ordered]@{ workflowFile = '.github/workflows/profile-sync.yml'; name = 'Profile sync'; crons = @('37 7 * * 2,5'); hasWorkflowDispatch = $true },
+            [ordered]@{ workflowFile = '.github/workflows/assets-refresh.yml'; name = 'Profile assets refresh'; crons = @('19 8 * * 3'); hasWorkflowDispatch = $true }
+        )
+        $lookup = @{
+            '.github/workflows/profile-sync.yml' = [ordered]@{
+                available = $true
+                state = 'active'
+                latestScheduledConclusion = 'failure'
+                latestScheduledRunAt = '2026-06-12T07:37:00Z'
+                latestSuccessfulScheduledAt = '2026-06-09T07:37:00Z'
+                error = $null
+            }
+            '.github/workflows/assets-refresh.yml' = [ordered]@{
+                available = $true
+                state = 'active'
+                latestScheduledConclusion = 'success'
+                latestScheduledRunAt = '2026-05-20T08:19:00Z'
+                latestSuccessfulScheduledAt = '2026-05-20T08:19:00Z'
+                error = $null
+            }
+        }
+
+        $result = Test-ScheduledWorkflowFreshness -Definitions $definitions -RunLookup $lookup -Now ([datetimeoffset]::Parse('2026-06-12T12:00:00Z'))
+        $result.status | Should -Be 'warning'
+        $result.failingCount | Should -Be 1
+        $result.staleCount | Should -Be 1
+        ($result.rows | Where-Object { $_.workflowFile -eq '.github/workflows/profile-sync.yml' }).status | Should -Be 'failing'
+        ($result.rows | Where-Object { $_.workflowFile -eq '.github/workflows/assets-refresh.yml' }).status | Should -Be 'stale'
+    }
+
+    It 'marks scheduled workflows unavailable when run evidence is missing' {
+        $definitions = @([ordered]@{ workflowFile = '.github/workflows/scorecard.yml'; name = 'OpenSSF Scorecard'; crons = @('43 8 * * 4'); hasWorkflowDispatch = $false })
+        $lookup = @{
+            '.github/workflows/scorecard.yml' = [ordered]@{
+                available = $false
+                state = 'unknown'
+                latestScheduledConclusion = $null
+                latestScheduledRunAt = $null
+                latestSuccessfulScheduledAt = $null
+                error = 'gh authentication unavailable'
+            }
+        }
+
+        $result = Test-ScheduledWorkflowFreshness -Definitions $definitions -RunLookup $lookup -Now ([datetimeoffset]::Parse('2026-06-12T12:00:00Z'))
+        $result.unavailableCount | Should -Be 1
+        $result.rows[0].status | Should -Be 'unavailable'
+        ($result.rows[0].warning) | Should -Match 'unavailable'
+    }
+
+    It 'exposes a scheduledWorkflowFreshness contract in the summary script and report schema' {
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'scheduledWorkflowFreshness'
+        $summaryScript | Should -Match 'Scheduled workflow freshness'
+
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $schema.properties.scheduledWorkflowFreshness.'$ref' | Should -Be '#/$defs/scheduledWorkflowFreshness'
+
+        # Field parity for the aggregate object and per-row item.
+        $sample = Test-ScheduledWorkflowFreshness `
+            -Definitions @([ordered]@{ workflowFile = '.github/workflows/assets-refresh.yml'; name = 'Profile assets refresh'; crons = @('19 8 * * 3'); hasWorkflowDispatch = $true }) `
+            -RunLookup @{ '.github/workflows/assets-refresh.yml' = [ordered]@{ available = $true; state = 'active'; latestScheduledConclusion = 'success'; latestScheduledRunAt = '2026-06-10T08:19:00Z'; latestSuccessfulScheduledAt = '2026-06-10T08:19:00Z'; error = $null } } `
+            -Now ([datetimeoffset]::Parse('2026-06-12T08:19:00Z'))
+
+        $aggregateKeys = @($sample.Keys) | Sort-Object
+        $schemaAggregateKeys = @($schema.'$defs'.scheduledWorkflowFreshness.properties.PSObject.Properties.Name) | Sort-Object
+        ($aggregateKeys -join ',') | Should -Be ($schemaAggregateKeys -join ',')
+
+        $rowKeys = @($sample.rows[0].Keys) | Sort-Object
+        $schemaRowKeys = @($schema.'$defs'.scheduledWorkflowFreshness.properties.rows.items.properties.PSObject.Properties.Name) | Sort-Object
+        ($rowKeys -join ',') | Should -Be ($schemaRowKeys -join ',')
+    }
+}
