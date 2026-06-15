@@ -4464,6 +4464,64 @@ Describe 'Root Markdown hygiene' {
     }
 }
 
+Describe 'Profile SVG color contrast' {
+    It 'computes the WCAG contrast ratio between two colors' {
+        # Black on white is the maximum 21:1.
+        Get-ColorContrastRatio -Foreground (ConvertFrom-HexColor '#000000') -Background (ConvertFrom-HexColor '#ffffff') | Should -Be 21
+        # Identical colors are 1:1.
+        Get-ColorContrastRatio -Foreground (ConvertFrom-HexColor '#161b22') -Background (ConvertFrom-HexColor '#161b22') | Should -Be 1
+    }
+
+    It 'expands shorthand hex and rejects invalid hex' {
+        $c = ConvertFrom-HexColor '#fff'
+        $c.r | Should -Be 255
+        $c.g | Should -Be 255
+        $c.b | Should -Be 255
+        ConvertFrom-HexColor 'not-a-color' | Should -BeNullOrEmpty
+    }
+
+    It 'passes a panel whose text colors clear the text minimum against the largest rect' {
+        $svg = '<svg><rect width="100%" height="100%" fill="#0d1117"/><rect x="16" y="16" width="788" height="188" fill="#161b22"/><rect x="16" y="16" width="8" height="188" fill="#1f6feb"/><text fill="#c9d1d9">Title</text><text fill="#8b949e">Sub</text></svg>'
+        $result = Get-SvgContrastAnalysis -Name 'panel.svg' -Content $svg
+        # Largest rect (the panel) is chosen, not the page bg or the 8px accent stripe.
+        $result.backgroundColor | Should -Be '#161b22'
+        $result.pass | Should -BeTrue
+        $result.belowTextMinCount | Should -Be 0
+    }
+
+    It 'flags low-contrast text against the panel background' {
+        $svg = '<svg><rect width="500" height="200" fill="#161b22"/><text fill="#2a2f37">barely visible</text></svg>'
+        $result = Get-SvgContrastAnalysis -Name 'low.svg' -Content $svg
+        $result.pass | Should -BeFalse
+        $result.belowTextMinCount | Should -BeGreaterThan 0
+        $result.textColors[0].meetsTextMin | Should -BeFalse
+    }
+
+    It 'reports ok across the committed profile SVG assets' {
+        $result = Test-ProfileAssetsAccessibility
+        $result.status | Should -Be 'ok'
+        $result.assetCount | Should -BeGreaterThan 0
+        $result.failingAssetCount | Should -Be 0
+        $result.textMinRatio | Should -Be 4.5
+    }
+
+    It 'exposes a profileAssetsAccessibility contract in the schema and summary' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $schema.properties.profileAssetsAccessibility.'$ref' | Should -Be '#/$defs/profileAssetsAccessibility'
+
+        $sample = Test-ProfileAssetsAccessibility -AssetContents @{ 'a.svg' = '<svg><rect width="100" height="100" fill="#161b22"/><text fill="#c9d1d9">x</text></svg>' }
+        $aggregateKeys = @($sample.Keys) | Sort-Object
+        $schemaKeys = @($schema.'$defs'.profileAssetsAccessibility.properties.PSObject.Properties.Name) | Sort-Object
+        ($aggregateKeys -join ',') | Should -Be ($schemaKeys -join ',')
+        $rowKeys = @($sample.contrastRatios[0].Keys) | Sort-Object
+        $schemaRowKeys = @($schema.'$defs'.profileAssetsAccessibility.properties.contrastRatios.items.properties.PSObject.Properties.Name) | Sort-Object
+        ($rowKeys -join ',') | Should -Be ($schemaRowKeys -join ',')
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Profile SVG contrast'
+    }
+}
+
 Describe 'Pester coverage floor enforcement' {
     BeforeAll {
         $script:TestsWorkflowForCoverage = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw

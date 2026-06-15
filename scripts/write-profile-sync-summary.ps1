@@ -130,6 +130,7 @@ $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFre
 $scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
 $roadmapHygiene = if ($report.PSObject.Properties.Name -contains 'roadmapHygiene') { $report.roadmapHygiene } else { $null }
 $rootMarkdownHygiene = if ($report.PSObject.Properties.Name -contains 'rootMarkdownHygiene') { $report.rootMarkdownHygiene } else { $null }
+$profileAssetsAccessibility = if ($report.PSObject.Properties.Name -contains 'profileAssetsAccessibility') { $report.profileAssetsAccessibility } else { $null }
 $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readmeExperienceChecks') { $report.readmeExperienceChecks } else { $null }
 $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
 
@@ -339,6 +340,8 @@ $headingSkippedLevelCount = if ($readmeHeadingHierarchy) { [int]$readmeHeadingHi
 $rootMarkdownStatus = if ($rootMarkdownHygiene) { [string]$rootMarkdownHygiene.status } else { "unknown" }
 $rootMarkdownWarningCount = if ($rootMarkdownHygiene) { [int]$rootMarkdownHygiene.warningCount } else { 0 }
 $rootMarkdownUnexpected = if ($rootMarkdownHygiene -and $rootMarkdownHygiene.PSObject.Properties.Name -contains 'unexpectedFiles') { @($rootMarkdownHygiene.unexpectedFiles) -join ", " } else { "" }
+$svgContrastStatus = if ($profileAssetsAccessibility) { [string]$profileAssetsAccessibility.status } else { "unknown" }
+$svgContrastFailingAssets = if ($profileAssetsAccessibility) { [int]$profileAssetsAccessibility.failingAssetCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -395,6 +398,8 @@ $summary = @"
 | README skipped heading levels | $headingSkippedLevelCount |
 | Root Markdown hygiene | $rootMarkdownStatus |
 | Root Markdown unexpected files | $rootMarkdownWarningCount |
+| Profile SVG contrast | $svgContrastStatus |
+| Profile SVG contrast failures | $svgContrastFailingAssets |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -633,6 +638,10 @@ if ($headingSkippedLevelCount -gt 0) {
 
 if ($rootMarkdownWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report found $rootMarkdownWarningCount root Markdown file(s) outside the documentation contract: $rootMarkdownUnexpected."
+}
+
+if ($svgContrastFailingAssets -gt 0) {
+    Write-Output "::warning::Profile sync report found $svgContrastFailingAssets profile SVG asset(s) with text color contrast below WCAG minimums."
 }
 
 if ($roadmapHygieneWarningCount -gt 0) {
