@@ -4083,3 +4083,84 @@ Describe 'Scheduled workflow freshness gate' {
         ($rowKeys -join ',') | Should -Be ($schemaRowKeys -join ',')
     }
 }
+
+Describe 'Roadmap hygiene gate' {
+    It 'flags an open roadmap entry whose marker rule is satisfied' {
+        $roadmap = @'
+# Roadmap
+
+- [ ] P1 -- Add the widget feature to the catalog
+- [ ] P1 -- Add dependency-review-action to PR workflows
+'@
+        $rules = @(
+            [ordered]@{ id = 'widget'; marker = 'Add the widget feature'; satisfied = { $false } },
+            [ordered]@{ id = 'dependency-review-action'; marker = 'Add dependency-review-action to PR workflows'; satisfied = { $true } }
+        )
+
+        $result = Test-RoadmapHygiene -RoadmapText $roadmap -Rules $rules
+        $result.status | Should -Be 'stale-entries'
+        $result.roadmapPresent | Should -BeTrue
+        $result.shippedEntryCount | Should -Be 1
+        $result.warningCount | Should -Be 1
+        $result.rows[0].ruleId | Should -Be 'dependency-review-action'
+        $result.rows[0].entry | Should -Match 'dependency-review-action'
+    }
+
+    It 'reports clean when no satisfied rule matches an open entry' {
+        $roadmap = "# Roadmap`n`n- [ ] P2 -- Some unrelated future work"
+        $rules = @([ordered]@{ id = 'dependency-review-action'; marker = 'Add dependency-review-action to PR workflows'; satisfied = { $true } })
+
+        $result = Test-RoadmapHygiene -RoadmapText $roadmap -Rules $rules
+        $result.status | Should -Be 'clean'
+        $result.warningCount | Should -Be 0
+    }
+
+    It 'ignores satisfied rules that have no matching open entry' {
+        $roadmap = "# Roadmap`n`n- [ ] P2 -- Add dependency-review-action to PR workflows"
+        # entry present but rule reports not satisfied -> no warning
+        $rules = @([ordered]@{ id = 'dependency-review-action'; marker = 'Add dependency-review-action to PR workflows'; satisfied = { $false } })
+
+        $result = Test-RoadmapHygiene -RoadmapText $roadmap -Rules $rules
+        $result.status | Should -Be 'clean'
+        $result.warningCount | Should -Be 0
+    }
+
+    It 'reports not-present when the roadmap file is absent (CI checkout)' {
+        $result = Test-RoadmapHygiene -RoadmapPath (Join-Path $script:RepoRoot 'this-roadmap-does-not-exist.md')
+        $result.status | Should -Be 'not-present'
+        $result.roadmapPresent | Should -BeFalse
+        $result.warningCount | Should -Be 0
+    }
+
+    It 'keeps the live committed workflows from regressing the shipped CI rules' {
+        # The built-in rules must actually detect current shipped state, so that a
+        # future re-added roadmap entry would be flagged.
+        $rules = Get-RoadmapHygieneRules
+        $synthetic = @'
+# Roadmap
+
+- [ ] P1 -- Add dependency-review-action to PR workflows
+- [ ] P1 -- Upgrade upload-artifact to v7
+- [ ] P1 -- Update scorecard-action and dependabot/fetch-metadata SHA pins
+- [ ] P1 -- Add Dependabot pip updates for hash-pinned CI tools
+'@
+        $result = Test-RoadmapHygiene -RoadmapText $synthetic -Rules $rules
+        $result.shippedEntryCount | Should -Be 4
+        @($result.rows.ruleId) | Should -Contain 'upload-artifact-v7'
+        @($result.rows.ruleId) | Should -Contain 'pip-dependabot'
+    }
+
+    It 'exposes a roadmapHygiene contract in the summary script and report schema' {
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'roadmapHygiene'
+        $summaryScript | Should -Match 'Roadmap hygiene'
+
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $schema.properties.roadmapHygiene.'$ref' | Should -Be '#/$defs/roadmapHygiene'
+
+        $sample = Test-RoadmapHygiene -RoadmapText "# Roadmap`n`n- [ ] P2 -- nothing shipped here" -Rules (Get-RoadmapHygieneRules)
+        $aggregateKeys = @($sample.Keys) | Sort-Object
+        $schemaAggregateKeys = @($schema.'$defs'.roadmapHygiene.properties.PSObject.Properties.Name) | Sort-Object
+        ($aggregateKeys -join ',') | Should -Be ($schemaAggregateKeys -join ',')
+    }
+}

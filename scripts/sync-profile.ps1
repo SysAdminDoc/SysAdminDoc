@@ -3960,6 +3960,104 @@ function Test-ScheduledWorkflowFreshness {
     }
 }
 
+function Get-RoadmapHygieneRules {
+    # Each rule flags an OPEN roadmap entry whose completion is fully verifiable
+    # from committed repository files. Items whose acceptance depends on
+    # GitHub-side toggles (PVR enablement, branch settings) are intentionally
+    # excluded because file state cannot prove them shipped.
+    return @(
+        [ordered]@{
+            id = "dependency-review-action"
+            marker = "Add dependency-review-action to PR workflows"
+            satisfied = {
+                $path = Join-Path $RepoRoot ".github/workflows/tests.yml"
+                if (-not (Test-Path -LiteralPath $path)) { return $false }
+                return ((Get-Content -LiteralPath $path -Raw) -match 'actions/dependency-review-action@')
+            }
+        },
+        [ordered]@{
+            id = "upload-artifact-v7"
+            marker = "Upgrade upload-artifact to v7"
+            satisfied = {
+                $dir = Join-Path $RepoRoot ".github/workflows"
+                if (-not (Test-Path -LiteralPath $dir)) { return $false }
+                $all = @(Get-ChildItem -LiteralPath $dir -Filter '*.yml' -File | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
+                return ($all -match 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a') -and ($all -notmatch 'actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f')
+            }
+        },
+        [ordered]@{
+            id = "fetch-metadata-v3"
+            marker = "fetch-metadata"
+            satisfied = {
+                $path = Join-Path $RepoRoot ".github/workflows/dependabot-auto-merge.yml"
+                if (-not (Test-Path -LiteralPath $path)) { return $false }
+                return ((Get-Content -LiteralPath $path -Raw) -match 'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98')
+            }
+        },
+        [ordered]@{
+            id = "pip-dependabot"
+            marker = "Add Dependabot pip updates"
+            satisfied = {
+                $path = Join-Path $RepoRoot ".github/dependabot.yml"
+                if (-not (Test-Path -LiteralPath $path)) { return $false }
+                return ((Get-Content -LiteralPath $path -Raw) -match 'package-ecosystem:\s*"pip"')
+            }
+        }
+    )
+}
+
+function Test-RoadmapHygiene {
+    param(
+        [string]$RoadmapPath = (Join-Path $RepoRoot "ROADMAP.md"),
+        [AllowNull()][string]$RoadmapText,
+        [AllowNull()][object[]]$Rules
+    )
+
+    if ($null -eq $Rules) { $Rules = Get-RoadmapHygieneRules }
+
+    $present = $false
+    $text = $null
+    if ($PSBoundParameters.ContainsKey("RoadmapText") -and $null -ne $RoadmapText) {
+        $present = $true
+        $text = $RoadmapText
+    } elseif (Test-Path -LiteralPath $RoadmapPath) {
+        $present = $true
+        $text = Get-Content -LiteralPath $RoadmapPath -Raw
+    }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    if ($present) {
+        $openEntries = @([regex]::Matches($text, '(?m)^\s*-\s*\[ \]\s*(?<title>.+?)\s*$') | ForEach-Object { $_.Groups['title'].Value })
+        foreach ($rule in @($Rules)) {
+            $marker = [string]$rule.marker
+            if ([string]::IsNullOrWhiteSpace($marker)) { continue }
+            $matchingEntries = @($openEntries | Where-Object { $_ -match [regex]::Escape($marker) })
+            if ($matchingEntries.Count -eq 0) { continue }
+
+            $isSatisfied = $false
+            try { $isSatisfied = [bool](& $rule.satisfied) } catch { $isSatisfied = $false }
+            if ($isSatisfied) {
+                $rows.Add([ordered]@{
+                        ruleId = [string]$rule.id
+                        marker = $marker
+                        entry = [string]$matchingEntries[0]
+                        reason = "Open roadmap entry matches '$marker' but current repository files already satisfy it; remove the entry."
+                    })
+            }
+        }
+    }
+
+    $rowArray = @($rows.ToArray() | Sort-Object -Property @{ Expression = { [string]$_.ruleId } })
+    return [ordered]@{
+        status = if (-not $present) { "not-present" } elseif ($rowArray.Count -eq 0) { "clean" } else { "stale-entries" }
+        roadmapPresent = [bool]$present
+        shippedEntryCount = [int]$rowArray.Count
+        warningCount = [int]$rowArray.Count
+        rows = $rowArray
+        note = "Warning-only roadmap hygiene: lists open ROADMAP.md entries already satisfied by committed repository files. ROADMAP.md is local-only and is typically absent in CI checkouts."
+    }
+}
+
 function Test-CatalogShape {
     param([hashtable]$Catalog)
 
@@ -8157,6 +8255,7 @@ function Test-ProfileState {
     $scheduledWorkflowDefinitions = Get-ScheduledWorkflowDefinitions
     $scheduledWorkflowRunLookup = Get-ScheduledWorkflowRunLookup -Definitions $scheduledWorkflowDefinitions
     $scheduledWorkflowFreshness = Test-ScheduledWorkflowFreshness -Definitions $scheduledWorkflowDefinitions -RunLookup $scheduledWorkflowRunLookup -Now (Get-Date)
+    $roadmapHygiene = Test-RoadmapHygiene
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -8253,6 +8352,7 @@ function Test-ProfileState {
         renderedProfileSmoke = $renderedProfileSmoke
         evidenceFreshness = $evidenceFreshness
         scheduledWorkflowFreshness = $scheduledWorkflowFreshness
+        roadmapHygiene = $roadmapHygiene
         readmeExperienceChecks = $experienceChecks
     }
     for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {
