@@ -129,6 +129,7 @@ $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properti
 $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFreshness') { $report.evidenceFreshness } else { $null }
 $scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
 $roadmapHygiene = if ($report.PSObject.Properties.Name -contains 'roadmapHygiene') { $report.roadmapHygiene } else { $null }
+$rootMarkdownHygiene = if ($report.PSObject.Properties.Name -contains 'rootMarkdownHygiene') { $report.rootMarkdownHygiene } else { $null }
 $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readmeExperienceChecks') { $report.readmeExperienceChecks } else { $null }
 $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
 
@@ -335,6 +336,9 @@ $imageAltTextComplete = if ($readmeExperienceChecks -and $readmeExperienceChecks
 $imageAltTextIssueCount = if ($readmeExperienceChecks -and $readmeExperienceChecks.PSObject.Properties.Name -contains 'imageAltTextIssueCount') { [int]$readmeExperienceChecks.imageAltTextIssueCount } else { 0 }
 $headingHierarchyStatus = if ($readmeHeadingHierarchy) { [string]$readmeHeadingHierarchy.status } else { "unknown" }
 $headingSkippedLevelCount = if ($readmeHeadingHierarchy) { [int]$readmeHeadingHierarchy.skippedLevelCount } else { 0 }
+$rootMarkdownStatus = if ($rootMarkdownHygiene) { [string]$rootMarkdownHygiene.status } else { "unknown" }
+$rootMarkdownWarningCount = if ($rootMarkdownHygiene) { [int]$rootMarkdownHygiene.warningCount } else { 0 }
+$rootMarkdownUnexpected = if ($rootMarkdownHygiene -and $rootMarkdownHygiene.PSObject.Properties.Name -contains 'unexpectedFiles') { @($rootMarkdownHygiene.unexpectedFiles) -join ", " } else { "" }
 
 $summary = @"
 ### $Context report
@@ -389,6 +393,8 @@ $summary = @"
 | README images missing alt text | $imageAltTextIssueCount |
 | README heading hierarchy | $headingHierarchyStatus |
 | README skipped heading levels | $headingSkippedLevelCount |
+| Root Markdown hygiene | $rootMarkdownStatus |
+| Root Markdown unexpected files | $rootMarkdownWarningCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -623,6 +629,10 @@ if ($imageAltTextIssueCount -gt 0) {
 
 if ($headingSkippedLevelCount -gt 0) {
     Write-Output "::warning::Profile sync report found $headingSkippedLevelCount skipped README heading level(s)."
+}
+
+if ($rootMarkdownWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report found $rootMarkdownWarningCount root Markdown file(s) outside the documentation contract: $rootMarkdownUnexpected."
 }
 
 if ($roadmapHygieneWarningCount -gt 0) {

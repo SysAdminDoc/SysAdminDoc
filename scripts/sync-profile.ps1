@@ -4137,6 +4137,53 @@ function Test-RoadmapHygiene {
     }
 }
 
+function Test-RootMarkdownHygiene {
+    param(
+        [string]$RepoRootPath = $RepoRoot,
+        [string[]]$AllowedFiles = @("README.md", "CLAUDE.md", "AGENTS.md", "CHANGELOG.md", "ROADMAP.md", "RESEARCH.md", "SECURITY.md"),
+        [string[]]$Exemptions = @(),
+        [AllowNull()][string[]]$RootMarkdownNames
+    )
+
+    if ($null -ne $RootMarkdownNames) {
+        $names = @($RootMarkdownNames)
+    } elseif (Test-Path -LiteralPath $RepoRootPath) {
+        $names = @(Get-ChildItem -LiteralPath $RepoRootPath -Filter '*.md' -File | ForEach-Object { $_.Name })
+    } else {
+        $names = @()
+    }
+
+    $allowedSet = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($allowed in @($AllowedFiles)) { [void]$allowedSet.Add($allowed) }
+    $exemptSet = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($exempt in @($Exemptions)) { [void]$exemptSet.Add($exempt) }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    foreach ($name in @($names | Sort-Object -Unique)) {
+        if ($allowedSet.Contains($name)) { continue }
+        $isExempt = $exemptSet.Contains($name)
+        $rows.Add([ordered]@{
+                file = [string]$name
+                status = if ($isExempt) { "exempt" } else { "unexpected" }
+            })
+    }
+
+    $rowArray = @($rows.ToArray())
+    $unexpected = @($rowArray | Where-Object { $_.status -eq "unexpected" })
+    $exempt = @($rowArray | Where-Object { $_.status -eq "exempt" })
+
+    return [ordered]@{
+        status = if (@($unexpected).Count -eq 0) { "clean" } else { "unexpected-files" }
+        rootMarkdownCount = [int]@($names).Count
+        allowedFiles = @($AllowedFiles | Sort-Object -Unique)
+        unexpectedFiles = @($unexpected | ForEach-Object { [string]$_.file })
+        exemptFiles = @($exempt | ForEach-Object { [string]$_.file })
+        rows = $rowArray
+        warningCount = [int]@($unexpected).Count
+        note = "Warning-only root Markdown hygiene against the repo documentation contract. Most non-README root Markdown is gitignored and absent in CI; historical leftovers can be removed or added to the exemption allowlist."
+    }
+}
+
 function Test-CatalogShape {
     param([hashtable]$Catalog)
 
@@ -8415,6 +8462,7 @@ function Test-ProfileState {
     $scheduledWorkflowRunLookup = Get-ScheduledWorkflowRunLookup -Definitions $scheduledWorkflowDefinitions
     $scheduledWorkflowFreshness = Test-ScheduledWorkflowFreshness -Definitions $scheduledWorkflowDefinitions -RunLookup $scheduledWorkflowRunLookup -Now (Get-Date)
     $roadmapHygiene = Test-RoadmapHygiene
+    $rootMarkdownHygiene = Test-RootMarkdownHygiene
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -8513,6 +8561,7 @@ function Test-ProfileState {
         evidenceFreshness = $evidenceFreshness
         scheduledWorkflowFreshness = $scheduledWorkflowFreshness
         roadmapHygiene = $roadmapHygiene
+        rootMarkdownHygiene = $rootMarkdownHygiene
         readmeExperienceChecks = $experienceChecks
     }
     for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {

@@ -4377,6 +4377,45 @@ Describe 'README heading hierarchy' {
     }
 }
 
+Describe 'Root Markdown hygiene' {
+    It 'reports clean when only allowed root Markdown files are present' {
+        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'CLAUDE.md', 'AGENTS.md', 'ROADMAP.md', 'RESEARCH.md', 'SECURITY.md')
+        $result.status | Should -Be 'clean'
+        $result.warningCount | Should -Be 0
+        @($result.unexpectedFiles) | Should -BeNullOrEmpty
+    }
+
+    It 'flags root Markdown files outside the documentation contract as warnings' {
+        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'TODO.md', 'LOGO_PROMPTS.md', 'RESEARCH_FEATURE_PLAN.md')
+        $result.status | Should -Be 'unexpected-files'
+        $result.warningCount | Should -Be 3
+        @($result.unexpectedFiles) | Should -Contain 'TODO.md'
+        @($result.unexpectedFiles) | Should -Contain 'LOGO_PROMPTS.md'
+        @($result.unexpectedFiles) | Should -Contain 'RESEARCH_FEATURE_PLAN.md'
+    }
+
+    It 'treats explicitly exempted leftovers as non-warning rows' {
+        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'TODO.md') -Exemptions @('TODO.md')
+        $result.status | Should -Be 'clean'
+        $result.warningCount | Should -Be 0
+        @($result.exemptFiles) | Should -Contain 'TODO.md'
+        ($result.rows | Where-Object { $_.file -eq 'TODO.md' }).status | Should -Be 'exempt'
+    }
+
+    It 'exposes a rootMarkdownHygiene contract in the schema and summary' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $schema.properties.rootMarkdownHygiene.'$ref' | Should -Be '#/$defs/rootMarkdownHygiene'
+
+        $sample = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md')
+        $aggregateKeys = @($sample.Keys) | Sort-Object
+        $schemaKeys = @($schema.'$defs'.rootMarkdownHygiene.properties.PSObject.Properties.Name) | Sort-Object
+        ($aggregateKeys -join ',') | Should -Be ($schemaKeys -join ',')
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Root Markdown hygiene'
+    }
+}
+
 Describe 'Pester coverage floor enforcement' {
     BeforeAll {
         $script:TestsWorkflowForCoverage = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
