@@ -4189,3 +4189,94 @@ Describe 'Roadmap hygiene gate' {
         ($aggregateKeys -join ',') | Should -Be ($schemaAggregateKeys -join ',')
     }
 }
+
+Describe 'GitHub issue form schemas' {
+    BeforeAll {
+        $script:IssueTemplateDir = Join-Path $script:RepoRoot '.github/ISSUE_TEMPLATE'
+        $script:AllowedIssueFieldTypes = @('markdown', 'input', 'textarea', 'dropdown', 'checkboxes')
+        # Public-report fields whose required validation guards intake quality.
+        $script:RequiredIssueFieldIds = @{
+            'broken-link.yml'        = @('project', 'url', 'observed', 'expected', 'surface')
+            'profile-correction.yml' = @('project', 'current', 'proposed', 'generated')
+            'workflow-ci.yml'        = @('workflow', 'observed', 'expected', 'sensitive')
+        }
+
+        function Get-IssueFormFields {
+            param([string]$Content)
+
+            $fields = New-Object System.Collections.Generic.List[object]
+            $current = $null
+            foreach ($line in ($Content -split "\r?\n")) {
+                $typeMatch = [regex]::Match($line, '^\s*-\s*type:\s*(?<type>\S+)\s*$')
+                if ($typeMatch.Success) {
+                    if ($null -ne $current) { $fields.Add($current) }
+                    $current = [ordered]@{ type = $typeMatch.Groups['type'].Value; id = $null; required = $false; hasOptions = $false }
+                    continue
+                }
+                if ($null -eq $current) { continue }
+                $idMatch = [regex]::Match($line, '^\s*id:\s*(?<id>\S+)\s*$')
+                if ($idMatch.Success) { $current.id = $idMatch.Groups['id'].Value }
+                if ($line -match '^\s*required:\s*true\s*$') { $current.required = $true }
+                if ($line -match '^\s*options:\s*$') { $current.hasOptions = $true }
+            }
+            if ($null -ne $current) { $fields.Add($current) }
+            return @($fields.ToArray())
+        }
+
+        $script:IssueFormFiles = @(Get-ChildItem -LiteralPath $script:IssueTemplateDir -Filter '*.yml' -File | Where-Object { $_.Name -ne 'config.yml' })
+    }
+
+    It 'has the expected issue form set plus a chooser config' {
+        @($script:IssueFormFiles.Name | Sort-Object) | Should -Be @('broken-link.yml', 'profile-correction.yml', 'workflow-ci.yml')
+        Test-Path -LiteralPath (Join-Path $script:IssueTemplateDir 'config.yml') | Should -BeTrue
+    }
+
+    It 'declares name, description, title, labels, and body on every issue form' {
+        foreach ($file in $script:IssueFormFiles) {
+            $content = Get-Content -LiteralPath $file.FullName -Raw
+            $content | Should -Match '(?m)^name:\s*\S' -Because "$($file.Name) needs a top-level name"
+            $content | Should -Match '(?m)^description:\s*\S' -Because "$($file.Name) needs a top-level description"
+            $content | Should -Match '(?m)^title:\s*' -Because "$($file.Name) needs a title prefix"
+            $content | Should -Match '(?ms)^labels:\s*\r?\n\s+-\s*\S' -Because "$($file.Name) needs at least one label"
+            $content | Should -Match '(?m)^body:\s*$' -Because "$($file.Name) needs a body"
+        }
+    }
+
+    It 'opens every issue form with a public-safe sensitive-data warning' {
+        foreach ($file in $script:IssueFormFiles) {
+            $content = Get-Content -LiteralPath $file.FullName -Raw
+            $markdownBlock = [regex]::Match($content, '(?ms)-\s*type:\s*markdown\s*\r?\n\s*attributes:\s*\r?\n\s*value:\s*(?<value>.+?)\s*(\r?\n\s*-\s*type:|\r?\n\S|$)')
+            $markdownBlock.Success | Should -BeTrue -Because "$($file.Name) must lead with a markdown notice"
+            $markdownBlock.Groups['value'].Value | Should -Match '(?i)(private|secret|sensitive|medical|customer|credential|redact)' -Because "$($file.Name) notice must warn against sensitive data"
+        }
+    }
+
+    It 'uses only supported field types and provides dropdown options' {
+        foreach ($file in $script:IssueFormFiles) {
+            $fields = Get-IssueFormFields -Content (Get-Content -LiteralPath $file.FullName -Raw)
+            @($fields).Count | Should -BeGreaterThan 0 -Because "$($file.Name) must declare body fields"
+            foreach ($field in $fields) {
+                $script:AllowedIssueFieldTypes | Should -Contain $field.type -Because "$($file.Name) uses an unsupported field type '$($field.type)'"
+                if ($field.type -eq 'dropdown') {
+                    $field.hasOptions | Should -BeTrue -Because "$($file.Name) dropdown '$($field.id)' must list options"
+                }
+            }
+        }
+    }
+
+    It 'requires validation on key public-report fields' {
+        foreach ($file in $script:IssueFormFiles) {
+            $fields = Get-IssueFormFields -Content (Get-Content -LiteralPath $file.FullName -Raw)
+            $requiredIds = @($fields | Where-Object { $_.required } | ForEach-Object { $_.id })
+            foreach ($expectedId in $script:RequiredIssueFieldIds[$file.Name]) {
+                $requiredIds | Should -Contain $expectedId -Because "$($file.Name) field '$expectedId' must require validation"
+            }
+        }
+    }
+
+    It 'routes sensitive reports away from public issues in the chooser config' {
+        $config = Get-Content -LiteralPath (Join-Path $script:IssueTemplateDir 'config.yml') -Raw
+        $config | Should -Match 'blank_issues_enabled:\s*false'
+        $config | Should -Match 'security/policy'
+    }
+}
