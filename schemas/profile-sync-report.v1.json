@@ -3572,6 +3572,18 @@
             "$ref": "#/$defs/communityLocalFileStatus"
           }
         },
+        "localIssueFormCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "issueTemplateProviderState": {
+          "type": "string",
+          "enum": [
+            "detected",
+            "provider-gap-local-forms-present",
+            "missing",
+            "unavailable"
+          ]
+        },
         "localRequiredMissingCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -3579,6 +3591,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warnings": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "infoCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "info": {
           "$ref": "#/$defs/stringArray"
         },
         "fatalCount": {

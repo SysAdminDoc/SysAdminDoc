@@ -5538,6 +5538,7 @@ function Test-RepositoryCommunityBaseline {
     $repoWarnings = New-Object System.Collections.Generic.List[string]
     $communityWarnings = New-Object System.Collections.Generic.List[string]
     $communityErrors = New-Object System.Collections.Generic.List[string]
+    $communityInfo = New-Object System.Collections.Generic.List[string]
 
     $repoAvailable = ($null -ne $Repository -and [string]::IsNullOrWhiteSpace($RepositoryUnavailableReason))
     $communityAvailable = ($null -ne $CommunityProfile -and [string]::IsNullOrWhiteSpace($CommunityUnavailableReason))
@@ -5734,9 +5735,24 @@ function Test-RepositoryCommunityBaseline {
         ([string](Get-MemberValue -Object $_ -Name "path")).StartsWith(".github/ISSUE_TEMPLATE/", [StringComparison]::OrdinalIgnoreCase) -and
             (Get-MemberValue -Object $_ -Name "exists") -eq $true
     }).Count
+    # The community-profile API only detects legacy issue *templates*, not issue
+    # *forms* (.github/ISSUE_TEMPLATE/*.yml). When the provider reports no issue
+    # template but local issue forms exist, treat it as a provider gap (info), not
+    # a warning; genuinely missing local intake stays a warning/fatal elsewhere.
+    $issueTemplateProviderState = if (-not $communityAvailable) {
+        "unavailable"
+    } elseif ($communityIssueTemplate) {
+        "detected"
+    } elseif ($localIssueForms -gt 0) {
+        "provider-gap-local-forms-present"
+    } else {
+        "missing"
+    }
     if ($communityAvailable) {
-        if (-not $communityIssueTemplate -and $localIssueForms -gt 0) {
-            $communityWarnings.Add("GitHub community profile does not report issue-template detection even though local issue forms are present.")
+        if ($issueTemplateProviderState -eq "provider-gap-local-forms-present") {
+            $communityInfo.Add("GitHub community profile does not detect issue-template metadata, but $localIssueForms local issue form(s) are present; the provider does not surface issue forms (.github/ISSUE_TEMPLATE/*.yml).")
+        } elseif ($issueTemplateProviderState -eq "missing") {
+            $communityWarnings.Add("No issue templates or local issue forms detected; public reporters have no structured intake.")
         }
         if (-not $communityContributing) {
             $communityWarnings.Add("GitHub community profile does not report contributing guidelines.")
@@ -5826,9 +5842,13 @@ function Test-RepositoryCommunityBaseline {
             codeOfConduct = Get-NullableBool $communityCodeOfConduct
         }
         localFiles = @($LocalFiles)
+        localIssueFormCount = [int]$localIssueForms
+        issueTemplateProviderState = $issueTemplateProviderState
         localRequiredMissingCount = $communityErrors.Count
         warningCount = $communityWarnings.Count
         warnings = $communityWarnings.ToArray()
+        infoCount = $communityInfo.Count
+        info = $communityInfo.ToArray()
         fatalCount = $communityErrors.Count
         errors = $communityErrors.ToArray()
     }
