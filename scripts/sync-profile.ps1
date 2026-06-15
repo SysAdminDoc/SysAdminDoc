@@ -1733,7 +1733,11 @@ function New-CategorySection {
         [hashtable]$Definition
     )
 
-    $items = @($Entries | Where-Object { $_.category -eq $Definition.Slug } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
+    $items = @($Entries | Where-Object { $_.category -eq $Definition.Slug } | Sort-Object @{ Expression = {
+        $key = ([string]$_.repo).ToLowerInvariant()
+        $m = if ($RepoLookup -and $RepoLookup.ContainsKey($key)) { $RepoLookup[$key] } else { $null }
+        if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
+    }; Descending = $true }, repo)
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("<a id=`"$(Get-CategoryAnchor $Definition.Slug)`"></a>")
     $lines.Add("<details>")
