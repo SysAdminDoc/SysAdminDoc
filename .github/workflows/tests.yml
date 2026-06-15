@@ -69,6 +69,11 @@ jobs:
       - name: Run Pester
         shell: pwsh
         run: |
+          # PowerShell baseline: scripts require 7.0+ (#Requires -Version 7.0).
+          # Tested against PowerShell 7.6 LTS (the ubuntu-latest runner's bundled
+          # pwsh); no 7.6-specific behavior changes are required. The version is
+          # printed so the tested runtime is recorded in the CI logs.
+          Write-Host "PowerShell runtime: $($PSVersionTable.PSVersion)"
           # Coverage floor: set a few points below the established baseline so
           # routine churn passes but a meaningful coverage regression fails CI.
           # Baseline at adoption: ~81% line coverage of scripts/sync-profile.ps1.

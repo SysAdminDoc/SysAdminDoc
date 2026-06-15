@@ -4464,6 +4464,22 @@ Describe 'Root Markdown hygiene' {
     }
 }
 
+Describe 'PowerShell version baseline' {
+    It 'requires PowerShell 7.0+ in the sync and setup scripts' {
+        $script:SyncProfileScript | Should -Match '(?m)^#Requires -Version 7\.0'
+    }
+
+    It 'runs the test suite on a supported PowerShell version' {
+        $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7
+    }
+
+    It 'documents the tested PowerShell baseline in the Tests workflow' {
+        $testsWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
+        $testsWorkflow | Should -Match 'PowerShell 7\.6 LTS'
+        $testsWorkflow | Should -Match 'PowerShell runtime: \$\(\$PSVersionTable\.PSVersion\)'
+    }
+}
+
 Describe 'Profile SVG color contrast' {
     It 'computes the WCAG contrast ratio between two colors' {
         # Black on white is the maximum 21:1.
