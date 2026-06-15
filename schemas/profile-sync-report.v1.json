@@ -218,6 +218,9 @@
     "rootMarkdownHygiene": {
       "$ref": "#/$defs/rootMarkdownHygiene"
     },
+    "profileAssetsAccessibility": {
+      "$ref": "#/$defs/profileAssetsAccessibility"
+    },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
     }
@@ -4856,6 +4859,118 @@
               }
             }
           }
+        }
+      }
+    },
+    "profileAssetsAccessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "textMinRatio",
+        "nonTextMinRatio",
+        "assetCount",
+        "failingAssetCount",
+        "belowNonTextMinAssetCount",
+        "warningCount",
+        "contrastRatios",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "warning"
+          ]
+        },
+        "textMinRatio": {
+          "$ref": "#/$defs/nonNegativeNumber"
+        },
+        "nonTextMinRatio": {
+          "$ref": "#/$defs/nonNegativeNumber"
+        },
+        "assetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failingAssetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "belowNonTextMinAssetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "contrastRatios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "asset",
+              "backgroundColor",
+              "textColorCount",
+              "minTextContrastRatio",
+              "belowTextMinCount",
+              "belowNonTextMinCount",
+              "textColors",
+              "pass"
+            ],
+            "properties": {
+              "asset": {
+                "type": "string"
+              },
+              "backgroundColor": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "textColorCount": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "minTextContrastRatio": {
+                "$ref": "#/$defs/nullableNumber"
+              },
+              "belowTextMinCount": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "belowNonTextMinCount": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "textColors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "foreground",
+                    "ratio",
+                    "meetsTextMin",
+                    "meetsNonTextMin"
+                  ],
+                  "properties": {
+                    "foreground": {
+                      "type": "string"
+                    },
+                    "ratio": {
+                      "$ref": "#/$defs/nullableNumber"
+                    },
+                    "meetsTextMin": {
+                      "type": "boolean"
+                    },
+                    "meetsNonTextMin": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "pass": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "note": {
+          "type": "string"
         }
       }
     },

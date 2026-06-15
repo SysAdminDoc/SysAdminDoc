@@ -4184,6 +4184,146 @@ function Test-RootMarkdownHygiene {
     }
 }
 
+function ConvertFrom-HexColor {
+    param([string]$Hex)
+
+    if ([string]::IsNullOrWhiteSpace($Hex)) { return $null }
+    $value = $Hex.Trim().TrimStart('#')
+    if ($value.Length -eq 3) {
+        $value = [string]::Concat($value[0], $value[0], $value[1], $value[1], $value[2], $value[2])
+    }
+    if ($value.Length -ne 6 -or $value -notmatch '^[0-9a-fA-F]{6}$') { return $null }
+    return [ordered]@{
+        r = [Convert]::ToInt32($value.Substring(0, 2), 16)
+        g = [Convert]::ToInt32($value.Substring(2, 2), 16)
+        b = [Convert]::ToInt32($value.Substring(4, 2), 16)
+    }
+}
+
+function Get-ColorRelativeLuminance {
+    param([object]$Color)
+
+    $channels = @($Color.r, $Color.g, $Color.b) | ForEach-Object {
+        $c = [double]$_ / 255.0
+        if ($c -le 0.03928) { $c / 12.92 } else { [Math]::Pow((($c + 0.055) / 1.055), 2.4) }
+    }
+    return (0.2126 * $channels[0]) + (0.7152 * $channels[1]) + (0.0722 * $channels[2])
+}
+
+function Get-ColorContrastRatio {
+    param([object]$Foreground, [object]$Background)
+
+    if ($null -eq $Foreground -or $null -eq $Background) { return $null }
+    $l1 = Get-ColorRelativeLuminance -Color $Foreground
+    $l2 = Get-ColorRelativeLuminance -Color $Background
+    $lighter = [Math]::Max($l1, $l2)
+    $darker = [Math]::Min($l1, $l2)
+    return [Math]::Round((($lighter + 0.05) / ($darker + 0.05)), 2)
+}
+
+function Get-SvgContrastAnalysis {
+    param(
+        [string]$Name,
+        [string]$Content,
+        [double]$TextMinRatio = 4.5,
+        [double]$NonTextMinRatio = 3.0
+    )
+
+    # Panel background = the largest numeric-area <rect> fill (the content panel
+    # text actually sits on), ignoring full-canvas page backgrounds and thin
+    # decorative accent stripes. Falls back to the last rect fill.
+    $rectMatches = @([regex]::Matches($Content, '(?is)<rect\b[^>]*>'))
+    $backgroundHex = $null
+    $bestArea = -1.0
+    foreach ($rect in $rectMatches) {
+        $tag = $rect.Value
+        $fillMatch = [regex]::Match($tag, '(?is)\bfill="(?<fill>#[0-9a-fA-F]{3,6})"')
+        if (-not $fillMatch.Success) { continue }
+        $widthMatch = [regex]::Match($tag, '(?is)\bwidth="(?<w>[0-9]+(?:\.[0-9]+)?)"')
+        $heightMatch = [regex]::Match($tag, '(?is)\bheight="(?<h>[0-9]+(?:\.[0-9]+)?)"')
+        if (-not $widthMatch.Success -or -not $heightMatch.Success) { continue }
+        $area = [double]$widthMatch.Groups['w'].Value * [double]$heightMatch.Groups['h'].Value
+        if ($area -gt $bestArea) {
+            $bestArea = $area
+            $backgroundHex = $fillMatch.Groups['fill'].Value
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($backgroundHex)) {
+        $rectFills = @($rectMatches | ForEach-Object { ([regex]::Match($_.Value, '(?is)\bfill="(?<fill>#[0-9a-fA-F]{3,6})"')).Groups['fill'].Value } | Where-Object { $_ })
+        $backgroundHex = if ($rectFills.Count -gt 0) { $rectFills[$rectFills.Count - 1] } else { $null }
+    }
+    $background = ConvertFrom-HexColor $backgroundHex
+
+    $textFills = @([regex]::Matches($Content, '(?is)<text\b[^>]*\bfill="(?<fill>#[0-9a-fA-F]{3,6})"') | ForEach-Object { $_.Groups['fill'].Value } | Sort-Object -Unique)
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    foreach ($hex in $textFills) {
+        $foreground = ConvertFrom-HexColor $hex
+        $ratio = Get-ColorContrastRatio -Foreground $foreground -Background $background
+        $rows.Add([ordered]@{
+                foreground = [string]$hex
+                ratio = $ratio
+                meetsTextMin = [bool]($null -ne $ratio -and $ratio -ge $TextMinRatio)
+                meetsNonTextMin = [bool]($null -ne $ratio -and $ratio -ge $NonTextMinRatio)
+            })
+    }
+
+    $rowArray = @($rows.ToArray())
+    $belowTextMin = @($rowArray | Where-Object { -not $_.meetsTextMin })
+    $belowNonTextMin = @($rowArray | Where-Object { -not $_.meetsNonTextMin })
+    $minRatio = if ($rowArray.Count -gt 0) { (@($rowArray | ForEach-Object { $_.ratio } | Where-Object { $null -ne $_ }) | Measure-Object -Minimum).Minimum } else { $null }
+
+    return [ordered]@{
+        asset = [string]$Name
+        backgroundColor = if ([string]::IsNullOrWhiteSpace($backgroundHex)) { $null } else { [string]$backgroundHex }
+        textColorCount = [int]$rowArray.Count
+        minTextContrastRatio = $minRatio
+        belowTextMinCount = [int]@($belowTextMin).Count
+        belowNonTextMinCount = [int]@($belowNonTextMin).Count
+        textColors = $rowArray
+        pass = [bool](@($belowTextMin).Count -eq 0)
+    }
+}
+
+function Test-ProfileAssetsAccessibility {
+    param(
+        [string]$AssetDirectory = (Join-Path $RepoRoot "assets/profile"),
+        [AllowNull()][hashtable]$AssetContents,
+        [double]$TextMinRatio = 4.5,
+        [double]$NonTextMinRatio = 3.0
+    )
+
+    $assets = [ordered]@{}
+    if ($null -ne $AssetContents) {
+        foreach ($key in @($AssetContents.Keys | Sort-Object)) { $assets[$key] = [string]$AssetContents[$key] }
+    } elseif (Test-Path -LiteralPath $AssetDirectory) {
+        foreach ($file in @(Get-ChildItem -LiteralPath $AssetDirectory -Filter '*.svg' -File | Sort-Object Name)) {
+            $assets[$file.Name] = Get-Content -LiteralPath $file.FullName -Raw
+        }
+    }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    foreach ($name in @($assets.Keys)) {
+        $rows.Add((Get-SvgContrastAnalysis -Name $name -Content $assets[$name] -TextMinRatio $TextMinRatio -NonTextMinRatio $NonTextMinRatio))
+    }
+
+    $rowArray = @($rows.ToArray())
+    $failingAssets = @($rowArray | Where-Object { -not $_.pass })
+    $belowNonTextMin = @($rowArray | Where-Object { $_.belowNonTextMinCount -gt 0 })
+
+    return [ordered]@{
+        status = if (@($failingAssets).Count -eq 0) { "ok" } else { "warning" }
+        textMinRatio = $TextMinRatio
+        nonTextMinRatio = $NonTextMinRatio
+        assetCount = [int]$rowArray.Count
+        failingAssetCount = [int]@($failingAssets).Count
+        belowNonTextMinAssetCount = [int]@($belowNonTextMin).Count
+        warningCount = [int]@($failingAssets).Count
+        contrastRatios = $rowArray
+        note = "WCAG 2.1 contrast check of generated profile SVG <text> colors against the panel background (text min 4.5:1, non-text min 3:1). Warning-only."
+    }
+}
+
 function Test-CatalogShape {
     param([hashtable]$Catalog)
 
@@ -8483,6 +8623,7 @@ function Test-ProfileState {
     $scheduledWorkflowFreshness = Test-ScheduledWorkflowFreshness -Definitions $scheduledWorkflowDefinitions -RunLookup $scheduledWorkflowRunLookup -Now (Get-Date)
     $roadmapHygiene = Test-RoadmapHygiene
     $rootMarkdownHygiene = Test-RootMarkdownHygiene
+    $profileAssetsAccessibility = Test-ProfileAssetsAccessibility
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -8582,6 +8723,7 @@ function Test-ProfileState {
         scheduledWorkflowFreshness = $scheduledWorkflowFreshness
         roadmapHygiene = $roadmapHygiene
         rootMarkdownHygiene = $rootMarkdownHygiene
+        profileAssetsAccessibility = $profileAssetsAccessibility
         readmeExperienceChecks = $experienceChecks
     }
     for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {
