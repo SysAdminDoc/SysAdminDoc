@@ -53,17 +53,17 @@ jobs:
         run: ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Smoke live rendered profile
-        if: always()
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: ./scripts/render-profile-smoke.ps1
 
       - name: Write sync report summary
-        if: always()
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: ./scripts/write-profile-sync-summary.ps1 -Context "Profile sync" -AllowMissing
 
       - name: Upload sync report
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: profile-sync-report
@@ -72,7 +72,7 @@ jobs:
           retention-days: 14
 
       - name: Upload rendered profile smoke artifacts
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: rendered-profile-smoke
@@ -106,12 +106,12 @@ jobs:
           ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Write sync report summary
-        if: always()
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: ./scripts/write-profile-sync-summary.ps1 -Context "Generated profile PR" -AllowMissing
 
       - name: Upload sync report
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: profile-sync-report
@@ -178,12 +178,12 @@ jobs:
           ./scripts/sync-profile.ps1 -Write -Check
 
       - name: Write sync report summary
-        if: always()
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: ./scripts/write-profile-sync-summary.ps1 -Context "Generated profile PR dry run" -AllowMissing
 
       - name: Upload sync report
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: profile-sync-report

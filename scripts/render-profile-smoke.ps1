@@ -348,7 +348,7 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
         }
     } finally {
         if ($process -and -not $process.HasExited) {
-            Stop-Process -Id $process.Id -Force
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
             Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue
         }
         if (Test-Path -LiteralPath $profileDir) {

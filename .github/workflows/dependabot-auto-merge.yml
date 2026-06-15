@@ -52,7 +52,10 @@ jobs:
               steps.metadata.outputs.update-type != 'version-update:semver-patch'
             )
           }}
+        env:
+          PKG_ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
         run: |
           echo "Dependabot PR was not eligible for auto-merge."
-          echo "package-ecosystem=${{ steps.metadata.outputs.package-ecosystem }}"
-          echo "update-type=${{ steps.metadata.outputs.update-type }}"
+          echo "package-ecosystem=$PKG_ECOSYSTEM"
+          echo "update-type=$UPDATE_TYPE"

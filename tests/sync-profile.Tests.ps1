@@ -2432,7 +2432,7 @@ Describe 'Rendered profile smoke wiring' {
 
     It 'runs from profile-sync and uploads public-safe smoke artifacts' {
         $script:ProfileSyncWorkflow | Should -Match 'Smoke live rendered profile'
-        $script:ProfileSyncWorkflow | Should -Match '(?s)- name: Smoke live rendered profile\s+if: always\(\)'
+        $script:ProfileSyncWorkflow | Should -Match '(?s)- name: Smoke live rendered profile\s+if: \$\{\{ !cancelled\(\) \}\}'
         $script:ProfileSyncWorkflow | Should -Match ([regex]::Escape('./scripts/render-profile-smoke.ps1'))
         $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke[.]json'
         $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke-[*][.]png'

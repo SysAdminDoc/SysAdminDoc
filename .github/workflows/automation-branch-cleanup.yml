@@ -84,9 +84,15 @@ jobs:
               continue
             }
 
-            gh api -X DELETE "repos/$repo/git/refs/heads/$branch"
-            Write-Host "Deleted $branch for merged PR #$($mergedPr[0].number)."
-            $deleted.Add($branch)
+            try {
+              gh api -X DELETE "repos/$repo/git/refs/heads/$branch"
+              if ($LASTEXITCODE -ne 0) { throw "gh api returned exit code $LASTEXITCODE" }
+              Write-Host "Deleted $branch for merged PR #$($mergedPr[0].number)."
+              $deleted.Add($branch)
+            } catch {
+              Write-Warning "Failed to delete $branch`: $_"
+              $skipped.Add("$branch (delete failed)")
+            }
           }
 
           if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
