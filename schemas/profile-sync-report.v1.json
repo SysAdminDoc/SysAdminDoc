@@ -212,6 +212,9 @@
     "roadmapHygiene": {
       "$ref": "#/$defs/roadmapHygiene"
     },
+    "readmeHeadingHierarchy": {
+      "$ref": "#/$defs/readmeHeadingHierarchy"
+    },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
     }
@@ -4832,6 +4835,88 @@
               }
             }
           }
+        }
+      }
+    },
+    "readmeHeadingHierarchy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "headingCount",
+        "firstLevel",
+        "headingSequence",
+        "profileContextMaxFirstLevel",
+        "profileContextAllowlistApplied",
+        "skippedLevelTransitions",
+        "skippedLevelCount",
+        "warnings",
+        "warningCount"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "warning"
+          ]
+        },
+        "headingCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "firstLevel": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "headingSequence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonNegativeInteger"
+          }
+        },
+        "profileContextMaxFirstLevel": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "profileContextAllowlistApplied": {
+          "type": "boolean"
+        },
+        "skippedLevelTransitions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to",
+              "afterHeadingIndex",
+              "context"
+            ],
+            "properties": {
+              "from": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "to": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "afterHeadingIndex": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "context": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "skippedLevelCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     },

@@ -3151,6 +3151,64 @@ function Test-ReadmeSizeBudget {
     }
 }
 
+function Test-ReadmeHeadingHierarchy {
+    param(
+        [string]$ExpectedReadme,
+        # Profile READMEs render under the GitHub profile name (an implicit H1),
+        # so opening at H2/H3 is allowed without being treated as a skipped level.
+        [int]$ProfileContextMaxFirstLevel = 3
+    )
+
+    $sequence = New-Object System.Collections.Generic.List[int]
+    $inFence = $false
+    foreach ($line in ($ExpectedReadme -split "\r?\n")) {
+        if ($line -match '^\s*(```|~~~)') {
+            $inFence = -not $inFence
+            continue
+        }
+        if ($inFence) { continue }
+        $headingMatch = [regex]::Match($line, '^(?<hashes>#{1,6})\s+\S')
+        if ($headingMatch.Success) {
+            $sequence.Add($headingMatch.Groups['hashes'].Value.Length)
+        }
+    }
+
+    $levels = @($sequence.ToArray())
+    $firstLevel = if ($levels.Count -gt 0) { [int]$levels[0] } else { 0 }
+    $profileContextAllowlistApplied = ($levels.Count -gt 0 -and $firstLevel -le $ProfileContextMaxFirstLevel)
+
+    $skips = New-Object System.Collections.Generic.List[object]
+    # Initial jump from the implied H1 to the first heading, only flagged when it
+    # exceeds the profile-context allowance.
+    if ($levels.Count -gt 0 -and -not $profileContextAllowlistApplied) {
+        $skips.Add([ordered]@{ from = 1; to = $firstLevel; afterHeadingIndex = 0; context = "document-start" })
+    }
+    for ($i = 1; $i -lt $levels.Count; $i++) {
+        if ($levels[$i] -gt ($levels[$i - 1] + 1)) {
+            $skips.Add([ordered]@{ from = [int]$levels[$i - 1]; to = [int]$levels[$i]; afterHeadingIndex = $i; context = "descent" })
+        }
+    }
+
+    $skipArray = @($skips.ToArray())
+    $warnings = New-Object System.Collections.Generic.List[string]
+    foreach ($skip in $skipArray) {
+        $warnings.Add("Generated README heading level jumps from H$($skip.from) to H$($skip.to) ($($skip.context)); add the intermediate level or document the exception.")
+    }
+
+    return [ordered]@{
+        status = if ($warnings.Count -eq 0) { "ok" } else { "warning" }
+        headingCount = [int]$levels.Count
+        firstLevel = [int]$firstLevel
+        headingSequence = $levels
+        profileContextMaxFirstLevel = [int]$ProfileContextMaxFirstLevel
+        profileContextAllowlistApplied = [bool]$profileContextAllowlistApplied
+        skippedLevelTransitions = $skipArray
+        skippedLevelCount = [int]$skipArray.Count
+        warnings = @($warnings.ToArray())
+        warningCount = [int]$warnings.Count
+    }
+}
+
 function New-ReadmePortfolioOnlyPreview {
     param(
         [object[]]$Entries,
@@ -8338,6 +8396,7 @@ function Test-ProfileState {
     $urlSchemeViolations = @(Test-CatalogUrlSchemes -Entries $included)
     $experienceChecks = Test-ReadmeExperience -Catalog $Catalog -Repos $Repos -ExpectedReadme $ExpectedReadme
     $readmeSizeBudget = Test-ReadmeSizeBudget -ExpectedReadme $ExpectedReadme
+    $readmeHeadingHierarchy = Test-ReadmeHeadingHierarchy -ExpectedReadme $ExpectedReadme
     $readmeDensity = Test-ReadmeDensity -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup
     $artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $null
     $renderedProfileSmoke = New-RenderedProfileSmokeSummary -SmokeReport $null
@@ -8447,6 +8506,7 @@ function Test-ProfileState {
         linkValidationFailures = @($linkFailures)
         linkValidationWarnings = @($linkWarnings)
         readmeSizeBudget = $readmeSizeBudget
+        readmeHeadingHierarchy = $readmeHeadingHierarchy
         readmeDensity = $readmeDensity
         artifactBudgets = $artifactBudgets
         renderedProfileSmoke = $renderedProfileSmoke
