@@ -4281,6 +4281,51 @@ Describe 'GitHub issue form schemas' {
     }
 }
 
+Describe 'README image alt-text completeness' {
+    It 'reports complete alt text when every image has descriptive alt' {
+        $readme = @'
+### Featured Projects
+
+<picture>
+  <img src="assets/profile/stats-dark.svg" alt="SysAdminDoc public catalog statistics panel" />
+</picture>
+<img src="assets/profile/footer.svg" alt="Decorative footer wave for the SysAdminDoc profile" />
+'@
+        $result = Test-ReadmeExperience -Catalog @{ entries = @() } -Repos @() -ExpectedReadme $readme
+        $result.imageTagCount | Should -Be 2
+        $result.imageAltTextIssueCount | Should -Be 0
+        $result.imageAltTextComplete | Should -BeTrue
+    }
+
+    It 'flags missing, empty, and generic alt text without failing the gate' {
+        $readme = @'
+### Featured Projects
+
+<img src="a.svg" alt="A clear description of panel A" />
+<img src="b.svg" />
+<img src="c.svg" alt="" />
+<img src="d.svg" alt="image" />
+'@
+        $result = Test-ReadmeExperience -Catalog @{ entries = @() } -Repos @() -ExpectedReadme $readme
+        $result.imageTagCount | Should -Be 4
+        # b.svg (missing), c.svg (empty), d.svg (generic "image") are issues.
+        $result.imageAltTextIssueCount | Should -Be 3
+        $result.imageAltTextComplete | Should -BeFalse
+    }
+
+    It 'keeps the alt-text contract out of the fatal experience gate' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $checksDef = $schema.'$defs'.readmeExperienceChecks
+        $checksDef.properties.PSObject.Properties.Name | Should -Contain 'imageAltTextComplete'
+        # Optional field: not required, so the committed report stays valid.
+        @($checksDef.required) | Should -Not -Contain 'imageAltTextComplete'
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'imageAltTextComplete'
+        $summaryScript | Should -Match 'missing descriptive alt text'
+    }
+}
+
 Describe 'Pester coverage floor enforcement' {
     BeforeAll {
         $script:TestsWorkflowForCoverage = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
