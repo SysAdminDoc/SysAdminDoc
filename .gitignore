@@ -13,6 +13,7 @@ TODO.md
 reports/rendered-profile-smoke*.json
 reports/rendered-profile-smoke*.png
 testResults.xml
+coverage.xml
 
 # Markdown files local-only (except README)
 *.md
