@@ -149,6 +149,12 @@ $fatalDriftRows = @($metadataDriftRows | Where-Object {
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
+$executableShortlist = if ($releaseDrift -and $releaseDrift.PSObject.Properties.Name -contains 'executableDownloadTrustShortlist') { $releaseDrift.executableDownloadTrustShortlist } else { $null }
+$executableDownloadCount = if ($executableShortlist) { [int]$executableShortlist.executableDownloadCount } else { 0 }
+$executableVerifiedCompleteCount = if ($executableShortlist) { [int]$executableShortlist.verifiedCompleteCount } else { 0 }
+$executableChecksumGapCount = if ($executableShortlist) { [int]$executableShortlist.checksumGapCount } else { 0 }
+$executableAttestationGapCount = if ($executableShortlist) { [int]$executableShortlist.attestationGapCount } else { 0 }
+$executableShortlistTopRepo = if ($executableShortlist -and @($executableShortlist.rows).Count -gt 0) { [string]$executableShortlist.rows[0].repo } else { "" }
 $validationElapsedMs = if ($performance -and $performance.linkValidation) { [int]$performance.linkValidation.elapsedMs } else { 0 }
 $repositoryWarningCount = if ($repositorySettings) { [int]$repositorySettings.warningCount } else { 0 }
 $actionsDefaultWorkflowPermissions = if ($actionsWorkflowPermissions -and $null -ne $actionsWorkflowPermissions.defaultWorkflowPermissions) { [string]$actionsWorkflowPermissions.defaultWorkflowPermissions } else { "unknown" }
@@ -388,6 +394,11 @@ $summary = @"
 | Stale project review rows | $staleProjectWarningCount |
 | Archive review candidates | $archiveReviewCount |
 | Release rows checked | $releaseRowsChecked |
+| Executable downloads tracked | $executableDownloadCount |
+| Executable downloads fully verified | $executableVerifiedCompleteCount |
+| Executable downloads missing checksums | $executableChecksumGapCount |
+| Executable downloads missing attestation | $executableAttestationGapCount |
+| Executable trust top priority | $executableShortlistTopRepo |
 | Userscript installs checked | $userscriptInstallCount |
 | Userscript trust warnings | $userscriptWarningCount |
 | Link targets checked | $($linkSummary.targetCount) |
@@ -590,6 +601,10 @@ if ($scheduledWorkflowFailingCount -gt 0 -or $scheduledWorkflowStaleCount -gt 0)
 
 if ($scheduledWorkflowUnavailableCount -gt 0) {
     Write-Output "::notice::Profile sync report could not evaluate $scheduledWorkflowUnavailableCount scheduled workflow(s) (run evidence unavailable, e.g. offline or unauthenticated)."
+}
+
+if ($executableChecksumGapCount -gt 0) {
+    Write-Output "::notice::Profile sync report shortlists $executableChecksumGapCount executable-download repo(s) without filename-derived checksum coverage (top priority: $executableShortlistTopRepo)."
 }
 
 if ($roadmapHygieneWarningCount -gt 0) {

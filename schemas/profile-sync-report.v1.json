@@ -1135,6 +1135,110 @@
         }
       }
     },
+    "executableDownloadTrustShortlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceSource",
+        "executableDownloadCount",
+        "verifiedCompleteCount",
+        "checksumGapCount",
+        "attestationGapCount",
+        "sbomGapCount",
+        "shortlistSoftCap",
+        "truncatedCount",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "evidenceSource": {
+          "type": "string"
+        },
+        "executableDownloadCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "verifiedCompleteCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "checksumGapCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "attestationGapCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "sbomGapCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "shortlistSoftCap": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "truncatedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "priorityRank",
+              "repo",
+              "stars",
+              "latestReleaseTag",
+              "executableAssetKinds",
+              "trustLevel",
+              "evidenceSource",
+              "hasChecksum",
+              "hasSbom",
+              "hasAttestation",
+              "gapScore",
+              "nextAction"
+            ],
+            "properties": {
+              "priorityRank": {
+                "$ref": "#/$defs/positiveInteger"
+              },
+              "repo": {
+                "type": "string"
+              },
+              "stars": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "latestReleaseTag": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "executableAssetKinds": {
+                "$ref": "#/$defs/stringArray"
+              },
+              "trustLevel": {
+                "type": "string"
+              },
+              "evidenceSource": {
+                "type": "string"
+              },
+              "hasChecksum": {
+                "type": "boolean"
+              },
+              "hasSbom": {
+                "type": "boolean"
+              },
+              "hasAttestation": {
+                "type": "boolean"
+              },
+              "gapScore": {
+                "$ref": "#/$defs/nonNegativeInteger"
+              },
+              "nextAction": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
     "releaseAssetDrift": {
       "type": "object",
       "additionalProperties": false,
@@ -1183,6 +1287,9 @@
           "items": {
             "$ref": "#/$defs/trustLevelCount"
           }
+        },
+        "executableDownloadTrustShortlist": {
+          "$ref": "#/$defs/executableDownloadTrustShortlist"
         },
         "executableDownloadsMissingChecksums": {
           "type": "array",

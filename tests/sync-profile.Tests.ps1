@@ -986,6 +986,31 @@ Describe 'Report schema depth helpers' {
         (($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) -join ',') | Should -Be 'checksum,metadata-only,unknown'
         ($result.releaseTrustLevelCounts | Where-Object { $_.trustLevel -eq 'checksum' }).count | Should -Be 1
         $result.assetApiInspected | Should -BeTrue
+
+        $shortlist = $result.executableDownloadTrustShortlist
+        $shortlist.evidenceSource | Should -Be 'filename-derived'
+        $shortlist.executableDownloadCount | Should -Be 2
+        $shortlist.verifiedCompleteCount | Should -Be 0
+        $shortlist.checksumGapCount | Should -Be 1
+        $shortlist.attestationGapCount | Should -Be 2
+        $shortlist.sbomGapCount | Should -Be 2
+        # Highest evidence gap (MismatchRelease, gapScore 3) is ranked first.
+        $shortlist.rows[0].repo | Should -Be 'MismatchRelease'
+        $shortlist.rows[0].priorityRank | Should -Be 1
+        $shortlist.rows[0].gapScore | Should -Be 3
+        $shortlist.rows[0].nextAction | Should -Be 'publish-sha256sums'
+        ($shortlist.rows | Where-Object { $_.repo -eq 'GoodRelease' }).hasChecksum | Should -BeTrue
+        ($shortlist.rows | Where-Object { $_.repo -eq 'GoodRelease' }).nextAction | Should -Be 'publish-build-provenance-attestation'
+
+        # Field parity against the report schema so live schema validation stays green.
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $shortlistDef = $schema.'$defs'.executableDownloadTrustShortlist
+        $aggregateKeys = @($shortlist.Keys) | Sort-Object
+        $schemaAggregateKeys = @($shortlistDef.properties.PSObject.Properties.Name) | Sort-Object
+        ($aggregateKeys -join ',') | Should -Be ($schemaAggregateKeys -join ',')
+        $rowKeys = @($shortlist.rows[0].Keys) | Sort-Object
+        $schemaRowKeys = @($shortlistDef.properties.rows.items.properties.PSObject.Properties.Name) | Sort-Object
+        ($rowKeys -join ',') | Should -Be ($schemaRowKeys -join ',')
     }
 
     It 'reports userscript metadata trust gaps from raw install headers' {

@@ -7484,6 +7484,7 @@ function Test-ReleaseAssetDrift {
     $releaseAssetFetchFailures = New-Object System.Collections.Generic.List[object]
     $userscriptKindWithoutInstallUrl = New-Object System.Collections.Generic.List[object]
     $executableDownloadsMissingChecksums = New-Object System.Collections.Generic.List[object]
+    $executableDownloadCandidates = New-Object System.Collections.Generic.List[object]
     $debugArtifactRows = New-Object System.Collections.Generic.List[object]
     $releaseAssetKindCounts = @{}
     $trustLevelCounts = @{}
@@ -7555,6 +7556,37 @@ function Test-ReleaseAssetDrift {
                     trustLevel = [string]$releaseTrust.trustLevel
                 })
             }
+            if (@($releaseTrust.executableAssetKinds).Count -gt 0) {
+                $hasChecksum = [bool]$releaseTrust.hasChecksumForEveryExecutable -and @($releaseTrust.checksumAssets).Count -gt 0
+                $hasSbom = @($releaseTrust.sbomAssets).Count -gt 0
+                $hasAttestation = [bool]$releaseTrust.attestationAvailable
+                $gapScore = 0
+                if (-not $hasChecksum) { $gapScore++ }
+                if (-not $hasSbom) { $gapScore++ }
+                if (-not $hasAttestation) { $gapScore++ }
+                $nextAction = if (-not $hasChecksum) {
+                    "publish-sha256sums"
+                } elseif (-not $hasAttestation) {
+                    "publish-build-provenance-attestation"
+                } elseif (-not $hasSbom) {
+                    "publish-sbom"
+                } else {
+                    "verified-complete"
+                }
+                $executableDownloadCandidates.Add([ordered]@{
+                        repo = [string]$entry.repo
+                        stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
+                        latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
+                        executableAssetKinds = @($releaseTrust.executableAssetKinds)
+                        trustLevel = [string]$releaseTrust.trustLevel
+                        evidenceSource = "filename-derived"
+                        hasChecksum = [bool]$hasChecksum
+                        hasSbom = [bool]$hasSbom
+                        hasAttestation = [bool]$hasAttestation
+                        gapScore = [int]$gapScore
+                        nextAction = $nextAction
+                    })
+            }
         }
 
         if ($hasRelease -and $downloadKind -eq "repo") {
@@ -7615,6 +7647,52 @@ function Test-ReleaseAssetDrift {
             }
     )
 
+    # Prioritized executable-download trust starter lane: rank executable-bearing
+    # download repos by how much verifiable supply-chain evidence they are missing
+    # (checksums, then attestation, then SBOM), then by reach (stars). This keeps
+    # filename-derived heuristics distinct from a "checksum/SBOM/attestation present"
+    # signal so adoption work can start with the highest-impact rows first.
+    $shortlistSoftCap = 25
+    $rankedCandidates = @(
+        $executableDownloadCandidates.ToArray() |
+            Sort-Object -Property `
+                @{ Expression = { [int]$_.gapScore }; Descending = $true }, `
+                @{ Expression = { [int]$_.stars }; Descending = $true }, `
+                @{ Expression = { [string]$_.repo }; Descending = $false }
+    )
+    $shortlistRows = New-Object System.Collections.Generic.List[object]
+    $rank = 0
+    foreach ($candidate in $rankedCandidates) {
+        if ($shortlistRows.Count -ge $shortlistSoftCap) { break }
+        $rank++
+        $row = [ordered]@{ priorityRank = $rank }
+        foreach ($property in $candidate.GetEnumerator()) {
+            $row[$property.Key] = $property.Value
+        }
+        $shortlistRows.Add($row)
+    }
+    # Use Measure-Object for counts: arrays of OrderedDictionary rows otherwise
+    # trigger PowerShell member-enumeration on .Count and return per-row counts.
+    $executableDownloadCount = ($rankedCandidates | Measure-Object).Count
+    $verifiedCompleteCount = ($rankedCandidates | Where-Object { [int]$_.gapScore -eq 0 } | Measure-Object).Count
+    $checksumGapCount = ($rankedCandidates | Where-Object { -not $_.hasChecksum } | Measure-Object).Count
+    $attestationGapCount = ($rankedCandidates | Where-Object { -not $_.hasAttestation } | Measure-Object).Count
+    $sbomGapCount = ($rankedCandidates | Where-Object { -not $_.hasSbom } | Measure-Object).Count
+    $shortlistTruncatedCount = [int]$executableDownloadCount - [int]$shortlistRows.Count
+    if ($shortlistTruncatedCount -lt 0) { $shortlistTruncatedCount = 0 }
+    $executableDownloadTrustShortlist = [ordered]@{
+        evidenceSource = "filename-derived"
+        executableDownloadCount = [int]$executableDownloadCount
+        verifiedCompleteCount = [int]$verifiedCompleteCount
+        checksumGapCount = [int]$checksumGapCount
+        attestationGapCount = [int]$attestationGapCount
+        sbomGapCount = [int]$sbomGapCount
+        shortlistSoftCap = [int]$shortlistSoftCap
+        truncatedCount = [int]$shortlistTruncatedCount
+        rows = @($shortlistRows.ToArray())
+        note = "Filename-derived prioritization only; binaries are not downloaded or cryptographically verified. nextAction names the highest-impact missing evidence (checksums before attestation before SBOM)."
+    }
+
     return [ordered]@{
         checkedCatalogRows = @($Entries).Count
         releaseBearingRows = $releaseBearingRows
@@ -7623,6 +7701,7 @@ function Test-ReleaseAssetDrift {
         inspectedReleaseRows = $inspectedReleaseRows
         releaseAssetKindCounts = $kindCounts
         releaseTrustLevelCounts = $trustCounts
+        executableDownloadTrustShortlist = $executableDownloadTrustShortlist
         executableDownloadsMissingChecksums = $executableDownloadsMissingChecksums.ToArray()
         debugArtifactRows = $debugArtifactRows.ToArray()
         sourceOnlyWithRelease = $sourceOnlyWithRelease.ToArray()
