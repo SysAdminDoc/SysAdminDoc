@@ -467,7 +467,55 @@ Describe 'Repository settings and community-health baseline' {
         $communityHealth.providerFiles.issueTemplate | Should -BeFalse
         $communityHealth.localRequiredMissingCount | Should -Be 0
         $communityHealth.fatalCount | Should -Be 0
-        ($communityHealth.warnings -join ' ') | Should -Match 'issue-template'
+        # Provider issue-template gap with local forms present is contextual info, not a warning.
+        $communityHealth.issueTemplateProviderState | Should -Be 'provider-gap-local-forms-present'
+        $communityHealth.localIssueFormCount | Should -Be 4
+        ($communityHealth.warnings -join ' ') | Should -Not -Match 'issue-template'
+        ($communityHealth.info -join ' ') | Should -Match 'issue form'
+    }
+
+    It 'warns when neither provider templates nor local issue forms exist' {
+        $repository = [pscustomobject]@{ visibility = 'public'; has_issues = $true }
+        $community = [pscustomobject]@{
+            health_percentage = 50
+            files = [pscustomobject]@{
+                readme = [pscustomobject]@{}
+                license = [pscustomobject]@{}
+                issue_template = $null
+                pull_request_template = [pscustomobject]@{}
+                contributing = [pscustomobject]@{}
+                code_of_conduct = [pscustomobject]@{}
+            }
+        }
+        $localNoForms = @(
+            [ordered]@{ path = 'README.md'; required = $true; exists = $true },
+            [ordered]@{ path = 'LICENSE'; required = $true; exists = $true },
+            [ordered]@{ path = 'SECURITY.md'; required = $true; exists = $true }
+        )
+
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -LocalFiles $localNoForms -CodeScanningLocalEvidence ([ordered]@{ sarifUploadWorkflowPresent = $true; scorecardSarifUploadPresent = $true })
+        $community = $result.communityHealth
+        $community.issueTemplateProviderState | Should -Be 'missing'
+        $community.localIssueFormCount | Should -Be 0
+        ($community.warnings -join ' ') | Should -Match 'structured intake'
+    }
+
+    It 'reports detected provider issue templates without info or warning noise' {
+        $repository = [pscustomobject]@{ visibility = 'public'; has_issues = $true }
+        $community = [pscustomobject]@{
+            health_percentage = 90
+            files = [pscustomobject]@{
+                readme = [pscustomobject]@{}
+                license = [pscustomobject]@{}
+                issue_template = [pscustomobject]@{}
+                pull_request_template = [pscustomobject]@{}
+                contributing = [pscustomobject]@{}
+                code_of_conduct = [pscustomobject]@{}
+            }
+        }
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence ([ordered]@{ sarifUploadWorkflowPresent = $true; scorecardSarifUploadPresent = $true })
+        $result.communityHealth.issueTemplateProviderState | Should -Be 'detected'
+        ($result.communityHealth.info -join ' ') | Should -Not -Match 'issue form'
     }
 
     It 'uses automated-security-fixes fallback when repository metadata omits Dependabot status' {
