@@ -8269,6 +8269,9 @@ function Test-UserscriptInstallTrust {
             updateUrlRefMismatchCount = 0
             downloadUrlRefMismatchCount = 0
             broadScopeCount = 0
+            releaseChannelReadyCount = 0
+            releaseChannelKeepBranchCount = 0
+            releaseChannelBlockedCount = 0
             warningCount = 0
             fatalCount = 0
             rows = @()
@@ -8351,6 +8354,31 @@ function Test-UserscriptInstallTrust {
         }
 
         $rowFatalCount = @($warnings | Where-Object { $_.fatal }).Count
+
+        # Release-channel readiness classifier (does not change install URLs):
+        #   blocked     - metadata too incomplete to support an update channel
+        #   ready       - metadata complete and already pinned to a tag/commit ref
+        #   keep-branch - metadata complete branch install (canonical per the
+        #                 userscript install-posture decision)
+        $metadataComplete = [bool]$metadataResult.metadataBlockPresent -and
+            -not [string]::IsNullOrWhiteSpace($version) -and
+            -not [string]::IsNullOrWhiteSpace($updateUrl) -and
+            -not [string]::IsNullOrWhiteSpace($downloadUrl)
+        $sourceRefType = [string]$source.sourceRefType
+        $updateUrlAligned = [bool]($null -ne $updateUrlTrust.refMatchesSource -and $updateUrlTrust.refMatchesSource)
+        $releaseChannelReadiness = if (-not $metadataComplete) {
+            "blocked"
+        } elseif ($sourceRefType -in @("tag", "commit")) {
+            "ready"
+        } else {
+            "keep-branch"
+        }
+        $releaseChannelNextAction = switch ($releaseChannelReadiness) {
+            "blocked" { "Add @version, @updateURL, and @downloadURL metadata before evaluating a tag/release install channel." }
+            "ready" { "Eligible to evaluate a tag or release install channel; metadata already pins a ref. No install-URL change required yet." }
+            default { "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete." }
+        }
+
         $rows.Add([ordered]@{
             repo = [string]$entry.repo
             url = $url
@@ -8382,6 +8410,14 @@ function Test-UserscriptInstallTrust {
             connectCount = $connects.Count
             requireCount = $requires.Count
             broadScope = [bool]($broadScopes.Count -gt 0)
+            releaseChannelReadiness = $releaseChannelReadiness
+            releaseChannelNextAction = $releaseChannelNextAction
+            releaseChannelEvidence = [ordered]@{
+                metadataComplete = [bool]$metadataComplete
+                sourceRefType = if ([string]::IsNullOrWhiteSpace($sourceRefType)) { $null } else { $sourceRefType }
+                hasVersion = [bool](-not [string]::IsNullOrWhiteSpace($version))
+                updateUrlAligned = [bool]$updateUrlAligned
+            }
             warningCount = $warnings.Count
             fatalCount = $rowFatalCount
             warnings = $warnings.ToArray()
@@ -8414,6 +8450,9 @@ function Test-UserscriptInstallTrust {
         updateUrlRefMismatchCount = @($rowArray | Where-Object { $null -ne $_.updateUrlRefMatchesSource -and -not $_.updateUrlRefMatchesSource }).Count
         downloadUrlRefMismatchCount = @($rowArray | Where-Object { $null -ne $_.downloadUrlRefMatchesSource -and -not $_.downloadUrlRefMatchesSource }).Count
         broadScopeCount = @($rowArray | Where-Object { $_.broadScope }).Count
+        releaseChannelReadyCount = @($rowArray | Where-Object { $_.releaseChannelReadiness -eq "ready" }).Count
+        releaseChannelKeepBranchCount = @($rowArray | Where-Object { $_.releaseChannelReadiness -eq "keep-branch" }).Count
+        releaseChannelBlockedCount = @($rowArray | Where-Object { $_.releaseChannelReadiness -eq "blocked" }).Count
         warningCount = [int]$warningTotal
         fatalCount = [int]$fatalTotal
         rows = $rowArray
