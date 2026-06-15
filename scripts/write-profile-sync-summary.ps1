@@ -127,6 +127,7 @@ $artifactBudgets = if ($report.PSObject.Properties.Name -contains 'artifactBudge
 $renderedProfileSmoke = if ($report.PSObject.Properties.Name -contains 'renderedProfileSmoke') { $report.renderedProfileSmoke } else { $null }
 $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'restFallbackReleaseFetch') { $performance.restFallbackReleaseFetch } else { $null }
 $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFreshness') { $report.evidenceFreshness } else { $null }
+$scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -310,6 +311,14 @@ $evidenceReportBehindCommit = if ($evidenceFreshness) { [bool]$evidenceFreshness
 $evidenceReportAgeBehindHours = if ($evidenceFreshness -and $null -ne $evidenceFreshness.reportAgeBehindHours) { [string]$evidenceFreshness.reportAgeBehindHours } else { "" }
 $evidenceSmokeStatus = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeStatus) { [string]$evidenceFreshness.smokeStatus } else { "unknown" }
 $evidenceSmokeStale = if ($evidenceFreshness) { [bool]$evidenceFreshness.smokeEvidenceStale } else { $false }
+$scheduledWorkflowStatus = if ($scheduledWorkflowFreshness) { [string]$scheduledWorkflowFreshness.status } else { "unknown" }
+$scheduledWorkflowCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.scheduledWorkflowCount } else { 0 }
+$scheduledWorkflowWarningCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.warningCount } else { 0 }
+$scheduledWorkflowStaleCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.staleCount } else { 0 }
+$scheduledWorkflowFailingCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.failingCount } else { 0 }
+$scheduledWorkflowUnavailableCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.unavailableCount } else { 0 }
+$scheduledWorkflowDisabledCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.disabledCount } else { 0 }
+$scheduledWorkflowRows = if ($scheduledWorkflowFreshness -and $scheduledWorkflowFreshness.PSObject.Properties.Name -contains 'rows') { @($scheduledWorkflowFreshness.rows) } else { @() }
 
 $summary = @"
 ### $Context report
@@ -351,6 +360,13 @@ $summary = @"
 | Committed report age behind (hours) | $evidenceReportAgeBehindHours |
 | Committed smoke status | $evidenceSmokeStatus |
 | Committed smoke evidence stale | $evidenceSmokeStale |
+| Scheduled workflow freshness | $scheduledWorkflowStatus |
+| Scheduled workflows tracked | $scheduledWorkflowCount |
+| Scheduled workflow warnings | $scheduledWorkflowWarningCount |
+| Scheduled workflows stale | $scheduledWorkflowStaleCount |
+| Scheduled workflows failing | $scheduledWorkflowFailingCount |
+| Scheduled workflows unavailable | $scheduledWorkflowUnavailableCount |
+| Scheduled workflows disabled | $scheduledWorkflowDisabledCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -552,6 +568,22 @@ if ($evidenceReportBehindCommit) {
 
 if ($evidenceSmokeStale) {
     Write-Output "::warning::Committed rendered-smoke status is $evidenceSmokeStatus; a hosted smoke artifact should have refreshed it."
+}
+
+if ($scheduledWorkflowFailingCount -gt 0 -or $scheduledWorkflowStaleCount -gt 0) {
+    foreach ($row in $scheduledWorkflowRows) {
+        $rowStatus = [string](Get-ObjectPropertyOrDefault -Object $row -Name "status")
+        if ($rowStatus -eq "failing" -or $rowStatus -eq "stale" -or $rowStatus -eq "disabled") {
+            $rowWarning = [string](Get-ObjectPropertyOrDefault -Object $row -Name "warning")
+            $workflowFile = [string](Get-ObjectPropertyOrDefault -Object $row -Name "workflowFile" -Default "")
+            $annotation = if ([string]::IsNullOrWhiteSpace($rowWarning)) { "Scheduled workflow $workflowFile is $rowStatus." } else { $rowWarning }
+            Write-Output "::warning file=$workflowFile,title=Scheduled workflow $rowStatus::$(ConvertTo-GitHubAnnotationValue $annotation)"
+        }
+    }
+}
+
+if ($scheduledWorkflowUnavailableCount -gt 0) {
+    Write-Output "::notice::Profile sync report could not evaluate $scheduledWorkflowUnavailableCount scheduled workflow(s) (run evidence unavailable, e.g. offline or unauthenticated)."
 }
 
 if ($linkFailureCount -gt 0) {
