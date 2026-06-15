@@ -209,7 +209,7 @@ $d="$env:TEMP\Brave-Portable-Updater"; if(Test-Path $d){git -C $d pull -q}else{g
 
 <a id="python-desktop-applications"></a>
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> -- 30 repos -- <i>Requires Python 3.8+ and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> -- 30 repos -- <i>Requires Python 3 and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>
 <br/>
 
 Start with: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
@@ -404,7 +404,7 @@ Start with: [**Openshop**](https://github.com/SysAdminDoc/Openshop), [**Stormvie
 
 <a id="browser-extensions--userscripts"></a>
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 23 repos -- <i>Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 23 repos -- <i>Userscripts require <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>
 <br/>
 
 Start with: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault), [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced).
