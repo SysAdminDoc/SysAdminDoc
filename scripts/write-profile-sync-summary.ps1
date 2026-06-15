@@ -128,6 +128,7 @@ $renderedProfileSmoke = if ($report.PSObject.Properties.Name -contains 'rendered
 $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'restFallbackReleaseFetch') { $performance.restFallbackReleaseFetch } else { $null }
 $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFreshness') { $report.evidenceFreshness } else { $null }
 $scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
+$roadmapHygiene = if ($report.PSObject.Properties.Name -contains 'roadmapHygiene') { $report.roadmapHygiene } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -319,6 +320,9 @@ $scheduledWorkflowFailingCount = if ($scheduledWorkflowFreshness) { [int]$schedu
 $scheduledWorkflowUnavailableCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.unavailableCount } else { 0 }
 $scheduledWorkflowDisabledCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.disabledCount } else { 0 }
 $scheduledWorkflowRows = if ($scheduledWorkflowFreshness -and $scheduledWorkflowFreshness.PSObject.Properties.Name -contains 'rows') { @($scheduledWorkflowFreshness.rows) } else { @() }
+$roadmapHygieneStatus = if ($roadmapHygiene) { [string]$roadmapHygiene.status } else { "unknown" }
+$roadmapHygieneWarningCount = if ($roadmapHygiene) { [int]$roadmapHygiene.warningCount } else { 0 }
+$roadmapHygieneRows = if ($roadmapHygiene -and $roadmapHygiene.PSObject.Properties.Name -contains 'rows') { @($roadmapHygiene.rows) } else { @() }
 
 $summary = @"
 ### $Context report
@@ -367,6 +371,8 @@ $summary = @"
 | Scheduled workflows failing | $scheduledWorkflowFailingCount |
 | Scheduled workflows unavailable | $scheduledWorkflowUnavailableCount |
 | Scheduled workflows disabled | $scheduledWorkflowDisabledCount |
+| Roadmap hygiene | $roadmapHygieneStatus |
+| Roadmap shipped-entry warnings | $roadmapHygieneWarningCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -584,6 +590,15 @@ if ($scheduledWorkflowFailingCount -gt 0 -or $scheduledWorkflowStaleCount -gt 0)
 
 if ($scheduledWorkflowUnavailableCount -gt 0) {
     Write-Output "::notice::Profile sync report could not evaluate $scheduledWorkflowUnavailableCount scheduled workflow(s) (run evidence unavailable, e.g. offline or unauthenticated)."
+}
+
+if ($roadmapHygieneWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report found $roadmapHygieneWarningCount open roadmap entry(ies) already satisfied by committed files."
+    foreach ($row in $roadmapHygieneRows) {
+        $marker = [string](Get-ObjectPropertyOrDefault -Object $row -Name "marker")
+        $reason = [string](Get-ObjectPropertyOrDefault -Object $row -Name "reason")
+        Write-Output "::warning title=Stale roadmap entry::$(ConvertTo-GitHubAnnotationValue "$marker -- $reason")"
+    }
 }
 
 if ($linkFailureCount -gt 0) {

@@ -209,6 +209,9 @@
     "scheduledWorkflowFreshness": {
       "$ref": "#/$defs/scheduledWorkflowFreshness"
     },
+    "roadmapHygiene": {
+      "$ref": "#/$defs/roadmapHygiene"
+    },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
     }
@@ -4722,6 +4725,67 @@
               }
             }
           }
+        }
+      }
+    },
+    "roadmapHygiene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "roadmapPresent",
+        "shippedEntryCount",
+        "warningCount",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "stale-entries",
+            "not-present"
+          ]
+        },
+        "roadmapPresent": {
+          "type": "boolean"
+        },
+        "shippedEntryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ruleId",
+              "marker",
+              "entry",
+              "reason"
+            ],
+            "properties": {
+              "ruleId": {
+                "type": "string"
+              },
+              "marker": {
+                "type": "string"
+              },
+              "entry": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "note": {
+          "type": "string"
         }
       }
     },
