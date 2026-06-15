@@ -4280,3 +4280,21 @@ Describe 'GitHub issue form schemas' {
         $config | Should -Match 'security/policy'
     }
 }
+
+Describe 'Pester coverage floor enforcement' {
+    BeforeAll {
+        $script:TestsWorkflowForCoverage = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
+    }
+
+    It 'sets a documented coverage floor and fails meaningful drops' {
+        $script:TestsWorkflowForCoverage | Should -Match '\$coverageFloor\s*=\s*78'
+        $script:TestsWorkflowForCoverage | Should -Match 'CoveragePercentTarget\s*=\s*\$coverageFloor'
+        $script:TestsWorkflowForCoverage | Should -Match 'if \(\$coveragePercent -lt \$coverageFloor\)'
+        $script:TestsWorkflowForCoverage | Should -Match 'throw "Pester coverage .* below the documented .* floor'
+    }
+
+    It 'reports the floor and actual coverage in the job summary' {
+        $script:TestsWorkflowForCoverage | Should -Match '\| Coverage \| \$coveragePercent% \|'
+        $script:TestsWorkflowForCoverage | Should -Match '\| Floor \| \$coverageFloor% \|'
+    }
+}
