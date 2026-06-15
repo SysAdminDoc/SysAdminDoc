@@ -215,6 +215,9 @@
     "readmeHeadingHierarchy": {
       "$ref": "#/$defs/readmeHeadingHierarchy"
     },
+    "rootMarkdownHygiene": {
+      "$ref": "#/$defs/rootMarkdownHygiene"
+    },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
     }
@@ -4835,6 +4838,70 @@
               }
             }
           }
+        }
+      }
+    },
+    "rootMarkdownHygiene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "rootMarkdownCount",
+        "allowedFiles",
+        "unexpectedFiles",
+        "exemptFiles",
+        "rows",
+        "warningCount",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "unexpected-files"
+          ]
+        },
+        "rootMarkdownCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "allowedFiles": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "unexpectedFiles": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "exemptFiles": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "file",
+              "status"
+            ],
+            "properties": {
+              "file": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "unexpected",
+                  "exempt"
+                ]
+              }
+            }
+          }
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "note": {
+          "type": "string"
         }
       }
     },
