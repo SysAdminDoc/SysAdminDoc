@@ -129,6 +129,7 @@ $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properti
 $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFreshness') { $report.evidenceFreshness } else { $null }
 $scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
 $roadmapHygiene = if ($report.PSObject.Properties.Name -contains 'roadmapHygiene') { $report.roadmapHygiene } else { $null }
+$readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readmeExperienceChecks') { $report.readmeExperienceChecks } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -329,6 +330,8 @@ $scheduledWorkflowRows = if ($scheduledWorkflowFreshness -and $scheduledWorkflow
 $roadmapHygieneStatus = if ($roadmapHygiene) { [string]$roadmapHygiene.status } else { "unknown" }
 $roadmapHygieneWarningCount = if ($roadmapHygiene) { [int]$roadmapHygiene.warningCount } else { 0 }
 $roadmapHygieneRows = if ($roadmapHygiene -and $roadmapHygiene.PSObject.Properties.Name -contains 'rows') { @($roadmapHygiene.rows) } else { @() }
+$imageAltTextComplete = if ($readmeExperienceChecks -and $readmeExperienceChecks.PSObject.Properties.Name -contains 'imageAltTextComplete') { [bool]$readmeExperienceChecks.imageAltTextComplete } else { $true }
+$imageAltTextIssueCount = if ($readmeExperienceChecks -and $readmeExperienceChecks.PSObject.Properties.Name -contains 'imageAltTextIssueCount') { [int]$readmeExperienceChecks.imageAltTextIssueCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -379,6 +382,8 @@ $summary = @"
 | Scheduled workflows disabled | $scheduledWorkflowDisabledCount |
 | Roadmap hygiene | $roadmapHygieneStatus |
 | Roadmap shipped-entry warnings | $roadmapHygieneWarningCount |
+| README image alt-text complete | $imageAltTextComplete |
+| README images missing alt text | $imageAltTextIssueCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -605,6 +610,10 @@ if ($scheduledWorkflowUnavailableCount -gt 0) {
 
 if ($executableChecksumGapCount -gt 0) {
     Write-Output "::notice::Profile sync report shortlists $executableChecksumGapCount executable-download repo(s) without filename-derived checksum coverage (top priority: $executableShortlistTopRepo)."
+}
+
+if ($imageAltTextIssueCount -gt 0) {
+    Write-Output "::warning::Profile sync report found $imageAltTextIssueCount generated README <img> tag(s) missing descriptive alt text."
 }
 
 if ($roadmapHygieneWarningCount -gt 0) {

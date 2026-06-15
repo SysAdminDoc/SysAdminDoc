@@ -3059,6 +3059,24 @@ function Test-ReadmeExperience {
     $hasMeaningfulAltText = $genericAltCount -eq 0 -and
         $ExpectedReadme.Contains('alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"') -and
         $ExpectedReadme.Contains('alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub"')
+    # Per GitHub accessibility guidance, every <img> needs descriptive alt text.
+    # Warning-only completeness check across all rendered <img> tags.
+    $genericAltValuePattern = '(?i)^(header|typing svg|profile views|followers|stars|tech stack|github stats|top languages|github streak|activity graph|footer|image|img|logo|icon|screenshot|banner)$'
+    $imageTags = [regex]::Matches($ExpectedReadme, '(?is)<img\b[^>]*>')
+    $imageTagCount = $imageTags.Count
+    $imageAltTextIssueCount = 0
+    foreach ($imageTag in $imageTags) {
+        $altMatch = [regex]::Match($imageTag.Value, '(?is)\balt\s*=\s*(?:"(?<alt>[^"]*)"|''(?<alt>[^'']*)'')')
+        if (-not $altMatch.Success) {
+            $imageAltTextIssueCount++
+            continue
+        }
+        $altText = $altMatch.Groups['alt'].Value.Trim()
+        if ([string]::IsNullOrWhiteSpace($altText) -or $altText -match $genericAltValuePattern) {
+            $imageAltTextIssueCount++
+        }
+    }
+    $imageAltTextComplete = $imageAltTextIssueCount -eq 0
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith("**[View my full portfolio", [StringComparison]::Ordinal)
     $hasRichProfileHeader = $ExpectedReadme.Contains("### Professional Focus") -or
@@ -3090,6 +3108,9 @@ function Test-ReadmeExperience {
         minimalProfileHeader = [bool]$hasMinimalProfileHeader
         richProfileHeader = [bool]$hasRichProfileHeader
         genericImageAltTextCount = $genericAltCount
+        imageTagCount = [int]$imageTagCount
+        imageAltTextIssueCount = [int]$imageAltTextIssueCount
+        imageAltTextComplete = [bool]$imageAltTextComplete
         thirdPartyMetricHostCount = $thirdPartyMetricHostCount
         thirdPartyBadgeHostCount = $thirdPartyBadgeHostCount
         thirdPartyRenderHostCount = $thirdPartyRenderHosts.Count

@@ -5375,6 +5375,15 @@
         "genericImageAltTextCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "imageTagCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "imageAltTextIssueCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "imageAltTextComplete": {
+          "type": "boolean"
+        },
         "thirdPartyMetricHostCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
