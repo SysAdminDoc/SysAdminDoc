@@ -4326,6 +4326,57 @@ Describe 'README image alt-text completeness' {
     }
 }
 
+Describe 'README heading hierarchy' {
+    It 'allows a profile README that opens at H3 without flagging the implied H1 skip' {
+        $readme = "### Featured Projects`n`nsome text`n`n### Categories`n`nmore text"
+        $result = Test-ReadmeHeadingHierarchy -ExpectedReadme $readme
+        $result.status | Should -Be 'ok'
+        $result.firstLevel | Should -Be 3
+        $result.headingCount | Should -Be 2
+        $result.profileContextAllowlistApplied | Should -BeTrue
+        $result.skippedLevelCount | Should -Be 0
+        @($result.headingSequence) | Should -Be @(3, 3)
+    }
+
+    It 'flags a skipped heading level during descent' {
+        $readme = "### Featured`n`ntext`n`n##### Deep section`n`ntext"
+        $result = Test-ReadmeHeadingHierarchy -ExpectedReadme $readme
+        $result.status | Should -Be 'warning'
+        $result.skippedLevelCount | Should -Be 1
+        $result.skippedLevelTransitions[0].from | Should -Be 3
+        $result.skippedLevelTransitions[0].to | Should -Be 5
+        ($result.warnings -join ' ') | Should -Match 'H3 to H5'
+    }
+
+    It 'ignores hash characters inside fenced code blocks' {
+        $readme = "### Real heading`n`n``````powershell`n# not a heading`n## also not`n``````"
+        $result = Test-ReadmeHeadingHierarchy -ExpectedReadme $readme
+        $result.headingCount | Should -Be 1
+        $result.skippedLevelCount | Should -Be 0
+    }
+
+    It 'flags an over-deep first heading beyond the profile-context allowance' {
+        $readme = "##### Too deep to start`n`ntext"
+        $result = Test-ReadmeHeadingHierarchy -ExpectedReadme $readme
+        $result.profileContextAllowlistApplied | Should -BeFalse
+        $result.skippedLevelCount | Should -Be 1
+        $result.skippedLevelTransitions[0].context | Should -Be 'document-start'
+    }
+
+    It 'exposes a readmeHeadingHierarchy contract in the schema and summary' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $schema.properties.readmeHeadingHierarchy.'$ref' | Should -Be '#/$defs/readmeHeadingHierarchy'
+
+        $sample = Test-ReadmeHeadingHierarchy -ExpectedReadme "### Featured Projects"
+        $aggregateKeys = @($sample.Keys) | Sort-Object
+        $schemaKeys = @($schema.'$defs'.readmeHeadingHierarchy.properties.PSObject.Properties.Name) | Sort-Object
+        ($aggregateKeys -join ',') | Should -Be ($schemaKeys -join ',')
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'README heading hierarchy'
+    }
+}
+
 Describe 'Pester coverage floor enforcement' {
     BeforeAll {
         $script:TestsWorkflowForCoverage = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw

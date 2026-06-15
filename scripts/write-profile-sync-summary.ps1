@@ -130,6 +130,7 @@ $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFre
 $scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
 $roadmapHygiene = if ($report.PSObject.Properties.Name -contains 'roadmapHygiene') { $report.roadmapHygiene } else { $null }
 $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readmeExperienceChecks') { $report.readmeExperienceChecks } else { $null }
+$readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -332,6 +333,8 @@ $roadmapHygieneWarningCount = if ($roadmapHygiene) { [int]$roadmapHygiene.warnin
 $roadmapHygieneRows = if ($roadmapHygiene -and $roadmapHygiene.PSObject.Properties.Name -contains 'rows') { @($roadmapHygiene.rows) } else { @() }
 $imageAltTextComplete = if ($readmeExperienceChecks -and $readmeExperienceChecks.PSObject.Properties.Name -contains 'imageAltTextComplete') { [bool]$readmeExperienceChecks.imageAltTextComplete } else { $true }
 $imageAltTextIssueCount = if ($readmeExperienceChecks -and $readmeExperienceChecks.PSObject.Properties.Name -contains 'imageAltTextIssueCount') { [int]$readmeExperienceChecks.imageAltTextIssueCount } else { 0 }
+$headingHierarchyStatus = if ($readmeHeadingHierarchy) { [string]$readmeHeadingHierarchy.status } else { "unknown" }
+$headingSkippedLevelCount = if ($readmeHeadingHierarchy) { [int]$readmeHeadingHierarchy.skippedLevelCount } else { 0 }
 
 $summary = @"
 ### $Context report
@@ -384,6 +387,8 @@ $summary = @"
 | Roadmap shipped-entry warnings | $roadmapHygieneWarningCount |
 | README image alt-text complete | $imageAltTextComplete |
 | README images missing alt text | $imageAltTextIssueCount |
+| README heading hierarchy | $headingHierarchyStatus |
+| README skipped heading levels | $headingSkippedLevelCount |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -614,6 +619,10 @@ if ($executableChecksumGapCount -gt 0) {
 
 if ($imageAltTextIssueCount -gt 0) {
     Write-Output "::warning::Profile sync report found $imageAltTextIssueCount generated README <img> tag(s) missing descriptive alt text."
+}
+
+if ($headingSkippedLevelCount -gt 0) {
+    Write-Output "::warning::Profile sync report found $headingSkippedLevelCount skipped README heading level(s)."
 }
 
 if ($roadmapHygieneWarningCount -gt 0) {
