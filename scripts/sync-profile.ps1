@@ -1935,17 +1935,23 @@ function New-ProfilePanelSvg {
     $descId = "$baseId-desc"
     $description = New-ProfilePanelDescription -Subtitle $Subtitle -Rows $Rows
 
+    $rowY = 112
+    $columns = 2
+    $physicalRows = [math]::Ceiling(@($Rows).Count / $columns)
+    $lastContentY = $rowY + (($physicalRows - 1) * 54) + 36
+    $minHeight = $lastContentY + 30
+    $Height = [math]::Max($Height, $minHeight)
+
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $Title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
     $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $Title)</text>")
     $lines.Add("  <text x=`"32`" y=`"70`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">$(ConvertTo-SvgText $Subtitle)</text>")
+    $lines.Add("  <line x1=`"32`" y1=`"84`" x2=`"$($Width - 32)`" y2=`"84`" stroke=`"$border`" stroke-width=`"0.5`" opacity=`"0.6`"/>")
 
-    $rowY = 112
-    $columns = 2
     $colWidth = [math]::Floor(($Width - 64) / $columns)
     for ($i = 0; $i -lt @($Rows).Count; $i++) {
         $row = $Rows[$i]
@@ -1956,8 +1962,8 @@ function New-ProfilePanelSvg {
         $value = Get-MemberValue -Object $row -Name "value"
         $label = Get-MemberValue -Object $row -Name "label"
         $detail = Get-MemberValue -Object $row -Name "detail"
-        $lines.Add("  <circle cx=`"$x`" cy=`"$($y - 6)`" r=`"4`" fill=`"$accent`"/>")
-        $lines.Add("  <text x=`"$($x + 14)`" y=`"$y`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"700`">$(ConvertTo-SvgText $value)</text>")
+        $lines.Add("  <rect x=`"$x`" y=`"$($y - 14)`" width=`"3`" height=`"20`" rx=`"1.5`" fill=`"$accent`"/>")
+        $lines.Add("  <text x=`"$($x + 14)`" y=`"$y`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $value)</text>")
         $lines.Add("  <text x=`"$($x + 14)`" y=`"$($y + 20)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">$(ConvertTo-SvgText $label)</text>")
         if (-not [string]::IsNullOrWhiteSpace([string]$detail)) {
             $lines.Add("  <text x=`"$($x + 14)`" y=`"$($y + 36)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"11`">$(ConvertTo-SvgText $detail)</text>")
@@ -1993,11 +1999,13 @@ function New-ProfileHeroSvg {
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"$($Width - 32)`" height=`"$($Height - 32)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"8`" height=`"$($Height - 32)`" fill=`"$accent`"/>")
-    $lines.Add("  <text x=`"$([math]::Floor($Width / 2))`" y=`"78`" text-anchor=`"middle`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"42`" font-weight=`"700`">SysAdminDoc</text>")
-    $lines.Add("  <text x=`"$([math]::Floor($Width / 2))`" y=`"116`" text-anchor=`"middle`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"17`" font-weight=`"600`">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>")
-    $lines.Add("  <text x=`"$([math]::Floor($Width / 2))`" y=`"148`" text-anchor=`"middle`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>")
+    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"$($Width - 32)`" height=`"$($Height - 32)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"4`" height=`"$($Height - 32)`" rx=`"2`" fill=`"$accent`"/>")
+    $half = [math]::Floor($Width / 2)
+    $lines.Add("  <text x=`"$half`" y=`"78`" text-anchor=`"middle`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"40`" font-weight=`"700`">SysAdminDoc</text>")
+    $lines.Add("  <line x1=`"$($half - 100)`" y1=`"94`" x2=`"$($half + 100)`" y2=`"94`" stroke=`"$accent`" stroke-width=`"1`" opacity=`"0.4`"/>")
+    $lines.Add("  <text x=`"$half`" y=`"120`" text-anchor=`"middle`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"16`" font-weight=`"600`">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>")
+    $lines.Add("  <text x=`"$half`" y=`"150`" text-anchor=`"middle`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }
@@ -2027,8 +2035,9 @@ function New-ProfileFooterSvg {
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <path d=`"M0 74 C120 42 226 38 350 68 C482 100 610 94 820 48 L820 120 L0 120 Z`" fill=`"$waveOne`" stroke=`"$line`" stroke-width=`"1`"/>")
-    $lines.Add("  <path d=`"M0 92 C156 56 282 58 420 84 C548 108 674 96 820 64 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.35`"/>")
+    $lines.Add("  <path d=`"M0 70 C140 38 280 34 410 64 C540 94 670 88 820 50 L820 120 L0 120 Z`" fill=`"$waveOne`" stroke=`"$line`" stroke-width=`"0.5`"/>")
+    $lines.Add("  <path d=`"M0 88 C160 52 300 56 440 82 C570 108 690 100 820 66 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.25`"/>")
+    $lines.Add("  <path d=`"M0 100 C180 74 340 78 480 96 C600 112 720 106 820 82 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.12`"/>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }

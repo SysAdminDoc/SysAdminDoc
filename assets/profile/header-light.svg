@@ -2,9 +2,10 @@
   <title id="profile-sysadmindoc-profile-header-light-title">SysAdminDoc profile header</title>
   <desc id="profile-sysadmindoc-profile-header-light-desc">Static profile header for a healthcare IT engineer, DICOM/PACS specialist, and product builder.</desc>
   <rect width="100%" height="100%" fill="#ffffff"/>
-  <rect x="16" y="16" width="788" height="188" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
-  <rect x="16" y="16" width="8" height="188" fill="#0969da"/>
-  <text x="410" y="78" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="42" font-weight="700">SysAdminDoc</text>
-  <text x="410" y="116" text-anchor="middle" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>
-  <text x="410" y="148" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="14">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>
+  <rect x="16" y="16" width="788" height="188" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+  <rect x="16" y="16" width="4" height="188" rx="2" fill="#0969da"/>
+  <text x="410" y="78" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="700">SysAdminDoc</text>
+  <line x1="310" y1="94" x2="510" y2="94" stroke="#0969da" stroke-width="1" opacity="0.4"/>
+  <text x="410" y="120" text-anchor="middle" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>
+  <text x="410" y="150" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="13">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>
 </svg>

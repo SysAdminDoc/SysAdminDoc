@@ -1,5 +1,7 @@
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
 
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/header-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/header-light.svg"><img src="assets/profile/header-dark.svg" alt="SysAdminDoc — Healthcare IT Engineer, DICOM/PACS Specialist, and Product Builder" /></picture>
+
 ### Featured Projects
 
 | Project | Category | Stars | Description | Action |
