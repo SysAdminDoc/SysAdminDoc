@@ -203,6 +203,9 @@
     "renderedProfileSmoke": {
       "$ref": "#/$defs/renderedProfileSmoke"
     },
+    "evidenceFreshness": {
+      "$ref": "#/$defs/evidenceFreshness"
+    },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
     }
@@ -4526,6 +4529,69 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "evidenceFreshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "committedReportPresent",
+        "committedReportGeneratedAt",
+        "latestReportAffectingCommitSha",
+        "latestReportAffectingCommitDate",
+        "reportAgeBehindCommit",
+        "reportAgeBehindHours",
+        "smokeStatus",
+        "smokeEvidenceStale",
+        "reportAffectingPaths",
+        "warnings",
+        "warningCount"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "stale"
+          ]
+        },
+        "committedReportPresent": {
+          "type": "boolean"
+        },
+        "committedReportGeneratedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "latestReportAffectingCommitSha": {
+          "$ref": "#/$defs/nullableCommitSha"
+        },
+        "latestReportAffectingCommitDate": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reportAgeBehindCommit": {
+          "type": "boolean"
+        },
+        "reportAgeBehindHours": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "smokeStatus": {
+          "type": "string"
+        },
+        "smokeEvidenceStale": {
+          "type": "boolean"
+        },
+        "reportAffectingPaths": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     },

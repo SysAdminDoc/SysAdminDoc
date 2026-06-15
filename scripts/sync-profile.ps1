@@ -60,6 +60,18 @@ $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
 $RenderedSmokeMinimumRootClientWidth = 300
+# Paths whose changes can alter the committed sync report / rendered smoke evidence.
+# Used to detect a committed report that predates the latest report-affecting commit.
+$ReportAffectingPaths = @(
+    "scripts/sync-profile.ps1",
+    "scripts/render-profile-smoke.ps1",
+    "scripts/write-profile-sync-summary.ps1",
+    "scripts/open-generated-profile-pr.ps1",
+    "data/profile-catalog.json",
+    "data/profile-version.json",
+    "schemas",
+    "README.md"
+)
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
@@ -3597,6 +3609,88 @@ function New-RenderedProfileSmokeSummary {
         skipReason = if ([string]::IsNullOrWhiteSpace($skipReason)) { $null } else { $skipReason }
         warningCount = [int]$warnings.Count
         warnings = @($warnings.ToArray())
+    }
+}
+
+function Get-LatestReportAffectingCommit {
+    param([string[]]$Paths = $ReportAffectingPaths)
+
+    $gitArgs = @('-C', $RepoRoot, 'log', '-1', '--format=%H%n%cI', '--') + @($Paths)
+    $output = & git @gitArgs 2>$null
+    if ($LASTEXITCODE -ne 0 -or $null -eq $output) {
+        return [ordered]@{ sha = $null; date = $null }
+    }
+
+    $lines = @($output)
+    $sha = if ($lines.Count -ge 1) { [string]$lines[0] } else { $null }
+    $dateText = if ($lines.Count -ge 2) { [string]$lines[1] } else { $null }
+    $date = ConvertTo-DateTimeOffsetOrNull $dateText
+    return [ordered]@{ sha = $sha; date = $date }
+}
+
+function Test-ReportEvidenceFreshness {
+    param(
+        [AllowNull()][object]$CommittedReport,
+        [AllowNull()][object]$LatestCommitDate,
+        [AllowNull()][string]$LatestCommitSha,
+        [string[]]$ReportAffectingPathList = $ReportAffectingPaths
+    )
+
+    $warnings = New-Object System.Collections.Generic.List[string]
+
+    $committedPresent = $null -ne $CommittedReport
+    $committedGeneratedAtText = if ($committedPresent) { ConvertTo-IsoText (Get-MemberValue -Object $CommittedReport -Name "generatedAt") } else { $null }
+    $committedGeneratedAt = ConvertTo-DateTimeOffsetOrNull $committedGeneratedAtText
+    $latestCommitDateOffset = ConvertTo-DateTimeOffsetOrNull $LatestCommitDate
+
+    $smokeStatus = "unavailable"
+    if ($committedPresent) {
+        $smoke = Get-MemberValue -Object $CommittedReport -Name "renderedProfileSmoke"
+        if ($null -ne $smoke) {
+            $statusValue = Get-MemberValue -Object $smoke -Name "status"
+            if (-not [string]::IsNullOrWhiteSpace([string]$statusValue)) {
+                $smokeStatus = [string]$statusValue
+            }
+        }
+    }
+
+    $reportBehindCommit = $false
+    $reportAgeBehindHours = $null
+    if (-not $committedPresent) {
+        $warnings.Add("Committed sync report was not found; report-freshness evidence is unavailable.")
+    } elseif ($null -eq $committedGeneratedAt) {
+        $warnings.Add("Committed sync report generatedAt is missing or unparseable.")
+    } elseif ($null -ne $latestCommitDateOffset -and $committedGeneratedAt -lt $latestCommitDateOffset) {
+        $reportBehindCommit = $true
+        $reportAgeBehindHours = [math]::Round(($latestCommitDateOffset - $committedGeneratedAt).TotalHours, 2)
+        $shaLabel = if ([string]::IsNullOrWhiteSpace($LatestCommitSha)) { "the latest report-affecting commit" } else { $LatestCommitSha.Substring(0, [Math]::Min(7, $LatestCommitSha.Length)) }
+        $warnings.Add("Committed sync report ($committedGeneratedAtText) is older than the latest report-affecting commit $shaLabel ($($latestCommitDateOffset.ToString('o'))); regenerate and recommit reports/profile-sync-report.json.")
+    }
+
+    # The hosted profile-sync workflow runs the rendered smoke and patches the
+    # committed report, so a committed report stuck at not-run means the hosted
+    # smoke artifact is missing or was never folded back in.
+    $smokeEvidenceStale = $false
+    if ($committedPresent -and $smokeStatus -eq "not-run") {
+        $smokeEvidenceStale = $true
+        $warnings.Add("Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it.")
+    }
+
+    $status = if ($warnings.Count -eq 0) { "fresh" } else { "stale" }
+
+    return [ordered]@{
+        status = $status
+        committedReportPresent = [bool]$committedPresent
+        committedReportGeneratedAt = $committedGeneratedAtText
+        latestReportAffectingCommitSha = if ([string]::IsNullOrWhiteSpace($LatestCommitSha)) { $null } else { [string]$LatestCommitSha }
+        latestReportAffectingCommitDate = if ($null -ne $latestCommitDateOffset) { $latestCommitDateOffset.ToString("o") } else { $null }
+        reportAgeBehindCommit = [bool]$reportBehindCommit
+        reportAgeBehindHours = $reportAgeBehindHours
+        smokeStatus = $smokeStatus
+        smokeEvidenceStale = [bool]$smokeEvidenceStale
+        reportAffectingPaths = @($ReportAffectingPathList)
+        warnings = @($warnings.ToArray())
+        warningCount = [int]$warnings.Count
     }
 }
 
@@ -7783,6 +7877,17 @@ function Test-ProfileState {
     $readmeDensity = Test-ReadmeDensity -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup
     $artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $null
     $renderedProfileSmoke = New-RenderedProfileSmokeSummary -SmokeReport $null
+    $committedReportForFreshness = $null
+    $committedReportFullPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) { $ReportPath } else { Join-Path $RepoRoot $ReportPath }
+    if (Test-Path -LiteralPath $committedReportFullPath) {
+        try {
+            $committedReportForFreshness = Get-Content -LiteralPath $committedReportFullPath -Raw | ConvertFrom-Json
+        } catch {
+            $committedReportForFreshness = $null
+        }
+    }
+    $latestReportCommit = Get-LatestReportAffectingCommit
+    $evidenceFreshness = Test-ReportEvidenceFreshness -CommittedReport $committedReportForFreshness -LatestCommitDate $latestReportCommit.date -LatestCommitSha $latestReportCommit.sha
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -7877,6 +7982,7 @@ function Test-ProfileState {
         readmeDensity = $readmeDensity
         artifactBudgets = $artifactBudgets
         renderedProfileSmoke = $renderedProfileSmoke
+        evidenceFreshness = $evidenceFreshness
         readmeExperienceChecks = $experienceChecks
     }
     for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {

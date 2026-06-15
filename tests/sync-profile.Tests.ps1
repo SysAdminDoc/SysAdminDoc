@@ -3872,3 +3872,98 @@ Describe 'Test-MetadataDrift report' {
         $result.informationalCount | Should -Be 2
     }
 }
+
+Describe 'Report evidence freshness gate' {
+    It 'reports fresh evidence when the committed report is newer than the latest commit and smoke ran' {
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-06-12T10:00:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{ status = 'passed' }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-12T09:00:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567'
+
+        $result.status | Should -Be 'fresh'
+        $result.committedReportPresent | Should -BeTrue
+        $result.reportAgeBehindCommit | Should -BeFalse
+        $result.smokeStatus | Should -Be 'passed'
+        $result.smokeEvidenceStale | Should -BeFalse
+        $result.warningCount | Should -Be 0
+        $result.latestReportAffectingCommitSha | Should -Be '0123456789abcdef0123456789abcdef01234567'
+        $result.reportAffectingPaths | Should -Not -BeNullOrEmpty
+    }
+
+    It 'warns when the committed report predates the latest report-affecting commit' {
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-06-12T06:21:44-04:00'
+            renderedProfileSmoke = [pscustomobject]@{ status = 'passed' }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-12T09:22:19-04:00')) `
+            -LatestCommitSha 'a61993d612632adcb7047281210add079c326b02'
+
+        $result.status | Should -Be 'stale'
+        $result.reportAgeBehindCommit | Should -BeTrue
+        $result.reportAgeBehindHours | Should -BeGreaterThan 0
+        $result.warningCount | Should -BeGreaterThan 0
+        ($result.warnings -join ' ') | Should -Match 'older than the latest report-affecting commit'
+    }
+
+    It 'warns when committed rendered-smoke status is stuck at not-run' {
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-06-12T10:00:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{ status = 'not-run' }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-12T09:00:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567'
+
+        $result.status | Should -Be 'stale'
+        $result.smokeStatus | Should -Be 'not-run'
+        $result.smokeEvidenceStale | Should -BeTrue
+        ($result.warnings -join ' ') | Should -Match 'not-run'
+    }
+
+    It 'flags a missing committed report as unavailable evidence' {
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $null `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-12T09:00:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567'
+
+        $result.status | Should -Be 'stale'
+        $result.committedReportPresent | Should -BeFalse
+        $result.smokeStatus | Should -Be 'unavailable'
+        ($result.warnings -join ' ') | Should -Match 'was not found'
+    }
+
+    It 'exposes an evidenceFreshness contract in the summary script and report schema' {
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'evidenceFreshness'
+        $summaryScript | Should -Match 'Committed report behind commit'
+        $summaryScript | Should -Match 'Committed smoke evidence stale'
+
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $schema.properties.evidenceFreshness.'$ref' | Should -Be '#/$defs/evidenceFreshness'
+        $schema.'$defs'.evidenceFreshness.required | Should -Contain 'reportAgeBehindCommit'
+        $schema.'$defs'.evidenceFreshness.required | Should -Contain 'smokeEvidenceStale'
+        $schema.'$defs'.evidenceFreshness.additionalProperties | Should -BeFalse
+
+        # Field parity: the function output keys must exactly match the schema's
+        # additionalProperties:false definition or live report schema validation breaks.
+        $sample = Test-ReportEvidenceFreshness `
+            -CommittedReport ([pscustomobject]@{ generatedAt = '2026-06-12T10:00:00-04:00'; renderedProfileSmoke = [pscustomobject]@{ status = 'passed' } }) `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-12T09:00:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567'
+        $outputKeys = @($sample.Keys) | Sort-Object
+        $schemaKeys = @($schema.'$defs'.evidenceFreshness.properties.PSObject.Properties.Name) | Sort-Object
+        ($outputKeys -join ',') | Should -Be ($schemaKeys -join ',')
+        $schemaRequired = @($schema.'$defs'.evidenceFreshness.required) | Sort-Object
+        ($schemaRequired -join ',') | Should -Be ($schemaKeys -join ',')
+    }
+}

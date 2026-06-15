@@ -126,6 +126,7 @@ $readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity')
 $artifactBudgets = if ($report.PSObject.Properties.Name -contains 'artifactBudgets') { $report.artifactBudgets } else { $null }
 $renderedProfileSmoke = if ($report.PSObject.Properties.Name -contains 'renderedProfileSmoke') { $report.renderedProfileSmoke } else { $null }
 $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'restFallbackReleaseFetch') { $performance.restFallbackReleaseFetch } else { $null }
+$evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFreshness') { $report.evidenceFreshness } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -301,6 +302,14 @@ $restFallbackStatus = if ($restFallbackReleaseFetch) { [string]$restFallbackRele
 $restFallbackAttempted = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.attemptedReleaseFetches } else { 0 }
 $restFallbackNoRelease404Count = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.noRelease404Count } else { 0 }
 $restFallbackFatal = if ($restFallbackReleaseFetch) { [bool]$restFallbackReleaseFetch.fatal } else { $false }
+$evidenceFreshnessStatus = if ($evidenceFreshness) { [string]$evidenceFreshness.status } else { "unknown" }
+$evidenceFreshnessWarningCount = if ($evidenceFreshness) { [int]$evidenceFreshness.warningCount } else { 0 }
+$evidenceReportGeneratedAt = if ($evidenceFreshness -and $null -ne $evidenceFreshness.committedReportGeneratedAt) { [string]$evidenceFreshness.committedReportGeneratedAt } else { "" }
+$evidenceLatestCommitDate = if ($evidenceFreshness -and $null -ne $evidenceFreshness.latestReportAffectingCommitDate) { [string]$evidenceFreshness.latestReportAffectingCommitDate } else { "" }
+$evidenceReportBehindCommit = if ($evidenceFreshness) { [bool]$evidenceFreshness.reportAgeBehindCommit } else { $false }
+$evidenceReportAgeBehindHours = if ($evidenceFreshness -and $null -ne $evidenceFreshness.reportAgeBehindHours) { [string]$evidenceFreshness.reportAgeBehindHours } else { "" }
+$evidenceSmokeStatus = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeStatus) { [string]$evidenceFreshness.smokeStatus } else { "unknown" }
+$evidenceSmokeStale = if ($evidenceFreshness) { [bool]$evidenceFreshness.smokeEvidenceStale } else { $false }
 
 $summary = @"
 ### $Context report
@@ -334,6 +343,14 @@ $summary = @"
 | Rendered smoke warnings | $renderedSmokeWarningCount |
 | Rendered smoke viewports | $renderedSmokeViewportCount |
 | Rendered smoke mobile root px | $renderedSmokeMobileRootClientWidth |
+| Evidence freshness | $evidenceFreshnessStatus |
+| Evidence freshness warnings | $evidenceFreshnessWarningCount |
+| Committed report generated at | $evidenceReportGeneratedAt |
+| Latest report-affecting commit | $evidenceLatestCommitDate |
+| Committed report behind commit | $evidenceReportBehindCommit |
+| Committed report age behind (hours) | $evidenceReportAgeBehindHours |
+| Committed smoke status | $evidenceSmokeStatus |
+| Committed smoke evidence stale | $evidenceSmokeStale |
 | Profile release/tag warnings | $profileReleaseWarningCount |
 | Profile release policy | $profileReleasePolicyStatus |
 | Profile release warning disposition | $profileReleaseWarningDisposition |
@@ -527,6 +544,14 @@ if ($artifactBudgetWarningCount -gt 0) {
 
 if ($renderedSmokeWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $renderedSmokeWarningCount rendered profile smoke warning(s)."
+}
+
+if ($evidenceReportBehindCommit) {
+    Write-Output "::warning::Committed sync report ($evidenceReportGeneratedAt) is older than the latest report-affecting commit ($evidenceLatestCommitDate); regenerate and recommit the report."
+}
+
+if ($evidenceSmokeStale) {
+    Write-Output "::warning::Committed rendered-smoke status is $evidenceSmokeStatus; a hosted smoke artifact should have refreshed it."
 }
 
 if ($linkFailureCount -gt 0) {
