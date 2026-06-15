@@ -69,6 +69,10 @@ jobs:
       - name: Run Pester
         shell: pwsh
         run: |
+          # Coverage floor: set a few points below the established baseline so
+          # routine churn passes but a meaningful coverage regression fails CI.
+          # Baseline at adoption: ~81% line coverage of scripts/sync-profile.ps1.
+          $coverageFloor = 78.0
           Set-PSRepository PSGallery -InstallationPolicy Trusted
           Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser
           $config = New-PesterConfiguration
@@ -79,13 +83,14 @@ jobs:
           $config.CodeCoverage.Enabled = $true
           $config.CodeCoverage.Path = 'scripts/sync-profile.ps1'
           $config.CodeCoverage.UseBreakpoints = $false
+          $config.CodeCoverage.CoveragePercentTarget = $coverageFloor
           $result = Invoke-Pester -Configuration $config
           $coverage = $result.CodeCoverage
           if ($null -eq $coverage) {
             throw "Pester did not return a code coverage result."
           }
           $coveragePercent = [math]::Round([decimal]$coverage.CoveragePercent, 2)
-          $coverageLine = "Pester coverage: $coveragePercent% ($($coverage.CommandsExecutedCount)/$($coverage.CommandsAnalyzedCount) commands) across $($coverage.FilesAnalyzedCount) file(s)."
+          $coverageLine = "Pester coverage: $coveragePercent% ($($coverage.CommandsExecutedCount)/$($coverage.CommandsAnalyzedCount) commands) across $($coverage.FilesAnalyzedCount) file(s). Floor: $coverageFloor%."
           Write-Host $coverageLine
           if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {
             @(
@@ -94,11 +99,15 @@ jobs:
               "| Metric | Value |"
               "| --- | ---: |"
               "| Coverage | $coveragePercent% |"
+              "| Floor | $coverageFloor% |"
               "| Commands covered | $($coverage.CommandsExecutedCount) / $($coverage.CommandsAnalyzedCount) |"
               "| Files analyzed | $($coverage.FilesAnalyzedCount) |"
-              "| Target | $($coverage.CoveragePercentTarget)% |"
               ""
             ) | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          }
+          if ($coveragePercent -lt $coverageFloor) {
+            Write-Output "::error::Pester coverage $coveragePercent% is below the $coverageFloor% floor."
+            throw "Pester coverage $coveragePercent% dropped below the documented $coverageFloor% floor."
           }
 
   markdownlint:
