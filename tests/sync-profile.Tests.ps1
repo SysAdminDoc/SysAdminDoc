@@ -166,6 +166,14 @@ Describe 'URL and metadata helpers' {
         $apk = New-TestEntry -Repo 'A' -Category 'android'; $apk.downloadKind = 'apk'
         Get-DownloadLabel -Entry $apk -Category 'android' | Should -Be 'APK'
     }
+
+    It 'keeps release action icon and label from wrapping apart' {
+        $apk = New-TestEntry -Repo 'A' -Category 'android'; $apk.downloadKind = 'apk'
+        $meta = New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')
+
+        Get-ActionLink -Entry $apk -Meta $meta -Category 'android' |
+            Should -Be '[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/A/releases/latest)'
+    }
 }
 
 Describe 'Test-HttpUrl result shape (no network calls)' {
@@ -1283,6 +1291,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
     It 'renders setup inspect-before-run and check-only guidance' {
+        $script:rendered | Should -Match 'Install Python 3 \+ Git only if your machine needs them'
+        $script:rendered | Should -Match 'checks for Python and Git before installing anything'
         $script:rendered | Should -Match 'Inspect before installing'
         $script:rendered | Should -Match ([regex]::Escape('$u=''https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'''))
         $script:rendered | Should -Match 'SysAdminDoc-setup\.ps1'
@@ -1317,6 +1327,14 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match '### Start Here'
         $script:rendered | Should -Not -Match '### Catalog Snapshot'
         $script:rendered | Should -Match '### Featured Projects'
+    }
+    It 'adds compact decision guidance without reintroducing the old profile chrome' {
+        $script:rendered | Should -Match 'A compact shortlist of the most useful, ready-to-run projects'
+        $script:rendered | Should -Match 'action line on each item'
+        $script:rendered | Should -Match '(?m)^- \[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- PowerShell, &#11088;0<br/>A test PowerShell tool<br/>\[Repo\]'
+        $script:rendered | Should -Match 'Suggested starting points:'
+        $script:rendered | Should -Match 'Branch-pinned Windows utilities with setup guidance below'
+        $script:rendered | Should -Match 'Hosted tools and dashboards that open directly in the browser'
     }
     It 'reports generated README byte size under the default soft budget' {
         $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
@@ -1569,6 +1587,8 @@ Write-Host ok
         $assets.Keys | Should -Contain 'assets/profile/footer-dark.svg'
         $assets.Keys | Should -Contain 'assets/profile/footer-light.svg'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'PUBLIC OPEN-SOURCE CATALOG'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'PowerShell / Python / Kotlin / C# / Rust'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
@@ -1885,13 +1905,19 @@ Describe 'New-ProjectsExportJson feed' {
 
         $result = Test-CatalogFeedAccounting -Catalog $cat -ProjectsJson $json
         $accountingJson = $result | ConvertTo-Json -Depth 20
+        $visitorFacingCount = @($cat.entries | Where-Object {
+                $_.includeInPortfolio -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+            }).Count
+        $suppressedCount = @($cat.entries | Where-Object {
+                -not [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+            }).Count
 
         $result.passed | Should -BeTrue
-        $result.catalogEntryCount | Should -Be 189
-        $result.visitorFacingCatalogCount | Should -Be 179
-        $result.suppressedCatalogCount | Should -Be 10
-        $result.exportedProjectCount | Should -Be 179
-        $result.exportedSuppressedCount | Should -Be 10
+        $result.catalogEntryCount | Should -Be @($cat.entries).Count
+        $result.visitorFacingCatalogCount | Should -Be $visitorFacingCount
+        $result.suppressedCatalogCount | Should -Be $suppressedCount
+        $result.exportedProjectCount | Should -Be $visitorFacingCount
+        $result.exportedSuppressedCount | Should -Be $suppressedCount
         $result.unaccountedRowCount | Should -Be 0
         $accountingJson | Should -Not -Match 'VaultBox|improve-repo|RadAtlas|github.com/SysAdminDoc'
     }

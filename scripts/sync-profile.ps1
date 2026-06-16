@@ -105,65 +105,65 @@ $CategoryDefinitions = @(
     [ordered]@{
         Slug = "powershell"
         Title = "&#9889; PowerShell System Utilities"
-        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Requires Git (see <b>First-time setup</b> above).</i></summary>'
+        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Branch-pinned Windows utilities with setup guidance below.</i></summary>'
         Render = "code"
         DefaultInstallKind = "powershell"
     },
     [ordered]@{
         Slug = "python"
         Title = "&#128013; Python Desktop Applications"
-        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Requires Python 3 and Git (see <b>First-time setup</b> above). Each one-liner shallow-clones the repo to <code>$env:TEMP</code>, installs <code>requirements.txt</code> if present, then runs the entry script.</i></summary>'
+        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Python 3 desktop and automation tools with clone-run snippets.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
     [ordered]@{
         Slug = "web"
         Title = "&#127760; Web Applications"
-        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Click to open in browser, no install needed.</i></summary>'
+        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Hosted tools and dashboards that open directly in the browser.</i></summary>'
         Render = "web-table"
     },
     [ordered]@{
         Slug = "extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
-        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Userscripts require <a href="https://www.tampermonkey.net/">Tampermonkey</a> or <a href="https://violentmonkey.github.io/">Violentmonkey</a>.</i></summary>'
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Browser extensions, release ZIPs, and userscript installs.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
         Slug = "android"
         Title = "&#128241; Android Applications"
-        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>Kotlin / Material You</i></summary>'
+        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>Material You APKs and Android source projects.</i></summary>'
         Render = "download-table"
         DefaultDownloadKind = "apk"
     },
     [ordered]@{
         Slug = "security"
         Title = "&#128274; Security & Networking"
-        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos</summary>'
+        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network, privacy, and defensive tooling.</i></summary>'
         Render = "download-table"
     },
     [ordered]@{
         Slug = "media"
         Title = "&#127916; Media & Conversion Tools"
-        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos</summary>'
+        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Conversion, subtitles, compression, and media repair workflows.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
     [ordered]@{
         Slug = "desktop"
         Title = "&#128421;&#65039; Native Desktop Applications"
-        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos</summary>'
+        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Native Windows and cross-platform desktop tools.</i></summary>'
         Render = "desktop-table"
     },
     [ordered]@{
         Slug = "guides"
         Title = "&#128218; Guides & Resources"
-        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos</summary>'
+        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>Reference material, checklists, and public guides.</i></summary>'
         Render = "simple-table"
     },
     [ordered]@{
         Slug = "misc"
         Title = "&#128256; Misc & Forks"
-        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos</summary>'
+        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, continuations, and supporting utilities.</i></summary>'
         Render = "simple-table"
     }
 )
@@ -1599,7 +1599,7 @@ function Get-ActionLink {
     $label = [string]$action["label"]
     $url = [string]$action["url"]
     if ($action["kind"] -eq "release") {
-        return "[<kbd>&#11015; $label</kbd>]($url)"
+        return "[<kbd>&#11015;&nbsp;$label</kbd>]($url)"
     }
 
     return "[$label]($url)"
@@ -1658,7 +1658,7 @@ function New-CategoryPreviewLine {
         "[**$($entry.title)**]($(Get-RepoUrl $entry))"
     }
 
-    return "Start with: $($links -join ', ')."
+    return "Suggested starting points: $($links -join ', ')."
 }
 
 function New-DiscoverySection {
@@ -1715,10 +1715,10 @@ function New-DiscoverySection {
 function New-FirstTimeSetupSection {
     return @'
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>New to this? Install Python 3 + Git in one paste.</i></summary>
+<summary><b>&#128190; First-time setup</b> -- <i>Install Python 3 + Git only if your machine needs them.</i></summary>
 <br/>
 
-The PowerShell and Python sections clone repos with **Git** and run scripts with **Python 3** when needed. On a fresh Windows machine, open **PowerShell** and paste:
+The command below checks for Python and Git before installing anything, then refreshes the current shell so the project snippets work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -1739,7 +1739,7 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have Python and Git? Skip this and open the category you need.
+Already have Python and Git? Skip this section and open the category you need.
 
 </details>
 '@
@@ -1858,14 +1858,14 @@ function New-FeaturedSection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Featured Projects")
     $lines.Add("")
-    $lines.Add("| Project | Category | Stars | Description | Action |")
-    $lines.Add("|:--------|:---------|:-----:|:------------|:------:|")
+    $lines.Add("A compact shortlist of the most useful, ready-to-run projects. Use the action line on each item for the fastest path.")
+    $lines.Add("")
     foreach ($entry in $featured) {
         $meta = Get-RepoMeta $entry $RepoLookup
         $stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
         $category = Get-CategoryDisplayName $entry.category
         $action = Get-ActionLink $entry $meta $entry.category
-        $lines.Add("| [**$($entry.title)**]($(Get-RepoUrl $entry)) | $category | &#11088;$stars | $(Get-DisplayDescription $entry $meta) | $action |")
+        $lines.Add("- [**$($entry.title)**]($(Get-RepoUrl $entry)) -- $category, &#11088;$stars<br/>$(Get-DisplayDescription $entry $meta)<br/>$action")
     }
     return ($lines -join [Environment]::NewLine)
 }
@@ -1948,9 +1948,9 @@ function New-ProfilePanelSvg {
     )
 
     if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#58a6ff"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#1f6feb"
+        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $rule = "#1f6feb"
     } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#0969da"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"; $rule = "#0969da"
     }
 
     $baseId = ConvertTo-SvgId "$Title $Theme"
@@ -1971,6 +1971,7 @@ function New-ProfilePanelSvg {
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
     $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <line x1=`"28`" y1=`"28`" x2=`"$($Width - 28)`" y2=`"28`" stroke=`"$rule`" stroke-width=`"1`" opacity=`"0.45`"/>")
     $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $Title)</text>")
     $lines.Add("  <text x=`"32`" y=`"70`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">$(ConvertTo-SvgText $Subtitle)</text>")
     $lines.Add("  <line x1=`"32`" y1=`"84`" x2=`"$($Width - 32)`" y2=`"84`" stroke=`"$border`" stroke-width=`"0.5`" opacity=`"0.6`"/>")
@@ -2002,17 +2003,17 @@ function New-ProfileHeroSvg {
         [ValidateSet("dark", "light")]
         [string]$Theme,
         [int]$Width = 820,
-        [int]$Height = 220
+        [int]$Height = 240
     )
 
     if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#58a6ff"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#1f6feb"
+        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $accentStrong = "#1f6feb"
     } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#0969da"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $accentStrong = "#0969da"
     }
 
     $title = "SysAdminDoc profile header"
-    $description = "Static profile header for a healthcare IT engineer, DICOM/PACS specialist, and product builder."
+    $description = "Static profile header for a healthcare IT engineer, DICOM/PACS specialist, product builder, and public open-source catalog maintainer."
     $baseId = ConvertTo-SvgId "$title $Theme"
     $titleId = "$baseId-title"
     $descId = "$baseId-desc"
@@ -2023,12 +2024,14 @@ function New-ProfileHeroSvg {
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
     $lines.Add("  <rect x=`"16`" y=`"16`" width=`"$($Width - 32)`" height=`"$($Height - 32)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"4`" height=`"$($Height - 32)`" rx=`"2`" fill=`"$accent`"/>")
-    $half = [math]::Floor($Width / 2)
-    $lines.Add("  <text x=`"$half`" y=`"78`" text-anchor=`"middle`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"40`" font-weight=`"700`">SysAdminDoc</text>")
-    $lines.Add("  <line x1=`"$($half - 100)`" y1=`"94`" x2=`"$($half + 100)`" y2=`"94`" stroke=`"$accent`" stroke-width=`"1`" opacity=`"0.4`"/>")
-    $lines.Add("  <text x=`"$half`" y=`"120`" text-anchor=`"middle`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"16`" font-weight=`"600`">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>")
-    $lines.Add("  <text x=`"$half`" y=`"150`" text-anchor=`"middle`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>")
+    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"4`" height=`"$($Height - 32)`" rx=`"2`" fill=`"$accentStrong`"/>")
+    $center = [math]::Floor($Width / 2)
+    $lines.Add("  <line x1=`"$($center - 92)`" y1=`"52`" x2=`"$($center + 92)`" y2=`"52`" stroke=`"$accent`" stroke-width=`"2`" opacity=`"0.9`"/>")
+    $lines.Add("  <text x=`"$center`" y=`"82`" text-anchor=`"middle`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`" font-weight=`"700`">PUBLIC OPEN-SOURCE CATALOG</text>")
+    $lines.Add("  <text x=`"$center`" y=`"130`" text-anchor=`"middle`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"48`" font-weight=`"700`">SysAdminDoc</text>")
+    $lines.Add("  <text x=`"$center`" y=`"164`" text-anchor=`"middle`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"17`" font-weight=`"600`">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>")
+    $lines.Add("  <text x=`"$center`" y=`"192`" text-anchor=`"middle`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`">16+ years in IT operations | Windows, Android, web, automation, and imaging workflows</text>")
+    $lines.Add("  <text x=`"$center`" y=`"216`" text-anchor=`"middle`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"600`">PowerShell / Python / Kotlin / C# / Rust</text>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }
@@ -2150,7 +2153,7 @@ function New-ProfileAssetSvgs {
 
 function New-ProfileChrome {
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    $headerImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/header-dark.svg" -LightUrl "$assetPathPrefix/header-light.svg" -Alt 'SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder'
+    $headerImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/header-dark.svg" -LightUrl "$assetPathPrefix/header-light.svg" -Alt 'SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder' -Attributes 'width="100%"'
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('<p align="center">')
@@ -2200,7 +2203,7 @@ function New-ProfileStatsChrome {
 
 function New-ProfileFooter {
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    return New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "Decorative footer wave for the SysAdminDoc profile"
+    return New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "Decorative footer wave for the SysAdminDoc profile" -Attributes 'width="100%"'
 }
 
 function Update-Header {
@@ -3108,6 +3111,8 @@ function Test-ReadmeExperience {
     }
     $imageAltTextComplete = $imageAltTextIssueCount -eq 0
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
+    $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>\[')
+    $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith("**[View my full portfolio", [StringComparison]::Ordinal)
     $hasRichProfileHeader = $ExpectedReadme.Contains("### Professional Focus") -or
         $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -or
@@ -3120,7 +3125,7 @@ function Test-ReadmeExperience {
         ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
     $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 1) -or
         ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)
-    $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasFeaturedActionColumn -and $hasCurrentlyBuildingActionColumn -and
+    $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasFeaturedPrimaryActions -and $hasCurrentlyBuildingActionColumn -and
         $hasProfileHeaderContract -and
         $motionSafeChrome -and
         $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and
@@ -3150,6 +3155,8 @@ function Test-ReadmeExperience {
         profileStatsChromeCount = $profileStatsChromeCount
         featuredRows = $featured.Count
         featuredActionColumn = [bool]$hasFeaturedActionColumn
+        featuredActionList = [bool]$hasFeaturedActionList
+        featuredPrimaryActions = [bool]$hasFeaturedPrimaryActions
         currentlyBuildingRows = $building.Count
         currentlyBuildingActionColumn = [bool]$hasCurrentlyBuildingActionColumn
         categoryAnchorCount = $CategoryDefinitions.Count - $missingAnchors.Count

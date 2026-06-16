@@ -5663,6 +5663,8 @@
         "profileStatsChromeCount",
         "featuredRows",
         "featuredActionColumn",
+        "featuredActionList",
+        "featuredPrimaryActions",
         "currentlyBuildingRows",
         "currentlyBuildingActionColumn",
         "categoryAnchorCount",
@@ -5739,6 +5741,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "featuredActionColumn": {
+          "type": "boolean"
+        },
+        "featuredActionList": {
+          "type": "boolean"
+        },
+        "featuredPrimaryActions": {
           "type": "boolean"
         },
         "currentlyBuildingRows": {

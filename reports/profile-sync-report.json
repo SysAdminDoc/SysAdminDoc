@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-12T09:21:44.3212566-04:00",
+  "generatedAt": "2026-06-16T18:45:22.5066883-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -56,22 +56,22 @@
       "inSync": true
     }
   ],
-  "publicRepoCount": 186,
-  "catalogEntryCount": 189,
-  "includedReadmeCount": 168,
+  "publicRepoCount": 200,
+  "catalogEntryCount": 203,
+  "includedReadmeCount": 169,
   "provenance": {
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "422dcdadc786fb6fce51d373cb57cd10e8f46768",
-    "catalogSha256": "2de9b731d5cfdffde33658a7200fbf22591e93556a31d71dd8c564bbe3d8c07a",
-    "generatorSha256": "713a983b972c25f5412647d618463ed9b41db563de1e4daeb4e2e85376f9d95d",
+    "sourceCommit": "d2dd335c2a263a9c6f639fb6019f1fe113a689e9",
+    "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
+    "generatorSha256": "c274aa499114107f912d036bfe5a2c04d2b7f0b297fb5aa34fac64d8e5f2b15c",
     "projectSchemaSha256": "6265c49f0c33494431252f374df2d7ec7aee92cbdeecd019d74be3768d61dc1f",
-    "metadataSnapshotAt": "2026-06-12T09:19:21.2408118-04:00",
-    "metadataProvider": "rest-fallback",
+    "metadataSnapshotAt": "2026-06-16T18:43:31.8014968-04:00",
+    "metadataProvider": "graphql",
     "repoEnumeration": {
-      "requestedLimit": 0,
-      "returnedCount": 186,
+      "requestedLimit": 500,
+      "returnedCount": 200,
       "truncated": false
     }
   },
@@ -81,24 +81,161 @@
     "issues": []
   },
   "metadataHygiene": {
-    "missingTopicCount": 0,
-    "missingDescriptionCount": 0,
+    "missingTopicCount": 14,
+    "missingDescriptionCount": 1,
     "topicHintPolicy": {
       "mutatesRepositories": false,
       "applyModeAvailable": false,
       "requiresExplicitAllowlist": true
     },
-    "missingTopics": [],
-    "missingDescriptions": []
+    "missingTopics": [
+      {
+        "repo": "android-foss",
+        "language": "Python",
+        "pushedAt": "2026-06-15T14:09:47.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "python",
+          "privacy"
+        ]
+      },
+      {
+        "repo": "awesome-privacy",
+        "language": null,
+        "pushedAt": "2026-06-15T14:09:49.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "privacy"
+        ]
+      },
+      {
+        "repo": "CL4R1T4S",
+        "language": null,
+        "pushedAt": "2026-06-15T11:09:58.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "utility"
+        ]
+      },
+      {
+        "repo": "ews",
+        "language": "JavaScript",
+        "pushedAt": "2026-06-16T00:23:03.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "javascript"
+        ]
+      },
+      {
+        "repo": "foss-apps",
+        "language": "Python",
+        "pushedAt": "2026-06-15T14:09:50.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "python"
+        ]
+      },
+      {
+        "repo": "Gmail-MCP-Server",
+        "language": "JavaScript",
+        "pushedAt": "2026-06-16T00:22:05.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "javascript"
+        ]
+      },
+      {
+        "repo": "GuitarTuner",
+        "language": "Kotlin",
+        "pushedAt": "2026-06-16T03:25:17.0000000Z",
+        "category": "android",
+        "topicHints": [
+          "android",
+          "kotlin"
+        ]
+      },
+      {
+        "repo": "hermes-webui",
+        "language": "Python",
+        "pushedAt": "2026-06-16T00:23:06.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "python"
+        ]
+      },
+      {
+        "repo": "notepad-plus-plus",
+        "language": "C++",
+        "pushedAt": "2026-06-16T00:23:09.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "cpp"
+        ]
+      },
+      {
+        "repo": "NotepadNext",
+        "language": "C++",
+        "pushedAt": "2026-06-16T00:23:11.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "cpp"
+        ]
+      },
+      {
+        "repo": "qBittorrent-Enhanced-Edition",
+        "language": "C++",
+        "pushedAt": "2026-06-16T00:23:16.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "cpp"
+        ]
+      },
+      {
+        "repo": "stylus",
+        "language": "JavaScript",
+        "pushedAt": "2026-06-16T00:23:18.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "javascript"
+        ]
+      },
+      {
+        "repo": "vcpkg",
+        "language": "CMake",
+        "pushedAt": "2026-06-16T00:23:21.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "cmake"
+        ]
+      },
+      {
+        "repo": "youtube-mcp-server",
+        "language": "Python",
+        "pushedAt": "2026-06-16T00:21:57.0000000Z",
+        "category": "suppressed",
+        "topicHints": [
+          "python",
+          "video"
+        ]
+      }
+    ],
+    "missingDescriptions": [
+      {
+        "repo": "ews",
+        "language": "JavaScript",
+        "category": "suppressed",
+        "catalogDescription": null
+      }
+    ]
   },
   "projectLicenseMetadata": {
-    "checkedCount": 168,
-    "detectedCount": 168,
+    "checkedCount": 169,
+    "detectedCount": 169,
     "missingCount": 0,
-    "unknownCount": 2,
+    "unknownCount": 3,
     "intentionalExceptionCount": 2,
-    "unresolvedUnknownCount": 0,
-    "warningCount": 0,
+    "unresolvedUnknownCount": 1,
+    "warningCount": 1,
     "licenseCounts": [
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -122,7 +259,7 @@
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
-        "count": 5
+        "count": 6
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -134,7 +271,7 @@
         "licenseSpdxId": "MIT",
         "licenseKey": "mit",
         "licenseName": "MIT License",
-        "count": 154
+        "count": 153
       },
       {
         "licenseSpdxId": "MPL-2.0",
@@ -146,11 +283,20 @@
         "licenseSpdxId": "NOASSERTION",
         "licenseKey": "other",
         "licenseName": "Other",
-        "count": 2
+        "count": 3
       }
     ],
     "missingLicenses": [],
     "unknownLicenses": [
+      {
+        "repo": "HostShield",
+        "licenseKey": "other",
+        "licenseName": "Other",
+        "licenseSpdxId": "NOASSERTION",
+        "reason": "GitHub reported an unrecognized or non-standard license",
+        "intentionalException": false,
+        "exceptionReason": null
+      },
       {
         "repo": "kindred",
         "licenseKey": "other",
@@ -172,15 +318,15 @@
     ]
   },
   "forkParentDrift": {
-    "checkedCount": 10,
-    "githubForkCount": 8,
+    "checkedCount": 23,
+    "githubForkCount": 21,
     "catalogForkOfCount": 10,
     "matchingGitHubForkCount": 8,
     "catalogContinuationCount": 2,
-    "missingCatalogAttributionCount": 0,
+    "missingCatalogAttributionCount": 13,
     "parentMismatchCount": 0,
     "parentUnavailableCount": 0,
-    "warningCount": 0,
+    "warningCount": 13,
     "matchingGitHubForks": [
       {
         "repo": "android-debloat-list",
@@ -235,20 +381,86 @@
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
       }
     ],
-    "missingCatalogAttribution": [],
+    "missingCatalogAttribution": [
+      {
+        "repo": "android-foss",
+        "githubParent": "offa/android-foss",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "awesome-privacy",
+        "githubParent": "pluja/awesome-privacy",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "CL4R1T4S",
+        "githubParent": "elder-plinius/CL4R1T4S",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "ews",
+        "githubParent": "kylemcdonald/ews",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "foss-apps",
+        "githubParent": "albertomosconi/foss-apps",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "Gmail-MCP-Server",
+        "githubParent": "GongRzhe/Gmail-MCP-Server",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "hermes-webui",
+        "githubParent": "nesquena/hermes-webui",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "notepad-plus-plus",
+        "githubParent": "notepad-plus-plus/notepad-plus-plus",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "NotepadNext",
+        "githubParent": "dail8859/NotepadNext",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "qBittorrent-Enhanced-Edition",
+        "githubParent": "c0re100/qBittorrent-Enhanced-Edition",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "stylus",
+        "githubParent": "openstyles/stylus",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "vcpkg",
+        "githubParent": "microsoft/vcpkg",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      },
+      {
+        "repo": "youtube-mcp-server",
+        "githubParent": "pauling-ai/youtube-mcp-server",
+        "reason": "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
+      }
+    ],
     "parentMismatches": [],
     "parentUnavailable": [],
     "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
   },
   "staleProjectReview": {
-    "checkedProjectCount": 179,
+    "checkedProjectCount": 180,
     "staleAfterDays": 365,
     "releaseStaleAfterDays": 540,
     "archiveAfterDays": 730,
     "staleProjectCount": 0,
     "archiveReviewCount": 0,
     "noReleaseCount": 38,
-    "suppressedCount": 10,
+    "suppressedCount": 23,
     "warningCount": 0,
     "statusCounts": [
       {
@@ -257,7 +469,7 @@
       },
       {
         "kind": "current",
-        "count": 179
+        "count": 180
       },
       {
         "kind": "stale-review",
@@ -269,11 +481,17 @@
         "reasonCode": "duplicate-or-superseded",
         "publicReason": "Duplicate or superseded project omitted from the public feed.",
         "visibilityClass": "suppressed",
-        "count": 3
+        "count": 12
       },
       {
         "reasonCode": "not-visitor-facing",
         "publicReason": "Project omitted because it is not visitor-facing.",
+        "visibilityClass": "suppressed",
+        "count": 4
+      },
+      {
+        "reasonCode": "other",
+        "publicReason": "Project omitted from the public feed.",
         "visibilityClass": "suppressed",
         "count": 4
       },
@@ -294,11 +512,11 @@
     "note": "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
   },
   "releaseAssetDrift": {
-    "checkedCatalogRows": 168,
-    "releaseBearingRows": 135,
+    "checkedCatalogRows": 169,
+    "releaseBearingRows": 136,
     "releaseActionRows": 71,
     "assetApiInspected": true,
-    "inspectedReleaseRows": 135,
+    "inspectedReleaseRows": 136,
     "releaseAssetKindCounts": [
       {
         "kind": "apk",
@@ -310,11 +528,11 @@
       },
       {
         "kind": "exe",
-        "count": 32
+        "count": 33
       },
       {
         "kind": "other",
-        "count": 36
+        "count": 38
       },
       {
         "kind": "script",
@@ -334,23 +552,442 @@
       },
       {
         "kind": "zip",
-        "count": 28
+        "count": 29
       }
     ],
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum",
-        "count": 23
+        "count": 25
       },
       {
         "trustLevel": "metadata-only",
-        "count": 112
+        "count": 111
       },
       {
         "trustLevel": "unknown",
         "count": 33
       }
     ],
+    "executableDownloadTrustShortlist": {
+      "evidenceSource": "filename-derived",
+      "executableDownloadCount": 65,
+      "verifiedCompleteCount": 0,
+      "checksumGapCount": 55,
+      "attestationGapCount": 65,
+      "sbomGapCount": 64,
+      "shortlistSoftCap": 25,
+      "truncatedCount": 40,
+      "rows": [
+        {
+          "priorityRank": 1,
+          "repo": "OpenCut",
+          "stars": 21,
+          "latestReleaseTag": "v1.25.1",
+          "executableAssetKinds": [
+            "exe",
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 2,
+          "repo": "VideoSubtitleRemover",
+          "stars": 19,
+          "latestReleaseTag": "v3.16.0",
+          "executableAssetKinds": [
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 3,
+          "repo": "NovaCut",
+          "stars": 12,
+          "latestReleaseTag": "v3.74.100",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 4,
+          "repo": "project-nomad-desktop",
+          "stars": 11,
+          "latestReleaseTag": "v7.32.0",
+          "executableAssetKinds": [
+            "exe"
+          ],
+          "trustLevel": "checksum",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 5,
+          "repo": "HostShield",
+          "stars": 10,
+          "latestReleaseTag": "v6.9.16",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 6,
+          "repo": "DisableDefender",
+          "stars": 9,
+          "latestReleaseTag": "v0.0.4",
+          "executableAssetKinds": [
+            "script"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 7,
+          "repo": "Astra-Deck",
+          "stars": 8,
+          "latestReleaseTag": "v4.46.2",
+          "executableAssetKinds": [
+            "crx",
+            "userscript",
+            "xpi",
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 8,
+          "repo": "Aura",
+          "stars": 7,
+          "latestReleaseTag": "v6.31.2",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 9,
+          "repo": "AlarmClockXtreme",
+          "stars": 5,
+          "latestReleaseTag": "v1.14.18",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "checksum",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 10,
+          "repo": "DefenderControl",
+          "stars": 5,
+          "latestReleaseTag": "v3.2.1",
+          "executableAssetKinds": [
+            "script"
+          ],
+          "trustLevel": "checksum",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 11,
+          "repo": "Network_Security_Auditor",
+          "stars": 5,
+          "latestReleaseTag": "v4.10.1",
+          "executableAssetKinds": [
+            "script"
+          ],
+          "trustLevel": "checksum",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 12,
+          "repo": "Bookmark-Organizer-Pro",
+          "stars": 4,
+          "latestReleaseTag": "v6.8.0",
+          "executableAssetKinds": [
+            "exe"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 13,
+          "repo": "DeepPurge",
+          "stars": 4,
+          "latestReleaseTag": "v0.9.0",
+          "executableAssetKinds": [
+            "exe"
+          ],
+          "trustLevel": "checksum",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 14,
+          "repo": "Lawnchair-Lite",
+          "stars": 3,
+          "latestReleaseTag": "v2.20.1",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 15,
+          "repo": "OpenLumen",
+          "stars": 3,
+          "latestReleaseTag": "v0.6.1",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 16,
+          "repo": "ScriptVault",
+          "stars": 3,
+          "latestReleaseTag": "v3.11.0",
+          "executableAssetKinds": [
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 17,
+          "repo": "SunoJump",
+          "stars": 3,
+          "latestReleaseTag": "v1.5.0",
+          "executableAssetKinds": [
+            "exe"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 18,
+          "repo": "FileOrganizer",
+          "stars": 2,
+          "latestReleaseTag": "v8.4.0",
+          "executableAssetKinds": [
+            "exe",
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 19,
+          "repo": "iOSIconPack",
+          "stars": 2,
+          "latestReleaseTag": "v1.1.9",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 20,
+          "repo": "StyleCraft",
+          "stars": 2,
+          "latestReleaseTag": "v1.6.0",
+          "executableAssetKinds": [
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 21,
+          "repo": "UniFile",
+          "stars": 2,
+          "latestReleaseTag": "v9.3.15",
+          "executableAssetKinds": [
+            "zip"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 22,
+          "repo": "Wingetter",
+          "stars": 2,
+          "latestReleaseTag": "v6.1.0",
+          "executableAssetKinds": [
+            "exe",
+            "script"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 23,
+          "repo": "Discrub",
+          "stars": 1,
+          "latestReleaseTag": "v2.10.0",
+          "executableAssetKinds": [
+            "crx"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 24,
+          "repo": "Droidsmith",
+          "stars": 1,
+          "latestReleaseTag": "v0.1.0",
+          "executableAssetKinds": [
+            "exe"
+          ],
+          "trustLevel": "checksum",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 25,
+          "repo": "EXTRACTORX",
+          "stars": 1,
+          "latestReleaseTag": "v2.3.1",
+          "executableAssetKinds": [
+            "exe"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        }
+      ],
+      "note": "Filename-derived prioritization only; binaries are not downloaded or cryptographically verified. nextAction names the highest-impact missing evidence (checksums before attestation before SBOM)."
+    },
     "executableDownloadsMissingChecksums": [
       {
         "repo": "AI-Usage_Tracker",
@@ -361,6 +998,14 @@
           "zip"
         ],
         "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "AlarmClockXtreme",
+        "latestReleaseTag": "v1.14.18",
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "checksum"
       },
       {
         "repo": "AmazonEnhanced",
@@ -384,7 +1029,7 @@
       },
       {
         "repo": "Aura",
-        "latestReleaseTag": "v6.31.1",
+        "latestReleaseTag": "v6.31.2",
         "executableAssetKinds": [
           "apk"
         ],
@@ -472,14 +1117,6 @@
         "trustLevel": "metadata-only"
       },
       {
-        "repo": "HEICShift",
-        "latestReleaseTag": "v2.8.0",
-        "executableAssetKinds": [
-          "exe"
-        ],
-        "trustLevel": "metadata-only"
-      },
-      {
         "repo": "HostsFileGet",
         "latestReleaseTag": "v2.10.0",
         "executableAssetKinds": [
@@ -489,9 +1126,17 @@
       },
       {
         "repo": "HostShield",
-        "latestReleaseTag": "v6.5.9",
+        "latestReleaseTag": "v6.9.16",
         "executableAssetKinds": [
           "apk"
+        ],
+        "trustLevel": "metadata-only"
+      },
+      {
+        "repo": "ImgConverter",
+        "latestReleaseTag": "v2.8.0",
+        "executableAssetKinds": [
+          "exe"
         ],
         "trustLevel": "metadata-only"
       },
@@ -555,15 +1200,15 @@
       },
       {
         "repo": "Network_Security_Auditor",
-        "latestReleaseTag": "v4.1.0",
+        "latestReleaseTag": "v4.10.1",
         "executableAssetKinds": [
           "script"
         ],
-        "trustLevel": "metadata-only"
+        "trustLevel": "checksum"
       },
       {
         "repo": "NovaCut",
-        "latestReleaseTag": "v3.73.2",
+        "latestReleaseTag": "v3.74.100",
         "executableAssetKinds": [
           "apk"
         ],
@@ -597,11 +1242,11 @@
       },
       {
         "repo": "OpenLumen",
-        "latestReleaseTag": "v0.5.1",
+        "latestReleaseTag": "v0.6.1",
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum"
+        "trustLevel": "metadata-only"
       },
       {
         "repo": "PathForge",
@@ -678,7 +1323,7 @@
       },
       {
         "repo": "SnapCrop",
-        "latestReleaseTag": "v6.7.3",
+        "latestReleaseTag": "v6.27.0",
         "executableAssetKinds": [
           "apk"
         ],
@@ -795,7 +1440,7 @@
       },
       {
         "repo": "ZeusWatch",
-        "latestReleaseTag": "v1.23.0",
+        "latestReleaseTag": "v1.24.1",
         "executableAssetKinds": [
           "apk"
         ],
@@ -805,7 +1450,7 @@
     "debugArtifactRows": [
       {
         "repo": "Aura",
-        "latestReleaseTag": "v6.31.1",
+        "latestReleaseTag": "v6.31.2",
         "trustLevel": "metadata-only"
       },
       {
@@ -822,7 +1467,7 @@
     "sourceOnlyWithRelease": [
       {
         "repo": "AppManagerNG",
-        "latestReleaseTag": "v0.5.0",
+        "latestReleaseTag": "v0.6.1",
         "releaseAssetKinds": [
           "apk",
           "other"
@@ -881,7 +1526,7 @@
       },
       {
         "repo": "OpenTasker",
-        "latestReleaseTag": "v0.2.59",
+        "latestReleaseTag": "v0.2.67",
         "releaseAssetKinds": [
           "apk"
         ]
@@ -902,6 +1547,15 @@
         ]
       },
       {
+        "repo": "REDplusplus",
+        "latestReleaseTag": "v1.5.18",
+        "releaseAssetKinds": [
+          "exe",
+          "other",
+          "zip"
+        ]
+      },
+      {
         "repo": "Scour",
         "latestReleaseTag": "v0.3.0",
         "releaseAssetKinds": [
@@ -918,9 +1572,10 @@
       },
       {
         "repo": "SwiftFloris",
-        "latestReleaseTag": "v1.8.172",
+        "latestReleaseTag": "v1.9.48",
         "releaseAssetKinds": [
-          "apk"
+          "apk",
+          "other"
         ]
       },
       {
@@ -970,6 +1625,9 @@
     "updateUrlRefMismatchCount": 0,
     "downloadUrlRefMismatchCount": 0,
     "broadScopeCount": 3,
+    "releaseChannelReadyCount": 0,
+    "releaseChannelKeepBranchCount": 11,
+    "releaseChannelBlockedCount": 0,
     "warningCount": 3,
     "fatalCount": 0,
     "rows": [
@@ -1004,6 +1662,14 @@
         "connectCount": 1,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1039,6 +1705,14 @@
         "connectCount": 0,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1074,6 +1748,14 @@
         "connectCount": 2,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1109,6 +1791,14 @@
         "connectCount": 2,
         "requireCount": 0,
         "broadScope": true,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": false
+        },
         "warningCount": 1,
         "fatalCount": 0,
         "warnings": [
@@ -1150,6 +1840,14 @@
         "connectCount": 0,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": false
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1185,6 +1883,14 @@
         "connectCount": 3,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": false
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1220,6 +1926,14 @@
         "connectCount": 8,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1255,6 +1969,14 @@
         "connectCount": 2,
         "requireCount": 0,
         "broadScope": true,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 1,
         "fatalCount": 0,
         "warnings": [
@@ -1296,6 +2018,14 @@
         "connectCount": 12,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": false
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1331,6 +2061,14 @@
         "connectCount": 4,
         "requireCount": 0,
         "broadScope": true,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 1,
         "fatalCount": 0,
         "warnings": [
@@ -1355,7 +2093,7 @@
         "metadataBlockPresent": true,
         "metadataBlockClosed": true,
         "name": "YoutubeAdblock",
-        "version": "0.4.1",
+        "version": "0.5.1",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
         "updateUrlSourceRef": "main",
@@ -1369,9 +2107,17 @@
         "matchCount": 7,
         "includeCount": 0,
         "grantCount": 5,
-        "connectCount": 7,
+        "connectCount": 8,
         "requireCount": 0,
         "broadScope": false,
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
+        "releaseChannelEvidence": {
+          "metadataComplete": true,
+          "sourceRefType": "branch",
+          "hasVersion": true,
+          "updateUrlAligned": true
+        },
         "warningCount": 0,
         "fatalCount": 0,
         "warnings": []
@@ -1381,11 +2127,11 @@
   },
   "catalogFeedAccounting": {
     "passed": true,
-    "catalogEntryCount": 189,
-    "visitorFacingCatalogCount": 179,
-    "suppressedCatalogCount": 10,
-    "exportedProjectCount": 179,
-    "exportedSuppressedCount": 10,
+    "catalogEntryCount": 203,
+    "visitorFacingCatalogCount": 180,
+    "suppressedCatalogCount": 23,
+    "exportedProjectCount": 180,
+    "exportedSuppressedCount": 23,
     "projectCountMatches": true,
     "suppressedCountMatches": true,
     "unaccountedRowCount": 0,
@@ -1399,10 +2145,10 @@
     "status": "compatible",
     "consumerContract": "sysadmindoc.github.io profile-feed importer",
     "feedSourceUrl": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json",
-    "projectCount": 179,
-    "suppressedCount": 10,
-    "topLevelProjectCount": 179,
-    "topLevelSuppressedCount": 10,
+    "projectCount": 180,
+    "suppressedCount": 23,
+    "topLevelProjectCount": 180,
+    "topLevelSuppressedCount": 23,
     "projectCountMatchesTopLevel": true,
     "suppressedCountMatchesTopLevel": true,
     "projectRequiredFields": [
@@ -1447,7 +2193,7 @@
       },
       {
         "kind": "repo",
-        "count": 70
+        "count": 71
       }
     ],
     "warningCount": 0,
@@ -1486,22 +2232,23 @@
         "localConfigPath": ".github/dependabot.yml",
         "localConfigEcosystems": [
           "github-actions",
-          "npm"
+          "npm",
+          "pip"
         ],
         "warningDisposition": "none",
         "documentationPath": "decision:dependabot-security-posture",
-        "evidence": "Dependabot security updates are enabled, and local version-update config is present for 2 ecosystem(s).",
+        "evidence": "Dependabot security updates are enabled, and local version-update config is present for 3 ecosystem(s).",
         "nextAction": "Keep monitoring Dependabot alert volume and grouped version-update PRs."
       },
       "scorecardScore": {
         "available": true,
-        "score": 7.4,
+        "score": 6.8,
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-11T10:08:14.0000000Z",
+        "date": "2026-06-15T14:03:44.0000000Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
-        "analyzedCommit": "c179b213130010602adad739335ec311831f075e",
+        "analyzedCommit": "d4a0c234c4cf5aca25382d2a6e440f2c1fd5e375",
         "unavailableReason": null
       },
       "codeScanning": {
@@ -1530,14 +2277,32 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-12T09:19:21.2408118-04:00",
-          "openAlertCount": 4,
+          "queriedAt": "2026-06-16T18:43:31.8014968-04:00",
+          "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
-          "externalGatedCount": 2,
+          "externalGatedCount": 3,
           "notApplicableCount": 2,
           "recommendation": "track-external-scorecard-governance-items",
           "rows": [
+            {
+              "alertNumber": 6,
+              "ruleId": "BranchProtectionID",
+              "checkName": "Branch-Protection",
+              "state": "open",
+              "severity": "error",
+              "securitySeverity": "high",
+              "classification": "external-gated-branch-protection-policy",
+              "localDisposition": "policy-gated-scorecard-control",
+              "localEvidence": "Required-check readiness and direct-main maintenance policy are tracked separately; enabling branch-protection enforcement is a repository policy decision, not an unclassified local code gap.",
+              "nextAction": "Keep required-check readiness evidence current and enable enforcement only after the direct-main maintenance policy changes.",
+              "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/6",
+              "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#branch-protection",
+              "toolName": "Scorecard",
+              "toolVersion": "v5.3.0",
+              "createdAt": "2026-06-15T14:04:04Z",
+              "updatedAt": "2026-06-15T14:04:04Z"
+            },
             {
               "alertNumber": 4,
               "ruleId": "CIIBestPracticesID",
@@ -1616,15 +2381,15 @@
       }
     },
     "branchProtection": {
-      "available": true,
-      "unavailableReason": null,
-      "requiredStatusChecks": true,
-      "requiredPullRequestReviews": false,
-      "requiredCodeOwnerReviews": false,
-      "requiredConversationResolution": true,
-      "enforceAdmins": true,
-      "allowForcePushes": false,
-      "allowDeletions": false
+      "available": false,
+      "unavailableReason": "not found",
+      "requiredStatusChecks": null,
+      "requiredPullRequestReviews": null,
+      "requiredCodeOwnerReviews": null,
+      "requiredConversationResolution": null,
+      "enforceAdmins": null,
+      "allowForcePushes": null,
+      "allowDeletions": null
     },
     "rulesets": {
       "available": false,
@@ -1652,12 +2417,12 @@
       }
     },
     "requiredCheckReadiness": {
-      "status": "enforcement-present",
-      "recommendation": "monitor-required-check-enforcement",
-      "readyForEnforcement": true,
-      "branchProtectionRequiredStatusChecks": true,
+      "status": "needs-live-validation",
+      "recommendation": "defer-until-pr-delivery-or-bypass",
+      "readyForEnforcement": false,
+      "branchProtectionRequiredStatusChecks": null,
       "rulesetCount": 0,
-      "enforceAdmins": true,
+      "enforceAdmins": null,
       "candidateCheckCount": 6,
       "candidateChecks": [
         {
@@ -1731,12 +2496,12 @@
         ]
       },
       "prDeliveryTransition": {
-        "status": "ready",
-        "readyForRequiredCheckEnforcement": true,
+        "status": "needs-live-validation",
+        "readyForRequiredCheckEnforcement": false,
         "checklistCount": 5,
-        "readyCount": 5,
+        "readyCount": 4,
         "blockedCount": 0,
-        "needsLiveValidationCount": 0,
+        "needsLiveValidationCount": 1,
         "generatedPrDryRunEvidence": {
           "available": true,
           "workflow": ".github/workflows/profile-sync.yml",
@@ -2030,38 +2795,40 @@
           },
           {
             "id": "enforcement-mechanism",
-            "status": "ready",
+            "status": "needs-live-validation",
             "summary": "Choose branch protection or a repository ruleset only after PR delivery is ready.",
-            "evidence": "Branch protection requires all six candidate checks, and PR #16 passed every required check before rebase merge.",
-            "nextAction": "Keep monitoring required checks on routine pull requests and re-query branch protection after check-name changes."
+            "evidence": "Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism.",
+            "nextAction": "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."
           }
         ]
       },
-      "blockerCount": 0,
-      "blockers": []
+      "blockerCount": 2,
+      "blockers": [
+        "Branch protection evidence unavailable: not found.",
+        "No repository rulesets are configured."
+      ]
     },
     "reviewPolicyPosture": {
-      "available": true,
-      "status": "warning-only-single-maintainer",
-      "recommendation": "keep-warning-only-until-reviewer-model",
-      "branchProtectionUnavailableReason": null,
-      "pullRequestReviewsRequired": false,
-      "codeOwnerReviewsRequired": false,
-      "requiredStatusChecksEnabled": true,
+      "available": false,
+      "status": "unavailable",
+      "recommendation": "verify-branch-protection-review-policy",
+      "branchProtectionUnavailableReason": "not found",
+      "pullRequestReviewsRequired": null,
+      "codeOwnerReviewsRequired": null,
+      "requiredStatusChecksEnabled": null,
       "codeownersFilePresent": true,
-      "routinePrDeliveryProven": true,
-      "requiredCheckEnforcementProven": true,
+      "routinePrDeliveryProven": false,
+      "requiredCheckEnforcementProven": false,
       "directMainBypassApproved": false,
-      "reviewerModel": "single-maintainer-profile-repo",
-      "scorecardCodeReviewClassification": "external-gated-reviewer-model",
+      "reviewerModel": "unverified",
+      "scorecardCodeReviewClassification": "needs-review",
       "documentationPath": "decision:review-policy-posture",
-      "evidence": "Branch protection requires status checks and PR #16 proved required-check PR delivery, but branch protection does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model.",
-      "nextAction": "Define an independent reviewer or team model before requiring pull request reviews or code-owner reviews."
+      "evidence": "Branch-protection review settings were unavailable.",
+      "nextAction": "Re-query branch protection before changing pull request review or code-owner review requirements."
     },
-    "warningCount": 2,
+    "warningCount": 1,
     "warnings": [
-      "Branch protection does not require pull request reviews.",
-      "Branch protection does not require code owner reviews."
+      "Branch protection unavailable: not found."
     ]
   },
   "communityHealth": {
@@ -2133,12 +2900,17 @@
         "exists": false
       }
     ],
+    "localIssueFormCount": 4,
+    "issueTemplateProviderState": "provider-gap-local-forms-present",
     "localRequiredMissingCount": 0,
-    "warningCount": 3,
+    "warningCount": 2,
     "warnings": [
-      "GitHub community profile does not report issue-template detection even though local issue forms are present.",
       "GitHub community profile does not report contributing guidelines.",
       "GitHub community profile does not report a code of conduct."
+    ],
+    "infoCount": 1,
+    "info": [
+      "GitHub community profile does not detect issue-template metadata, but 4 local issue form(s) are present; the provider does not surface issue forms (.github/ISSUE_TEMPLATE/*.yml)."
     ],
     "fatalCount": 0,
     "errors": []
@@ -2169,20 +2941,20 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.128",
-    "expectedDate": "2026-06-11",
+    "expectedVersion": "v4.9.129",
+    "expectedDate": "2026-06-16",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.128"
+        "value": "v4.9.129"
       }
     ],
     "dates": [
       {
         "path": "data/profile-version.json",
         "field": "date",
-        "value": "2026-06-11"
+        "value": "2026-06-16"
       }
     ],
     "changelogHeadingValidation": {
@@ -2197,14 +2969,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.128",
+    "expectedVersion": "v4.9.129",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.128",
+    "expectedTag": "v4.9.129",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2214,13 +2986,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.128",
+        "expectedVersion": "v4.9.129",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.128",
+        "expectedVersion": "v4.9.129",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2243,22 +3015,22 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4099,
+      "elapsedMs": 3399,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
       "headerWarningHostCount": 0
     },
     "restFallbackReleaseFetch": {
-      "used": true,
-      "status": "completed",
-      "repoCount": 186,
-      "authenticated": true,
+      "used": false,
+      "status": "not-used",
+      "repoCount": 0,
+      "authenticated": false,
       "maxReleaseFetches": 240,
       "unauthenticatedReleaseFetchLimit": 50,
-      "attemptedReleaseFetches": 186,
-      "successfulReleaseFetches": 147,
-      "noRelease404Count": 39,
+      "attemptedReleaseFetches": 0,
+      "successfulReleaseFetches": 0,
+      "noRelease404Count": 0,
       "fatal": false,
       "abortRepo": null,
       "abortHttpStatus": null,
@@ -2277,7 +3049,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 10.71,
+      "ageDays": 15.1,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2287,30 +3059,44 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4099,
+    "elapsedMs": 3399,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 62083,
+    "byteCount": 64040,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
   },
+  "readmeHeadingHierarchy": {
+    "status": "ok",
+    "headingCount": 1,
+    "firstLevel": 3,
+    "headingSequence": [
+      3
+    ],
+    "profileContextMaxFirstLevel": 3,
+    "profileContextAllowlistApplied": true,
+    "skippedLevelTransitions": [],
+    "skippedLevelCount": 0,
+    "warnings": [],
+    "warningCount": 0
+  },
   "readmeDensity": {
-    "lineCount": 589,
+    "lineCount": 596,
     "detailsSectionCount": 11,
-    "tableRowCount": 112,
-    "projectRowCount": 168,
+    "tableRowCount": 103,
+    "projectRowCount": 169,
     "categoryCount": 10,
     "categorySoftLimit": 30,
     "lowSignalSoftLimit": 15,
     "largestCategory": "powershell",
     "largestCategoryCount": 30,
-    "repoOnlyProjectCount": 59,
-    "lowSignalProjectCount": 35,
+    "repoOnlyProjectCount": 60,
+    "lowSignalProjectCount": 36,
     "portfolioOnlyCandidateCount": 0,
     "portfolioOnlyCandidateCategoryCount": 0,
     "portfolioOnlyCandidateCategories": [],
@@ -2322,8 +3108,8 @@
       "candidateSource": "readmeDensity.portfolioOnlyCandidates",
       "candidateCount": 0,
       "candidateRepos": [],
-      "currentProjectRowCount": 168,
-      "previewProjectRowCount": 168,
+      "currentProjectRowCount": 169,
+      "previewProjectRowCount": 169,
       "projectRowDelta": 0,
       "currentLargestCategory": "powershell",
       "previewLargestCategory": "powershell",
@@ -2377,8 +3163,8 @@
         {
           "category": "android",
           "displayName": "Android",
-          "currentProjectCount": 19,
-          "previewProjectCount": 19,
+          "currentProjectCount": 20,
+          "previewProjectCount": 20,
           "projectRowDelta": 0,
           "currentOverSoftLimitBy": 0,
           "previewOverSoftLimitBy": 0
@@ -2489,10 +3275,10 @@
       {
         "category": "android",
         "displayName": "Android",
-        "projectCount": 19,
+        "projectCount": 20,
         "actionableCount": 14,
-        "repoOnlyCount": 5,
-        "lowSignalCount": 0,
+        "repoOnlyCount": 6,
+        "lowSignalCount": 1,
         "overCategorySoftLimitBy": 0,
         "portfolioOnlyCandidateCount": 0,
         "routingRecommendation": "keep-in-readme",
@@ -2567,14 +3353,16 @@
     ]
   },
   "artifactBudgets": {
-    "status": "within-budget",
-    "warningCount": 0,
-    "warnings": [],
+    "status": "warning",
+    "warningCount": 1,
+    "warnings": [
+      "reports/profile-sync-report.json bytes is 133639, above the 114688 soft limit."
+    ],
     "rows": [
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 62083,
+        "value": 64040,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2583,7 +3371,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 589,
+        "value": 596,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2592,7 +3380,7 @@
       {
         "artifact": "README.md",
         "metric": "tableRows",
-        "value": 112,
+        "value": 103,
         "softLimit": 220,
         "overSoftLimit": false,
         "warning": null,
@@ -2610,7 +3398,7 @@
       {
         "artifact": "README.md",
         "metric": "imageTags",
-        "value": 1,
+        "value": 2,
         "softLimit": 10,
         "overSoftLimit": false,
         "warning": null,
@@ -2628,7 +3416,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 410295,
+        "value": 416692,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2637,16 +3425,16 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 94793,
+        "value": 133639,
         "softLimit": 114688,
-        "overSoftLimit": false,
-        "warning": null,
+        "overSoftLimit": true,
+        "warning": "reports/profile-sync-report.json bytes is 133639, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 22658,
+        "value": 25544,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2679,6 +3467,439 @@
     "warningCount": 0,
     "warnings": []
   },
+  "evidenceFreshness": {
+    "status": "stale",
+    "committedReportPresent": true,
+    "committedReportGeneratedAt": "2026-06-16T18:40:30.6196011-04:00",
+    "latestReportAffectingCommitSha": "d2dd335c2a263a9c6f639fb6019f1fe113a689e9",
+    "latestReportAffectingCommitDate": "2026-06-16T11:21:48.0000000-04:00",
+    "reportAgeBehindCommit": false,
+    "reportAgeBehindHours": null,
+    "smokeStatus": "not-run",
+    "smokeEvidenceStale": true,
+    "reportAffectingPaths": [
+      "scripts/sync-profile.ps1",
+      "scripts/render-profile-smoke.ps1",
+      "scripts/write-profile-sync-summary.ps1",
+      "scripts/open-generated-profile-pr.ps1",
+      "data/profile-catalog.json",
+      "data/profile-version.json",
+      "schemas",
+      "README.md"
+    ],
+    "warnings": [
+      "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
+    ],
+    "warningCount": 1
+  },
+  "scheduledWorkflowFreshness": {
+    "status": "warning",
+    "scheduledWorkflowCount": 5,
+    "staleCount": 0,
+    "failingCount": 2,
+    "unavailableCount": 0,
+    "disabledCount": 0,
+    "warningCount": 2,
+    "graceMinutes": 1440,
+    "rows": [
+      {
+        "workflowFile": ".github/workflows/assets-refresh.yml",
+        "name": "Profile assets refresh",
+        "crons": [
+          "19 8 * * 3"
+        ],
+        "hasWorkflowDispatch": true,
+        "cadenceMinutes": 10080,
+        "graceMinutes": 1440,
+        "state": "active",
+        "latestScheduledConclusion": "failure",
+        "latestScheduledRunAt": "06/10/2026 09:33:40",
+        "latestSuccessfulScheduledAt": null,
+        "ageMinutes": null,
+        "stale": true,
+        "failing": true,
+        "available": true,
+        "status": "failing",
+        "warning": "Scheduled workflow 'Profile assets refresh' latest scheduled run concluded 'failure'."
+      },
+      {
+        "workflowFile": ".github/workflows/automation-branch-cleanup.yml",
+        "name": "Automation branch cleanup",
+        "crons": [
+          "43 8 * * 3"
+        ],
+        "hasWorkflowDispatch": true,
+        "cadenceMinutes": 10080,
+        "graceMinutes": 1440,
+        "state": "active",
+        "latestScheduledConclusion": "success",
+        "latestScheduledRunAt": "06/10/2026 10:06:11",
+        "latestSuccessfulScheduledAt": "06/10/2026 10:06:11",
+        "ageMinutes": 9159,
+        "stale": false,
+        "failing": false,
+        "available": true,
+        "status": "ok",
+        "warning": null
+      },
+      {
+        "workflowFile": ".github/workflows/profile-sync.yml",
+        "name": "Profile sync",
+        "crons": [
+          "37 7 * * 2,5"
+        ],
+        "hasWorkflowDispatch": true,
+        "cadenceMinutes": 5760,
+        "graceMinutes": 1440,
+        "state": "active",
+        "latestScheduledConclusion": "failure",
+        "latestScheduledRunAt": "06/16/2026 09:26:55",
+        "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
+        "ageMinutes": 16434,
+        "stale": true,
+        "failing": true,
+        "available": true,
+        "status": "failing",
+        "warning": "Scheduled workflow 'Profile sync' latest scheduled run concluded 'failure'."
+      },
+      {
+        "workflowFile": ".github/workflows/scorecard.yml",
+        "name": "OpenSSF Scorecard",
+        "crons": [
+          "43 8 * * 4"
+        ],
+        "hasWorkflowDispatch": true,
+        "cadenceMinutes": 10080,
+        "graceMinutes": 1440,
+        "state": "active",
+        "latestScheduledConclusion": "success",
+        "latestScheduledRunAt": "06/11/2026 10:07:56",
+        "latestSuccessfulScheduledAt": "06/11/2026 10:07:56",
+        "ageMinutes": 7717,
+        "stale": false,
+        "failing": false,
+        "available": true,
+        "status": "ok",
+        "warning": null
+      },
+      {
+        "workflowFile": ".github/workflows/workflow-security.yml",
+        "name": "Workflow security",
+        "crons": [
+          "17 9 * * 3"
+        ],
+        "hasWorkflowDispatch": true,
+        "cadenceMinutes": 10080,
+        "graceMinutes": 1440,
+        "state": "active",
+        "latestScheduledConclusion": "success",
+        "latestScheduledRunAt": "06/10/2026 10:40:59",
+        "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
+        "ageMinutes": 9124,
+        "stale": false,
+        "failing": false,
+        "available": true,
+        "status": "ok",
+        "warning": null
+      }
+    ]
+  },
+  "roadmapHygiene": {
+    "status": "clean",
+    "roadmapPresent": true,
+    "shippedEntryCount": 0,
+    "warningCount": 0,
+    "rows": [],
+    "note": "Warning-only roadmap hygiene: lists open ROADMAP.md entries already satisfied by committed repository files. ROADMAP.md is local-only and is typically absent in CI checkouts."
+  },
+  "rootMarkdownHygiene": {
+    "status": "unexpected-files",
+    "rootMarkdownCount": 10,
+    "allowedFiles": [
+      "AGENTS.md",
+      "CHANGELOG.md",
+      "CLAUDE.md",
+      "README.md",
+      "RESEARCH.md",
+      "Roadmap_Blocked.md",
+      "ROADMAP.md",
+      "SECURITY.md"
+    ],
+    "unexpectedFiles": [
+      "LOGO_PROMPTS.md",
+      "RESEARCH_FEATURE_PLAN.md",
+      "TODO.md"
+    ],
+    "exemptFiles": [],
+    "rows": [
+      {
+        "file": "LOGO_PROMPTS.md",
+        "status": "unexpected"
+      },
+      {
+        "file": "RESEARCH_FEATURE_PLAN.md",
+        "status": "unexpected"
+      },
+      {
+        "file": "TODO.md",
+        "status": "unexpected"
+      }
+    ],
+    "warningCount": 3,
+    "note": "Warning-only root Markdown hygiene against the repo documentation contract. Most non-README root Markdown is gitignored and absent in CI; historical leftovers can be removed or added to the exemption allowlist."
+  },
+  "profileAssetsAccessibility": {
+    "status": "ok",
+    "textMinRatio": 4.5,
+    "nonTextMinRatio": 3.0,
+    "assetCount": 10,
+    "failingAssetCount": 0,
+    "belowNonTextMinAssetCount": 0,
+    "warningCount": 0,
+    "contrastRatios": [
+      {
+        "asset": "activity-dark.svg",
+        "backgroundColor": "#161b22",
+        "textColorCount": 3,
+        "minTextContrastRatio": 5.62,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#8b949e",
+            "ratio": 5.62,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#c9d1d9",
+            "ratio": 11.21,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#f0f6fc",
+            "ratio": 15.89,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "activity-light.svg",
+        "backgroundColor": "#f6f8fa",
+        "textColorCount": 2,
+        "minTextContrastRatio": 6.0,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#24292f",
+            "ratio": 13.76,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#57606a",
+            "ratio": 6.0,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "footer-dark.svg",
+        "backgroundColor": "#0d1117",
+        "textColorCount": 0,
+        "minTextContrastRatio": null,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [],
+        "pass": true
+      },
+      {
+        "asset": "footer-light.svg",
+        "backgroundColor": "#ffffff",
+        "textColorCount": 0,
+        "minTextContrastRatio": null,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [],
+        "pass": true
+      },
+      {
+        "asset": "header-dark.svg",
+        "backgroundColor": "#161b22",
+        "textColorCount": 4,
+        "minTextContrastRatio": 5.62,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#58a6ff",
+            "ratio": 6.85,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#8b949e",
+            "ratio": 5.62,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#c9d1d9",
+            "ratio": 11.21,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#f0f6fc",
+            "ratio": 15.89,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "header-light.svg",
+        "backgroundColor": "#f6f8fa",
+        "textColorCount": 3,
+        "minTextContrastRatio": 4.88,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#0969da",
+            "ratio": 4.88,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#24292f",
+            "ratio": 13.76,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#57606a",
+            "ratio": 6.0,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "languages-dark.svg",
+        "backgroundColor": "#161b22",
+        "textColorCount": 3,
+        "minTextContrastRatio": 5.62,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#8b949e",
+            "ratio": 5.62,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#c9d1d9",
+            "ratio": 11.21,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#f0f6fc",
+            "ratio": 15.89,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "languages-light.svg",
+        "backgroundColor": "#f6f8fa",
+        "textColorCount": 2,
+        "minTextContrastRatio": 6.0,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#24292f",
+            "ratio": 13.76,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#57606a",
+            "ratio": 6.0,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "stats-dark.svg",
+        "backgroundColor": "#161b22",
+        "textColorCount": 3,
+        "minTextContrastRatio": 5.62,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#8b949e",
+            "ratio": 5.62,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#c9d1d9",
+            "ratio": 11.21,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#f0f6fc",
+            "ratio": 15.89,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "asset": "stats-light.svg",
+        "backgroundColor": "#f6f8fa",
+        "textColorCount": 2,
+        "minTextContrastRatio": 6.0,
+        "belowTextMinCount": 0,
+        "belowNonTextMinCount": 0,
+        "textColors": [
+          {
+            "foreground": "#24292f",
+            "ratio": 13.76,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#57606a",
+            "ratio": 6.0,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
+        "pass": true
+      }
+    ],
+    "note": "WCAG 2.1 contrast check of generated profile SVG <text> colors against the panel background (text min 4.5:1, non-text min 3:1). Warning-only."
+  },
   "readmeExperienceChecks": {
     "passed": true,
     "startHereSection": false,
@@ -2691,6 +3912,9 @@
     "minimalProfileHeader": true,
     "richProfileHeader": false,
     "genericImageAltTextCount": 0,
+    "imageTagCount": 2,
+    "imageAltTextIssueCount": 0,
+    "imageAltTextComplete": true,
     "thirdPartyMetricHostCount": 0,
     "thirdPartyBadgeHostCount": 0,
     "thirdPartyRenderHostCount": 0,
@@ -2699,12 +3923,14 @@
     "motionPatternCount": 0,
     "profileStatsChromeCount": 0,
     "featuredRows": 10,
-    "featuredActionColumn": true,
+    "featuredActionColumn": false,
+    "featuredActionList": true,
+    "featuredPrimaryActions": true,
     "currentlyBuildingRows": 5,
     "currentlyBuildingActionColumn": true,
     "categoryAnchorCount": 10,
     "missingCategoryAnchors": [],
-    "primaryActionCoverage": 168,
+    "primaryActionCoverage": 169,
     "missingPrimaryActions": [],
     "unlabeledDownloadButtons": 0
   }

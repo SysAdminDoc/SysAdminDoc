@@ -1,11 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="820" height="220" viewBox="0 0 820 220" role="img" aria-labelledby="profile-sysadmindoc-profile-header-dark-title" aria-describedby="profile-sysadmindoc-profile-header-dark-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="240" viewBox="0 0 820 240" role="img" aria-labelledby="profile-sysadmindoc-profile-header-dark-title" aria-describedby="profile-sysadmindoc-profile-header-dark-desc">
   <title id="profile-sysadmindoc-profile-header-dark-title">SysAdminDoc profile header</title>
-  <desc id="profile-sysadmindoc-profile-header-dark-desc">Static profile header for a healthcare IT engineer, DICOM/PACS specialist, and product builder.</desc>
+  <desc id="profile-sysadmindoc-profile-header-dark-desc">Static profile header for a healthcare IT engineer, DICOM/PACS specialist, product builder, and public open-source catalog maintainer.</desc>
   <rect width="100%" height="100%" fill="#0d1117"/>
-  <rect x="16" y="16" width="788" height="188" rx="12" fill="#161b22" stroke="#30363d"/>
-  <rect x="16" y="16" width="4" height="188" rx="2" fill="#1f6feb"/>
-  <text x="410" y="78" text-anchor="middle" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="40" font-weight="700">SysAdminDoc</text>
-  <line x1="310" y1="94" x2="510" y2="94" stroke="#1f6feb" stroke-width="1" opacity="0.4"/>
-  <text x="410" y="120" text-anchor="middle" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>
-  <text x="410" y="150" text-anchor="middle" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="13">16+ years in IT operations | public tools across PowerShell, Python, JavaScript, Kotlin, C#, C++, and Rust</text>
+  <rect x="16" y="16" width="788" height="208" rx="12" fill="#161b22" stroke="#30363d"/>
+  <rect x="16" y="16" width="4" height="208" rx="2" fill="#1f6feb"/>
+  <line x1="318" y1="52" x2="502" y2="52" stroke="#58a6ff" stroke-width="2" opacity="0.9"/>
+  <text x="410" y="82" text-anchor="middle" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">PUBLIC OPEN-SOURCE CATALOG</text>
+  <text x="410" y="130" text-anchor="middle" fill="#f0f6fc" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700">SysAdminDoc</text>
+  <text x="410" y="164" text-anchor="middle" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>
+  <text x="410" y="192" text-anchor="middle" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="14">16+ years in IT operations | Windows, Android, web, automation, and imaging workflows</text>
+  <text x="410" y="216" text-anchor="middle" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">PowerShell / Python / Kotlin / C# / Rust</text>
 </svg>
