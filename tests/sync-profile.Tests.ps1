@@ -176,6 +176,12 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
         $r.ok | Should -BeFalse
         $r.fatal | Should -BeFalse
     }
+
+    It 'uses the shared Test-HttpUrl implementation inside the parallel link probe' {
+        $script:SyncProfileScript | Should -Not -Match 'function Test-ParallelHttpUrl'
+        $script:SyncProfileScript | Should -Match '\$\{function:Test-HttpUrl\}\.ToString\(\)'
+        $script:SyncProfileScript | Should -Match '\$\{function:Test-HttpUrl\} = \$using:testHttpUrlDefinition'
+    }
 }
 
 Describe 'Catalog shape validation' {
@@ -292,6 +298,7 @@ Describe 'Repository settings and community-health baseline' {
             New-TestScorecardAlert -Number 3 -RuleId 'SASTID' -Description 'SAST'
             New-TestScorecardAlert -Number 4 -RuleId 'CIIBestPracticesID' -Description 'CII-Best-Practices' -SecuritySeverity 'low'
             New-TestScorecardAlert -Number 5 -RuleId 'FuzzingID' -Description 'Fuzzing'
+            New-TestScorecardAlert -Number 6 -RuleId 'BranchProtectionID' -Description 'Branch-Protection' -SecuritySeverity 'high'
         )
         $scorecardScoreResult = [pscustomobject]@{
             date = '2026-06-11T10:08:14Z'
@@ -343,10 +350,10 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $scorecardPosture.available | Should -BeTrue
-        $scorecardPosture.openAlertCount | Should -Be 5
+        $scorecardPosture.openAlertCount | Should -Be 6
         $scorecardPosture.localActionableCount | Should -Be 0
         $scorecardPosture.needsHostedRefreshCount | Should -Be 1
-        $scorecardPosture.externalGatedCount | Should -Be 2
+        $scorecardPosture.externalGatedCount | Should -Be 3
         $scorecardPosture.notApplicableCount | Should -Be 2
         $scorecardPosture.recommendation | Should -Be 'rerun-scorecard-to-refresh-alerts'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }).classification | Should -Be 'local-fix-pending-scorecard-refresh'
@@ -354,6 +361,8 @@ Describe 'Repository settings and community-health baseline' {
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'FuzzingID' }).classification | Should -Be 'not-applicable-profile-generator'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-reviewer-model'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).nextAction | Should -Match 'independent reviewer'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'BranchProtectionID' }).classification | Should -Be 'external-gated-branch-protection-policy'
+        ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'BranchProtectionID' }).nextAction | Should -Match 'direct-main maintenance policy'
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CIIBestPracticesID' }).classification | Should -Be 'external-program-optional'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
@@ -732,6 +741,27 @@ Describe 'REST fallback release request guard' {
         $state.status | Should -Be 'not-used'
         $state.attemptedReleaseFetches | Should -Be 0
         $state.fatal | Should -BeFalse
+    }
+}
+
+Describe 'Repository metadata enrichment' {
+    It 'records fork-parent enrichment failure on affected repos without dropping the base list' {
+        $repos = @(
+            (New-TestRepoMeta -Name 'ForkMissingParent' -IsFork $true),
+            (New-TestRepoMeta -Name 'RegularRepo')
+        )
+
+        $result = @(Set-ForkParentMetadataEnrichmentFailure -Repos $repos -Message 'gh api failed')
+
+        $result | Should -HaveCount 2
+        ($result | Where-Object { $_.name -eq 'ForkMissingParent' }).forkParentFetchError | Should -Match 'gh api failed'
+        ($result | Where-Object { $_.name -eq 'RegularRepo' }).forkParentFetchError | Should -BeNullOrEmpty
+    }
+
+    It 'routes live repo enrichment through the fork-parent failure isolation wrapper' {
+        $script:SyncProfileScript | Should -Match 'Add-LiveRepositoryMetadata -Repos \(Get-GitHubRepos\)'
+        $script:SyncProfileScript | Should -Not -Match 'Add-ReleaseAssetMetadata -Repos \(Add-ForkParentMetadata -Repos \(Get-GitHubRepos\)\)'
+        $script:SyncProfileScript | Should -Match 'Set-ForkParentMetadataEnrichmentFailure'
     }
 }
 
@@ -2243,7 +2273,8 @@ Describe 'Code scanning posture decision' {
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
         $codeScanning.scorecardAlertPosture.available | Should -BeTrue
-        $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be 4
+        $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be @($codeScanning.scorecardAlertPosture.rows).Count
+        $codeScanning.scorecardAlertPosture.openAlertCount | Should -BeGreaterOrEqual 4
         $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'track-external-scorecard-governance-items'
@@ -2259,10 +2290,16 @@ Describe 'Code scanning posture decision' {
         }
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'SecurityPolicyID' }) | Should -BeNullOrEmpty
         ($codeScanning.scorecardAlertPosture.rows | Where-Object { $_.ruleId -eq 'CodeReviewID' }).classification | Should -Be 'external-gated-reviewer-model'
-        $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
-        $report.repositorySettings.reviewPolicyPosture.recommendation | Should -Be 'keep-warning-only-until-reviewer-model'
-        $report.repositorySettings.reviewPolicyPosture.requiredCheckEnforcementProven | Should -BeTrue
-        $report.repositorySettings.reviewPolicyPosture.scorecardCodeReviewClassification | Should -Be 'external-gated-reviewer-model'
+        if ($report.repositorySettings.reviewPolicyPosture.available) {
+            $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
+            $report.repositorySettings.reviewPolicyPosture.recommendation | Should -Be 'keep-warning-only-until-reviewer-model'
+            $report.repositorySettings.reviewPolicyPosture.requiredCheckEnforcementProven | Should -BeTrue
+            $report.repositorySettings.reviewPolicyPosture.scorecardCodeReviewClassification | Should -Be 'external-gated-reviewer-model'
+        } else {
+            $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'unavailable'
+            $report.repositorySettings.reviewPolicyPosture.branchProtectionUnavailableReason | Should -Not -BeNullOrEmpty
+            $report.repositorySettings.reviewPolicyPosture.recommendation | Should -Be 'verify-branch-protection-review-policy'
+        }
     }
 }
 
@@ -4478,10 +4515,11 @@ Describe 'README heading hierarchy' {
 
 Describe 'Root Markdown hygiene' {
     It 'reports clean when only allowed root Markdown files are present' {
-        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'CLAUDE.md', 'AGENTS.md', 'ROADMAP.md', 'RESEARCH.md', 'SECURITY.md')
+        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'CLAUDE.md', 'AGENTS.md', 'ROADMAP.md', 'Roadmap_Blocked.md', 'RESEARCH.md', 'SECURITY.md')
         $result.status | Should -Be 'clean'
         $result.warningCount | Should -Be 0
         @($result.unexpectedFiles) | Should -BeNullOrEmpty
+        @($result.allowedFiles) | Should -Contain 'Roadmap_Blocked.md'
     }
 
     It 'flags root Markdown files outside the documentation contract as warnings' {

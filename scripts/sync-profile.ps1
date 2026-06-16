@@ -601,6 +601,54 @@ function Add-ForkParentMetadata {
     return @($Repos)
 }
 
+function Set-ForkParentMetadataEnrichmentFailure {
+    param(
+        [object[]]$Repos,
+        [string]$Message
+    )
+
+    $reason = if ([string]::IsNullOrWhiteSpace($Message)) {
+        "Fork-parent metadata enrichment failed before completing."
+    } else {
+        "Fork-parent metadata enrichment failed before completing: $Message"
+    }
+
+    foreach ($repo in @($Repos | Sort-Object name)) {
+        if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $repo -Name "isFork"))) {
+            continue
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string](Get-ForkParentNameWithOwner -Meta $repo))) {
+            continue
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $repo -Name "forkParentFetchError"))) {
+            continue
+        }
+
+        Set-MemberValue -Object $repo -Name "forkParentFetchError" -Value $reason
+    }
+
+    return @($Repos)
+}
+
+function Add-LiveRepositoryMetadata {
+    param([object[]]$Repos)
+
+    if ($Offline) {
+        return @($Repos)
+    }
+
+    $enrichedRepos = @($Repos)
+    try {
+        $enrichedRepos = @(Add-ForkParentMetadata -Repos $enrichedRepos)
+    } catch {
+        $message = $_.Exception.Message
+        Write-Warning "Fork-parent metadata enrichment failed; continuing with base repository metadata. $message"
+        $enrichedRepos = @(Set-ForkParentMetadataEnrichmentFailure -Repos $enrichedRepos -Message $message)
+    }
+
+    return @(Add-ReleaseAssetMetadata -Repos $enrichedRepos)
+}
+
 function ConvertTo-Lookup {
     param([object[]]$Repos)
 
@@ -1274,40 +1322,11 @@ function Invoke-LinkProbeBatch {
             }
         }
     } else {
+        $testHttpUrlDefinition = ${function:Test-HttpUrl}.ToString()
         $probeRows = $targetList | ForEach-Object -Parallel {
-            function Test-ParallelHttpUrl {
-                param([string]$Url, [int]$TimeoutSec = 12, [int]$Retries = 2)
-
-                $status = $null
-                $err = $null
-                for ($attempt = 1; $attempt -le $Retries; $attempt++) {
-                    foreach ($method in @('Head', 'Get')) {
-                        try {
-                            $response = Invoke-WebRequest -Uri $Url -Method $method -MaximumRedirection 5 -TimeoutSec $TimeoutSec
-                            $code = [int]$response.StatusCode
-                            return [ordered]@{ ok = ($code -ge 200 -and $code -lt 400); status = $code; error = $null; fatal = $false }
-                        } catch {
-                            $err = $_.Exception.Message
-                            $status = $null
-                            $exception = $_.Exception
-                            if ($exception.PSObject.Properties.Name -contains 'Response' -and $exception.Response) {
-                                $response = $exception.Response
-                                if ($response.PSObject.Properties.Name -contains 'StatusCode' -and $response.StatusCode) {
-                                    $status = [int]$response.StatusCode
-                                }
-                            }
-                            if ($status -eq 404 -or $status -eq 410) {
-                                return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
-                            }
-                        }
-                    }
-                    if ($attempt -lt $Retries) { Start-Sleep -Seconds $attempt }
-                }
-                return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false }
-            }
-
+            ${function:Test-HttpUrl} = $using:testHttpUrlDefinition
             $target = $_
-            $result = Test-ParallelHttpUrl -Url $target.url
+            $result = Test-HttpUrl -Url $target.url
             $targetFatalOnFailure = if ($target -is [System.Collections.IDictionary] -and $target.Contains('fatalOnFailure')) {
                 [bool]$target['fatalOnFailure']
             } elseif ($target.PSObject.Properties.Name -contains 'fatalOnFailure') {
@@ -4151,7 +4170,7 @@ function Test-RoadmapHygiene {
 function Test-RootMarkdownHygiene {
     param(
         [string]$RepoRootPath = $RepoRoot,
-        [string[]]$AllowedFiles = @("README.md", "CLAUDE.md", "AGENTS.md", "CHANGELOG.md", "ROADMAP.md", "RESEARCH.md", "SECURITY.md"),
+        [string[]]$AllowedFiles = @("README.md", "CLAUDE.md", "AGENTS.md", "CHANGELOG.md", "ROADMAP.md", "Roadmap_Blocked.md", "RESEARCH.md", "SECURITY.md"),
         [string[]]$Exemptions = @(),
         [AllowNull()][string[]]$RootMarkdownNames
     )
@@ -4857,6 +4876,12 @@ function New-ScorecardAlertPostureRow {
             $localEvidence = "PR delivery and required checks are proven; pull request review enforcement remains warning-only until an independent reviewer or team model exists."
             $nextAction = "Define an independent reviewer or team model before requiring pull request reviews; keep required-check PR delivery in the meantime."
         }
+        "BranchProtectionID" {
+            $classification = "external-gated-branch-protection-policy"
+            $localDisposition = "policy-gated-scorecard-control"
+            $localEvidence = "Required-check readiness and direct-main maintenance policy are tracked separately; enabling branch-protection enforcement is a repository policy decision, not an unclassified local code gap."
+            $nextAction = "Keep required-check readiness evidence current and enable enforcement only after the direct-main maintenance policy changes."
+        }
         "SecurityPolicyID" {
             if ($SecurityPolicyHasLinkedReportingTarget) {
                 $classification = "local-fix-pending-scorecard-refresh"
@@ -4942,7 +4967,7 @@ function Get-ScorecardAlertPosture {
         }) -Keys @("ruleId"))
     $localActionableCount = @($rows | Where-Object { $_.classification -eq "actionable-local-gap" }).Count
     $needsHostedRefreshCount = @($rows | Where-Object { $_.classification -eq "local-fix-pending-scorecard-refresh" }).Count
-    $externalGatedCount = @($rows | Where-Object { $_.classification -in @("external-gated-pr-delivery", "external-gated-reviewer-model", "external-program-optional") }).Count
+    $externalGatedCount = @($rows | Where-Object { $_.classification -in @("external-gated-pr-delivery", "external-gated-reviewer-model", "external-gated-branch-protection-policy", "external-program-optional") }).Count
     $notApplicableCount = @($rows | Where-Object { $_.classification -in @("covered-by-local-static-analysis", "not-applicable-profile-generator") }).Count
     $recommendation = if ($localActionableCount -gt 0) {
         "fix-local-scorecard-alerts"
@@ -8830,7 +8855,7 @@ if ($SeedCatalog) {
     Write-Warning "LOSSY LEGACY SEED MODE: $($seedGuard.message -replace '^-SeedCatalog is a ', '')"
 }
 
-$repos = if ($Offline) { @() } else { Add-ReleaseAssetMetadata -Repos (Add-ForkParentMetadata -Repos (Get-GitHubRepos)) }
+$repos = if ($Offline) { @() } else { Add-LiveRepositoryMetadata -Repos (Get-GitHubRepos) }
 
 if ($SeedCatalog) {
     $catalog = New-CatalogFromReadme -Repos $repos
