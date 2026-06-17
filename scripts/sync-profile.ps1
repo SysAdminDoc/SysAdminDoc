@@ -11,6 +11,8 @@ param(
     [string]$ReportPath = "reports/profile-sync-report.json",
     [string]$AssetsPath = "assets/profile",
     [switch]$SkipLinkValidation,
+    [switch]$ApplyTopics,
+    [string]$TopicAllowlistPath = "data/topic-allowlist.json",
     [switch]$Offline
 )
 
@@ -9051,4 +9053,62 @@ if ($catalogForRun) {
         # Keep hosted shells from surfacing handled native-command failures.
         exit 0
     }
+}
+
+if ($ApplyTopics) {
+    $allowlistFullPath = Join-Path $RepoRoot $TopicAllowlistPath
+    if (-not (Test-Path -LiteralPath $allowlistFullPath)) {
+        Write-Error "Topic allowlist not found: $TopicAllowlistPath. Create a JSON array of repo names to apply topics to."
+        exit 1
+    }
+    $allowlist = @(Get-Content -LiteralPath $allowlistFullPath -Raw | ConvertFrom-Json)
+    if ($allowlist.Count -eq 0) {
+        Write-Host "Topic allowlist is empty; no topics will be applied."
+        exit 0
+    }
+    $catalogForTopics = Get-ProfileCatalog -CatalogPath (Join-Path $RepoRoot $CatalogPath)
+    $repoLookup = @{}
+    foreach ($repo in (Get-GitHubRepos)) {
+        $repoLookup[[string](Get-MemberValue -Object $repo -Name "name")] = $repo
+    }
+    $applied = 0
+    $skipped = 0
+    foreach ($entry in @($catalogForTopics.entries)) {
+        $repoName = [string]$entry.repo
+        if ($repoName -notin $allowlist) { continue }
+        $repo = $repoLookup[$repoName]
+        $existingTopics = @()
+        if ($repo) {
+            $rawTopics = Get-MemberValue -Object $repo -Name "repositoryTopics"
+            if ($rawTopics) {
+                $existingTopics = @($rawTopics | ForEach-Object {
+                    $name = Get-MemberValue -Object $_ -Name "name"
+                    if ($null -eq $name) { $name = Get-MemberValue -Object (Get-MemberValue -Object $_ -Name "topic") -Name "name" }
+                    [string]$name
+                } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+            }
+        }
+        if ($existingTopics.Count -gt 0) {
+            $skipped++
+            Write-Host "SKIP $repoName (already has $($existingTopics.Count) topic(s): $($existingTopics -join ', '))"
+            continue
+        }
+        $language = if ($repo) { [string](Get-MemberValue -Object (Get-MemberValue -Object $repo -Name "primaryLanguage") -Name "name") } else { $null }
+        $description = if ($repo) { [string](Get-MemberValue -Object $repo -Name "description") } else { $null }
+        $hints = @(Get-TopicHints -Repo $repoName -Language $language -Entry $entry -Description $description)
+        if ($hints.Count -eq 0) {
+            $skipped++
+            Write-Host "SKIP $repoName (no topic hints generated)"
+            continue
+        }
+        Write-Host "APPLY $repoName -> $($hints -join ', ')"
+        $topicPayload = @{ names = $hints } | ConvertTo-Json -Compress
+        $topicPayload | gh api "repos/$Owner/$repoName/topics" -X PUT --input - 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Failed to apply topics to $repoName (exit code $LASTEXITCODE)."
+        } else {
+            $applied++
+        }
+    }
+    Write-Host "Topic apply complete: $applied applied, $skipped skipped."
 }
