@@ -21,12 +21,6 @@
   Acceptance: `gh attestation verify projects.json -o SysAdminDoc` succeeds for a feed produced by the write-pr workflow; zizmor stays green on the added permissions.
   Complexity: M
 
-- [ ] P2 — Pilot Harden-Runner egress auditing on CI jobs
-  Why: Runner-level egress monitoring is the one widely adopted Actions hardening layer this CI lacks; audit mode catches exfiltration/compromised-dependency callouts with zero blocking risk, and findings inform a later block-mode allowlist.
-  Evidence: step-security/harden-runner docs (audit vs block egress policies); existing zizmor/Scorecard posture in `.github/workflows/*`.
-  Touches: `.github/workflows/tests.yml`, `profile-sync.yml`, `workflow-security.yml` (first step `step-security/harden-runner` SHA-pinned, `egress-policy: audit`), `requirements-ci`-style pin documentation, Pester workflow-contract tests.
-  Acceptance: all jobs run with harden-runner audit insights available; documented tradeoff note records the added third-party dependency; no required check regresses. Roll back by removing the step if insights show no value after 4 weeks.
-  Complexity: M
 
 ## Research-Driven Additions (2026-06-13)
 
