@@ -3404,6 +3404,8 @@ Describe 'CI validation tool pins' {
     It 'keeps CI tool pins in tracked workflow and requirements files' {
         $script:TestsWorkflowForToolPins | Should -Match 'Install-Module Pester -RequiredVersion 5[.]7[.]1'
         $script:WorkflowSecurityForToolPins | Should -Match 'ACTIONLINT_VERSION: "1[.]7[.]12"'
+        $script:WorkflowSecurityForToolPins | Should -Match 'POUTINE_VERSION: "1[.]1[.]6"'
+        $script:WorkflowSecurityForToolPins | Should -Match 'POUTINE_SHA256:'
         $script:CiRequirements | Should -Match '(?m)^zizmor==1[.]25[.]2\s+\\'
     }
 }

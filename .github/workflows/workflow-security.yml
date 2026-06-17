@@ -53,3 +53,17 @@ jobs:
 
       - name: Audit workflows and local actions
         run: zizmor --strict-collection --collect=workflows --collect=actions .github
+
+      - name: Install poutine
+        env:
+          POUTINE_VERSION: "1.1.6"
+          POUTINE_SHA256: "abde716599a65608b023a69ed9316e5f083a7bca48612151c2720835883757ea"
+        run: |
+          curl -fsSLo poutine.tar.gz "https://github.com/boostsecurityio/poutine/releases/download/v${POUTINE_VERSION}/poutine_Linux_x86_64.tar.gz"
+          echo "${POUTINE_SHA256}  poutine.tar.gz" | sha256sum -c -
+          tar -xzf poutine.tar.gz poutine
+          sudo install -m 0755 poutine /usr/local/bin/poutine
+          poutine version
+
+      - name: Scan workflows with poutine
+        run: poutine analyze_local .github/workflows || true
