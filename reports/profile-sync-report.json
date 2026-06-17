@@ -1,8 +1,8 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-16T18:45:22.5066883-04:00",
+  "generatedAt": "2026-06-17T15:15:29.6411424-04:00",
   "readmeInSync": true,
-  "projectsExportInSync": true,
+  "projectsExportInSync": false,
   "profileAssetsInSync": true,
   "profileAssetChecks": [
     {
@@ -56,22 +56,22 @@
       "inSync": true
     }
   ],
-  "publicRepoCount": 200,
+  "publicRepoCount": 201,
   "catalogEntryCount": 203,
   "includedReadmeCount": 169,
   "provenance": {
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "d2dd335c2a263a9c6f639fb6019f1fe113a689e9",
+    "sourceCommit": "6d19ff1ba1e8a736773eec5ede85f22a43a714bb",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
     "generatorSha256": "c274aa499114107f912d036bfe5a2c04d2b7f0b297fb5aa34fac64d8e5f2b15c",
     "projectSchemaSha256": "6265c49f0c33494431252f374df2d7ec7aee92cbdeecd019d74be3768d61dc1f",
-    "metadataSnapshotAt": "2026-06-16T18:43:31.8014968-04:00",
+    "metadataSnapshotAt": "2026-06-17T15:13:34.9722489-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
-      "returnedCount": 200,
+      "returnedCount": 201,
       "truncated": false
     }
   },
@@ -81,7 +81,7 @@
     "issues": []
   },
   "metadataHygiene": {
-    "missingTopicCount": 14,
+    "missingTopicCount": 15,
     "missingDescriptionCount": 1,
     "topicHintPolicy": {
       "mutatesRepositories": false,
@@ -120,7 +120,7 @@
       {
         "repo": "ews",
         "language": "JavaScript",
-        "pushedAt": "2026-06-16T00:23:03.0000000Z",
+        "pushedAt": "2026-06-17T05:02:42.0000000Z",
         "category": "suppressed",
         "topicHints": [
           "javascript"
@@ -147,7 +147,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-06-16T03:25:17.0000000Z",
+        "pushedAt": "2026-06-17T05:03:37.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -179,6 +179,15 @@
         "category": "suppressed",
         "topicHints": [
           "cpp"
+        ]
+      },
+      {
+        "repo": "PartitionPilot",
+        "language": "C#",
+        "pushedAt": "2026-06-17T18:38:50.0000000Z",
+        "category": null,
+        "topicHints": [
+          "csharp"
         ]
       },
       {
@@ -582,7 +591,7 @@
         {
           "priorityRank": 1,
           "repo": "OpenCut",
-          "stars": 21,
+          "stars": 20,
           "latestReleaseTag": "v1.25.1",
           "executableAssetKinds": [
             "exe",
@@ -599,7 +608,7 @@
         {
           "priorityRank": 2,
           "repo": "VideoSubtitleRemover",
-          "stars": 19,
+          "stars": 20,
           "latestReleaseTag": "v3.16.0",
           "executableAssetKinds": [
             "zip"
@@ -777,8 +786,24 @@
         },
         {
           "priorityRank": 13,
-          "repo": "DeepPurge",
+          "repo": "OpenLumen",
           "stars": 4,
+          "latestReleaseTag": "v0.6.1",
+          "executableAssetKinds": [
+            "apk"
+          ],
+          "trustLevel": "metadata-only",
+          "evidenceSource": "filename-derived",
+          "hasChecksum": false,
+          "hasSbom": false,
+          "hasAttestation": false,
+          "gapScore": 3,
+          "nextAction": "publish-sha256sums"
+        },
+        {
+          "priorityRank": 14,
+          "repo": "DeepPurge",
+          "stars": 3,
           "latestReleaseTag": "v0.9.0",
           "executableAssetKinds": [
             "exe"
@@ -792,26 +817,10 @@
           "nextAction": "publish-sha256sums"
         },
         {
-          "priorityRank": 14,
+          "priorityRank": 15,
           "repo": "Lawnchair-Lite",
           "stars": 3,
           "latestReleaseTag": "v2.20.1",
-          "executableAssetKinds": [
-            "apk"
-          ],
-          "trustLevel": "metadata-only",
-          "evidenceSource": "filename-derived",
-          "hasChecksum": false,
-          "hasSbom": false,
-          "hasAttestation": false,
-          "gapScore": 3,
-          "nextAction": "publish-sha256sums"
-        },
-        {
-          "priorityRank": 15,
-          "repo": "OpenLumen",
-          "stars": 3,
-          "latestReleaseTag": "v0.6.1",
           "executableAssetKinds": [
             "apk"
           ],
@@ -1608,14 +1617,14 @@
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
   },
   "userscriptInstallTrust": {
-    "skipped": false,
-    "skipReason": null,
-    "checkedCount": 11,
+    "skipped": true,
+    "skipReason": "link validation skipped",
+    "checkedCount": 0,
     "installActionCount": 11,
-    "rawGitHubCount": 11,
-    "branchSourceCount": 11,
+    "rawGitHubCount": 0,
+    "branchSourceCount": 0,
     "tagOrCommitSourceCount": 0,
-    "metadataBlockCount": 11,
+    "metadataBlockCount": 0,
     "missingMetadataBlockCount": 0,
     "missingVersionCount": 0,
     "missingUpdateUrlCount": 0,
@@ -1624,505 +1633,13 @@
     "downloadUrlProbeFailureCount": 0,
     "updateUrlRefMismatchCount": 0,
     "downloadUrlRefMismatchCount": 0,
-    "broadScopeCount": 3,
+    "broadScopeCount": 0,
     "releaseChannelReadyCount": 0,
-    "releaseChannelKeepBranchCount": 11,
+    "releaseChannelKeepBranchCount": 0,
     "releaseChannelBlockedCount": 0,
-    "warningCount": 3,
+    "warningCount": 0,
     "fatalCount": 0,
-    "rows": [
-      {
-        "repo": "Chapterizer",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/Chapterizer",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "Chapterizer.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "Chapterizer",
-        "version": "3.0.0",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js",
-        "updateUrlSourceRef": "main",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "main",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 2,
-        "includeCount": 0,
-        "grantCount": 6,
-        "connectCount": 1,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "Claude-Ultimate-Enhancer",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/Claude-Ultimate-Enhancer",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "Claude Ultimate Enhancer.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "Claude Ultimate Enhancer",
-        "version": "1.1.0",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js",
-        "updateUrlSourceRef": "main",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "main",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 1,
-        "includeCount": 0,
-        "grantCount": 3,
-        "connectCount": 0,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "ClearGem",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/ClearGem",
-        "sourceRef": "master",
-        "sourceRefType": "branch",
-        "sourcePath": "cleargem.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "ClearGem",
-        "version": "1.0.2",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js",
-        "updateUrlSourceRef": "master",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "master",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 2,
-        "includeCount": 0,
-        "grantCount": 2,
-        "connectCount": 2,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "DarkModer",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/DarkModer",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "DarkModer.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "DarkModer",
-        "version": "3.0.0",
-        "updateUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
-        "downloadUrl": "https://github.com/SysAdminDoc/DarkModer/raw/refs/heads/main/DarkModer.user.js",
-        "updateUrlSourceRef": null,
-        "updateUrlRefMatchesSource": null,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": null,
-        "downloadUrlRefMatchesSource": null,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 1,
-        "includeCount": 0,
-        "grantCount": 6,
-        "connectCount": 2,
-        "requireCount": 0,
-        "broadScope": true,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": false
-        },
-        "warningCount": 1,
-        "fatalCount": 0,
-        "warnings": [
-          {
-            "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope.",
-            "fatal": false
-          }
-        ]
-      },
-      {
-        "repo": "Doordash-Enhanced",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/Doordash-Enhanced",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "DoorDashEnhanced.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "DoorDash Enhanced",
-        "version": "2.6.1",
-        "updateUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
-        "downloadUrl": "https://github.com/SysAdminDoc/Doordash-Enhanced/raw/refs/heads/main/DoorDashEnhanced.user.js",
-        "updateUrlSourceRef": null,
-        "updateUrlRefMatchesSource": null,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": null,
-        "downloadUrlRefMatchesSource": null,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 2,
-        "includeCount": 0,
-        "grantCount": 4,
-        "connectCount": 0,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": false
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "GeminiBuddy",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/GeminiBuddy",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "GeminiBuddy.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "GeminiBuddy",
-        "version": "42",
-        "updateUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
-        "downloadUrl": "https://github.com/SysAdminDoc/GeminiBuddy/raw/refs/heads/main/GeminiBuddy.user.js",
-        "updateUrlSourceRef": null,
-        "updateUrlRefMatchesSource": null,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": null,
-        "downloadUrlRefMatchesSource": null,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 1,
-        "includeCount": 0,
-        "grantCount": 4,
-        "connectCount": 3,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": false
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "IMDb_Enhanced",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/IMDb_Enhanced",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "IMDb_Enhanced.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "IMDb Enhanced",
-        "version": "2.3.1",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
-        "updateUrlSourceRef": "main",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "main",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 10,
-        "includeCount": 0,
-        "grantCount": 7,
-        "connectCount": 8,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "MediaDL",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/MediaDL",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "MediaDL.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "MediaDL - Universal Media Downloader",
-        "version": "4.0.0",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js",
-        "updateUrlSourceRef": "main",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "main",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 1,
-        "includeCount": 0,
-        "grantCount": 5,
-        "connectCount": 2,
-        "requireCount": 0,
-        "broadScope": true,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 1,
-        "fatalCount": 0,
-        "warnings": [
-          {
-            "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope.",
-            "fatal": false
-          }
-        ]
-      },
-      {
-        "repo": "Reddit-Enhancement-Continued",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/Reddit-Enhancement-Continued",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "RedditEnhancementContinued.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "Reddit Enhancement Continued",
-        "version": "2.8.1",
-        "updateUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
-        "downloadUrl": "https://github.com/SysAdminDoc/Reddit-Enhancement-Continued/raw/refs/heads/main/RedditEnhancementContinued.user.js",
-        "updateUrlSourceRef": null,
-        "updateUrlRefMatchesSource": null,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": null,
-        "downloadUrlRefMatchesSource": null,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 3,
-        "includeCount": 0,
-        "grantCount": 7,
-        "connectCount": 12,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": false
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      },
-      {
-        "repo": "UserScript-Finder",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/UserScript-Finder",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "UserScript-Finder.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "UserScript Finder",
-        "version": "1.0.0",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
-        "updateUrlSourceRef": "main",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "main",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 1,
-        "includeCount": 0,
-        "grantCount": 8,
-        "connectCount": 4,
-        "requireCount": 0,
-        "broadScope": true,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 1,
-        "fatalCount": 0,
-        "warnings": [
-          {
-            "kind": "scope-broad",
-            "message": "Userscript metadata includes an all-sites @match or @include scope.",
-            "fatal": false
-          }
-        ]
-      },
-      {
-        "repo": "YoutubeAdblock",
-        "url": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
-        "sourceHost": "raw.githubusercontent.com",
-        "sourceRepository": "SysAdminDoc/YoutubeAdblock",
-        "sourceRef": "main",
-        "sourceRefType": "branch",
-        "sourcePath": "YoutubeAdblock.user.js",
-        "rawGitHub": true,
-        "fetchSucceeded": true,
-        "fetchStatusCode": 200,
-        "metadataBlockPresent": true,
-        "metadataBlockClosed": true,
-        "name": "YoutubeAdblock",
-        "version": "0.5.1",
-        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
-        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js",
-        "updateUrlSourceRef": "main",
-        "updateUrlRefMatchesSource": true,
-        "updateUrlProbeSucceeded": true,
-        "updateUrlProbeStatusCode": 200,
-        "downloadUrlSourceRef": "main",
-        "downloadUrlRefMatchesSource": true,
-        "downloadUrlProbeSucceeded": true,
-        "downloadUrlProbeStatusCode": 200,
-        "matchCount": 7,
-        "includeCount": 0,
-        "grantCount": 5,
-        "connectCount": 8,
-        "requireCount": 0,
-        "broadScope": false,
-        "releaseChannelReadiness": "keep-branch",
-        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
-        "releaseChannelEvidence": {
-          "metadataComplete": true,
-          "sourceRefType": "branch",
-          "hasVersion": true,
-          "updateUrlAligned": true
-        },
-        "warningCount": 0,
-        "fatalCount": 0,
-        "warnings": []
-      }
-    ],
+    "rows": [],
     "note": "Userscript metadata inspection parses raw .user.js headers only; script bodies are not executed."
   },
   "catalogFeedAccounting": {
@@ -2213,7 +1730,7 @@
       "hasProjects": true,
       "hasWiki": true,
       "allowForking": true,
-      "deleteBranchOnMerge": false,
+      "deleteBranchOnMerge": true,
       "webCommitSignoffRequired": false
     },
     "security": {
@@ -2277,7 +1794,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-16T18:43:31.8014968-04:00",
+          "queriedAt": "2026-06-17T15:13:34.9722489-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -3012,10 +2529,10 @@
   },
   "validationPerformance": {
     "linkValidation": {
-      "skipped": false,
-      "targetCount": 177,
+      "skipped": true,
+      "targetCount": 0,
       "throttleLimit": 16,
-      "elapsedMs": 3399,
+      "elapsedMs": 0,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -3037,29 +2554,90 @@
       "abortMessage": null
     }
   },
-  "missingPublicRepos": [],
+  "missingPublicRepos": [
+    {
+      "repo": "PartitionPilot",
+      "description": "Free, open-source Windows disk partition manager for power users and IT admins. WPF/.NET 10.",
+      "language": "C#"
+    }
+  ],
   "privateVisibilityViolations": [],
   "medicalPrivacyViolations": [],
   "urlSchemeViolations": [],
   "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [],
+  "metadataDrift": [
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.metadataProvider",
+      "oldValue": "rest-fallback",
+      "newValue": "graphql",
+      "severity": "fatal",
+      "failing": true
+    },
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.repoEnumeration.requestedLimit",
+      "oldValue": 0,
+      "newValue": 500,
+      "severity": "fatal",
+      "failing": true
+    },
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.metadataSnapshotAt",
+      "oldValue": "2026-06-17T15:07:01.3143053-04:00",
+      "newValue": "2026-06-17T15:13:34.9722489-04:00",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "HostShield",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-06-17T19:06:46Z",
+      "newValue": "2026-06-17T19:10:36Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RcloneBrowserNG",
+      "category": "desktop",
+      "field": "pushedAt",
+      "oldValue": "2026-06-17T19:00:23Z",
+      "newValue": "2026-06-17T19:10:56Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Vantage",
+      "category": "extensions",
+      "field": "pushedAt",
+      "oldValue": "2026-06-17T19:06:49Z",
+      "newValue": "2026-06-17T19:12:42Z",
+      "severity": "info",
+      "failing": false
+    }
+  ],
   "metadataDriftSummary": {
-    "fatalCount": 0,
-    "informationalCount": 0,
+    "fatalCount": 2,
+    "informationalCount": 4,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 15.1,
+      "ageDays": 15.96,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
     }
   },
-  "linkValidationSkipped": false,
+  "linkValidationSkipped": true,
   "linkValidationSummary": {
-    "targetCount": 177,
+    "targetCount": 0,
     "throttleLimit": 16,
-    "elapsedMs": 3399,
+    "elapsedMs": 0,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -3353,11 +2931,9 @@
     ]
   },
   "artifactBudgets": {
-    "status": "warning",
-    "warningCount": 1,
-    "warnings": [
-      "reports/profile-sync-report.json bytes is 133639, above the 114688 soft limit."
-    ],
+    "status": "within-budget",
+    "warningCount": 0,
+    "warnings": [],
     "rows": [
       {
         "artifact": "README.md",
@@ -3425,10 +3001,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 133639,
+        "value": 114333,
         "softLimit": 114688,
-        "overSoftLimit": true,
-        "warning": "reports/profile-sync-report.json bytes is 133639, above the 114688 soft limit.",
+        "overSoftLimit": false,
+        "warning": null,
         "note": "Serialized sync-report size budget."
       },
       {
@@ -3470,9 +3046,9 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-16T18:40:30.6196011-04:00",
-    "latestReportAffectingCommitSha": "d2dd335c2a263a9c6f639fb6019f1fe113a689e9",
-    "latestReportAffectingCommitDate": "2026-06-16T11:21:48.0000000-04:00",
+    "committedReportGeneratedAt": "2026-06-17T15:10:01.9580881-04:00",
+    "latestReportAffectingCommitSha": "6d19ff1ba1e8a736773eec5ede85f22a43a714bb",
+    "latestReportAffectingCommitDate": "2026-06-17T15:00:40.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "smokeStatus": "not-run",
@@ -3496,10 +3072,10 @@
     "status": "warning",
     "scheduledWorkflowCount": 5,
     "staleCount": 0,
-    "failingCount": 2,
+    "failingCount": 3,
     "unavailableCount": 0,
     "disabledCount": 0,
-    "warningCount": 2,
+    "warningCount": 3,
     "graceMinutes": 1440,
     "rows": [
       {
@@ -3513,7 +3089,7 @@
         "graceMinutes": 1440,
         "state": "active",
         "latestScheduledConclusion": "failure",
-        "latestScheduledRunAt": "06/10/2026 09:33:40",
+        "latestScheduledRunAt": "06/17/2026 09:58:12",
         "latestSuccessfulScheduledAt": null,
         "ageMinutes": null,
         "stale": true,
@@ -3533,9 +3109,9 @@
         "graceMinutes": 1440,
         "state": "active",
         "latestScheduledConclusion": "success",
-        "latestScheduledRunAt": "06/10/2026 10:06:11",
-        "latestSuccessfulScheduledAt": "06/10/2026 10:06:11",
-        "ageMinutes": 9159,
+        "latestScheduledRunAt": "06/17/2026 10:17:13",
+        "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
+        "ageMinutes": 298,
         "stale": false,
         "failing": false,
         "available": true,
@@ -3555,7 +3131,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 16434,
+        "ageMinutes": 17664,
         "stale": true,
         "failing": true,
         "available": true,
@@ -3575,7 +3151,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/11/2026 10:07:56",
         "latestSuccessfulScheduledAt": "06/11/2026 10:07:56",
-        "ageMinutes": 7717,
+        "ageMinutes": 8947,
         "stale": false,
         "failing": false,
         "available": true,
@@ -3592,15 +3168,15 @@
         "cadenceMinutes": 10080,
         "graceMinutes": 1440,
         "state": "active",
-        "latestScheduledConclusion": "success",
-        "latestScheduledRunAt": "06/10/2026 10:40:59",
+        "latestScheduledConclusion": "failure",
+        "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 9124,
+        "ageMinutes": 10354,
         "stale": false,
-        "failing": false,
+        "failing": true,
         "available": true,
-        "status": "ok",
-        "warning": null
+        "status": "failing",
+        "warning": "Scheduled workflow 'Workflow security' latest scheduled run concluded 'failure'."
       }
     ]
   },
@@ -3613,8 +3189,8 @@
     "note": "Warning-only roadmap hygiene: lists open ROADMAP.md entries already satisfied by committed repository files. ROADMAP.md is local-only and is typically absent in CI checkouts."
   },
   "rootMarkdownHygiene": {
-    "status": "unexpected-files",
-    "rootMarkdownCount": 10,
+    "status": "clean",
+    "rootMarkdownCount": 7,
     "allowedFiles": [
       "AGENTS.md",
       "CHANGELOG.md",
@@ -3625,27 +3201,10 @@
       "ROADMAP.md",
       "SECURITY.md"
     ],
-    "unexpectedFiles": [
-      "LOGO_PROMPTS.md",
-      "RESEARCH_FEATURE_PLAN.md",
-      "TODO.md"
-    ],
+    "unexpectedFiles": [],
     "exemptFiles": [],
-    "rows": [
-      {
-        "file": "LOGO_PROMPTS.md",
-        "status": "unexpected"
-      },
-      {
-        "file": "RESEARCH_FEATURE_PLAN.md",
-        "status": "unexpected"
-      },
-      {
-        "file": "TODO.md",
-        "status": "unexpected"
-      }
-    ],
-    "warningCount": 3,
+    "rows": [],
+    "warningCount": 0,
     "note": "Warning-only root Markdown hygiene against the repo documentation contract. Most non-README root Markdown is gitignored and absent in CI; historical leftovers can be removed or added to the exemption allowlist."
   },
   "profileAssetsAccessibility": {

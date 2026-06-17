@@ -6,19 +6,19 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "d2dd335c2a263a9c6f639fb6019f1fe113a689e9",
+    "sourceCommit": "6d19ff1ba1e8a736773eec5ede85f22a43a714bb",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
     "generatorSha256": "c274aa499114107f912d036bfe5a2c04d2b7f0b297fb5aa34fac64d8e5f2b15c",
     "projectSchemaSha256": "6265c49f0c33494431252f374df2d7ec7aee92cbdeecd019d74be3768d61dc1f",
-    "metadataSnapshotAt": "2026-06-16T18:43:31.8014968-04:00",
-    "metadataProvider": "graphql",
+    "metadataSnapshotAt": "2026-06-17T15:07:01.3143053-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
-      "returnedCount": 200,
+      "requestedLimit": 0,
+      "returnedCount": 201,
       "truncated": false
     }
   },
-  "publicRepoCount": 200,
+  "publicRepoCount": 201,
   "projectCount": 180,
   "suppressedCount": 23,
   "projects": [
@@ -94,7 +94,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T14:09:25.0000000Z",
+      "pushedAt": "2026-06-17T00:03:08.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -166,7 +166,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:25:16.0000000Z",
+      "pushedAt": "2026-06-16T23:19:44.0000000Z",
       "topics": [
         "android",
         "kotlin",
@@ -235,7 +235,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:29:34.0000000Z",
+      "pushedAt": "2026-06-17T19:06:46.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -306,7 +306,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:39:59.0000000Z",
+      "pushedAt": "2026-06-17T18:45:29.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -625,7 +625,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:16:05.0000000Z",
+      "pushedAt": "2026-06-17T18:55:14.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -699,7 +699,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T17:23:01.0000000Z",
+      "pushedAt": "2026-06-17T18:43:34.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -920,7 +920,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T18:40:12.0000000Z",
+      "pushedAt": "2026-06-17T00:09:54.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1196,7 +1196,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T18:35:36.0000000Z",
+      "pushedAt": "2026-06-17T18:41:26.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1270,7 +1270,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:38:28.0000000Z",
+      "pushedAt": "2026-06-17T18:45:25.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1312,7 +1312,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 3,
+      "stars": 4,
       "latestReleaseTag": "v0.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenLumen/releases/tag/v0.6.1",
       "releaseAssetKinds": [
@@ -1412,7 +1412,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T14:09:04.0000000Z",
+      "pushedAt": "2026-06-17T00:03:53.0000000Z",
       "topics": [
         "android",
         "kotlin",
@@ -1475,7 +1475,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-16T03:25:17.0000000Z",
+      "pushedAt": "2026-06-17T05:03:37.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1767,7 +1767,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:41:12.0000000Z",
+      "pushedAt": "2026-06-17T18:39:57.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1811,7 +1811,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "C#",
-      "stars": 4,
+      "stars": 3,
       "latestReleaseTag": "v0.9.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DeepPurge/releases/tag/v0.9.0",
       "releaseAssetKinds": [
@@ -1842,7 +1842,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:20:52.0000000Z",
+      "pushedAt": "2026-06-17T14:46:51.0000000Z",
       "topics": [
         "cleanup",
         "csharp",
@@ -2053,7 +2053,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:51.0000000Z",
+      "pushedAt": "2026-06-17T02:56:56.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2684,7 +2684,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-16T04:20:07.0000000Z",
+      "pushedAt": "2026-06-17T00:11:30.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2831,7 +2831,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T14:09:32.0000000Z",
+      "pushedAt": "2026-06-17T18:29:54.0000000Z",
       "topics": [
         "desktop-app",
         "rust",
@@ -2908,7 +2908,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T14:07:54.0000000Z",
+      "pushedAt": "2026-06-17T02:10:48.0000000Z",
       "topics": [
         "cli",
         "csharp",
@@ -2980,7 +2980,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-16T22:18:46.0000000Z",
+      "pushedAt": "2026-06-17T19:00:23.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -3347,7 +3347,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:13:04.0000000Z",
+      "pushedAt": "2026-06-17T19:06:49.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -4368,7 +4368,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T17:11:49.0000000Z",
+      "pushedAt": "2026-06-17T00:13:47.0000000Z",
       "topics": [
         "dark-theme",
         "javascript",
@@ -4439,7 +4439,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T18:09:56.0000000Z",
+      "pushedAt": "2026-06-17T00:05:39.0000000Z",
       "topics": [
         "browser-extension",
         "typescript",
@@ -4514,7 +4514,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T15:22:58.0000000Z",
+      "pushedAt": "2026-06-17T18:40:14.0000000Z",
       "topics": [
         "browser-extension",
         "javascript",
@@ -4973,7 +4973,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T04:18:02.0000000Z",
+      "pushedAt": "2026-06-17T02:39:15.0000000Z",
       "topics": [
         "background-removal",
         "compositing",
@@ -5153,7 +5153,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 19,
+      "stars": 20,
       "latestReleaseTag": "v3.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.16.0",
       "releaseAssetKinds": [
@@ -5179,7 +5179,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T04:12:53.0000000Z",
+      "pushedAt": "2026-06-17T18:38:22.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5627,7 +5627,7 @@
       "entrypoint": "NVMe_Driver_Patcher.ps1",
       "installKind": "powershell",
       "language": "C#",
-      "stars": 46,
+      "stars": 45,
       "latestReleaseTag": "v5.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v5.0.0",
       "releaseAssetKinds": [
@@ -5677,7 +5677,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:05:10.0000000Z",
+      "pushedAt": "2026-06-17T02:36:42.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -5752,7 +5752,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:40:51.0000000Z",
+      "pushedAt": "2026-06-17T04:11:37.0000000Z",
       "topics": [
         "compliance",
         "mitre",
@@ -5830,7 +5830,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:21:17.0000000Z",
+      "pushedAt": "2026-06-17T19:04:28.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -7610,7 +7610,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-16T18:02:20.0000000Z",
+      "pushedAt": "2026-06-17T18:29:49.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -7827,7 +7827,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-16T04:16:39.0000000Z",
+      "pushedAt": "2026-06-17T15:42:59.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -8766,7 +8766,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T17:51:45.0000000Z",
+      "pushedAt": "2026-06-17T00:08:21.0000000Z",
       "topics": [
         "conversion",
         "desktop-app",
@@ -9352,7 +9352,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 21,
+      "stars": 20,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -9383,7 +9383,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T14:10:01.0000000Z",
+      "pushedAt": "2026-06-17T02:35:02.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -9661,7 +9661,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T04:04:59.0000000Z",
+      "pushedAt": "2026-06-16T23:58:14.0000000Z",
       "topics": [
         "installed-apps",
         "pyqt6",

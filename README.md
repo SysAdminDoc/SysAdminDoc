@@ -10,11 +10,11 @@
 
 A compact shortlist of the most useful, ready-to-run projects. Use the action line on each item for the fastest path.
 
-- [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;46<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
-- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;21<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+- [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;45<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;20<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 - [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) -- Python, &#11088;11<br/>Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
 - [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;11<br/>Spotify customization — automates Spicetify, themes, extensions<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
-- [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;19<br/>Remove hardcoded subtitles from video<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+- [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;20<br/>Remove hardcoded subtitles from video<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 - [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) -- Extensions, &#11088;8<br/>Premium YouTube enhancement extension — 150+ features for Chrome & Firefox<br/>[<kbd>&#11015;&nbsp;CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest)
 - [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) -- PowerShell, &#11088;5<br/>67 automated checks across 8 security domains, MITRE ATT&CK mapping<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
 - [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) -- Android, &#11088;7<br/>Premium dark weather app — no API keys required<br/>[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest)
@@ -59,7 +59,7 @@ Already have Python and Git? Skip this section and open the category you need.
 
 Suggested starting points: [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher), [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot), [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor).
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;46 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;45 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 ```powershell
 $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/win11-nvme-driver-patcher $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NVMe_Driver_Patcher.ps1"
 ```
@@ -218,7 +218,7 @@ $d="$env:TEMP\WinForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --
 
 Suggested starting points: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;21 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;20 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```
@@ -458,8 +458,8 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;7 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;7 | Premium dark weather app — no API keys required | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;5 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
+| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;4 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;3 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
-| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;3 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;2 | Spam call and text blocker — GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;2 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**iOSIconPack**](https://github.com/SysAdminDoc/iOSIconPack) &#11088;2 | iOS-style icon pack for Android — 6 iOS eras | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/iOSIconPack/releases/latest) |
@@ -495,7 +495,7 @@ Suggested starting points: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfS
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;19 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;20 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 ```powershell
 $d="$env:TEMP\VideoSubtitleRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoSubtitleRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\VideoSubtitleRemover.py"
 ```
@@ -536,7 +536,7 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 
 | Project | Description | Language | Download |
 |:--------|:------------|:--------:|:--------:|
-| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) &#11088;4 | Thorough Windows uninstaller — removes programs completely, hunts down every leftover | C# | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/DeepPurge/releases/latest) |
+| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) &#11088;3 | Thorough Windows uninstaller — removes programs completely, hunts down every leftover | C# | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/DeepPurge/releases/latest) |
 | [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) &#11088;3 | Native Windows file converter with context menu integration — 1000+ formats | C# | [Repo](https://github.com/SysAdminDoc/UniversalConverterX) |
 | [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore) &#11088;2 | Personal Chromium extension store sourced from GitHub releases — one-click install/uninstall | C# | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/LocalChromeStore/releases/latest) |
 | [**AndroidEmulatorPlus**](https://github.com/SysAdminDoc/AndroidEmulatorPlus) &#11088;1 | Install Android SDK, manage AVDs, root with Magisk, migrate apps | C# | [Repo](https://github.com/SysAdminDoc/AndroidEmulatorPlus) |
