@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="820" height="250" viewBox="0 0 820 250" role="img" aria-labelledby="profile-sysadmindoc-catalog-stats-dark-title" aria-describedby="profile-sysadmindoc-catalog-stats-dark-desc">
   <title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>
-  <desc id="profile-sysadmindoc-catalog-stats-dark-desc">Generated from public GitHub metadata and data/profile-catalog.json Rows: 201 active public repositories (live GitHub metadata); 169 visitor-facing projects (generated profile catalog); 330 total public stars (live GitHub metadata); 5 currently building (first-viewport queue).</desc>
+  <desc id="profile-sysadmindoc-catalog-stats-dark-desc">Generated from public GitHub metadata and data/profile-catalog.json Rows: 202 active public repositories (live GitHub metadata); 171 visitor-facing projects (generated profile catalog); 331 total public stars (live GitHub metadata); 5 currently building (first-viewport queue).</desc>
   <rect width="100%" height="100%" rx="0" fill="#0d1117"/>
   <rect x="12" y="12" width="796" height="226" rx="12" fill="#161b22" stroke="#30363d"/>
   <line x1="28" y1="28" x2="792" y2="28" stroke="#1f6feb" stroke-width="1" opacity="0.45"/>
@@ -8,15 +8,15 @@
   <text x="32" y="70" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="13">Generated from public GitHub metadata and data/profile-catalog.json</text>
   <line x1="32" y1="84" x2="788" y2="84" stroke="#30363d" stroke-width="0.5" opacity="0.6"/>
   <rect x="32" y="98" width="3" height="20" rx="1.5" fill="#58a6ff"/>
-  <text x="46" y="112" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">201</text>
+  <text x="46" y="112" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">202</text>
   <text x="46" y="132" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="12">active public repositories</text>
   <text x="46" y="148" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="11">live GitHub metadata</text>
   <rect x="410" y="98" width="3" height="20" rx="1.5" fill="#58a6ff"/>
-  <text x="424" y="112" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">169</text>
+  <text x="424" y="112" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">171</text>
   <text x="424" y="132" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="12">visitor-facing projects</text>
   <text x="424" y="148" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="11">generated profile catalog</text>
   <rect x="32" y="152" width="3" height="20" rx="1.5" fill="#58a6ff"/>
-  <text x="46" y="166" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">330</text>
+  <text x="46" y="166" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">331</text>
   <text x="46" y="186" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="12">total public stars</text>
   <text x="46" y="202" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="11">live GitHub metadata</text>
   <rect x="410" y="152" width="3" height="20" rx="1.5" fill="#58a6ff"/>

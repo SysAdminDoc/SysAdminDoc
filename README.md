@@ -369,7 +369,7 @@ $d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{
 
 <a id="web-applications"></a>
 <details>
-<summary><b>&#127760; Web Applications</b> -- 27 repos -- <i>Hosted tools and dashboards that open directly in the browser.</i></summary>
+<summary><b>&#127760; Web Applications</b> -- 28 repos -- <i>Hosted tools and dashboards that open directly in the browser.</i></summary>
 <br/>
 
 Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Openshop), [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar), [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack).
@@ -400,6 +400,7 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 | [**NukeMap**](https://github.com/SysAdminDoc/NukeMap) | Nuclear weapon effects simulator — blast waves, WW3 simulation, 418 targets | [Launch](https://sysadmindoc.github.io/NukeMap/) |
 | [**SearchHub**](https://github.com/SysAdminDoc/SearchHub) | Search 538 engines across 29 categories | [Launch](https://sysadmindoc.github.io/SearchHub/) |
 | [**SPECTRE**](https://github.com/SysAdminDoc/SPECTRE) | Intelligence aggregator platform | [Launch](https://sysadmindoc.github.io/SPECTRE/) |
+| [**StormScope**](https://github.com/SysAdminDoc/StormScope) | Live US weather radar with webcam overlays -- NEXRAD radar plus 7,000+ traffic cameras | [Repo](https://github.com/SysAdminDoc/StormScope) |
 | [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) | Open source weather radar viewer | [Launch](https://sysadmindoc.github.io/StormviewRadar/) |
 | [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filtering and processing tool | [Launch](https://sysadmindoc.github.io/Text-Filter-Editor/) |
 | [**VIPTrack**](https://github.com/SysAdminDoc/VIPTrack) | Military and VIP aircraft tracker | [Launch](https://sysadmindoc.github.io/VIPTrack/) |
@@ -529,7 +530,7 @@ $d="$env:TEMP\yt_livestream_downloader"; if(Test-Path $d){git -C $d pull -q}else
 
 <a id="native-desktop-applications"></a>
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 21 repos -- <i>Native Windows and cross-platform desktop tools.</i></summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 22 repos -- <i>Native Windows and cross-platform desktop tools.</i></summary>
 <br/>
 
 Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore), [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore).
@@ -547,6 +548,7 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 | [**TsunamiSimulator**](https://github.com/SysAdminDoc/TsunamiSimulator) &#11088;1 | 3D-globe tsunami simulator -- asteroid impacts, nuclear bursts, earthquakes, landslides | Rust | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/TsunamiSimulator/releases/latest) |
 | [**Devicer**](https://github.com/SysAdminDoc/Devicer) | Unified Windows toolkit for rooted Android — identify, ROM search, partition backup, boot.img patch, flashing | C# | [Repo](https://github.com/SysAdminDoc/Devicer) |
 | [**OrganizeContacts**](https://github.com/SysAdminDoc/OrganizeContacts) | Local-first contact organizer and deduper — native Windows, no cloud upload | C# | [Repo](https://github.com/SysAdminDoc/OrganizeContacts) |
+| [**PartitionPilot**](https://github.com/SysAdminDoc/PartitionPilot) | Windows disk partition manager -- WPF disk map, SMART health, maintenance, and image workflows | C# | [Repo](https://github.com/SysAdminDoc/PartitionPilot) |
 | [**PhoneFork**](https://github.com/SysAdminDoc/PhoneFork) | Dual-Samsung Android migration tool for Windows -- apps, media, settings, Wi-Fi, roles, and debloat profiles | C# | [Repo](https://github.com/SysAdminDoc/PhoneFork) |
 | [**qBittorrent-Vanced**](https://github.com/SysAdminDoc/qBittorrent-Vanced) | Customized BitTorrent client with dark theme | C++ | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/latest) |
 | [**QuotaGlass**](https://github.com/SysAdminDoc/QuotaGlass) | Always-visible AI usage quota widget for Windows | C# | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/QuotaGlass/releases/latest) |

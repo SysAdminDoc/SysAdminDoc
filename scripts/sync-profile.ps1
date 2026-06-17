@@ -661,7 +661,11 @@ function ConvertTo-Lookup {
 
     $lookup = @{}
     foreach ($repo in $Repos) {
-        $lookup[$repo.name.ToLowerInvariant()] = $repo
+        $repoName = Get-MemberValue -Object $repo -Name "name"
+        if ([string]::IsNullOrWhiteSpace([string]$repoName)) {
+            continue
+        }
+        $lookup[([string]$repoName).ToLowerInvariant()] = $repo
     }
     return $lookup
 }

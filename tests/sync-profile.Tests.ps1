@@ -107,6 +107,24 @@ Describe 'Function library loads via the dot-source test seam' {
     }
 }
 
+Describe 'ConvertTo-Lookup' {
+    It 'skips null and blank repo names under StrictMode' {
+        $repos = @(
+            (New-TestRepoMeta -Name 'GoodRepo'),
+            [pscustomobject]@{ name = $null },
+            [pscustomobject]@{ name = '   ' },
+            $null,
+            @{ name = 'OtherRepo' }
+        )
+
+        $lookup = ConvertTo-Lookup $repos
+
+        @($lookup.Keys | Sort-Object) | Should -Be @('goodrepo', 'otherrepo')
+        $lookup['goodrepo'].name | Should -Be 'GoodRepo'
+        $lookup['otherrepo']['name'] | Should -Be 'OtherRepo'
+    }
+}
+
 Describe 'MedicalPattern privacy regex is word-boundary anchored' {
     It 'does NOT match medical substrings inside unrelated words' {
         'overdose'      | Should -Not -Match $MedicalPattern
@@ -2069,6 +2087,22 @@ Describe 'Feed JSON Schema contracts' {
 
         $result.valid | Should -BeFalse
         ($result.errors -join "`n") | Should -Match '\$\.releaseAssetDrift is required'
+    }
+
+    It 'requires always-emitted nested profile sync report fields' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+
+        $schema.'$defs'.readmeExperienceChecks.required | Should -Contain 'imageTagCount'
+        $schema.'$defs'.readmeExperienceChecks.required | Should -Contain 'imageAltTextIssueCount'
+        $schema.'$defs'.readmeExperienceChecks.required | Should -Contain 'imageAltTextComplete'
+        $schema.'$defs'.communityHealth.required | Should -Contain 'localIssueFormCount'
+        $schema.'$defs'.communityHealth.required | Should -Contain 'issueTemplateProviderState'
+        $schema.'$defs'.communityHealth.required | Should -Contain 'infoCount'
+        $schema.'$defs'.communityHealth.required | Should -Contain 'info'
+        $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelReadyCount'
+        $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelKeepBranchCount'
+        $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelBlockedCount'
+        $schema.'$defs'.releaseAssetDrift.required | Should -Contain 'executableDownloadTrustShortlist'
     }
 
     It 'warns when a schema uses keywords the validator cannot check' {
@@ -4509,12 +4543,15 @@ Describe 'README image alt-text completeness' {
         $result.imageAltTextComplete | Should -BeFalse
     }
 
-    It 'keeps the alt-text contract out of the fatal experience gate' {
+    It 'requires the alt-text report contract without making it a fatal experience gate' {
         $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
         $checksDef = $schema.'$defs'.readmeExperienceChecks
+        $checksDef.properties.PSObject.Properties.Name | Should -Contain 'imageTagCount'
+        $checksDef.properties.PSObject.Properties.Name | Should -Contain 'imageAltTextIssueCount'
         $checksDef.properties.PSObject.Properties.Name | Should -Contain 'imageAltTextComplete'
-        # Optional field: not required, so the committed report stays valid.
-        @($checksDef.required) | Should -Not -Contain 'imageAltTextComplete'
+        @($checksDef.required) | Should -Contain 'imageTagCount'
+        @($checksDef.required) | Should -Contain 'imageAltTextIssueCount'
+        @($checksDef.required) | Should -Contain 'imageAltTextComplete'
 
         $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
         $summaryScript | Should -Match 'imageAltTextComplete'
