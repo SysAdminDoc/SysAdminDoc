@@ -11,7 +11,7 @@
 A compact shortlist of the most useful, ready-to-run projects. Use the action line on each item for the fastest path.
 
 - [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;45<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
-- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;20<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;21<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 - [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) -- Python, &#11088;11<br/>Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
 - [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;12<br/>Spotify customization — automates Spicetify, themes, extensions<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
 - [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;20<br/>Remove hardcoded subtitles from video<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
@@ -218,7 +218,7 @@ $d="$env:TEMP\WinForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --
 
 Suggested starting points: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;20 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;21 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```

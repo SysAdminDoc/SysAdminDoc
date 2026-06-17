@@ -35,17 +35,6 @@
   Acceptance: all jobs run with harden-runner audit insights available; documented tradeoff note records the added third-party dependency; no required check regresses. Roll back by removing the step if insights show no value after 4 weeks.
   Complexity: M
 
-## Research-Driven Additions (2026-06-12)
-
-### P1 — reliability / CI currency
-
-- [ ] P1 — Compact sync report to recover soft-budget headroom
-  Why: The committed report is 94,795 bytes (82.7% of the 114,688-byte soft limit). `repositorySettings` alone is 34% of the JSON; three sections account for 75%. One new report section could breach the budget.
-  Evidence: `reports/profile-sync-report.json` byte count vs `artifactBudgets` soft limit; section-size analysis showing `repositorySettings` (24KB), `userscriptInstallTrust` (13KB), `releaseAssetDrift` (9.5KB) dominate.
-  Touches: `scripts/sync-profile.ps1` (report-building functions), `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`
-  Acceptance: committed report drops below 70% of its soft limit by moving per-row evidence detail into CI-only summary/annotation output while keeping aggregates in the committed JSON. Schema version stays compatible.
-  Complexity: M
-
 ## Research-Driven Additions (2026-06-13)
 
 ### P2 — trust signals / hardening

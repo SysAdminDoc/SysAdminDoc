@@ -241,6 +241,7 @@ function Get-GitHubReposFromRest {
                     releaseAssetNames = $assetNames
                     releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
                     assetApiInspected = $true
+                    immutable = [bool](Get-MemberValue -Object $releaseData -Name "immutable")
                 }
             }
         } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
@@ -515,6 +516,7 @@ function Add-ReleaseAssetMetadata {
         Set-MemberValue -Object $release -Name "releaseAssetNames" -Value $assetNames
         Set-MemberValue -Object $release -Name "releaseAssetKinds" -Value @(Get-ReleaseAssetKinds -AssetNames $assetNames)
         Set-MemberValue -Object $release -Name "assetApiInspected" -Value $true
+        Set-MemberValue -Object $release -Name "immutable" -Value ([bool](Get-MemberValue -Object $releaseData -Name "immutable"))
     }
 
     return @($Repos)
@@ -1011,7 +1013,8 @@ function New-ReleaseTrust {
         [string[]]$AssetKinds,
         [string[]]$AssetNames,
         [bool]$HasRelease,
-        [bool]$AssetInspected
+        [bool]$AssetInspected,
+        [object]$Immutable = $null
     )
 
     $names = @($AssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
@@ -1066,6 +1069,7 @@ function New-ReleaseTrust {
         sourceOnlyRelease = $sourceOnlyRelease
         executableAssetKinds = @($executableAssetKinds)
         trustLevel = $trustLevel
+        releaseImmutable = if ($HasRelease -and $null -ne $Immutable) { [bool]$Immutable } else { $null }
         notesPublic = if ($HasRelease -and $AssetInspected) { "Derived from release asset filenames; binaries were not downloaded or verified." } else { $null }
     }
 }
@@ -2491,7 +2495,8 @@ function New-ProjectsExportJson {
             -AssetKinds $releaseAssetKinds `
             -AssetNames $releaseAssetNames `
             -HasRelease ([bool]($meta -and $meta.latestRelease)) `
-            -AssetInspected $releaseAssetInspected
+            -AssetInspected $releaseAssetInspected `
+            -Immutable $(if ($meta -and $meta.latestRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null })
 
         $row = [ordered]@{
             repo = [string]$entry.repo
@@ -7826,6 +7831,8 @@ function Test-ReleaseAssetDrift {
     $debugArtifactRows = New-Object System.Collections.Generic.List[object]
     $releaseAssetKindCounts = @{}
     $trustLevelCounts = @{}
+    $immutableReleaseCount = 0
+    $mutableReleaseCount = 0
     $releaseBearingRows = 0
     $releaseActionRows = 0
     $inspectedReleaseRows = 0
@@ -7839,7 +7846,8 @@ function Test-ReleaseAssetDrift {
         $assetKinds = if ($hasRelease) { @(Get-ReleaseAssetKindsFromMeta -Meta $meta) } else { @() }
         $assetNames = if ($hasRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
         $assetInspected = (Test-ReleaseAssetMetadataInspected -Meta $meta)
-        $releaseTrust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $hasRelease -AssetInspected $assetInspected
+        $releaseImmutable = if ($hasRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null }
+        $releaseTrust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $hasRelease -AssetInspected $assetInspected -Immutable $releaseImmutable
         $trustLevel = [string]$releaseTrust.trustLevel
         if (-not $trustLevelCounts.ContainsKey($trustLevel)) {
             $trustLevelCounts[$trustLevel] = 0
@@ -7848,6 +7856,8 @@ function Test-ReleaseAssetDrift {
 
         if ($hasRelease) {
             $releaseBearingRows++
+            if ($releaseTrust.releaseImmutable -eq $true) { $immutableReleaseCount++ }
+            elseif ($releaseTrust.releaseImmutable -eq $false) { $mutableReleaseCount++ }
             if ($assetInspected) {
                 $inspectedReleaseRows++
                 foreach ($kind in @($assetKinds)) {
@@ -8043,6 +8053,11 @@ function Test-ReleaseAssetDrift {
         inspectedReleaseRows = $inspectedReleaseRows
         releaseAssetKindCounts = $kindCounts
         releaseTrustLevelCounts = $trustCounts
+        releaseImmutability = [ordered]@{
+            immutableCount = [int]$immutableReleaseCount
+            mutableCount = [int]$mutableReleaseCount
+            unknownCount = [int]($releaseBearingRows - $immutableReleaseCount - $mutableReleaseCount)
+        }
         executableDownloadTrustShortlist = $executableDownloadTrustShortlist
         executableDownloadsMissingChecksums = $executableDownloadsMissingChecksums.ToArray()
         debugArtifactRows = $debugArtifactRows.ToArray()

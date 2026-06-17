@@ -6,14 +6,14 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "09efecf7209bbf193a34c6a22261b8a9296ce54b",
+    "sourceCommit": "a590e9344545cef1a121d609795133a809df3da8",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
-    "generatorSha256": "ca8261283499a65bf9022e7bca31557a348e464c6a7d18d88160fe2738e99de3",
-    "projectSchemaSha256": "b7ce639799218bbb614d96cc0396741eb05f0a6c3d33be169f2948a5a5d7255c",
-    "metadataSnapshotAt": "2026-06-17T15:50:38.0864232-04:00",
-    "metadataProvider": "rest-fallback",
+    "generatorSha256": "410b14c2eb83775390e708d33b4b78d145a7090d10712628eb5e99d46fa74980",
+    "projectSchemaSha256": "4f5bc82435ede9be1993691268eaa02c46448498c688c80c62a4c4ace95884f3",
+    "metadataSnapshotAt": "2026-06-17T16:19:35.3386394-04:00",
+    "metadataProvider": "graphql",
     "repoEnumeration": {
-      "requestedLimit": 0,
+      "requestedLimit": 500,
       "returnedCount": 201,
       "truncated": false
     }
@@ -93,6 +93,7 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T00:03:08.0000000Z",
@@ -166,6 +167,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T23:19:44.0000000Z",
@@ -236,6 +238,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T19:30:55.0000000Z",
@@ -308,9 +311,10 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T19:38:15.0000000Z",
+      "pushedAt": "2026-06-17T20:02:01.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -388,6 +392,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:13:21.0000000Z",
@@ -459,6 +464,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:05:03.0000000Z",
@@ -535,6 +541,7 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T22:25:15.0000000Z",
@@ -631,9 +638,10 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T19:41:34.0000000Z",
+      "pushedAt": "2026-06-17T20:09:48.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -706,6 +714,7 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T18:43:34.0000000Z",
@@ -780,6 +789,7 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:14.0000000Z",
@@ -860,6 +870,7 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:05:10.0000000Z",
@@ -930,6 +941,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T00:09:54.0000000Z",
@@ -999,6 +1011,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T07:04:00.0000000Z",
@@ -1068,6 +1081,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:15.0000000Z",
@@ -1137,6 +1151,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T23:51:56.0000000Z",
@@ -1210,6 +1225,7 @@
           "apk"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T18:41:26.0000000Z",
@@ -1285,6 +1301,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T19:50:18.0000000Z",
@@ -1354,6 +1371,7 @@
           "apk"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T19:27:30.0000000Z",
@@ -1429,6 +1447,7 @@
           "exe"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T00:03:53.0000000Z",
@@ -1493,6 +1512,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-17T05:03:37.0000000Z",
@@ -1563,6 +1583,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:05:41.0000000Z",
@@ -1637,6 +1658,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T14:10:05.0000000Z",
@@ -1711,6 +1733,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:05:14.0000000Z",
@@ -1789,6 +1812,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T18:39:57.0000000Z",
@@ -1865,6 +1889,7 @@
           "exe"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T14:46:51.0000000Z",
@@ -1934,6 +1959,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:32:20.0000000Z",
@@ -2003,6 +2029,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:07:43.0000000Z",
@@ -2079,6 +2106,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T02:56:56.0000000Z",
@@ -2153,6 +2181,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T22:21:52.0000000Z",
@@ -2230,6 +2259,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:06:05.0000000Z",
@@ -2296,6 +2326,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:07:54.0000000Z",
@@ -2369,6 +2400,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:44:01.0000000Z",
@@ -2443,6 +2475,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:30:36.0000000Z",
@@ -2507,6 +2540,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-13T00:06:18.0000000Z",
@@ -2583,6 +2617,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:06:32.0000000Z",
@@ -2654,6 +2689,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T23:53:39.0000000Z",
@@ -2719,6 +2755,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-17T00:11:30.0000000Z",
@@ -2793,6 +2830,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-12T23:50:25.0000000Z",
@@ -2868,6 +2906,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T18:29:54.0000000Z",
@@ -2946,6 +2985,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T02:10:48.0000000Z",
@@ -3019,9 +3059,10 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-17T19:37:52.0000000Z",
+      "pushedAt": "2026-06-17T19:55:32.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -3103,6 +3144,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T05:54:05.0000000Z",
@@ -3175,6 +3217,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T12:06:20.0000000Z",
@@ -3250,6 +3293,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T15:21:12.0000000Z",
@@ -3323,6 +3367,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:36:02.0000000Z",
@@ -3391,6 +3436,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T19:32:11.0000000Z",
@@ -3463,6 +3509,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T04:15:34.0000000Z",
@@ -3530,6 +3577,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:27.0000000Z",
@@ -3602,6 +3650,7 @@
           "userscript"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:30.0000000Z",
@@ -3667,6 +3716,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-12T23:48:28.0000000Z",
@@ -3735,6 +3785,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:25:31.0000000Z",
@@ -3807,6 +3858,7 @@
           "crx"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:07:38.0000000Z",
@@ -3873,6 +3925,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T18:41:48.0000000Z",
@@ -3945,6 +3998,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:35:43.0000000Z",
@@ -4013,6 +4067,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:38:11.0000000Z",
@@ -4081,6 +4136,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:27:14.0000000Z",
@@ -4149,6 +4205,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:31:29.0000000Z",
@@ -4217,6 +4274,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:02.0000000Z",
@@ -4284,6 +4342,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:39.0000000Z",
@@ -4350,6 +4409,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:22:13.0000000Z",
@@ -4427,6 +4487,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T00:13:47.0000000Z",
@@ -4499,6 +4560,7 @@
           "crx"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T00:05:39.0000000Z",
@@ -4575,6 +4637,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T18:40:14.0000000Z",
@@ -4639,6 +4702,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-12T23:50:18.0000000Z",
@@ -4703,6 +4767,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-12T11:39:20.0000000Z",
@@ -4771,6 +4836,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:11.0000000Z",
@@ -4835,6 +4901,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:31:07.0000000Z",
@@ -4905,6 +4972,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T18:28:13.0000000Z",
@@ -4971,6 +5039,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:38:45.0000000Z",
@@ -5041,6 +5110,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T02:39:15.0000000Z",
@@ -5109,6 +5179,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:42:59.0000000Z",
@@ -5176,6 +5247,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:25:43.0000000Z",
@@ -5250,6 +5322,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T18:38:22.0000000Z",
@@ -5326,6 +5399,7 @@
           "exe"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T05:52:46.0000000Z",
@@ -5393,6 +5467,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-09T12:14:55.0000000Z",
@@ -5463,6 +5538,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:46:24.0000000Z",
@@ -5528,6 +5604,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:56:24.0000000Z",
@@ -5593,6 +5670,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-19T00:02:11.0000000Z",
@@ -5660,6 +5738,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:07:25.0000000Z",
@@ -5755,6 +5834,7 @@
           "script"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T02:36:42.0000000Z",
@@ -5831,6 +5911,7 @@
           "script"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T04:11:37.0000000Z",
@@ -5910,6 +5991,7 @@
           "script"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T19:45:10.0000000Z",
@@ -5978,6 +6060,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:41:25.0000000Z",
@@ -6045,6 +6128,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:43.0000000Z",
@@ -6112,6 +6196,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:31:46.0000000Z",
@@ -6187,6 +6272,7 @@
           "script"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:46.0000000Z",
@@ -6260,6 +6346,7 @@
           "script"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T00:17:38.0000000Z",
@@ -6328,6 +6415,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:48.0000000Z",
@@ -6396,6 +6484,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:36:53.0000000Z",
@@ -6463,6 +6552,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:21:33.0000000Z",
@@ -6531,6 +6621,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:27:31.0000000Z",
@@ -6599,6 +6690,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:36:35.0000000Z",
@@ -6666,6 +6758,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T23:19:17.0000000Z",
@@ -6734,6 +6827,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:34:02.0000000Z",
@@ -6809,6 +6903,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:05:54.0000000Z",
@@ -6876,6 +6971,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:57.0000000Z",
@@ -6952,6 +7048,7 @@
           "script"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:41:44.0000000Z",
@@ -7020,6 +7117,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:59:58.0000000Z",
@@ -7092,6 +7190,7 @@
           "script"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:28:20.0000000Z",
@@ -7167,6 +7266,7 @@
           "script"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:26:12.0000000Z",
@@ -7236,6 +7336,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:41:08.0000000Z",
@@ -7302,6 +7403,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:40:52.0000000Z",
@@ -7369,6 +7471,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:28:56.0000000Z",
@@ -7436,6 +7539,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:27:47.0000000Z",
@@ -7513,6 +7617,7 @@
           "script"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:55.0000000Z",
@@ -7578,6 +7683,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:37:11.0000000Z",
@@ -7648,6 +7754,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:10.0000000Z",
@@ -7716,6 +7823,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-17T18:29:49.0000000Z",
@@ -7781,6 +7889,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-13T00:03:18.0000000Z",
@@ -7860,6 +7969,7 @@
           "exe"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T22:40:40.0000000Z",
@@ -7936,6 +8046,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-17T15:42:59.0000000Z",
@@ -8012,6 +8123,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:07:49.0000000Z",
@@ -8084,6 +8196,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:06:23.0000000Z",
@@ -8158,6 +8271,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:07:15.0000000Z",
@@ -8227,6 +8341,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:30:09.0000000Z",
@@ -8299,6 +8414,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:23:52.0000000Z",
@@ -8367,6 +8483,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:29:51.0000000Z",
@@ -8440,6 +8557,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T02:34:04.0000000Z",
@@ -8507,6 +8625,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:21:47.0000000Z",
@@ -8579,6 +8698,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:22:41.0000000Z",
@@ -8652,6 +8772,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:37:33.0000000Z",
@@ -8726,6 +8847,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T04:20:29.0000000Z",
@@ -8802,6 +8924,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:15.0000000Z",
@@ -8888,6 +9011,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T00:08:21.0000000Z",
@@ -8963,6 +9087,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:22:00.0000000Z",
@@ -9031,6 +9156,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:08.0000000Z",
@@ -9099,6 +9225,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:21:21.0000000Z",
@@ -9167,6 +9294,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:24:52.0000000Z",
@@ -9239,6 +9367,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:25:05.0000000Z",
@@ -9306,6 +9435,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:33:47.0000000Z",
@@ -9373,6 +9503,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:22:54.0000000Z",
@@ -9438,6 +9569,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:37:53.0000000Z",
@@ -9484,7 +9616,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 20,
+      "stars": 21,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -9514,6 +9646,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-17T02:35:02.0000000Z",
@@ -9582,6 +9715,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:20.0000000Z",
@@ -9653,6 +9787,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:26:27.0000000Z",
@@ -9726,6 +9861,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-05-18T23:56:07.0000000Z",
@@ -9796,6 +9932,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T23:58:14.0000000Z",
@@ -9862,6 +9999,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:29:33.0000000Z",
@@ -9934,6 +10072,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-05-18T23:46:29.0000000Z",
@@ -10006,6 +10145,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:23:22.0000000Z",
@@ -10082,6 +10222,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:17.0000000Z",
@@ -10150,6 +10291,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:30:53.0000000Z",
@@ -10225,6 +10367,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-05-19T00:03:13.0000000Z",
@@ -10293,6 +10436,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-16T00:20:25.0000000Z",
@@ -10363,6 +10507,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:28:36.0000000Z",
@@ -10430,6 +10575,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-13T00:03:38.0000000Z",
@@ -10500,6 +10646,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:02:55.0000000Z",
@@ -10570,6 +10717,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:34:20.0000000Z",
@@ -10639,6 +10787,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:22:27.0000000Z",
@@ -10714,6 +10863,7 @@
           "zip"
         ],
         "trustLevel": "checksum",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:21.0000000Z",
@@ -10780,6 +10930,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:29:17.0000000Z",
@@ -10852,6 +11003,7 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:13.0000000Z",
@@ -10918,6 +11070,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-13T00:04:06.0000000Z",
@@ -10986,6 +11139,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:10:41.0000000Z",
@@ -11052,6 +11206,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:34:35.0000000Z",
@@ -11121,6 +11276,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:33:31.0000000Z",
@@ -11189,6 +11345,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:40:34.0000000Z",
@@ -11257,6 +11414,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:28:04.0000000Z",
@@ -11321,6 +11479,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-12T11:39:23.0000000Z",
@@ -11390,6 +11549,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T21:21:18.0000000Z",
@@ -11456,6 +11616,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:26:43.0000000Z",
@@ -11521,6 +11682,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T21:23:03.0000000Z",
@@ -11593,6 +11755,7 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:24:07.0000000Z",
@@ -11660,6 +11823,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:23:16.0000000Z",
@@ -11725,6 +11889,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:34:08.0000000Z",
@@ -11790,6 +11955,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T21:21:31.0000000Z",
@@ -11855,6 +12021,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T21:33:29.0000000Z",
@@ -11924,6 +12091,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:24:22.0000000Z",
@@ -11988,6 +12156,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-18T23:32:47.0000000Z",
@@ -12054,6 +12223,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-05-19T00:02:40.0000000Z",
@@ -12121,6 +12291,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:24:37.0000000Z",
@@ -12189,6 +12360,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:50.0000000Z",
@@ -12258,6 +12430,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:32:34.0000000Z",
@@ -12325,6 +12498,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:38:29.0000000Z",
@@ -12392,6 +12566,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:25:56.0000000Z",
@@ -12460,6 +12635,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-15T22:25:18.0000000Z",
@@ -12527,6 +12703,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:03:36.0000000Z",
@@ -12593,6 +12770,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T22:26:57.0000000Z",
@@ -12660,6 +12838,7 @@
         "sourceOnlyRelease": true,
         "executableAssetKinds": [],
         "trustLevel": "metadata-only",
+        "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
       "pushedAt": "2026-06-13T00:04:46.0000000Z",
@@ -12725,6 +12904,7 @@
         "sourceOnlyRelease": false,
         "executableAssetKinds": [],
         "trustLevel": "unknown",
+        "releaseImmutable": null,
         "notesPublic": null
       },
       "pushedAt": "2026-06-15T21:59:59.0000000Z",

@@ -1265,6 +1265,7 @@
         "inspectedReleaseRows",
         "releaseAssetKindCounts",
         "releaseTrustLevelCounts",
+        "releaseImmutability",
         "executableDownloadsMissingChecksums",
         "debugArtifactRows",
         "sourceOnlyWithRelease",
@@ -1301,6 +1302,16 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/trustLevelCount"
+          }
+        },
+        "releaseImmutability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["immutableCount", "mutableCount", "unknownCount"],
+          "properties": {
+            "immutableCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "mutableCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "unknownCount": { "$ref": "#/$defs/nonNegativeInteger" }
           }
         },
         "executableDownloadTrustShortlist": {

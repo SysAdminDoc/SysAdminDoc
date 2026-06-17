@@ -208,6 +208,7 @@
         "sourceOnlyRelease",
         "executableAssetKinds",
         "trustLevel",
+        "releaseImmutable",
         "notesPublic"
       ],
       "properties": {
@@ -280,6 +281,9 @@
             "signed-and-attested",
             "unknown"
           ]
+        },
+        "releaseImmutable": {
+          "$ref": "#/$defs/nullableBoolean"
         },
         "notesPublic": {
           "$ref": "#/$defs/nullableString"
