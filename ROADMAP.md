@@ -33,14 +33,4 @@
   Acceptance: `-ApplyTopics` with an allowlist applies generated topic hints to listed repos only; dry-run mode shows what would change; non-allowlisted repos are never mutated.
   Complexity: M
 
-## Research-Driven Additions (2026-06-13 continued)
-
-### P2 — security / pipeline hardening
-
-- [ ] P2 — Add poutine workflow scanner to workflow-security lane
-  Why: actionlint and zizmor cover syntax and common security findings, but poutine detects complementary CI/CD pipeline vulnerability patterns; recent scanner research evaluates poutine alongside actionlint and zizmor for broader workflow coverage.
-  Evidence: `workflow-security.yml` currently runs actionlint and zizmor only; boostsecurityio/poutine README; arXiv 2601.14455v2 on complementary GitHub Actions scanner behavior.
-  Touches: `.github/workflows/workflow-security.yml`, `requirements-ci.txt` or a pinned installer path, `tests/sync-profile.Tests.ps1`, `scripts/write-profile-sync-summary.ps1`
-  Acceptance: workflow-security runs poutine on `.github/workflows` in warning-only mode first, uploads or summarizes findings without committing raw artifacts, and Pester guards the pinned version plus no-floating-download policy.
-  Complexity: M
 
