@@ -1,8 +1,8 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-17T15:15:29.6411424-04:00",
+  "generatedAt": "2026-06-17T15:36:55.6095538-04:00",
   "readmeInSync": true,
-  "projectsExportInSync": false,
+  "projectsExportInSync": true,
   "profileAssetsInSync": true,
   "profileAssetChecks": [
     {
@@ -63,11 +63,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "6d19ff1ba1e8a736773eec5ede85f22a43a714bb",
+    "sourceCommit": "2ee7ba7a3e173e24e0126652f6c50a13964f8e7c",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
-    "generatorSha256": "c274aa499114107f912d036bfe5a2c04d2b7f0b297fb5aa34fac64d8e5f2b15c",
-    "projectSchemaSha256": "6265c49f0c33494431252f374df2d7ec7aee92cbdeecd019d74be3768d61dc1f",
-    "metadataSnapshotAt": "2026-06-17T15:13:34.9722489-04:00",
+    "generatorSha256": "1fabf77d952c4bd597729cda529ab55c21c2baf5ec40f22d9610ce637667c437",
+    "projectSchemaSha256": "b7ce639799218bbb614d96cc0396741eb05f0a6c3d33be169f2948a5a5d7255c",
+    "metadataSnapshotAt": "2026-06-17T15:34:58.7906312-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -241,10 +241,10 @@
     "checkedCount": 169,
     "detectedCount": 169,
     "missingCount": 0,
-    "unknownCount": 3,
+    "unknownCount": 2,
     "intentionalExceptionCount": 2,
-    "unresolvedUnknownCount": 1,
-    "warningCount": 1,
+    "unresolvedUnknownCount": 0,
+    "warningCount": 0,
     "licenseCounts": [
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -268,7 +268,7 @@
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
-        "count": 6
+        "count": 7
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -292,20 +292,11 @@
         "licenseSpdxId": "NOASSERTION",
         "licenseKey": "other",
         "licenseName": "Other",
-        "count": 3
+        "count": 2
       }
     ],
     "missingLicenses": [],
     "unknownLicenses": [
-      {
-        "repo": "HostShield",
-        "licenseKey": "other",
-        "licenseName": "Other",
-        "licenseSpdxId": "NOASSERTION",
-        "reason": "GitHub reported an unrecognized or non-standard license",
-        "intentionalException": false,
-        "exceptionReason": null
-      },
       {
         "repo": "kindred",
         "licenseKey": "other",
@@ -600,6 +591,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -616,6 +608,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -632,6 +625,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -648,10 +642,11 @@
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "partial",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "complete-missing-sha256sums"
         },
         {
           "priorityRank": 5,
@@ -664,6 +659,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -680,6 +676,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -699,6 +696,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -715,6 +713,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -731,10 +730,11 @@
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "partial",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "complete-missing-sha256sums"
         },
         {
           "priorityRank": 10,
@@ -747,10 +747,11 @@
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "partial",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "complete-missing-sha256sums"
         },
         {
           "priorityRank": 11,
@@ -763,10 +764,11 @@
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "partial",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "complete-missing-sha256sums"
         },
         {
           "priorityRank": 12,
@@ -779,6 +781,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -795,6 +798,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -811,10 +815,11 @@
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "partial",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "complete-missing-sha256sums"
         },
         {
           "priorityRank": 15,
@@ -827,6 +832,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -843,6 +849,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -859,6 +866,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -876,6 +884,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -892,6 +901,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -908,6 +918,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -924,6 +935,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -941,6 +953,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -957,6 +970,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -973,10 +987,11 @@
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "partial",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "complete-missing-sha256sums"
         },
         {
           "priorityRank": 25,
@@ -989,6 +1004,7 @@
           "trustLevel": "metadata-only",
           "evidenceSource": "filename-derived",
           "hasChecksum": false,
+          "checksumCoverage": "none",
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
@@ -1794,7 +1810,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-17T15:13:34.9722489-04:00",
+          "queriedAt": "2026-06-17T15:34:58.7906312-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2351,14 +2367,14 @@
   "communityHealth": {
     "available": true,
     "unavailableReason": null,
-    "healthPercentage": 71,
+    "healthPercentage": 100,
     "providerFiles": {
       "readme": true,
       "license": true,
       "issueTemplate": false,
       "pullRequestTemplate": true,
-      "contributing": false,
-      "codeOfConduct": false
+      "contributing": true,
+      "codeOfConduct": true
     },
     "localFiles": [
       {
@@ -2420,11 +2436,8 @@
     "localIssueFormCount": 4,
     "issueTemplateProviderState": "provider-gap-local-forms-present",
     "localRequiredMissingCount": 0,
-    "warningCount": 2,
-    "warnings": [
-      "GitHub community profile does not report contributing guidelines.",
-      "GitHub community profile does not report a code of conduct."
-    ],
+    "warningCount": 0,
+    "warnings": [],
     "infoCount": 1,
     "info": [
       "GitHub community profile does not detect issue-template metadata, but 4 local issue form(s) are present; the provider does not surface issue forms (.github/ISSUE_TEMPLATE/*.yml)."
@@ -2566,68 +2579,13 @@
   "urlSchemeViolations": [],
   "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [
-    {
-      "repo": null,
-      "category": null,
-      "field": "provenance.metadataProvider",
-      "oldValue": "rest-fallback",
-      "newValue": "graphql",
-      "severity": "fatal",
-      "failing": true
-    },
-    {
-      "repo": null,
-      "category": null,
-      "field": "provenance.repoEnumeration.requestedLimit",
-      "oldValue": 0,
-      "newValue": 500,
-      "severity": "fatal",
-      "failing": true
-    },
-    {
-      "repo": null,
-      "category": null,
-      "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-06-17T15:07:01.3143053-04:00",
-      "newValue": "2026-06-17T15:13:34.9722489-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "HostShield",
-      "category": "android",
-      "field": "pushedAt",
-      "oldValue": "2026-06-17T19:06:46Z",
-      "newValue": "2026-06-17T19:10:36Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "RcloneBrowserNG",
-      "category": "desktop",
-      "field": "pushedAt",
-      "oldValue": "2026-06-17T19:00:23Z",
-      "newValue": "2026-06-17T19:10:56Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "Vantage",
-      "category": "extensions",
-      "field": "pushedAt",
-      "oldValue": "2026-06-17T19:06:49Z",
-      "newValue": "2026-06-17T19:12:42Z",
-      "severity": "info",
-      "failing": false
-    }
-  ],
+  "metadataDrift": [],
   "metadataDriftSummary": {
-    "fatalCount": 2,
-    "informationalCount": 4,
+    "fatalCount": 0,
+    "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 15.96,
+      "ageDays": 15.97,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2992,7 +2950,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 416692,
+        "value": 423415,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3001,7 +2959,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 114333,
+        "value": 113697,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -3046,11 +3004,11 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-17T15:10:01.9580881-04:00",
-    "latestReportAffectingCommitSha": "6d19ff1ba1e8a736773eec5ede85f22a43a714bb",
-    "latestReportAffectingCommitDate": "2026-06-17T15:00:40.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
+    "committedReportGeneratedAt": "2026-06-17T15:15:29.6411424-04:00",
+    "latestReportAffectingCommitSha": "91356367bb2501c1ccda7dc840e6fecd88188da9",
+    "latestReportAffectingCommitDate": "2026-06-17T15:15:55.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.01,
     "smokeStatus": "not-run",
     "smokeEvidenceStale": true,
     "reportAffectingPaths": [
@@ -3064,9 +3022,10 @@
       "README.md"
     ],
     "warnings": [
+      "Committed sync report (2026-06-17T15:15:29.6411424-04:00) is older than the latest report-affecting commit 9135636 (2026-06-17T15:15:55.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
       "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
     ],
-    "warningCount": 1
+    "warningCount": 2
   },
   "scheduledWorkflowFreshness": {
     "status": "warning",
@@ -3111,7 +3070,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/17/2026 10:17:13",
         "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
-        "ageMinutes": 298,
+        "ageMinutes": 320,
         "stale": false,
         "failing": false,
         "available": true,
@@ -3131,7 +3090,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 17664,
+        "ageMinutes": 17685,
         "stale": true,
         "failing": true,
         "available": true,
@@ -3151,7 +3110,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/11/2026 10:07:56",
         "latestSuccessfulScheduledAt": "06/11/2026 10:07:56",
-        "ageMinutes": 8947,
+        "ageMinutes": 8969,
         "stale": false,
         "failing": false,
         "available": true,
@@ -3171,7 +3130,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 10354,
+        "ageMinutes": 10376,
         "stale": false,
         "failing": true,
         "available": true,

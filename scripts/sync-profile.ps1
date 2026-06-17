@@ -1048,8 +1048,14 @@ function New-ReleaseTrust {
         }
     }
 
+    $checksumCoverage = "none"
+    if ($checksumAssets.Count -gt 0) {
+        $checksumCoverage = if ($hasChecksumForEveryExecutable -and $executableAssetNames.Count -gt 0) { "full" } else { "partial" }
+    }
+
     return [ordered]@{
         checksumAssets = @($checksumAssets)
+        checksumCoverage = $checksumCoverage
         hasChecksumForEveryExecutable = $hasChecksumForEveryExecutable
         signatureAssets = @($signatureAssets)
         hasAuthenticodeSignature = $null
@@ -7887,13 +7893,16 @@ function Test-ReleaseAssetDrift {
             }
             if (@($releaseTrust.executableAssetKinds).Count -gt 0) {
                 $hasChecksum = [bool]$releaseTrust.hasChecksumForEveryExecutable -and @($releaseTrust.checksumAssets).Count -gt 0
+                $checksumCoverage = [string]$releaseTrust.checksumCoverage
                 $hasSbom = @($releaseTrust.sbomAssets).Count -gt 0
                 $hasAttestation = [bool]$releaseTrust.attestationAvailable
                 $gapScore = 0
                 if (-not $hasChecksum) { $gapScore++ }
                 if (-not $hasSbom) { $gapScore++ }
                 if (-not $hasAttestation) { $gapScore++ }
-                $nextAction = if (-not $hasChecksum) {
+                $nextAction = if (-not $hasChecksum -and $checksumCoverage -eq "partial") {
+                    "complete-missing-sha256sums"
+                } elseif (-not $hasChecksum) {
                     "publish-sha256sums"
                 } elseif (-not $hasAttestation) {
                     "publish-build-provenance-attestation"
@@ -7910,6 +7919,7 @@ function Test-ReleaseAssetDrift {
                         trustLevel = [string]$releaseTrust.trustLevel
                         evidenceSource = "filename-derived"
                         hasChecksum = [bool]$hasChecksum
+                        checksumCoverage = [string]$checksumCoverage
                         hasSbom = [bool]$hasSbom
                         hasAttestation = [bool]$hasAttestation
                         gapScore = [int]$gapScore

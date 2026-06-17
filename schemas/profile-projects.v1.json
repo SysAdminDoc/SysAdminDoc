@@ -197,6 +197,7 @@
       "additionalProperties": false,
       "required": [
         "checksumAssets",
+        "checksumCoverage",
         "hasChecksumForEveryExecutable",
         "signatureAssets",
         "hasAuthenticodeSignature",
@@ -215,6 +216,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "checksumCoverage": {
+          "type": "string",
+          "enum": ["none", "partial", "full"]
         },
         "hasChecksumForEveryExecutable": {
           "type": "boolean"

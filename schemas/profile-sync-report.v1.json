@@ -1199,6 +1199,7 @@
               "trustLevel",
               "evidenceSource",
               "hasChecksum",
+              "checksumCoverage",
               "hasSbom",
               "hasAttestation",
               "gapScore",
@@ -1228,6 +1229,10 @@
               },
               "hasChecksum": {
                 "type": "boolean"
+              },
+              "checksumCoverage": {
+                "type": "string",
+                "enum": ["none", "partial", "full"]
               },
               "hasSbom": {
                 "type": "boolean"
