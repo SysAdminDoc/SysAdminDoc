@@ -3945,6 +3945,7 @@ Describe 'Test-MetadataDrift report' {
             releaseAssetInspected = $true
             releaseTrust = [ordered]@{
                 checksumAssets = @()
+                checksumCoverage = 'none'
                 hasChecksumForEveryExecutable = $false
                 signatureAssets = @()
                 hasAuthenticodeSignature = $null
@@ -3955,6 +3956,8 @@ Describe 'Test-MetadataDrift report' {
                 sourceOnlyRelease = $false
                 executableAssetKinds = @('exe')
                 trustLevel = 'metadata-only'
+                platformDigestCount = 0
+                releaseImmutable = $null
                 notesPublic = 'Derived from release asset filenames; binaries were not downloaded or verified.'
             }
         }
@@ -3974,6 +3977,7 @@ Describe 'Test-MetadataDrift report' {
         $expectedProject.releaseAssetInspected = $false
         $expectedProject.releaseTrust = [ordered]@{
             checksumAssets = @()
+            checksumCoverage = 'none'
             hasChecksumForEveryExecutable = $false
             signatureAssets = @()
             hasAuthenticodeSignature = $null
@@ -3984,6 +3988,8 @@ Describe 'Test-MetadataDrift report' {
             sourceOnlyRelease = $false
             executableAssetKinds = @()
             trustLevel = 'unknown'
+            platformDigestCount = 0
+            releaseImmutable = $null
             notesPublic = $null
         }
         $expected = [ordered]@{

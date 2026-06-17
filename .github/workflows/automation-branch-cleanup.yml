@@ -40,9 +40,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DRY_RUN: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run == 'true' }}
+          GITHUB_REPO: ${{ github.repository }}
         run: |
           $ErrorActionPreference = "Stop"
-          $repo = "${{ github.repository }}"
+          $repo = $env:GITHUB_REPO
           $allowedPrefixes = @(
             "automation/profile-sync-",
             "automation/profile-assets-"

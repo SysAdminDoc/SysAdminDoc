@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-17T16:42:56.6418966-04:00",
+  "generatedAt": "2026-06-17T17:18:46.0873333-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -63,14 +63,14 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "ed4bb763a763177aa73dce5e51e5f4a695cf1d36",
+    "sourceCommit": "bc3afe2217ef67a50429e7162a9e8da8637cfd9b",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
-    "generatorSha256": "ee4434278eefd6c0e5ad47c76191adabab19f955ce07928d1decbb93660dbbdb",
+    "generatorSha256": "b520df90c5f837225156e89975018e96f66fd5285cb1b1673ac4949af95e7627",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-17T16:41:21.4243176-04:00",
-    "metadataProvider": "graphql",
+    "metadataSnapshotAt": "2026-06-17T17:15:46.0137576-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
+      "requestedLimit": 0,
       "returnedCount": 201,
       "truncated": false
     }
@@ -91,11 +91,10 @@
     "missingTopics": [
       {
         "repo": "android-foss",
-        "language": "Python",
+        "language": null,
         "pushedAt": "2026-06-15T14:09:47.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "python",
           "privacy"
         ]
       },
@@ -128,11 +127,11 @@
       },
       {
         "repo": "foss-apps",
-        "language": "Python",
+        "language": null,
         "pushedAt": "2026-06-15T14:09:50.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "python"
+          "utility"
         ]
       },
       {
@@ -156,29 +155,29 @@
       },
       {
         "repo": "hermes-webui",
-        "language": "Python",
+        "language": null,
         "pushedAt": "2026-06-16T00:23:06.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "python"
+          "utility"
         ]
       },
       {
         "repo": "notepad-plus-plus",
-        "language": "C++",
+        "language": null,
         "pushedAt": "2026-06-16T00:23:09.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "cpp"
+          "utility"
         ]
       },
       {
         "repo": "NotepadNext",
-        "language": "C++",
+        "language": null,
         "pushedAt": "2026-06-16T00:23:11.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "cpp"
+          "utility"
         ]
       },
       {
@@ -192,29 +191,29 @@
       },
       {
         "repo": "qBittorrent-Enhanced-Edition",
-        "language": "C++",
+        "language": null,
         "pushedAt": "2026-06-16T00:23:16.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "cpp"
+          "utility"
         ]
       },
       {
         "repo": "stylus",
-        "language": "JavaScript",
+        "language": null,
         "pushedAt": "2026-06-16T00:23:18.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "javascript"
+          "utility"
         ]
       },
       {
         "repo": "vcpkg",
-        "language": "CMake",
+        "language": null,
         "pushedAt": "2026-06-16T00:23:21.0000000Z",
         "category": "suppressed",
         "topicHints": [
-          "cmake"
+          "utility"
         ]
       },
       {
@@ -1104,7 +1103,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-17T16:41:21.4243176-04:00",
+          "queriedAt": "2026-06-17T17:15:46.0137576-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1576,15 +1575,15 @@
       "headerWarningHostCount": 0
     },
     "restFallbackReleaseFetch": {
-      "used": false,
-      "status": "not-used",
-      "repoCount": 0,
-      "authenticated": false,
+      "used": true,
+      "status": "completed",
+      "repoCount": 201,
+      "authenticated": true,
       "maxReleaseFetches": 240,
       "unauthenticatedReleaseFetchLimit": 50,
-      "attemptedReleaseFetches": 0,
-      "successfulReleaseFetches": 0,
-      "noRelease404Count": 0,
+      "attemptedReleaseFetches": 201,
+      "successfulReleaseFetches": 148,
+      "noRelease404Count": 53,
       "fatal": false,
       "abortRepo": null,
       "abortHttpStatus": null,
@@ -1609,7 +1608,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 16.02,
+      "ageDays": 16.04,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -1974,7 +1973,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 436159,
+        "value": 436163,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -1983,7 +1982,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 79188,
+        "value": 79164,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2028,11 +2027,11 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-17T16:21:22.8544742-04:00",
-    "latestReportAffectingCommitSha": "9877b5e9ab1bf41272730a207fda6472955cc663",
-    "latestReportAffectingCommitDate": "2026-06-17T16:22:58.0000000-04:00",
+    "committedReportGeneratedAt": "2026-06-17T16:42:56.6418966-04:00",
+    "latestReportAffectingCommitSha": "4d38774386a9df81c347489ca6161c974a060109",
+    "latestReportAffectingCommitDate": "2026-06-17T16:47:59.0000000-04:00",
     "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.03,
+    "reportAgeBehindHours": 0.08,
     "smokeStatus": "not-run",
     "smokeEvidenceStale": true,
     "reportAffectingPaths": [
@@ -2046,7 +2045,7 @@
       "README.md"
     ],
     "warnings": [
-      "Committed sync report (2026-06-17T16:21:22.8544742-04:00) is older than the latest report-affecting commit 9877b5e (2026-06-17T16:22:58.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
+      "Committed sync report (2026-06-17T16:42:56.6418966-04:00) is older than the latest report-affecting commit 4d38774 (2026-06-17T16:47:59.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
       "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
     ],
     "warningCount": 2
@@ -2094,7 +2093,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/17/2026 10:17:13",
         "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
-        "ageMinutes": 386,
+        "ageMinutes": 421,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2114,7 +2113,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 17751,
+        "ageMinutes": 17787,
         "stale": true,
         "failing": true,
         "available": true,
@@ -2134,7 +2133,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/11/2026 10:07:56",
         "latestSuccessfulScheduledAt": "06/11/2026 10:07:56",
-        "ageMinutes": 9035,
+        "ageMinutes": 9071,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2154,7 +2153,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 10442,
+        "ageMinutes": 10478,
         "stale": false,
         "failing": true,
         "available": true,

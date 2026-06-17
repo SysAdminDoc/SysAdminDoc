@@ -66,4 +66,5 @@ jobs:
           poutine version
 
       - name: Scan workflows with poutine
-        run: poutine analyze_local .github/workflows || true
+        continue-on-error: true
+        run: poutine analyze_local .github/workflows

@@ -245,7 +245,7 @@ function Get-GitHubReposFromRest {
                     releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
                     releaseAssetDigests = $assetDigests
                     assetApiInspected = $true
-                    immutable = [bool](Get-MemberValue -Object $releaseData -Name "immutable")
+                    immutable = Get-MemberValue -Object $releaseData -Name "immutable"
                 }
             }
         } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
@@ -521,7 +521,7 @@ function Add-ReleaseAssetMetadata {
         Set-MemberValue -Object $release -Name "releaseAssetKinds" -Value @(Get-ReleaseAssetKinds -AssetNames $assetNames)
         Set-MemberValue -Object $release -Name "releaseAssetDigests" -Value (Get-ReleaseAssetDigestsFromApiRelease -Release $releaseData)
         Set-MemberValue -Object $release -Name "assetApiInspected" -Value $true
-        Set-MemberValue -Object $release -Name "immutable" -Value ([bool](Get-MemberValue -Object $releaseData -Name "immutable"))
+        Set-MemberValue -Object $release -Name "immutable" -Value (Get-MemberValue -Object $releaseData -Name "immutable")
     }
 
     return @($Repos)
@@ -8875,7 +8875,9 @@ function Test-ProfileState {
     $prTransitionRef = $null
     try {
         $prTransitionRef = $report["repositorySettings"]["requiredCheckReadiness"]["prDeliveryTransition"]
-    } catch { }
+    } catch {
+        $prTransitionRef = $null
+    }
     if ($prTransitionRef -is [System.Collections.IDictionary]) {
         $detailKeys = @(
             'generatedPrDryRunEvidence', 'generatedPrWriteEvidence', 'directMainMaintenancePolicy',
@@ -9066,17 +9068,17 @@ if ($ApplyTopics) {
         Write-Host "Topic allowlist is empty; no topics will be applied."
         exit 0
     }
-    $catalogForTopics = Get-ProfileCatalog -CatalogPath (Join-Path $RepoRoot $CatalogPath)
+    $catalogForTopics = Get-Catalog -Path (Join-Path $RepoRoot $CatalogPath)
     $repoLookup = @{}
     foreach ($repo in (Get-GitHubRepos)) {
-        $repoLookup[[string](Get-MemberValue -Object $repo -Name "name")] = $repo
+        $repoLookup[([string](Get-MemberValue -Object $repo -Name "name")).ToLowerInvariant()] = $repo
     }
     $applied = 0
     $skipped = 0
     foreach ($entry in @($catalogForTopics.entries)) {
         $repoName = [string]$entry.repo
         if ($repoName -notin $allowlist) { continue }
-        $repo = $repoLookup[$repoName]
+        $repo = $repoLookup[$repoName.ToLowerInvariant()]
         $existingTopics = @()
         if ($repo) {
             $rawTopics = Get-MemberValue -Object $repo -Name "repositoryTopics"
@@ -9103,9 +9105,9 @@ if ($ApplyTopics) {
         }
         Write-Host "APPLY $repoName -> $($hints -join ', ')"
         $topicPayload = @{ names = $hints } | ConvertTo-Json -Compress
-        $topicPayload | gh api "repos/$Owner/$repoName/topics" -X PUT --input - 2>&1 | Out-Null
+        $topicOutput = $topicPayload | gh api "repos/$Owner/$repoName/topics" -X PUT --input - 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Failed to apply topics to $repoName (exit code $LASTEXITCODE)."
+            Write-Warning "Failed to apply topics to $repoName (exit code $LASTEXITCODE): $topicOutput"
         } else {
             $applied++
         }

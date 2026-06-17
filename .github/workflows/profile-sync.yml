@@ -173,11 +173,12 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          CHECK_RESULT: ${{ needs.check.result }}
         run: |
-          $state = if ('${{ needs.check.result }}' -eq 'success') { 'success' } else { 'failure' }
+          $state = if ($env:CHECK_RESULT -eq 'success') { 'success' } else { 'failure' }
           ./scripts/set-generated-validation-status.ps1 `
             -State $state `
-            -Description "Generated profile validation ${{ needs.check.result }}."
+            -Description "Generated profile validation $($env:CHECK_RESULT)."
 
   dry-run-pr:
     name: Preview generated README PR

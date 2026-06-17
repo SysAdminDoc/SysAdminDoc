@@ -46,7 +46,13 @@
     "readmeDensity",
     "artifactBudgets",
     "renderedProfileSmoke",
-    "readmeExperienceChecks"
+    "readmeExperienceChecks",
+    "evidenceFreshness",
+    "scheduledWorkflowFreshness",
+    "roadmapHygiene",
+    "readmeHeadingHierarchy",
+    "rootMarkdownHygiene",
+    "profileAssetsAccessibility"
   ],
   "properties": {
     "schema": {

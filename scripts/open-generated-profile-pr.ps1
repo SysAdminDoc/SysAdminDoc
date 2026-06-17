@@ -182,28 +182,25 @@ try {
         throw "Failed to push $branch (exit code $LASTEXITCODE)."
     }
     $branchPushed = $true
-} finally {
-    git config --local --unset http.https://github.com/.extraheader 2>$null
-}
 
-try {
-    & (Join-Path $PSScriptRoot 'set-generated-validation-status.ps1') `
-        -State pending `
-        -Repository $repository `
-        -Sha $generatedHeadSha `
-        -TargetUrl $validationRunsUrl `
-        -Description 'Generated profile validation pending.'
-} catch {
-    git push origin --delete $branch
-    if ($LASTEXITCODE -eq 0) {
-        Write-Warning "Deleted generated branch $branch after generated validation status publishing failed."
-    } else {
-        Write-Warning "Failed to delete generated branch $branch after generated validation status publishing failed (exit code $LASTEXITCODE)."
+    try {
+        & (Join-Path $PSScriptRoot 'set-generated-validation-status.ps1') `
+            -State pending `
+            -Repository $repository `
+            -Sha $generatedHeadSha `
+            -TargetUrl $validationRunsUrl `
+            -Description 'Generated profile validation pending.'
+    } catch {
+        git push origin --delete $branch
+        if ($LASTEXITCODE -eq 0) {
+            Write-Warning "Deleted generated branch $branch after generated validation status publishing failed."
+        } else {
+            Write-Warning "Failed to delete generated branch $branch after generated validation status publishing failed (exit code $LASTEXITCODE)."
+        }
+        throw
     }
-    throw
-}
 
-$prBody = @"
+    $prBody = @"
 $PullRequestBodyIntro
 
 Validation handoff: this workflow dispatches Profile sync in check mode on the generated branch after opening the pull request.
@@ -211,22 +208,25 @@ Status context: generated-profile/validation
 Validation runs: $validationRunsUrl
 "@
 
-$prUrl = gh pr create `
-    --base $BaseBranch `
-    --head $branch `
-    --title $PullRequestTitle `
-    --body $prBody
-if ($LASTEXITCODE -ne 0) {
-    $prCreateExitCode = $LASTEXITCODE
-    if ($branchPushed) {
-        git push origin --delete $branch
-        if ($LASTEXITCODE -eq 0) {
-            Write-Warning "Deleted generated branch $branch after pull-request creation failed."
-        } else {
-            Write-Warning "Failed to delete generated branch $branch after pull-request creation failed (exit code $LASTEXITCODE)."
+    $prUrl = gh pr create `
+        --base $BaseBranch `
+        --head $branch `
+        --title $PullRequestTitle `
+        --body $prBody
+    if ($LASTEXITCODE -ne 0) {
+        $prCreateExitCode = $LASTEXITCODE
+        if ($branchPushed) {
+            git push origin --delete $branch
+            if ($LASTEXITCODE -eq 0) {
+                Write-Warning "Deleted generated branch $branch after pull-request creation failed."
+            } else {
+                Write-Warning "Failed to delete generated branch $branch after pull-request creation failed (exit code $LASTEXITCODE)."
+            }
         }
+        throw "Failed to create generated profile pull request (exit code $prCreateExitCode)."
     }
-    throw "Failed to create generated profile pull request (exit code $prCreateExitCode)."
+} finally {
+    git config --local --unset http.https://github.com/.extraheader 2>$null
 }
 
 gh workflow run $ValidationWorkflow --ref $branch -f "mode=$ValidationMode"

@@ -6,14 +6,14 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "ed4bb763a763177aa73dce5e51e5f4a695cf1d36",
+    "sourceCommit": "bc3afe2217ef67a50429e7162a9e8da8637cfd9b",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
-    "generatorSha256": "ee4434278eefd6c0e5ad47c76191adabab19f955ce07928d1decbb93660dbbdb",
+    "generatorSha256": "b520df90c5f837225156e89975018e96f66fd5285cb1b1673ac4949af95e7627",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-17T16:41:21.4243176-04:00",
-    "metadataProvider": "graphql",
+    "metadataSnapshotAt": "2026-06-17T17:15:46.0137576-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
+      "requestedLimit": 0,
       "returnedCount": 201,
       "truncated": false
     }
