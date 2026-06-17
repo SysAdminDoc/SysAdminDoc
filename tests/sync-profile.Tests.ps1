@@ -2903,7 +2903,9 @@ Describe 'Generated profile PR validation handoff' {
 
     It 'grants actions write only to generated PR jobs that dispatch validation' {
         foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
-            $workflow | Should -Match '(?ms)permissions:\s*\r?\n\s+actions: write\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
+            $workflow | Should -Match '(?ms)permissions:\s*\r?\n(\s+\w[\w-]*: \w+\s*\r?\n)*\s+actions: write'
+            $workflow | Should -Match '(?ms)permissions:\s*\r?\n(\s+\w[\w-]*: \w+\s*\r?\n)*\s+contents: write'
+            $workflow | Should -Match '(?ms)permissions:\s*\r?\n(\s+\w[\w-]*: \w+\s*\r?\n)*\s+pull-requests: write'
             $workflow | Should -Match 'statuses: write'
             $workflow | Should -Match 'open-generated-profile-pr[.]ps1'
         }
