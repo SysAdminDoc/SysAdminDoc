@@ -77,13 +77,3 @@
   Acceptance: workflow-security runs poutine on `.github/workflows` in warning-only mode first, uploads or summarizes findings without committing raw artifacts, and Pester guards the pinned version plus no-floating-download policy.
   Complexity: M
 
-## Research-Driven Additions
-
-### P1
-
-- [ ] P1 — Clarify checksum coverage semantics in release trust reporting
-  Why: Some release rows show `trustLevel: checksum` while the executable-download shortlist marks `hasChecksum: false`, which makes the next action ambiguous for repos with partial checksum evidence.
-  Evidence: `reports/profile-sync-report.json.releaseAssetDrift.executableDownloadTrustShortlist`; `scripts/sync-profile.ps1` `New-ReleaseTrust` and release drift summary.
-  Touches: `scripts/sync-profile.ps1`, `scripts/write-profile-sync-summary.ps1`, `schemas/profile-projects.v1.json`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: report rows distinguish any checksum asset from complete executable checksum coverage; summaries and `nextAction` text tell maintainers whether to add checksums or complete missing per-asset coverage.
-  Complexity: S
