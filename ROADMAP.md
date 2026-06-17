@@ -13,17 +13,6 @@
 ## Research-Driven Additions (2026-06-10)
 
 
-## Research-Driven Additions (2026-06-13)
-
-### P2 — trust signals / hardening
-
-- [ ] P2 — Capture ReleaseAsset.digest from GraphQL for asset integrity verification
-  Why: The GraphQL API added a `digest` field to `ReleaseAsset` (SHA digest, May 2025) providing platform-verified checksums without downloading assets. The generator currently uses filename-derived trust heuristics only. Capturing platform-provided digests upgrades trust metadata from heuristic to verified. Complements the existing immutable-releases roadmap item which covers the `Release.immutable` boolean.
-  Evidence: GitHub GraphQL breaking changes docs (2025-05-27 `digest` addition to `ReleaseAsset`); current `scripts/sync-profile.ps1` has zero references to `digest` or `immutable`.
-  Touches: `scripts/sync-profile.ps1` (GraphQL query enrichment, trust metadata processing), `schemas/profile-projects.v1.json` (add digest field), `schemas/profile-sync-report.v1.json` (add digest coverage aggregates), `tests/sync-profile.Tests.ps1`
-  Acceptance: `projects.json` rows with releases include a platform-provided asset digest when available; sync report aggregates count repos with vs without digest coverage.
-  Complexity: M
-
 ### P3 — accessibility / discoverability
 
 - [ ] P3 — Add opt-in topic-apply mode with allowlist
