@@ -14,13 +14,6 @@
 
 ### P2 — leapfrog / hardening bets
 
-- [ ] P2 — Surface GitHub release immutability in releaseTrust and enable immutable releases on flagship repos
-  Why: Immutable releases are GA with signed Sigstore release attestations and tag locking; the REST release payload already returns an `immutable` boolean the generator discards — recording it upgrades filename-derived trust heuristics to a platform-verified signal no competitor surfaces.
-  Evidence: GitHub changelog 2025-10-28 (immutable releases GA); observed `"immutable": true/false` fields in api.github.com release responses; CLAUDE.md v4.9.44 releaseTrust constraint ("unless explicit verification paths are added later").
-  Touches: `scripts/sync-profile.ps1` (REST/GraphQL release fetch to capture `immutable`, extend `releaseTrust` and report aggregates), `schemas/profile-projects.v1.json`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`; repository settings on download-bearing repos (enable immutable releases).
-  Acceptance: `projects.json` rows with releases carry an immutability field; sync report counts immutable vs mutable latest releases; at least the top-starred download repos publish immutable releases.
-  Complexity: M
-
 - [ ] P2 — Attest projects.json provenance with actions/attest-build-provenance
   Why: The feed already publishes self-reported SHA-256 provenance hashes; a Sigstore attestation generated in the write-pr workflow makes provenance externally verifiable with `gh attestation verify`, matching GitHub's guidance that hash-bearing manifests are attestation candidates.
   Evidence: actions/attest-build-provenance README; GitHub artifact-attestations docs ("manifests that include hashes of detailed contents"); `projects.json.provenance` hash design (CLAUDE.md v4.9.43).
