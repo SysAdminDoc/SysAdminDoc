@@ -233,6 +233,7 @@ function Get-GitHubReposFromRest {
             if (-not [string]::IsNullOrWhiteSpace($releaseOutput)) {
                 $releaseData = $releaseOutput | ConvertFrom-Json
                 $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
+                $assetDigests = Get-ReleaseAssetDigestsFromApiRelease -Release $releaseData
                 $release = [pscustomobject]@{
                     tagName = Get-MemberValue -Object $releaseData -Name "tag_name"
                     url = Get-MemberValue -Object $releaseData -Name "html_url"
@@ -240,6 +241,7 @@ function Get-GitHubReposFromRest {
                     publishedAt = Get-MemberValue -Object $releaseData -Name "published_at"
                     releaseAssetNames = $assetNames
                     releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
+                    releaseAssetDigests = $assetDigests
                     assetApiInspected = $true
                     immutable = [bool](Get-MemberValue -Object $releaseData -Name "immutable")
                 }
@@ -515,6 +517,7 @@ function Add-ReleaseAssetMetadata {
         $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
         Set-MemberValue -Object $release -Name "releaseAssetNames" -Value $assetNames
         Set-MemberValue -Object $release -Name "releaseAssetKinds" -Value @(Get-ReleaseAssetKinds -AssetNames $assetNames)
+        Set-MemberValue -Object $release -Name "releaseAssetDigests" -Value (Get-ReleaseAssetDigestsFromApiRelease -Release $releaseData)
         Set-MemberValue -Object $release -Name "assetApiInspected" -Value $true
         Set-MemberValue -Object $release -Name "immutable" -Value ([bool](Get-MemberValue -Object $releaseData -Name "immutable"))
     }
@@ -941,6 +944,20 @@ function Get-ReleaseAssetNamesFromApiRelease {
     return $names.ToArray()
 }
 
+function Get-ReleaseAssetDigestsFromApiRelease {
+    param([object]$Release)
+
+    $digests = @{}
+    foreach ($asset in @((Get-MemberValue -Object $Release -Name "assets"))) {
+        $name = Get-MemberValue -Object $asset -Name "name"
+        $digest = Get-MemberValue -Object $asset -Name "digest"
+        if (-not [string]::IsNullOrWhiteSpace([string]$name) -and -not [string]::IsNullOrWhiteSpace([string]$digest)) {
+            $digests[[string]$name] = [string]$digest
+        }
+    }
+    return $digests
+}
+
 function Test-ReleaseAssetMetadataInspected {
     param([object]$Meta)
 
@@ -1014,7 +1031,8 @@ function New-ReleaseTrust {
         [string[]]$AssetNames,
         [bool]$HasRelease,
         [bool]$AssetInspected,
-        [object]$Immutable = $null
+        [object]$Immutable = $null,
+        [hashtable]$AssetDigests = @{}
     )
 
     $names = @($AssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
@@ -1069,6 +1087,7 @@ function New-ReleaseTrust {
         sourceOnlyRelease = $sourceOnlyRelease
         executableAssetKinds = @($executableAssetKinds)
         trustLevel = $trustLevel
+        platformDigestCount = if ($HasRelease) { [int]$AssetDigests.Count } else { 0 }
         releaseImmutable = if ($HasRelease -and $null -ne $Immutable) { [bool]$Immutable } else { $null }
         notesPublic = if ($HasRelease -and $AssetInspected) { "Derived from release asset filenames; binaries were not downloaded or verified." } else { $null }
     }
@@ -2491,12 +2510,14 @@ function New-ProjectsExportJson {
         }
         $licenseMetadata = Get-LicenseMetadata -Meta $meta
         $releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
+        $releaseDigests = if ($meta -and $meta.latestRelease) { $d = Get-MemberValue -Object $meta.latestRelease -Name "releaseAssetDigests"; if ($d -is [hashtable]) { $d } else { @{} } } else { @{} }
         $releaseTrust = New-ReleaseTrust `
             -AssetKinds $releaseAssetKinds `
             -AssetNames $releaseAssetNames `
             -HasRelease ([bool]($meta -and $meta.latestRelease)) `
             -AssetInspected $releaseAssetInspected `
-            -Immutable $(if ($meta -and $meta.latestRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null })
+            -Immutable $(if ($meta -and $meta.latestRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null }) `
+            -AssetDigests $releaseDigests
 
         $row = [ordered]@{
             repo = [string]$entry.repo
@@ -7833,6 +7854,7 @@ function Test-ReleaseAssetDrift {
     $trustLevelCounts = @{}
     $immutableReleaseCount = 0
     $mutableReleaseCount = 0
+    $digestCoverageCount = 0
     $releaseBearingRows = 0
     $releaseActionRows = 0
     $inspectedReleaseRows = 0
@@ -7847,7 +7869,8 @@ function Test-ReleaseAssetDrift {
         $assetNames = if ($hasRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
         $assetInspected = (Test-ReleaseAssetMetadataInspected -Meta $meta)
         $releaseImmutable = if ($hasRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null }
-        $releaseTrust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $hasRelease -AssetInspected $assetInspected -Immutable $releaseImmutable
+        $releaseDigestsForDrift = if ($hasRelease) { $d = Get-MemberValue -Object $meta.latestRelease -Name "releaseAssetDigests"; if ($d -is [hashtable]) { $d } else { @{} } } else { @{} }
+        $releaseTrust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $hasRelease -AssetInspected $assetInspected -Immutable $releaseImmutable -AssetDigests $releaseDigestsForDrift
         $trustLevel = [string]$releaseTrust.trustLevel
         if (-not $trustLevelCounts.ContainsKey($trustLevel)) {
             $trustLevelCounts[$trustLevel] = 0
@@ -7858,6 +7881,7 @@ function Test-ReleaseAssetDrift {
             $releaseBearingRows++
             if ($releaseTrust.releaseImmutable -eq $true) { $immutableReleaseCount++ }
             elseif ($releaseTrust.releaseImmutable -eq $false) { $mutableReleaseCount++ }
+            if ([int]$releaseTrust.platformDigestCount -gt 0) { $digestCoverageCount++ }
             if ($assetInspected) {
                 $inspectedReleaseRows++
                 foreach ($kind in @($assetKinds)) {
@@ -8057,6 +8081,10 @@ function Test-ReleaseAssetDrift {
             immutableCount = [int]$immutableReleaseCount
             mutableCount = [int]$mutableReleaseCount
             unknownCount = [int]($releaseBearingRows - $immutableReleaseCount - $mutableReleaseCount)
+        }
+        platformDigestCoverage = [ordered]@{
+            withDigestCount = [int]$digestCoverageCount
+            withoutDigestCount = [int]($releaseBearingRows - $digestCoverageCount)
         }
         executableDownloadTrustShortlist = $executableDownloadTrustShortlist
         executableDownloadsMissingChecksums = $executableDownloadsMissingChecksums.ToArray()

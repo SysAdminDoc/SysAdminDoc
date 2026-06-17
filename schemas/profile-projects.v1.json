@@ -208,6 +208,7 @@
         "sourceOnlyRelease",
         "executableAssetKinds",
         "trustLevel",
+        "platformDigestCount",
         "releaseImmutable",
         "notesPublic"
       ],
@@ -281,6 +282,10 @@
             "signed-and-attested",
             "unknown"
           ]
+        },
+        "platformDigestCount": {
+          "type": "integer",
+          "minimum": 0
         },
         "releaseImmutable": {
           "$ref": "#/$defs/nullableBoolean"

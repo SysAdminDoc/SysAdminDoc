@@ -1266,6 +1266,7 @@
         "releaseAssetKindCounts",
         "releaseTrustLevelCounts",
         "releaseImmutability",
+        "platformDigestCoverage",
         "executableDownloadsMissingChecksums",
         "debugArtifactRows",
         "sourceOnlyWithRelease",
@@ -1312,6 +1313,15 @@
             "immutableCount": { "$ref": "#/$defs/nonNegativeInteger" },
             "mutableCount": { "$ref": "#/$defs/nonNegativeInteger" },
             "unknownCount": { "$ref": "#/$defs/nonNegativeInteger" }
+          }
+        },
+        "platformDigestCoverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["withDigestCount", "withoutDigestCount"],
+          "properties": {
+            "withDigestCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "withoutDigestCount": { "$ref": "#/$defs/nonNegativeInteger" }
           }
         },
         "executableDownloadTrustShortlist": {
