@@ -3431,7 +3431,7 @@ Describe 'Dependabot GitHub Actions update grouping' {
     }
 
     It 'enables auto-merge only for Dependabot GitHub Actions minor and patch updates' {
-        $script:DependabotAutoMergeWorkflow | Should -Match '(?m)^  pull_request_target:\s*$'
+        $script:DependabotAutoMergeWorkflow | Should -Match '(?m)^  pull_request_target:\s*(#.*)?$'
         $script:DependabotAutoMergeWorkflow | Should -Not -Match '(?m)^  pull_request:\s*$'
         $script:DependabotAutoMergeWorkflow | Should -Match "github[.]event[.]pull_request[.]user[.]login == 'dependabot\[bot\]'"
         $script:DependabotAutoMergeWorkflow | Should -Match "github[.]repository == 'SysAdminDoc/SysAdminDoc'"
@@ -3557,7 +3557,7 @@ Describe 'Workflow dependency review action pin' {
     It 'configures an explicit dependency-review policy' {
         $script:TestsWorkflowForDepReview | Should -Match '(?ms)actions/dependency-review-action@.*?with:'
         $script:TestsWorkflowForDepReview | Should -Match 'fail-on-severity:\s*moderate'
-        $script:TestsWorkflowForDepReview | Should -Match 'deny-licenses:\s*GPL-2\.0, GPL-3\.0, AGPL-3\.0, LGPL-2\.1, LGPL-3\.0'
+        $script:TestsWorkflowForDepReview | Should -Not -Match 'deny-licenses:'
         $script:TestsWorkflowForDepReview | Should -Match 'comment-summary-in-pr:\s*on-failure'
         $script:TestsWorkflowForDepReview | Should -Match '(?ms)dependency-review:.*?permissions:.*?pull-requests:\s*write'
     }
@@ -3612,7 +3612,7 @@ Describe 'Workflow privileged-trigger and untrusted-expression guardrails' {
             '|github\.event\.pull_request\.head\.(ref|label)' +
             '|github\.event\.workflow_run\.head_branch'
 
-        $script:PrivilegedTriggerPattern = '(?m)^\s\s(pull_request_target|workflow_run|issue_comment):\s*$'
+        $script:PrivilegedTriggerPattern = '(?m)^\s\s(pull_request_target|workflow_run|issue_comment):\s*(#.*)?$'
     }
 
     It 'never interpolates untrusted GitHub contexts directly inside run blocks' {

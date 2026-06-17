@@ -12,9 +12,19 @@
       "branch": "main",
       "entrypoint": "WinTool.ps1",
       "installKind": "powershell",
+      "downloadKind": "download",
+      "userscriptUrl": null,
+      "liveUrl": null,
+      "language": "PowerShell",
       "descriptionOverride": "A test PowerShell tool",
       "featured": true,
-      "featuredRank": 1
+      "featuredRank": 1,
+      "currentlyBuilding": false,
+      "currentlyBuildingText": null,
+      "allowPublicMedical": false,
+      "aliasOf": null,
+      "suppressionReason": null,
+      "notes": null
     },
     {
       "repo": "PyTool",
@@ -26,7 +36,19 @@
       "branch": "master",
       "entrypoint": "app.py",
       "installKind": "python",
-      "descriptionOverride": "A test Python tool"
+      "downloadKind": null,
+      "userscriptUrl": null,
+      "liveUrl": null,
+      "language": "Python",
+      "descriptionOverride": "A test Python tool",
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "currentlyBuildingText": null,
+      "allowPublicMedical": false,
+      "aliasOf": null,
+      "suppressionReason": null,
+      "notes": null
     },
     {
       "repo": "WebTool",
@@ -35,8 +57,22 @@
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 1,
+      "branch": null,
+      "entrypoint": null,
+      "installKind": null,
+      "downloadKind": null,
+      "userscriptUrl": null,
       "liveUrl": "https://sysadmindoc.github.io/WebTool/",
-      "descriptionOverride": "A test web app"
+      "language": null,
+      "descriptionOverride": "A test web app",
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "currentlyBuildingText": null,
+      "allowPublicMedical": false,
+      "aliasOf": null,
+      "suppressionReason": null,
+      "notes": null
     },
     {
       "repo": "HiddenTool",
@@ -45,8 +81,22 @@
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 1,
+      "branch": null,
+      "entrypoint": null,
+      "installKind": null,
+      "downloadKind": null,
+      "userscriptUrl": null,
+      "liveUrl": null,
+      "language": null,
       "descriptionOverride": "Should be excluded",
-      "suppressionReason": "Test suppression: not visitor-facing."
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "currentlyBuildingText": null,
+      "allowPublicMedical": false,
+      "aliasOf": null,
+      "suppressionReason": "Test suppression: not visitor-facing.",
+      "notes": null
     }
   ]
 }
