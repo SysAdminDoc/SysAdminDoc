@@ -13,7 +13,7 @@ A compact shortlist of the most useful, ready-to-run projects. Use the action li
 - [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;45<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 - [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;20<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 - [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) -- Python, &#11088;11<br/>Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
-- [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;11<br/>Spotify customization — automates Spicetify, themes, extensions<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
+- [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;12<br/>Spotify customization — automates Spicetify, themes, extensions<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
 - [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;20<br/>Remove hardcoded subtitles from video<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 - [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) -- Extensions, &#11088;8<br/>Premium YouTube enhancement extension — 150+ features for Chrome & Firefox<br/>[<kbd>&#11015;&nbsp;CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest)
 - [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) -- PowerShell, &#11088;5<br/>67 automated checks across 8 security domains, MITRE ATT&CK mapping<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
@@ -64,7 +64,7 @@ Suggested starting points: [**win11-nvme-driver-patcher**](https://github.com/Sy
 $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/win11-nvme-driver-patcher $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NVMe_Driver_Patcher.ps1"
 ```
 
-[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;11 -- Spotify customization — automates Spicetify, themes, extensions &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
+[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;12 -- Spotify customization — automates Spicetify, themes, extensions &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
 ```powershell
 $d="$env:TEMP\LibreSpot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LibreSpot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\LibreSpot.ps1"
 ```

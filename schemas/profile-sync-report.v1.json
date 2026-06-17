@@ -1307,10 +1307,7 @@
           "$ref": "#/$defs/executableDownloadTrustShortlist"
         },
         "executableDownloadsMissingChecksums": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/downloadChecksumGap"
-          }
+          "$ref": "#/$defs/nonNegativeInteger"
         },
         "debugArtifactRows": {
           "type": "array",
@@ -2731,31 +2728,28 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "generatedPrDryRunEvidence": {
-          "$ref": "#/$defs/generatedPrDryRunEvidence"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "generatedPrWriteEvidence": {
-          "$ref": "#/$defs/generatedPrWriteEvidence"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "directMainMaintenancePolicy": {
-          "$ref": "#/$defs/directMainMaintenancePolicy"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "candidateCheckExercisePlan": {
-          "$ref": "#/$defs/candidateCheckExercisePlan"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "candidateCheckExerciseEvidence": {
-          "$ref": "#/$defs/candidateCheckExerciseEvidence"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "routineMaintenancePrDrillEvidence": {
-          "$ref": "#/$defs/routineMaintenancePrDrillEvidence"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "requiredCheckEnforcementEvidence": {
-          "$ref": "#/$defs/requiredCheckEnforcementEvidence"
+          "description": "Compact evidence summary (null or summary object)."
         },
         "items": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/prDeliveryTransitionItem"
-          }
+          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     },

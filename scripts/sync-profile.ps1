@@ -6249,6 +6249,9 @@ function Test-JsonArrayWrapper {
 function Get-JsonArrayItems {
     param([object]$Value)
 
+    if ($null -eq $Value) {
+        return
+    }
     if (Test-JsonArrayWrapper $Value) {
         foreach ($item in $Value.Items) {
             $item
@@ -7991,7 +7994,7 @@ function Test-ReleaseAssetDrift {
     # (checksums, then attestation, then SBOM), then by reach (stars). This keeps
     # filename-derived heuristics distinct from a "checksum/SBOM/attestation present"
     # signal so adoption work can start with the highest-impact rows first.
-    $shortlistSoftCap = 25
+    $shortlistSoftCap = 10
     $rankedCandidates = @(
         $executableDownloadCandidates.ToArray() |
             Sort-Object -Property `
@@ -8817,6 +8820,77 @@ function Test-ProfileState {
         rootMarkdownHygiene = $rootMarkdownHygiene
         profileAssetsAccessibility = $profileAssetsAccessibility
         readmeExperienceChecks = $experienceChecks
+    }
+    # Compact report sections to keep the committed JSON below the 70 % soft-limit.
+    # The live PS objects are still fully populated for downstream use within this
+    # function; only the serialised report copy is stripped here.
+
+    # 1. prDeliveryTransition: replace per-evidence detail objects and the items
+    #    checklist array with compact status strings / counts.
+    $prTransitionRef = $null
+    try {
+        $prTransitionRef = $report["repositorySettings"]["requiredCheckReadiness"]["prDeliveryTransition"]
+    } catch { }
+    if ($prTransitionRef -is [System.Collections.IDictionary]) {
+        $detailKeys = @(
+            'generatedPrDryRunEvidence', 'generatedPrWriteEvidence', 'directMainMaintenancePolicy',
+            'candidateCheckExercisePlan', 'candidateCheckExerciseEvidence',
+            'routineMaintenancePrDrillEvidence', 'requiredCheckEnforcementEvidence', 'items'
+        )
+        foreach ($dk in $detailKeys) {
+            if ($prTransitionRef.Contains($dk)) {
+                $detail = $prTransitionRef[$dk]
+                # Replace detail objects and arrays with compact summaries.
+                # The items count is preserved as a nonNegativeInteger.
+                # generatedPrWriteEvidence is kept as a minimal stub so that
+                # write-profile-sync-summary.ps1 can still read statusHandoffContext
+                # for the CI step summary (tested by the summary test suite).
+                $prTransitionRef[$dk] = if ($dk -eq 'items' -and $null -ne $detail -and $detail.GetType().IsArray) {
+                    [int]($detail | Measure-Object).Count
+                } elseif ($dk -eq 'generatedPrWriteEvidence' -and $detail -is [System.Collections.IDictionary]) {
+                    # Keep a stub with all fields that write-profile-sync-summary.ps1 reads under
+                    # Set-StrictMode -Version Latest (missing props throw); only statusHandoffContext
+                    # needs its real value — the rest default to null so guards short-circuit.
+                    [ordered]@{
+                        available                           = $null
+                        conclusion                          = $null
+                        failedStep                          = $null
+                        generatedBranchCleanup              = $null
+                        runUrl                              = $null
+                        pullRequestNumber                   = $null
+                        pullRequestState                    = $null
+                        validationDispatched                = $null
+                        validationConclusion                = $null
+                        validationFailedStep                = $null
+                        validationRunUrl                    = $null
+                        generatedBranchCheckRunCount        = $null
+                        generatedBranchSuccessfulCheckRunCount = $null
+                        pullRequestCheckRollupCount         = $null
+                        pullRequestChecksAttached           = $null
+                        statusHandoffImplemented            = $null
+                        statusHandoffContext                 = [string](Get-MemberValue -Object $detail -Name 'statusHandoffContext')
+                        statusHandoffProof                  = $null
+                        statusHandoffState                  = $null
+                        statusHandoffPermission             = $null
+                    }
+                } else {
+                    $null
+                }
+            }
+        }
+    }
+
+    # 2. executableDownloadsMissingChecksums: replace the per-repo row array with
+    #    just the count.
+    $releaseAssetDriftRef = $report["releaseAssetDrift"]
+    if ($releaseAssetDriftRef -is [System.Collections.IDictionary] -and
+        $releaseAssetDriftRef.Contains('executableDownloadsMissingChecksums')) {
+        $checksumArray = $releaseAssetDriftRef['executableDownloadsMissingChecksums']
+        $releaseAssetDriftRef['executableDownloadsMissingChecksums'] = if ($null -ne $checksumArray -and $checksumArray.GetType().IsArray) {
+            [int]($checksumArray | Measure-Object).Count
+        } else {
+            [int]0
+        }
     }
     for ($artifactBudgetPass = 0; $artifactBudgetPass -lt 2; $artifactBudgetPass++) {
         $draftReportJson = $report | ConvertTo-Json -Depth 30

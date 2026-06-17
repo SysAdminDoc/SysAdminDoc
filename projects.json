@@ -6,14 +6,14 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "2ee7ba7a3e173e24e0126652f6c50a13964f8e7c",
+    "sourceCommit": "09efecf7209bbf193a34c6a22261b8a9296ce54b",
     "catalogSha256": "283a94b46a9ee2be51b5741829b0e817ab60db2728acd46831dc6cd5e92f119d",
-    "generatorSha256": "1fabf77d952c4bd597729cda529ab55c21c2baf5ec40f22d9610ce637667c437",
+    "generatorSha256": "ca8261283499a65bf9022e7bca31557a348e464c6a7d18d88160fe2738e99de3",
     "projectSchemaSha256": "b7ce639799218bbb614d96cc0396741eb05f0a6c3d33be169f2948a5a5d7255c",
-    "metadataSnapshotAt": "2026-06-17T15:34:58.7906312-04:00",
-    "metadataProvider": "graphql",
+    "metadataSnapshotAt": "2026-06-17T15:50:38.0864232-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 500,
+      "requestedLimit": 0,
       "returnedCount": 201,
       "truncated": false
     }
@@ -310,7 +310,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T19:33:33.0000000Z",
+      "pushedAt": "2026-06-17T19:38:15.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -633,7 +633,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T19:35:04.0000000Z",
+      "pushedAt": "2026-06-17T19:41:34.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -1287,7 +1287,7 @@
         "trustLevel": "metadata-only",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T19:30:27.0000000Z",
+      "pushedAt": "2026-06-17T19:50:18.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -3021,7 +3021,7 @@
         "trustLevel": "unknown",
         "notesPublic": null
       },
-      "pushedAt": "2026-06-17T19:35:21.0000000Z",
+      "pushedAt": "2026-06-17T19:37:52.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -5878,7 +5878,7 @@
       "entrypoint": "LibreSpot.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 11,
+      "stars": 12,
       "latestReleaseTag": "v3.7.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LibreSpot/releases/tag/v3.7.2",
       "releaseAssetKinds": [
@@ -5912,7 +5912,7 @@
         "trustLevel": "checksum",
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T19:29:01.0000000Z",
+      "pushedAt": "2026-06-17T19:45:10.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
