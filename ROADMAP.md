@@ -12,15 +12,6 @@
 
 ## Research-Driven Additions (2026-06-10)
 
-### P2 — leapfrog / hardening bets
-
-- [ ] P2 — Attest projects.json provenance with actions/attest-build-provenance
-  Why: The feed already publishes self-reported SHA-256 provenance hashes; a Sigstore attestation generated in the write-pr workflow makes provenance externally verifiable with `gh attestation verify`, matching GitHub's guidance that hash-bearing manifests are attestation candidates.
-  Evidence: actions/attest-build-provenance README; GitHub artifact-attestations docs ("manifests that include hashes of detailed contents"); `projects.json.provenance` hash design (CLAUDE.md v4.9.43).
-  Touches: `.github/workflows/profile-sync.yml` write-pr job (`attestations: write` + `id-token: write` permissions, attest step pinned by SHA), feed provenance docs in `schemas/profile-projects.v1.json` description, `scripts/open-generated-profile-pr.ps1` summary link.
-  Acceptance: `gh attestation verify projects.json -o SysAdminDoc` succeeds for a feed produced by the write-pr workflow; zizmor stays green on the added permissions.
-  Complexity: M
-
 
 ## Research-Driven Additions (2026-06-13)
 
