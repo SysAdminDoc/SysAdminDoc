@@ -3476,6 +3476,30 @@ Describe 'Workflow checkout action pin' {
     }
 }
 
+Describe 'Harden-Runner egress auditing' {
+    BeforeAll {
+        $script:HardenRunnerSha = '9af89fc71515a100421586dfdb3dc9c984fbf411'
+        $script:WorkflowFilesForHardenRunner = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
+    }
+
+    It 'uses the pinned harden-runner SHA in every workflow' {
+        foreach ($workflowFile in $script:WorkflowFilesForHardenRunner) {
+            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
+            $content | Should -Match "step-security/harden-runner@$($script:HardenRunnerSha)" -Because "$($workflowFile.Name) must include the pinned harden-runner step"
+        }
+    }
+
+    It 'uses audit egress policy everywhere' {
+        foreach ($workflowFile in $script:WorkflowFilesForHardenRunner) {
+            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
+            $matches = [regex]::Matches($content, 'egress-policy:\s*(\S+)')
+            foreach ($match in $matches) {
+                $match.Groups[1].Value | Should -Be 'audit' -Because "$($workflowFile.Name) harden-runner must use audit egress policy"
+            }
+        }
+    }
+}
+
 Describe 'Workflow artifact upload action pin' {
     BeforeAll {
         $script:WorkflowFilesForUploadArtifact = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
