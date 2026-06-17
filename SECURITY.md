@@ -24,4 +24,4 @@ Not handled in this repository:
 
 ## Response
 
-Security reports are reviewed for public exposure risk first. Confirmed public-profile issues are fixed through normal repository commits without exposing sensitive details.
+Security reports are reviewed within 7 business days. Public exposure risks are prioritized and triaged immediately. Confirmed public-profile issues are fixed through normal repository commits without exposing sensitive details.

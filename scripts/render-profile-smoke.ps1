@@ -150,6 +150,9 @@ function Invoke-RenderedSmoke {
         }
         if ($readyState.result.value -eq 'complete') { break }
     }
+    if ([datetime]::UtcNow -ge $loadDeadline) {
+        Write-Warning "Page load did not reach readyState 'complete' within 30 seconds at ${Width}x${Height}; proceeding on a partially loaded page."
+    }
     Start-Sleep -Seconds 2
 
     $expression = @'

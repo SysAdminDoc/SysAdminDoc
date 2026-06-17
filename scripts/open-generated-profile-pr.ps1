@@ -168,6 +168,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 $generatedHeadSha = $generatedHeadSha.Trim()
 
+$branchPushed = $false
 $basicToken = [Convert]::ToBase64String(
     [Text.Encoding]::ASCII.GetBytes("x-access-token:$env:GH_TOKEN")
 )
@@ -175,11 +176,15 @@ git config --local http.https://github.com/.extraheader "Authorization: basic $b
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to configure push credentials (exit code $LASTEXITCODE)."
 }
-git push origin $branch
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to push $branch (exit code $LASTEXITCODE)."
+try {
+    git push origin $branch
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to push $branch (exit code $LASTEXITCODE)."
+    }
+    $branchPushed = $true
+} finally {
+    git config --local --unset http.https://github.com/.extraheader 2>$null
 }
-$branchPushed = $true
 
 try {
     & (Join-Path $PSScriptRoot 'set-generated-validation-status.ps1') `

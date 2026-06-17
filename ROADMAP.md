@@ -2,37 +2,15 @@
 
 ## Research-Driven Additions (2026-06-09)
 
-### Now (immediate, high impact, low-medium effort)
-
-### Next (near-term, moderate effort)
-
 ### Later (backlog, larger effort or lower priority)
-
-- [ ] **Submit to awesome lists** -- Per the v4.9.11 awesome-list candidate plan, submit Network_Security_Auditor and win11-nvme-driver-patcher to `awesome-foss/awesome-sysadmin`; UserScript-Finder and Astra-Deck to `awesome-scripts/awesome-userscripts`; the SysAdminDoc profile itself to `abhisheknaiidu/awesome-github-profile-readme` under data-driven automation. Requires each project to meet list-specific criteria (FOSS license, active maintenance, quality README). Impact: 3, Effort: M.
-
-- [ ] **Add rendered-smoke mobile viewport overflow regression gate** -- The rendered profile smoke currently reports mobile viewport overflow as a warning. Promote it to a fatal check once the current 0-warning baseline is confirmed stable across 3+ consecutive runs. Impact: 2, Effort: S.
 
 - [ ] **Investigate PowerShell 7 native JSON Schema validation** -- `Test-Json -SchemaFile` in PowerShell 7.4+ uses JsonSchema.NET natively. Evaluate whether the custom `Test-JsonSchemaContract` function in sync-profile.ps1 can be replaced with the built-in cmdlet, reducing custom validation code. Known caveat: some PowerShell 7.4.0 schema bugs (GitHub issue #20743). Impact: 2, Effort: M.
 
 - [ ] **Add sync-profile.ps1 function-level documentation** -- The script exports 100+ functions via the test seam but lacks parameter-level documentation or synopsis comments. Adding `[CmdletBinding()]` and `.SYNOPSIS`/`.PARAMETER` blocks to key public functions would improve maintainability and enable auto-generated docs. Impact: 2, Effort: L.
 
-- [ ] **Evaluate migration from branch protection to repository rulesets** -- GitHub rulesets support organization-wide enforcement and bypass-actor audit logs, but currently lack per-rule exemptions that branch protection provides via `enforce_admins`. Monitor GitHub's ruleset feature maturity before migrating. Impact: 2, Effort: L.
-
-### Under Consideration
-
-- [ ] **Portfolio-only demotion for low-signal README rows** -- The `readmeDensity` report identifies 11 Python rows as portfolio-only candidates with catalog `readmeReviewNote` context. If the README approaches the 96KB soft limit, these rows can be demoted to portfolio-only (visible on sysadmindoc.github.io but not in the GitHub README). Currently informational. Impact: 2, Effort: M.
-
 - [ ] **Add contribution-graph or streak visualization** -- Self-hosted (committed SVG) contribution visualization similar to Platane/snk or github-readme-stats streak. Would require a new GitHub Action step to generate the SVG from the contributions API. Lower priority because the current profile focuses on project catalog rather than activity metrics. Impact: 1, Effort: M.
 
 ## Research-Driven Additions (2026-06-10)
-
-### P1 — trust / reliability
-
-- [ ] P2 — Confirm hosted profile sync and assets-refresh runs after the v4.9.125 branch lands
-  Why: Local v4.9.125 generation has 0 fatal metadata drift rows and profile assets are in sync, but the previously failing hosted schedules need post-merge GitHub Actions evidence.
-  Where: `.github/workflows/profile-sync.yml`, `.github/workflows/assets-refresh.yml`, `reports/profile-sync-report.json`
-  Acceptance: next scheduled or manually dispatched Profile sync and Profile assets refresh runs complete successfully on GitHub.
-  Complexity: S
 
 ### P2 — leapfrog / hardening bets
 
@@ -68,32 +46,7 @@
   Acceptance: committed report drops below 70% of its soft limit by moving per-row evidence detail into CI-only summary/annotation output while keeping aggregates in the committed JSON. Schema version stays compatible.
   Complexity: M
 
-### P2 — hardening / observability
-
-- [ ] P2 — Enable delete-branch-on-merge
-  Why: Currently disabled (`deleteBranchOnMerge: false`). The `automation-branch-cleanup.yml` handles generated branches weekly, but enabling the native setting auto-cleans all merged PR branches immediately, reducing stale-branch noise and simplifying the cleanup workflow.
-  Evidence: `repositorySettings.features.deleteBranchOnMerge: false` in sync report; GitHub docs on automatic head-branch deletion.
-  Touches: Repository settings (GitHub API or UI), `scripts/sync-profile.ps1` (report the setting), `tests/sync-profile.Tests.ps1`
-  Acceptance: `deleteBranchOnMerge` reports `true` in the sync report; merged PR branches are auto-deleted; protected branches remain unaffected.
-  Complexity: S
-
-- [ ] P2 — Enable secret-scanning non-provider patterns
-  Why: Non-provider pattern scanning is disabled, meaning custom/internal secret formats are not caught. Enabling it adds broader coverage at zero configuration cost.
-  Evidence: `repositorySettings.security.secretScanningNonProviderPatterns: "disabled"` in sync report.
-  Touches: Repository settings (GitHub API or UI), `scripts/sync-profile.ps1` (report the setting)
-  Acceptance: `secretScanningNonProviderPatterns` reports `enabled`; no false-positive alert volume regression after 2 weeks.
-  Complexity: S
-
 ## Research-Driven Additions (2026-06-13)
-
-### P1 — trust / security posture
-
-- [ ] P1 — Enable Private Vulnerability Reporting (PVR)
-  Why: PVR is free for all public repos but not toggled on. `SECURITY.md` references PVR with "when it is available" language. Enabling it provides researchers a structured private channel, satisfies the CII Best Practices vulnerability-reporting criterion, and completes the security posture without exposing private details.
-  Evidence: SECURITY.md current wording; GitHub PVR GA announcement; CII Best Practices badge requirements (vulnerability reporting process with <14-day response).
-  Touches: Repository settings (GitHub UI toggle), `SECURITY.md` (update conditional language to reference the live PVR channel)
-  Acceptance: "Report a vulnerability" button is visible on the repository's Security/Advisories page; `SECURITY.md` no longer uses "when it is available" conditional language.
-  Complexity: S
 
 ### P2 — trust signals / hardening
 
@@ -115,16 +68,7 @@
 
 ## Research-Driven Additions (2026-06-13 continued)
 
-### P1 — reliability / evidence hygiene
-
 ### P2 — security / pipeline hardening
-
-- [ ] P2 — Enable secret-scanning validity checks and report state
-  Why: Secret scanning and push protection are enabled, but validity checks are disabled, so leaked-token triage lacks active/inactive prioritization when provider support exists.
-  Evidence: `reports/profile-sync-report.json.repositorySettings.security.secretScanningValidityChecks` is `disabled`; GitHub secret scanning docs describe validity checks as the active-secret prioritization signal.
-  Touches: GitHub repository security settings, `scripts/sync-profile.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`
-  Acceptance: repository settings show validity checks enabled where available; sync report distinguishes enabled, disabled, unavailable, and intentionally declined states; no new fatal warning appears when GitHub does not support validity for a pattern.
-  Complexity: S
 
 - [ ] P2 — Add poutine workflow scanner to workflow-security lane
   Why: actionlint and zizmor cover syntax and common security findings, but poutine detects complementary CI/CD pipeline vulnerability patterns; recent scanner research evaluates poutine alongside actionlint and zizmor for broader workflow coverage.
@@ -135,40 +79,15 @@
 
 ## Engineering Audit Findings (2026-06-14)
 
-### P2 - Security / Hardening
-
-- [ ] P2 — Clean up GH_TOKEN credential from .git/config in open-generated-profile-pr.ps1
-  Why: The base64-encoded token written to `http.https://github.com/.extraheader` persists in `.git/config` after the script completes. A finally block should unset it.
-  Where: `scripts/open-generated-profile-pr.ps1` lines 171-174
-
-- [ ] P2 — Initialize $branchPushed before use in open-generated-profile-pr.ps1
-  Why: The variable is referenced in a catch block (line 216) but never explicitly initialized. Under StrictMode this would error.
-  Where: `scripts/open-generated-profile-pr.ps1`
-
 ### P3 - Observability / Quality
-
-- [ ] P3 — Add page-load timeout warning in render-profile-smoke.ps1
-  Why: If the GitHub profile page never reaches readyState === 'complete', the smoke test proceeds silently on a partially-loaded page with no warning.
-  Where: `scripts/render-profile-smoke.ps1` lines 143-152
 
 - [ ] P3 — Align test fixture catalog fields with production schema
   Why: `tests/fixtures/catalog.json` entries are missing many fields that the schema marks as required, making tests unreliable against the real data shape.
   Where: `tests/fixtures/catalog.json`, `schemas/profile-catalog.v1.json`
 
-- [ ] P3 — Add SECURITY.md response-time guidance
-  Why: The security policy has no indication of expected response time, which may discourage reporters. Consider adding a "reviewed within 7 business days" commitment.
-  Where: `SECURITY.md`
-
 ## Research-Driven Additions
 
 ### P0
-
-- [ ] P0 — Remove or contain the Dependabot auto-merge `pull_request_target` trigger
-  Why: The scheduled workflow-security lane is currently failing because zizmor reports `dangerous-triggers` on `.github/workflows/dependabot-auto-merge.yml`.
-  Evidence: GitHub run `27683950030`; `.github/workflows/dependabot-auto-merge.yml`; zizmor `dangerous-triggers` audit.
-  Touches: `.github/workflows/dependabot-auto-merge.yml`, `.github/workflows/workflow-security.yml`, `tests/sync-profile.Tests.ps1` if workflow policy guards are added.
-  Acceptance: scheduled Workflow security passes on `main`; Dependabot auto-merge still only acts on verified Dependabot PRs; no unsuppressed zizmor high findings remain.
-  Complexity: M
 
 - [ ] P0 — Refresh generated feed evidence after current metadata drift
   Why: Profile sync and Profile assets refresh are failing because committed generated outputs no longer match live metadata and report freshness.
@@ -178,13 +97,6 @@
   Complexity: M
 
 ### P1
-
-- [ ] P1 — Align dependency-review license policy with catalog license posture
-  Why: CI blocks GPL/AGPL/LGPL dependency licenses even though the catalog intentionally discloses GPL, AGPL, and LGPL project licenses, and `deny-licenses` is deprecated for possible removal.
-  Evidence: `.github/workflows/tests.yml` `deny-licenses`; `reports/profile-sync-report.json.projectLicenseMetadata.licenseCounts`; actions/dependency-review-action docs.
-  Touches: `.github/workflows/tests.yml`, optional `.github/dependency-review-config.yml`, `tests/sync-profile.Tests.ps1`, `RESEARCH.md`/security docs if policy wording changes.
-  Acceptance: dependency-review enforces vulnerability severity and any truly disallowed licenses without contradicting the public catalog's OSS license posture; a local test or workflow check documents the selected policy.
-  Complexity: S
 
 - [ ] P1 — Resolve the remaining unresolved project license metadata row
   Why: `HostShield` is visitor-facing with `NOASSERTION`/Other license metadata and no intentional exception, leaving one unresolved legal/trust warning.
@@ -198,13 +110,6 @@
   Evidence: `reports/profile-sync-report.json.releaseAssetDrift.executableDownloadTrustShortlist`; `scripts/sync-profile.ps1` `New-ReleaseTrust` and release drift summary.
   Touches: `scripts/sync-profile.ps1`, `scripts/write-profile-sync-summary.ps1`, `schemas/profile-projects.v1.json`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
   Acceptance: report rows distinguish any checksum asset from complete executable checksum coverage; summaries and `nextAction` text tell maintainers whether to add checksums or complete missing per-asset coverage.
-  Complexity: S
-
-- [ ] P1 — Clear root Markdown hygiene warnings without adding root docs
-  Why: The report currently flags ignored root leftovers that violate the documented markdown hygiene contract and keep reappearing in research passes.
-  Evidence: `reports/profile-sync-report.json.rootMarkdownHygiene.unexpectedFiles` lists `LOGO_PROMPTS.md`, `RESEARCH_FEATURE_PLAN.md`, and `TODO.md`; `AGENTS.md` file hygiene rules.
-  Touches: local root documentation cleanup or hygiene allowlist policy, `scripts/sync-profile.ps1` root markdown hygiene report, `.markdownlint-cli2.yaml` only if exemptions change.
-  Acceptance: `rootMarkdownHygiene.status` is `ok`; only allowed root Markdown files remain; no completed-work logs or duplicate planning docs are introduced.
   Complexity: S
 
 ### P2
