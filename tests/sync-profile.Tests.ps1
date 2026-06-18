@@ -105,6 +105,53 @@ Describe 'Function library loads via the dot-source test seam' {
         Get-Command New-Readme, New-ProjectsExportJson, Get-InstallSnippet, Test-HttpUrl, Get-Catalog -ErrorAction SilentlyContinue |
             Should -HaveCount 5
     }
+
+    It 'documents the key public test-seam functions with comment-based help' {
+        $tokens = $null
+        $parseErrors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile($script:SyncProfileScriptPath, [ref]$tokens, [ref]$parseErrors)
+        $parseErrors | Should -BeNullOrEmpty
+        $functionAsts = @{}
+        foreach ($functionAst in @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true))) {
+            $functionAsts[$functionAst.Name] = $functionAst
+        }
+        $documentedFunctions = @(
+            'Get-GitHubRepos',
+            'Add-ReleaseAssetMetadata',
+            'Add-ForkParentMetadata',
+            'Add-LiveRepositoryMetadata',
+            'ConvertTo-Lookup',
+            'Get-Catalog',
+            'New-ProfileAssetSvgs',
+            'New-Readme',
+            'New-ProjectsExportJson',
+            'New-RenderedProfileSmokeSummary',
+            'Test-RoadmapHygiene',
+            'Test-RootMarkdownHygiene',
+            'Test-ProfileAssetsAccessibility',
+            'Test-CatalogShape',
+            'Test-JsonSchemaContract',
+            'Test-FeedSchemaContracts',
+            'Test-ProfileReleaseConsistency',
+            'Test-ProfileState'
+        )
+
+        foreach ($name in $documentedFunctions) {
+            $functionAsts.ContainsKey($name) | Should -BeTrue
+            $functionAst = $functionAsts[$name]
+            @($functionAst.Body.ParamBlock.Attributes | ForEach-Object { $_.TypeName.FullName }) |
+                Should -Contain 'CmdletBinding'
+            $help = $functionAst.GetHelpContent()
+            $help | Should -Not -BeNullOrEmpty
+            $help.Synopsis | Should -Not -BeNullOrEmpty
+            $help.Synopsis | Should -Not -Be $name
+
+            $parameterNames = @($functionAst.Body.ParamBlock.Parameters | ForEach-Object { $_.Name.VariablePath.UserPath })
+            foreach ($parameterName in $parameterNames) {
+                $help.Parameters.Keys | Should -Contain $parameterName
+            }
+        }
+    }
 }
 
 Describe 'ConvertTo-Lookup' {
@@ -1602,8 +1649,12 @@ Write-Host ok
         $assets.Keys | Should -Contain 'assets/profile/stats-dark.svg'
         $assets.Keys | Should -Contain 'assets/profile/languages-light.svg'
         $assets.Keys | Should -Contain 'assets/profile/activity-dark.svg'
+        $assets.Keys | Should -Contain 'assets/profile/contributions-dark.svg'
+        $assets.Keys | Should -Contain 'assets/profile/contributions-light.svg'
         $assets.Keys | Should -Contain 'assets/profile/footer-dark.svg'
         $assets.Keys | Should -Contain 'assets/profile/footer-light.svg'
+        $assets['assets/profile/contributions-dark.svg'] | Should -Match 'Contribution Activity'
+        $assets['assets/profile/contributions-dark.svg'] | Should -Match 'contributions in the last year'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'PUBLIC OPEN-SOURCE CATALOG'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'PowerShell / Python / Kotlin / C# / Rust'
