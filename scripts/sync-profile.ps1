@@ -204,69 +204,18 @@ function Get-GitHubReposFromRest {
         }
     }
 
-    $authenticated = Test-GitHubCliAuthenticated
-    $releaseBudget = Test-RestFallbackReleaseFetchBudget -RepoCount $allRepos.Count -Authenticated $authenticated
-    $script:RestFallbackReleaseFetchState = New-RestFallbackReleaseFetchState `
-        -Used `
-        -Status "preflight-passed" `
-        -RepoCount $allRepos.Count `
-        -Authenticated:$authenticated `
-        -MaxReleaseFetches $releaseBudget.maxReleaseFetches `
-        -UnauthenticatedReleaseFetchLimit $releaseBudget.unauthenticatedReleaseFetchLimit
-    if (-not $releaseBudget.allowed) {
-        $script:RestFallbackReleaseFetchState["status"] = "preflight-blocked"
-        $script:RestFallbackReleaseFetchState["fatal"] = $true
-        $script:RestFallbackReleaseFetchState["abortMessage"] = $releaseBudget.message
-        throw $releaseBudget.message
-    }
-
     $mapped = New-Object System.Collections.Generic.List[object]
     foreach ($repo in $allRepos) {
-        $release = $null
         $repoName = [string](Get-MemberValue -Object $repo -Name "name")
         if ([string]::IsNullOrWhiteSpace($repoName)) {
             continue
         }
-        $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
-        $releaseJson = & gh api "repos/$Owner/$repoName/releases/latest" 2>&1
-        $releaseOutput = (($releaseJson | Out-String).Trim())
-        if ($LASTEXITCODE -eq 0) {
-            $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
-            if (-not [string]::IsNullOrWhiteSpace($releaseOutput)) {
-                $releaseData = $releaseOutput | ConvertFrom-Json
-                $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
-                $assetDigests = Get-ReleaseAssetDigestsFromApiRelease -Release $releaseData
-                $release = [pscustomobject]@{
-                    tagName = Get-MemberValue -Object $releaseData -Name "tag_name"
-                    url = Get-MemberValue -Object $releaseData -Name "html_url"
-                    name = Get-MemberValue -Object $releaseData -Name "name"
-                    publishedAt = Get-MemberValue -Object $releaseData -Name "published_at"
-                    releaseAssetNames = $assetNames
-                    releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
-                    releaseAssetDigests = $assetDigests
-                    assetApiInspected = $true
-                    immutable = Get-MemberValue -Object $releaseData -Name "immutable"
-                }
-            }
-        } elseif (-not (Test-GhApiNotFound -Output $releaseOutput)) {
-            $script:RestFallbackReleaseFetchState["status"] = "aborted"
-            $script:RestFallbackReleaseFetchState["fatal"] = $true
-            $script:RestFallbackReleaseFetchState["abortRepo"] = $repoName
-            $script:RestFallbackReleaseFetchState["abortHttpStatus"] = Get-GhApiHttpStatus -Output $releaseOutput
-            $script:RestFallbackReleaseFetchState["abortMessage"] = "Latest-release fetch failed after $($script:RestFallbackReleaseFetchState["attemptedReleaseFetches"]) attempted request(s)."
-            Write-Warning "REST release fallback failed for $repoName; aborting to avoid partial release metadata. Last gh output: $releaseOutput"
-            throw "REST repo metadata fallback failed while fetching latest release for $repoName. Refusing to emit partial release metadata."
-        } else {
-            $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
-        }
-
-        $mapped.Add((ConvertFrom-RestRepoMetadata -Repo $repo -Release $release))
+        $mapped.Add((ConvertFrom-RestRepoMetadata -Repo $repo -Release $null))
     }
 
     $script:RepositoryMetadataProvider = "rest-fallback"
     $script:RepositoryEnumerationRequestedLimit = 0
     $script:RepositoryEnumerationTruncated = $false
-    $script:RestFallbackReleaseFetchState["status"] = "completed"
     return $mapped.ToArray()
 }
 
@@ -442,6 +391,8 @@ function Get-GitHubRepos {
     .DESCRIPTION
     Uses GitHub CLI GraphQL metadata first, retries transient failures, and
     falls back to REST pagination when GraphQL returns an unsafe partial page.
+    Release metadata is intentionally excluded from the bulk GraphQL request
+    and fetched by Add-ReleaseAssetMetadata to avoid high-complexity 502s.
     #>
     [CmdletBinding()]
     param()
@@ -457,7 +408,7 @@ function Get-GitHubRepos {
         "--visibility", "public",
         "--no-archived",
         "--limit", [string]$repoLimit,
-        "--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
+        "--json", "name,description,stargazerCount,defaultBranchRef,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
     )
     $lastOutput = $null
 
@@ -496,10 +447,29 @@ function Get-GitHubRepos {
     return Get-GitHubReposFromRest
 }
 
+function ConvertFrom-RestReleaseMetadata {
+    param([object]$Release)
+
+    $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $Release)
+    $assetDigests = Get-ReleaseAssetDigestsFromApiRelease -Release $Release
+
+    return [pscustomobject]@{
+        tagName = Get-MemberValue -Object $Release -Name "tag_name"
+        url = Get-MemberValue -Object $Release -Name "html_url"
+        name = Get-MemberValue -Object $Release -Name "name"
+        publishedAt = Get-MemberValue -Object $Release -Name "published_at"
+        releaseAssetNames = $assetNames
+        releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
+        releaseAssetDigests = $assetDigests
+        assetApiInspected = $true
+        immutable = Get-MemberValue -Object $Release -Name "immutable"
+    }
+}
+
 function Add-ReleaseAssetMetadata {
     <#
     .SYNOPSIS
-    Enriches repository metadata with latest-release asset evidence.
+    Enriches repository metadata with latest-release and asset evidence.
     .PARAMETER Repos
     Repository metadata rows returned by GitHub GraphQL or REST enumeration.
     #>
@@ -510,37 +480,69 @@ function Add-ReleaseAssetMetadata {
         return @($Repos)
     }
 
-    foreach ($repo in @($Repos | Sort-Object name)) {
+    $repoRows = @($Repos | Sort-Object name | Where-Object {
+        $repoName = Get-MemberValue -Object $_ -Name "name"
+        -not [string]::IsNullOrWhiteSpace([string]$repoName)
+    })
+
+    $authenticated = Test-GitHubCliAuthenticated
+    $releaseBudget = Test-RestFallbackReleaseFetchBudget -RepoCount $repoRows.Count -Authenticated $authenticated
+    $script:RestFallbackReleaseFetchState = New-RestFallbackReleaseFetchState `
+        -Used `
+        -Status "preflight-passed" `
+        -RepoCount $repoRows.Count `
+        -Authenticated:$authenticated `
+        -MaxReleaseFetches $releaseBudget.maxReleaseFetches `
+        -UnauthenticatedReleaseFetchLimit $releaseBudget.unauthenticatedReleaseFetchLimit
+    if (-not $releaseBudget.allowed) {
+        $script:RestFallbackReleaseFetchState["status"] = "preflight-blocked"
+        $script:RestFallbackReleaseFetchState["fatal"] = $true
+        $script:RestFallbackReleaseFetchState["abortMessage"] = $releaseBudget.message
+        throw $releaseBudget.message
+    }
+
+    foreach ($repo in $repoRows) {
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
         $release = Get-MemberValue -Object $repo -Name "latestRelease"
-        if (-not $release) {
-            continue
+        if ($null -eq $release) {
+            Set-MemberValue -Object $repo -Name "latestRelease" -Value $null
         }
-        if (Test-ReleaseAssetMetadataInspected -Meta $repo) {
-            continue
-        }
-
-        $repoName = Get-MemberValue -Object $repo -Name "name"
-        if ([string]::IsNullOrWhiteSpace([string]$repoName)) {
+        if ($release -and (Test-ReleaseAssetMetadataInspected -Meta $repo)) {
             continue
         }
 
+        $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
         $releaseJson = & gh api "repos/$Owner/$repoName/releases/latest" 2>&1
         $releaseOutput = (($releaseJson | Out-String).Trim())
         if ($LASTEXITCODE -ne 0) {
-            Set-MemberValue -Object $release -Name "releaseAssetFetchError" -Value $releaseOutput
-            Set-MemberValue -Object $release -Name "assetApiInspected" -Value $false
+            if (Test-GhApiNotFound -Output $releaseOutput) {
+                $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
+                continue
+            }
+
+            if ($release) {
+                Set-MemberValue -Object $release -Name "releaseAssetFetchError" -Value $releaseOutput
+                Set-MemberValue -Object $release -Name "assetApiInspected" -Value $false
+            }
+            $script:RestFallbackReleaseFetchState["status"] = "aborted"
+            $script:RestFallbackReleaseFetchState["fatal"] = $true
+            $script:RestFallbackReleaseFetchState["abortRepo"] = $repoName
+            $script:RestFallbackReleaseFetchState["abortHttpStatus"] = Get-GhApiHttpStatus -Output $releaseOutput
+            $script:RestFallbackReleaseFetchState["abortMessage"] = "Latest-release fetch failed after $($script:RestFallbackReleaseFetchState["attemptedReleaseFetches"]) attempted request(s)."
+            Write-Warning "REST latest-release metadata failed for $repoName; aborting to avoid partial release metadata. Last gh output: $releaseOutput"
+            throw "REST latest-release metadata failed while fetching $repoName. Refusing to emit partial release metadata."
+        }
+
+        if ([string]::IsNullOrWhiteSpace($releaseOutput)) {
             continue
         }
 
         $releaseData = $releaseOutput | ConvertFrom-Json
-        $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $releaseData)
-        Set-MemberValue -Object $release -Name "releaseAssetNames" -Value $assetNames
-        Set-MemberValue -Object $release -Name "releaseAssetKinds" -Value @(Get-ReleaseAssetKinds -AssetNames $assetNames)
-        Set-MemberValue -Object $release -Name "releaseAssetDigests" -Value (Get-ReleaseAssetDigestsFromApiRelease -Release $releaseData)
-        Set-MemberValue -Object $release -Name "assetApiInspected" -Value $true
-        Set-MemberValue -Object $release -Name "immutable" -Value (Get-MemberValue -Object $releaseData -Name "immutable")
+        $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
+        Set-MemberValue -Object $repo -Name "latestRelease" -Value (ConvertFrom-RestReleaseMetadata -Release $releaseData)
     }
 
+    $script:RestFallbackReleaseFetchState["status"] = "completed"
     return @($Repos)
 }
 
@@ -557,6 +559,13 @@ function ConvertTo-BooleanValue {
 }
 
 function Get-ContributionCalendar {
+    <#
+    .SYNOPSIS
+    Fetches the owner's GitHub contribution calendar for committed SVG assets.
+    .DESCRIPTION
+    Returns null in offline mode or when GitHub GraphQL contribution evidence is
+    unavailable so generation can preserve the previously committed graph.
+    #>
     [CmdletBinding()]
     param()
 
@@ -564,9 +573,9 @@ function Get-ContributionCalendar {
         return $null
     }
 
-    $query = '{ user(login: "' + $Owner + '") { contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { contributionCount date weekday } } } } } }'
+    $query = 'query($login: String!) { user(login: $login) { contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { contributionCount date weekday } } } } } }'
     try {
-        $output = & gh api graphql -f "query=$query" 2>&1
+        $output = & gh api graphql -f "query=$query" -f "login=$Owner" 2>&1
         $raw = (($output | Out-String).Trim())
         if ($LASTEXITCODE -ne 0) {
             Write-Warning "Contribution calendar fetch failed: $raw"
@@ -2207,6 +2216,17 @@ function Get-TopLanguageRows {
 }
 
 function New-ContributionGraphSvg {
+    <#
+    .SYNOPSIS
+    Renders a theme-aware GitHub contribution heatmap SVG.
+    .PARAMETER Calendar
+    GitHub contribution calendar object returned by Get-ContributionCalendar.
+    .PARAMETER Theme
+    Visual theme variant to render.
+    .PARAMETER Width
+    Minimum SVG width; the function expands it when more week columns are present.
+    #>
+    [CmdletBinding()]
     param(
         [object]$Calendar,
         [ValidateSet("dark", "light")]
@@ -2226,13 +2246,6 @@ function New-ContributionGraphSvg {
         $cellLevels = @("#9be9a8", "#40c463", "#30a14e", "#216e39")
     }
 
-    $cellSize = 12
-    $cellGap = 2
-    $cellStep = $cellSize + $cellGap
-    $gridLeft = 60
-    $gridTop = 100
-    $monthLabelY = $gridTop - 8
-
     $weeks = @()
     $totalContributions = 0
     if ($null -ne $Calendar) {
@@ -2241,6 +2254,14 @@ function New-ContributionGraphSvg {
         if ($null -ne $total) { $totalContributions = [int]$total }
     }
 
+    $cellSize = 12
+    $cellGap = 2
+    $cellStep = $cellSize + $cellGap
+    $gridLeft = 60
+    $gridTop = 100
+    $monthLabelY = $gridTop - 8
+    $minimumWidth = $gridLeft + ([Math]::Max(53, $weeks.Count) * $cellStep) + 32
+    $Width = [Math]::Max($Width, $minimumWidth)
     $gridHeight = 7 * $cellStep - $cellGap
     $Height = $gridTop + $gridHeight + 40
 
@@ -2327,6 +2348,56 @@ function New-ContributionGraphSvg {
     return ($lines -join [Environment]::NewLine)
 }
 
+function Get-ExistingProfileAssetText {
+    <#
+    .SYNOPSIS
+    Reads an existing generated profile asset for fallback preservation.
+    .PARAMETER AssetPath
+    Repository-relative or absolute asset path to read.
+    #>
+    [CmdletBinding()]
+    param([string]$AssetPath)
+
+    $normalizedPath = $AssetPath -replace '/', [System.IO.Path]::DirectorySeparatorChar
+    $fullPath = if ([System.IO.Path]::IsPathRooted($normalizedPath)) {
+        $normalizedPath
+    } else {
+        Join-Path $RepoRoot $normalizedPath
+    }
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        return $null
+    }
+    return (Get-Content -LiteralPath $fullPath -Raw).TrimEnd()
+}
+
+function New-ContributionAssetSvg {
+    <#
+    .SYNOPSIS
+    Builds or preserves a contribution graph SVG asset.
+    .PARAMETER AssetPath
+    Target contribution SVG asset path.
+    .PARAMETER Calendar
+    Contribution calendar object; null preserves an existing committed asset.
+    .PARAMETER Theme
+    Visual theme variant to render when a calendar is available.
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$AssetPath,
+        [object]$Calendar,
+        [ValidateSet("dark", "light")]
+        [string]$Theme
+    )
+
+    if ($null -eq $Calendar) {
+        $existing = Get-ExistingProfileAssetText -AssetPath $AssetPath
+        if (-not [string]::IsNullOrWhiteSpace($existing)) {
+            return $existing
+        }
+    }
+    return New-ContributionGraphSvg -Calendar $Calendar -Theme $Theme
+}
+
 function New-ProfileAssetSvgs {
     <#
     .SYNOPSIS
@@ -2383,8 +2454,10 @@ function New-ProfileAssetSvgs {
     $assets["$assetPathPrefix/languages-light.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme light
     $assets["$assetPathPrefix/activity-dark.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme dark
     $assets["$assetPathPrefix/activity-light.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme light
-    $assets["$assetPathPrefix/contributions-dark.svg"] = New-ContributionGraphSvg -Calendar $ContributionCalendar -Theme dark
-    $assets["$assetPathPrefix/contributions-light.svg"] = New-ContributionGraphSvg -Calendar $ContributionCalendar -Theme light
+    $contributionsDarkPath = "$assetPathPrefix/contributions-dark.svg"
+    $contributionsLightPath = "$assetPathPrefix/contributions-light.svg"
+    $assets[$contributionsDarkPath] = New-ContributionAssetSvg -AssetPath $contributionsDarkPath -Calendar $ContributionCalendar -Theme dark
+    $assets[$contributionsLightPath] = New-ContributionAssetSvg -AssetPath $contributionsLightPath -Calendar $ContributionCalendar -Theme light
     $assets["$assetPathPrefix/footer-dark.svg"] = New-ProfileFooterSvg -Theme dark
     $assets["$assetPathPrefix/footer-light.svg"] = New-ProfileFooterSvg -Theme light
     return $assets

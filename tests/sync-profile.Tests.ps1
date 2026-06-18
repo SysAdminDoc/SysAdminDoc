@@ -121,8 +121,12 @@ Describe 'Function library loads via the dot-source test seam' {
             'Add-ForkParentMetadata',
             'Add-LiveRepositoryMetadata',
             'ConvertTo-Lookup',
+            'Get-ContributionCalendar',
             'Get-Catalog',
             'New-ProfileAssetSvgs',
+            'New-ContributionGraphSvg',
+            'Get-ExistingProfileAssetText',
+            'New-ContributionAssetSvg',
             'New-Readme',
             'New-ProjectsExportJson',
             'New-RenderedProfileSmokeSummary',
@@ -151,6 +155,12 @@ Describe 'Function library loads via the dot-source test seam' {
                 $help.Parameters.Keys | Should -Contain $parameterName
             }
         }
+    }
+
+    It 'uses a parameterized GraphQL query for contribution calendar lookup' {
+        $script:SyncProfileScript | Should -Match 'query\(\$login: String!\)'
+        $script:SyncProfileScript | Should -Match '-f "login=\$Owner"'
+        $script:SyncProfileScript | Should -Not -Match "user\(login: `"\s*\+"
     }
 }
 
@@ -818,6 +828,79 @@ Describe 'REST fallback release request guard' {
 }
 
 Describe 'Repository metadata enrichment' {
+    It 'keeps latestRelease out of the bulk repo-list GraphQL request' {
+        $script:SyncProfileScript | Should -Match '"--json", "name,description,stargazerCount,defaultBranchRef,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"'
+        $script:SyncProfileScript | Should -Not -Match '"--json", "name,description,stargazerCount,defaultBranchRef,latestRelease,licenseInfo'
+    }
+
+    It 'fetches latest releases through bounded REST enrichment when GraphQL omits them' {
+        $oldOffline = $script:Offline
+        $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+        $hadOwner = ($null -ne $ownerVariable)
+        $oldOwner = if ($hadOwner) { $ownerVariable.Value } else { $null }
+        $script:Offline = $false
+        $script:Owner = 'SysAdminDoc'
+
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+
+            $global:LASTEXITCODE = 0
+            $command = $Arguments -join ' '
+            if ($command -eq 'auth status -h github.com') {
+                return 'Logged in to github.com'
+            }
+            if ($command -eq 'api repos/SysAdminDoc/HasRelease/releases/latest') {
+                return (@{
+                    tag_name = 'v2.0.0'
+                    html_url = 'https://github.com/SysAdminDoc/HasRelease/releases/tag/v2.0.0'
+                    name = 'v2.0.0'
+                    published_at = '2026-06-18T12:00:00Z'
+                    immutable = $true
+                    assets = @(
+                        @{ name = 'HasRelease.exe'; digest = 'sha256:abc123' }
+                    )
+                } | ConvertTo-Json -Depth 10)
+            }
+            if ($command -eq 'api repos/SysAdminDoc/NoRelease/releases/latest') {
+                $global:LASTEXITCODE = 1
+                return 'HTTP 404: Not Found'
+            }
+            throw "Unexpected gh invocation: $command"
+        }
+
+        try {
+            $repos = @(
+                (New-TestRepoMeta -Name 'HasRelease'),
+                (New-TestRepoMeta -Name 'NoRelease')
+            )
+
+            $result = @(Add-ReleaseAssetMetadata -Repos $repos)
+            $releaseRepo = $result | Where-Object { $_.name -eq 'HasRelease' }
+            $noReleaseRepo = $result | Where-Object { $_.name -eq 'NoRelease' }
+            $state = Get-RestFallbackReleaseFetchState
+
+            $releaseRepo.latestRelease.tagName | Should -Be 'v2.0.0'
+            $releaseRepo.latestRelease.releaseAssetKinds | Should -Contain 'exe'
+            $releaseRepo.latestRelease.assetApiInspected | Should -BeTrue
+            $noReleaseRepo.latestRelease | Should -BeNullOrEmpty
+            $state.used | Should -BeTrue
+            $state.status | Should -Be 'completed'
+            $state.repoCount | Should -Be 2
+            $state.attemptedReleaseFetches | Should -Be 2
+            $state.successfulReleaseFetches | Should -Be 1
+            $state.noRelease404Count | Should -Be 1
+        } finally {
+            $script:Offline = $oldOffline
+            if ($hadOwner) {
+                $script:Owner = $oldOwner
+            } else {
+                Remove-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+            }
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+            Reset-RestFallbackReleaseFetchState
+        }
+    }
+
     It 'records fork-parent enrichment failure on affected repos without dropping the base list' {
         $repos = @(
             (New-TestRepoMeta -Name 'ForkMissingParent' -IsFork $true),
@@ -1699,6 +1782,39 @@ Write-Host ok
         $escapedRoot.GetAttribute('aria-labelledby') | Should -Be 'profile-a-b-stats-dark-title'
         $escapedSvg | Should -Match 'A&amp;B &lt;Stats&gt;'
         $escapedRoot.GetElementsByTagName('desc')[0].InnerText | Should -Be 'Summary & status Rows: 7 & 8 stars <public> (live > stale).'
+    }
+
+    It 'preserves committed contribution graphs when the live calendar is unavailable' {
+        $repo = New-TestRepoMeta -Name 'WinTool'
+        $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @($repo) -ContributionCalendar $null
+        $committedDark = (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'assets/profile/contributions-dark.svg') -Raw).TrimEnd()
+
+        $assets['assets/profile/contributions-dark.svg'] | Should -Be $committedDark
+    }
+
+    It 'expands contribution graph width for unusually long calendars' {
+        $weeks = @(
+            for ($w = 0; $w -lt 60; $w++) {
+                [pscustomobject]@{
+                    contributionDays = @(
+                        [pscustomobject]@{
+                            contributionCount = 1
+                            date = ('2026-01-{0:00}' -f ((($w % 28) + 1)))
+                            weekday = 0
+                        }
+                    )
+                }
+            }
+        )
+        $calendar = [pscustomobject]@{
+            totalContributions = 60
+            weeks = $weeks
+        }
+
+        $svg = New-ContributionGraphSvg -Calendar $calendar -Theme dark -Width 820
+
+        $svg | Should -Match 'width="932"'
+        $svg | Should -Match 'viewBox="0 0 932 236"'
     }
 }
 
@@ -3015,6 +3131,8 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper | Should -Match '-State pending'
         $script:GeneratedPrHelper | Should -Match '-TargetUrl \$validationRunsUrl'
         $script:GeneratedPrHelper | Should -Match 'Generated profile validation pending[.]'
+        $script:GeneratedPrHelper | Should -Match '-State error'
+        $script:GeneratedPrHelper | Should -Match 'Generated profile validation dispatch failed[.]'
         $script:GeneratedPrHelper | Should -Match 'Deleted generated branch \$branch after generated validation status publishing failed'
         $script:GeneratedValidationStatusScript | Should -Match "generated-profile/validation"
         $script:GeneratedValidationStatusScript | Should -Match 'repos/\$Repository/statuses/\$Sha'
@@ -4710,6 +4828,12 @@ Describe 'PowerShell version baseline' {
         $script:SyncProfileScript | Should -Match '(?m)^#Requires -Version 7\.4'
         $script:SyncProfileScript | Should -Match 'Test-Json -Json \$json -SchemaFile \$fullPath'
         $script:SyncProfileScript | Should -Not -Match 'function Test-JsonSchemaNode'
+    }
+
+    It 'keeps rendered profile smoke on the sync-profile PowerShell floor' {
+        $renderSmokeScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1') -Raw
+        $renderSmokeScript | Should -Match '(?m)^#Requires -Version 7\.4'
+        $renderSmokeScript | Should -Match 'sync-profile[.]ps1'
     }
 
     It 'runs the test suite on a supported PowerShell version' {

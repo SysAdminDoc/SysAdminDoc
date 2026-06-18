@@ -1,4 +1,4 @@
-#Requires -Version 7.0
+#Requires -Version 7.4
 [CmdletBinding()]
 param(
     [string]$Url = "https://github.com/SysAdminDoc",

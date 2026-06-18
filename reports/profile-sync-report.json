@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-17T20:32:20.7309495-04:00",
+  "generatedAt": "2026-06-18T17:31:47.0938165-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "8c55d79810981e830e864360d273cef5e7105ca3",
+    "sourceCommit": "9d2abe11fc0e5184a981b751b5e47b19bf5f348b",
     "catalogSha256": "1280df77f2ceb2247f9044a28118c409ba4f1a940e0a85a519d023466464bea1",
-    "generatorSha256": "9a23ce278772e3dec52035df38ec289c5692647920f74c72dbd499624cecb054",
+    "generatorSha256": "179051b3d314b4a2ca766b089866b3c8a8c56575b8d69c8026119ed80f0e8316",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-17T20:30:38.8028633-04:00",
+    "metadataSnapshotAt": "2026-06-18T17:28:30.9139663-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -102,7 +102,7 @@
       {
         "repo": "android-foss",
         "language": "Python",
-        "pushedAt": "2026-06-15T14:09:47.0000000Z",
+        "pushedAt": "2026-06-15T14:09:47Z",
         "category": "suppressed",
         "topicHints": [
           "python",
@@ -112,7 +112,7 @@
       {
         "repo": "awesome-privacy",
         "language": null,
-        "pushedAt": "2026-06-15T14:09:49.0000000Z",
+        "pushedAt": "2026-06-15T14:09:49Z",
         "category": "suppressed",
         "topicHints": [
           "privacy"
@@ -121,7 +121,7 @@
       {
         "repo": "CL4R1T4S",
         "language": null,
-        "pushedAt": "2026-06-15T11:09:58.0000000Z",
+        "pushedAt": "2026-06-15T11:09:58Z",
         "category": "suppressed",
         "topicHints": [
           "utility"
@@ -130,7 +130,7 @@
       {
         "repo": "ews",
         "language": "JavaScript",
-        "pushedAt": "2026-06-17T05:02:42.0000000Z",
+        "pushedAt": "2026-06-17T05:02:42Z",
         "category": "suppressed",
         "topicHints": [
           "javascript"
@@ -139,7 +139,7 @@
       {
         "repo": "foss-apps",
         "language": "Python",
-        "pushedAt": "2026-06-15T14:09:50.0000000Z",
+        "pushedAt": "2026-06-15T14:09:50Z",
         "category": "suppressed",
         "topicHints": [
           "python"
@@ -148,7 +148,7 @@
       {
         "repo": "Gmail-MCP-Server",
         "language": "JavaScript",
-        "pushedAt": "2026-06-16T00:22:05.0000000Z",
+        "pushedAt": "2026-06-16T00:22:05Z",
         "category": "suppressed",
         "topicHints": [
           "javascript"
@@ -157,7 +157,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-06-17T05:03:37.0000000Z",
+        "pushedAt": "2026-06-17T05:03:37Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -167,7 +167,7 @@
       {
         "repo": "hermes-webui",
         "language": "Python",
-        "pushedAt": "2026-06-16T00:23:06.0000000Z",
+        "pushedAt": "2026-06-16T00:23:06Z",
         "category": "suppressed",
         "topicHints": [
           "python"
@@ -176,7 +176,7 @@
       {
         "repo": "notepad-plus-plus",
         "language": "C++",
-        "pushedAt": "2026-06-16T00:23:09.0000000Z",
+        "pushedAt": "2026-06-16T00:23:09Z",
         "category": "suppressed",
         "topicHints": [
           "cpp"
@@ -185,7 +185,7 @@
       {
         "repo": "NotepadNext",
         "language": "C++",
-        "pushedAt": "2026-06-16T00:23:11.0000000Z",
+        "pushedAt": "2026-06-16T00:23:11Z",
         "category": "suppressed",
         "topicHints": [
           "cpp"
@@ -194,7 +194,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-18T00:08:46.0000000Z",
+        "pushedAt": "2026-06-18T15:41:57Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -205,7 +205,7 @@
       {
         "repo": "qBittorrent-Enhanced-Edition",
         "language": "C++",
-        "pushedAt": "2026-06-16T00:23:16.0000000Z",
+        "pushedAt": "2026-06-16T00:23:16Z",
         "category": "suppressed",
         "topicHints": [
           "cpp"
@@ -214,7 +214,7 @@
       {
         "repo": "StormScope",
         "language": "Python",
-        "pushedAt": "2026-06-18T00:25:07.0000000Z",
+        "pushedAt": "2026-06-18T19:35:43Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -227,7 +227,7 @@
       {
         "repo": "stylus",
         "language": "JavaScript",
-        "pushedAt": "2026-06-16T00:23:18.0000000Z",
+        "pushedAt": "2026-06-16T00:23:18Z",
         "category": "suppressed",
         "topicHints": [
           "javascript"
@@ -236,7 +236,7 @@
       {
         "repo": "vcpkg",
         "language": "CMake",
-        "pushedAt": "2026-06-16T00:23:21.0000000Z",
+        "pushedAt": "2026-06-16T00:23:21Z",
         "category": "suppressed",
         "topicHints": [
           "cmake"
@@ -245,7 +245,7 @@
       {
         "repo": "youtube-mcp-server",
         "language": "Python",
-        "pushedAt": "2026-06-16T00:21:57.0000000Z",
+        "pushedAt": "2026-06-16T00:21:57Z",
         "category": "suppressed",
         "topicHints": [
           "python",
@@ -651,7 +651,7 @@
         {
           "priorityRank": 3,
           "repo": "NovaCut",
-          "stars": 12,
+          "stars": 13,
           "latestReleaseTag": "v3.74.100",
           "executableAssetKinds": [
             "apk"
@@ -1586,13 +1586,13 @@
       },
       "scorecardScore": {
         "available": true,
-        "score": 6.8,
+        "score": 6.7,
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-15T14:03:44.0000000Z",
+        "date": "2026-06-18T10:08:04Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
-        "analyzedCommit": "d4a0c234c4cf5aca25382d2a6e440f2c1fd5e375",
+        "analyzedCommit": "9d2abe11fc0e5184a981b751b5e47b19bf5f348b",
         "unavailableReason": null
       },
       "codeScanning": {
@@ -1621,7 +1621,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-17T20:30:38.8028633-04:00",
+          "queriedAt": "2026-06-18T17:28:30.9139663-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2012,13 +2012,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.135",
+    "expectedVersion": "v4.9.136",
     "expectedDate": "2026-06-17",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.135"
+        "value": "v4.9.136"
       }
     ],
     "dates": [
@@ -2040,14 +2040,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.135",
+    "expectedVersion": "v4.9.136",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
-    "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
+    "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.135",
+    "expectedTag": "v4.9.136",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2057,13 +2057,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.135",
+        "expectedVersion": "v4.9.136",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.135",
+        "expectedVersion": "v4.9.136",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2086,22 +2086,22 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 3429,
+      "elapsedMs": 3822,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
       "headerWarningHostCount": 0
     },
     "restFallbackReleaseFetch": {
-      "used": false,
-      "status": "not-used",
-      "repoCount": 0,
-      "authenticated": false,
+      "used": true,
+      "status": "completed",
+      "repoCount": 202,
+      "authenticated": true,
       "maxReleaseFetches": 240,
       "unauthenticatedReleaseFetchLimit": 50,
-      "attemptedReleaseFetches": 0,
-      "successfulReleaseFetches": 0,
-      "noRelease404Count": 0,
+      "attemptedReleaseFetches": 202,
+      "successfulReleaseFetches": 148,
+      "noRelease404Count": 54,
       "fatal": false,
       "abortRepo": null,
       "abortHttpStatus": null,
@@ -2119,8 +2119,8 @@
     "fatalCount": 0,
     "informationalCount": 0,
     "generatedAt": {
-      "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 16.18,
+      "value": "2026-06-01T16:18:55.099894-04:00",
+      "ageDays": 17.05,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2130,14 +2130,14 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 3429,
+    "elapsedMs": 3822,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 64477,
+    "byteCount": 64497,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2431,7 +2431,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 64477,
+        "value": 64497,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2494,7 +2494,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 101349,
+        "value": 101259,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2503,7 +2503,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 85366,
+        "value": 85510,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2521,17 +2521,17 @@
     ]
   },
   "renderedProfileSmoke": {
-    "status": "not-run",
-    "generatedAt": null,
-    "url": null,
-    "viewportCount": 0,
-    "passedViewportCount": 0,
+    "status": "passed",
+    "generatedAt": "2026-06-18T17:32:01.7258650-04:00",
+    "url": "https://github.com/SysAdminDoc",
+    "viewportCount": 2,
+    "passedViewportCount": 2,
     "failedViewportCount": 0,
     "failedImageCount": 0,
     "missingSectionCount": 0,
     "overflowCount": 0,
-    "minimumRootClientWidth": null,
-    "mobileRootClientWidth": null,
+    "minimumRootClientWidth": 308,
+    "mobileRootClientWidth": 308,
     "skipReason": null,
     "warningCount": 0,
     "warnings": []
@@ -2539,9 +2539,9 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-17T20:30:11.4210569-04:00",
-    "latestReportAffectingCommitSha": "8c55d79810981e830e864360d273cef5e7105ca3",
-    "latestReportAffectingCommitDate": "2026-06-17T20:04:01.0000000-04:00",
+    "committedReportGeneratedAt": "2026-06-18T17:28:13.1040422-04:00",
+    "latestReportAffectingCommitSha": "9d2abe11fc0e5184a981b751b5e47b19bf5f348b",
+    "latestReportAffectingCommitDate": "2026-06-17T20:34:37-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "smokeStatus": "not-run",
@@ -2604,7 +2604,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/17/2026 10:17:13",
         "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
-        "ageMinutes": 615,
+        "ageMinutes": 1874,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2624,7 +2624,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 17981,
+        "ageMinutes": 19240,
         "stale": true,
         "failing": true,
         "available": true,
@@ -2642,9 +2642,9 @@
         "graceMinutes": 1440,
         "state": "active",
         "latestScheduledConclusion": "success",
-        "latestScheduledRunAt": "06/11/2026 10:07:56",
-        "latestSuccessfulScheduledAt": "06/11/2026 10:07:56",
-        "ageMinutes": 9264,
+        "latestScheduledRunAt": "06/18/2026 10:07:47",
+        "latestSuccessfulScheduledAt": "06/18/2026 10:07:47",
+        "ageMinutes": 444,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2664,8 +2664,8 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 10671,
-        "stale": false,
+        "ageMinutes": 11931,
+        "stale": true,
         "failing": true,
         "available": true,
         "status": "failing",

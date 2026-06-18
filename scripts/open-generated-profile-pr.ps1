@@ -231,7 +231,18 @@ Validation runs: $validationRunsUrl
 
 gh workflow run $ValidationWorkflow --ref $branch -f "mode=$ValidationMode"
 if ($LASTEXITCODE -ne 0) {
-    throw "Failed to dispatch generated profile validation (exit code $LASTEXITCODE)."
+    $dispatchExitCode = $LASTEXITCODE
+    try {
+        & (Join-Path $PSScriptRoot 'set-generated-validation-status.ps1') `
+            -State error `
+            -Repository $repository `
+            -Sha $generatedHeadSha `
+            -TargetUrl $validationRunsUrl `
+            -Description 'Generated profile validation dispatch failed.'
+    } catch {
+        Write-Warning "Failed to publish generated validation dispatch-failure status for $generatedHeadSha`: $($_.Exception.Message)"
+    }
+    throw "Failed to dispatch generated profile validation (exit code $dispatchExitCode)."
 }
 
 if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_STEP_SUMMARY)) {

@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "8c55d79810981e830e864360d273cef5e7105ca3",
+    "sourceCommit": "9d2abe11fc0e5184a981b751b5e47b19bf5f348b",
     "catalogSha256": "1280df77f2ceb2247f9044a28118c409ba4f1a940e0a85a519d023466464bea1",
-    "generatorSha256": "9a23ce278772e3dec52035df38ec289c5692647920f74c72dbd499624cecb054",
+    "generatorSha256": "179051b3d314b4a2ca766b089866b3c8a8c56575b8d69c8026119ed80f0e8316",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-17T20:30:38.8028633-04:00",
+    "metadataSnapshotAt": "2026-06-18T17:28:30.9139663-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -143,7 +143,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 12,
+      "stars": 13,
       "latestReleaseTag": "v3.74.100",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NovaCut/releases/tag/v3.74.100",
       "releaseAssetKinds": [
@@ -244,7 +244,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:01:05.0000000Z",
+      "pushedAt": "2026-06-18T21:27:14.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -318,7 +318,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T23:53:12.0000000Z",
+      "pushedAt": "2026-06-18T15:48:28.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -551,7 +551,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:25:15.0000000Z",
+      "pushedAt": "2026-06-18T15:56:53.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -611,7 +611,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Java",
-      "stars": 23,
+      "stars": 24,
       "latestReleaseTag": "v0.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppManagerNG/releases/tag/v0.6.1",
       "releaseAssetKinds": [
@@ -649,7 +649,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:08:53.0000000Z",
+      "pushedAt": "2026-06-18T21:22:25.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -726,7 +726,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T18:43:34.0000000Z",
+      "pushedAt": "2026-06-18T13:30:55.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -768,7 +768,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 2,
+      "stars": 1,
       "latestReleaseTag": "v1.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.2.0",
       "releaseAssetKinds": [
@@ -1321,7 +1321,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:01:32.0000000Z",
+      "pushedAt": "2026-06-18T21:28:15.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1434,7 +1434,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Rust",
-      "stars": 1,
+      "stars": 2,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Droidsmith/releases/tag/v0.1.0",
       "releaseAssetKinds": [
@@ -1917,7 +1917,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T14:46:51.0000000Z",
+      "pushedAt": "2026-06-18T17:24:05.0000000Z",
       "topics": [
         "cleanup",
         "csharp",
@@ -2948,7 +2948,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:02:49.0000000Z",
+      "pushedAt": "2026-06-18T15:51:09.0000000Z",
       "topics": [
         "desktop-app",
         "rust",
@@ -3103,7 +3103,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-17T23:44:21.0000000Z",
+      "pushedAt": "2026-06-18T15:56:40.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -3169,7 +3169,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-18T00:08:46.0000000Z",
+      "pushedAt": "2026-06-18T15:41:57.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3251,7 +3251,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T05:54:05.0000000Z",
+      "pushedAt": "2026-06-18T15:49:27.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -3547,7 +3547,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T23:51:50.0000000Z",
+      "pushedAt": "2026-06-18T21:27:41.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -4613,7 +4613,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:05:15.0000000Z",
+      "pushedAt": "2026-06-18T21:25:54.0000000Z",
       "topics": [
         "dark-theme",
         "javascript",
@@ -5460,7 +5460,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:09:55.0000000Z",
+      "pushedAt": "2026-06-18T15:49:45.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5926,7 +5926,7 @@
       "entrypoint": "NVMe_Driver_Patcher.ps1",
       "installKind": "powershell",
       "language": "C#",
-      "stars": 45,
+      "stars": 46,
       "latestReleaseTag": "v5.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v5.0.0",
       "releaseAssetKinds": [
@@ -6138,7 +6138,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:10:04.0000000Z",
+      "pushedAt": "2026-06-18T15:47:08.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -7996,7 +7996,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-18T00:09:16.0000000Z",
+      "pushedAt": "2026-06-18T15:48:39.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -8494,7 +8494,7 @@
       "entrypoint": "PyWall.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 0,
+      "stars": 1,
       "latestReleaseTag": "v4.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/PyWall/releases/tag/v4.1.0",
       "releaseAssetKinds": [
@@ -9200,7 +9200,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T00:06:16.0000000Z",
+      "pushedAt": "2026-06-18T15:45:33.0000000Z",
       "topics": [
         "conversion",
         "desktop-app",
@@ -11819,7 +11819,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "HTML",
-      "stars": 0,
+      "stars": 1,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
       "releaseAssetKinds": [],
@@ -13215,7 +13215,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-18T00:25:07.0000000Z",
+      "pushedAt": "2026-06-18T19:35:43.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
