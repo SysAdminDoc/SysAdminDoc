@@ -1985,26 +1985,29 @@ Describe 'Feed JSON Schema contracts' {
 
     It 'rejects malformed project feed rows' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
-        $payload.projects[0].repo = $null
+        $payload = ConvertFrom-JsonPreservingArrays -Json (New-ProjectsExportJson -Catalog $cat -Repos @())
+        $project = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'projects'))[0]
+        Set-MemberValue -Object $project -Name 'repo' -Value $null
 
         $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
 
         $result.valid | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match '\$\.projects\[0\]\.repo'
+        ($result.errors -join "`n") | Should -Match 'projects/0/repo|projects\[0\]\.repo|\$\.projects\[0\]\.repo'
     }
 
     It 'rejects suppressed feed rows that expose project identifiers' {
-        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
-        $payload.suppressed[0] | Add-Member -NotePropertyName repo -NotePropertyValue 'HiddenTool'
-        $payload.suppressed[0] | Add-Member -NotePropertyName repoUrl -NotePropertyValue 'https://github.com/SysAdminDoc/HiddenTool'
+        foreach ($field in @('repo', 'repoUrl')) {
+            $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+            $payload = ConvertFrom-JsonPreservingArrays -Json (New-ProjectsExportJson -Catalog $cat -Repos @())
+            $suppressed = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'suppressed'))[0]
+            $value = if ($field -eq 'repo') { 'HiddenTool' } else { 'https://github.com/SysAdminDoc/HiddenTool' }
+            Set-MemberValue -Object $suppressed -Name $field -Value $value
 
-        $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
+            $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
 
-        $result.valid | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repo'
-        ($result.errors -join "`n") | Should -Match '\$\.suppressed\[0\]\.repoUrl'
+            $result.valid | Should -BeFalse
+            ($result.errors -join "`n") | Should -Match "suppressed/0/$field|suppressed\[0\]\.$field|\$\.suppressed\[0\]\.$field"
+        }
     }
 
     It 'ignores volatile provenance and pushed-at fields in projects sync comparison' {
@@ -2086,7 +2089,8 @@ Describe 'Feed JSON Schema contracts' {
         $result = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
 
         $result.valid | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match '\$\.releaseAssetDrift is required'
+        ($result.errors -join "`n") | Should -Match 'releaseAssetDrift'
+        ($result.errors -join "`n") | Should -Match 'required|not present'
     }
 
     It 'requires always-emitted nested profile sync report fields' {
@@ -2105,7 +2109,7 @@ Describe 'Feed JSON Schema contracts' {
         $schema.'$defs'.releaseAssetDrift.required | Should -Contain 'executableDownloadTrustShortlist'
     }
 
-    It 'warns when a schema uses keywords the validator cannot check' {
+    It 'warns when a schema uses keywords outside the project compatibility allowlist' {
         $schemaPath = Join-Path $TestDrive 'unsupported.json'
         $unsupportedSchema = @{
             type = 'object'
@@ -4651,8 +4655,10 @@ Describe 'Root Markdown hygiene' {
 }
 
 Describe 'PowerShell version baseline' {
-    It 'requires PowerShell 7.0+ in the sync and setup scripts' {
-        $script:SyncProfileScript | Should -Match '(?m)^#Requires -Version 7\.0'
+    It 'requires PowerShell 7.4+ for native JSON Schema validation' {
+        $script:SyncProfileScript | Should -Match '(?m)^#Requires -Version 7\.4'
+        $script:SyncProfileScript | Should -Match 'Test-Json -Json \$json -SchemaFile \$fullPath'
+        $script:SyncProfileScript | Should -Not -Match 'function Test-JsonSchemaNode'
     }
 
     It 'runs the test suite on a supported PowerShell version' {

@@ -1,4 +1,4 @@
-#Requires -Version 7.0
+#Requires -Version 7.4
 [CmdletBinding()]
 param(
     [switch]$SeedCatalog,
@@ -6295,228 +6295,70 @@ function Get-JsonArrayItems {
     }
 }
 
-function Test-ObjectProperty {
-    param(
-        [object]$Object,
-        [string]$Name
-    )
-
-    if ($null -eq $Object) {
-        return [pscustomobject]@{ Exists = $false; Value = $null }
-    }
-    if ($Object -is [System.Collections.IDictionary]) {
-        $exists = [bool]$Object.Contains($Name)
-        $value = $null
-        if ($exists) {
-            $value = $Object[$Name]
-        }
-        $result = [pscustomobject]@{ Exists = $exists; Value = $null }
-        $result.Value = $value
-        return $result
-    }
-
-    $property = $Object.PSObject.Properties[$Name]
-    $exists = [bool]($null -ne $property)
-    $value = $null
-    if ($property) {
-        $value = $property.Value
-    }
-    $result = [pscustomobject]@{ Exists = $exists; Value = $null }
-    $result.Value = $value
-    return $result
-}
-
-function Get-JsonSchemaValueType {
-    param([object]$Value)
-
-    if ($null -eq $Value) { return "null" }
-    if (Test-JsonArrayWrapper $Value) { return "array" }
-    if ($Value -is [datetime] -or $Value -is [datetimeoffset]) { return "string" }
-    if ($Value -is [bool]) { return "boolean" }
-    if ($Value -is [byte] -or $Value -is [int16] -or $Value -is [int] -or $Value -is [int64]) { return "integer" }
-    if ($Value -is [single] -or $Value -is [double] -or $Value -is [decimal]) {
-        if ([double]$Value % 1 -eq 0) { return "integer" }
-        return "number"
-    }
-    if ($Value -is [string]) { return "string" }
-    if ($Value -is [array] -or $Value -is [System.Collections.IList]) { return "array" }
-    return "object"
-}
-
-function Get-SchemaTypeList {
-    param([object]$Schema)
-
-    $typeInfo = Test-ObjectProperty -Object $Schema -Name "type"
-    if (-not $typeInfo.Exists) {
-        return @()
-    }
-    if ((Get-JsonSchemaValueType $typeInfo.Value) -eq "array") {
-        return @(Get-JsonArrayItems $typeInfo.Value | ForEach-Object { [string]$_ })
-    }
-    return @([string]$typeInfo.Value)
-}
-
-function Resolve-JsonSchemaRef {
-    param(
-        [object]$RootSchema,
-        [string]$Ref
-    )
-
-    if (-not $Ref.StartsWith("#/")) {
-        throw "Only local JSON Schema refs are supported: $Ref"
-    }
-    $value = $RootSchema
-    foreach ($segment in $Ref.Substring(2).Split('/')) {
-        $name = ($segment -replace '~1', '/') -replace '~0', '~'
-        $value = Get-MemberValue -Object $value -Name $name
-        if ($null -eq $value) {
-            throw "JSON Schema ref could not be resolved: $Ref"
-        }
-    }
-    return $value
-}
-
-function Test-JsonSchemaNode {
+function ConvertTo-JsonSchemaValidationValue {
     param(
         [object]$Value,
-        [object]$Schema,
-        [string]$Path = '$',
-        [object]$RootSchema = $null
+        [ref]$Result
     )
 
-    if ($null -eq $RootSchema) {
-        $RootSchema = $Schema
-    }
-    $errors = New-Object System.Collections.Generic.List[string]
-
-    if (@(Get-ObjectPropertyNames $Schema).Count -eq 0) {
-        return $errors.ToArray()
+    if ($null -eq $Value) {
+        $Result.Value = $null
+        return
     }
 
-    $refInfo = Test-ObjectProperty -Object $Schema -Name '$ref'
-    if ($refInfo.Exists) {
-        try {
-            $resolved = Resolve-JsonSchemaRef -RootSchema $RootSchema -Ref ([string]$refInfo.Value)
-            foreach ($schemaError in @(Test-JsonSchemaNode -Value $Value -Schema $resolved -Path $Path -RootSchema $RootSchema)) {
-                $errors.Add($schemaError)
-            }
-        } catch {
-            $errors.Add("$Path schema ref error: $($_.Exception.Message)")
+    if (Test-JsonArrayWrapper $Value) {
+        $items = [System.Collections.Generic.List[object]]::new()
+        foreach ($item in $Value.Items) {
+            $convertedItem = $null
+            ConvertTo-JsonSchemaValidationValue -Value $item -Result ([ref]$convertedItem)
+            $items.Add($convertedItem)
         }
-        return $errors.ToArray()
+        $Result.Value = [object[]]$items.ToArray()
+        return
     }
 
-    $actualType = Get-JsonSchemaValueType $Value
-    $allowedTypes = @(Get-SchemaTypeList $Schema)
-    if ($allowedTypes.Count -gt 0) {
-        $typeOk = $false
-        foreach ($allowedType in $allowedTypes) {
-            if ($allowedType -eq $actualType -or ($allowedType -eq "number" -and $actualType -eq "integer")) {
-                $typeOk = $true
-                break
-            }
+    if ($Value -is [System.Collections.IDictionary]) {
+        $hash = [ordered]@{}
+        foreach ($key in $Value.Keys) {
+            $convertedValue = $null
+            ConvertTo-JsonSchemaValidationValue -Value $Value[$key] -Result ([ref]$convertedValue)
+            $hash[[string]$key] = $convertedValue
         }
-        if (-not $typeOk) {
-            $errors.Add("$Path expected type $($allowedTypes -join '/') but found $actualType")
-            return $errors.ToArray()
-        }
+        $Result.Value = $hash
+        return
     }
 
-    $constInfo = Test-ObjectProperty -Object $Schema -Name "const"
-    if ($constInfo.Exists -and (ConvertTo-ComparableJson $Value) -ne (ConvertTo-ComparableJson $constInfo.Value)) {
-        $errors.Add("$Path must equal $($constInfo.Value)")
+    if ($Value -is [string] -or $Value -is [datetime] -or $Value -is [datetimeoffset] -or
+        $Value -is [bool] -or $Value -is [byte] -or $Value -is [int16] -or $Value -is [int] -or
+        $Value -is [int64] -or $Value -is [single] -or $Value -is [double] -or $Value -is [decimal]) {
+        $Result.Value = $Value
+        return
     }
 
-    $enumInfo = Test-ObjectProperty -Object $Schema -Name "enum"
-    if ($enumInfo.Exists) {
-        $matchesEnum = $false
-        foreach ($allowed in @(Get-JsonArrayItems $enumInfo.Value)) {
-            if ((ConvertTo-ComparableJson $Value) -eq (ConvertTo-ComparableJson $allowed)) {
-                $matchesEnum = $true
-                break
-            }
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $items = [System.Collections.Generic.List[object]]::new()
+        foreach ($item in $Value) {
+            $convertedItem = $null
+            ConvertTo-JsonSchemaValidationValue -Value $item -Result ([ref]$convertedItem)
+            $items.Add($convertedItem)
         }
-        if (-not $matchesEnum) {
-            $errors.Add("$Path value is not in the allowed enum")
-        }
+        $Result.Value = [object[]]$items.ToArray()
+        return
     }
 
-    if ($actualType -eq "string") {
-        $format = Get-MemberValue -Object $Schema -Name "format"
-        if ($format -eq "uri") {
-            $uri = $null
-            if (-not [System.Uri]::TryCreate([string]$Value, [System.UriKind]::Absolute, [ref]$uri)) {
-                $errors.Add("$Path must be an absolute URI")
-            }
-        } elseif ($format -eq "date-time") {
-            $parsedDate = [datetimeoffset]::MinValue
-            if (-not [datetimeoffset]::TryParse([string]$Value, [ref]$parsedDate)) {
-                $errors.Add("$Path must be an ISO date-time")
-            }
+    $propertyNames = @(Get-ObjectPropertyNames $Value)
+    if ($propertyNames.Count -gt 0) {
+        $hash = [ordered]@{}
+        foreach ($propertyName in $propertyNames) {
+            $convertedValue = $null
+            ConvertTo-JsonSchemaValidationValue -Value (Get-MemberValue -Object $Value -Name $propertyName) -Result ([ref]$convertedValue)
+            $hash[$propertyName] = $convertedValue
         }
-
-        $pattern = Get-MemberValue -Object $Schema -Name "pattern"
-        if (-not [string]::IsNullOrWhiteSpace([string]$pattern) -and ([string]$Value) -notmatch ([string]$pattern)) {
-            $errors.Add("$Path does not match pattern $pattern")
-        }
+        $Result.Value = $hash
+        return
     }
 
-    if ($actualType -eq "integer" -or $actualType -eq "number") {
-        $minimumInfo = Test-ObjectProperty -Object $Schema -Name "minimum"
-        if ($minimumInfo.Exists -and [double]$Value -lt [double]$minimumInfo.Value) {
-            $errors.Add("$Path must be >= $($minimumInfo.Value)")
-        }
-    }
-
-    if ($actualType -eq "array") {
-        $items = @(Get-JsonArrayItems $Value)
-        $minItemsInfo = Test-ObjectProperty -Object $Schema -Name "minItems"
-        if ($minItemsInfo.Exists -and $items.Count -lt [int]$minItemsInfo.Value) {
-            $errors.Add("$Path must contain at least $($minItemsInfo.Value) item(s)")
-        }
-        $itemsSchema = Get-MemberValue -Object $Schema -Name "items"
-        if ($itemsSchema) {
-            for ($i = 0; $i -lt $items.Count; $i++) {
-                foreach ($schemaError in @(Test-JsonSchemaNode -Value $items[$i] -Schema $itemsSchema -Path "$Path[$i]" -RootSchema $RootSchema)) {
-                    $errors.Add($schemaError)
-                }
-            }
-        }
-    }
-
-    if ($actualType -eq "object") {
-        $required = @(Get-JsonArrayItems (Get-MemberValue -Object $Schema -Name "required"))
-        foreach ($requiredName in $required) {
-            $property = Test-ObjectProperty -Object $Value -Name ([string]$requiredName)
-            if (-not $property.Exists) {
-                $errors.Add("$Path.$requiredName is required")
-            }
-        }
-
-        $properties = Get-MemberValue -Object $Schema -Name "properties"
-        $allowedPropertyNames = @{}
-        foreach ($propertyName in @(Get-ObjectPropertyNames $properties)) {
-            $allowedPropertyNames[$propertyName] = $true
-            $valueProperty = Test-ObjectProperty -Object $Value -Name $propertyName
-            if ($valueProperty.Exists) {
-                $propertySchema = Get-MemberValue -Object $properties -Name $propertyName
-                foreach ($schemaError in @(Test-JsonSchemaNode -Value $valueProperty.Value -Schema $propertySchema -Path "$Path.$propertyName" -RootSchema $RootSchema)) {
-                    $errors.Add($schemaError)
-                }
-            }
-        }
-
-        $additionalProperties = Get-MemberValue -Object $Schema -Name "additionalProperties"
-        if ($additionalProperties -eq $false) {
-            foreach ($propertyName in @(Get-ObjectPropertyNames $Value)) {
-                if (-not $allowedPropertyNames.ContainsKey($propertyName)) {
-                    $errors.Add("$Path.$propertyName is not allowed by the schema")
-                }
-            }
-        }
-    }
-
-    return $errors.ToArray()
+    $Result.Value = $Value
 }
 
 $script:SupportedSchemaKeywords = @(
@@ -6539,7 +6381,7 @@ function Test-SchemaKeywordCoverage {
 
     foreach ($name in @(Get-ObjectPropertyNames $Schema)) {
         if ($name -notin $script:SupportedSchemaKeywords) {
-            $warnings.Add("$Path uses unsupported schema keyword '$name' — validation may be incomplete")
+            $warnings.Add("$Path uses schema keyword '$name' outside the project compatibility allowlist")
         }
     }
 
@@ -6599,10 +6441,21 @@ function Test-JsonSchemaContract {
 
     $keywordWarnings = @()
     if ($schema) {
-        foreach ($schemaError in @(Test-JsonSchemaNode -Value $Value -Schema $schema -Path '$' -RootSchema $schema)) {
-            $errors.Add($schemaError)
-        }
         $keywordWarnings = @(Test-SchemaKeywordCoverage -Schema $schema)
+
+        $testJsonCommand = Get-Command Test-Json -ErrorAction SilentlyContinue
+        if (-not $testJsonCommand -or -not $testJsonCommand.Parameters.ContainsKey("SchemaFile")) {
+            $errors.Add("Test-Json -SchemaFile is unavailable; PowerShell 7.4+ is required.")
+        } else {
+            try {
+                $validationValue = $null
+                ConvertTo-JsonSchemaValidationValue -Value $Value -Result ([ref]$validationValue)
+                $json = ConvertTo-Json -InputObject $validationValue -Depth 100
+                $null = Test-Json -Json $json -SchemaFile $fullPath -ErrorAction Stop
+            } catch {
+                $errors.Add($_.Exception.Message)
+            }
+        }
     }
 
     $resolvedSchemaPath = Resolve-Path -LiteralPath $fullPath -ErrorAction SilentlyContinue

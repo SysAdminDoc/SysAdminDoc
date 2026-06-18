@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-17T19:46:14.5001299-04:00",
+  "generatedAt": "2026-06-17T20:01:17.6829130-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -63,11 +63,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "bd63d472ba256a792ca3a8bbad5255485ba1af2d",
+    "sourceCommit": "5e278de119cce6d432b5791fa5fd7ee7170d4d9a",
     "catalogSha256": "1280df77f2ceb2247f9044a28118c409ba4f1a940e0a85a519d023466464bea1",
-    "generatorSha256": "53eadb250c19d00e130ed6078d1021fe8b26edbdcefa4e747faae51c1b233eed",
+    "generatorSha256": "a8273afbfdfd9232d4a44992940a65e49c81f9ddedffca71e1634d81dcf5e1f4",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-17T19:42:32.0973816-04:00",
+    "metadataSnapshotAt": "2026-06-17T19:58:33.4110463-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -184,7 +184,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-17T18:38:50.0000000Z",
+        "pushedAt": "2026-06-17T23:56:33.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -1610,7 +1610,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-17T19:42:32.0973816-04:00",
+          "queriedAt": "2026-06-17T19:58:33.4110463-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2001,13 +2001,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.132",
+    "expectedVersion": "v4.9.133",
     "expectedDate": "2026-06-17",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.132"
+        "value": "v4.9.133"
       }
     ],
     "dates": [
@@ -2029,14 +2029,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.132",
+    "expectedVersion": "v4.9.133",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.132",
+    "expectedTag": "v4.9.133",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2046,13 +2046,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.132",
+        "expectedVersion": "v4.9.133",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.132",
+        "expectedVersion": "v4.9.133",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2075,7 +2075,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4122,
+      "elapsedMs": 4130,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2109,7 +2109,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 16.14,
+      "ageDays": 16.15,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2119,7 +2119,7 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4122,
+    "elapsedMs": 4130,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2483,7 +2483,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99841,
+        "value": 100061,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2528,11 +2528,11 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-17T19:40:27.6808314-04:00",
-    "latestReportAffectingCommitSha": "bd63d472ba256a792ca3a8bbad5255485ba1af2d",
-    "latestReportAffectingCommitDate": "2026-06-17T17:25:13.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
+    "committedReportGeneratedAt": "2026-06-17T19:46:14.5001299-04:00",
+    "latestReportAffectingCommitSha": "5e278de119cce6d432b5791fa5fd7ee7170d4d9a",
+    "latestReportAffectingCommitDate": "2026-06-17T19:50:26.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.07,
     "smokeStatus": "not-run",
     "smokeEvidenceStale": true,
     "reportAffectingPaths": [
@@ -2546,9 +2546,10 @@
       "README.md"
     ],
     "warnings": [
+      "Committed sync report (2026-06-17T19:46:14.5001299-04:00) is older than the latest report-affecting commit 5e278de (2026-06-17T19:50:26.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
       "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
     ],
-    "warningCount": 1
+    "warningCount": 2
   },
   "scheduledWorkflowFreshness": {
     "status": "warning",
@@ -2593,7 +2594,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/17/2026 10:17:13",
         "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
-        "ageMinutes": 569,
+        "ageMinutes": 584,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2613,7 +2614,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 17935,
+        "ageMinutes": 17950,
         "stale": true,
         "failing": true,
         "available": true,
@@ -2633,7 +2634,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/11/2026 10:07:56",
         "latestSuccessfulScheduledAt": "06/11/2026 10:07:56",
-        "ageMinutes": 9218,
+        "ageMinutes": 9233,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2653,7 +2654,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 10625,
+        "ageMinutes": 10640,
         "stale": false,
         "failing": true,
         "available": true,
