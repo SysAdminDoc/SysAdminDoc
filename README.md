@@ -1,6 +1,6 @@
-**[View my full portfolio →](https://sysadmindoc.github.io/)**
-
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, and media workflows<br/><sub>PowerShell · Python · C# · Kotlin<br/>JavaScript · Rust · C++</sub></p>
+
+<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio →</b></a></p>
 
 <p align="center"><a href="#powershell-system-utilities">PowerShell</a> · <a href="#python-desktop-applications">Python</a> · <a href="#web-applications">Web Apps</a> · <a href="#browser-extensions--userscripts">Extensions</a><br/><a href="#android-applications">Android</a> · <a href="#native-desktop-applications">Desktop</a> · <a href="#media--conversion-tools">Media</a> · <a href="#guides--resources">Guides</a></p>
 
@@ -73,7 +73,7 @@ $d="$env:TEMP\LibreSpot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q -
 $d="$env:TEMP\DisableDefender"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DisableDefender $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DisableDefender.ps1"
 ```
 
-[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) &#11088;5 -- WPF GUI to fully disable or re-enable Microsoft Defender &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DefenderControl/releases/latest)
+[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) &#11088;6 -- WPF GUI to fully disable or re-enable Microsoft Defender &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DefenderControl/releases/latest)
 ```powershell
 $d="$env:TEMP\DefenderControl"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DefenderControl $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DefenderControl.ps1"
 ```

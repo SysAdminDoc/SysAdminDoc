@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-18T23:44:44.3615581-04:00",
+  "generatedAt": "2026-06-19T00:06:40.6416770-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "84d44bd749dc9aaf5384da6a4105b4471d4eb429",
+    "sourceCommit": "2f185dbaef9cb1c6f3ec0115b69c6a943cbcc122",
     "catalogSha256": "1280df77f2ceb2247f9044a28118c409ba4f1a940e0a85a519d023466464bea1",
-    "generatorSha256": "8df0c419f7090c559719c68a5b0fe3cb03c5894b48a2870d1dec27e1f0cf5387",
+    "generatorSha256": "7659e5a0e9e4442250163f5a62851f7d842fd5ab243bc5cb27f67d6495337b01",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-18T23:42:13.7840669-04:00",
+    "metadataSnapshotAt": "2026-06-19T00:04:12.8078051-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -194,7 +194,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-19T03:42:00.0000000Z",
+        "pushedAt": "2026-06-19T04:00:55.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -755,11 +755,11 @@
         },
         {
           "priorityRank": 9,
-          "repo": "AlarmClockXtreme",
-          "stars": 5,
-          "latestReleaseTag": "v1.14.18",
+          "repo": "DefenderControl",
+          "stars": 6,
+          "latestReleaseTag": "v3.2.1",
           "executableAssetKinds": [
-            "apk"
+            "script"
           ],
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
@@ -772,11 +772,11 @@
         },
         {
           "priorityRank": 10,
-          "repo": "DefenderControl",
+          "repo": "AlarmClockXtreme",
           "stars": 5,
-          "latestReleaseTag": "v3.2.1",
+          "latestReleaseTag": "v1.14.18",
           "executableAssetKinds": [
-            "script"
+            "apk"
           ],
           "trustLevel": "checksum",
           "evidenceSource": "filename-derived",
@@ -1621,7 +1621,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-18T23:42:13.7840669-04:00",
+          "queriedAt": "2026-06-19T00:04:12.8078051-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2012,13 +2012,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.138",
+    "expectedVersion": "v4.9.139",
     "expectedDate": "2026-06-19",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.138"
+        "value": "v4.9.139"
       }
     ],
     "dates": [
@@ -2040,14 +2040,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.138",
+    "expectedVersion": "v4.9.139",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.138",
+    "expectedTag": "v4.9.139",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2057,13 +2057,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.138",
+        "expectedVersion": "v4.9.139",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.138",
+        "expectedVersion": "v4.9.139",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2086,7 +2086,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 13698,
+      "elapsedMs": 3867,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2120,7 +2120,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 17.31,
+      "ageDays": 17.32,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2130,14 +2130,14 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 13698,
+    "elapsedMs": 3867,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 63019,
+    "byteCount": 62710,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2157,7 +2157,7 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 599,
+    "lineCount": 597,
     "detailsSectionCount": 11,
     "tableRowCount": 105,
     "projectRowCount": 171,
@@ -2431,7 +2431,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 63019,
+        "value": 62710,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2440,7 +2440,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 599,
+        "value": 597,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2467,7 +2467,7 @@
       {
         "artifact": "README.md",
         "metric": "imageTags",
-        "value": 2,
+        "value": 1,
         "softLimit": 10,
         "overSoftLimit": false,
         "warning": null,
@@ -2494,7 +2494,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 101356,
+        "value": 101573,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2503,7 +2503,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 85510,
+        "value": 85654,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2539,11 +2539,11 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-18T23:42:18.4453240-04:00",
-    "latestReportAffectingCommitSha": "84d44bd749dc9aaf5384da6a4105b4471d4eb429",
-    "latestReportAffectingCommitDate": "2026-06-18T23:25:28.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
+    "committedReportGeneratedAt": "2026-06-19T00:01:12.2398443-04:00",
+    "latestReportAffectingCommitSha": "2f185dbaef9cb1c6f3ec0115b69c6a943cbcc122",
+    "latestReportAffectingCommitDate": "2026-06-19T00:04:07.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.05,
     "smokeStatus": "not-run",
     "smokeEvidenceStale": true,
     "reportAffectingPaths": [
@@ -2557,9 +2557,10 @@
       "README.md"
     ],
     "warnings": [
+      "Committed sync report (2026-06-19T00:01:12.2398443-04:00) is older than the latest report-affecting commit 2f185db (2026-06-19T00:04:07.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
       "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
     ],
-    "warningCount": 1
+    "warningCount": 2
   },
   "scheduledWorkflowFreshness": {
     "status": "warning",
@@ -2604,7 +2605,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/17/2026 10:17:13",
         "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
-        "ageMinutes": 2247,
+        "ageMinutes": 2269,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2624,7 +2625,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 19613,
+        "ageMinutes": 19635,
         "stale": true,
         "failing": true,
         "available": true,
@@ -2644,7 +2645,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/18/2026 10:07:47",
         "latestSuccessfulScheduledAt": "06/18/2026 10:07:47",
-        "ageMinutes": 817,
+        "ageMinutes": 839,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2664,7 +2665,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 12304,
+        "ageMinutes": 12326,
         "stale": true,
         "failing": true,
         "available": true,
@@ -3010,7 +3011,7 @@
     "minimalProfileHeader": true,
     "richProfileHeader": false,
     "genericImageAltTextCount": 0,
-    "imageTagCount": 2,
+    "imageTagCount": 1,
     "imageAltTextIssueCount": 0,
     "imageAltTextComplete": true,
     "thirdPartyMetricHostCount": 0,

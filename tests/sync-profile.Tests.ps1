@@ -1458,7 +1458,10 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
     It 'preserves the minimal public profile header without adding personal chrome' {
-        $script:rendered.TrimStart() | Should -Match '^\*\*\[View my full portfolio'
+        $script:rendered.TrimStart() | Should -Match '^<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools\.</b>'
+        $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View my full portfolio'
+        $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
+        $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match 'Healthcare IT engineer and DICOM/PACS specialist'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'

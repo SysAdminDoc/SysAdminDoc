@@ -3428,7 +3428,11 @@ function Test-ReadmeExperience {
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
-    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith("**[View my full portfolio", [StringComparison]::Ordinal)
+    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b>', [StringComparison]::Ordinal) -and
+        $ExpectedReadme.Contains('<a href="https://sysadmindoc.github.io/"><b>View my full portfolio') -and
+        $ExpectedReadme.Contains('<a href="#powershell-system-utilities">PowerShell</a>') -and
+        -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and
+        -not $ExpectedReadme.Contains('assets/profile/header-light.svg')
     $hasRichProfileHeader = $ExpectedReadme.Contains("### Professional Focus") -or
         $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -or
         $ExpectedReadme.Contains("https://skillicons.dev") -or
