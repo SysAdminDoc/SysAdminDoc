@@ -1,6 +1,6 @@
 **[View my full portfolio →](https://sysadmindoc.github.io/)**
 
-<p align="center"><b>Healthcare IT, PACS/DICOM systems, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, and media workflows<br/><sub>PowerShell · Python · C# · Kotlin<br/>JavaScript · Rust · C++</sub></p>
+<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, and media workflows<br/><sub>PowerShell · Python · C# · Kotlin<br/>JavaScript · Rust · C++</sub></p>
 
 <p align="center"><a href="#powershell-system-utilities">PowerShell</a> · <a href="#python-desktop-applications">Python</a> · <a href="#web-applications">Web Apps</a> · <a href="#browser-extensions--userscripts">Extensions</a><br/><a href="#android-applications">Android</a> · <a href="#native-desktop-applications">Desktop</a> · <a href="#media--conversion-tools">Media</a> · <a href="#guides--resources">Guides</a></p>
 
