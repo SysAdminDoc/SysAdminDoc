@@ -1435,8 +1435,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'PyTool'
         $script:rendered | Should -Not -Match 'HiddenTool'
     }
-    It 'omits the generated catalog notice when the current README uses the compact header' {
-        $script:rendered | Should -Not -Match ([regex]::Escape($GeneratedCatalogNotice))
+    It 'keeps the generated catalog notice when the compact discovery block is active' {
+        $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
     It 'renders setup inspect-before-run and check-only guidance' {
         $script:rendered | Should -Match 'Install Python 3 \+ Git only if your machine needs them'
@@ -1463,23 +1463,26 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered.TrimStart() | Should -Match '^\*\*\[View my full portfolio'
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match 'Healthcare IT engineer and DICOM/PACS specialist'
-        $script:rendered | Should -Not -Match 'Currently Building'
+        $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
         $script:rendered | Should -Not -Match 'https://skillicons\.dev'
         $script:rendered | Should -Not -Match 'assets/profile/(stats|languages|activity)-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'capsule-render\.vercel\.app|readme-typing-svg|[?&]animation=|[?&]repeat=true'
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
         $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
-    It 'keeps the generated catalog compact when the README omits the discovery block' {
-        $script:rendered | Should -Not -Match ([regex]::Escape($GeneratedCatalogNotice))
-        $script:rendered | Should -Not -Match '### Start Here'
-        $script:rendered | Should -Not -Match '### Catalog Snapshot'
+    It 'renders the compact discovery block before featured projects' {
+        $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
+        $script:rendered | Should -Match '### Start Here'
+        $script:rendered | Should -Match 'This profile is the fast routing surface for public projects'
+        $script:rendered | Should -Match '### Catalog Snapshot'
+        $script:rendered | Should -Match 'Public-safety gates'
         $script:rendered | Should -Match '### Featured Projects'
     }
     It 'adds compact decision guidance without reintroducing the old profile chrome' {
-        $script:rendered | Should -Match 'A compact shortlist of the most useful, ready-to-run projects'
-        $script:rendered | Should -Match 'action line on each item'
-        $script:rendered | Should -Match '(?m)^- \[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- PowerShell, &#11088;0<br/>A test PowerShell tool<br/>\[Repo\]'
+        $script:rendered | Should -Match 'Representative ready-to-run projects'
+        $script:rendered | Should -Match 'one direct action line'
+        $script:rendered | Should -Match '(?m)^- \[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- PowerShell, &#11088;0<br/>A test PowerShell tool<br/>Action: \[Repo\]'
+        $script:rendered | Should -Match '<a id="first-time-setup"></a>'
         $script:rendered | Should -Match 'Suggested starting points:'
         $script:rendered | Should -Match 'Branch-pinned Windows utilities with setup guidance below'
         $script:rendered | Should -Match 'Hosted tools and dashboards that open directly in the browser'
@@ -1686,9 +1689,9 @@ Write-Host ok
     }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
-        $result.generatedCatalogNotice | Should -BeFalse
-        $result.startHereSection | Should -BeFalse
-        $result.catalogSnapshotSection | Should -BeFalse
+        $result.generatedCatalogNotice | Should -BeTrue
+        $result.startHereSection | Should -BeTrue
+        $result.catalogSnapshotSection | Should -BeTrue
         $result.setupInspectPath | Should -BeTrue
         $result.themeAwareImageChrome | Should -BeFalse
         $result.plainTextTagline | Should -BeFalse
@@ -2680,6 +2683,8 @@ Describe 'Rendered profile smoke wiring' {
     }
 
     It 'asserts key rendered sections and overflow/image health' {
+        $script:RenderSmokeScript | Should -Match 'Start Here'
+        $script:RenderSmokeScript | Should -Match 'Catalog Snapshot'
         $script:RenderSmokeScript | Should -Match 'Featured Projects'
         $script:RenderSmokeScript | Should -Match 'First-time setup'
         $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'

@@ -1800,33 +1800,40 @@ function New-DiscoverySection {
     $extensionsLink = New-CategoryLink "extensions"
     $androidLink = New-CategoryLink "android"
     $webLink = New-CategoryLink "web"
+    $setupLink = "[First-time setup](#first-time-setup)"
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Start Here")
     $lines.Add("")
-    $lines.Add("| Need | Best path | Why |")
-    $lines.Add("|:-----|:----------|:----|")
-    $lines.Add("| A Windows utility you can run now | $powershellLink or $desktopLink | Copy a branch-pinned command or use a release download when one exists. |")
-    $lines.Add("| Browser tools and userscripts | $extensionsLink | Install links stay pointed at releases or raw userscript URLs. |")
-    $lines.Add("| Android apps | $androidLink | APK-ready projects show direct release actions; work-in-progress apps stay marked as repos. |")
-    $lines.Add("| Live web tools | $webLink | Launch in-browser tools without local setup. |")
-    $lines.Add("| The complete searchable catalog | [Full portfolio](https://sysadmindoc.github.io/) | Uses the generated project feed from this repo. |")
+    $lines.Add("This profile is the fast routing surface for public projects. Use the portfolio for search and filters, or jump straight to the lane that matches the machine, browser, or device in front of you.")
+    $lines.Add("")
+    $lines.Add("| Goal | Best path | What to expect |")
+    $lines.Add("|:-----|:----------|:---------------|")
+    $lines.Add("| Find the strongest proof points quickly | [Featured Projects](#featured-projects) | Representative ready-to-run projects with one direct action each. |")
+    $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | Branch-pinned commands and release downloads where artifacts exist. |")
+    $lines.Add("| Install browser or Android tools | $extensionsLink or $androidLink | CRX/XPI, userscript, APK, or source paths labeled per project. |")
+    $lines.Add("| Launch a web tool | $webLink | Browser-first tools that do not need local setup. |")
+    $lines.Add("| Prepare a fresh Windows machine | $setupLink | Inspectable setup path for Python, Git, pip, and winget checks. |")
+    $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |")
     $lines.Add("")
     $lines.Add("### Catalog Snapshot")
     $lines.Add("")
     $lines.Add("| Signal | Current state |")
     $lines.Add("|:-------|:--------------|")
     $lines.Add("| Public repos tracked | $publicCount |")
-    $lines.Add("| README entries | $($Entries.Count) visitor-facing projects |")
-    $lines.Add("| Primary actions | $releaseCount downloads, $liveCount launch links, $installCount userscript installs |")
-    $lines.Add("| Active build queue | $buildingCount projects linked from the first screen |")
-    $lines.Add("| Trust gates | Public-only links, medical/X-ray privacy guard, branch-pinned install snippets |")
+    $lines.Add("| Visitor-facing README projects | $($Entries.Count) |")
+    $lines.Add("| Direct actions | $releaseCount release downloads, $liveCount live launches, $installCount userscript installs |")
+    $lines.Add("| Category lanes | $($CategoryDefinitions.Count) generated sections with suggested starting points |")
+    $lines.Add("| Active build queue | $buildingCount catalog rows marked as currently building |")
+    $lines.Add("| Public-safety gates | Public-only links, private/sensitive suppressions, branch-pinned install snippets |")
 
     return ($lines -join [Environment]::NewLine)
 }
 
 function New-FirstTimeSetupSection {
     return @'
+<a id="first-time-setup"></a>
+
 <details>
 <summary><b>&#128190; First-time setup</b> -- <i>Install Python 3 + Git only if your machine needs them.</i></summary>
 <br/>
@@ -1971,14 +1978,14 @@ function New-FeaturedSection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Featured Projects")
     $lines.Add("")
-    $lines.Add("A compact shortlist of the most useful, ready-to-run projects. Use the action line on each item for the fastest path.")
+    $lines.Add("Representative ready-to-run projects. Each item keeps one direct action line so visitors can download, launch, install, or open the repo without scanning the full catalog.")
     $lines.Add("")
     foreach ($entry in $featured) {
         $meta = Get-RepoMeta $entry $RepoLookup
         $stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
         $category = Get-CategoryDisplayName $entry.category
         $action = Get-ActionLink $entry $meta $entry.category
-        $lines.Add("- [**$($entry.title)**]($(Get-RepoUrl $entry)) -- $category, &#11088;$stars<br/>$(Get-DisplayDescription $entry $meta)<br/>$action")
+        $lines.Add("- [**$($entry.title)**]($(Get-RepoUrl $entry)) -- $category, &#11088;$stars<br/>$(Get-DisplayDescription $entry $meta)<br/>Action: $action")
     }
     return ($lines -join [Environment]::NewLine)
 }
@@ -3450,7 +3457,7 @@ function Test-ReadmeExperience {
     }
     $imageAltTextComplete = $imageAltTextIssueCount -eq 0
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
-    $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>\[')
+    $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith("**[View my full portfolio", [StringComparison]::Ordinal)
     $hasRichProfileHeader = $ExpectedReadme.Contains("### Professional Focus") -or

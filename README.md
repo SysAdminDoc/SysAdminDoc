@@ -2,26 +2,56 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/header-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/header-light.svg"><img src="assets/profile/header-dark.svg" alt="SysAdminDoc — Healthcare IT Engineer, DICOM/PACS Specialist, and Product Builder" width="100%" /></picture>
 
-<p align="center">Open source tools for Windows, Android,<br/>and the web<br/><sub>PowerShell · Python · C# · Kotlin<br/>JavaScript · Rust · C++</sub></p>
+<p align="center"><b>Healthcare IT, PACS/DICOM systems, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, and media workflows<br/><sub>PowerShell · Python · C# · Kotlin<br/>JavaScript · Rust · C++</sub></p>
 
 <p align="center"><a href="#powershell-system-utilities">PowerShell</a> · <a href="#python-desktop-applications">Python</a> · <a href="#web-applications">Web Apps</a> · <a href="#browser-extensions--userscripts">Extensions</a><br/><a href="#android-applications">Android</a> · <a href="#native-desktop-applications">Desktop</a> · <a href="#media--conversion-tools">Media</a> · <a href="#guides--resources">Guides</a></p>
 
-### Featured Projects
+<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
 
-A compact shortlist of the most useful, ready-to-run projects. Use the action line on each item for the fastest path.
+### Start Here
 
-- [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;46<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
-- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;21<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
-- [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) -- Python, &#11088;11<br/>Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
-- [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;12<br/>Spotify customization — automates Spicetify, themes, extensions<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
-- [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;20<br/>Remove hardcoded subtitles from video<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
-- [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) -- Extensions, &#11088;8<br/>Premium YouTube enhancement extension — 150+ features for Chrome & Firefox<br/>[<kbd>&#11015;&nbsp;CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest)
-- [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) -- PowerShell, &#11088;5<br/>67 automated checks across 8 security domains, MITRE ATT&CK mapping<br/>[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
-- [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) -- Android, &#11088;7<br/>Premium dark weather app — no API keys required<br/>[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest)
-- [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) -- Android, &#11088;13<br/>Professional video editor — 40+ effects, 37 transitions, 29 engines<br/>[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest)
-- [**HostShield**](https://github.com/SysAdminDoc/HostShield) -- Android, &#11088;10<br/>AMOLED-dark hosts-based ad blocker — inspired by AdAway<br/>[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest)
+This profile is the fast routing surface for public projects. Use the portfolio for search and filters, or jump straight to the lane that matches the machine, browser, or device in front of you.
+
+| Goal | Best path | What to expect |
+|:-----|:----------|:---------------|
+| Find the strongest proof points quickly | [Featured Projects](#featured-projects) | Representative ready-to-run projects with one direct action each. |
+| Run a Windows utility | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Branch-pinned commands and release downloads where artifacts exist. |
+| Install browser or Android tools | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | CRX/XPI, userscript, APK, or source paths labeled per project. |
+| Launch a web tool | [Web](#web-applications) | Browser-first tools that do not need local setup. |
+| Prepare a fresh Windows machine | [First-time setup](#first-time-setup) | Inspectable setup path for Python, Git, pip, and winget checks. |
+| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |
+
+### Catalog Snapshot
+
+| Signal | Current state |
+|:-------|:--------------|
+| Public repos tracked | 202 |
+| Visitor-facing README projects | 171 |
+| Direct actions | 71 release downloads, 27 live launches, 11 userscript installs |
+| Category lanes | 10 generated sections with suggested starting points |
+| Active build queue | 5 catalog rows marked as currently building |
+| Public-safety gates | Public-only links, private/sensitive suppressions, branch-pinned install snippets |
 
 ---
+
+### Featured Projects
+
+Representative ready-to-run projects. Each item keeps one direct action line so visitors can download, launch, install, or open the repo without scanning the full catalog.
+
+- [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;46<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;21<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+- [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) -- Python, &#11088;11<br/>Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
+- [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;12<br/>Spotify customization — automates Spicetify, themes, extensions<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
+- [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;20<br/>Remove hardcoded subtitles from video<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+- [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) -- Extensions, &#11088;8<br/>Premium YouTube enhancement extension — 150+ features for Chrome & Firefox<br/>Action: [<kbd>&#11015;&nbsp;CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest)
+- [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) -- PowerShell, &#11088;5<br/>67 automated checks across 8 security domains, MITRE ATT&CK mapping<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
+- [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) -- Android, &#11088;8<br/>Premium dark weather app — no API keys required<br/>Action: [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest)
+- [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) -- Android, &#11088;13<br/>Professional video editor — 40+ effects, 37 transitions, 29 engines<br/>Action: [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest)
+- [**HostShield**](https://github.com/SysAdminDoc/HostShield) -- Android, &#11088;10<br/>AMOLED-dark hosts-based ad blocker — inspired by AdAway<br/>Action: [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest)
+
+---
+
+<a id="first-time-setup"></a>
 
 <details>
 <summary><b>&#128190; First-time setup</b> -- <i>Install Python 3 + Git only if your machine needs them.</i></summary>
@@ -455,9 +485,9 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) &#11088;13 | Professional video editor — 40+ effects, 37 transitions, 29 engines | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest) |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;12 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;10 | AMOLED-dark hosts-based ad blocker — inspired by AdAway | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
-| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;7 | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
+| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;8 | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
+| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;8 | Premium dark weather app — no API keys required | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;7 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
-| [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;7 | Premium dark weather app — no API keys required | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;5 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
 | [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;4 | Open-source CF.Lumen successor -- root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;3 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
