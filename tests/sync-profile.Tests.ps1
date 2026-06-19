@@ -1447,17 +1447,15 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '-CheckOnly'
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
-    It 'renders upstream and license attribution in featured and category rows' {
+    It 'renders upstream and license attribution in category rows' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $entry = @($cat.entries | Where-Object { $_.repo -eq 'WinTool' })[0]
         $entry.forkOf = 'UpstreamOrg/WinTool'
         $entry.upstreamLicense = 'MIT'
-        $entry.featured = $true
-        $entry.featuredRank = 1
 
         $rendered = New-Readme -Catalog $cat -Repos @()
 
-        [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -BeGreaterOrEqual 2
+        [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
     It 'preserves the minimal public profile header without adding personal chrome' {
         $script:rendered.TrimStart() | Should -Match '^\*\*\[View my full portfolio'
@@ -1470,18 +1468,16 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
         $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
-    It 'renders the compact discovery block before featured projects' {
+    It 'renders the compact discovery block without catalog snapshot or featured projects' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
         $script:rendered | Should -Match '### Start Here'
         $script:rendered | Should -Match 'This profile is the fast routing surface for public projects'
-        $script:rendered | Should -Match '### Catalog Snapshot'
-        $script:rendered | Should -Match 'Public-safety gates'
-        $script:rendered | Should -Match '### Featured Projects'
+        $script:rendered | Should -Not -Match '### Catalog Snapshot'
+        $script:rendered | Should -Not -Match '### Featured Projects'
     }
     It 'adds compact decision guidance without reintroducing the old profile chrome' {
-        $script:rendered | Should -Match 'Representative ready-to-run projects'
-        $script:rendered | Should -Match 'one direct action line'
-        $script:rendered | Should -Match '(?m)^- \[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- PowerShell, &#11088;0<br/>A test PowerShell tool<br/>Action: \[Repo\]'
+        $script:rendered | Should -Match 'Branch-pinned commands and release downloads where artifacts exist'
+        $script:rendered | Should -Match 'CRX/XPI, userscript, APK, or source paths labeled per project'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
         $script:rendered | Should -Match 'Suggested starting points:'
         $script:rendered | Should -Match 'Branch-pinned Windows utilities with setup guidance below'
@@ -1654,7 +1650,7 @@ Write-Host ok
                     rootOverflow = $true
                     documentOverflow = $false
                     failedImages = @([pscustomobject]@{ src = 'missing.png' })
-                    missingSections = @('Featured Projects')
+                    missingSections = @('Start Here')
                 }
             )
         }
@@ -1691,7 +1687,7 @@ Write-Host ok
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeTrue
         $result.startHereSection | Should -BeTrue
-        $result.catalogSnapshotSection | Should -BeTrue
+        $result.catalogSnapshotSection | Should -BeFalse
         $result.setupInspectPath | Should -BeTrue
         $result.themeAwareImageChrome | Should -BeFalse
         $result.plainTextTagline | Should -BeFalse
@@ -1706,6 +1702,7 @@ Write-Host ok
         $result.motionSafeChrome | Should -BeTrue
         $result.motionPatternCount | Should -Be 0
         $result.profileStatsChromeCount | Should -Be 0
+        $result.featuredPrimaryActions | Should -BeFalse
         $result.currentlyBuildingActionColumn | Should -BeTrue
         $result.passed | Should -BeTrue
     }
@@ -2619,7 +2616,7 @@ Describe 'Seed catalog guard' {
         Set-Content -LiteralPath $readmePath -Value @(
             '# Temporary profile'
             ''
-            '### Featured Projects'
+            '### Start Here'
         ) -Encoding utf8
 
         $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -ForceSeedCatalog -Offline -ReadmePath $readmePath -CatalogPath $catalogPath *>&1
@@ -2684,8 +2681,8 @@ Describe 'Rendered profile smoke wiring' {
 
     It 'asserts key rendered sections and overflow/image health' {
         $script:RenderSmokeScript | Should -Match 'Start Here'
-        $script:RenderSmokeScript | Should -Match 'Catalog Snapshot'
-        $script:RenderSmokeScript | Should -Match 'Featured Projects'
+        $script:RenderSmokeScript | Should -Not -Match 'Catalog Snapshot'
+        $script:RenderSmokeScript | Should -Not -Match 'Featured Projects'
         $script:RenderSmokeScript | Should -Match 'First-time setup'
         $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'
         $script:RenderSmokeScript | Should -Match 'Python Desktop Applications'

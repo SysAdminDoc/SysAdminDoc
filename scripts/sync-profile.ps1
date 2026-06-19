@@ -1780,21 +1780,6 @@ function New-DiscoverySection {
         [object[]]$Repos
     )
 
-    $repoLookup = ConvertTo-Lookup $Repos
-    $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($Entries | Select-Object -ExpandProperty repo -Unique).Count }
-    $releaseCount = @($Entries | Where-Object {
-        $action = Get-PrimaryAction $_ (Get-RepoMeta $_ $repoLookup) $_.category
-        $action["kind"] -eq "release"
-    }).Count
-    $liveCount = @($Entries | Where-Object {
-        $action = Get-PrimaryAction $_ (Get-RepoMeta $_ $repoLookup) $_.category
-        $action["kind"] -eq "live"
-    }).Count
-    $installCount = @($Entries | Where-Object {
-        $action = Get-PrimaryAction $_ (Get-RepoMeta $_ $repoLookup) $_.category
-        $action["kind"] -eq "install"
-    }).Count
-    $buildingCount = @($Entries | Where-Object { $_.currentlyBuilding -eq $true }).Count
     $powershellLink = New-CategoryLink "powershell"
     $desktopLink = New-CategoryLink "desktop"
     $extensionsLink = New-CategoryLink "extensions"
@@ -1809,23 +1794,11 @@ function New-DiscoverySection {
     $lines.Add("")
     $lines.Add("| Goal | Best path | What to expect |")
     $lines.Add("|:-----|:----------|:---------------|")
-    $lines.Add("| Find the strongest proof points quickly | [Featured Projects](#featured-projects) | Representative ready-to-run projects with one direct action each. |")
     $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | Branch-pinned commands and release downloads where artifacts exist. |")
     $lines.Add("| Install browser or Android tools | $extensionsLink or $androidLink | CRX/XPI, userscript, APK, or source paths labeled per project. |")
     $lines.Add("| Launch a web tool | $webLink | Browser-first tools that do not need local setup. |")
     $lines.Add("| Prepare a fresh Windows machine | $setupLink | Inspectable setup path for Python, Git, pip, and winget checks. |")
     $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |")
-    $lines.Add("")
-    $lines.Add("### Catalog Snapshot")
-    $lines.Add("")
-    $lines.Add("| Signal | Current state |")
-    $lines.Add("|:-------|:--------------|")
-    $lines.Add("| Public repos tracked | $publicCount |")
-    $lines.Add("| Visitor-facing README projects | $($Entries.Count) |")
-    $lines.Add("| Direct actions | $releaseCount release downloads, $liveCount live launches, $installCount userscript installs |")
-    $lines.Add("| Category lanes | $($CategoryDefinitions.Count) generated sections with suggested starting points |")
-    $lines.Add("| Active build queue | $buildingCount catalog rows marked as currently building |")
-    $lines.Add("| Public-safety gates | Public-only links, private/sensitive suppressions, branch-pinned install snippets |")
 
     return ($lines -join [Environment]::NewLine)
 }
@@ -2649,10 +2622,6 @@ function New-Readme {
         $blocks.Add("---")
         $blocks.Add("")
     }
-    $blocks.Add((New-FeaturedSection -Entries $entries -RepoLookup $repoLookup))
-    $blocks.Add("")
-    $blocks.Add("---")
-    $blocks.Add("")
     $blocks.Add((New-FirstTimeSetupSection))
     $blocks.Add("")
 
@@ -3467,11 +3436,11 @@ function Test-ReadmeExperience {
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
         (-not $ExpectedReadme.Contains("**Currently Building**")) -or
         $ExpectedReadme.Contains("| Project | Focus | Action |")
-    $hasDiscoveryContract = ($hasStartHere -and $hasSnapshot -and $hasGeneratedNotice) -or
+    $hasDiscoveryContract = ($hasStartHere -and -not $hasSnapshot -and $hasGeneratedNotice) -or
         ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
     $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 1) -or
         ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)
-    $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasFeaturedPrimaryActions -and $hasCurrentlyBuildingActionColumn -and
+    $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasCurrentlyBuildingActionColumn -and
         $hasProfileHeaderContract -and
         $motionSafeChrome -and
         $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and

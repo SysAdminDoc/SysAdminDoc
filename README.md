@@ -14,40 +14,11 @@ This profile is the fast routing surface for public projects. Use the portfolio 
 
 | Goal | Best path | What to expect |
 |:-----|:----------|:---------------|
-| Find the strongest proof points quickly | [Featured Projects](#featured-projects) | Representative ready-to-run projects with one direct action each. |
 | Run a Windows utility | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Branch-pinned commands and release downloads where artifacts exist. |
 | Install browser or Android tools | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | CRX/XPI, userscript, APK, or source paths labeled per project. |
 | Launch a web tool | [Web](#web-applications) | Browser-first tools that do not need local setup. |
 | Prepare a fresh Windows machine | [First-time setup](#first-time-setup) | Inspectable setup path for Python, Git, pip, and winget checks. |
 | Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |
-
-### Catalog Snapshot
-
-| Signal | Current state |
-|:-------|:--------------|
-| Public repos tracked | 202 |
-| Visitor-facing README projects | 171 |
-| Direct actions | 71 release downloads, 27 live launches, 11 userscript installs |
-| Category lanes | 10 generated sections with suggested starting points |
-| Active build queue | 5 catalog rows marked as currently building |
-| Public-safety gates | Public-only links, private/sensitive suppressions, branch-pinned install snippets |
-
----
-
-### Featured Projects
-
-Representative ready-to-run projects. Each item keeps one direct action line so visitors can download, launch, install, or open the repo without scanning the full catalog.
-
-- [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) -- PowerShell, &#11088;46<br/>GUI to enable Windows Server 2025 NVMe driver on Win11<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
-- [**OpenCut**](https://github.com/SysAdminDoc/OpenCut) -- Python, &#11088;21<br/>AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
-- [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) -- Python, &#11088;11<br/>Offline survival command center — maps, AI chat, situation room, NukeMap, supply tracking<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
-- [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) -- PowerShell, &#11088;12<br/>Spotify customization — automates Spicetify, themes, extensions<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
-- [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) -- Media, &#11088;20<br/>Remove hardcoded subtitles from video<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
-- [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) -- Extensions, &#11088;8<br/>Premium YouTube enhancement extension — 150+ features for Chrome & Firefox<br/>Action: [<kbd>&#11015;&nbsp;CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest)
-- [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) -- PowerShell, &#11088;5<br/>67 automated checks across 8 security domains, MITRE ATT&CK mapping<br/>Action: [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
-- [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) -- Android, &#11088;8<br/>Premium dark weather app — no API keys required<br/>Action: [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest)
-- [**NovaCut**](https://github.com/SysAdminDoc/NovaCut) -- Android, &#11088;13<br/>Professional video editor — 40+ effects, 37 transitions, 29 engines<br/>Action: [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/NovaCut/releases/latest)
-- [**HostShield**](https://github.com/SysAdminDoc/HostShield) -- Android, &#11088;10<br/>AMOLED-dark hosts-based ad blocker — inspired by AdAway<br/>Action: [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest)
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-18T23:24:46.5888746-04:00",
+  "generatedAt": "2026-06-18T23:44:44.3615581-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "68462514b2b6a611c8cd4bed8ebbd1e637f00067",
+    "sourceCommit": "84d44bd749dc9aaf5384da6a4105b4471d4eb429",
     "catalogSha256": "1280df77f2ceb2247f9044a28118c409ba4f1a940e0a85a519d023466464bea1",
-    "generatorSha256": "1a212689fe080862fb48468f6437a593950ddb6eb7838f81434deb7cb0178d07",
+    "generatorSha256": "8df0c419f7090c559719c68a5b0fe3cb03c5894b48a2870d1dec27e1f0cf5387",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-18T23:22:31.6705257-04:00",
+    "metadataSnapshotAt": "2026-06-18T23:42:13.7840669-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -194,7 +194,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-19T03:16:00.0000000Z",
+        "pushedAt": "2026-06-19T03:42:00.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -1621,7 +1621,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-18T23:22:31.6705257-04:00",
+          "queriedAt": "2026-06-18T23:42:13.7840669-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2012,13 +2012,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.137",
+    "expectedVersion": "v4.9.138",
     "expectedDate": "2026-06-19",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.137"
+        "value": "v4.9.138"
       }
     ],
     "dates": [
@@ -2040,14 +2040,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.137",
+    "expectedVersion": "v4.9.138",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.137",
+    "expectedTag": "v4.9.138",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2057,13 +2057,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.137",
+        "expectedVersion": "v4.9.138",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.137",
+        "expectedVersion": "v4.9.138",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2086,7 +2086,7 @@
       "skipped": false,
       "targetCount": 177,
       "throttleLimit": 16,
-      "elapsedMs": 4028,
+      "elapsedMs": 13698,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2120,7 +2120,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 17.3,
+      "ageDays": 17.31,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2130,25 +2130,23 @@
   "linkValidationSummary": {
     "targetCount": 177,
     "throttleLimit": 16,
-    "elapsedMs": 4028,
+    "elapsedMs": 13698,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 66636,
+    "byteCount": 63019,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
   },
   "readmeHeadingHierarchy": {
     "status": "ok",
-    "headingCount": 3,
+    "headingCount": 1,
     "firstLevel": 3,
     "headingSequence": [
-      3,
-      3,
       3
     ],
     "profileContextMaxFirstLevel": 3,
@@ -2159,7 +2157,7 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 628,
+    "lineCount": 599,
     "detailsSectionCount": 11,
     "tableRowCount": 105,
     "projectRowCount": 171,
@@ -2433,7 +2431,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 66636,
+        "value": 63019,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2442,7 +2440,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 628,
+        "value": 599,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2496,7 +2494,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 101370,
+        "value": 101356,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2541,9 +2539,9 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-18T23:22:03.0171567-04:00",
-    "latestReportAffectingCommitSha": "fa44933ca691714407d647a58471bd33fcd091e7",
-    "latestReportAffectingCommitDate": "2026-06-18T17:32:55.0000000-04:00",
+    "committedReportGeneratedAt": "2026-06-18T23:42:18.4453240-04:00",
+    "latestReportAffectingCommitSha": "84d44bd749dc9aaf5384da6a4105b4471d4eb429",
+    "latestReportAffectingCommitDate": "2026-06-18T23:25:28.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "smokeStatus": "not-run",
@@ -2606,7 +2604,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/17/2026 10:17:13",
         "latestSuccessfulScheduledAt": "06/17/2026 10:17:13",
-        "ageMinutes": 2227,
+        "ageMinutes": 2247,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2626,7 +2624,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/16/2026 09:26:55",
         "latestSuccessfulScheduledAt": "06/05/2026 08:51:18",
-        "ageMinutes": 19593,
+        "ageMinutes": 19613,
         "stale": true,
         "failing": true,
         "available": true,
@@ -2646,7 +2644,7 @@
         "latestScheduledConclusion": "success",
         "latestScheduledRunAt": "06/18/2026 10:07:47",
         "latestSuccessfulScheduledAt": "06/18/2026 10:07:47",
-        "ageMinutes": 797,
+        "ageMinutes": 817,
         "stale": false,
         "failing": false,
         "available": true,
@@ -2666,7 +2664,7 @@
         "latestScheduledConclusion": "failure",
         "latestScheduledRunAt": "06/17/2026 10:55:53",
         "latestSuccessfulScheduledAt": "06/10/2026 10:40:59",
-        "ageMinutes": 12284,
+        "ageMinutes": 12304,
         "stale": true,
         "failing": true,
         "available": true,
@@ -3003,7 +3001,7 @@
   "readmeExperienceChecks": {
     "passed": true,
     "startHereSection": true,
-    "catalogSnapshotSection": true,
+    "catalogSnapshotSection": false,
     "generatedCatalogNotice": true,
     "setupInspectPath": true,
     "themeAwareImageChrome": false,
@@ -3024,8 +3022,8 @@
     "profileStatsChromeCount": 0,
     "featuredRows": 10,
     "featuredActionColumn": false,
-    "featuredActionList": true,
-    "featuredPrimaryActions": true,
+    "featuredActionList": false,
+    "featuredPrimaryActions": false,
     "currentlyBuildingRows": 5,
     "currentlyBuildingActionColumn": true,
     "categoryAnchorCount": 10,
