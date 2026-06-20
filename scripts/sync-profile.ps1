@@ -8178,6 +8178,20 @@ function Test-ReleaseAssetDrift {
                 } else {
                     "verified-complete"
                 }
+                $isImmutable = [bool]($releaseTrust.releaseImmutable -eq $true)
+                $readinessLevel = if ($hasIntegrityEvidence -and $hasAttestation -and $hasSbom -and $isImmutable) {
+                    "fully-evidenced"
+                } elseif ($hasAttestation) {
+                    "attested"
+                } elseif ($hasSbom) {
+                    "sbom-present"
+                } elseif ($isImmutable) {
+                    "immutable-only"
+                } elseif ($hasIntegrityEvidence) {
+                    "digest-only"
+                } else {
+                    "no-integrity"
+                }
                 $executableDownloadCandidates.Add([ordered]@{
                         repo = [string]$entry.repo
                         stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
@@ -8191,6 +8205,8 @@ function Test-ReleaseAssetDrift {
                         hasIntegrityEvidence = [bool]$hasIntegrityEvidence
                         hasSbom = [bool]$hasSbom
                         hasAttestation = [bool]$hasAttestation
+                        isImmutable = [bool]$isImmutable
+                        readinessLevel = $readinessLevel
                         gapScore = [int]$gapScore
                         nextAction = $nextAction
                     })
@@ -8288,6 +8304,18 @@ function Test-ReleaseAssetDrift {
     $platformDigestCount = ($rankedCandidates | Where-Object { $_.hasPlatformDigest } | Measure-Object).Count
     $attestationGapCount = ($rankedCandidates | Where-Object { -not $_.hasAttestation } | Measure-Object).Count
     $sbomGapCount = ($rankedCandidates | Where-Object { -not $_.hasSbom } | Measure-Object).Count
+    $immutableCount = ($rankedCandidates | Where-Object { $_.isImmutable } | Measure-Object).Count
+    $readinessBuckets = @{}
+    foreach ($candidate in @($rankedCandidates)) {
+        $level = [string]$candidate.readinessLevel
+        if (-not $readinessBuckets.ContainsKey($level)) { $readinessBuckets[$level] = 0 }
+        $readinessBuckets[$level]++
+    }
+    $readinessCounts = @(foreach ($level in @("fully-evidenced", "attested", "sbom-present", "immutable-only", "digest-only", "no-integrity")) {
+        if ($readinessBuckets.ContainsKey($level)) {
+            [ordered]@{ readinessLevel = $level; count = [int]$readinessBuckets[$level] }
+        }
+    })
     $shortlistTruncatedCount = [int]$executableDownloadCount - [int]$shortlistRows.Count
     if ($shortlistTruncatedCount -lt 0) { $shortlistTruncatedCount = 0 }
     $executableDownloadTrustShortlist = [ordered]@{
@@ -8299,6 +8327,8 @@ function Test-ReleaseAssetDrift {
         platformDigestCount = [int]$platformDigestCount
         attestationGapCount = [int]$attestationGapCount
         sbomGapCount = [int]$sbomGapCount
+        immutableCount = [int]$immutableCount
+        readinessCounts = @($readinessCounts)
         shortlistSoftCap = [int]$shortlistSoftCap
         truncatedCount = [int]$shortlistTruncatedCount
         rows = @($shortlistRows.ToArray())

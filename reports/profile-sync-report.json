@@ -631,7 +631,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 2,
@@ -650,7 +652,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 3,
@@ -669,7 +673,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 4,
@@ -688,7 +694,9 @@
           "gapScore": 3,
           "nextAction": "complete-missing-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 5,
@@ -707,7 +715,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 6,
@@ -726,7 +736,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 7,
@@ -748,7 +760,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 8,
@@ -767,7 +781,9 @@
           "gapScore": 3,
           "nextAction": "publish-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 9,
@@ -786,7 +802,9 @@
           "gapScore": 3,
           "nextAction": "complete-missing-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         },
         {
           "priorityRank": 10,
@@ -805,12 +823,21 @@
           "gapScore": 3,
           "nextAction": "complete-missing-sha256sums",
           "hasPlatformDigest": false,
-          "hasIntegrityEvidence": false
+          "hasIntegrityEvidence": false,
+          "isImmutable": false,
+          "readinessLevel": "no-integrity"
         }
       ],
       "note": "Integrity evidence combines filename-derived sidecar checksums and GitHub platform asset digests. nextAction names the highest-impact missing evidence.",
       "integrityGapCount": 10,
-      "platformDigestCount": 0
+      "platformDigestCount": 0,
+      "immutableCount": 0,
+      "readinessCounts": [
+        {
+          "readinessLevel": "no-integrity",
+          "count": 10
+        }
+      ]
     },
     "executableDownloadsMissingChecksums": 55,
     "debugArtifactRows": [
