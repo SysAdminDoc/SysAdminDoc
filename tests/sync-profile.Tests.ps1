@@ -2028,6 +2028,21 @@ Describe 'New-ProjectsExportJson feed' {
         $result.fatalCount | Should -BeGreaterThan 0
     }
 
+    It 'rejects duplicate visible repo names in the portfolio feed' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $dup = $payload.projects[0].PSObject.Copy()
+        $payload.projects = @($payload.projects) + @($dup)
+        $payload.projectCount = $payload.projects.Count
+        $json = $payload | ConvertTo-Json -Depth 50
+
+        $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
+
+        $result.status | Should -Be 'incompatible'
+        $result.duplicateVisibleRepoCount | Should -BeGreaterThan 0
+        $result.fatalCount | Should -BeGreaterThan 0
+    }
+
     It 'flags suppressed rows that expose project-identifying fields to consumers' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json

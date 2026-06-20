@@ -3035,6 +3035,8 @@ function Test-PortfolioFeedCompatibility {
             suppressedDisallowedFields = $suppressedDisallowedFields
             suppressedIdentifierLeakCount = 0
             suppressedIdentifierLeaks = @()
+            duplicateVisibleRepoCount = 0
+            duplicateVisibleRepos = @()
             redactedSuppressedRowsCompatible = $false
             provenanceAvailable = $false
             releaseTrustAvailable = $false
@@ -3063,11 +3065,21 @@ function Test-PortfolioFeedCompatibility {
         $errors.Add("Portfolio feed has no visible projects.")
     }
 
+    $duplicateVisibleRepos = New-Object System.Collections.Generic.List[string]
+    $seenRepos = @{}
     $projectIndex = 0
     foreach ($project in $projects) {
         $projectIndex++
         $repo = [string](Get-MemberValue -Object $project -Name "repo")
         $repoLabel = if ([string]::IsNullOrWhiteSpace($repo)) { "project-$projectIndex" } else { $repo }
+        if (-not [string]::IsNullOrWhiteSpace($repo)) {
+            $repoKey = $repo.ToLowerInvariant()
+            if ($seenRepos.ContainsKey($repoKey)) {
+                $duplicateVisibleRepos.Add($repo)
+            } else {
+                $seenRepos[$repoKey] = $true
+            }
+        }
         foreach ($field in $requiredProjectFields) {
             $value = Get-MemberValue -Object $project -Name $field
             if ($null -eq $value -or [string]::IsNullOrWhiteSpace([string]$value)) {
@@ -3118,6 +3130,10 @@ function Test-PortfolioFeedCompatibility {
     if ($suppressedLeaksArray.Count -gt 0) {
         $errors.Add("Redacted suppressed feed rows expose project-identifying fields.")
     }
+    $duplicateVisibleRepoArray = @($duplicateVisibleRepos.ToArray())
+    if ($duplicateVisibleRepoArray.Count -gt 0) {
+        $errors.Add("Duplicate visible repo names in the portfolio feed: $($duplicateVisibleRepoArray -join ', ').")
+    }
 
     $provenance = Get-MemberValue -Object $payload -Name "provenance"
     if ($null -eq $provenance) {
@@ -3145,6 +3161,8 @@ function Test-PortfolioFeedCompatibility {
         suppressedDisallowedFields = $suppressedDisallowedFields
         suppressedIdentifierLeakCount = $suppressedLeaksArray.Count
         suppressedIdentifierLeaks = $suppressedLeaksArray
+        duplicateVisibleRepoCount = [int]$duplicateVisibleRepoArray.Count
+        duplicateVisibleRepos = @($duplicateVisibleRepoArray)
         redactedSuppressedRowsCompatible = [bool]($suppressedLeaksArray.Count -eq 0)
         provenanceAvailable = [bool]($null -ne $provenance)
         releaseTrustAvailable = $releaseTrustAvailable

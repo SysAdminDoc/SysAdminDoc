@@ -1593,7 +1593,9 @@
     "warnings": [],
     "fatalCount": 0,
     "errors": [],
-    "note": "Compatibility snapshot for the downstream portfolio feed importer; normal consumers should use payload.projects and ignore unknown additive fields."
+    "note": "Compatibility snapshot for the downstream portfolio feed importer; normal consumers should use payload.projects and ignore unknown additive fields.",
+    "duplicateVisibleRepoCount": 0,
+    "duplicateVisibleRepos": []
   },
   "repositorySettings": {
     "available": true,
