@@ -1159,6 +1159,8 @@
         "executableDownloadCount",
         "verifiedCompleteCount",
         "checksumGapCount",
+        "integrityGapCount",
+        "platformDigestCount",
         "attestationGapCount",
         "sbomGapCount",
         "shortlistSoftCap",
@@ -1177,6 +1179,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "checksumGapCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "integrityGapCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "platformDigestCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "attestationGapCount": {
@@ -1206,6 +1214,8 @@
               "evidenceSource",
               "hasChecksum",
               "checksumCoverage",
+              "hasPlatformDigest",
+              "hasIntegrityEvidence",
               "hasSbom",
               "hasAttestation",
               "gapScore",
@@ -1239,6 +1249,12 @@
               "checksumCoverage": {
                 "type": "string",
                 "enum": ["none", "partial", "full"]
+              },
+              "hasPlatformDigest": {
+                "type": "boolean"
+              },
+              "hasIntegrityEvidence": {
+                "type": "boolean"
               },
               "hasSbom": {
                 "type": "boolean"

@@ -1222,7 +1222,7 @@ Describe 'Report schema depth helpers' {
         $result.assetApiInspected | Should -BeTrue
 
         $shortlist = $result.executableDownloadTrustShortlist
-        $shortlist.evidenceSource | Should -Be 'filename-derived'
+        $shortlist.evidenceSource | Should -Be 'filename-and-platform'
         $shortlist.executableDownloadCount | Should -Be 2
         $shortlist.verifiedCompleteCount | Should -Be 0
         $shortlist.checksumGapCount | Should -Be 1

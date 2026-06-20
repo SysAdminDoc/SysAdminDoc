@@ -604,7 +604,7 @@
       "withoutDigestCount": 52
     },
     "executableDownloadTrustShortlist": {
-      "evidenceSource": "filename-derived",
+      "evidenceSource": "filename-and-platform",
       "executableDownloadCount": 65,
       "verifiedCompleteCount": 0,
       "checksumGapCount": 55,
@@ -629,7 +629,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 2,
@@ -646,7 +648,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 3,
@@ -663,7 +667,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 4,
@@ -680,7 +686,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "complete-missing-sha256sums"
+          "nextAction": "complete-missing-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 5,
@@ -697,7 +705,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 6,
@@ -714,7 +724,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 7,
@@ -734,7 +746,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 8,
@@ -751,7 +765,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "publish-sha256sums"
+          "nextAction": "publish-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 9,
@@ -768,7 +784,9 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "complete-missing-sha256sums"
+          "nextAction": "complete-missing-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         },
         {
           "priorityRank": 10,
@@ -785,10 +803,14 @@
           "hasSbom": false,
           "hasAttestation": false,
           "gapScore": 3,
-          "nextAction": "complete-missing-sha256sums"
+          "nextAction": "complete-missing-sha256sums",
+          "hasPlatformDigest": false,
+          "hasIntegrityEvidence": false
         }
       ],
-      "note": "Filename-derived prioritization only; binaries are not downloaded or cryptographically verified. nextAction names the highest-impact missing evidence (checksums before attestation before SBOM)."
+      "note": "Integrity evidence combines filename-derived sidecar checksums and GitHub platform asset digests. nextAction names the highest-impact missing evidence.",
+      "integrityGapCount": 10,
+      "platformDigestCount": 0
     },
     "executableDownloadsMissingChecksums": 55,
     "debugArtifactRows": [

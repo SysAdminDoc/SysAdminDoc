@@ -8159,15 +8159,17 @@ function Test-ReleaseAssetDrift {
             if (@($releaseTrust.executableAssetKinds).Count -gt 0) {
                 $hasChecksum = [bool]$releaseTrust.hasChecksumForEveryExecutable -and @($releaseTrust.checksumAssets).Count -gt 0
                 $checksumCoverage = [string]$releaseTrust.checksumCoverage
+                $hasPlatformDigest = [bool]([int]$releaseTrust.platformDigestCount -gt 0)
                 $hasSbom = @($releaseTrust.sbomAssets).Count -gt 0
                 $hasAttestation = [bool]$releaseTrust.attestationAvailable
+                $hasIntegrityEvidence = $hasChecksum -or $hasPlatformDigest
                 $gapScore = 0
-                if (-not $hasChecksum) { $gapScore++ }
+                if (-not $hasIntegrityEvidence) { $gapScore++ }
                 if (-not $hasSbom) { $gapScore++ }
                 if (-not $hasAttestation) { $gapScore++ }
-                $nextAction = if (-not $hasChecksum -and $checksumCoverage -eq "partial") {
+                $nextAction = if (-not $hasIntegrityEvidence -and $checksumCoverage -eq "partial") {
                     "complete-missing-sha256sums"
-                } elseif (-not $hasChecksum) {
+                } elseif (-not $hasIntegrityEvidence) {
                     "publish-sha256sums"
                 } elseif (-not $hasAttestation) {
                     "publish-build-provenance-attestation"
@@ -8182,9 +8184,11 @@ function Test-ReleaseAssetDrift {
                         latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
                         executableAssetKinds = @($releaseTrust.executableAssetKinds)
                         trustLevel = [string]$releaseTrust.trustLevel
-                        evidenceSource = "filename-derived"
+                        evidenceSource = "filename-and-platform"
                         hasChecksum = [bool]$hasChecksum
                         checksumCoverage = [string]$checksumCoverage
+                        hasPlatformDigest = [bool]$hasPlatformDigest
+                        hasIntegrityEvidence = [bool]$hasIntegrityEvidence
                         hasSbom = [bool]$hasSbom
                         hasAttestation = [bool]$hasAttestation
                         gapScore = [int]$gapScore
@@ -8280,21 +8284,25 @@ function Test-ReleaseAssetDrift {
     $executableDownloadCount = ($rankedCandidates | Measure-Object).Count
     $verifiedCompleteCount = ($rankedCandidates | Where-Object { [int]$_.gapScore -eq 0 } | Measure-Object).Count
     $checksumGapCount = ($rankedCandidates | Where-Object { -not $_.hasChecksum } | Measure-Object).Count
+    $integrityGapCount = ($rankedCandidates | Where-Object { -not $_.hasIntegrityEvidence } | Measure-Object).Count
+    $platformDigestCount = ($rankedCandidates | Where-Object { $_.hasPlatformDigest } | Measure-Object).Count
     $attestationGapCount = ($rankedCandidates | Where-Object { -not $_.hasAttestation } | Measure-Object).Count
     $sbomGapCount = ($rankedCandidates | Where-Object { -not $_.hasSbom } | Measure-Object).Count
     $shortlistTruncatedCount = [int]$executableDownloadCount - [int]$shortlistRows.Count
     if ($shortlistTruncatedCount -lt 0) { $shortlistTruncatedCount = 0 }
     $executableDownloadTrustShortlist = [ordered]@{
-        evidenceSource = "filename-derived"
+        evidenceSource = "filename-and-platform"
         executableDownloadCount = [int]$executableDownloadCount
         verifiedCompleteCount = [int]$verifiedCompleteCount
         checksumGapCount = [int]$checksumGapCount
+        integrityGapCount = [int]$integrityGapCount
+        platformDigestCount = [int]$platformDigestCount
         attestationGapCount = [int]$attestationGapCount
         sbomGapCount = [int]$sbomGapCount
         shortlistSoftCap = [int]$shortlistSoftCap
         truncatedCount = [int]$shortlistTruncatedCount
         rows = @($shortlistRows.ToArray())
-        note = "Filename-derived prioritization only; binaries are not downloaded or cryptographically verified. nextAction names the highest-impact missing evidence (checksums before attestation before SBOM)."
+        note = "Integrity evidence combines filename-derived sidecar checksums and GitHub platform asset digests. nextAction names the highest-impact missing evidence."
     }
 
     return [ordered]@{
