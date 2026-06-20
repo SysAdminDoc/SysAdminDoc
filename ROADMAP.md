@@ -71,3 +71,45 @@
   Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, `tests/sync-profile.Tests.ps1`, `reports/profile-sync-report.json`.
   Acceptance: Tests or a report section validate the current feed against the downstream importer-required fields and visible/suppressed row expectations, including duplicate visible repo rejection.
   Complexity: M
+
+- [ ] P0 — Fix PSScriptAnalyzer unused parameters in `New-DiscoverySection`
+  Why: `New-DiscoverySection` declares `$Entries` and `$Repos` parameters (lines 1779-1780) that are never used inside the function body. PSScriptAnalyzer `PSReviewUnusedParameter` flags both, failing the Tests workflow on every push.
+  Evidence: `gh run list --workflow=tests.yml` shows PSScriptAnalyzer failure; CI log output: "PSScriptAnalyzer reported 2 finding(s)."
+  Touches: `scripts/sync-profile.ps1` (function `New-DiscoverySection` at line 1777 and call site at line 2620).
+  Acceptance: Remove the unused `$Entries` and `$Repos` parameters from the function signature and the corresponding `-Entries $entries -Repos $Repos` arguments from the call site; PSScriptAnalyzer passes with 0 findings.
+  Complexity: S
+
+- [ ] P1 — Migrate attestation action from `actions/attest-build-provenance` to `actions/attest`
+  Why: `actions/attest-build-provenance` is now a thin wrapper around `actions/attest`. GitHub's documentation recommends new implementations use `actions/attest` directly, which also supports SBOM attestation via `predicate-type` without needing the separate `actions/attest-sbom` action.
+  Evidence: `actions/attest-build-provenance` README; `.github/workflows/profile-sync.yml` write-pr job uses `actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32`.
+  Touches: `.github/workflows/profile-sync.yml`, `tests/sync-profile.Tests.ps1`.
+  Acceptance: The write-pr job uses `actions/attest` with SHA-pinned reference and `predicate-type: https://slsa.dev/provenance/v1`; Pester guards the updated action reference; attestation verification still works via `gh attestation verify`.
+  Complexity: S
+
+- [ ] P1 — Resolve 13 missing fork-parent catalog attributions
+  Why: 13 GitHub forks have no `forkOf` in `data/profile-catalog.json`. The report classifies these as warning-only under `forkParentDrift.missingCatalogAttribution`, but the attribution debt grows with each new fork.
+  Evidence: `reports/profile-sync-report.json.forkParentDrift.missingCatalogAttribution` lists: `android-foss`, `awesome-privacy`, `CL4R1T4S`, `ews`, `foss-apps`, `Gmail-MCP-Server`, `hermes-webui`, `notepad-plus-plus`, `NotepadNext`, `qBittorrent-Enhanced-Edition`, `stylus`, `vcpkg`, `youtube-mcp-server`.
+  Touches: `data/profile-catalog.json`, `reports/profile-sync-report.json`.
+  Acceptance: Each fork has a `forkOf` field matching the `forkParentDrift.missingCatalogAttribution.githubParent` value; `forkParentDrift.missingCatalogAttributionCount` drops to 0; suppressed forks also carry `upstreamLicense` where available.
+  Complexity: S
+
+- [ ] P1 — Verify markdown-it CVE-2025-7969 coverage
+  Why: CVE-2025-7969 reports an XSS vulnerability in markdown-it fenced code block rendering via unsanitized HTML. The repo pins markdown-it to 14.2.0 via `package.json` overrides, which addresses CVE-2026-48988 (smartquotes DoS). CVE-2025-7969 needs verification that 14.2.0 also covers it, or a further pin bump.
+  Evidence: Snyk advisory SNYK-JS-MARKDOWNIT-12143043; `package.json` override `"markdown-it": "14.2.0"`; `npm ls markdown-it` confirms 14.2.0.
+  Touches: `package.json`, `package-lock.json`.
+  Acceptance: Confirm the XSS fix is included in 14.2.0 or bump the override to the patch version that includes it; `npm audit` shows no markdown-it advisories.
+  Complexity: S
+
+- [ ] P3 — Evaluate Pester `ExcludeTests` coverage option
+  Why: Pester 5.7.0 added `CodeCoverage.ExcludeTests` which prevents test files themselves from inflating line-coverage numbers. The current Pester configuration does not use this option.
+  Evidence: Pester 5.7.0 release notes; `.github/workflows/tests.yml` Pester configuration block.
+  Touches: `.github/workflows/tests.yml`, `tests/sync-profile.Tests.ps1`.
+  Acceptance: Enable `$config.CodeCoverage.ExcludeTests = $true` in the CI Pester config; verify the coverage floor (78%) still holds after test-file lines are excluded; adjust the floor if the measured baseline changes.
+  Complexity: S
+
+- [ ] P3 — Target PowerShell 7.6 LTS as preferred CI runtime
+  Why: PowerShell 7.6.3 is the current LTS (supported through Nov 2028, .NET 10 base). The repo requires 7.4+ but GitHub Actions runners are migrating to 7.6 as the bundled `pwsh`. The 7.4 LTS support ends Nov 2026.
+  Evidence: PowerShell support lifecycle docs; `#Requires -Version 7.4` in `scripts/sync-profile.ps1`; `Write-Host "PowerShell runtime: $($PSVersionTable.PSVersion)"` in tests.yml.
+  Touches: `scripts/sync-profile.ps1`, `CLAUDE.md`.
+  Acceptance: `#Requires -Version 7.4` stays as the minimum (backward compat); CI logs confirm `pwsh` 7.6+ is the tested runtime; no 7.6-specific features are required yet; CLAUDE.md notes the preferred runtime.
+  Complexity: S
