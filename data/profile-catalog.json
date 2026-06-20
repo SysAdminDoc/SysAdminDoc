@@ -4663,7 +4663,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Reference list/upstream fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "offa/android-foss",
+      "upstreamLicense": "GPL-3.0"
     },
     {
       "repo": "awesome-privacy",
@@ -4687,7 +4689,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Reference list/upstream fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "pluja/awesome-privacy",
+      "upstreamLicense": "CC0-1.0"
     },
     {
       "repo": "CL4R1T4S",
@@ -4711,7 +4715,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Reference archive; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "elder-plinius/CL4R1T4S",
+      "upstreamLicense": "AGPL-3.0"
     },
     {
       "repo": "ews",
@@ -4735,7 +4741,8 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Support repository without public positioning; not a visitor-facing project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "kylemcdonald/ews"
     },
     {
       "repo": "foss-apps",
@@ -4759,7 +4766,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Reference list/upstream fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "albertomosconi/foss-apps",
+      "upstreamLicense": "CC0-1.0"
     },
     {
       "repo": "Gmail-MCP-Server",
@@ -4783,7 +4792,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Credentialed MCP helper; keep off the compact public profile until install path and positioning are verified.",
-      "notes": null
+      "notes": null,
+      "forkOf": "GongRzhe/Gmail-MCP-Server",
+      "upstreamLicense": "MIT"
     },
     {
       "repo": "hermes-webui",
@@ -4807,7 +4818,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Upstream web UI/fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "nesquena/hermes-webui",
+      "upstreamLicense": "MIT"
     },
     {
       "repo": "notepad-plus-plus",
@@ -4831,7 +4844,8 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Upstream application mirror/fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "notepad-plus-plus/notepad-plus-plus"
     },
     {
       "repo": "NotepadNext",
@@ -4855,7 +4869,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Upstream application mirror/fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "dail8859/NotepadNext",
+      "upstreamLicense": "GPL-3.0"
     },
     {
       "repo": "qBittorrent-Enhanced-Edition",
@@ -4879,7 +4895,8 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Upstream application fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "c0re100/qBittorrent-Enhanced-Edition"
     },
     {
       "repo": "stylus",
@@ -4903,7 +4920,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Upstream browser-extension fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "openstyles/stylus",
+      "upstreamLicense": "GPL-3.0"
     },
     {
       "repo": "vcpkg",
@@ -4927,7 +4946,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Upstream dependency manager fork; not a visitor-facing SysAdminDoc project.",
-      "notes": null
+      "notes": null,
+      "forkOf": "microsoft/vcpkg",
+      "upstreamLicense": "MIT"
     },
     {
       "repo": "youtube-mcp-server",
@@ -4951,7 +4972,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": "Credentialed MCP helper; keep off the compact public profile until install path and positioning are verified.",
-      "notes": null
+      "notes": null,
+      "forkOf": "pauling-ai/youtube-mcp-server",
+      "upstreamLicense": "MIT"
     }
   ]
 }
