@@ -1775,11 +1775,6 @@ function New-CategoryPreviewLine {
 }
 
 function New-DiscoverySection {
-    param(
-        [hashtable[]]$Entries,
-        [object[]]$Repos
-    )
-
     $powershellLink = New-CategoryLink "powershell"
     $desktopLink = New-CategoryLink "desktop"
     $extensionsLink = New-CategoryLink "extensions"
@@ -2617,7 +2612,7 @@ function New-Readme {
         $blocks.Add("")
     }
     if ($includeDiscoverySection) {
-        $blocks.Add((New-DiscoverySection -Entries $entries -Repos $Repos))
+        $blocks.Add((New-DiscoverySection))
         $blocks.Add("")
         $blocks.Add("---")
         $blocks.Add("")
