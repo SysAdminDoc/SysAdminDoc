@@ -4363,6 +4363,24 @@ Describe 'Report evidence freshness gate' {
         ($result.warnings -join ' ') | Should -Match 'not-run'
     }
 
+    It 'classifies a small report-behind-commit delta as generated-with-commit' {
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-06-19T00:01:12-04:00'
+            renderedProfileSmoke = [pscustomobject]@{ status = 'passed' }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-19T00:04:07-04:00')) `
+            -LatestCommitSha '2f185dbaef9cb1c6f3ec0115b69c6a943cbcc122'
+
+        $result.status | Should -Be 'generated-with-commit'
+        $result.reportAgeBehindCommit | Should -BeTrue
+        $result.generatedWithCommit | Should -BeTrue
+        $result.sameCommitThresholdMinutes | Should -Be 10
+        $result.warningCount | Should -Be 0
+    }
+
     It 'flags a missing committed report as unavailable evidence' {
         $result = Test-ReportEvidenceFreshness `
             -CommittedReport $null `

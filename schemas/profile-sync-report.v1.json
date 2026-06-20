@@ -4762,6 +4762,8 @@
         "latestReportAffectingCommitDate",
         "reportAgeBehindCommit",
         "reportAgeBehindHours",
+        "generatedWithCommit",
+        "sameCommitThresholdMinutes",
         "smokeStatus",
         "smokeEvidenceStale",
         "reportAffectingPaths",
@@ -4773,6 +4775,7 @@
           "type": "string",
           "enum": [
             "fresh",
+            "generated-with-commit",
             "stale"
           ]
         },
@@ -4793,6 +4796,12 @@
         },
         "reportAgeBehindHours": {
           "$ref": "#/$defs/nullableNumber"
+        },
+        "generatedWithCommit": {
+          "type": "boolean"
+        },
+        "sameCommitThresholdMinutes": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
         "smokeStatus": {
           "type": "string"

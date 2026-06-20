@@ -4099,6 +4099,8 @@ function Test-ReportEvidenceFreshness {
 
     $reportBehindCommit = $false
     $reportAgeBehindHours = $null
+    $generatedWithCommit = $false
+    $sameCommitThresholdMinutes = 10
     if (-not $committedPresent) {
         $warnings.Add("Committed sync report was not found; report-freshness evidence is unavailable.")
     } elseif ($null -eq $committedGeneratedAt) {
@@ -4106,8 +4108,13 @@ function Test-ReportEvidenceFreshness {
     } elseif ($null -ne $latestCommitDateOffset -and $committedGeneratedAt -lt $latestCommitDateOffset) {
         $reportBehindCommit = $true
         $reportAgeBehindHours = [math]::Round(($latestCommitDateOffset - $committedGeneratedAt).TotalHours, 2)
-        $shaLabel = if ([string]::IsNullOrWhiteSpace($LatestCommitSha)) { "the latest report-affecting commit" } else { $LatestCommitSha.Substring(0, [Math]::Min(7, $LatestCommitSha.Length)) }
-        $warnings.Add("Committed sync report ($committedGeneratedAtText) is older than the latest report-affecting commit $shaLabel ($($latestCommitDateOffset.ToString('o'))); regenerate and recommit reports/profile-sync-report.json.")
+        $deltaMinutes = ($latestCommitDateOffset - $committedGeneratedAt).TotalMinutes
+        if ($deltaMinutes -le $sameCommitThresholdMinutes) {
+            $generatedWithCommit = $true
+        } else {
+            $shaLabel = if ([string]::IsNullOrWhiteSpace($LatestCommitSha)) { "the latest report-affecting commit" } else { $LatestCommitSha.Substring(0, [Math]::Min(7, $LatestCommitSha.Length)) }
+            $warnings.Add("Committed sync report ($committedGeneratedAtText) is older than the latest report-affecting commit $shaLabel ($($latestCommitDateOffset.ToString('o'))); regenerate and recommit reports/profile-sync-report.json.")
+        }
     }
 
     # The hosted profile-sync workflow runs the rendered smoke and patches the
@@ -4119,7 +4126,9 @@ function Test-ReportEvidenceFreshness {
         $warnings.Add("Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it.")
     }
 
-    $status = if ($warnings.Count -eq 0) { "fresh" } else { "stale" }
+    $status = if ($warnings.Count -eq 0) {
+        if ($generatedWithCommit) { "generated-with-commit" } else { "fresh" }
+    } else { "stale" }
 
     return [ordered]@{
         status = $status
@@ -4129,6 +4138,8 @@ function Test-ReportEvidenceFreshness {
         latestReportAffectingCommitDate = if ($null -ne $latestCommitDateOffset) { $latestCommitDateOffset.ToString("o") } else { $null }
         reportAgeBehindCommit = [bool]$reportBehindCommit
         reportAgeBehindHours = $reportAgeBehindHours
+        generatedWithCommit = [bool]$generatedWithCommit
+        sameCommitThresholdMinutes = [int]$sameCommitThresholdMinutes
         smokeStatus = $smokeStatus
         smokeEvidenceStale = [bool]$smokeEvidenceStale
         reportAffectingPaths = @($ReportAffectingPathList)

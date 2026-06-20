@@ -2560,7 +2560,9 @@
       "Committed sync report (2026-06-19T00:01:12.2398443-04:00) is older than the latest report-affecting commit 2f185db (2026-06-19T00:04:07.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
       "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
     ],
-    "warningCount": 2
+    "warningCount": 2,
+    "generatedWithCommit": true,
+    "sameCommitThresholdMinutes": 10
   },
   "scheduledWorkflowFreshness": {
     "status": "warning",
