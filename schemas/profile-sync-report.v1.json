@@ -4139,10 +4139,24 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "metadataFetch",
         "linkValidation",
         "restFallbackReleaseFetch"
       ],
       "properties": {
+        "metadataFetch": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider", "attemptCount", "fallbackUsed", "fallbackReason", "repoCount", "fidelityDegraded"],
+          "properties": {
+            "provider": { "type": "string" },
+            "attemptCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "fallbackUsed": { "type": "boolean" },
+            "fallbackReason": { "$ref": "#/$defs/nullableString" },
+            "repoCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "fidelityDegraded": { "type": "boolean" }
+          }
+        },
         "linkValidation": {
           "$ref": "#/$defs/linkValidationPerformance"
         },

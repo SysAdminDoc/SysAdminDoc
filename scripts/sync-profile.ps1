@@ -102,6 +102,8 @@ $script:RepositoryEnumerationRequestedLimit = 500
 $script:RepositoryEnumerationTruncated = $false
 $script:MetadataSnapshotAt = (Get-Date).ToString("o")
 $script:RestFallbackReleaseFetchState = $null
+$script:MetadataFetchAttemptCount = 0
+$script:MetadataFetchFallbackReason = $null
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -413,6 +415,7 @@ function Get-GitHubRepos {
     $lastOutput = $null
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $script:MetadataFetchAttemptCount = $attempt
         $output = & gh @ghArgs 2>&1
         $lastOutput = (($output | Out-String).Trim())
 
@@ -443,6 +446,7 @@ function Get-GitHubRepos {
         }
     }
 
+    $script:MetadataFetchFallbackReason = $lastOutput
     Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
     return Get-GitHubReposFromRest
 }
@@ -9085,6 +9089,14 @@ function Test-ProfileState {
         $feedProvenance = $null
     }
     $validationPerformance = [ordered]@{
+        metadataFetch = [ordered]@{
+            provider = [string]$script:RepositoryMetadataProvider
+            attemptCount = [int]$script:MetadataFetchAttemptCount
+            fallbackUsed = [bool]($script:RepositoryMetadataProvider -eq "rest-fallback")
+            fallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchFallbackReason)) { $null } else { [string]$script:MetadataFetchFallbackReason }
+            repoCount = [int]$Repos.Count
+            fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback")
+        }
         linkValidation = [ordered]@{
             skipped = [bool]($Offline -or $SkipLinkValidation)
             targetCount = $linkValidationSummary.targetCount

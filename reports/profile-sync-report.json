@@ -2155,6 +2155,14 @@
       "abortRepo": null,
       "abortHttpStatus": null,
       "abortMessage": null
+    },
+    "metadataFetch": {
+      "provider": "graphql",
+      "attemptCount": 1,
+      "fallbackUsed": false,
+      "fallbackReason": null,
+      "repoCount": 202,
+      "fidelityDegraded": false
     }
   },
   "missingPublicRepos": [],
