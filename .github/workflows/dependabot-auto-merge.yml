@@ -5,7 +5,7 @@ on:
   # token permissions to enable auto-merge. The job is hardened with empty
   # workflow-level permissions, narrow job-level write scopes, actor and
   # repository checks, and no checkout of PR code.
-  pull_request_target: # zizmor: ignore[dangerous-triggers]
+  pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review]
 
 concurrency:
