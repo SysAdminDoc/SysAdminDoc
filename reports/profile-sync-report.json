@@ -3862,11 +3862,9 @@
   },
   "rootMarkdownHygiene": {
     "status": "clean",
-    "rootMarkdownCount": 7,
+    "rootMarkdownCount": 5,
     "allowedFiles": [
-      "AGENTS.md",
       "CHANGELOG.md",
-      "CLAUDE.md",
       "README.md",
       "RESEARCH.md",
       "Roadmap_Blocked.md",
