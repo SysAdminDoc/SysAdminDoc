@@ -22,3 +22,8 @@ coverage.xml
 !.github/pull_request_template.md
 !.github/CONTRIBUTING.md
 !.github/CODE_OF_CONDUCT.md
+
+# AI config
+.codex/
+PROJECT_CONTEXT.md
+CONTINUATION_PROMPT.md
