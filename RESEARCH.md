@@ -1,90 +1,68 @@
-# Research — SysAdminDoc
+# Research - SysAdminDoc
 
 ## Executive Summary
 
-SysAdminDoc is a 9,359-line PowerShell-generated GitHub profile README, public project feed (`projects.json`, 440KB), profile-asset renderer (12 committed SVGs), and trust-evidence pipeline for 202 public repositories across PowerShell, Python, JavaScript, Kotlin, C#, C++, Rust, and TypeScript. Its strongest differentiator is deterministic, privacy-aware portfolio generation with zero external runtime dependencies: no third-party stats cards, badge hosts, or dynamic image services — everything is committed locally and validated by a 4,929-line Pester test suite at 78%+ coverage. The Scorecard score is 6.7/10 with 5 open alerts, 3 of which are external-governance-gated.
-
-**Current blockers**: Two live CI failures — PSScriptAnalyzer flags 2 unused parameters in `New-DiscoverySection` (line 1779-1780), and zizmor's inline `# zizmor: ignore[dangerous-triggers]` suppression fails on the `dependabot-auto-merge.yml` `pull_request_target` trigger. Both prevent green CI. Three scheduled workflows (Profile sync, Assets refresh, Workflow security) are also failing — the first two from metadata drift and GraphQL 502 transients, the third from the zizmor finding.
-
-**Top priorities** (in order): fix the two code-level CI failures; restore green scheduled workflow evidence; add a `zizmor.yml` config file to replace unreliable inline suppressions; migrate from `actions/attest-build-provenance` to `actions/attest`; resolve fork-parent attribution gaps (13 repos); make evidence freshness post-commit-aware; evaluate repository rulesets for Scorecard Branch-Protection improvement; promote platform release asset digests to first-class evidence; add API telemetry; and prove generated-PR validation end to end.
+SysAdminDoc is a generated GitHub profile and public project catalog: `data/profile-catalog.json` feeds `scripts/sync-profile.ps1`, which renders `README.md`, `projects.json`, committed theme-aware SVG assets, schema contracts, and `reports/profile-sync-report.json`. Its strongest current shape is the deterministic, privacy-aware portfolio/feed generator: it avoids fragile live profile-card hosts, redacts suppressed projects, validates the feed shape, and gives downstream surfaces structured release and catalog metadata. Highest-value direction: reconcile the code and tests with the new local-only validation policy, then refresh generated artifacts and report semantics so the repo has one trustworthy local quality path. Top opportunities: fix the 80 failing Pester tests caused by removed `.github/workflows` and `.github/dependabot.yml`; make scheduled-workflow/report sections explicitly `not-applicable` when hosted automation is absent; sync `README.md`, `projects.json`, assets, and report evidence; install/use the pinned Node toolchain so markdownlint is reproducible; keep release-trust and feed-contract metadata, but decouple it from hosted workflow assumptions; add a downstream portfolio fixture; preserve privacy redaction and root-Markdown hygiene; and keep profile UX compact rather than adding third-party widgets.
 
 ## Product Map
 
-- **Core workflows**: edit `data/profile-catalog.json` → run `scripts/sync-profile.ps1 -Write -Check` → publish `README.md`, `projects.json`, `assets/profile/*.svg`, and `reports/profile-sync-report.json`.
-- **User personas**: GitHub profile visitors, portfolio-site visitors (`sysadmindoc.github.io`), release/download users, userscript installers, public issue reporters, security reporters, and the maintainer operating generated PR workflows.
-- **Platforms and distribution**: GitHub profile README (62KB, well under 96KB soft limit), raw `projects.json` feed, GitHub Actions summaries/artifacts, committed SVG assets, Windows `setup.ps1` bootstrapper, raw userscript install URLs, and the separate portfolio consumer.
-- **Key integrations**: GitHub GraphQL/REST repo metadata (202 repos), release assets and platform digests, repository settings, scheduled workflow runs, OpenSSF Scorecard SARIF, Dependabot, JSON Schema (Draft 2020-12), markdownlint-cli2 0.22.1, PSScriptAnalyzer 1.25.0, Pester 5.7.1, rendered Chrome smoke, and portfolio feed import.
+- Core workflows: edit catalog data, run local PowerShell/Node validation, render the public profile README, export the public `projects.json` feed, and inspect report evidence.
+- User personas: GitHub profile visitors, portfolio-site visitors, users choosing install/download links, public issue reporters, security reporters, and the maintainer curating 200+ public repos.
+- Platforms and distribution: GitHub profile README, raw JSON feed, committed SVG assets, schemas, issue templates, Windows `setup.ps1`, and the separate static portfolio consumer.
+- Key integrations and data flows: GitHub repository/release metadata, catalog schema validation, Pester tests, PSScriptAnalyzer, markdownlint-cli2, profile SVG generation, release-trust filename/digest metadata, and portfolio feed import.
 
 ## Competitive Landscape
 
-- **github-readme-stats / GPRM / ProfileMe.dev / readme.so**: Fast profile creation with social links, skill sections, and widget previews. Rate limiting on the public Vercel instance is a persistent problem (issue #4748 discusses deprecating Vercel hosting). Learn from preview speed and first-run ergonomics; avoid runtime third-party cards. SysAdminDoc's committed-SVG approach sidesteps the entire class of rate-limit/camo-proxy/broken-widget complaints that dominate community forums.
-- **lowlighter/metrics**: Rich plugin model with 30+ plugins and GitHub Actions generation. Learn from modular report sections; avoid sprawling plugin complexity. SysAdminDoc is a single-maintainer catalog, not a general metrics platform.
-- **cicirello/user-statistician**: Commits generated SVG stats through GitHub Actions with localization requests. Learn from committed output and template-driven labels; reject full i18n for now.
-- **Platane/snk / DenverCoder1/readme-typing-svg**: Popular profile visuals but open issues show generation/runtime failures and broken image links. SysAdminDoc correctly uses motion-safe committed chrome.
-- **Awesome lists**: `awesome-github-profile-readme`, `awesome-sysadmin`, `awesome-userscripts` reward concise positioning, maturity, active maintenance, and working links. SysAdminDoc should maintain its "real tools with install/download paths" posture.
-- **GitHub/OpenSSF supply-chain tooling**: `actions/attest` (consolidating `attest-build-provenance` and `attest-sbom`), immutable releases (GA Oct 2025), Scorecard v5.5.0, zizmor v1.25.2 (39 audit rules), actionlint v1.7.12, poutine v1.1.6, harden-runner v2.19.4. SysAdminDoc already integrates all of these; the gap is in upgrading to the consolidated `actions/attest` action and fixing the zizmor suppression.
-- **No existing profile README tool has a test suite** — Pester-backed validation of generated markdown, link checking, image accessibility, size limits, and rendering correctness is a unique differentiator for SysAdminDoc.
+- github-readme-stats: Strong at drop-in dynamic cards and themes; its own README warns the public Vercel instance is best-effort under rate limits. Learn from simple card configuration; avoid returning to live third-party metric hosts.
+- lowlighter/metrics: Strong plugin breadth for generated profile infographics. Learn from modular report sections; avoid turning this single-maintainer catalog into a broad plugin framework.
+- cicirello/user-statistician: Strong committed-SVG model for profile stats. Learn from committed output and repeatable generation; avoid hosted-workflow dependency now that this repo intentionally removed workflows.
+- github-profile-readme-generator / ProfileMe.dev / readme.so: Strong first-run UI for hand-authored profile pages. Learn from approachable onboarding; avoid template-builder work because this repo's value is catalog accuracy, feed data, and trust metadata.
+- Awesome GitHub Profile README and adjacent awesome lists: Reward concise positioning, working links, and recognizable categories. Keep the compact profile and public-safe catalog instead of decorative personal chrome.
+- ReadMe and GitBook: Commercial docs platforms emphasize sync, changelog, analytics, search, and feedback loops. Learn from stale-content and question-gap reporting; avoid hosted docs migration because the profile/feed already belongs in the repo.
+- Pagefind / Docusaurus local search: Strong model for static, client-side discovery without hosted infrastructure. This belongs primarily in `sysadmindoc.github.io`; this repo should keep exporting clean search/filter metadata.
 
 ## Security, Privacy, and Reliability
 
-**Live CI failures** (verified 2026-06-20):
-- `scripts/sync-profile.ps1:1779-1780` — `New-DiscoverySection` declares `$Entries` and `$Repos` parameters that are never used. PSScriptAnalyzer `PSReviewUnusedParameter` flags both, failing the Tests workflow.
-- `.github/workflows/dependabot-auto-merge.yml:8` — inline `# zizmor: ignore[dangerous-triggers]` suppression is not recognized by zizmor 1.25.2. The `dangerous-triggers` finding on `pull_request_target` fails the Workflow security workflow with exit code 14. The workflow is hardened (no checkout, empty workflow-level permissions, narrow job-level write scopes, actor/repo checks), but zizmor's inline suppression for this workflow-level trigger isn't being honored. A `zizmor.yml` configuration file with `rules.dangerous-triggers.ignore` is the recommended fix path.
-
-**Scheduled workflow failures** (verified via `gh run list`):
-- Profile sync (last scheduled: 2026-06-19): fails because generated README drifts from committed state as live metadata (star counts, pushedAt) changes.
-- Profile assets refresh (last scheduled: 2026-06-17): hit GraphQL 502 on metadata fetch, fell back to REST, then the profile sync check itself failed.
-- Workflow security (last scheduled: 2026-06-17): zizmor `dangerous-triggers` finding (see above).
-- Automation branch cleanup and Scorecard are healthy (both last ran successfully).
-
-**Evidence freshness paradox**: `reports/profile-sync-report.json.evidenceFreshness.status` is always `stale` because the report is generated before the commit that contains it (report at `2026-06-19T00:01:12`, commit at `2026-06-19T00:04:07`). Already identified in the roadmap.
-
-**Release trust gaps** (from sync report):
-- 136 release-bearing repos, 0 immutable releases, 84 with platform digests, 52 without.
-- 65 executable download rows with 55 checksum gaps, 65 attestation gaps, 64 SBOM gaps.
-- `actions/attest-build-provenance@v4.1.0` is a wrapper around `actions/attest`; new implementations should use `actions/attest@v2` directly.
-
-**Branch protection / rulesets**: `main` has no branch protection (API returns 404) and no rulesets (empty array). Scorecard Branch-Protection alert is open. Repository rulesets are now the recommended replacement — they're readable by default `GITHUB_TOKEN` (no admin PAT needed), support bypass actor lists with audit logs, and stack additively.
-
-**Privacy guardrails**: Strong. `projects.json.suppressed` redacts suppressed identifiers, `portfolioCompatibility.suppressedIdentifierLeakCount` is zero, medical pattern matching uses word-boundary anchors, and issue forms warn against private data.
-
-**Dependency security**: markdown-it pinned to 14.2.0 (addresses CVE-2026-48988 DoS), js-yaml pinned to 4.2.0 (addresses DoS). CVE-2025-7969 (markdown-it XSS in fenced code blocks) should be verified as covered by 14.2.0.
-
-**Fork-parent attribution gaps**: 13 repos are GitHub forks with no `forkOf` in the catalog (e.g., `notepad-plus-plus`, `vcpkg`, `stylus`). Warning-only in the report but creates attribution debt.
+- Verified: `rtk pwsh -NoProfile -Command "Invoke-Pester -Path tests -Output Detailed"` reports 181 passed and 80 failed. Failures are dominated by tests still reading removed `.github/workflows/*.yml` and `.github/dependabot.yml` files at `tests/sync-profile.Tests.ps1:2447`, `2656`, `2686`, `2818`, `3124`, `3257`, `3292`, `3576`, `3600`, `3642`, `3688`, `3713`, `3736`, `3766`, `3787`, `3802`, `3823`, `4948`.
+- Verified: `tests/sync-profile.Tests.ps1:408` still expects Dependabot local configuration even though recent history removed Dependabot by policy. This makes the repository's local quality gate contradict the current maintenance model.
+- Verified: `scripts/sync-profile.ps1:4249-4415` handles missing workflow directories in definition discovery, but `Get-ScheduledWorkflowRunLookup` and `Test-ScheduledWorkflowFreshness` assume each definition has `workflowFile`; Pester fixtures passing `[ordered]` objects surface `PropertyNotFoundException` at `scripts/sync-profile.ps1:4279`.
+- Verified: `reports/profile-sync-report.json:4-6` currently records `readmeInSync: false`, `projectsExportInSync: false`, and `profileAssetsInSync: false`; generated artifacts need a local refresh after the validation contract is corrected.
+- Verified: `npm run lint:markdown` fails because `node_modules/.bin/markdownlint-cli2` is absent; the local validation path needs `npm ci` documented or wrapped before linting.
+- Verified: `.gitignore` intentionally ignores root Markdown except the public/security docs, while `AGENTS.md` allows only `README.md`, `CLAUDE.md`, `AGENTS.md`, `CHANGELOG.md`, `ROADMAP.md`, and `RESEARCH.md`; the root-Markdown hygiene report is clean and should stay warning-only for local planning docs.
+- Verified: privacy guardrails are strong: `projects.json.suppressed` uses redacted suppression rows, `reports/profile-sync-report.json:1619-1623` reports zero suppressed identifier leaks and zero duplicate visible repos, and issue forms warn against private names, credentials, medical data, and sensitive logs.
+- Likely: release-trust metadata should stay filename/API-derived. GitHub exposes release asset metadata and artifact attestations, but this repo should report evidence rather than imply it cryptographically verified binaries without a real verification path.
 
 ## Architecture Assessment
 
-- `scripts/sync-profile.ps1` (9,359 lines) is the correct orchestration boundary with 130+ functions. The test seam pattern (dot-source for functions, `InvocationName` guard for live execution) is sound. Continue gaining small, tested helper boundaries rather than new standalone scripts.
-- The GitHub metadata strategy is directionally correct: exclude expensive `latestRelease` from bulk GraphQL, retry transient 502s, fall back to REST pagination. The 100-repo default-page detection (line 425-427) is a good guard. Next improvement: record rate-limit headroom, retry counts, and fallback reasons.
-- `Get-LatestReportAffectingCommit` / evidence freshness needs a same-commit interpretation so a validly generated report isn't flagged stale immediately after commit.
-- The `New-DiscoverySection` unused params are a regression from the v4.9.137-v4.9.139 compact profile overhaul that simplified the routing section but didn't clean up the function signature.
-- Required-check readiness has strong local report structure but no live enforcement. Repository rulesets (not classic branch protection) are the recommended path forward, with bypass-actor audit logs for the direct-main maintenance model.
-- The `zizmor.yml` configuration file approach is more maintainable than inline `# zizmor: ignore[...]` comments for workflow-level audits like `dangerous-triggers`.
-- Feed compatibility is guarded inside this repo but lacks a contract fixture against the downstream `sysadmindoc.github.io` importer expectations.
-- Test coverage floor (78%) is reasonable but could benefit from Pester's `ExcludeTests` option (available since 5.7.0) to prevent test files from inflating coverage numbers.
-- No separate accessibility, offline, mobile, i18n, or plugin roadmap item is warranted — committed SVG accessibility checks and rendered smoke cover accessibility; the other categories don't fit a single-profile generated catalog.
+- `scripts/sync-profile.ps1` is a 9,433-line orchestration module with 210 functions. Keep incremental helper extraction and tests; do not split it into new scripts unless a boundary is already proven by repeated test friction.
+- `tests/sync-profile.Tests.ps1` is a 4,962-line local contract suite. Its highest-risk section is not business logic coverage but obsolete workflow/dependency-automation assumptions after commit `475558a`.
+- `scripts/write-profile-sync-summary.ps1` still summarizes scheduled workflow, Scorecard, and hosted-run fields. Keep summary fields only if they can emit `not-applicable` cleanly when hosted automation is intentionally absent.
+- `scripts/open-generated-profile-pr.ps1`, `scripts/set-generated-validation-status.ps1`, and workflow-related report fields now need an explicit decision: retire them from active gates or reframe them as dormant/manual helpers. The current tests treat them as live.
+- `reports/profile-sync-report.json` remains valuable as the single machine-readable status contract, but its stale hosted-run evidence should not block local validation.
+- `schemas/profile-projects.v1.json` and `schemas/profile-sync-report.v1.json` are useful downstream contracts. Add a portfolio-consumer fixture so future feed schema changes prove compatibility without checking the other repo.
+- Test/documentation gaps: missing local validation bootstrap (`npm ci`, Pester, PSScriptAnalyzer, markdownlint), missing no-workflow fixtures, no regression test for empty scheduled workflow definitions, no test that workflow-removal policy keeps report status clean.
 
 ## Rejected Ideas
 
-- **Third-party GitHub stats cards, visitor counters, typing SVGs, trophy widgets**: Rejected. Competitor evidence shows runtime fragility (rate limiting, Camo proxy breakage, service outages). The repo intentionally uses committed local SVGs. Source: github-readme-stats issue #4748; community complaints on Reddit/HN.
-- **Generic profile-generator web UI**: Rejected. Existing tools (GPRM, ProfileMe.dev, readme.so) cover low-friction generation. SysAdminDoc's value is live catalog/feed/trust evidence, not template selection.
-- **Full localization/i18n**: Rejected. English personal profile with no evidence of multilingual user demand. Source: cicirello/user-statistician i18n issues show limited adoption.
-- **Multi-user admin UI or plugin marketplace**: Rejected. Single-maintainer deterministic profile, not a hosted SaaS.
-- **Replace portfolio site with commercial builder**: Rejected. The separate `sysadmindoc.github.io` repo is already the richer public site.
-- **Remove all release/download trust gaps from this repo**: Rejected for this planning pass. This repo should produce precise evidence and instructions; cross-repo release changes belong in those repos.
-- **Full Scorecard 10/10**: Impractical for a solo maintainer. CII-Best-Practices requires external questionnaire enrollment; Code-Review requires independent reviewer model; Fuzzing is not applicable to a profile generator. Source: Scorecard alert classifications in `reports/profile-sync-report.json`.
-- **Pester 6.0 migration**: Rejected. Pester 6 is alpha (6.0.0-alpha5, Oct 2024), not production-ready. Stay on 5.7.1.
-- **CodeQL for this repo**: Not applicable. The repo is PowerShell-only; CodeQL doesn't support PowerShell. PSScriptAnalyzer, actionlint, zizmor, and Scorecard SARIF provide equivalent static analysis coverage.
-- **Workflow keepalive action**: Under consideration but not recommended yet. GitHub disables scheduled workflows after 60 days of inactivity, but this repo has sufficient push activity to keep workflows active. Monitor for auto-disable if push frequency drops. Source: GitHub community discussions #57858, #184653.
+- Reintroduce hosted GitHub workflows: rejected because current repo history and project rules intentionally removed them; fix local contracts instead.
+- Recreate Dependabot or Renovate config: rejected because dependency updates are handled manually and tests should stop requiring local dependency-automation files.
+- Add live third-party stats cards, counters, typing widgets, or trophy widgets: rejected because competitor evidence shows rate-limit and availability risk; committed local SVG assets are more reliable.
+- Build a generic profile README generator UI: rejected because existing OSS tools already cover template generation, while this repo's differentiator is a curated public repo catalog and feed.
+- Full localization: rejected because this is a personal/public profile and no source shows visitor demand; keep metadata fields plain and public-safe.
+- Multi-user admin, hosted CMS, or plugin marketplace: rejected because the repo is a deterministic single-maintainer profile/feed generator.
+- Move the catalog to ReadMe, GitBook, or another hosted docs portal: rejected because paid docs portals solve product-doc collaboration, not a GitHub profile README plus public JSON feed.
+- Claim binary integrity from release metadata alone: rejected because release asset digests and attestations are evidence signals, not full local verification unless the repo implements explicit verifier logic.
 
 ## Sources
 
 Project evidence:
-- https://github.com/SysAdminDoc/SysAdminDoc/actions
+- https://github.com/SysAdminDoc/SysAdminDoc
 - https://github.com/SysAdminDoc/sysadmindoc.github.io
 
-Profile and portfolio:
+Profile and catalog competitors:
+- https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme
 - https://github.com/anuraghazra/github-readme-stats
+- https://github.com/anuraghazra/github-readme-stats/issues/4748
 - https://github.com/lowlighter/metrics
 - https://github.com/cicirello/user-statistician
 - https://github.com/rahuldkjain/github-profile-readme-generator
@@ -92,34 +70,31 @@ Profile and portfolio:
 - https://github.com/awesome-foss/awesome-sysadmin
 - https://github.com/awesome-scripts/awesome-userscripts
 
-Supply chain and workflow security:
-- https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations
-- https://github.blog/changelog/2025-10-28-immutable-releases-are-now-generally-available/
-- https://github.blog/changelog/2025-06-03-releases-now-expose-digests-for-release-assets/
-- https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/
-- https://github.blog/changelog/2026-06-18-control-who-and-what-triggers-github-actions-workflows/
-- https://github.blog/changelog/2025-11-07-actions-pull_request_target-and-environment-branch-protections-changes/
-- https://docs.zizmor.sh/audits/
-- https://docs.zizmor.sh/configuration/
-- https://github.com/zizmorcore/zizmor/releases
-- https://github.com/rhysd/actionlint/releases
-- https://github.com/boostsecurityio/poutine/releases
-- https://github.com/step-security/harden-runner/releases
+Docs, search, and portfolio systems:
+- https://readme.com/
+- https://www.gitbook.com/pricing
+- https://gitbook.com/docs/changelog
+- https://pagefind.app/
+- https://pagefind.app/docs/js-api-filtering/
+- https://docusaurus.io/docs/search
+- https://docusaurus.io/community/resources
+
+GitHub platform and supply-chain evidence:
+- https://docs.github.com/rest/releases/assets
+- https://docs.github.com/rest/releases/releases
+- https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
+- https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets
+- https://github.com/actions/attest
 - https://github.com/ossf/scorecard
-- https://github.com/actions/attest-build-provenance
+- https://docs.zizmor.sh/audits/
 
-PowerShell and CI tooling:
-- https://www.powershellgallery.com/packages/Pester/5.7.1
-- https://www.powershellgallery.com/packages/PSScriptAnalyzer/1.25.0
-- https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle
-- https://www.npmjs.com/package/markdownlint-cli2
-- https://advisories.gitlab.com/npm/markdown-it/CVE-2026-48988/
-
-Community signal:
-- https://github.com/orgs/community/discussions/57858
-- https://github.com/orgs/community/discussions/184653
-- https://github.com/zizmorcore/zizmor/issues/612
+Tooling and advisories:
+- https://github.com/pester/Pester/releases
+- https://github.com/PowerShell/PSScriptAnalyzer/blob/master/CHANGELOG.MD
+- https://github.com/DavidAnson/markdownlint-cli2
+- https://github.com/advisories/GHSA-6v5v-wf23-fmfq
+- https://github.com/advisories/GHSA-h67p-54hq-rp68
 
 ## Open Questions
 
-- Does the maintainer want to enable repository rulesets with a bypass-actor rule for direct-main pushes, or switch entirely to PR delivery before enabling any enforcement?
+- None blocking this roadmap pass; `gh` live API validation was unavailable because the CLI is unauthenticated and the public REST rate limit was exhausted.
