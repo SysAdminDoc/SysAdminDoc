@@ -27,8 +27,6 @@ globs:
   - ".github/pull_request_template.md"
 
 ignores:
-  - "AGENTS.md"
-  - "CLAUDE.md"
   - "TODO.md"
   - "RESEARCH_FEATURE_PLAN.md"
   - "node_modules"
