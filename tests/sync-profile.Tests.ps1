@@ -4823,7 +4823,7 @@ Describe 'README heading hierarchy' {
 
 Describe 'Root Markdown hygiene' {
     It 'reports clean when only allowed root Markdown files are present' {
-        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'CLAUDE.md', 'AGENTS.md', 'ROADMAP.md', 'Roadmap_Blocked.md', 'RESEARCH.md', 'SECURITY.md')
+        $result = Test-RootMarkdownHygiene -RootMarkdownNames @('README.md', 'ROADMAP.md', 'Roadmap_Blocked.md', 'RESEARCH.md', 'SECURITY.md')
         $result.status | Should -Be 'clean'
         $result.warningCount | Should -Be 0
         @($result.unexpectedFiles) | Should -BeNullOrEmpty
