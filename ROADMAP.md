@@ -78,3 +78,33 @@
   Touches: `schemas/profile-projects.v1.json`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`.
   Acceptance: Feed rows expose stable search/filter metadata that the portfolio can consume without scraping README section text.
   Complexity: M
+
+## Research-Driven Additions
+
+- [ ] P0 - Reconcile live public repo drift before regenerating profile artifacts
+  Why: The existing artifact-regeneration item depends on catalog/live GitHub state being current, and the report shows four missing public repos plus one rename redirect.
+  Evidence: `reports/profile-sync-report.json` `missingPublicRepos` for `ClearCut`, `OpenNetLimit`, `GIFM`, `AsteroidSimulator`; `renamedRepoRedirects` for `NovaCut` -> `ClearCut`.
+  Touches: `data/profile-catalog.json`, `README.md`, `projects.json`, `assets/profile/*.svg`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`.
+  Acceptance: Missing public repos are either cataloged or intentionally suppressed, rename redirect handling is resolved, `metadataDriftSummary.fatalCount` is zero, and generated artifacts are in sync.
+  Complexity: M
+
+- [ ] P1 - Make rendered profile smoke evidence fully local and policy-aware
+  Why: The report currently marks rendered smoke as `not-run` and warns that hosted smoke evidence should have refreshed it, which contradicts the local-only validation model.
+  Evidence: `reports/profile-sync-report.json` `renderedProfileSmoke.status: "not-run"` and `evidenceFreshness.warnings`; `scripts/render-profile-smoke.ps1`.
+  Touches: `scripts/render-profile-smoke.ps1`, `scripts/sync-profile.ps1`, `scripts/write-profile-sync-summary.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
+  Acceptance: A local smoke run records desktop and mobile viewport evidence, and unavailable browser evidence is reported as a clear local skip rather than a hosted-artifact warning.
+  Complexity: M
+
+- [ ] P1 - Clean public intake and audit config after the no-workflow policy shift
+  Why: Public issue/config files still point users and tooling at workflow/CI concepts even though the repo intentionally removed hosted workflows.
+  Evidence: `.github/ISSUE_TEMPLATE/workflow-ci.yml`, `.github/zizmor.yml`, `requirements-ci.txt`, `scripts/open-generated-profile-pr.ps1`.
+  Touches: `.github/ISSUE_TEMPLATE/workflow-ci.yml`, `.github/zizmor.yml`, `requirements-ci.txt`, `scripts/write-profile-sync-summary.ps1`, `scripts/sync-profile.ps1`.
+  Acceptance: Public issue templates and local audit config describe local validation/support paths without implying active CI workflows, Dependabot, or generated-profile hosted validation.
+  Complexity: S
+
+- [ ] P2 - Add a manual dependency and advisory review lane for local tooling
+  Why: `npm audit` is clean, but dependency updates are manual and the repo has explicit overrides plus PowerShell module/tool pins that need a repeatable review path.
+  Evidence: `package.json` overrides for `markdown-it` and `js-yaml`; `requirements-ci.txt`; `npm audit --json`; PSGallery versions for Pester and PSScriptAnalyzer; markdownlint-cli2 and zizmor release sources.
+  Touches: `package.json`, `package-lock.json`, `requirements-ci.txt`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, `README.md`.
+  Acceptance: A documented local command or report section captures npm audit status, manual override drift, pinned PowerShell tooling versions, and advisory-review results without adding Dependabot or workflows.
+  Complexity: M
