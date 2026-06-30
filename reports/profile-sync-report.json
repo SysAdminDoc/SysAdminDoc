@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-30T12:02:47.3408266-04:00",
+  "generatedAt": "2026-06-30T12:30:48.6459453-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5cc1ff23754eab271ec0adcf2c722ddaff9890a7",
+    "sourceCommit": "b91728a1c7f89eb27c09ad90eae76768624daf7c",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "1698a2e8accaa61486a2f01037bc536145b67de4614659fd0dceaa3985600781",
+    "generatorSha256": "121e97d2b57e936e2d4f9808e08cded86dbdae50aad0b65a3b19ec1c7c9c95be",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T12:00:57.1398739-04:00",
+    "metadataSnapshotAt": "2026-06-30T12:28:29.2986153-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -218,7 +218,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-30T15:56:02.0000000Z",
+        "pushedAt": "2026-06-30T16:13:49.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -581,7 +581,7 @@
       },
       {
         "kind": "crx",
-        "count": 6
+        "count": 7
       },
       {
         "kind": "exe",
@@ -589,7 +589,7 @@
       },
       {
         "kind": "other",
-        "count": 41
+        "count": 42
       },
       {
         "kind": "script",
@@ -615,11 +615,11 @@
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum",
-        "count": 30
+        "count": 31
       },
       {
         "trustLevel": "metadata-only",
-        "count": 110
+        "count": 109
       },
       {
         "trustLevel": "unknown",
@@ -639,7 +639,7 @@
       "evidenceSource": "filename-and-platform",
       "executableDownloadCount": 74,
       "verifiedCompleteCount": 0,
-      "checksumGapCount": 62,
+      "checksumGapCount": 61,
       "integrityGapCount": 0,
       "platformDigestCount": 74,
       "attestationGapCount": 74,
@@ -877,7 +877,7 @@
       ],
       "note": "Integrity evidence combines filename-derived sidecar checksums and GitHub platform asset digests. nextAction names the highest-impact missing evidence."
     },
-    "executableDownloadsMissingChecksums": 62,
+    "executableDownloadsMissingChecksums": 61,
     "debugArtifactRows": [
       {
         "repo": "Aura",
@@ -928,7 +928,7 @@
       },
       {
         "repo": "FileExplorer",
-        "latestReleaseTag": "v1.3.1",
+        "latestReleaseTag": "v1.3.2",
         "releaseAssetKinds": [
           "apk",
           "other"
@@ -1594,7 +1594,17 @@
       "title",
       "category",
       "description",
-      "repoUrl"
+      "repoUrl",
+      "primaryAction.kind",
+      "primaryAction.label",
+      "primaryAction.url",
+      "hasDownload",
+      "hasLiveDemo",
+      "hasDirectInstall",
+      "releaseTrust.trustLevel",
+      "topics",
+      "featured",
+      "currentlyBuilding"
     ],
     "missingProjectFieldCount": 0,
     "missingProjectFields": [],
@@ -1726,7 +1736,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-30T12:00:57.1398739-04:00",
+          "queriedAt": "2026-06-30T12:28:29.2986153-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2113,7 +2123,7 @@
       "skipped": false,
       "targetCount": 186,
       "throttleLimit": 16,
-      "elapsedMs": 4119,
+      "elapsedMs": 4988,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2147,7 +2157,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 28.82,
+      "ageDays": 28.84,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2157,7 +2167,7 @@
   "linkValidationSummary": {
     "targetCount": 186,
     "throttleLimit": 16,
-    "elapsedMs": 4119,
+    "elapsedMs": 4988,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2512,7 +2522,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 449126,
+        "value": 449491,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2521,7 +2531,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 98134,
+        "value": 98390,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2566,9 +2576,9 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-30T11:59:31.4927938-04:00",
-    "latestReportAffectingCommitSha": "5cc1ff23754eab271ec0adcf2c722ddaff9890a7",
-    "latestReportAffectingCommitDate": "2026-06-30T11:54:59.0000000-04:00",
+    "committedReportGeneratedAt": "2026-06-30T12:19:30.7394923-04:00",
+    "latestReportAffectingCommitSha": "b91728a1c7f89eb27c09ad90eae76768624daf7c",
+    "latestReportAffectingCommitDate": "2026-06-30T12:04:30.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,

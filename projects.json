@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5cc1ff23754eab271ec0adcf2c722ddaff9890a7",
+    "sourceCommit": "b91728a1c7f89eb27c09ad90eae76768624daf7c",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "1698a2e8accaa61486a2f01037bc536145b67de4614659fd0dceaa3985600781",
+    "generatorSha256": "121e97d2b57e936e2d4f9808e08cded86dbdae50aad0b65a3b19ec1c7c9c95be",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T12:00:57.1398739-04:00",
+    "metadataSnapshotAt": "2026-06-30T12:28:29.2986153-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -769,20 +769,20 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 1,
-      "latestReleaseTag": "v1.3.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.3.1",
+      "latestReleaseTag": "v1.3.2",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.3.2",
       "releaseAssetKinds": [
         "apk",
         "other"
       ],
       "releaseAssetNames": [
-        "FileExplorer-v1.3.1.apk",
-        "FileExplorer-v1.3.1.apk.sha256"
+        "FileExplorer-v1.3.2.apk",
+        "FileExplorer-v1.3.2.apk.sha256"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "FileExplorer-v1.3.1.apk.sha256"
+          "FileExplorer-v1.3.2.apk.sha256"
         ],
         "checksumCoverage": "full",
         "hasChecksumForEveryExecutable": true,
@@ -801,7 +801,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:57:07.0000000Z",
+      "pushedAt": "2026-06-30T16:18:23.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -1650,20 +1650,20 @@
       "installKind": null,
       "language": "C#",
       "stars": 1,
-      "latestReleaseTag": "v0.3.6",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.3.6",
+      "latestReleaseTag": "v0.3.8",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.3.8",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "LocalChromeStore-v0.3.6-win-x64.zip",
-        "LocalChromeStore-v0.3.6-win-x64.zip.sha256.txt"
+        "LocalChromeStore-v0.3.8-win-x64.zip",
+        "LocalChromeStore-v0.3.8-win-x64.zip.sha256.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "LocalChromeStore-v0.3.6-win-x64.zip.sha256.txt"
+          "LocalChromeStore-v0.3.8-win-x64.zip.sha256.txt"
         ],
         "checksumCoverage": "full",
         "hasChecksumForEveryExecutable": true,
@@ -1682,7 +1682,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:43:08.0000000Z",
+      "pushedAt": "2026-06-30T16:27:08.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1838,7 +1838,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:47:50.0000000Z",
+      "pushedAt": "2026-06-30T16:14:49.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2845,16 +2845,19 @@
       "installKind": null,
       "language": "TypeScript",
       "stars": 1,
-      "latestReleaseTag": "v0.25.2",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.2",
+      "latestReleaseTag": "v0.25.3",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.3",
       "releaseAssetKinds": [
+        "crx",
         "exe",
         "zip"
       ],
       "releaseAssetNames": [
         "Keepr-portable.zip",
-        "Keepr_0.25.2_x64-setup.exe",
-        "Keepr_0.25.2_x64_en-US.msi"
+        "Keepr-Web-Clipper-0.25.3.crx",
+        "Keepr-Web-Clipper-0.25.3.zip",
+        "Keepr_0.25.3_x64-setup.exe",
+        "Keepr_0.25.3_x64_en-US.msi"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -2869,15 +2872,16 @@
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
+          "crx",
           "exe",
           "zip"
         ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 3,
+        "platformDigestCount": 5,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:55:18.0000000Z",
+      "pushedAt": "2026-06-30T16:23:22.0000000Z",
       "topics": [
         "desktop-app",
         "privacy",
@@ -3178,7 +3182,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:56:02.0000000Z",
+      "pushedAt": "2026-06-30T16:13:49.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3517,16 +3521,16 @@
       "installKind": null,
       "language": "Vue",
       "stars": 1,
-      "latestReleaseTag": "v1.1.5",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.5",
+      "latestReleaseTag": "v1.1.6",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.6",
       "releaseAssetKinds": [
         "crx",
         "zip"
       ],
       "releaseAssetNames": [
-        "StyleKit-v1.1.5-chrome.crx",
-        "StyleKit-v1.1.5-chrome.zip",
-        "StyleKit-v1.1.5-firefox.zip"
+        "StyleKit-v1.1.6-chrome.crx",
+        "StyleKit-v1.1.6-chrome.zip",
+        "StyleKit-v1.1.6-firefox.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -3549,7 +3553,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:51:43.0000000Z",
+      "pushedAt": "2026-06-30T16:18:08.0000000Z",
       "topics": [
         "chrome-extension",
         "css",
@@ -3619,7 +3623,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:49:52.0000000Z",
+      "pushedAt": "2026-06-30T16:26:23.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -5307,20 +5311,28 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v1.6.7",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.7",
+      "latestReleaseTag": "v1.6.8",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.8",
       "releaseAssetKinds": [
-        "exe"
+        "exe",
+        "other"
       ],
       "releaseAssetNames": [
-        "AlphaCut-Setup-1.6.7.exe",
-        "AlphaCut-windows.exe"
+        "AlphaCut-Setup-1.6.8.exe",
+        "AlphaCut-Setup-1.6.8.exe.sha256",
+        "AlphaCut-windows.exe",
+        "AlphaCut-windows.exe.sha256",
+        "SHA256SUMS.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
+        "checksumAssets": [
+          "AlphaCut-Setup-1.6.8.exe.sha256",
+          "AlphaCut-windows.exe.sha256",
+          "SHA256SUMS.txt"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
@@ -5331,12 +5343,12 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 2,
+        "trustLevel": "checksum",
+        "platformDigestCount": 5,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:53:11.0000000Z",
+      "pushedAt": "2026-06-30T16:14:23.0000000Z",
       "topics": [
         "background-removal",
         "compositing",
@@ -6672,7 +6684,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-28T04:00:39.0000000Z",
+      "pushedAt": "2026-06-30T16:26:31.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -7632,7 +7644,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:58:13.0000000Z",
+      "pushedAt": "2026-06-30T16:24:47.0000000Z",
       "topics": [
         "brightness",
         "dark-theme",
@@ -8719,7 +8731,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:53:01.0000000Z",
+      "pushedAt": "2026-06-30T16:22:57.0000000Z",
       "topics": [
         "dark-theme",
         "firewall",
@@ -9529,8 +9541,8 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v2.10.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.10.0",
+      "latestReleaseTag": "v2.12.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.12.0",
       "releaseAssetKinds": [
         "exe"
       ],
@@ -9557,7 +9569,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T15:58:27.0000000Z",
+      "pushedAt": "2026-06-30T16:21:02.0000000Z",
       "topics": [
         "dark-theme",
         "file-explorer",
@@ -10861,7 +10873,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:00:38.0000000Z",
+      "pushedAt": "2026-06-30T16:25:59.0000000Z",
       "topics": [
         "dark-theme",
         "google-keep",
@@ -11150,7 +11162,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:00:43.0000000Z",
+      "pushedAt": "2026-06-30T16:18:13.0000000Z",
       "topics": [
         "crawler",
         "gui",
@@ -12062,7 +12074,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-30T16:00:45.0000000Z",
+      "pushedAt": "2026-06-30T16:24:03.0000000Z",
       "topics": [
         "html",
         "multi-stream",
@@ -12406,7 +12418,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-30T15:56:06.0000000Z",
+      "pushedAt": "2026-06-30T16:20:39.0000000Z",
       "topics": [
         "browser-based",
         "converter",

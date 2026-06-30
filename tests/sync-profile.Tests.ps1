@@ -887,15 +887,15 @@ Describe 'Test-LinkTargets batch reporting' {
 
         $result = Test-LinkTargets -Included $included -RepoLookup @{} -ProbeScript $probe -ThrottleLimit 2
 
-        $result.targetCount | Should -Be 3
+        $result.targetCount | Should -Be 4
         $result.throttleLimit | Should -Be 2
         @($result.failures) | Should -HaveCount 1
-        @($result.warnings) | Should -HaveCount 2
+        @($result.warnings) | Should -HaveCount 3
         $result.failures[0].host | Should -Be 'sysadmindoc.github.io'
 
         $rawHost = @($result.warningCountByHost | Where-Object { $_.host -eq 'raw.githubusercontent.com' })
         $rawHost | Should -HaveCount 1
-        $rawHost[0].count | Should -Be 2
+        $rawHost[0].count | Should -Be 3
         @($result.headerHostWarnings) | Should -HaveCount 0
     }
 
@@ -1942,10 +1942,10 @@ Describe 'New-ProjectsExportJson feed' {
         $result = Test-CatalogFeedAccounting -Catalog $cat -ProjectsJson $json
 
         $result.passed | Should -BeTrue
-        $result.catalogEntryCount | Should -Be 4
-        $result.visitorFacingCatalogCount | Should -Be 3
+        $result.catalogEntryCount | Should -Be 6
+        $result.visitorFacingCatalogCount | Should -Be 5
         $result.suppressedCatalogCount | Should -Be 1
-        $result.exportedProjectCount | Should -Be 3
+        $result.exportedProjectCount | Should -Be 5
         $result.exportedSuppressedCount | Should -Be 1
         $result.unaccountedRowCount | Should -Be 0
         $result.fatalCount | Should -Be 0
@@ -1954,22 +1954,34 @@ Describe 'New-ProjectsExportJson feed' {
 
     It 'reports downstream portfolio compatibility for generated feed rows' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -Topics @('powershell', 'utility')),
+            (New-TestRepoMeta -Name 'PyTool' -Language 'Python' -Topics @('python', 'utility')),
+            (New-TestRepoMeta -Name 'WebTool' -Language 'JavaScript' -Topics @('web', 'dashboard')),
+            (New-TestRepoMeta -Name 'InstallTool' -Language 'JavaScript' -Topics @('userscript', 'browser-extension')),
+            (New-TestRepoMeta -Name 'ReleaseTool' -Language 'PowerShell' -Topics @('media', 'release') -WithRelease -AssetNames @('ReleaseTool-v1.0.0.zip', 'ReleaseTool-v1.0.0.zip.sha256'))
+        )
+        $json = New-ProjectsExportJson -Catalog $cat -Repos $repos
 
         $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
 
         $result.status | Should -Be 'compatible'
-        $result.projectCount | Should -Be 3
+        $result.projectCount | Should -Be 5
         $result.suppressedCount | Should -Be 1
         $result.projectCountMatchesTopLevel | Should -BeTrue
         $result.suppressedCountMatchesTopLevel | Should -BeTrue
+        $result.projectRequiredFields | Should -Contain 'primaryAction.url'
+        $result.projectRequiredFields | Should -Contain 'releaseTrust.trustLevel'
+        $result.projectRequiredFields | Should -Contain 'topics'
         $result.missingProjectFieldCount | Should -Be 0
         $result.suppressedIdentifierLeakCount | Should -Be 0
         $result.redactedSuppressedRowsCompatible | Should -BeTrue
         $result.provenanceAvailable | Should -BeTrue
         $result.releaseTrustAvailable | Should -BeTrue
-        (($result.primaryActionKindCounts | ForEach-Object { $_.kind }) -join ',') | Should -Be 'live,repo'
+        (($result.primaryActionKindCounts | ForEach-Object { $_.kind }) -join ',') | Should -Be 'install,live,release,repo'
+        ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'install' }).count | Should -Be 1
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'live' }).count | Should -Be 1
+        ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'release' }).count | Should -Be 1
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'repo' }).count | Should -Be 2
         $result.fatalCount | Should -Be 0
     }
@@ -1977,14 +1989,35 @@ Describe 'New-ProjectsExportJson feed' {
     It 'flags visible project rows missing downstream-required fields' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
-        $payload.projects[0].repoUrl = ''
+        $payload.projects[0].primaryAction.url = ''
         $json = $payload | ConvertTo-Json -Depth 50
 
         $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
 
         $result.status | Should -Be 'incompatible'
         $result.missingProjectFieldCount | Should -Be 1
-        $result.missingProjectFields[0].field | Should -Be 'repoUrl'
+        $result.missingProjectFields[0].field | Should -Be 'primaryAction.url'
+        $result.fatalCount | Should -BeGreaterThan 0
+    }
+
+    It 'fails the consumer fixture when a primary action variant disappears' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @(
+            (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -AssetNames @('ReleaseTool-v1.0.0.zip'))
+        ) | ConvertFrom-Json
+
+        foreach ($project in @($payload.projects | Where-Object { $_.primaryAction.kind -eq 'install' })) {
+            $project.primaryAction.kind = 'repo'
+            $project.primaryAction.label = 'Repo'
+            $project.primaryAction.url = $project.repoUrl
+            $project.hasDirectInstall = $false
+        }
+        $json = $payload | ConvertTo-Json -Depth 50
+
+        $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
+
+        $result.status | Should -Be 'incompatible'
+        ($result.errors -join ' ') | Should -Match 'consumer-required primary action kind\(s\): install'
         $result.fatalCount | Should -BeGreaterThan 0
     }
 
@@ -3210,7 +3243,7 @@ Describe 'Test-ProfileState projects sync gate' {
         $result.Failed | Should -BeTrue
         $result.Report.catalogFeedAccounting.passed | Should -BeFalse
         $result.Report.catalogFeedAccounting.unaccountedRowCount | Should -Be 1
-        $result.Report.catalogFeedAccounting.unaccountedRows[0].catalogId | Should -Be 'catalog-005'
+        $result.Report.catalogFeedAccounting.unaccountedRows[0].catalogId | Should -Be 'catalog-007'
         $result.Report.catalogFeedAccounting.unaccountedRows[0].exportStatus | Should -Be 'unaccounted'
         ($result.Report.catalogFeedAccounting.unaccountedRows | ConvertTo-Json -Depth 20) | Should -Not -Match 'LocalOnly|github.com'
     }

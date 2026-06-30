@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P1 - Add a downstream portfolio feed compatibility fixture
-  Why: The separate portfolio consumes `projects.json`, but this repo only checks generic field presence and not a pinned consumer-shaped fixture.
-  Evidence: `reports/profile-sync-report.json:1619-1627`; `schemas/profile-projects.v1.json`; Pagefind and static-site source patterns.
-  Touches: `tests/fixtures/catalog.json`, `tests/sync-profile.Tests.ps1`, `schemas/profile-projects.v1.json`.
-  Acceptance: A fixture fails if visible project rows lose fields required by the portfolio importer, search filters, release-trust display, or redacted suppression handling.
-  Complexity: M
-
 - [ ] P2 - Reframe generated PR helper scripts as dormant manual tools or retire their active report gates
   Why: `scripts/open-generated-profile-pr.ps1` and generated-validation status helpers remain in the repo, but current policy and tests no longer support live hosted PR validation.
   Evidence: `scripts/open-generated-profile-pr.ps1`, `scripts/set-generated-validation-status.ps1`, `tests/sync-profile.Tests.ps1:3124`, `3257`.

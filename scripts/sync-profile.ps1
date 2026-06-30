@@ -3022,7 +3022,24 @@ function Test-PortfolioFeedCompatibility {
         $payload = $null
     }
 
-    $requiredProjectFields = @("repo", "title", "category", "description", "repoUrl")
+    $requiredProjectFields = @(
+        "repo",
+        "title",
+        "category",
+        "description",
+        "repoUrl",
+        "primaryAction.kind",
+        "primaryAction.label",
+        "primaryAction.url",
+        "hasDownload",
+        "hasLiveDemo",
+        "hasDirectInstall",
+        "releaseTrust.trustLevel",
+        "topics",
+        "featured",
+        "currentlyBuilding"
+    )
+    $requiredPrimaryActionKinds = @("install", "live", "release", "repo")
     $suppressedDisallowedFields = @(
         "repo",
         "title",
@@ -3106,8 +3123,20 @@ function Test-PortfolioFeedCompatibility {
             }
         }
         foreach ($field in $requiredProjectFields) {
-            $value = Get-MemberValue -Object $project -Name $field
-            if ($null -eq $value -or [string]::IsNullOrWhiteSpace([string]$value)) {
+            if ($field -eq "topics") {
+                $missing = -not (Test-MemberExists -Object $project -Name $field)
+            } else {
+                $value = if ($field.Contains(".")) {
+                    Get-NestedMemberValue -Object $project -Path $field
+                } else {
+                    Get-MemberValue -Object $project -Name $field
+                }
+                $missing = $null -eq $value
+                if (-not $missing -and $value -is [string]) {
+                    $missing = [string]::IsNullOrWhiteSpace($value)
+                }
+            }
+            if ($missing) {
                 $missingProjectFields.Add([ordered]@{
                     repo = $repoLabel
                     field = $field
@@ -3145,6 +3174,10 @@ function Test-PortfolioFeedCompatibility {
                     [string](Get-MemberValue -Object $primaryAction -Name "kind") -eq $kind
                 }).Count
         })
+    }
+    $missingPrimaryActionKinds = @($requiredPrimaryActionKinds | Where-Object { $actionKinds -notcontains $_ })
+    if ($missingPrimaryActionKinds.Count -gt 0) {
+        $errors.Add("Portfolio feed lacks consumer-required primary action kind(s): $($missingPrimaryActionKinds -join ', ').")
     }
 
     $missingFieldsArray = @($missingProjectFields.ToArray())
@@ -4870,6 +4903,22 @@ function Get-MemberValue {
         return $property.Value
     }
     return $null
+}
+
+function Test-MemberExists {
+    param(
+        [object]$Object,
+        [string]$Name
+    )
+
+    if ($null -eq $Object -or [string]::IsNullOrWhiteSpace($Name)) {
+        return $false
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        return $Object.Contains($Name)
+    }
+
+    return $null -ne $Object.PSObject.Properties[$Name]
 }
 
 function Get-SortedReportRows {
