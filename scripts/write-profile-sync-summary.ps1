@@ -260,6 +260,16 @@ $codeScanningControls = if ($codeScanning -and $codeScanning.activeControls) {
 } else {
     ""
 }
+$codeScanningLocalControls = if ($codeScanning -and $codeScanning.PSObject.Properties.Name -contains 'localControls' -and $codeScanning.localControls) {
+    @($codeScanning.localControls) -join ", "
+} else {
+    ""
+}
+$codeScanningHostedControls = if ($codeScanning -and $codeScanning.PSObject.Properties.Name -contains 'hostedControls' -and $codeScanning.hostedControls) {
+    @($codeScanning.hostedControls) -join ", "
+} else {
+    ""
+}
 $scorecardAlertPosture = if ($codeScanning -and $codeScanning.PSObject.Properties.Name -contains 'scorecardAlertPosture') { $codeScanning.scorecardAlertPosture } else { $null }
 $scorecardOpenAlertCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.openAlertCount } else { 0 }
 $scorecardLocalActionableCount = if ($scorecardAlertPosture) { [int]$scorecardAlertPosture.localActionableCount } else { 0 }
@@ -515,6 +525,8 @@ $summary = @"
 | Code scanning status | $codeScanningStatus |
 | Code scanning recommendation | $codeScanningRecommendation |
 | Code scanning languages | $codeScanningLanguages |
+| Code scanning local controls | $codeScanningLocalControls |
+| Code scanning hosted controls | $codeScanningHostedControls |
 | Code scanning controls | $codeScanningControls |
 | Scorecard open alerts | $scorecardOpenAlertCount |
 | Scorecard local actionable alerts | $scorecardLocalActionableCount |

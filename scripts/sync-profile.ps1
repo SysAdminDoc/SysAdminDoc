@@ -5135,6 +5135,14 @@ function Get-CodeScanningLocalEvidence {
         $workflowText = (($workflowFiles | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n")
     }
 
+    $validateLocalPath = Join-Path $RepoRoot "scripts/validate-local.ps1"
+    $validateLocalText = if (Test-Path -LiteralPath $validateLocalPath) { Get-Content -LiteralPath $validateLocalPath -Raw } else { "" }
+    $packageJsonPath = Join-Path $RepoRoot "package.json"
+    $packageJsonText = if (Test-Path -LiteralPath $packageJsonPath) { Get-Content -LiteralPath $packageJsonPath -Raw } else { "" }
+    $psScriptAnalyzerSettingsPresent = Test-Path -LiteralPath (Join-Path $RepoRoot "PSScriptAnalyzerSettings.psd1")
+    $testsPresent = Test-Path -LiteralPath (Join-Path $RepoRoot "tests")
+    $zizmorConfigPresent = Test-Path -LiteralPath (Join-Path $RepoRoot ".github/zizmor.yml")
+
     $hasCodeQlWorkflow = [regex]::IsMatch($workflowText, '(?i)github/codeql-action/(init|analyze)@|codeql\s+(database|analyze)')
     $hasSarifUpload = [regex]::IsMatch($workflowText, '(?i)github/codeql-action/upload-sarif@')
     $hasScorecardSarif = (
@@ -5151,6 +5159,11 @@ function Get-CodeScanningLocalEvidence {
         psScriptAnalyzerWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)Invoke-ScriptAnalyzer|PSScriptAnalyzer')
         actionlintWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)\bactionlint\b')
         zizmorWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)\bzizmor\b')
+        localValidationScriptPresent = [bool](Test-Path -LiteralPath $validateLocalPath)
+        psScriptAnalyzerLocalPresent = [bool]($psScriptAnalyzerSettingsPresent -and [regex]::IsMatch($validateLocalText, '(?i)\bInvoke-ScriptAnalyzer\b'))
+        pesterLocalPresent = [bool]($testsPresent -and [regex]::IsMatch($validateLocalText, '(?i)\bInvoke-Pester\b'))
+        markdownlintLocalPresent = [bool]([regex]::IsMatch($packageJsonText, '(?i)markdownlint-cli2') -and [regex]::IsMatch($validateLocalText, '(?i)lint:markdown'))
+        zizmorLocalConfigPresent = [bool]$zizmorConfigPresent
     }
 }
 
@@ -6358,6 +6371,11 @@ function Test-RepositoryCommunityBaseline {
     $psScriptAnalyzerWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "psScriptAnalyzerWorkflowPresent")
     $actionlintWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "actionlintWorkflowPresent")
     $zizmorWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "zizmorWorkflowPresent")
+    $localValidationScriptPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "localValidationScriptPresent")
+    $psScriptAnalyzerLocalPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "psScriptAnalyzerLocalPresent")
+    $pesterLocalPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "pesterLocalPresent")
+    $markdownlintLocalPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "markdownlintLocalPresent")
+    $zizmorLocalConfigPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "zizmorLocalConfigPresent")
     $codeScanningStatus = if ($languagesAvailable -and -not $hasCodeqlSupportedLanguage) {
         "not-applicable"
     } elseif ($languagesAvailable) {
@@ -6383,15 +6401,28 @@ function Test-RepositoryCommunityBaseline {
     } else {
         $LanguagesUnavailableReason
     }
-    $activeCodeScanningControls = New-Object System.Collections.Generic.List[string]
-    if ($secretScanning -eq "enabled") { $activeCodeScanningControls.Add("secret-scanning") }
-    if ($secretScanningPushProtection -eq "enabled") { $activeCodeScanningControls.Add("secret-scanning-push-protection") }
-    if ($dependabotSecurityUpdates -eq "enabled") { $activeCodeScanningControls.Add("dependabot-security-updates") }
-    if ($psScriptAnalyzerWorkflowPresent) { $activeCodeScanningControls.Add("psscriptanalyzer") }
-    if ($actionlintWorkflowPresent) { $activeCodeScanningControls.Add("actionlint") }
-    if ($zizmorWorkflowPresent) { $activeCodeScanningControls.Add("zizmor") }
-    if ($scorecardSarifUploadPresent) { $activeCodeScanningControls.Add("openssf-scorecard-sarif") }
-    if ($codeQlWorkflowPresent) { $activeCodeScanningControls.Add("codeql-workflow") }
+    $localCodeScanningControls = New-Object System.Collections.Generic.List[string]
+    if ($localValidationScriptPresent) { $localCodeScanningControls.Add("local-validation-bootstrap") }
+    if ($psScriptAnalyzerLocalPresent) { $localCodeScanningControls.Add("psscriptanalyzer") }
+    if ($pesterLocalPresent) { $localCodeScanningControls.Add("pester") }
+    if ($markdownlintLocalPresent) { $localCodeScanningControls.Add("markdownlint") }
+    if ($zizmorLocalConfigPresent) { $localCodeScanningControls.Add("zizmor-config") }
+
+    $hostedCodeScanningControls = New-Object System.Collections.Generic.List[string]
+    if ($secretScanning -eq "enabled") { $hostedCodeScanningControls.Add("secret-scanning") }
+    if ($secretScanningPushProtection -eq "enabled") { $hostedCodeScanningControls.Add("secret-scanning-push-protection") }
+    if ($dependabotSecurityUpdates -eq "enabled") { $hostedCodeScanningControls.Add("dependabot-security-updates") }
+    if ($psScriptAnalyzerWorkflowPresent) { $hostedCodeScanningControls.Add("psscriptanalyzer-workflow") }
+    if ($actionlintWorkflowPresent) { $hostedCodeScanningControls.Add("actionlint-workflow") }
+    if ($zizmorWorkflowPresent) { $hostedCodeScanningControls.Add("zizmor-workflow") }
+    if ($scorecardSarifUploadPresent) { $hostedCodeScanningControls.Add("openssf-scorecard-sarif") }
+    if ($sarifUploadWorkflowPresent) { $hostedCodeScanningControls.Add("sarif-upload-workflow") }
+    if ($codeQlWorkflowPresent) { $hostedCodeScanningControls.Add("codeql-workflow") }
+
+    $activeCodeScanningControls = @(@(
+        @($localCodeScanningControls.ToArray())
+        @($hostedCodeScanningControls.ToArray())
+    ) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Sort-Object -Unique)
     if ($languagesAvailable -and $hasCodeqlSupportedLanguage -and -not $codeQlWorkflowPresent) {
         $repoWarnings.Add("CodeQL-supported languages detected; verify code scanning default setup, add an intentional CodeQL workflow, or document another SARIF-producing analyzer.")
     }
@@ -6473,7 +6504,9 @@ function Test-RepositoryCommunityBaseline {
                 codeqlWorkflowPresent = $codeQlWorkflowPresent
                 sarifUploadWorkflowPresent = $sarifUploadWorkflowPresent
                 scorecardSarifUploadPresent = $scorecardSarifUploadPresent
-                activeControls = @($activeCodeScanningControls.ToArray())
+                localControls = @($localCodeScanningControls.ToArray())
+                hostedControls = @($hostedCodeScanningControls.ToArray())
+                activeControls = @($activeCodeScanningControls)
                 scorecardAlertPosture = $scorecardAlertPosture
             }
         }

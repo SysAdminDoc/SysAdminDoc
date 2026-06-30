@@ -374,6 +374,11 @@ Describe 'Repository settings and community-health baseline' {
             psScriptAnalyzerWorkflowPresent = $false
             actionlintWorkflowPresent = $false
             zizmorWorkflowPresent = $false
+            localValidationScriptPresent = $true
+            psScriptAnalyzerLocalPresent = $true
+            pesterLocalPresent = $true
+            markdownlintLocalPresent = $true
+            zizmorLocalConfigPresent = $true
         }
         $scorecardAlerts = @(
             New-TestScorecardAlert -Number 1 -RuleId 'CodeReviewID' -Description 'Code-Review' -SecuritySeverity 'high'
@@ -426,10 +431,19 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.codeqlWorkflowPresent | Should -BeFalse
         $repoSettings.security.codeScanning.sarifUploadWorkflowPresent | Should -BeFalse
         $repoSettings.security.codeScanning.scorecardSarifUploadPresent | Should -BeFalse
-        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'psscriptanalyzer'
-        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'actionlint'
-        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'zizmor'
-        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'openssf-scorecard-sarif'
+        $repoSettings.security.codeScanning.localControls | Should -Contain 'local-validation-bootstrap'
+        $repoSettings.security.codeScanning.localControls | Should -Contain 'psscriptanalyzer'
+        $repoSettings.security.codeScanning.localControls | Should -Contain 'pester'
+        $repoSettings.security.codeScanning.localControls | Should -Contain 'markdownlint'
+        $repoSettings.security.codeScanning.localControls | Should -Contain 'zizmor-config'
+        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'secret-scanning'
+        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'secret-scanning-push-protection'
+        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'dependabot-security-updates'
+        $repoSettings.security.codeScanning.hostedControls | Should -Not -Contain 'psscriptanalyzer'
+        $repoSettings.security.codeScanning.hostedControls | Should -Not -Contain 'actionlint'
+        $repoSettings.security.codeScanning.hostedControls | Should -Not -Contain 'zizmor'
+        $repoSettings.security.codeScanning.hostedControls | Should -Not -Contain 'openssf-scorecard-sarif'
+        $repoSettings.security.codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $scorecardPosture.available | Should -BeTrue
         $scorecardPosture.openAlertCount | Should -Be 6
@@ -563,6 +577,9 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
+        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'dependabot-security-updates'
+        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'openssf-scorecard-sarif'
+        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'actionlint-workflow'
         ($repoSettings.warnings -join ' ') | Should -Not -Match 'Dependabot security updates are not enabled'
     }
 
@@ -613,6 +630,8 @@ Describe 'Repository settings and community-health baseline' {
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeTrue
         $codeScanning.codeqlSupportedLanguages | Should -Contain 'Python'
         $codeScanning.codeqlWorkflowPresent | Should -BeFalse
+        $codeScanning.hostedControls | Should -Contain 'openssf-scorecard-sarif'
+        $codeScanning.hostedControls | Should -Contain 'actionlint-workflow'
         ($result['repositorySettings'].warnings -join ' ') | Should -Match 'CodeQL-supported languages detected'
     }
 
@@ -2446,8 +2465,16 @@ Describe 'Code scanning posture decision' {
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
         $codeScanning.codeqlWorkflowPresent | Should -BeFalse
         $codeScanning.scorecardSarifUploadPresent | Should -BeFalse
-        $codeScanning.activeControls | Should -Not -Contain 'psscriptanalyzer'
-        $codeScanning.activeControls | Should -Not -Contain 'openssf-scorecard-sarif'
+        $codeScanning.localControls | Should -Contain 'local-validation-bootstrap'
+        $codeScanning.localControls | Should -Contain 'psscriptanalyzer'
+        $codeScanning.localControls | Should -Contain 'pester'
+        $codeScanning.localControls | Should -Contain 'markdownlint'
+        $codeScanning.hostedControls | Should -Contain 'secret-scanning'
+        $codeScanning.hostedControls | Should -Contain 'secret-scanning-push-protection'
+        $codeScanning.hostedControls | Should -Contain 'dependabot-security-updates'
+        $codeScanning.hostedControls | Should -Not -Contain 'psscriptanalyzer'
+        $codeScanning.hostedControls | Should -Not -Contain 'openssf-scorecard-sarif'
+        $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeFalse
@@ -2981,6 +3008,8 @@ Describe 'Profile sync report summaries' {
         $script:SummaryScript | Should -Match 'Candidate check exercise evidence is'
         $script:SummaryScript | Should -Match 'codeScanning'
         $script:SummaryScript | Should -Match 'scorecardAlertPosture'
+        $script:SummaryScript | Should -Match 'Code scanning local controls'
+        $script:SummaryScript | Should -Match 'Code scanning hosted controls'
         $script:SummaryScript | Should -Match 'Scorecard open alerts'
         $script:SummaryScript | Should -Match 'communityHealth'
         $script:SummaryScript | Should -Match '::warning::'

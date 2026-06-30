@@ -2266,6 +2266,8 @@
         "codeqlWorkflowPresent",
         "sarifUploadWorkflowPresent",
         "scorecardSarifUploadPresent",
+        "localControls",
+        "hostedControls",
         "activeControls",
         "scorecardAlertPosture"
       ],
@@ -2296,6 +2298,12 @@
         },
         "scorecardSarifUploadPresent": {
           "type": "boolean"
+        },
+        "localControls": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "hostedControls": {
+          "$ref": "#/$defs/stringArray"
         },
         "activeControls": {
           "$ref": "#/$defs/stringArray"

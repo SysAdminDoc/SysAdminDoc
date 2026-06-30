@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P1 - Remove hosted-automation assumptions from repository security posture reporting
-  Why: Code scanning, Scorecard, actionlint, hardened runner, and dependency-review report fields are useful only if the report distinguishes removed hosted controls from local controls.
-  Evidence: `tests/sync-profile.Tests.ps1:2484-2531`, `3600-3823`; `.github/workflows` absent.
-  Touches: `scripts/sync-profile.ps1`, `scripts/write-profile-sync-summary.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: Report output separates `localControls` from `hostedControls`, and absent hosted controls are not warnings under the local-only policy.
-  Complexity: M
-
 - [ ] P1 - Add a downstream portfolio feed compatibility fixture
   Why: The separate portfolio consumes `projects.json`, but this repo only checks generic field presence and not a pinned consumer-shaped fixture.
   Evidence: `reports/profile-sync-report.json:1619-1627`; `schemas/profile-projects.v1.json`; Pagefind and static-site source patterns.
