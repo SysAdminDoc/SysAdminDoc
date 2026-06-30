@@ -32,16 +32,9 @@
 
 ## Research-Driven Additions
 
-- [ ] P1 - Clean public intake and audit config after the no-workflow policy shift
-  Why: Public issue/config files still point users and tooling at workflow/CI concepts even though the repo intentionally removed hosted workflows.
-  Evidence: `.github/ISSUE_TEMPLATE/workflow-ci.yml`, `.github/zizmor.yml`, `requirements-ci.txt`, `scripts/open-generated-profile-pr.ps1`.
-  Touches: `.github/ISSUE_TEMPLATE/workflow-ci.yml`, `.github/zizmor.yml`, `requirements-ci.txt`, `scripts/write-profile-sync-summary.ps1`, `scripts/sync-profile.ps1`.
-  Acceptance: Public issue templates and local audit config describe local validation/support paths without implying active CI workflows, Dependabot, or generated-profile hosted validation.
-  Complexity: S
-
 - [ ] P2 - Add a manual dependency and advisory review lane for local tooling
   Why: `npm audit` is clean, but dependency updates are manual and the repo has explicit overrides plus PowerShell module/tool pins that need a repeatable review path.
-  Evidence: `package.json` overrides for `markdown-it` and `js-yaml`; `requirements-ci.txt`; `npm audit --json`; PSGallery versions for Pester and PSScriptAnalyzer; markdownlint-cli2 and zizmor release sources.
-  Touches: `package.json`, `package-lock.json`, `requirements-ci.txt`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, `README.md`.
+  Evidence: `package.json` overrides for `markdown-it` and `js-yaml`; `requirements-local-audit.txt`; `npm audit --json`; PSGallery versions for Pester and PSScriptAnalyzer; markdownlint-cli2 and zizmor release sources.
+  Touches: `package.json`, `package-lock.json`, `requirements-local-audit.txt`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, `README.md`.
   Acceptance: A documented local command or report section captures npm audit status, manual override drift, pinned PowerShell tooling versions, and advisory-review results without adding Dependabot or workflows.
   Complexity: M

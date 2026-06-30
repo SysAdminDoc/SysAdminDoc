@@ -1,0 +1,48 @@
+name: Local validation or support problem
+description: Report a public local validation, setup, or generated profile support problem.
+title: "Validation issue: "
+labels:
+  - validation
+  - support
+body:
+  - type: markdown
+    attributes:
+      value: "Do not paste secrets, tokens, private repository names, customer data, medical data, or sensitive logs. Redact anything non-public before submitting."
+  - type: input
+    id: check
+    attributes:
+      label: Local command or support path
+      placeholder: "Example: scripts/validate-local.ps1, scripts/render-profile-smoke.ps1, setup.ps1 -CheckOnly"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "Example: PowerShell 7.4 on Windows 11; Node dependencies already installed"
+    validations:
+      required: false
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Summarize the local validation failure, setup problem, or unexpected generated output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should the local command or support path do?
+    validations:
+      required: true
+  - type: dropdown
+    id: sensitive
+    attributes:
+      label: Does this involve sensitive data?
+      description: If yes, do not submit the issue. Use the security policy instead.
+      options:
+        - "No"
+        - "Yes - I will use SECURITY.md instead"
+    validations:
+      required: true

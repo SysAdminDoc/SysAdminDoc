@@ -5207,7 +5207,7 @@ function Get-CommunityLocalFileStatus {
         [ordered]@{ path = ".github/pull_request_template.md"; required = $true },
         [ordered]@{ path = ".github/ISSUE_TEMPLATE/broken-link.yml"; required = $true },
         [ordered]@{ path = ".github/ISSUE_TEMPLATE/profile-correction.yml"; required = $true },
-        [ordered]@{ path = ".github/ISSUE_TEMPLATE/workflow-ci.yml"; required = $true },
+        [ordered]@{ path = ".github/ISSUE_TEMPLATE/local-validation.yml"; required = $true },
         [ordered]@{ path = ".github/ISSUE_TEMPLATE/config.yml"; required = $true },
         [ordered]@{ path = "CONTRIBUTING.md"; required = $false },
         [ordered]@{ path = "CODE_OF_CONDUCT.md"; required = $false }
@@ -5446,7 +5446,7 @@ function New-ScorecardAlertPostureRow {
                 $classification = "local-fix-pending-scorecard-refresh"
                 $localDisposition = "fixed-locally"
                 $localEvidence = "SECURITY.md includes a direct private vulnerability reporting URL."
-                $nextAction = "Rerun the Scorecard workflow and verify the Security-Policy alert closes or score improves."
+                $nextAction = "Rerun the local security posture summary and verify the Security-Policy alert closes or score improves."
             } else {
                 $classification = "actionable-local-gap"
                 $localDisposition = "needs-local-fix"
@@ -5457,7 +5457,7 @@ function New-ScorecardAlertPostureRow {
         "SASTID" {
             $classification = "covered-by-local-static-analysis"
             $localDisposition = "accepted-scorecard-limitation"
-            $localEvidence = "The live language mix is PowerShell-only; CodeQL is not applicable, while PSScriptAnalyzer, actionlint, zizmor, and Scorecard SARIF run locally or in CI."
+            $localEvidence = "The live language mix is PowerShell-only; CodeQL is not applicable, while local validation covers PSScriptAnalyzer, markdownlint, Pester, and local zizmor configuration review."
             $nextAction = "Reopen the CodeQL posture decision when a CodeQL-supported language appears."
         }
         "CIIBestPracticesID" {

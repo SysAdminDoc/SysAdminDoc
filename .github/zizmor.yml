@@ -1,4 +1,4 @@
-rules:
-  dangerous-triggers:
-    ignore:
-      - dependabot-auto-merge.yml
+# Local-only zizmor configuration for manual audit runs.
+# The repository intentionally ships no GitHub Actions workflows; do not add
+# Dependabot or hosted-workflow exceptions here.
+rules: {}

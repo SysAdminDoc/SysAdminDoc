@@ -320,7 +320,7 @@ Describe 'Repository settings and community-health baseline' {
             [ordered]@{ path = '.github/pull_request_template.md'; required = $true; exists = $true },
             [ordered]@{ path = '.github/ISSUE_TEMPLATE/broken-link.yml'; required = $true; exists = $true },
             [ordered]@{ path = '.github/ISSUE_TEMPLATE/profile-correction.yml'; required = $true; exists = $true },
-            [ordered]@{ path = '.github/ISSUE_TEMPLATE/workflow-ci.yml'; required = $true; exists = $true },
+            [ordered]@{ path = '.github/ISSUE_TEMPLATE/local-validation.yml'; required = $true; exists = $true },
             [ordered]@{ path = '.github/ISSUE_TEMPLATE/config.yml'; required = $true; exists = $true }
         )
     }
@@ -3104,11 +3104,11 @@ Describe 'Public-safe intake files' {
         $securityPolicy | Should -Match 'medical data'
     }
 
-    It 'provides issue forms for broken links, profile corrections, and workflow problems' {
+    It 'provides issue forms for broken links, profile corrections, and local validation problems' {
         foreach ($file in @(
             '.github/ISSUE_TEMPLATE/broken-link.yml',
             '.github/ISSUE_TEMPLATE/profile-correction.yml',
-            '.github/ISSUE_TEMPLATE/workflow-ci.yml'
+            '.github/ISSUE_TEMPLATE/local-validation.yml'
         )) {
             $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $file) -Raw
             $content | Should -Match 'validations:'
@@ -3856,7 +3856,7 @@ Describe 'GitHub issue form schemas' {
         $script:RequiredIssueFieldIds = @{
             'broken-link.yml'        = @('project', 'url', 'observed', 'expected', 'surface')
             'profile-correction.yml' = @('project', 'current', 'proposed', 'generated')
-            'workflow-ci.yml'        = @('workflow', 'observed', 'expected', 'sensitive')
+            'local-validation.yml'   = @('check', 'observed', 'expected', 'sensitive')
         }
 
         function Get-IssueFormFields {
@@ -3885,7 +3885,7 @@ Describe 'GitHub issue form schemas' {
     }
 
     It 'has the expected issue form set plus a chooser config' {
-        @($script:IssueFormFiles.Name | Sort-Object) | Should -Be @('broken-link.yml', 'profile-correction.yml', 'workflow-ci.yml')
+        @($script:IssueFormFiles.Name | Sort-Object) | Should -Be @('broken-link.yml', 'local-validation.yml', 'profile-correction.yml')
         Test-Path -LiteralPath (Join-Path $script:IssueTemplateDir 'config.yml') | Should -BeTrue
     }
 
@@ -3907,6 +3907,14 @@ Describe 'GitHub issue form schemas' {
             $markdownBlock.Success | Should -BeTrue -Because "$($file.Name) must lead with a markdown notice"
             $markdownBlock.Groups['value'].Value | Should -Match '(?i)(private|secret|sensitive|medical|customer|credential|redact)' -Because "$($file.Name) notice must warn against sensitive data"
         }
+    }
+
+    It 'keeps public validation intake local-only' {
+        $content = Get-Content -LiteralPath (Join-Path $script:IssueTemplateDir 'local-validation.yml') -Raw
+
+        $content | Should -Match 'scripts/validate-local[.]ps1'
+        $content | Should -Match 'scripts/render-profile-smoke[.]ps1'
+        $content | Should -Not -Match '(?i)\bCI\b|workflow|generated-profile|actions/runs|OpenSSF Scorecard|Dependabot'
     }
 
     It 'uses only supported field types and provides dropdown options' {

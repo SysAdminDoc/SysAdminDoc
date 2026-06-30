@@ -1825,7 +1825,7 @@
               "securitySeverity": "medium",
               "classification": "covered-by-local-static-analysis",
               "localDisposition": "accepted-scorecard-limitation",
-              "localEvidence": "The live language mix is PowerShell-only; CodeQL is not applicable, while PSScriptAnalyzer, actionlint, zizmor, and Scorecard SARIF run locally or in CI.",
+              "localEvidence": "The live language mix is PowerShell-only; CodeQL is not applicable, while local validation covers PSScriptAnalyzer, markdownlint, Pester, and local zizmor configuration review.",
               "nextAction": "Reopen the CodeQL posture decision when a CodeQL-supported language appears.",
               "htmlUrl": "https://github.com/SysAdminDoc/SysAdminDoc/security/code-scanning/3",
               "helpUrl": "https://github.com/ossf/scorecard/blob/c22063e786c11f9dd714d777a687ff7c4599b600/docs/checks.md#sast",
@@ -1983,7 +1983,7 @@
         "exists": true
       },
       {
-        "path": ".github/ISSUE_TEMPLATE/workflow-ci.yml",
+        "path": ".github/ISSUE_TEMPLATE/local-validation.yml",
         "required": true,
         "exists": true
       },
