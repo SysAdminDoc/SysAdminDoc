@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P0 - Regenerate and verify the public profile artifacts after contract fixes
-  Why: The committed report currently says README, projects feed, and profile assets are out of sync.
-  Evidence: `reports/profile-sync-report.json:4-6`.
-  Touches: `README.md`, `projects.json`, `assets/profile/*.svg`, `reports/profile-sync-report.json`, `data/profile-version.json`.
-  Acceptance: `scripts/sync-profile.ps1 -Write -Check` reports `readmeInSync`, `projectsExportInSync`, and `profileAssetsInSync` as true or only documents nonfatal live metadata drift.
-  Complexity: M
-
 - [ ] P1 - Add a local validation bootstrap command that installs pinned tools before linting
   Why: `npm run lint:markdown` fails on a clean checkout when `markdownlint-cli2` is not installed locally.
   Evidence: `package.json`, `package-lock.json`, `.markdownlint-cli2.yaml`; local `npm run lint:markdown` output.
@@ -59,13 +52,6 @@
   Complexity: M
 
 ## Research-Driven Additions
-
-- [ ] P0 - Reconcile live public repo drift before regenerating profile artifacts
-  Why: The existing artifact-regeneration item depends on catalog/live GitHub state being current, and the report shows four missing public repos plus one rename redirect.
-  Evidence: `reports/profile-sync-report.json` `missingPublicRepos` for `ClearCut`, `OpenNetLimit`, `GIFM`, `AsteroidSimulator`; `renamedRepoRedirects` for `NovaCut` -> `ClearCut`.
-  Touches: `data/profile-catalog.json`, `README.md`, `projects.json`, `assets/profile/*.svg`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: Missing public repos are either cataloged or intentionally suppressed, rename redirect handling is resolved, `metadataDriftSummary.fatalCount` is zero, and generated artifacts are in sync.
-  Complexity: M
 
 - [ ] P1 - Make rendered profile smoke evidence fully local and policy-aware
   Why: The report currently marks rendered smoke as `not-run` and warns that hosted smoke evidence should have refreshed it, which contradicts the local-only validation model.

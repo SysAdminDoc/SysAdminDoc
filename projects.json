@@ -1,25 +1,25 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json",
-  "generatedAt": "2026-06-01T13:18:55.0998940-07:00",
+  "generatedAt": "2026-06-01T16:18:55.0998940-04:00",
   "source": "SysAdminDoc/SysAdminDoc data/profile-catalog.json",
   "provenance": {
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "e4c68d2b12bd66d32c014dcb3a5640f189c8f8cd",
-    "catalogSha256": "b05dc981c35c736fc58e2db758c98d892bcb2c24bd9e3380596c553ce564fa4f",
-    "generatorSha256": "dcaad2b4cabd2609e103ff946818d4c7fcae2626b199f3745cd7168d88879ae4",
+    "sourceCommit": "da2afc537b9775d62c96ae81dbc7a3ea3eea5a51",
+    "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
+    "generatorSha256": "9411c28f66b5d3dbe859e804eb9b109886a37d9d5c24ffc28c178f7e7563e672",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-25T20:32:41.3837633-07:00",
+    "metadataSnapshotAt": "2026-06-30T11:40:02.9809647-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
-      "returnedCount": 204,
+      "returnedCount": 205,
       "truncated": false
     }
   },
-  "publicRepoCount": 204,
-  "projectCount": 182,
+  "publicRepoCount": 205,
+  "projectCount": 185,
   "suppressedCount": 23,
   "projects": [
     {
@@ -97,7 +97,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-26T00:07:01.0000000Z",
+      "pushedAt": "2026-06-28T13:53:02.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -112,43 +112,47 @@
       "notes": null
     },
     {
-      "repo": "NovaCut",
-      "title": "NovaCut",
+      "repo": "ClearCut",
+      "title": "ClearCut",
       "category": "android",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "suppressed": false,
       "suppressionReason": null,
-      "description": "Professional video editor — 40+ effects, 37 transitions, 29 engines",
+      "description": "Full-featured Android video editor -- Kotlin, Jetpack Compose, and Media3",
       "forkOf": null,
       "forkOfUrl": null,
       "upstreamLicense": null,
-      "licenseKey": null,
-      "licenseName": null,
-      "licenseSpdxId": null,
-      "repoUrl": "https://github.com/SysAdminDoc/NovaCut",
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
+      "repoUrl": "https://github.com/SysAdminDoc/ClearCut",
       "liveUrl": null,
       "installUrl": null,
-      "downloadUrl": null,
+      "downloadUrl": "https://github.com/SysAdminDoc/ClearCut/releases/latest",
       "downloadKind": "apk",
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/NovaCut"
+        "kind": "release",
+        "label": "APK",
+        "url": "https://github.com/SysAdminDoc/ClearCut/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "master",
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": null,
-      "latestReleaseTag": null,
-      "latestReleaseUrl": null,
-      "releaseAssetKinds": [],
-      "releaseAssetNames": [],
-      "releaseAssetInspected": false,
+      "stars": 16,
+      "latestReleaseTag": "v3.74.108",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ClearCut/releases/tag/v3.74.108",
+      "releaseAssetKinds": [
+        "apk"
+      ],
+      "releaseAssetNames": [
+        "ClearCut-v3.74.108-release.apk"
+      ],
+      "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
         "checksumCoverage": "none",
@@ -160,14 +164,20 @@
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
-        "executableAssetKinds": [],
-        "trustLevel": "unknown",
-        "platformDigestCount": 0,
-        "releaseImmutable": null,
-        "notesPublic": null
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": null,
-      "topics": [],
+      "pushedAt": "2026-06-28T13:47:49.0000000Z",
+      "topics": [
+        "android",
+        "kotlin",
+        "video"
+      ],
       "featured": true,
       "featuredRank": 9,
       "currentlyBuilding": false,
@@ -234,7 +244,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T07:58:19.0000000Z",
+      "pushedAt": "2026-06-28T13:34:26.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -308,7 +318,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:30:43.0000000Z",
+      "pushedAt": "2026-06-28T03:47:50.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -361,7 +371,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Python",
-      "stars": 3,
+      "stars": 2,
       "latestReleaseTag": "v1.1.9",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/iOSIconPack/releases/tag/v1.1.9",
       "releaseAssetKinds": [
@@ -390,7 +400,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T12:13:21.0000000Z",
+      "pushedAt": "2026-06-28T13:56:47.0000000Z",
       "topics": [
         "android",
         "image-tools",
@@ -434,7 +444,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 3,
+      "stars": 2,
       "latestReleaseTag": "v2.20.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Lawnchair-Lite/releases/tag/v2.20.1",
       "releaseAssetKinds": [
@@ -463,7 +473,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:05:03.0000000Z",
+      "pushedAt": "2026-06-28T13:50:11.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -541,7 +551,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:27:55.0000000Z",
+      "pushedAt": "2026-06-28T03:46:35.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -639,7 +649,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T21:39:33.0000000Z",
+      "pushedAt": "2026-06-28T13:35:27.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -716,7 +726,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T03:32:43.0000000Z",
+      "pushedAt": "2026-06-29T17:11:01.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -759,40 +769,39 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 1,
-      "latestReleaseTag": "v1.2.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.2.0",
+      "latestReleaseTag": "v1.3.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.3.0",
       "releaseAssetKinds": [
         "apk",
         "other"
       ],
       "releaseAssetNames": [
-        "app-debug.apk",
-        "FileExplorer-v1.2.0.apk",
-        "FileExplorer-v1.2.0.apk.sha256"
+        "FileExplorer-v1.3.0.apk",
+        "FileExplorer-v1.3.0.apk.sha256"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "FileExplorer-v1.2.0.apk.sha256"
+          "FileExplorer-v1.3.0.apk.sha256"
         ],
-        "checksumCoverage": "partial",
-        "hasChecksumForEveryExecutable": false,
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
         "sbomAssets": [],
         "attestationAvailable": false,
-        "debugArtifactPresent": true,
+        "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
           "apk"
         ],
         "trustLevel": "checksum",
-        "platformDigestCount": 3,
+        "platformDigestCount": 2,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:14.0000000Z",
+      "pushedAt": "2026-06-30T15:33:43.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -838,7 +847,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 1,
+      "stars": 0,
       "latestReleaseTag": "v0.2.3",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalAndroidStore/releases/tag/v0.2.3",
       "releaseAssetKinds": [
@@ -874,7 +883,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:05:10.0000000Z",
+      "pushedAt": "2026-06-28T03:38:10.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -946,7 +955,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T00:09:54.0000000Z",
+      "pushedAt": "2026-06-28T03:38:31.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1017,7 +1026,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T07:04:00.0000000Z",
+      "pushedAt": "2026-06-28T03:39:06.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1088,7 +1097,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:15.0000000Z",
+      "pushedAt": "2026-06-28T03:37:04.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1130,7 +1139,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 2,
+      "stars": 3,
       "latestReleaseTag": "v0.3.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenSwift/releases/tag/v0.3.0",
       "releaseAssetKinds": [
@@ -1159,7 +1168,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T23:51:56.0000000Z",
+      "pushedAt": "2026-06-28T13:58:41.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1201,7 +1210,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 9,
+      "stars": 10,
       "latestReleaseTag": "v1.9.53",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.53",
       "releaseAssetKinds": [
@@ -1234,7 +1243,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-26T01:29:44.0000000Z",
+      "pushedAt": "2026-06-30T00:14:02.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1282,7 +1291,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 16,
+      "stars": 18,
       "latestReleaseTag": "v0.2.67",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.67",
       "releaseAssetKinds": [
@@ -1311,7 +1320,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T08:41:10.0000000Z",
+      "pushedAt": "2026-06-28T03:50:20.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1382,7 +1391,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:29:55.0000000Z",
+      "pushedAt": "2026-06-28T13:35:42.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1459,7 +1468,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:28:14.0000000Z",
+      "pushedAt": "2026-06-29T15:09:55.0000000Z",
       "topics": [
         "android",
         "kotlin",
@@ -1525,7 +1534,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-20T03:46:58.0000000Z",
+      "pushedAt": "2026-06-28T03:37:49.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -1564,7 +1573,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "C#",
-      "stars": 1,
+      "stars": 0,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MyPortfolio/releases/tag/v0.1.0",
       "releaseAssetKinds": [
@@ -1597,7 +1606,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:05:41.0000000Z",
+      "pushedAt": "2026-06-28T03:38:21.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1640,21 +1649,21 @@
       "entrypoint": null,
       "installKind": null,
       "language": "C#",
-      "stars": 2,
-      "latestReleaseTag": "v0.1.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.1.0",
+      "stars": 1,
+      "latestReleaseTag": "v0.3.5",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.3.5",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "LocalChromeStore-v0.1.0-win-x64.zip",
-        "LocalChromeStore-v0.1.0-win-x64.zip.sha256.txt"
+        "LocalChromeStore-v0.3.5-win-x64.zip",
+        "LocalChromeStore-v0.3.5-win-x64.zip.sha256.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "LocalChromeStore-v0.1.0-win-x64.zip.sha256.txt"
+          "LocalChromeStore-v0.3.5-win-x64.zip.sha256.txt"
         ],
         "checksumCoverage": "full",
         "hasChecksumForEveryExecutable": true,
@@ -1673,7 +1682,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:28:46.0000000Z",
+      "pushedAt": "2026-06-28T14:50:31.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1716,7 +1725,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "C#",
-      "stars": 1,
+      "stars": 0,
       "latestReleaseTag": "v0.2.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalDesktopStore/releases/tag/v0.2.0",
       "releaseAssetKinds": [
@@ -1749,7 +1758,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:28:24.0000000Z",
+      "pushedAt": "2026-06-28T03:38:12.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1829,7 +1838,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:28:15.0000000Z",
+      "pushedAt": "2026-06-28T14:43:58.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1907,7 +1916,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-26T02:21:36.0000000Z",
+      "pushedAt": "2026-06-29T15:21:27.0000000Z",
       "topics": [
         "cleanup",
         "csharp",
@@ -1978,7 +1987,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:32:20.0000000Z",
+      "pushedAt": "2026-06-28T03:38:59.0000000Z",
       "topics": [
         "csharp",
         "dark-theme",
@@ -2049,7 +2058,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:07:43.0000000Z",
+      "pushedAt": "2026-06-30T00:44:24.0000000Z",
       "topics": [
         "context-menu",
         "csharp",
@@ -2127,7 +2136,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T02:56:56.0000000Z",
+      "pushedAt": "2026-06-28T03:37:25.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2203,7 +2212,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:29:18.0000000Z",
+      "pushedAt": "2026-06-28T03:39:07.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2282,7 +2291,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:06:05.0000000Z",
+      "pushedAt": "2026-06-28T03:38:38.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2350,7 +2359,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:07:54.0000000Z",
+      "pushedAt": "2026-06-26T19:49:53.0000000Z",
       "topics": [
         "desktop-app",
         "html",
@@ -2425,7 +2434,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:44:01.0000000Z",
+      "pushedAt": "2026-06-28T03:39:46.0000000Z",
       "topics": [
         "desktop-app",
         "fluent",
@@ -2469,21 +2478,28 @@
       "entrypoint": null,
       "installKind": null,
       "language": "C++",
-      "stars": 1,
-      "latestReleaseTag": "v1.0.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/tag/v1.0.0",
+      "stars": 2,
+      "latestReleaseTag": "v1.0.2",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/tag/v1.0.2",
       "releaseAssetKinds": [
         "exe",
+        "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "qBittorrent-Vanced-v1.0.0-x64-portable.zip",
-        "qBittorrent-Vanced-v1.0.0-x64-setup.exe"
+        "ADVISORY-CHECK.txt",
+        "appcast.xml",
+        "qBittorrent-Vanced-v1.0.2-base5.1.3.10-x64-portable.zip",
+        "qBittorrent-Vanced-v1.0.2-base5.1.3.10-x64-setup.exe",
+        "RELEASE-PROVENANCE.txt",
+        "SHA256SUMS.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
+        "checksumAssets": [
+          "SHA256SUMS.txt"
+        ],
+        "checksumCoverage": "partial",
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -2496,12 +2512,12 @@
           "exe",
           "zip"
         ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 2,
+        "trustLevel": "checksum",
+        "platformDigestCount": 6,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T07:13:55.0000000Z",
+      "pushedAt": "2026-06-29T19:02:24.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -2567,7 +2583,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-13T00:06:18.0000000Z",
+      "pushedAt": "2026-06-28T03:38:43.0000000Z",
       "topics": [
         "active-development",
         "csharp",
@@ -2645,7 +2661,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:06:32.0000000Z",
+      "pushedAt": "2026-06-28T03:38:52.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2718,7 +2734,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T23:53:39.0000000Z",
+      "pushedAt": "2026-06-28T03:39:23.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2785,7 +2801,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-17T00:11:30.0000000Z",
+      "pushedAt": "2026-06-28T14:22:14.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2829,16 +2845,16 @@
       "installKind": null,
       "language": "TypeScript",
       "stars": 1,
-      "latestReleaseTag": "v0.16.2",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.16.2",
+      "latestReleaseTag": "v0.25.1",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.1",
       "releaseAssetKinds": [
         "exe",
         "zip"
       ],
       "releaseAssetNames": [
         "Keepr-portable.zip",
-        "Keepr_0.16.2_x64-setup.exe",
-        "Keepr_0.16.2_x64_en-US.msi"
+        "Keepr_0.25.1_x64-setup.exe",
+        "Keepr_0.25.1_x64_en-US.msi"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -2861,7 +2877,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-12T23:50:25.0000000Z",
+      "pushedAt": "2026-06-28T14:49:13.0000000Z",
       "topics": [
         "desktop-app",
         "privacy",
@@ -2906,16 +2922,14 @@
       "installKind": null,
       "language": "Rust",
       "stars": 1,
-      "latestReleaseTag": "v0.4.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/TsunamiSimulator/releases/tag/v0.4.0",
+      "latestReleaseTag": "v0.4.4",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/TsunamiSimulator/releases/tag/v0.4.4",
       "releaseAssetKinds": [
-        "exe",
-        "zip"
+        "exe"
       ],
       "releaseAssetNames": [
-        "TsunamiSimulator-v0.4.0-windows-x86_64-portable.zip",
-        "TsunamiSimulator_0.4.0_x64-setup.exe",
-        "TsunamiSimulator_0.4.0_x64_en-US.msi"
+        "TsunamiSimulator_0.4.4_x64-setup.exe",
+        "TsunamiSimulator_0.4.4_x64_en-US.msi"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -2930,15 +2944,14 @@
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
-          "exe",
-          "zip"
+          "exe"
         ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 3,
+        "platformDigestCount": 2,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:28:30.0000000Z",
+      "pushedAt": "2026-06-30T00:14:06.0000000Z",
       "topics": [
         "desktop-app",
         "rust",
@@ -3018,7 +3031,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T23:13:50.0000000Z",
+      "pushedAt": "2026-06-28T03:46:43.0000000Z",
       "topics": [
         "cli",
         "csharp",
@@ -3093,7 +3106,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-25T22:29:05.0000000Z",
+      "pushedAt": "2026-06-28T03:38:54.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -3137,6 +3150,74 @@
       "installKind": null,
       "language": "C#",
       "stars": 1,
+      "latestReleaseTag": "v0.9.5",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/PartitionPilot/releases/tag/v0.9.5",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "PartitionPilot-0.9.5-Setup.exe"
+      ],
+      "releaseAssetInspected": true,
+      "releaseTrust": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+      },
+      "pushedAt": "2026-06-30T15:33:03.0000000Z",
+      "topics": [],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "OpenNetLimit",
+      "title": "OpenNetLimit",
+      "category": "desktop",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "Per-application bandwidth limiter and network monitor for Windows",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
+      "repoUrl": "https://github.com/SysAdminDoc/OpenNetLimit",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": null,
+      "downloadKind": "repo",
+      "primaryAction": {
+        "kind": "repo",
+        "label": "Repo",
+        "url": "https://github.com/SysAdminDoc/OpenNetLimit"
+      },
+      "hasDownload": false,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "C#",
+      "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
       "releaseAssetKinds": [],
@@ -3159,7 +3240,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-20T08:54:34.0000000Z",
+      "pushedAt": "2026-06-28T03:38:34.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3241,7 +3322,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-26T00:57:07.0000000Z",
+      "pushedAt": "2026-06-29T14:48:45.0000000Z",
       "topics": [
         "ad-free",
         "dark-theme",
@@ -3286,7 +3367,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "JavaScript",
-      "stars": 3,
+      "stars": 2,
       "latestReleaseTag": "v3.11.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ScriptVault/releases/tag/v3.11.0",
       "releaseAssetKinds": [
@@ -3315,7 +3396,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-26T00:31:54.0000000Z",
+      "pushedAt": "2026-06-28T14:24:32.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -3392,7 +3473,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T15:21:12.0000000Z",
+      "pushedAt": "2026-06-28T03:46:06.0000000Z",
       "topics": [
         "browser-extension",
         "javascript",
@@ -3436,15 +3517,16 @@
       "installKind": null,
       "language": "Vue",
       "stars": 1,
-      "latestReleaseTag": "v1.1.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.0",
+      "latestReleaseTag": "v1.1.4",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.4",
       "releaseAssetKinds": [
         "crx",
         "zip"
       ],
       "releaseAssetNames": [
-        "StyleKit-v1.1.0-chrome.crx",
-        "StyleKit-v1.1.0-chrome.zip"
+        "StyleKit-v1.1.4-chrome.crx",
+        "StyleKit-v1.1.4-chrome.zip",
+        "StyleKit-v1.1.4-firefox.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -3463,11 +3545,11 @@
           "zip"
         ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 2,
+        "platformDigestCount": 3,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:36:02.0000000Z",
+      "pushedAt": "2026-06-29T19:20:14.0000000Z",
       "topics": [
         "chrome-extension",
         "css",
@@ -3537,7 +3619,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:29:24.0000000Z",
+      "pushedAt": "2026-06-28T14:45:39.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -3587,31 +3669,45 @@
       "installKind": null,
       "language": "JavaScript",
       "stars": 4,
-      "latestReleaseTag": "v0.0.3",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/YoutubeAdblock/releases/tag/v0.0.3",
+      "latestReleaseTag": "v0.5.20",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/YoutubeAdblock/releases/tag/v0.5.20",
       "releaseAssetKinds": [
-        "source-archive"
+        "crx",
+        "other",
+        "userscript",
+        "zip"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "YoutubeAdblock-extension-v0.5.20.crx",
+        "YoutubeAdblock-extension-v0.5.20.zip",
+        "YoutubeAdblock-v0.5.20.checksums.sha256",
+        "YoutubeAdblock-v0.5.20.user.js"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
+        "checksumAssets": [
+          "YoutubeAdblock-v0.5.20.checksums.sha256"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "crx",
+          "userscript",
+          "zip"
+        ],
+        "trustLevel": "checksum",
+        "platformDigestCount": 4,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T04:15:34.0000000Z",
+      "pushedAt": "2026-06-30T00:20:34.0000000Z",
       "topics": [
         "ad-blocker",
         "javascript",
@@ -3680,7 +3776,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:27.0000000Z",
+      "pushedAt": "2026-06-28T03:37:11.0000000Z",
       "topics": [
         "claude-ai",
         "dark-theme",
@@ -3754,7 +3850,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:30.0000000Z",
+      "pushedAt": "2026-06-28T03:37:13.0000000Z",
       "topics": [
         "browser-extension",
         "image-tools",
@@ -3821,7 +3917,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-20T22:13:40.0000000Z",
+      "pushedAt": "2026-06-28T03:42:41.0000000Z",
       "topics": [
         "chapters",
         "filler-words",
@@ -3891,7 +3987,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:25:31.0000000Z",
+      "pushedAt": "2026-06-28T03:38:15.0000000Z",
       "topics": [
         "downloader",
         "media",
@@ -3965,7 +4061,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-21T01:29:52.0000000Z",
+      "pushedAt": "2026-06-28T03:39:30.0000000Z",
       "topics": [
         "browser-extension",
         "javascript",
@@ -4033,7 +4129,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T22:28:24.0000000Z",
+      "pushedAt": "2026-06-28T03:37:01.0000000Z",
       "topics": [
         "chrome-extension",
         "context-menu",
@@ -4107,7 +4203,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:35:43.0000000Z",
+      "pushedAt": "2026-06-30T00:48:45.0000000Z",
       "topics": [
         "chrome-extension",
         "css-editor",
@@ -4177,7 +4273,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:38:11.0000000Z",
+      "pushedAt": "2026-06-30T00:44:24.0000000Z",
       "topics": [
         "github",
         "greasyfork",
@@ -4247,7 +4343,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:27:14.0000000Z",
+      "pushedAt": "2026-06-29T13:17:56.0000000Z",
       "topics": [
         "javascript",
         "nextdns",
@@ -4317,7 +4413,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:31:29.0000000Z",
+      "pushedAt": "2026-06-28T03:38:55.0000000Z",
       "topics": [
         "dark-theme",
         "enhancement",
@@ -4387,7 +4483,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:02.0000000Z",
+      "pushedAt": "2026-06-28T03:37:29.0000000Z",
       "topics": [
         "dark-mode",
         "doordash",
@@ -4456,7 +4552,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:39.0000000Z",
+      "pushedAt": "2026-06-28T03:37:19.0000000Z",
       "topics": [
         "automatic",
         "dark-mode",
@@ -4524,7 +4620,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:22:13.0000000Z",
+      "pushedAt": "2026-06-28T03:37:43.0000000Z",
       "topics": [
         "gemini",
         "google-ai",
@@ -4603,7 +4699,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-18T21:25:54.0000000Z",
+      "pushedAt": "2026-06-28T03:38:58.0000000Z",
       "topics": [
         "dark-theme",
         "javascript",
@@ -4677,7 +4773,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T00:05:39.0000000Z",
+      "pushedAt": "2026-06-28T03:39:54.0000000Z",
       "topics": [
         "browser-extension",
         "typescript",
@@ -4755,7 +4851,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T18:40:14.0000000Z",
+      "pushedAt": "2026-06-28T03:36:50.0000000Z",
       "topics": [
         "browser-extension",
         "javascript",
@@ -4821,7 +4917,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-20T21:48:28.0000000Z",
+      "pushedAt": "2026-06-28T03:37:58.0000000Z",
       "topics": [
         "browser-extension",
         "javascript",
@@ -4887,7 +4983,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T11:39:20.0000000Z",
+      "pushedAt": "2026-06-28T03:36:51.0000000Z",
       "topics": [
         "ai",
         "guide",
@@ -4957,7 +5053,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:11.0000000Z",
+      "pushedAt": "2026-06-28T03:37:35.0000000Z",
       "topics": [
         "documentation",
         "guide",
@@ -5095,7 +5191,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T23:29:23.0000000Z",
+      "pushedAt": "2026-06-30T06:31:28.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -5163,7 +5259,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:38:45.0000000Z",
+      "pushedAt": "2026-06-28T03:39:38.0000000Z",
       "topics": [
         "compression",
         "dark-theme",
@@ -5199,11 +5295,11 @@
       "downloadUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/AlphaCut"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/AlphaCut/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -5211,12 +5307,15 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v1.0.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.0.0",
+      "latestReleaseTag": "v1.6.5",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.5",
       "releaseAssetKinds": [
-        "source-archive"
+        "exe"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "AlphaCut-Setup-1.6.5.exe",
+        "AlphaCut-windows.exe"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -5228,14 +5327,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 2,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-17T02:39:15.0000000Z",
+      "pushedAt": "2026-06-30T15:35:39.0000000Z",
       "topics": [
         "background-removal",
         "compositing",
@@ -5305,7 +5406,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:42:59.0000000Z",
+      "pushedAt": "2026-06-28T03:39:49.0000000Z",
       "topics": [
         "downloader",
         "livestream",
@@ -5374,7 +5475,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:25:43.0000000Z",
+      "pushedAt": "2026-06-28T03:38:16.0000000Z",
       "topics": [
         "conversion",
         "dark-theme",
@@ -5450,7 +5551,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-26T02:33:03.0000000Z",
+      "pushedAt": "2026-06-29T14:57:52.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5528,12 +5629,91 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T05:52:46.0000000Z",
+      "pushedAt": "2026-06-30T00:47:32.0000000Z",
       "topics": [
         "conversion",
         "media",
         "python",
         "script"
+      ],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "GIFM",
+      "title": "GIFM",
+      "category": "media",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "Local GIF maker and compressor with Discord-ready target fitting",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
+      "repoUrl": "https://github.com/SysAdminDoc/GIFM",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": "https://github.com/SysAdminDoc/GIFM/releases/latest",
+      "downloadKind": "zip",
+      "primaryAction": {
+        "kind": "release",
+        "label": "ZIP",
+        "url": "https://github.com/SysAdminDoc/GIFM/releases/latest"
+      },
+      "hasDownload": true,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "JavaScript",
+      "stars": 0,
+      "latestReleaseTag": "v0.5.1",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/GIFM/releases/tag/v0.5.1",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "GIFM-v0.5.1-win-x64.zip"
+      ],
+      "releaseAssetInspected": true,
+      "releaseTrust": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+      },
+      "pushedAt": "2026-06-28T03:37:44.0000000Z",
+      "topics": [
+        "discord",
+        "ffmpeg",
+        "gif",
+        "gif-compressor",
+        "gif-converter",
+        "gif-maker",
+        "react",
+        "typescript",
+        "video-to-gif",
+        "webview2"
       ],
       "featured": false,
       "featuredRank": null,
@@ -5572,7 +5752,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Shell",
-      "stars": 1,
+      "stars": 0,
       "latestReleaseTag": "v0.6.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/octopus-factory/releases/tag/v0.6.0",
       "releaseAssetKinds": [
@@ -5597,7 +5777,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-09T12:14:55.0000000Z",
+      "pushedAt": "2026-06-28T03:38:30.0000000Z",
       "topics": [
         "ai-orchestration",
         "anthropic-claude",
@@ -5872,7 +6052,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:07:25.0000000Z",
+      "pushedAt": "2026-06-26T18:10:19.0000000Z",
       "topics": [
         "file-management",
         "photo-management",
@@ -5969,7 +6149,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:27:19.0000000Z",
+      "pushedAt": "2026-06-28T13:40:57.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -6047,7 +6227,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T07:35:34.0000000Z",
+      "pushedAt": "2026-06-28T03:54:08.0000000Z",
       "topics": [
         "compliance",
         "mitre",
@@ -6128,7 +6308,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T22:23:41.0000000Z",
+      "pushedAt": "2026-06-30T00:49:00.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -6198,7 +6378,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:41:25.0000000Z",
+      "pushedAt": "2026-06-28T03:39:44.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -6231,11 +6411,11 @@
       "downloadUrl": "https://github.com/SysAdminDoc/Debloat-Win11/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/Debloat-Win11"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/Debloat-Win11/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -6243,12 +6423,14 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v1.1.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Debloat-Win11/releases/tag/v1.1.0",
+      "latestReleaseTag": "v2.3.8",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Debloat-Win11/releases/tag/v2.3.8",
       "releaseAssetKinds": [
-        "source-archive"
+        "zip"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "Debloat-Win11-v2.3.8.zip"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -6260,14 +6442,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T23:49:11.0000000Z",
+      "pushedAt": "2026-06-28T14:26:52.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -6336,7 +6520,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:31:46.0000000Z",
+      "pushedAt": "2026-06-28T03:38:57.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -6380,7 +6564,7 @@
       "entrypoint": "DefenderControl.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 6,
+      "stars": 5,
       "latestReleaseTag": "v3.2.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DefenderControl/releases/tag/v3.2.1",
       "releaseAssetKinds": [
@@ -6413,7 +6597,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:46.0000000Z",
+      "pushedAt": "2026-06-28T04:05:23.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -6457,7 +6641,7 @@
       "entrypoint": "DisableDefender.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 9,
+      "stars": 8,
       "latestReleaseTag": "v0.0.4",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/DisableDefender/releases/tag/v0.0.4",
       "releaseAssetKinds": [
@@ -6488,7 +6672,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T00:17:38.0000000Z",
+      "pushedAt": "2026-06-28T04:00:39.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -6558,7 +6742,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:48.0000000Z",
+      "pushedAt": "2026-06-28T03:37:23.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -6628,7 +6812,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:36:53.0000000Z",
+      "pushedAt": "2026-06-28T14:10:42.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -6697,7 +6881,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:21:33.0000000Z",
+      "pushedAt": "2026-06-28T03:37:39.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -6731,11 +6915,11 @@
       "downloadUrl": "https://github.com/SysAdminDoc/NetForge/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/NetForge"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/NetForge/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -6743,31 +6927,39 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 2,
-      "latestReleaseTag": "v1.1.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/NetForge/releases/tag/v1.1.0",
+      "latestReleaseTag": "v1.51.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/NetForge/releases/tag/v1.51.0",
       "releaseAssetKinds": [
-        "source-archive"
+        "other",
+        "zip"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "NetForge-v1.51.0.zip",
+        "NetForge-v1.51.0.zip.sha256"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
+        "checksumAssets": [
+          "NetForge-v1.51.0.zip.sha256"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "checksum",
+        "platformDigestCount": 2,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:27:31.0000000Z",
+      "pushedAt": "2026-06-30T00:44:35.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -6837,7 +7029,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:36:35.0000000Z",
+      "pushedAt": "2026-06-28T03:39:22.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -6870,24 +7062,26 @@
       "downloadUrl": "https://github.com/SysAdminDoc/WURepair/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/WURepair"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/WURepair/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
       "entrypoint": "WURepair.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 2,
-      "latestReleaseTag": "v2.1.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/WURepair/releases/tag/v2.1.0",
+      "stars": 1,
+      "latestReleaseTag": "v2.17.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/WURepair/releases/tag/v2.17.0",
       "releaseAssetKinds": [
-        "source-archive"
+        "zip"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "WURepair-v2.17.0.zip"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -6899,14 +7093,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T23:19:17.0000000Z",
+      "pushedAt": "2026-06-30T00:49:08.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -6976,7 +7172,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:34:02.0000000Z",
+      "pushedAt": "2026-06-28T03:39:08.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -7020,7 +7216,7 @@
       "entrypoint": "NuclearDellRemover.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 1,
+      "stars": 0,
       "latestReleaseTag": "v1.4.2",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/NuclearDellRemover/releases/tag/v1.4.2",
       "releaseAssetKinds": [
@@ -7053,7 +7249,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:05:54.0000000Z",
+      "pushedAt": "2026-06-28T03:38:27.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -7086,11 +7282,11 @@
       "downloadUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -7098,16 +7294,22 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v1.1.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v1.1.0",
+      "latestReleaseTag": "v2.3.6",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v2.3.6",
       "releaseAssetKinds": [
-        "source-archive"
+        "other",
+        "zip"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "Disable-AdobeTelemetry-v2.3.6.zip",
+        "SHA256SUMS.txt"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
+        "checksumAssets": [
+          "SHA256SUMS.txt"
+        ],
+        "checksumCoverage": "partial",
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -7115,14 +7317,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "checksum",
+        "platformDigestCount": 2,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T20:54:29.0000000Z",
+      "pushedAt": "2026-06-28T14:14:36.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -7166,7 +7370,7 @@
       "entrypoint": "Wingetter.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 2,
+      "stars": 1,
       "latestReleaseTag": "v6.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Wingetter/releases/tag/v6.1.0",
       "releaseAssetKinds": [
@@ -7200,7 +7404,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:41:44.0000000Z",
+      "pushedAt": "2026-06-30T00:46:15.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -7233,14 +7437,14 @@
       "repoUrl": "https://github.com/SysAdminDoc/Start-Menu-Organizer",
       "liveUrl": null,
       "installUrl": null,
-      "downloadUrl": null,
+      "downloadUrl": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/Start-Menu-Organizer"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -7248,11 +7452,15 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": null,
-      "latestReleaseUrl": null,
-      "releaseAssetKinds": [],
-      "releaseAssetNames": [],
-      "releaseAssetInspected": false,
+      "latestReleaseTag": "v0.12.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/tag/v0.12.0",
+      "releaseAssetKinds": [
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "StartMenuOrganizer-v0.12.0.zip"
+      ],
+      "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
         "checksumCoverage": "none",
@@ -7264,13 +7472,15 @@
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
-        "executableAssetKinds": [],
-        "trustLevel": "unknown",
-        "platformDigestCount": 0,
-        "releaseImmutable": null,
-        "notesPublic": null
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T23:59:58.0000000Z",
+      "pushedAt": "2026-06-28T14:49:48.0000000Z",
       "topics": [
         "cleanup",
         "management",
@@ -7345,7 +7555,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T08:41:53.0000000Z",
+      "pushedAt": "2026-06-28T03:38:40.0000000Z",
       "topics": [
         "file-deletion",
         "filesystem",
@@ -7422,7 +7632,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:26:12.0000000Z",
+      "pushedAt": "2026-06-30T15:36:40.0000000Z",
       "topics": [
         "brightness",
         "dark-theme",
@@ -7493,7 +7703,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:41:08.0000000Z",
+      "pushedAt": "2026-06-28T03:39:42.0000000Z",
       "topics": [
         "branding",
         "gui",
@@ -7561,7 +7771,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:40:52.0000000Z",
+      "pushedAt": "2026-06-28T03:39:41.0000000Z",
       "topics": [
         "everything",
         "gui",
@@ -7630,7 +7840,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:28:56.0000000Z",
+      "pushedAt": "2026-06-28T03:38:41.0000000Z",
       "topics": [
         "gui",
         "pfblockerng",
@@ -7699,7 +7909,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:27:47.0000000Z",
+      "pushedAt": "2026-06-28T03:38:26.0000000Z",
       "topics": [
         "incident-response",
         "notepadplusplus",
@@ -7778,7 +7988,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:55.0000000Z",
+      "pushedAt": "2026-06-28T03:38:02.0000000Z",
       "topics": [
         "automation",
         "jdownloader",
@@ -7845,7 +8055,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:37:11.0000000Z",
+      "pushedAt": "2026-06-28T03:39:26.0000000Z",
       "topics": [
         "jeffrey-snover",
         "powershell",
@@ -7917,7 +8127,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T03:23:59.0000000Z",
+      "pushedAt": "2026-06-28T03:37:34.0000000Z",
       "topics": [
         "archive",
         "dark-theme",
@@ -7987,7 +8197,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-19T09:50:39.0000000Z",
+      "pushedAt": "2026-06-28T03:42:38.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -8054,7 +8264,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-20T22:18:53.0000000Z",
+      "pushedAt": "2026-06-28T03:37:07.0000000Z",
       "topics": [
         "powershell",
         "privacy",
@@ -8099,7 +8309,7 @@
       "entrypoint": "nomad.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 11,
+      "stars": 10,
       "latestReleaseTag": "v7.32.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/project-nomad-desktop/releases/tag/v7.32.0",
       "releaseAssetKinds": [
@@ -8135,7 +8345,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T22:40:40.0000000Z",
+      "pushedAt": "2026-06-28T03:38:45.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -8213,7 +8423,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-17T15:42:59.0000000Z",
+      "pushedAt": "2026-06-28T03:39:28.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -8291,7 +8501,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:07:49.0000000Z",
+      "pushedAt": "2026-06-28T04:02:15.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -8337,8 +8547,8 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v0.5.3",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/PromptCompanion/releases/tag/v0.5.3",
+      "latestReleaseTag": "v0.8.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/PromptCompanion/releases/tag/v0.8.0",
       "releaseAssetKinds": [
         "exe"
       ],
@@ -8365,7 +8575,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:06:23.0000000Z",
+      "pushedAt": "2026-06-28T14:43:28.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -8409,16 +8619,13 @@
       "entrypoint": "sunojump.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 3,
-      "latestReleaseTag": "v1.5.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/SunoJump/releases/tag/v1.5.0",
+      "stars": 4,
+      "latestReleaseTag": "v1.5.16",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/SunoJump/releases/tag/v1.5.16",
       "releaseAssetKinds": [
-        "exe",
-        "other"
+        "exe"
       ],
       "releaseAssetNames": [
-        "SunoJump-Linux",
-        "SunoJump-macOS",
         "SunoJump.exe"
       ],
       "releaseAssetInspected": true,
@@ -8437,11 +8644,11 @@
           "exe"
         ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 3,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:07:15.0000000Z",
+      "pushedAt": "2026-06-30T00:34:31.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -8512,7 +8719,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:30:09.0000000Z",
+      "pushedAt": "2026-06-29T19:17:51.0000000Z",
       "topics": [
         "dark-theme",
         "firewall",
@@ -8586,7 +8793,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:23:52.0000000Z",
+      "pushedAt": "2026-06-28T03:37:50.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -8656,7 +8863,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:29:51.0000000Z",
+      "pushedAt": "2026-06-28T14:45:44.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -8731,7 +8938,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T02:34:04.0000000Z",
+      "pushedAt": "2026-06-28T03:39:19.0000000Z",
       "topics": [
         "dark-theme",
         "greenshot",
@@ -8800,7 +9007,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:21:47.0000000Z",
+      "pushedAt": "2026-06-28T03:37:40.0000000Z",
       "topics": [
         "bittorrent",
         "client",
@@ -8874,7 +9081,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:22:41.0000000Z",
+      "pushedAt": "2026-06-28T03:37:47.0000000Z",
       "topics": [
         "dark-theme",
         "git",
@@ -8920,7 +9127,7 @@
       "entrypoint": "run.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 2,
+      "stars": 1,
       "latestReleaseTag": "v9.3.15",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UniFile/releases/tag/v9.3.15",
       "releaseAssetKinds": [
@@ -8949,7 +9156,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:37:33.0000000Z",
+      "pushedAt": "2026-06-30T00:43:35.0000000Z",
       "topics": [
         "dark-theme",
         "file-organizer",
@@ -9025,7 +9232,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T04:20:29.0000000Z",
+      "pushedAt": "2026-06-30T15:38:33.0000000Z",
       "topics": [
         "dark-theme",
         "file-search",
@@ -9103,7 +9310,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:15.0000000Z",
+      "pushedAt": "2026-06-28T14:32:55.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -9160,38 +9367,46 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v2.8.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ImgConverter/releases/tag/v2.8.0",
+      "latestReleaseTag": "v3.3.4",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ImgConverter/releases/tag/v3.3.4",
       "releaseAssetKinds": [
         "exe",
         "other"
       ],
       "releaseAssetNames": [
-        "HEICShift-Linux",
-        "HEICShift-macOS",
-        "HEICShift-Windows.exe"
+        "ImgConverter-Windows-x64.exe",
+        "ImgConverter-Windows-x64.exe.dependencies.txt",
+        "ImgConverter-Windows-x64.exe.provenance.json",
+        "ImgConverter-Windows-x64.exe.sbom.json",
+        "ImgConverter-Windows-x64.exe.sha256",
+        "SHA256SUMS"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
+        "checksumAssets": [
+          "ImgConverter-Windows-x64.exe.sha256",
+          "SHA256SUMS"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
-        "sbomAssets": [],
+        "sbomAssets": [
+          "ImgConverter-Windows-x64.exe.sbom.json"
+        ],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 3,
+        "trustLevel": "checksum",
+        "platformDigestCount": 6,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T03:38:16.0000000Z",
+      "pushedAt": "2026-06-28T14:29:07.0000000Z",
       "topics": [
         "conversion",
         "desktop-app",
@@ -9268,7 +9483,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:22:00.0000000Z",
+      "pushedAt": "2026-06-28T03:37:42.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -9302,11 +9517,11 @@
       "downloadUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/ExplorerTweaks"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -9314,12 +9529,14 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v1.2.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v1.2.0",
+      "latestReleaseTag": "v2.8.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.8.0",
       "releaseAssetKinds": [
-        "source-archive"
+        "exe"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "ExplorerTweaks.exe"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -9331,14 +9548,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:08.0000000Z",
+      "pushedAt": "2026-06-30T15:36:21.0000000Z",
       "topics": [
         "dark-theme",
         "file-explorer",
@@ -9371,14 +9590,14 @@
       "repoUrl": "https://github.com/SysAdminDoc/FaceSlim",
       "liveUrl": null,
       "installUrl": null,
-      "downloadUrl": null,
+      "downloadUrl": "https://github.com/SysAdminDoc/FaceSlim/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/FaceSlim"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/FaceSlim/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -9386,11 +9605,15 @@
       "installKind": "python",
       "language": "Python",
       "stars": 2,
-      "latestReleaseTag": null,
-      "latestReleaseUrl": null,
-      "releaseAssetKinds": [],
-      "releaseAssetNames": [],
-      "releaseAssetInspected": false,
+      "latestReleaseTag": "v1.26.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/FaceSlim/releases/tag/v1.26.0",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "FaceSlim.exe"
+      ],
+      "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
         "checksumCoverage": "none",
@@ -9402,13 +9625,15 @@
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
-        "executableAssetKinds": [],
-        "trustLevel": "unknown",
-        "platformDigestCount": 0,
-        "releaseImmutable": null,
-        "notesPublic": null
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:21:21.0000000Z",
+      "pushedAt": "2026-06-29T14:38:08.0000000Z",
       "topics": [
         "ai",
         "face-slimming",
@@ -9478,7 +9703,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:24:52.0000000Z",
+      "pushedAt": "2026-06-28T03:38:08.0000000Z",
       "topics": [
         "ai",
         "lip-reading",
@@ -9552,7 +9777,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:25:05.0000000Z",
+      "pushedAt": "2026-06-28T03:38:09.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -9596,7 +9821,7 @@
       "entrypoint": "main.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 3,
+      "stars": 5,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SlunderStudio/releases/tag/v0.1.0",
       "releaseAssetKinds": [
@@ -9621,7 +9846,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:33:47.0000000Z",
+      "pushedAt": "2026-06-30T00:41:35.0000000Z",
       "topics": [
         "ai",
         "music-generation",
@@ -9690,7 +9915,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:22:54.0000000Z",
+      "pushedAt": "2026-06-28T03:37:48.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -9757,7 +9982,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:37:53.0000000Z",
+      "pushedAt": "2026-06-28T03:39:32.0000000Z",
       "topics": [
         "compiler",
         "gui",
@@ -9801,7 +10026,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 23,
+      "stars": 25,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -9835,7 +10060,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T23:27:10.0000000Z",
+      "pushedAt": "2026-06-29T15:04:05.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -9905,7 +10130,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:20.0000000Z",
+      "pushedAt": "2026-06-28T03:37:08.0000000Z",
       "topics": [
         "bypass-generator",
         "gui",
@@ -9952,13 +10177,13 @@
       "installKind": "python",
       "language": "Python",
       "stars": 3,
-      "latestReleaseTag": "v3.2.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/MSStoreHelper/releases/tag/v3.2.0",
+      "latestReleaseTag": "v3.35.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/MSStoreHelper/releases/tag/v3.35.0",
       "releaseAssetKinds": [
         "other"
       ],
       "releaseAssetNames": [
-        "MSStoreHelper.py"
+        "msstorehelper-3.35.0-py3-none-any.whl"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -9978,7 +10203,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:26:27.0000000Z",
+      "pushedAt": "2026-06-29T14:00:42.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -10053,7 +10278,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T23:56:07.0000000Z",
+      "pushedAt": "2026-06-28T03:38:53.0000000Z",
       "topics": [
         "ai",
         "python",
@@ -10125,7 +10350,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T23:58:14.0000000Z",
+      "pushedAt": "2026-06-28T14:20:57.0000000Z",
       "topics": [
         "installed-apps",
         "pyqt6",
@@ -10193,7 +10418,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:29:33.0000000Z",
+      "pushedAt": "2026-06-28T03:38:44.0000000Z",
       "topics": [
         "desktop-widget",
         "medication",
@@ -10267,7 +10492,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-18T23:46:29.0000000Z",
+      "pushedAt": "2026-06-28T03:38:14.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -10341,7 +10566,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:23:22.0000000Z",
+      "pushedAt": "2026-06-28T03:53:44.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -10419,7 +10644,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T22:06:36.0000000Z",
+      "pushedAt": "2026-06-29T14:23:52.0000000Z",
       "topics": [
         "ai",
         "bookmarks",
@@ -10489,7 +10714,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:30:53.0000000Z",
+      "pushedAt": "2026-06-28T03:38:50.0000000Z",
       "topics": [
         "generator",
         "gui",
@@ -10566,7 +10791,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-05-19T00:03:13.0000000Z",
+      "pushedAt": "2026-06-28T03:39:29.0000000Z",
       "topics": [
         "converter",
         "css",
@@ -10636,7 +10861,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-16T00:20:25.0000000Z",
+      "pushedAt": "2026-06-30T15:37:50.0000000Z",
       "topics": [
         "dark-theme",
         "google-keep",
@@ -10708,7 +10933,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:28:36.0000000Z",
+      "pushedAt": "2026-06-28T03:38:41.0000000Z",
       "topics": [
         "dark-theme",
         "editor",
@@ -10777,7 +11002,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-13T00:03:38.0000000Z",
+      "pushedAt": "2026-06-28T03:37:18.0000000Z",
       "topics": [
         "csv",
         "data-processing",
@@ -10849,7 +11074,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:02:55.0000000Z",
+      "pushedAt": "2026-06-28T03:36:49.0000000Z",
       "topics": [
         "ai",
         "dark-theme",
@@ -10885,11 +11110,11 @@
       "downloadUrl": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/Stock-Video-Collector"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/latest"
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -10897,12 +11122,14 @@
       "installKind": "python",
       "language": "Python",
       "stars": 2,
-      "latestReleaseTag": "v0.7.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/tag/v0.7.1",
+      "latestReleaseTag": "v0.7.8",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/tag/v0.7.8",
       "releaseAssetKinds": [
-        "source-archive"
+        "exe"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "Stock-Video-Collector.exe"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -10914,14 +11141,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:34:20.0000000Z",
+      "pushedAt": "2026-06-30T15:37:03.0000000Z",
       "topics": [
         "crawler",
         "gui",
@@ -10992,7 +11221,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:22:27.0000000Z",
+      "pushedAt": "2026-06-28T14:32:13.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -11069,7 +11298,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:04:21.0000000Z",
+      "pushedAt": "2026-06-28T03:37:41.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -11112,7 +11341,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "JavaScript",
-      "stars": 2,
+      "stars": 1,
       "latestReleaseTag": "v3.4.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/pfSenseSuite/releases/tag/v3.4.0",
       "releaseAssetKinds": [
@@ -11137,7 +11366,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:29:17.0000000Z",
+      "pushedAt": "2026-06-28T14:10:21.0000000Z",
       "topics": [
         "customization",
         "javascript",
@@ -11211,7 +11440,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:13.0000000Z",
+      "pushedAt": "2026-06-28T03:37:03.0000000Z",
       "topics": [
         "chrome-extension",
         "dark-theme",
@@ -11255,8 +11484,8 @@
       "branch": "main",
       "entrypoint": null,
       "installKind": null,
-      "language": null,
-      "stars": 1,
+      "language": "RouterOS Script",
+      "stars": 0,
       "latestReleaseTag": null,
       "latestReleaseUrl": null,
       "releaseAssetKinds": [],
@@ -11279,7 +11508,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-13T00:04:06.0000000Z",
+      "pushedAt": "2026-06-28T03:37:32.0000000Z",
       "topics": [
         "configuration",
         "eset",
@@ -11349,7 +11578,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:10:41.0000000Z",
+      "pushedAt": "2026-06-28T14:17:32.0000000Z",
       "topics": [
         "browser",
         "canvas",
@@ -11417,7 +11646,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:34:35.0000000Z",
+      "pushedAt": "2026-06-28T03:39:13.0000000Z",
       "topics": [
         "dark-theme",
         "javascript",
@@ -11463,7 +11692,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "HTML",
-      "stars": 1,
+      "stars": 0,
       "latestReleaseTag": "v0.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SkyTrack/releases/tag/v0.16.0",
       "releaseAssetKinds": [
@@ -11488,7 +11717,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:33:31.0000000Z",
+      "pushedAt": "2026-06-28T03:39:04.0000000Z",
       "topics": [
         "flight-tracking",
         "javascript",
@@ -11558,7 +11787,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:40:34.0000000Z",
+      "pushedAt": "2026-06-28T03:39:40.0000000Z",
       "topics": [
         "aircraft-tracker",
         "html",
@@ -11628,7 +11857,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-20T07:30:57.0000000Z",
+      "pushedAt": "2026-06-28T14:31:42.0000000Z",
       "topics": [
         "github-pages",
         "javascript",
@@ -11694,7 +11923,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-12T11:39:23.0000000Z",
+      "pushedAt": "2026-06-28T03:39:09.0000000Z",
       "topics": [
         "html",
         "intelligence",
@@ -11765,7 +11994,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-25T23:31:00.0000000Z",
+      "pushedAt": "2026-06-28T03:37:16.0000000Z",
       "topics": [
         "curated",
         "directory",
@@ -11833,7 +12062,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:26:43.0000000Z",
+      "pushedAt": "2026-06-30T15:39:04.0000000Z",
       "topics": [
         "html",
         "multi-stream",
@@ -11900,7 +12129,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-20T03:26:32.0000000Z",
+      "pushedAt": "2026-06-28T03:37:45.0000000Z",
       "topics": [
         "browser-based",
         "gif-editor",
@@ -11974,7 +12203,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:24:07.0000000Z",
+      "pushedAt": "2026-06-28T03:37:55.0000000Z",
       "topics": [
         "batch",
         "browser-based",
@@ -12043,7 +12272,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:23:16.0000000Z",
+      "pushedAt": "2026-06-28T03:37:14.0000000Z",
       "topics": [
         "browser-based",
         "ffmpeg",
@@ -12110,7 +12339,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-05-18T23:34:08.0000000Z",
+      "pushedAt": "2026-06-28T03:37:15.0000000Z",
       "topics": [
         "browser-based",
         "ffmpeg",
@@ -12177,7 +12406,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T21:21:31.0000000Z",
+      "pushedAt": "2026-06-28T14:38:35.0000000Z",
       "topics": [
         "browser-based",
         "converter",
@@ -12244,7 +12473,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T21:33:29.0000000Z",
+      "pushedAt": "2026-06-28T03:37:02.0000000Z",
       "topics": [
         "base64",
         "browser-based",
@@ -12315,7 +12544,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:24:22.0000000Z",
+      "pushedAt": "2026-06-28T03:37:57.0000000Z",
       "topics": [
         "browser-based",
         "html",
@@ -12381,7 +12610,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-05-18T23:32:47.0000000Z",
+      "pushedAt": "2026-06-28T03:37:06.0000000Z",
       "topics": [
         "bookmarks",
         "directory",
@@ -12449,7 +12678,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-05-19T00:02:40.0000000Z",
+      "pushedAt": "2026-06-28T03:39:25.0000000Z",
       "topics": [
         "browser-based",
         "filter",
@@ -12518,7 +12747,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:24:37.0000000Z",
+      "pushedAt": "2026-06-28T03:38:05.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -12588,7 +12817,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:50.0000000Z",
+      "pushedAt": "2026-06-28T03:37:24.0000000Z",
       "topics": [
         "degoogle",
         "google",
@@ -12659,7 +12888,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:32:34.0000000Z",
+      "pushedAt": "2026-06-28T03:39:03.0000000Z",
       "topics": [
         "browser-based",
         "html",
@@ -12703,7 +12932,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "HTML",
-      "stars": 4,
+      "stars": 3,
       "latestReleaseTag": "v0.0.4",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/UserScriptHunt/releases/tag/v0.0.4",
       "releaseAssetKinds": [
@@ -12728,7 +12957,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:38:29.0000000Z",
+      "pushedAt": "2026-06-30T00:46:17.0000000Z",
       "topics": [
         "greasyfork",
         "html",
@@ -12797,7 +13026,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:25:56.0000000Z",
+      "pushedAt": "2026-06-28T03:38:17.0000000Z",
       "topics": [
         "browser-tool",
         "forensics",
@@ -12867,7 +13096,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-15T22:25:18.0000000Z",
+      "pushedAt": "2026-06-28T03:38:13.0000000Z",
       "topics": [
         "browser-based",
         "html",
@@ -12936,7 +13165,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-13T00:03:36.0000000Z",
+      "pushedAt": "2026-06-28T03:37:17.0000000Z",
       "topics": [
         "calendar",
         "cron-scheduler",
@@ -13004,7 +13233,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-15T22:26:57.0000000Z",
+      "pushedAt": "2026-06-28T03:38:22.0000000Z",
       "topics": [
         "html",
         "nato-alphabet",
@@ -13073,7 +13302,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-21T01:07:42.0000000Z",
+      "pushedAt": "2026-06-28T03:46:17.0000000Z",
       "topics": [
         "github-pages",
         "javascript",
@@ -13140,7 +13369,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-25T22:29:52.0000000Z",
+      "pushedAt": "2026-06-28T03:36:56.0000000Z",
       "topics": [
         "github-pages",
         "javascript",
@@ -13206,7 +13435,69 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-19T09:59:07.0000000Z",
+      "pushedAt": "2026-06-28T03:39:12.0000000Z",
+      "topics": [],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "AsteroidSimulator",
+      "title": "AsteroidSimulator",
+      "category": "web",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "Asteroid and comet impact simulator with interactive 3D visualization",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
+      "repoUrl": "https://github.com/SysAdminDoc/AsteroidSimulator",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": null,
+      "downloadKind": "repo",
+      "primaryAction": {
+        "kind": "repo",
+        "label": "Repo",
+        "url": "https://github.com/SysAdminDoc/AsteroidSimulator"
+      },
+      "hasDownload": false,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "TypeScript",
+      "stars": 0,
+      "latestReleaseTag": null,
+      "latestReleaseUrl": null,
+      "releaseAssetKinds": [],
+      "releaseAssetNames": [],
+      "releaseAssetInspected": false,
+      "releaseTrust": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [],
+        "trustLevel": "unknown",
+        "platformDigestCount": 0,
+        "releaseImmutable": null,
+        "notesPublic": null
+      },
+      "pushedAt": "2026-06-28T03:36:59.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
