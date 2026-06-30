@@ -240,7 +240,7 @@ function Write-RenderedSmokeArtifact {
     if (Test-Path -LiteralPath $syncReportPath) {
         try {
             $syncReport = Get-Content -LiteralPath $syncReportPath -Raw | ConvertFrom-Json -AsHashtable
-            $syncReport["renderedProfileSmoke"] = New-RenderedProfileSmokeSummary -SmokeReport $Report
+            $syncReport["renderedProfileSmoke"] = New-RenderedProfileSmokeSummary -SmokeReport $Report -SourcePath $reportPath
             for ($budgetPass = 0; $budgetPass -lt 2; $budgetPass++) {
                 $draftSyncReportJson = $syncReport | ConvertTo-Json -Depth 30
                 foreach ($row in @($syncReport["artifactBudgets"]["rows"])) {

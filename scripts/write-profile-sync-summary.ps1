@@ -623,7 +623,7 @@ if ($evidenceReportBehindCommit) {
 }
 
 if ($evidenceSmokeStale) {
-    Write-Output "::warning::Committed rendered-smoke status is $evidenceSmokeStatus; a hosted smoke artifact should have refreshed it."
+    Write-Output "::warning::Committed rendered-smoke status is $evidenceSmokeStatus without local source metadata; run scripts/render-profile-smoke.ps1 locally and regenerate the report."
 }
 
 if ($scheduledWorkflowFailingCount -gt 0 -or $scheduledWorkflowStaleCount -gt 0) {

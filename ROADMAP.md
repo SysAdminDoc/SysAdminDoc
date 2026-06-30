@@ -32,13 +32,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P1 - Make rendered profile smoke evidence fully local and policy-aware
-  Why: The report currently marks rendered smoke as `not-run` and warns that hosted smoke evidence should have refreshed it, which contradicts the local-only validation model.
-  Evidence: `reports/profile-sync-report.json` `renderedProfileSmoke.status: "not-run"` and `evidenceFreshness.warnings`; `scripts/render-profile-smoke.ps1`.
-  Touches: `scripts/render-profile-smoke.ps1`, `scripts/sync-profile.ps1`, `scripts/write-profile-sync-summary.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: A local smoke run records desktop and mobile viewport evidence, and unavailable browser evidence is reported as a clear local skip rather than a hosted-artifact warning.
-  Complexity: M
-
 - [ ] P1 - Clean public intake and audit config after the no-workflow policy shift
   Why: Public issue/config files still point users and tooling at workflow/CI concepts even though the repo intentionally removed hosted workflows.
   Evidence: `.github/ISSUE_TEMPLATE/workflow-ci.yml`, `.github/zizmor.yml`, `requirements-ci.txt`, `scripts/open-generated-profile-pr.ps1`.

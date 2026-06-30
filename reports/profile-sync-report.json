@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-30T12:30:48.6459453-04:00",
+  "generatedAt": "2026-06-30T12:44:07.8350477-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "b91728a1c7f89eb27c09ad90eae76768624daf7c",
+    "sourceCommit": "6fcef9bec432fc636ebcc2eb469ca239eae96fd8",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "121e97d2b57e936e2d4f9808e08cded86dbdae50aad0b65a3b19ec1c7c9c95be",
+    "generatorSha256": "a17e7b8fbe90454ca7f44f608d05e89dbf142dc9fbcb3f9889c87b7b52aea0c7",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T12:28:29.2986153-04:00",
+    "metadataSnapshotAt": "2026-06-30T12:41:54.7368494-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -218,7 +218,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-30T16:13:49.0000000Z",
+        "pushedAt": "2026-06-30T16:29:23.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -682,11 +682,10 @@
         },
         {
           "priorityRank": 2,
-          "repo": "OpenCut",
+          "repo": "VideoSubtitleRemover",
           "stars": 25,
-          "latestReleaseTag": "v1.25.1",
+          "latestReleaseTag": "v3.17.1",
           "executableAssetKinds": [
-            "exe",
             "zip"
           ],
           "trustLevel": "metadata-only",
@@ -704,10 +703,11 @@
         },
         {
           "priorityRank": 3,
-          "repo": "VideoSubtitleRemover",
-          "stars": 25,
-          "latestReleaseTag": "v3.17.1",
+          "repo": "OpenCut",
+          "stars": 24,
+          "latestReleaseTag": "v1.25.1",
           "executableAssetKinds": [
+            "exe",
             "zip"
           ],
           "trustLevel": "metadata-only",
@@ -1736,7 +1736,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-30T12:28:29.2986153-04:00",
+          "queriedAt": "2026-06-30T12:41:54.7368494-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2123,7 +2123,7 @@
       "skipped": false,
       "targetCount": 186,
       "throttleLimit": 16,
-      "elapsedMs": 4988,
+      "elapsedMs": 5121,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2157,7 +2157,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 28.84,
+      "ageDays": 28.85,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2167,7 +2167,7 @@
   "linkValidationSummary": {
     "targetCount": 186,
     "throttleLimit": 16,
-    "elapsedMs": 4988,
+    "elapsedMs": 5121,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2531,7 +2531,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 98390,
+        "value": 98442,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2558,33 +2558,35 @@
     ]
   },
   "renderedProfileSmoke": {
-    "status": "not-run",
-    "generatedAt": null,
-    "url": null,
-    "viewportCount": 0,
-    "passedViewportCount": 0,
+    "status": "passed",
+    "source": "local-artifact",
+    "sourcePath": "reports/rendered-profile-smoke.json",
+    "generatedAt": "2026-06-30T12:37:33.0045323-04:00",
+    "url": "https://github.com/SysAdminDoc",
+    "viewportCount": 2,
+    "passedViewportCount": 2,
     "failedViewportCount": 0,
     "failedImageCount": 0,
     "missingSectionCount": 0,
     "overflowCount": 0,
-    "minimumRootClientWidth": null,
-    "mobileRootClientWidth": null,
+    "minimumRootClientWidth": 308,
+    "mobileRootClientWidth": 308,
     "skipReason": null,
     "warningCount": 0,
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "stale",
+    "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-30T12:19:30.7394923-04:00",
-    "latestReportAffectingCommitSha": "b91728a1c7f89eb27c09ad90eae76768624daf7c",
-    "latestReportAffectingCommitDate": "2026-06-30T12:04:30.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
-    "generatedWithCommit": false,
+    "committedReportGeneratedAt": "2026-06-30T12:30:48.6459453-04:00",
+    "latestReportAffectingCommitSha": "6fcef9bec432fc636ebcc2eb469ca239eae96fd8",
+    "latestReportAffectingCommitDate": "2026-06-30T12:32:55.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.04,
+    "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
-    "smokeStatus": "not-run",
-    "smokeEvidenceStale": true,
+    "smokeStatus": "passed",
+    "smokeEvidenceStale": false,
     "reportAffectingPaths": [
       "scripts/sync-profile.ps1",
       "scripts/render-profile-smoke.ps1",
@@ -2595,10 +2597,8 @@
       "schemas",
       "README.md"
     ],
-    "warnings": [
-      "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
-    ],
-    "warningCount": 1
+    "warnings": [],
+    "warningCount": 0
   },
   "scheduledWorkflowFreshness": {
     "status": "not-applicable",

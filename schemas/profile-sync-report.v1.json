@@ -4757,6 +4757,8 @@
       "additionalProperties": false,
       "required": [
         "status",
+        "source",
+        "sourcePath",
         "generatedAt",
         "url",
         "viewportCount",
@@ -4779,6 +4781,16 @@
             "passed",
             "warning"
           ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "local-artifact",
+            "missing-local-artifact"
+          ]
+        },
+        "sourcePath": {
+          "$ref": "#/$defs/nullableString"
         },
         "generatedAt": {
           "$ref": "#/$defs/nullableString"

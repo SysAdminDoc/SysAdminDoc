@@ -9,6 +9,7 @@ param(
     [string]$ReadmePath = "README.md",
     [string]$ProjectsPath = "projects.json",
     [string]$ReportPath = "reports/profile-sync-report.json",
+    [string]$SmokeReportPath = "reports/rendered-profile-smoke.json",
     [string]$AssetsPath = "assets/profile",
     [switch]$SkipLinkValidation,
     [switch]$ApplyTopics,
@@ -32,6 +33,7 @@ try {
 }
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
+$script:SmokeReportPath = $SmokeReportPath
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check) {
     $Check = $true
@@ -4037,18 +4039,30 @@ function New-RenderedProfileSmokeSummary {
     Normalizes rendered profile smoke-test evidence for the sync report.
     .PARAMETER SmokeReport
     Parsed smoke-test report object, or null when no smoke artifact is available.
+    .PARAMETER SourcePath
+    Local rendered-profile smoke artifact path used as report provenance.
     .PARAMETER MinimumRootClientWidth
     Minimum acceptable root client width for mobile rendered-profile checks.
     #>
     [CmdletBinding()]
     param(
         [AllowNull()][object]$SmokeReport,
+        [AllowNull()][string]$SourcePath,
         [int]$MinimumRootClientWidth = $RenderedSmokeMinimumRootClientWidth
     )
 
+    $sourcePathForReport = if ([string]::IsNullOrWhiteSpace($SourcePath)) {
+        $null
+    } else {
+        ConvertTo-RepoRelativeReportPath -Path $SourcePath
+    }
+
     if ($null -eq $SmokeReport) {
+        $reason = "Local rendered smoke artifact was not found; run scripts/render-profile-smoke.ps1 locally to collect it."
         return [ordered]@{
             status = "not-run"
+            source = "missing-local-artifact"
+            sourcePath = $sourcePathForReport
             generatedAt = $null
             url = $null
             viewportCount = 0
@@ -4059,9 +4073,9 @@ function New-RenderedProfileSmokeSummary {
             overflowCount = 0
             minimumRootClientWidth = $null
             mobileRootClientWidth = $null
-            skipReason = $null
-            warningCount = 0
-            warnings = @()
+            skipReason = $reason
+            warningCount = 1
+            warnings = @($reason)
         }
     }
 
@@ -4114,11 +4128,13 @@ function New-RenderedProfileSmokeSummary {
     }
     if ($skipped) {
         $reason = if ([string]::IsNullOrWhiteSpace($skipReason)) { "reason unavailable" } else { $skipReason }
-        $warnings.Add("Rendered profile smoke did not run: $reason")
+        $warnings.Add("Rendered profile smoke did not run locally: $reason")
     }
 
     return [ordered]@{
         status = if ($skipped) { "not-run" } elseif ([bool](Get-MemberValue -Object $SmokeReport -Name "passed") -and $warnings.Count -eq 0) { "passed" } else { "warning" }
+        source = "local-artifact"
+        sourcePath = $sourcePathForReport
         generatedAt = Get-MemberValue -Object $SmokeReport -Name "generatedAt"
         url = Get-MemberValue -Object $SmokeReport -Name "url"
         viewportCount = [int]$viewports.Count
@@ -4132,6 +4148,37 @@ function New-RenderedProfileSmokeSummary {
         skipReason = if ([string]::IsNullOrWhiteSpace($skipReason)) { $null } else { $skipReason }
         warningCount = [int]$warnings.Count
         warnings = @($warnings.ToArray())
+    }
+}
+
+function Read-RenderedProfileSmokeReport {
+    param([string]$Path)
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        return [ordered]@{
+            path = $fullPath
+            report = $null
+        }
+    }
+
+    try {
+        return [ordered]@{
+            path = $fullPath
+            report = Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+        }
+    } catch {
+        return [ordered]@{
+            path = $fullPath
+            report = [ordered]@{
+                generatedAt = (Get-Date).ToString("o")
+                url = $null
+                passed = $false
+                skipped = $true
+                skipReason = "Local rendered smoke artifact could not be read: $($_.Exception.Message)"
+                viewports = @()
+            }
+        }
     }
 }
 
@@ -4167,12 +4214,17 @@ function Test-ReportEvidenceFreshness {
     $latestCommitDateOffset = ConvertTo-DateTimeOffsetOrNull $LatestCommitDate
 
     $smokeStatus = "unavailable"
+    $smokeSource = $null
     if ($committedPresent) {
         $smoke = Get-MemberValue -Object $CommittedReport -Name "renderedProfileSmoke"
         if ($null -ne $smoke) {
             $statusValue = Get-MemberValue -Object $smoke -Name "status"
             if (-not [string]::IsNullOrWhiteSpace([string]$statusValue)) {
                 $smokeStatus = [string]$statusValue
+            }
+            $sourceValue = Get-MemberValue -Object $smoke -Name "source"
+            if (-not [string]::IsNullOrWhiteSpace([string]$sourceValue)) {
+                $smokeSource = [string]$sourceValue
             }
         }
     }
@@ -4197,13 +4249,10 @@ function Test-ReportEvidenceFreshness {
         }
     }
 
-    # The hosted profile-sync workflow runs the rendered smoke and patches the
-    # committed report, so a committed report stuck at not-run means the hosted
-    # smoke artifact is missing or was never folded back in.
     $smokeEvidenceStale = $false
-    if ($committedPresent -and $smokeStatus -eq "not-run") {
+    if ($committedPresent -and $smokeStatus -eq "not-run" -and [string]::IsNullOrWhiteSpace($smokeSource)) {
         $smokeEvidenceStale = $true
-        $warnings.Add("Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it.")
+        $warnings.Add("Committed rendered-smoke status is not-run without local source metadata; run scripts/render-profile-smoke.ps1 locally and regenerate reports/profile-sync-report.json.")
     }
 
     $status = if ($warnings.Count -eq 0) {
@@ -9087,6 +9136,8 @@ function Test-ProfileState {
     Expected generated profile SVG content keyed by relative path.
     .PARAMETER SkipLinkValidation
     Skips outbound link probing while keeping the rest of the sync checks active.
+    .PARAMETER SmokeReportPath
+    Local rendered-profile smoke artifact to fold into reports/profile-sync-report.json.
     #>
     [CmdletBinding()]
     param(
@@ -9097,7 +9148,8 @@ function Test-ProfileState {
         [string]$CurrentReadme,
         [string]$CurrentProjects,
         [hashtable]$ExpectedAssets = @{},
-        [switch]$SkipLinkValidation
+        [switch]$SkipLinkValidation,
+        [string]$SmokeReportPath = $script:SmokeReportPath
     )
 
     $repoLookup = ConvertTo-Lookup $Repos
@@ -9241,7 +9293,8 @@ function Test-ProfileState {
     $readmeHeadingHierarchy = Test-ReadmeHeadingHierarchy -ExpectedReadme $ExpectedReadme
     $readmeDensity = Test-ReadmeDensity -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup
     $artifactBudgets = Test-GeneratedArtifactBudgets -ExpectedReadme $ExpectedReadme -ExpectedProjectsJson $ExpectedProjects -ExpectedAssets $ExpectedAssets -ReportJson $null
-    $renderedProfileSmoke = New-RenderedProfileSmokeSummary -SmokeReport $null
+    $smokeArtifact = Read-RenderedProfileSmokeReport -Path $SmokeReportPath
+    $renderedProfileSmoke = New-RenderedProfileSmokeSummary -SmokeReport $smokeArtifact.report -SourcePath $smokeArtifact.path
     $committedReportForFreshness = $null
     $committedReportFullPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) { $ReportPath } else { Join-Path $RepoRoot $ReportPath }
     if (Test-Path -LiteralPath $committedReportFullPath) {

@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "b91728a1c7f89eb27c09ad90eae76768624daf7c",
+    "sourceCommit": "6fcef9bec432fc636ebcc2eb469ca239eae96fd8",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "121e97d2b57e936e2d4f9808e08cded86dbdae50aad0b65a3b19ec1c7c9c95be",
+    "generatorSha256": "a17e7b8fbe90454ca7f44f608d05e89dbf142dc9fbcb3f9889c87b7b52aea0c7",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T12:28:29.2986153-04:00",
+    "metadataSnapshotAt": "2026-06-30T12:41:54.7368494-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1243,7 +1243,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T00:14:02.0000000Z",
+      "pushedAt": "2026-06-30T16:30:09.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1650,20 +1650,20 @@
       "installKind": null,
       "language": "C#",
       "stars": 1,
-      "latestReleaseTag": "v0.3.8",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.3.8",
+      "latestReleaseTag": "v0.3.9",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.3.9",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "LocalChromeStore-v0.3.8-win-x64.zip",
-        "LocalChromeStore-v0.3.8-win-x64.zip.sha256.txt"
+        "LocalChromeStore-v0.3.9-win-x64.zip",
+        "LocalChromeStore-v0.3.9-win-x64.zip.sha256.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "LocalChromeStore-v0.3.8-win-x64.zip.sha256.txt"
+          "LocalChromeStore-v0.3.9-win-x64.zip.sha256.txt"
         ],
         "checksumCoverage": "full",
         "hasChecksumForEveryExecutable": true,
@@ -1682,7 +1682,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:27:08.0000000Z",
+      "pushedAt": "2026-06-30T16:38:14.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1838,7 +1838,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:14:49.0000000Z",
+      "pushedAt": "2026-06-30T16:38:02.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -3182,7 +3182,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:13:49.0000000Z",
+      "pushedAt": "2026-06-30T16:29:23.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3521,16 +3521,16 @@
       "installKind": null,
       "language": "Vue",
       "stars": 1,
-      "latestReleaseTag": "v1.1.6",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.6",
+      "latestReleaseTag": "v1.1.7",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.7",
       "releaseAssetKinds": [
         "crx",
         "zip"
       ],
       "releaseAssetNames": [
-        "StyleKit-v1.1.6-chrome.crx",
-        "StyleKit-v1.1.6-chrome.zip",
-        "StyleKit-v1.1.6-firefox.zip"
+        "StyleKit-v1.1.7-chrome.crx",
+        "StyleKit-v1.1.7-chrome.zip",
+        "StyleKit-v1.1.7-firefox.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -3553,7 +3553,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:18:08.0000000Z",
+      "pushedAt": "2026-06-30T16:30:28.0000000Z",
       "topics": [
         "chrome-extension",
         "css",
@@ -3623,7 +3623,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:26:23.0000000Z",
+      "pushedAt": "2026-06-30T16:36:23.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -5311,15 +5311,15 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v1.6.8",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.8",
+      "latestReleaseTag": "v1.6.9",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.9",
       "releaseAssetKinds": [
         "exe",
         "other"
       ],
       "releaseAssetNames": [
-        "AlphaCut-Setup-1.6.8.exe",
-        "AlphaCut-Setup-1.6.8.exe.sha256",
+        "AlphaCut-Setup-1.6.9.exe",
+        "AlphaCut-Setup-1.6.9.exe.sha256",
         "AlphaCut-windows.exe",
         "AlphaCut-windows.exe.sha256",
         "SHA256SUMS.txt"
@@ -5327,7 +5327,7 @@
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "AlphaCut-Setup-1.6.8.exe.sha256",
+          "AlphaCut-Setup-1.6.9.exe.sha256",
           "AlphaCut-windows.exe.sha256",
           "SHA256SUMS.txt"
         ],
@@ -5348,7 +5348,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:14:23.0000000Z",
+      "pushedAt": "2026-06-30T16:32:12.0000000Z",
       "topics": [
         "background-removal",
         "compositing",
@@ -6320,7 +6320,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T00:49:00.0000000Z",
+      "pushedAt": "2026-06-30T16:34:44.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -6684,7 +6684,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:26:31.0000000Z",
+      "pushedAt": "2026-06-30T16:40:05.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -7644,7 +7644,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:24:47.0000000Z",
+      "pushedAt": "2026-06-30T16:41:30.0000000Z",
       "topics": [
         "brightness",
         "dark-theme",
@@ -8731,7 +8731,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:22:57.0000000Z",
+      "pushedAt": "2026-06-30T16:41:41.0000000Z",
       "topics": [
         "dark-theme",
         "firewall",
@@ -9541,8 +9541,8 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v2.12.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.12.0",
+      "latestReleaseTag": "v2.13.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.13.0",
       "releaseAssetKinds": [
         "exe"
       ],
@@ -9569,7 +9569,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:21:02.0000000Z",
+      "pushedAt": "2026-06-30T16:32:16.0000000Z",
       "topics": [
         "dark-theme",
         "file-explorer",
@@ -10038,7 +10038,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 25,
+      "stars": 24,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -10072,7 +10072,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-29T15:04:05.0000000Z",
+      "pushedAt": "2026-06-30T16:41:40.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -10873,7 +10873,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:25:59.0000000Z",
+      "pushedAt": "2026-06-30T16:39:24.0000000Z",
       "topics": [
         "dark-theme",
         "google-keep",
@@ -11162,7 +11162,7 @@
         "releaseImmutable": false,
         "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
       },
-      "pushedAt": "2026-06-30T16:18:13.0000000Z",
+      "pushedAt": "2026-06-30T16:37:54.0000000Z",
       "topics": [
         "crawler",
         "gui",
@@ -12074,7 +12074,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-30T16:24:03.0000000Z",
+      "pushedAt": "2026-06-30T16:39:25.0000000Z",
       "topics": [
         "html",
         "multi-stream",
@@ -12418,7 +12418,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-30T16:20:39.0000000Z",
+      "pushedAt": "2026-06-30T16:37:44.0000000Z",
       "topics": [
         "browser-based",
         "converter",

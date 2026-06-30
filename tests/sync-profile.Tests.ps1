@@ -1594,6 +1594,7 @@ Write-Host ok
         $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
 
         $summary.status | Should -Be 'passed'
+        $summary.source | Should -Be 'local-artifact'
         $summary.viewportCount | Should -Be 2
         $summary.passedViewportCount | Should -Be 2
         $summary.minimumRootClientWidth | Should -Be 308
@@ -1641,10 +1642,20 @@ Write-Host ok
         $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
 
         $summary.status | Should -Be 'not-run'
+        $summary.source | Should -Be 'local-artifact'
         $summary.viewportCount | Should -Be 0
         $summary.skipReason | Should -Be 'Chrome was not found'
         $summary.warningCount | Should -Be 1
         ($summary.warnings -join ' ') | Should -Match 'Chrome was not found'
+    }
+    It 'reports missing rendered smoke artifacts as local collection gaps' {
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $null -SourcePath 'reports/rendered-profile-smoke.json'
+
+        $summary.status | Should -Be 'not-run'
+        $summary.source | Should -Be 'missing-local-artifact'
+        $summary.sourcePath | Should -Be 'reports/rendered-profile-smoke.json'
+        $summary.skipReason | Should -Match 'Local rendered smoke artifact was not found'
+        $summary.warningCount | Should -Be 1
     }
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
@@ -2689,6 +2700,9 @@ Describe 'Rendered profile smoke wiring' {
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') | Should -BeFalse
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-'
+        $script:SyncProfileScript | Should -Match 'SmokeReportPath = "reports/rendered-profile-smoke[.]json"'
+        $script:SyncProfileScript | Should -Match 'Read-RenderedProfileSmokeReport'
+        $script:SyncProfileScript | Should -Match 'missing-local-artifact'
     }
 }
 
@@ -3543,7 +3557,7 @@ Describe 'Report evidence freshness gate' {
         ($result.warnings -join ' ') | Should -Match 'older than the latest report-affecting commit'
     }
 
-    It 'warns when committed rendered-smoke status is stuck at not-run' {
+    It 'warns when legacy committed rendered-smoke status lacks local source metadata' {
         $committed = [pscustomobject]@{
             generatedAt = '2026-06-12T10:00:00-04:00'
             renderedProfileSmoke = [pscustomobject]@{ status = 'not-run' }
@@ -3557,7 +3571,27 @@ Describe 'Report evidence freshness gate' {
         $result.status | Should -Be 'stale'
         $result.smokeStatus | Should -Be 'not-run'
         $result.smokeEvidenceStale | Should -BeTrue
-        ($result.warnings -join ' ') | Should -Match 'not-run'
+        ($result.warnings -join ' ') | Should -Match 'without local source metadata'
+    }
+
+    It 'accepts current local not-run smoke evidence without freshness warnings' {
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-06-12T10:00:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{
+                status = 'not-run'
+                source = 'missing-local-artifact'
+            }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-06-12T09:00:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567'
+
+        $result.status | Should -Be 'fresh'
+        $result.smokeStatus | Should -Be 'not-run'
+        $result.smokeEvidenceStale | Should -BeFalse
+        $result.warningCount | Should -Be 0
     }
 
     It 'classifies a small report-behind-commit delta as generated-with-commit' {
@@ -3595,6 +3629,7 @@ Describe 'Report evidence freshness gate' {
         $summaryScript | Should -Match 'evidenceFreshness'
         $summaryScript | Should -Match 'Committed report behind commit'
         $summaryScript | Should -Match 'Committed smoke evidence stale'
+        $summaryScript | Should -Match 'render-profile-smoke[.]ps1'
 
         $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
         $schema.properties.evidenceFreshness.'$ref' | Should -Be '#/$defs/evidenceFreshness'
