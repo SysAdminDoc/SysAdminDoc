@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P2 - Reframe generated PR helper scripts as dormant manual tools or retire their active report gates
-  Why: `scripts/open-generated-profile-pr.ps1` and generated-validation status helpers remain in the repo, but current policy and tests no longer support live hosted PR validation.
-  Evidence: `scripts/open-generated-profile-pr.ps1`, `scripts/set-generated-validation-status.ps1`, `tests/sync-profile.Tests.ps1:3124`, `3257`.
-  Touches: `scripts/open-generated-profile-pr.ps1`, `scripts/set-generated-validation-status.ps1`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: Helper scripts are either covered as manual utilities with no active freshness gates or removed with all references cleaned up.
-  Complexity: M
-
 - [ ] P2 - Preserve release-trust evidence while avoiding unverifiable integrity claims
   Why: GitHub release asset digests and artifact attestations are valuable signals, but this repo should not imply binary verification it does not perform.
   Evidence: `schemas/profile-projects.v1.json:195`, `reports/profile-sync-report.json:624`, GitHub release asset and artifact attestation docs.

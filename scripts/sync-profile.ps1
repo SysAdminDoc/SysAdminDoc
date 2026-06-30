@@ -5672,83 +5672,11 @@ function New-PrDeliveryChecklistItem {
 }
 
 function Get-GeneratedPrDryRunEvidence {
-    return [ordered]@{
-        available = $true
-        workflow = ".github/workflows/profile-sync.yml"
-        workflowName = "Profile sync"
-        mode = "dry-run-pr"
-        event = "workflow_dispatch"
-        branch = "main"
-        headSha = "f6cd6b970a1d92c5a13cac2b1c9abac031fab257"
-        runId = [long]27084524165
-        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27084524165"
-        createdAt = "2026-06-07T06:06:38Z"
-        conclusion = "success"
-        jobName = "Preview generated README PR"
-        jobId = [long]79936227891
-        failedStep = $null
-        previewStepReached = $true
-        reportArtifactUploaded = $true
-        artifactReadinessStatus = "needs-live-validation"
-        artifactReadinessBlockedCount = 0
-        artifactReadinessNeedsLiveValidationCount = 3
-        evidenceSummary = "Manual hosted dry-run completed Regenerate profile, summary, artifact upload, and Preview pull request after workflow artifact-runtime and summary-size guard updates. The helper planned automation/profile-sync-27084524165 without creating a branch, commit, push, pull request, or validation dispatch."
-        nextAction = "Keep refreshing this evidence after dry-run workflow changes; continue resolving live PR delivery and required-check preconditions before enforcement."
-    }
+    return $null
 }
 
 function Get-GeneratedPrWriteEvidence {
-    return [ordered]@{
-        available = $true
-        workflow = ".github/workflows/profile-sync.yml"
-        workflowName = "Profile sync"
-        mode = "write-pr"
-        event = "workflow_dispatch"
-        branch = "main"
-        headSha = "c3aeeb237b4e82bee169591a0f6a20d499719a73"
-        runId = [long]27087776182
-        runUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087776182"
-        createdAt = "2026-06-07T08:47:24Z"
-        conclusion = "success"
-        jobName = "Open generated README PR"
-        jobId = [long]79945465863
-        failedStep = $null
-        regenerateStepPassed = $true
-        reportArtifactUploaded = $true
-        artifactId = [long]7462507030
-        generatedBranch = "automation/profile-sync-27087776182"
-        generatedBranchPushed = $true
-        generatedBranchCleanup = "deleted-after-validation-success"
-        pullRequestCreated = $true
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/10"
-        pullRequestNumber = [int]10
-        pullRequestState = "closed"
-        validationDispatched = $true
-        validationRunId = [long]27087806797
-        validationRunUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797"
-        validationConclusion = "success"
-        validationFailedStep = $null
-        validationArtifactId = [long]7462523830
-        validationSmokeArtifactId = [long]7462524019
-        generatedBranchCheckRunCount = [int]4
-        generatedBranchSuccessfulCheckRunCount = [int]2
-        pullRequestCheckRollupCount = [int]1
-        pullRequestChecksAttached = $true
-        pullRequestCheckRollupNote = "PR #10 statusCheckRollup contained StatusContext generated-profile/validation with state SUCCESS and target https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797."
-        statusHandoffImplemented = $true
-        statusHandoffContext = "generated-profile/validation"
-        statusHandoffApi = "commit-statuses"
-        statusHandoffPermission = "statuses: write"
-        statusHandoffPendingPublisher = "scripts/open-generated-profile-pr.ps1"
-        statusHandoffFinalPublisher = ".github/workflows/profile-sync.yml generated-validation-status job"
-        statusHandoffProof = "pr-status-rollup-success"
-        statusHandoffState = "success"
-        statusHandoffTargetUrl = "https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797"
-        statusHandoffDescription = "Generated profile validation success."
-        blocker = "Required-check enforcement still needs a documented direct-main maintenance bypass or a broader PR-delivery switch before admin-enforced required checks can be enabled."
-        evidenceSummary = "Hosted write-pr drill 27087776182 ran on c3aeeb2, continued past the workflow-permissions endpoint 403, committed 7e1ea63 to automation/profile-sync-27087776182, pushed the branch, published generated-profile/validation as pending, created PR #10, and dispatched Profile sync validation run 27087806797. Validation used sync-profile.ps1 -Write -Check, passed, uploaded profile-sync-report artifact 7462523830 and rendered-profile-smoke artifact 7462524019, then the generated-validation-status job updated generated-profile/validation to success. PR #10 statusCheckRollup and gh pr checks both reported generated-profile/validation as passing, then PR #10 was closed and the generated branch was deleted after evidence collection."
-        nextAction = "Document or implement the direct-main maintenance bypass/PR-delivery policy needed before enabling admin-enforced required-check protection."
-    }
+    return $null
 }
 
 function Get-GeneratedPrCredentialDecision {
@@ -5757,28 +5685,17 @@ function Get-GeneratedPrCredentialDecision {
     )
 
     $settingAllowsGeneratedPr = Get-NullableBool $ActionsPullRequestCreationAllowed
-    $status = if ($settingAllowsGeneratedPr -eq $true) {
-        "setting-enabled"
-    } else {
-        "decision-recorded"
-    }
-    $nextAction = if ($settingAllowsGeneratedPr -eq $true) {
-        "Use the proven generated-profile/validation PR status handoff as the generated-maintenance path, then document the direct-main maintenance bypass or PR-delivery policy before required-check enforcement."
-    } else {
-        "Enable the repository Actions pull-request creation setting, rerun hosted write-pr, and verify generated pull-request creation plus branch-scoped validation before required-check enforcement."
-    }
-
     return [ordered]@{
-        status = $status
-        selectedPath = "enable-actions-pr-creation"
-        rejectedPath = "approved-github-app-or-pat-token"
-        rationale = "The manual generated-PR job already scopes write privileges to actions:write, contents:write, and pull-requests:write; enabling the repository setting avoids adding a long-lived automation secret."
-        requiresRepositorySetting = $true
+        status = "not-applicable"
+        selectedPath = "manual-local-validation"
+        rejectedPath = "hosted-generated-pr-delivery"
+        rationale = "Hosted workflows are absent by policy; generated PR helpers are retained only as offline/manual previews and do not need repository Actions PR creation settings."
+        requiresRepositorySetting = $false
         requiresNewSecret = $false
         currentSettingAllowsGeneratedPr = $settingAllowsGeneratedPr
-        decisionDocumentPath = "decision:generated-pr-credential"
-        activationCommand = "gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true"
-        nextAction = $nextAction
+        decisionDocumentPath = "decision:local-validation-only"
+        activationCommand = ""
+        nextAction = "Use scripts/validate-local.ps1 and scripts/render-profile-smoke.ps1 before committing generated artifacts locally."
     }
 }
 
@@ -5869,96 +5786,11 @@ function Get-DirectMainMaintenancePolicy {
 }
 
 function Get-CandidateCheckExercisePlan {
-    param(
-        [object[]]$Candidates = $RequiredStatusCheckCandidates
-    )
-
-    $candidateNames = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "name") })
-    $workflowNames = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "workflow") } | Sort-Object -Unique)
-
-    return [ordered]@{
-        status = "completed"
-        readinessStatus = "ready"
-        requiredBeforeEnforcement = $true
-        purpose = "refresh-recent-check-run-proof"
-        disposableBranchPrefix = "automation/required-check-proof-"
-        pullRequestTitle = "chore: exercise required-check candidates"
-        candidateCheckCount = $candidateNames.Count
-        candidateChecks = @($candidateNames)
-        workflowCount = $workflowNames.Count
-        workflows = @($workflowNames)
-        touchPaths = @(
-            "README.md",
-            ".github/workflows/tests.yml",
-            "setup.ps1"
-        )
-        nonMutationPolicy = "Open a disposable PR only for check creation proof, do not merge it, do not enable branch protection or rulesets, then close the PR and delete the proof branch after evidence collection."
-        expectedPrChecks = @(
-            "Pester (offline)",
-            "PSScriptAnalyzer",
-            "Markdownlint",
-            "Windows setup smoke",
-            "Check generated README",
-            "zizmor"
-        )
-        verificationSteps = @(
-            "Create a temporary branch from current main with prefix automation/required-check-proof-.",
-            "Make a no-risk proof commit that touches README.md, .github/workflows/tests.yml, and setup.ps1 while preserving generated profile output.",
-            "Open a disposable pull request and wait for all candidate checks to appear in the PR check rollup.",
-            "Verify pull_request and merge_group-capable workflow check names match the candidate list.",
-            "Close the disposable pull request and delete the proof branch after recording run IDs and check conclusions."
-        )
-        cleanupRequired = $true
-        evidenceStatus = "passed"
-        documentationPath = "decision:pr-delivery-transition-checklist"
-        nextAction = "Keep this proof fresh before enforcement; routine PR delivery is now proven by PR #14."
-    }
+    return $null
 }
 
 function Get-CandidateCheckExerciseEvidence {
-    return [ordered]@{
-        available = $true
-        status = "passed"
-        evidenceStatus = "successful"
-        pullRequestNumber = 13
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/13"
-        pullRequestState = "closed"
-        branch = "automation/required-check-proof-20260607-125"
-        headSha = "b67e1f1fc3ec70cf6a91b4d1a0c5f71d52d1fb79"
-        mergeSha = "24b6a49dbe03f82f6c794b79f953fdf04190febe"
-        workflowRunIds = @(
-            27090100279,
-            27090100281,
-            27090100282
-        )
-        profileSyncRunId = 27090100279
-        testsRunId = 27090100282
-        workflowSecurityRunId = 27090100281
-        profileSyncArtifactId = 7463321333
-        expectedCandidateCheckCount = 6
-        observedCandidateCheckCount = 6
-        successfulCandidateCheckCount = 6
-        failedCandidateCheckCount = 0
-        skippedNonCandidateCheckCount = 3
-        successfulCandidateChecks = @(
-            "Check generated README",
-            "PSScriptAnalyzer",
-            "Pester (offline)",
-            "Markdownlint",
-            "Windows setup smoke",
-            "zizmor"
-        )
-        failedCandidateChecks = @()
-        skippedNonCandidateChecks = @(
-            "Open generated README PR",
-            "Preview generated README PR",
-            "Generated profile validation status"
-        )
-        failureReason = ""
-        cleanupState = "closed-pr-and-deleted-branch"
-        evidenceSummary = "Disposable PR #13 created all six candidate required-check names. Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor passed. The PR was closed and automation/required-check-proof-20260607-125 was deleted after evidence collection."
-        nextAction = "Keep this proof fresh before enabling required-check enforcement; refresh it if GitHub's recent-check selection window expires."
-    }
+    return $null
 }
 
 function Get-RoutineMaintenancePrDrillEvidence {
@@ -6114,10 +5946,10 @@ function Get-PrDeliveryTransitionChecklist {
 
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "recent-check-run-proof" `
-                -Status "ready" `
-                -Summary "Each required check must have a recent successful run in this repository before it can be selected." `
-                -Evidence "Disposable PR #13 created all six candidate checks and every candidate check completed successfully." `
-                -NextAction "Refresh this disposable PR proof if GitHub's recent-check selection window expires before enforcement."))
+                -Status "needs-live-validation" `
+                -Summary "Each required check must have a current proof path before enforcement." `
+                -Evidence "No hosted candidate-check proof is tracked while the repository is local-validation-only." `
+                -NextAction "Define a new local or hosted proof path before making any check required."))
 
     $deliveryStatus = if ($ActionsPullRequestCreationAllowed -eq $false) {
         "blocked"
@@ -6129,20 +5961,20 @@ function Get-PrDeliveryTransitionChecklist {
         "needs-live-validation"
     }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
-        "Repository workflow permissions currently block GITHUB_TOKEN pull-request creation; hosted write-pr drill 27085061539 failed at createPullRequest after pushing a disposable generated branch that was later deleted."
+        "Generated PR delivery is retired while hosted workflows are absent; repository Actions PR creation is not a local-validation requirement."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
-        "Hosted write-pr drill 27086351848 showed GITHUB_TOKEN cannot read the repository workflow-permissions endpoint, so the helper must continue to gh pr create when that specific preflight read is unavailable."
+        "Generated PR delivery is retired while hosted workflows are absent; Actions PR creation permission evidence is not required."
     } elseif ($routinePrDrillPassed) {
         "Routine maintenance PR #14 merged by rebase after Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor all passed. The proof branch was deleted after merge."
     } elseif ($EnforceAdmins -eq $true) {
-        "Hosted write-pr run 27087776182 opened PR #10, dispatched validation run 27087806797, and proved generated-profile/validation appears in PR statusCheckRollup as success. Protected main still enforces admins, so routine maintenance is selected for PR delivery and needs a live merge drill before enforcement."
+        "Generated PR delivery is retired while hosted workflows are absent; routine maintenance must use local validation or a newly defined PR delivery path."
     } else {
         "Admin enforcement is not confirmed as blocking, but the delivery path still needs a live PR or documented bypass drill."
     }
     $deliveryNextAction = if ($ActionsPullRequestCreationAllowed -eq $false) {
-        "Enable GitHub Actions pull-request creation for GITHUB_TOKEN or switch the helper to an approved GitHub App/PAT credential before rerunning generated PR delivery."
+        "Keep generated helpers offline-only and validate generated artifacts locally."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
-        "Rerun generated PR delivery with the preflight-unavailable fallback and verify gh pr create plus validation dispatch."
+        "Keep generated helpers offline-only and validate generated artifacts locally."
     } elseif ($routinePrDrillPassed) {
         "Select and enable one required-check enforcement mechanism, then re-query branch protection or rulesets."
     } else {
@@ -6431,7 +6263,7 @@ function Test-RepositoryCommunityBaseline {
         $defaultWorkflowPermissions = [string](Get-MemberValue -Object $ActionsWorkflowPermissions -Name "default_workflow_permissions")
         $canApprovePullRequestReviews = Get-NullableBool (Get-MemberValue -Object $ActionsWorkflowPermissions -Name "can_approve_pull_request_reviews")
         $generatedPrCreationAllowed = [bool]($canApprovePullRequestReviews -eq $true)
-        if (-not $generatedPrCreationAllowed) {
+        if (-not $generatedPrCreationAllowed -and @($RequiredStatusCheckCandidates).Count -gt 0) {
             $repoWarnings.Add("GitHub Actions workflow permissions do not allow GITHUB_TOKEN to create pull requests.")
         }
     }
@@ -6630,7 +6462,7 @@ function Test-RepositoryCommunityBaseline {
             defaultWorkflowPermissions = if ($actionsWorkflowPermissionsAvailable) { $defaultWorkflowPermissions } else { $null }
             canApprovePullRequestReviews = $canApprovePullRequestReviews
             generatedPrCreationAllowed = if ($actionsWorkflowPermissionsAvailable) { $generatedPrCreationAllowed } else { $null }
-            recommendation = if ($actionsWorkflowPermissionsAvailable -and -not $generatedPrCreationAllowed) { "enable-actions-pr-creation-or-use-approved-automation-token" } elseif ($actionsWorkflowPermissionsAvailable) { "ready-for-generated-pr-delivery" } else { "verify-actions-workflow-permissions" }
+            recommendation = "local-validation-only"
             generatedPrCredentialDecision = $generatedPrCredentialDecision
         }
         requiredCheckReadiness = $requiredCheckReadiness

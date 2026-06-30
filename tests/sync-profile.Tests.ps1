@@ -462,6 +462,10 @@ Describe 'Repository settings and community-health baseline' {
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CIIBestPracticesID' }).classification | Should -Be 'external-program-optional'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
+        $repoSettings.actionsWorkflowPermissions.recommendation | Should -Be 'local-validation-only'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.status | Should -Be 'not-applicable'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.selectedPath | Should -Be 'manual-local-validation'
+        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresRepositorySetting | Should -BeFalse
         $repoSettings.requiredCheckReadiness.status | Should -Be 'not-applicable'
         $repoSettings.requiredCheckReadiness.recommendation | Should -Be 'local-validation-only'
         $repoSettings.requiredCheckReadiness.readyForEnforcement | Should -BeFalse
@@ -495,7 +499,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.reviewPolicyPosture.documentationPath | Should -Be 'decision:review-policy-posture'
         $repoSettings.reviewPolicyPosture.nextAction | Should -Match 'independent reviewer'
         $repoSettings.warningCount | Should -BeGreaterThan 0
-        ($repoSettings.warnings -join ' ') | Should -Match 'create pull requests'
+        ($repoSettings.warnings -join ' ') | Should -Not -Match 'create pull requests'
         ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'secret_value|ghp_|gho_|github_pat_'
 
         $communityHealth.available | Should -BeTrue
@@ -2850,24 +2854,28 @@ Describe 'Generated profile PR validation handoff' {
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') | Should -BeFalse
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') | Should -BeFalse
         $script:GeneratedPrHelper | Should -Match '\[switch\]\$DryRun'
-        $script:GeneratedPrHelper | Should -Match 'Dry run: no branch, commit, push, pull request, or validation dispatch will be created'
+        $script:GeneratedPrHelper | Should -Match 'Hosted generated pull-request creation is retired'
+        $script:GeneratedPrHelper | Should -Match 'no branch, commit, push, pull request, commit status, or hosted validation dispatch will be created'
+        $script:GeneratedPrHelper | Should -Not -Match 'gh pr create|gh workflow run|git push origin|git commit -m'
+        $script:GeneratedValidationStatusScript | Should -Match 'Hosted generated validation status publishing is retired'
+        $script:GeneratedValidationStatusScript | Should -Not -Match 'gh api -X POST|statuses/\$Sha'
     }
 
     It 'builds the generated validation status payload offline' {
         $sha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
         $output = & pwsh -NoProfile -File $script:GeneratedValidationStatusScriptPath `
             -State pending `
-            -Description 'Generated profile validation pending.' `
+            -Description 'Generated profile manual validation pending.' `
             -Repository 'SysAdminDoc/SysAdminDoc' `
             -Sha $sha `
-            -TargetUrl 'https://github.com/SysAdminDoc/SysAdminDoc/actions/workflows/profile-sync.yml?query=branch%3Aautomation%2Fprofile-sync-1' `
+            -TargetUrl 'https://github.com/SysAdminDoc/SysAdminDoc#local-validation' `
             -DryRun
         $payload = ($output | Out-String) | ConvertFrom-Json
 
         $payload.state | Should -Be 'pending'
-        $payload.context | Should -Be 'generated-profile/validation'
-        $payload.description | Should -Be 'Generated profile validation pending.'
-        $payload.target_url | Should -Match 'profile-sync[.]yml'
+        $payload.context | Should -Be 'generated-profile/manual-validation'
+        $payload.description | Should -Be 'Generated profile manual validation pending.'
+        $payload.target_url | Should -Match '#local-validation'
     }
 }
 

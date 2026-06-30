@@ -1861,18 +1861,18 @@
       "defaultWorkflowPermissions": "read",
       "canApprovePullRequestReviews": true,
       "generatedPrCreationAllowed": true,
-      "recommendation": "ready-for-generated-pr-delivery",
+      "recommendation": "local-validation-only",
       "generatedPrCredentialDecision": {
-        "status": "setting-enabled",
-        "selectedPath": "enable-actions-pr-creation",
-        "rejectedPath": "approved-github-app-or-pat-token",
-        "rationale": "The manual generated-PR job already scopes write privileges to actions:write, contents:write, and pull-requests:write; enabling the repository setting avoids adding a long-lived automation secret.",
-        "requiresRepositorySetting": true,
+        "status": "not-applicable",
+        "selectedPath": "manual-local-validation",
+        "rejectedPath": "hosted-generated-pr-delivery",
+        "rationale": "Hosted workflows are absent by policy; generated PR helpers are retained only as offline/manual previews and do not need repository Actions PR creation settings.",
+        "requiresRepositorySetting": false,
         "requiresNewSecret": false,
         "currentSettingAllowsGeneratedPr": true,
-        "decisionDocumentPath": "decision:generated-pr-credential",
-        "activationCommand": "gh api -X PUT repos/SysAdminDoc/SysAdminDoc/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=true",
-        "nextAction": "Use the proven generated-profile/validation PR status handoff as the generated-maintenance path, then document the direct-main maintenance bypass or PR-delivery policy before required-check enforcement."
+        "decisionDocumentPath": "decision:local-validation-only",
+        "activationCommand": "",
+        "nextAction": "Use scripts/validate-local.ps1 and scripts/render-profile-smoke.ps1 before committing generated artifacts locally."
       }
     },
     "requiredCheckReadiness": {

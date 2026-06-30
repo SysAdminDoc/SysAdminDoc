@@ -10,7 +10,7 @@ param(
     [string]$Description,
 
     [ValidateNotNullOrEmpty()]
-    [string]$Context = 'generated-profile/validation',
+    [string]$Context = 'generated-profile/manual-validation',
 
     [string]$Repository = $env:GITHUB_REPOSITORY,
 
@@ -40,10 +40,7 @@ if ([string]::IsNullOrWhiteSpace($ServerUrl)) {
     $ServerUrl = 'https://github.com'
 }
 if ([string]::IsNullOrWhiteSpace($TargetUrl)) {
-    if ([string]::IsNullOrWhiteSpace($RunId)) {
-        throw 'RunId or TargetUrl is required.'
-    }
-    $TargetUrl = "$ServerUrl/$Repository/actions/runs/$RunId"
+    $TargetUrl = "$ServerUrl/$Repository#local-validation"
 }
 if ($Description.Length -gt 140) {
     throw 'Description must be 140 characters or fewer for the commit status API.'
@@ -61,17 +58,4 @@ if ($DryRun) {
     exit 0
 }
 
-if ([string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
-    throw 'GH_TOKEN is required.'
-}
-
-gh api -X POST "repos/$Repository/statuses/$Sha" `
-    -f "state=$State" `
-    -f "target_url=$TargetUrl" `
-    -f "description=$Description" `
-    -f "context=$Context" > $null
-if ($LASTEXITCODE -ne 0) {
-    throw "Failed to set commit status '$Context' to '$State' for $Sha."
-}
-
-Write-Host "Set commit status '$Context' to '$State' for $Sha."
+throw 'Hosted generated validation status publishing is retired while this repository has no GitHub Actions workflows. Use -DryRun to inspect the payload, then run scripts/validate-local.ps1 for local validation.'

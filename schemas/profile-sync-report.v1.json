@@ -2544,6 +2544,7 @@
           "type": "string",
           "enum": [
             "enable-actions-pr-creation-or-use-approved-automation-token",
+            "local-validation-only",
             "ready-for-generated-pr-delivery",
             "verify-actions-workflow-permissions"
           ]
@@ -2573,19 +2574,22 @@
           "type": "string",
           "enum": [
             "decision-recorded",
+            "not-applicable",
             "setting-enabled"
           ]
         },
         "selectedPath": {
           "type": "string",
           "enum": [
-            "enable-actions-pr-creation"
+            "enable-actions-pr-creation",
+            "manual-local-validation"
           ]
         },
         "rejectedPath": {
           "type": "string",
           "enum": [
-            "approved-github-app-or-pat-token"
+            "approved-github-app-or-pat-token",
+            "hosted-generated-pr-delivery"
           ]
         },
         "rationale": {
