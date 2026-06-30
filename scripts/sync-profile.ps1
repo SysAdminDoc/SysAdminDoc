@@ -80,14 +80,7 @@ $ReportAffectingPaths = @(
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
-$RequiredStatusCheckCandidates = @(
-    [ordered]@{ name = "Pester (offline)"; workflow = ".github/workflows/tests.yml" },
-    [ordered]@{ name = "PSScriptAnalyzer"; workflow = ".github/workflows/tests.yml" },
-    [ordered]@{ name = "Markdownlint"; workflow = ".github/workflows/tests.yml" },
-    [ordered]@{ name = "Windows setup smoke"; workflow = ".github/workflows/tests.yml" },
-    [ordered]@{ name = "Check generated README"; workflow = ".github/workflows/profile-sync.yml" },
-    [ordered]@{ name = "zizmor"; workflow = ".github/workflows/workflow-security.yml" }
-)
+$RequiredStatusCheckCandidates = @()
 $CodeQlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
@@ -4276,7 +4269,10 @@ function Get-ScheduledWorkflowRunLookup {
 
     $lookup = @{}
     foreach ($definition in @($Definitions)) {
-        $key = [string]$definition.workflowFile
+        $key = [string](Get-MemberValue -Object $definition -Name "workflowFile")
+        if ([string]::IsNullOrWhiteSpace($key)) {
+            continue
+        }
         if ($Offline) {
             $lookup[$key] = [ordered]@{
                 available = $false
@@ -4340,8 +4336,14 @@ function Test-ScheduledWorkflowFreshness {
 
     $rows = New-Object System.Collections.Generic.List[object]
     foreach ($definition in @($Definitions)) {
-        $key = [string]$definition.workflowFile
-        $cadence = Get-CronMaxGapMinutes -Crons $definition.crons
+        $key = [string](Get-MemberValue -Object $definition -Name "workflowFile")
+        if ([string]::IsNullOrWhiteSpace($key)) {
+            continue
+        }
+        $definitionName = [string](Get-MemberValue -Object $definition -Name "name")
+        $definitionCrons = @(Get-MemberValue -Object $definition -Name "crons")
+        $definitionHasWorkflowDispatch = [bool](Get-MemberValue -Object $definition -Name "hasWorkflowDispatch")
+        $cadence = Get-CronMaxGapMinutes -Crons $definitionCrons
 
         $lookup = if ($RunLookup.ContainsKey($key)) { $RunLookup[$key] } else { $null }
         $available = if ($lookup) { [bool](Get-MemberValue -Object $lookup -Name "available") } else { $false }
@@ -4358,10 +4360,10 @@ function Test-ScheduledWorkflowFreshness {
         if (-not $available) {
             $status = "unavailable"
             $reason = if ([string]::IsNullOrWhiteSpace($lookupError)) { "scheduled run evidence unavailable" } else { $lookupError }
-            $warning = "Scheduled workflow '$($definition.name)' run evidence is unavailable: $reason."
+            $warning = "Scheduled workflow '$definitionName' run evidence is unavailable: $reason."
         } elseif ($disabledStates -contains $state) {
             $status = "disabled"
-            $warning = "Scheduled workflow '$($definition.name)' is $state and is not running on its cron."
+            $warning = "Scheduled workflow '$definitionName' is $state and is not running on its cron."
         } else {
             if (-not [string]::IsNullOrWhiteSpace($latestConclusion) -and $failingConclusions -contains $latestConclusion) {
                 $failing = $true
@@ -4378,13 +4380,13 @@ function Test-ScheduledWorkflowFreshness {
 
             if ($failing) {
                 $status = "failing"
-                $warning = "Scheduled workflow '$($definition.name)' latest scheduled run concluded '$latestConclusion'."
+                $warning = "Scheduled workflow '$definitionName' latest scheduled run concluded '$latestConclusion'."
             } elseif ($stale) {
                 $status = "stale"
                 if ($null -eq $successOffset) {
-                    $warning = "Scheduled workflow '$($definition.name)' has no recorded successful scheduled run."
+                    $warning = "Scheduled workflow '$definitionName' has no recorded successful scheduled run."
                 } else {
-                    $warning = "Scheduled workflow '$($definition.name)' last succeeded $ageMinutes minute(s) ago, beyond its $cadence-minute cadence plus $GraceMinutes-minute grace."
+                    $warning = "Scheduled workflow '$definitionName' last succeeded $ageMinutes minute(s) ago, beyond its $cadence-minute cadence plus $GraceMinutes-minute grace."
                 }
             } else {
                 $status = "ok"
@@ -4393,9 +4395,9 @@ function Test-ScheduledWorkflowFreshness {
 
         $rows.Add([ordered]@{
                 workflowFile = $key
-                name = [string]$definition.name
-                crons = @($definition.crons)
-                hasWorkflowDispatch = [bool]$definition.hasWorkflowDispatch
+                name = $definitionName
+                crons = @($definitionCrons)
+                hasWorkflowDispatch = $definitionHasWorkflowDispatch
                 cadenceMinutes = $cadence
                 graceMinutes = [int]$GraceMinutes
                 state = $state
@@ -4418,9 +4420,16 @@ function Test-ScheduledWorkflowFreshness {
     $unavailableCount = @($rowArray | Where-Object { $_.status -eq "unavailable" }).Count
     $disabledCount = @($rowArray | Where-Object { $_.status -eq "disabled" }).Count
     $warningCount = @($rowArray | Where-Object { $null -ne $_.warning }).Count
+    $status = if ($rowArray.Count -eq 0) {
+        "not-applicable"
+    } elseif ($warningCount -eq 0) {
+        "ok"
+    } else {
+        "warning"
+    }
 
     return [ordered]@{
-        status = if ($warningCount -eq 0) { "ok" } else { "warning" }
+        status = $status
         scheduledWorkflowCount = [int]$rowArray.Count
         staleCount = [int]$staleCount
         failingCount = [int]$failingCount
@@ -5416,6 +5425,31 @@ function Get-RequiredCheckReadiness {
     )
 
     $workflowCoverage = Test-RequiredCheckWorkflowCoverage
+    if ((Get-MemberValue -Object $workflowCoverage -Name "status") -eq "not-applicable") {
+        $prDeliveryTransition = Get-PrDeliveryTransitionChecklist `
+            -WorkflowCoverage $workflowCoverage `
+            -RequiredChecksEnabled $false `
+            -EnforceAdmins $EnforceAdmins `
+            -ActionsPullRequestCreationAllowed $ActionsPullRequestCreationAllowed `
+            -BranchProtectionAvailable $BranchProtectionAvailable `
+            -RulesetsAvailable $RulesetsAvailable
+
+        return [ordered]@{
+            status = "not-applicable"
+            recommendation = "local-validation-only"
+            readyForEnforcement = $false
+            branchProtectionRequiredStatusChecks = Get-NullableBool $RequiredStatusChecks
+            rulesetCount = [int]$RulesetCount
+            enforceAdmins = Get-NullableBool $EnforceAdmins
+            candidateCheckCount = 0
+            candidateChecks = @()
+            workflowCoverage = $workflowCoverage
+            prDeliveryTransition = $prDeliveryTransition
+            blockerCount = 0
+            blockers = @()
+        }
+    }
+
     $routinePrDrillEvidence = Get-RoutineMaintenancePrDrillEvidence
     $routinePrDeliveryProven = ((Get-MemberValue -Object $routinePrDrillEvidence -Name "status") -eq "passed")
     $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetCount -gt 0)
@@ -5612,7 +5646,18 @@ function Test-RequiredCheckWorkflowCoverage {
 
     $warnings = New-Object System.Collections.Generic.List[string]
     $workflowRows = New-Object System.Collections.Generic.List[object]
-    $workflowPaths = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "workflow") } | Sort-Object -Unique)
+    $workflowPaths = @($Candidates | ForEach-Object { [string](Get-MemberValue -Object $_ -Name "workflow") } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+
+    if (@($Candidates).Count -eq 0 -or $workflowPaths.Count -eq 0) {
+        return [ordered]@{
+            status = "not-applicable"
+            workflowCount = 0
+            candidateCheckCount = 0
+            warningCount = 0
+            warnings = @()
+            workflows = @()
+        }
+    }
 
     foreach ($workflowPath in $workflowPaths) {
         $candidateNames = @($Candidates | Where-Object {
@@ -5884,6 +5929,25 @@ function Get-PrDeliveryTransitionChecklist {
     if ($null -eq $RequiredCheckEnforcementEvidence) {
         $RequiredCheckEnforcementEvidence = Get-RequiredCheckEnforcementEvidence
     }
+    if ((Get-MemberValue -Object $WorkflowCoverage -Name "status") -eq "not-applicable") {
+        return [ordered]@{
+            status = "not-applicable"
+            readyForRequiredCheckEnforcement = $false
+            checklistCount = 0
+            readyCount = 0
+            blockedCount = 0
+            needsLiveValidationCount = 0
+            generatedPrDryRunEvidence = $null
+            generatedPrWriteEvidence = $null
+            directMainMaintenancePolicy = $null
+            candidateCheckExercisePlan = $null
+            candidateCheckExerciseEvidence = $null
+            routineMaintenancePrDrillEvidence = $null
+            requiredCheckEnforcementEvidence = $null
+            items = @()
+        }
+    }
+
     $routinePrDrillPassed = ((Get-MemberValue -Object $RoutineMaintenancePrDrillEvidence -Name "status") -eq "passed")
     $requiredCheckEnforcementPassed = ((Get-MemberValue -Object $RequiredCheckEnforcementEvidence -Name "status") -eq "passed")
 
@@ -7500,7 +7564,17 @@ function Test-MetadataDrift {
         $currentRows = New-MetadataRowIndex -ProjectsPayload $current
         $expectedRows = New-MetadataRowIndex -ProjectsPayload $expected
         $rowKeys = @(@($currentRows.Keys) + @($expectedRows.Keys) | Sort-Object -Unique)
-        $infoFields = @("stars", "pushedAt", "topics")
+        $infoFields = @(
+            "stars",
+            "latestReleaseTag",
+            "latestReleaseUrl",
+            "releaseAssetKinds",
+            "releaseAssetNames",
+            "releaseAssetInspected",
+            "releaseTrust",
+            "pushedAt",
+            "topics"
+        )
         $rowFields = @(
             "suppressedId",
             "title",
@@ -9267,28 +9341,30 @@ function Test-ProfileState {
     }
     $report.schemaValidation = $schemaValidation
 
-    $failed = (
-        -not $readmeInSync -or
-        -not $projectsInSync -or
-        -not $assetsInSync -or
-        $catalogShape.passed -ne $true -or
-        $metadataDriftResult.fatalCount -gt 0 -or
-        $missingPublic.Count -gt 0 -or
-        $privateViolations.Count -gt 0 -or
-        $medicalViolations.Count -gt 0 -or
-        $urlSchemeViolations.Count -gt 0 -or
-        $orphanedSuppressed.Count -gt 0 -or
-        $redirects.Count -gt 0 -or
-        $linkFailures.Count -gt 0 -or
-        $experienceChecks["passed"] -ne $true -or
-        $repositoryCommunityBaseline["communityHealth"]["fatalCount"] -gt 0 -or
-        $catalogFeedAccounting.fatalCount -gt 0 -or
-        $portfolioCompatibility.fatalCount -gt 0 -or
-        $schemaValidation.passed -ne $true -or
-        $docVersionConsistency.passed -ne $true
-    )
+    $failureConditions = [ordered]@{
+        readmeInSync = [bool](-not $readmeInSync)
+        projectsExportInSync = [bool](-not $projectsInSync)
+        profileAssetsInSync = [bool](-not $assetsInSync)
+        catalogShape = [bool]($catalogShape.passed -ne $true)
+        metadataDrift = [bool]($metadataDriftResult.fatalCount -gt 0)
+        missingPublic = [bool](@($missingPublic | Where-Object { $null -ne $_ }).Count -gt 0)
+        privateViolations = [bool](@($privateViolations | Where-Object { $null -ne $_ }).Count -gt 0)
+        medicalViolations = [bool](@($medicalViolations | Where-Object { $null -ne $_ }).Count -gt 0)
+        urlSchemeViolations = [bool](@($urlSchemeViolations | Where-Object { $null -ne $_ }).Count -gt 0)
+        orphanedSuppressed = [bool](@($orphanedSuppressed | Where-Object { $null -ne $_ }).Count -gt 0)
+        redirects = [bool](@($redirects | Where-Object { $null -ne $_ }).Count -gt 0)
+        linkFailures = [bool](@($linkFailures | Where-Object { $null -ne $_ }).Count -gt 0)
+        readmeExperience = [bool]($experienceChecks["passed"] -ne $true)
+        communityHealth = [bool]($repositoryCommunityBaseline["communityHealth"]["fatalCount"] -gt 0)
+        catalogFeedAccounting = [bool]($catalogFeedAccounting.fatalCount -gt 0)
+        portfolioCompatibility = [bool]($portfolioCompatibility.fatalCount -gt 0)
+        schemaValidation = [bool]($schemaValidation.passed -ne $true)
+        docVersionConsistency = [bool]($docVersionConsistency.passed -ne $true)
+    }
+    $failed = $failureConditions.Values -contains $true
     return [ordered]@{
         Failed = $failed
+        FailureConditions = $failureConditions
         Report = $report
     }
 }
@@ -9363,7 +9439,7 @@ if ($catalogForRun) {
         }
         $result.Report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8
 
-        if ($result.Failed) {
+        if ($result["Failed"] -eq $true) {
             Write-Error "Profile sync check failed. See $ReportPath."
             exit 1
         }

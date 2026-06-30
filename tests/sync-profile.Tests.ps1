@@ -369,11 +369,11 @@ Describe 'Repository settings and community-health baseline' {
         }
         $codeScanningEvidence = [ordered]@{
             codeqlWorkflowPresent = $false
-            sarifUploadWorkflowPresent = $true
-            scorecardSarifUploadPresent = $true
-            psScriptAnalyzerWorkflowPresent = $true
-            actionlintWorkflowPresent = $true
-            zizmorWorkflowPresent = $true
+            sarifUploadWorkflowPresent = $false
+            scorecardSarifUploadPresent = $false
+            psScriptAnalyzerWorkflowPresent = $false
+            actionlintWorkflowPresent = $false
+            zizmorWorkflowPresent = $false
         }
         $scorecardAlerts = @(
             New-TestScorecardAlert -Number 1 -RuleId 'CodeReviewID' -Description 'Code-Review' -SecuritySeverity 'high'
@@ -405,10 +405,9 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
         $repoSettings.security.dependabotSecurityPosture.securityUpdatesEnabled | Should -BeTrue
-        $repoSettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeTrue
+        $repoSettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeFalse
         $repoSettings.security.dependabotSecurityPosture.localConfigPath | Should -Be '.github/dependabot.yml'
-        $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
-        $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
+        $repoSettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -BeNullOrEmpty
         $repoSettings.security.dependabotSecurityPosture.documentationPath | Should -Be 'decision:dependabot-security-posture'
         $scorecardScore.available | Should -BeTrue
         $scorecardScore.score | Should -Be 7.4
@@ -425,12 +424,12 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
         @($repoSettings.security.codeScanning.codeqlSupportedLanguages) | Should -HaveCount 0
         $repoSettings.security.codeScanning.codeqlWorkflowPresent | Should -BeFalse
-        $repoSettings.security.codeScanning.sarifUploadWorkflowPresent | Should -BeTrue
-        $repoSettings.security.codeScanning.scorecardSarifUploadPresent | Should -BeTrue
-        $repoSettings.security.codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
-        $repoSettings.security.codeScanning.activeControls | Should -Contain 'actionlint'
-        $repoSettings.security.codeScanning.activeControls | Should -Contain 'zizmor'
-        $repoSettings.security.codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+        $repoSettings.security.codeScanning.sarifUploadWorkflowPresent | Should -BeFalse
+        $repoSettings.security.codeScanning.scorecardSarifUploadPresent | Should -BeFalse
+        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'psscriptanalyzer'
+        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'actionlint'
+        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'zizmor'
+        $repoSettings.security.codeScanning.activeControls | Should -Not -Contain 'openssf-scorecard-sarif'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $scorecardPosture.available | Should -BeTrue
         $scorecardPosture.openAlertCount | Should -Be 6
@@ -449,96 +448,28 @@ Describe 'Repository settings and community-health baseline' {
         ($scorecardPosture.rows | Where-Object { $_.ruleId -eq 'CIIBestPracticesID' }).classification | Should -Be 'external-program-optional'
         $repoSettings.branchProtection.requiredStatusChecks | Should -BeFalse
         $repoSettings.rulesets.count | Should -Be 0
-        $repoSettings.actionsWorkflowPermissions.available | Should -BeTrue
-        $repoSettings.actionsWorkflowPermissions.defaultWorkflowPermissions | Should -Be 'read'
-        $repoSettings.actionsWorkflowPermissions.canApprovePullRequestReviews | Should -BeFalse
-        $repoSettings.actionsWorkflowPermissions.generatedPrCreationAllowed | Should -BeFalse
-        $repoSettings.actionsWorkflowPermissions.recommendation | Should -Be 'enable-actions-pr-creation-or-use-approved-automation-token'
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.status | Should -Be 'decision-recorded'
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.selectedPath | Should -Be 'enable-actions-pr-creation'
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.rejectedPath | Should -Be 'approved-github-app-or-pat-token'
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresRepositorySetting | Should -BeTrue
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.requiresNewSecret | Should -BeFalse
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.currentSettingAllowsGeneratedPr | Should -BeFalse
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.decisionDocumentPath | Should -Be 'decision:generated-pr-credential'
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.activationCommand | Should -Match 'can_approve_pull_request_reviews=true'
-        $repoSettings.actionsWorkflowPermissions.generatedPrCredentialDecision.nextAction | Should -Match 'rerun hosted write-pr'
-        $repoSettings.requiredCheckReadiness.status | Should -Be 'not-enabled'
-        $repoSettings.requiredCheckReadiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
+        $repoSettings.requiredCheckReadiness.status | Should -Be 'not-applicable'
+        $repoSettings.requiredCheckReadiness.recommendation | Should -Be 'local-validation-only'
         $repoSettings.requiredCheckReadiness.readyForEnforcement | Should -BeFalse
         $repoSettings.requiredCheckReadiness.branchProtectionRequiredStatusChecks | Should -BeFalse
         $repoSettings.requiredCheckReadiness.rulesetCount | Should -Be 0
         $repoSettings.requiredCheckReadiness.enforceAdmins | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.candidateCheckCount | Should -Be 6
-        ($repoSettings.requiredCheckReadiness.candidateChecks | ForEach-Object { $_.name }) | Should -Contain 'Pester (offline)'
-        $repoSettings.requiredCheckReadiness.workflowCoverage.status | Should -Be 'ready'
-        $repoSettings.requiredCheckReadiness.workflowCoverage.workflowCount | Should -Be 3
+        $repoSettings.requiredCheckReadiness.candidateCheckCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.candidateChecks | Should -BeNullOrEmpty
+        $repoSettings.requiredCheckReadiness.workflowCoverage.status | Should -Be 'not-applicable'
+        $repoSettings.requiredCheckReadiness.workflowCoverage.workflowCount | Should -Be 0
         $repoSettings.requiredCheckReadiness.workflowCoverage.warningCount | Should -Be 0
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.status | Should -Be 'blocked'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.status | Should -Be 'not-applicable'
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyForRequiredCheckEnforcement | Should -BeFalse
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.checklistCount | Should -Be 5
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyCount | Should -Be 3
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.blockedCount | Should -Be 2
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.checklistCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.readyCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.blockedCount | Should -Be 0
         $repoSettings.requiredCheckReadiness.prDeliveryTransition.needsLiveValidationCount | Should -Be 0
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.available | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.conclusion | Should -Be 'success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.failedStep | Should -BeNullOrEmpty
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence.previewStepReached | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.conclusion | Should -Be 'success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.failedStep | Should -BeNullOrEmpty
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.generatedBranchCleanup | Should -Be 'deleted-after-validation-success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCreated | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestNumber | Should -Be 10
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationDispatched | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.validationConclusion | Should -Be 'success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestChecksAttached | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.pullRequestCheckRollupCount | Should -Be 1
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffImplemented | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffContext | Should -Be 'generated-profile/validation'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffState | Should -Be 'success'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-proven'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.allowed | Should -BeFalse
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.directMainMaintenancePolicy.recommendation | Should -Be 'keep-pr-delivery'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.status | Should -Be 'completed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.readinessStatus | Should -Be 'ready'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.requiredBeforeEnforcement | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.candidateCheckCount | Should -Be 6
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'README.md'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain '.github/workflows/tests.yml'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.touchPaths | Should -Contain 'setup.ps1'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExercisePlan.evidenceStatus | Should -Be 'passed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.pullRequestNumber | Should -Be 13
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.status | Should -Be 'passed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateCheckCount | Should -Be 6
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.failedCandidateChecks | Should -BeNullOrEmpty
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.candidateCheckExerciseEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.available | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.status | Should -Be 'passed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.evidenceStatus | Should -Be 'successful'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.selectedPath | Should -Be 'pull-request-delivery'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.pullRequestNumber | Should -Be 14
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.headSha | Should -Be '65475b7b47fc1e33a96843a131108b2660b18d19'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.mergeSha | Should -Be '64e02f3b4b9737f77b4629052dabc9f449e261bb'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.expectedCandidateCheckCount | Should -Be 6
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.successfulCandidateCheckCount | Should -Be 6
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.mergeMethod | Should -Be 'rebase'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.routineMaintenancePrDrillEvidence.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.available | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.status | Should -Be 'passed'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.enforcementMechanism | Should -Be 'branch-protection'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.strictRequiredStatusChecks | Should -BeTrue
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.pullRequestNumber | Should -Be 16
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.headSha | Should -Be '8575e324182b96527bb9b58420d5ff44e3c05c06'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.mergeSha | Should -Be 'dc05296386af847d4e89803f1ed3ac966df49fb7'
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.successfulCandidateCheckCount | Should -Be 6
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.failedCandidateCheckCount | Should -Be 0
-        $repoSettings.requiredCheckReadiness.prDeliveryTransition.requiredCheckEnforcementEvidence.mergeMethod | Should -Be 'rebase'
-        ($repoSettings.requiredCheckReadiness.prDeliveryTransition.items | ForEach-Object { $_.id }) | Should -Contain 'pr-delivery-or-bypass'
-        ($repoSettings.requiredCheckReadiness.blockers -join ' ') | Should -Not -Match 'routine PR delivery'
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrDryRunEvidence | Should -BeNullOrEmpty
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.generatedPrWriteEvidence | Should -BeNullOrEmpty
+        $repoSettings.requiredCheckReadiness.prDeliveryTransition.items | Should -BeNullOrEmpty
+        $repoSettings.requiredCheckReadiness.blockerCount | Should -Be 0
+        $repoSettings.requiredCheckReadiness.blockers | Should -BeNullOrEmpty
         $repoSettings.reviewPolicyPosture.available | Should -BeTrue
         $repoSettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
         $repoSettings.reviewPolicyPosture.recommendation | Should -Be 'keep-warning-only-until-reviewer-model'
@@ -550,7 +481,6 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.reviewPolicyPosture.documentationPath | Should -Be 'decision:review-policy-posture'
         $repoSettings.reviewPolicyPosture.nextAction | Should -Match 'independent reviewer'
         $repoSettings.warningCount | Should -BeGreaterThan 0
-        ($repoSettings.warnings -join ' ') | Should -Match 'status checks'
         ($repoSettings.warnings -join ' ') | Should -Match 'create pull requests'
         ($repoSettings | ConvertTo-Json -Depth 20) | Should -Not -Match 'secret_value|ghp_|gho_|github_pat_'
 
@@ -2444,9 +2374,7 @@ Describe 'Markdownlint contract' {
         $script:MarkdownlintConfig = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.markdownlint-cli2.yaml')
         $script:MarkdownlintPackage = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'package.json') | ConvertFrom-Json -AsHashtable
         $script:MarkdownlintPackageLock = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'package-lock.json') | ConvertFrom-Json -AsHashtable
-        $script:MarkdownlintTestsWorkflow = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml')
         $script:MarkdownlintCodeowners = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/CODEOWNERS')
-        $script:MarkdownlintDependabot = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml')
         $script:MarkdownlintGitIgnore = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.gitignore')
     }
 
@@ -2463,7 +2391,6 @@ Describe 'Markdownlint contract' {
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "SECURITY[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[.]github/pull_request_template[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Not -Match 'docs/[*][*]/[*][.]md'
-        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "CLAUDE[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "TODO[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "RESEARCH_FEATURE_PLAN[.]md"\s*$'
     }
@@ -2478,18 +2405,11 @@ Describe 'Markdownlint contract' {
         $script:MarkdownlintGitIgnore | Should -Match '(?m)^node_modules/\s*$'
         $script:MarkdownlintCodeowners | Should -Match '(?m)^/[.]markdownlint-cli2[.]yaml\s+@SysAdminDoc\s*$'
         $script:MarkdownlintCodeowners | Should -Match '(?m)^/package-lock[.]json\s+@SysAdminDoc\s*$'
-        $script:MarkdownlintDependabot | Should -Match '(?ms)package-ecosystem: "npm".*directory: "/"'
     }
 
-    It 'runs markdownlint in Tests with a pinned setup-node action' {
-        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^  markdownlint:\s*$'
-        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^    name: Markdownlint\s*$'
-        $script:MarkdownlintTestsWorkflow | Should -Match 'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e'
-        $script:MarkdownlintTestsWorkflow | Should -Not -Match 'actions/setup-node@v'
-        $script:MarkdownlintTestsWorkflow | Should -Match 'node-version: "24"'
-        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^\s+cache: npm\s*$'
-        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^\s+npm ci\s*$'
-        $script:MarkdownlintTestsWorkflow | Should -Match '(?m)^\s+npm run lint:markdown\s*$'
+    It 'keeps markdownlint local-only without workflow or Dependabot config' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') | Should -BeFalse
     }
 }
 
@@ -2505,7 +2425,7 @@ Describe 'Profile render-host decision record' {
 }
 
 Describe 'Code scanning posture decision' {
-    It 'reports PowerShell-only CodeQL as not applicable while retaining SARIF controls' {
+    It 'reports PowerShell-only CodeQL as not applicable without hosted SARIF controls' {
         $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
         $codeScanning = $report.repositorySettings.security.codeScanning
 
@@ -2513,14 +2433,13 @@ Describe 'Code scanning posture decision' {
         $codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
         $codeScanning.codeqlWorkflowPresent | Should -BeFalse
-        $codeScanning.scorecardSarifUploadPresent | Should -BeTrue
-        $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
-        $codeScanning.activeControls | Should -Contain 'openssf-scorecard-sarif'
+        $codeScanning.scorecardSarifUploadPresent | Should -BeFalse
+        $codeScanning.activeControls | Should -Not -Contain 'psscriptanalyzer'
+        $codeScanning.activeControls | Should -Not -Contain 'openssf-scorecard-sarif'
         $codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
-        $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeTrue
-        $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'github-actions'
-        $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -Contain 'npm'
+        $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeFalse
+        $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -BeNullOrEmpty
         $codeScanning.scorecardAlertPosture.available | Should -BeTrue
         $codeScanning.scorecardAlertPosture.openAlertCount | Should -Be @($codeScanning.scorecardAlertPosture.rows).Count
         $codeScanning.scorecardAlertPosture.openAlertCount | Should -BeGreaterOrEqual 4
@@ -2651,39 +2570,15 @@ Describe 'Profile sync entrypoint' {
     }
 }
 
-Describe 'OpenSSF Scorecard workflow permissions' {
-    BeforeAll {
-        $script:ScorecardWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
-    }
-
-    It 'keeps workflow-level permissions read-only for Scorecard publish mode' {
-        $workflowPermissionBlock = [regex]::Match(
-            $script:ScorecardWorkflow,
-            "(?ms)^permissions:\s*(?<block>.*?)(?=^jobs:)"
-        )
-
-        $workflowPermissionBlock.Success | Should -BeTrue
-        $workflowPermissionBlock.Groups['block'].Value | Should -Not -Match ':\s*write\b'
-    }
-
-    It 'grants OIDC and SARIF upload writes only at the Scorecard job level' {
-        $scorecardJobBlock = [regex]::Match(
-            $script:ScorecardWorkflow,
-            "(?ms)^  scorecard:\s*(?<block>.*)"
-        )
-
-        $scorecardJobBlock.Success | Should -BeTrue
-        $scorecardJobBlock.Groups['block'].Value | Should -Match 'contents:\s*read'
-        $scorecardJobBlock.Groups['block'].Value | Should -Match 'security-events:\s*write'
-        $scorecardJobBlock.Groups['block'].Value | Should -Match 'id-token:\s*write'
-        $scorecardJobBlock.Groups['block'].Value | Should -Match 'publish_results:\s*true'
+Describe 'Hosted workflow policy' {
+    It 'keeps GitHub Actions workflows absent for local-only validation' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') | Should -BeFalse
     }
 }
 
 Describe 'Rendered profile smoke wiring' {
     BeforeAll {
         $script:RenderSmokeScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1') -Raw
-        $script:ProfileSyncWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
     }
 
     It 'checks both desktop and 390px mobile viewports without committing screenshots' {
@@ -2718,13 +2613,10 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'Chrome exited before DevTools became ready'
     }
 
-    It 'runs from profile-sync and uploads public-safe smoke artifacts' {
-        $script:ProfileSyncWorkflow | Should -Match 'Smoke live rendered profile'
-        $script:ProfileSyncWorkflow | Should -Match '(?s)- name: Smoke live rendered profile\s+if: \$\{\{ !cancelled\(\) \}\}'
-        $script:ProfileSyncWorkflow | Should -Match ([regex]::Escape('./scripts/render-profile-smoke.ps1'))
-        $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke[.]json'
-        $script:ProfileSyncWorkflow | Should -Match 'reports/rendered-profile-smoke-[*][.]png'
-        $script:ProfileSyncWorkflow | Should -Match 'retention-days: 14'
+    It 'remains a local smoke script while hosted workflows are absent' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') | Should -BeFalse
+        $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
+        $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-'
     }
 }
 
@@ -2813,285 +2705,31 @@ Describe 'Portfolio-only catalog mutation' {
 }
 
 Describe 'Required status check readiness' {
-    BeforeAll {
-        $script:RequiredCheckWorkflows = [ordered]@{
-            Tests = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
-            ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
-            WorkflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
-        }
+    It 'has no hosted required-check candidates under the local-only policy' {
+        @($RequiredStatusCheckCandidates) | Should -HaveCount 0
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') | Should -BeFalse
     }
 
-    It 'creates candidate required checks for every pull request and merge queue run' {
-        foreach ($workflow in $script:RequiredCheckWorkflows.Values) {
-            $workflow | Should -Match '(?m)^  pull_request:\s*$'
-            $workflow | Should -Match '(?m)^  merge_group:\s*$'
-        }
-    }
-
-    It 'does not path-filter workflows that may become required status checks' {
-        foreach ($workflow in $script:RequiredCheckWorkflows.Values) {
-            $workflow | Should -Not -Match '(?ms)^  pull_request:\s*\r?\n\s+paths:'
-        }
-    }
-
-    It 'runs offline tests for schema and markdown contract changes pushed to main' {
-        $pushBlock = [regex]::Match($script:RequiredCheckWorkflows.Tests, '(?ms)^  push:\s*\r?\n(?<block>.*?)(?=^\S|\z)').Groups['block'].Value
-
-        $pushBlock | Should -Match '(?m)^\s+paths:\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "schemas/[*][*]"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "README[.]md"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "SECURITY[.]md"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "[.]github/[*][*]"\s*$'
-        $pushBlock | Should -Not -Match 'docs/[*][*]/[*][.]md'
-        $pushBlock | Should -Match '(?m)^\s+- "[.]markdownlint-cli2[.]yaml"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "package[.]json"\s*$'
-        $pushBlock | Should -Match '(?m)^\s+- "package-lock[.]json"\s*$'
-    }
-
-    It 'keeps the Windows setup smoke check always created for PRs and merge queue runs' {
-        $testsWorkflow = $script:RequiredCheckWorkflows.Tests
-
-        $testsWorkflow | Should -Match '(?m)^  windows-setup-smoke:\s*$'
-        $testsWorkflow | Should -Match '(?m)^    name: Windows setup smoke\s*$'
-        $testsWorkflow | Should -Match '(?m)^    runs-on: windows-latest\s*$'
-        $testsWorkflow | Should -Match '(?m)^        shell: powershell\s*$'
-        $testsWorkflow | Should -Match 'System\.Management\.Automation\.Language\.Parser'
-        $testsWorkflow | Should -Match '-CheckOnly'
-    }
-
-    It 'keeps required-check candidates backed by existing workflows' {
-        foreach ($candidate in @($RequiredStatusCheckCandidates)) {
-            Test-Path -LiteralPath (Join-Path $script:RepoRoot ([string]$candidate.workflow)) | Should -BeTrue
-        }
-    }
-
-    It 'keeps the report candidate list aligned with the activation decision' {
-        @($RequiredStatusCheckCandidates) | Should -HaveCount 6
-        (($RequiredStatusCheckCandidates | ForEach-Object { $_.name }) -join '|') |
-            Should -Be 'Pester (offline)|PSScriptAnalyzer|Markdownlint|Windows setup smoke|Check generated README|zizmor'
-    }
-
-    It 'reports PR-delivery transition workflow coverage for candidate checks' {
+    It 'reports workflow coverage as not applicable when no hosted candidates exist' {
         $coverage = Test-RequiredCheckWorkflowCoverage
 
-        $coverage.status | Should -Be 'ready'
-        $coverage.workflowCount | Should -Be 3
-        $coverage.candidateCheckCount | Should -Be 6
+        $coverage.status | Should -Be 'not-applicable'
+        $coverage.workflowCount | Should -Be 0
+        $coverage.candidateCheckCount | Should -Be 0
         $coverage.warningCount | Should -Be 0
-        foreach ($workflow in @($coverage.workflows)) {
-            $workflow.exists | Should -BeTrue
-            $workflow.pullRequestTrigger | Should -BeTrue
-            $workflow.mergeGroupTrigger | Should -BeTrue
-            $workflow.pullRequestPathFiltered | Should -BeFalse
-            @($workflow.missingCandidateCheckNames) | Should -HaveCount 0
-        }
+        $coverage.workflows | Should -BeNullOrEmpty
     }
 
-    It 'records generated PR credential and PR delivery decisions in report data' {
-        $decision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $false
-        $policy = Get-DirectMainMaintenancePolicy
-        $enforcementEvidence = Get-RequiredCheckEnforcementEvidence
+    It 'reports required-check readiness as local-validation-only' {
+        $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$true -RulesetsAvailable:$true -RequiredStatusChecks $false -EnforceAdmins $true -ActionsPullRequestCreationAllowed $false -RulesetCount 0 -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
 
-        $decision.status | Should -Be 'decision-recorded'
-        $decision.selectedPath | Should -Be 'enable-actions-pr-creation'
-        $decision.rejectedPath | Should -Be 'approved-github-app-or-pat-token'
-        $decision.decisionDocumentPath | Should -Be 'decision:generated-pr-credential'
-        $policy.allowed | Should -BeFalse
-        $policy.selectedPath | Should -Be 'pull-request-delivery'
-        $policy.documentationPath | Should -Be 'decision:routine-maintenance-pr-delivery'
-        $enforcementEvidence.status | Should -Be 'passed'
-        $enforcementEvidence.enforcementMechanism | Should -Be 'branch-protection'
-    }
-
-    It 'records hosted generated PR dry-run evidence without marking delivery proven' {
-        $coverage = Test-RequiredCheckWorkflowCoverage
-        $transition = Get-PrDeliveryTransitionChecklist -WorkflowCoverage $coverage -RequiredChecksEnabled:$false -EnforceAdmins $true -ActionsPullRequestCreationAllowed $false -BranchProtectionAvailable:$true -RulesetsAvailable:$true
-        $evidence = $transition.generatedPrDryRunEvidence
-        $writeEvidence = $transition.generatedPrWriteEvidence
-
-        $transition.readyForRequiredCheckEnforcement | Should -BeFalse
-        $transition.status | Should -Be 'blocked'
-        $plan = $transition.candidateCheckExercisePlan
-        $plan.status | Should -Be 'completed'
-        $plan.readinessStatus | Should -Be 'ready'
-        $plan.requiredBeforeEnforcement | Should -BeTrue
-        $plan.purpose | Should -Be 'refresh-recent-check-run-proof'
-        $plan.disposableBranchPrefix | Should -Be 'automation/required-check-proof-'
-        $plan.pullRequestTitle | Should -Be 'chore: exercise required-check candidates'
-        $plan.candidateCheckCount | Should -Be 6
-        (($plan.candidateChecks) -join '|') | Should -Be 'Pester (offline)|PSScriptAnalyzer|Markdownlint|Windows setup smoke|Check generated README|zizmor'
-        $plan.workflowCount | Should -Be 3
-        $plan.workflows | Should -Contain '.github/workflows/profile-sync.yml'
-        $plan.touchPaths | Should -Contain 'README.md'
-        $plan.touchPaths | Should -Contain '.github/workflows/tests.yml'
-        $plan.touchPaths | Should -Contain 'setup.ps1'
-        $plan.nonMutationPolicy | Should -Match 'do not merge'
-        $plan.expectedPrChecks | Should -Contain 'zizmor'
-        $plan.verificationSteps | Should -HaveCount 5
-        $plan.cleanupRequired | Should -BeTrue
-        $plan.evidenceStatus | Should -Be 'passed'
-        $plan.documentationPath | Should -Be 'decision:pr-delivery-transition-checklist'
-        $plan.nextAction | Should -Match 'PR #14'
-        $candidateEvidence = $transition.candidateCheckExerciseEvidence
-        $candidateEvidence.available | Should -BeTrue
-        $candidateEvidence.status | Should -Be 'passed'
-        $candidateEvidence.evidenceStatus | Should -Be 'successful'
-        $candidateEvidence.pullRequestNumber | Should -Be 13
-        $candidateEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/13'
-        $candidateEvidence.pullRequestState | Should -Be 'closed'
-        $candidateEvidence.branch | Should -Be 'automation/required-check-proof-20260607-125'
-        $candidateEvidence.headSha | Should -Be 'b67e1f1fc3ec70cf6a91b4d1a0c5f71d52d1fb79'
-        $candidateEvidence.mergeSha | Should -Be '24b6a49dbe03f82f6c794b79f953fdf04190febe'
-        $candidateEvidence.workflowRunIds | Should -Contain 27090100279
-        $candidateEvidence.profileSyncArtifactId | Should -Be 7463321333
-        $candidateEvidence.expectedCandidateCheckCount | Should -Be 6
-        $candidateEvidence.observedCandidateCheckCount | Should -Be 6
-        $candidateEvidence.successfulCandidateCheckCount | Should -Be 6
-        $candidateEvidence.failedCandidateCheckCount | Should -Be 0
-        $candidateEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
-        $candidateEvidence.successfulCandidateChecks | Should -Contain 'Windows setup smoke'
-        $candidateEvidence.failedCandidateChecks | Should -BeNullOrEmpty
-        $candidateEvidence.cleanupState | Should -Be 'closed-pr-and-deleted-branch'
-        $candidateEvidence.failureReason | Should -BeNullOrEmpty
-        $candidateEvidence.nextAction | Should -Match 'Keep this proof fresh'
-        $routinePrDrill = $transition.routineMaintenancePrDrillEvidence
-        $routinePrDrill.available | Should -BeTrue
-        $routinePrDrill.status | Should -Be 'passed'
-        $routinePrDrill.evidenceStatus | Should -Be 'successful'
-        $routinePrDrill.requiredBeforeEnforcement | Should -BeTrue
-        $routinePrDrill.selectedPath | Should -Be 'pull-request-delivery'
-        $routinePrDrill.pullRequestNumber | Should -Be 14
-        $routinePrDrill.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/14'
-        $routinePrDrill.branch | Should -Be 'routine-pr-drill-evidence'
-        $routinePrDrill.headSha | Should -Be '65475b7b47fc1e33a96843a131108b2660b18d19'
-        $routinePrDrill.mergeSha | Should -Be '64e02f3b4b9737f77b4629052dabc9f449e261bb'
-        $routinePrDrill.workflowRunIds | Should -Contain 27090770215
-        $routinePrDrill.profileSyncRunId | Should -Be 27090770215
-        $routinePrDrill.testsRunId | Should -Be 27090770193
-        $routinePrDrill.workflowSecurityRunId | Should -Be 27090770203
-        $routinePrDrill.expectedCandidateCheckCount | Should -Be 6
-        $routinePrDrill.observedCandidateCheckCount | Should -Be 6
-        $routinePrDrill.successfulCandidateCheckCount | Should -Be 6
-        $routinePrDrill.failedCandidateCheckCount | Should -Be 0
-        $routinePrDrill.successfulCandidateChecks | Should -Contain 'Check generated README'
-        $routinePrDrill.successfulCandidateChecks | Should -Contain 'zizmor'
-        $routinePrDrill.mergeMethod | Should -Be 'rebase'
-        $routinePrDrill.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
-        $routinePrDrill.documentationPath | Should -Be 'decision:routine-maintenance-pr-delivery'
-        $routinePrDrill.nextAction | Should -Match 'PR #16'
-        $enforcementEvidence = $transition.requiredCheckEnforcementEvidence
-        $enforcementEvidence.available | Should -BeTrue
-        $enforcementEvidence.status | Should -Be 'passed'
-        $enforcementEvidence.evidenceStatus | Should -Be 'successful'
-        $enforcementEvidence.enforcementMechanism | Should -Be 'branch-protection'
-        $enforcementEvidence.strictRequiredStatusChecks | Should -BeTrue
-        $enforcementEvidence.pullRequestNumber | Should -Be 16
-        $enforcementEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/16'
-        $enforcementEvidence.branch | Should -Be 'record-required-check-enforcement'
-        $enforcementEvidence.headSha | Should -Be '8575e324182b96527bb9b58420d5ff44e3c05c06'
-        $enforcementEvidence.mergeSha | Should -Be 'dc05296386af847d4e89803f1ed3ac966df49fb7'
-        $enforcementEvidence.mergedAt | Should -Be '2026-06-07T11:58:25Z'
-        $enforcementEvidence.workflowRunIds | Should -Contain 27091837034
-        $enforcementEvidence.profileSyncRunId | Should -Be 27091837034
-        $enforcementEvidence.testsRunId | Should -Be 27091837025
-        $enforcementEvidence.workflowSecurityRunId | Should -Be 27091837036
-        $enforcementEvidence.profileSyncArtifactId | Should -Be 7463884699
-        $enforcementEvidence.renderedSmokeArtifactId | Should -Be 7463884770
-        $enforcementEvidence.expectedCandidateCheckCount | Should -Be 6
-        $enforcementEvidence.observedCandidateCheckCount | Should -Be 6
-        $enforcementEvidence.successfulCandidateCheckCount | Should -Be 6
-        $enforcementEvidence.failedCandidateCheckCount | Should -Be 0
-        $enforcementEvidence.skippedNonCandidateCheckCount | Should -Be 3
-        $enforcementEvidence.successfulCandidateChecks | Should -Contain 'Check generated README'
-        $enforcementEvidence.successfulCandidateChecks | Should -Contain 'zizmor'
-        $enforcementEvidence.failedCandidateChecks | Should -BeNullOrEmpty
-        $enforcementEvidence.mergeMethod | Should -Be 'rebase'
-        $enforcementEvidence.cleanupState | Should -Be 'merged-pr-and-deleted-branch'
-        $enforcementEvidence.nextAction | Should -Match 'routine pull requests'
-        $evidence.available | Should -BeTrue
-        $evidence.workflow | Should -Be '.github/workflows/profile-sync.yml'
-        $evidence.mode | Should -Be 'dry-run-pr'
-        $evidence.event | Should -Be 'workflow_dispatch'
-        $evidence.headSha | Should -Be 'f6cd6b970a1d92c5a13cac2b1c9abac031fab257'
-        $evidence.runId | Should -Be 27084524165
-        $evidence.runUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27084524165'
-        $evidence.createdAt | Should -Be '2026-06-07T06:06:38Z'
-        $evidence.conclusion | Should -Be 'success'
-        $evidence.jobId | Should -Be 79936227891
-        $evidence.failedStep | Should -BeNullOrEmpty
-        $evidence.previewStepReached | Should -BeTrue
-        $evidence.reportArtifactUploaded | Should -BeTrue
-        $evidence.artifactReadinessStatus | Should -Be 'needs-live-validation'
-        $evidence.evidenceSummary | Should -Match 'automation/profile-sync-27084524165'
-        $evidence.nextAction | Should -Match 'required-check preconditions'
-        $writeEvidence.available | Should -BeTrue
-        $writeEvidence.mode | Should -Be 'write-pr'
-        $writeEvidence.runId | Should -Be 27087776182
-        $writeEvidence.jobId | Should -Be 79945465863
-        $writeEvidence.conclusion | Should -Be 'success'
-        $writeEvidence.failedStep | Should -BeNullOrEmpty
-        $writeEvidence.reportArtifactUploaded | Should -BeTrue
-        $writeEvidence.artifactId | Should -Be 7462507030
-        $writeEvidence.generatedBranch | Should -Be 'automation/profile-sync-27087776182'
-        $writeEvidence.generatedBranchPushed | Should -BeTrue
-        $writeEvidence.generatedBranchCleanup | Should -Be 'deleted-after-validation-success'
-        $writeEvidence.pullRequestCreated | Should -BeTrue
-        $writeEvidence.pullRequestUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/pull/10'
-        $writeEvidence.pullRequestNumber | Should -Be 10
-        $writeEvidence.pullRequestState | Should -Be 'closed'
-        $writeEvidence.validationDispatched | Should -BeTrue
-        $writeEvidence.validationRunId | Should -Be 27087806797
-        $writeEvidence.validationRunUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
-        $writeEvidence.validationConclusion | Should -Be 'success'
-        $writeEvidence.validationFailedStep | Should -BeNullOrEmpty
-        $writeEvidence.validationArtifactId | Should -Be 7462523830
-        $writeEvidence.validationSmokeArtifactId | Should -Be 7462524019
-        $writeEvidence.generatedBranchCheckRunCount | Should -Be 4
-        $writeEvidence.generatedBranchSuccessfulCheckRunCount | Should -Be 2
-        $writeEvidence.pullRequestCheckRollupCount | Should -Be 1
-        $writeEvidence.pullRequestChecksAttached | Should -BeTrue
-        $writeEvidence.pullRequestCheckRollupNote | Should -Match 'StatusContext generated-profile/validation'
-        $writeEvidence.statusHandoffImplemented | Should -BeTrue
-        $writeEvidence.statusHandoffContext | Should -Be 'generated-profile/validation'
-        $writeEvidence.statusHandoffApi | Should -Be 'commit-statuses'
-        $writeEvidence.statusHandoffPermission | Should -Be 'statuses: write'
-        $writeEvidence.statusHandoffPendingPublisher | Should -Be 'scripts/open-generated-profile-pr.ps1'
-        $writeEvidence.statusHandoffFinalPublisher | Should -Match 'generated-validation-status'
-        $writeEvidence.statusHandoffProof | Should -Be 'pr-status-rollup-success'
-        $writeEvidence.statusHandoffState | Should -Be 'success'
-        $writeEvidence.statusHandoffTargetUrl | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/actions/runs/27087806797'
-        $writeEvidence.statusHandoffDescription | Should -Be 'Generated profile validation success.'
-        $writeEvidence.blocker | Should -Match 'direct-main maintenance'
-        $writeEvidence.nextAction | Should -Match 'direct-main maintenance'
-        $transition.directMainMaintenancePolicy.status | Should -Be 'pr-delivery-proven'
-        $transition.directMainMaintenancePolicy.allowed | Should -BeFalse
-        $transition.directMainMaintenancePolicy.requiredBeforeEnforcement | Should -BeTrue
-        $transition.directMainMaintenancePolicy.selectedPath | Should -Be 'pull-request-delivery'
-        $transition.directMainMaintenancePolicy.evidence | Should -Match 'No direct-main bypass actor is approved'
-        $transition.directMainMaintenancePolicy.nextAction | Should -Match 'pull-request delivery'
-    }
-
-    It 'treats branch-protection required checks as the selected enforcement mechanism' {
-        $coverage = Test-RequiredCheckWorkflowCoverage
-        $transition = Get-PrDeliveryTransitionChecklist -WorkflowCoverage $coverage -RequiredChecksEnabled:$true -EnforceAdmins $true -ActionsPullRequestCreationAllowed $true -BranchProtectionAvailable:$true -RulesetsAvailable:$true
-        $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$true -RulesetsAvailable:$true -RequiredStatusChecks $true -EnforceAdmins $true -ActionsPullRequestCreationAllowed $true -RulesetCount 0 -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
-
-        $transition.status | Should -Be 'ready'
-        $transition.readyForRequiredCheckEnforcement | Should -BeTrue
-        $transition.readyCount | Should -Be 5
-        $transition.blockedCount | Should -Be 0
-        $transition.needsLiveValidationCount | Should -Be 0
-        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).status | Should -Be 'ready'
-        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).evidence | Should -Match 'PR #16'
-        ($transition.items | Where-Object { $_.id -eq 'enforcement-mechanism' }).nextAction | Should -Match 'routine pull requests'
-
-        $readiness.status | Should -Be 'enforcement-present'
-        $readiness.recommendation | Should -Be 'monitor-required-check-enforcement'
-        $readiness.readyForEnforcement | Should -BeTrue
-        $readiness.branchProtectionRequiredStatusChecks | Should -BeTrue
-        $readiness.rulesetCount | Should -Be 0
+        $readiness.status | Should -Be 'not-applicable'
+        $readiness.recommendation | Should -Be 'local-validation-only'
+        $readiness.readyForEnforcement | Should -BeFalse
+        $readiness.candidateCheckCount | Should -Be 0
+        $readiness.workflowCoverage.status | Should -Be 'not-applicable'
+        $readiness.prDeliveryTransition.status | Should -Be 'not-applicable'
         $readiness.blockerCount | Should -Be 0
-        $readiness.blockers | Should -BeNullOrEmpty
     }
 }
 
@@ -3120,53 +2758,13 @@ Describe 'Generated profile PR validation handoff' {
         $script:GeneratedPrHelper = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') -Raw
         $script:GeneratedValidationStatusScriptPath = Join-Path $script:RepoRoot 'scripts/set-generated-validation-status.ps1'
         $script:GeneratedValidationStatusScript = Get-Content -LiteralPath $script:GeneratedValidationStatusScriptPath -Raw
-        $script:GeneratedPrWorkflows = [ordered]@{
-            ProfileSync = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
-            AssetsRefresh = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') -Raw
-        }
     }
 
-    It 'grants actions write only to generated PR jobs that dispatch validation' {
-        foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
-            $workflow | Should -Match '(?ms)permissions:\s*\r?\n(\s+\w[\w-]*: \w+\s*\r?\n)*\s+actions: write'
-            $workflow | Should -Match '(?ms)permissions:\s*\r?\n(\s+\w[\w-]*: \w+\s*\r?\n)*\s+contents: write'
-            $workflow | Should -Match '(?ms)permissions:\s*\r?\n(\s+\w[\w-]*: \w+\s*\r?\n)*\s+pull-requests: write'
-            $workflow | Should -Match 'statuses: write'
-            $workflow | Should -Match 'open-generated-profile-pr[.]ps1'
-        }
-        $script:GeneratedPrHelper | Should -Match 'gh workflow run \$ValidationWorkflow --ref \$branch -f "mode=\$ValidationMode"'
-    }
-
-    It 'links the branch-scoped validation runs in the PR body and job summary' {
-        $script:GeneratedPrHelper | Should -Match 'Validation handoff: this workflow dispatches Profile sync in check mode'
-        $script:GeneratedPrHelper | Should -Match 'actions/workflows/\$ValidationWorkflow'
-        $script:GeneratedPrHelper | Should -Match '\[uri\]::EscapeDataString\("branch:\$branch"\)'
-        $script:GeneratedPrHelper | Should -Match 'GITHUB_STEP_SUMMARY'
-        $script:GeneratedPrHelper | Should -Match 'Generated profile PR validation handoff'
-        $script:GeneratedPrHelper | Should -Match 'Status context: generated-profile/validation'
-    }
-
-    It 'publishes a generated validation commit status without broadening the check job token' {
-        $script:GeneratedPrHelper | Should -Match 'set-generated-validation-status[.]ps1'
-        $script:GeneratedPrHelper | Should -Match '-State pending'
-        $script:GeneratedPrHelper | Should -Match '-TargetUrl \$validationRunsUrl'
-        $script:GeneratedPrHelper | Should -Match 'Generated profile validation pending[.]'
-        $script:GeneratedPrHelper | Should -Match '-State error'
-        $script:GeneratedPrHelper | Should -Match 'Generated profile validation dispatch failed[.]'
-        $script:GeneratedPrHelper | Should -Match 'Deleted generated branch \$branch after generated validation status publishing failed'
-        $script:GeneratedValidationStatusScript | Should -Match "generated-profile/validation"
-        $script:GeneratedValidationStatusScript | Should -Match 'repos/\$Repository/statuses/\$Sha'
-
-        $checkJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  check:.*?^  write-pr:').Value
-        $writePrJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  write-pr:.*?^  generated-validation-status:').Value
-        $statusJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  generated-validation-status:.*?^  dry-run-pr:').Value
-
-        $checkJob | Should -Not -Match 'statuses: write'
-        $writePrJob | Should -Match 'statuses: write'
-        $statusJob | Should -Match 'needs: check'
-        $statusJob | Should -Match 'statuses: write'
-        $statusJob | Should -Match 'set-generated-validation-status[.]ps1'
-        $statusJob | Should -Match 'needs[.]check[.]result'
+    It 'keeps helper scripts dormant while hosted workflows are absent' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') | Should -BeFalse
+        $script:GeneratedPrHelper | Should -Match '\[switch\]\$DryRun'
+        $script:GeneratedPrHelper | Should -Match 'Dry run: no branch, commit, push, pull request, or validation dispatch will be created'
     }
 
     It 'builds the generated validation status payload offline' {
@@ -3185,103 +2783,11 @@ Describe 'Generated profile PR validation handoff' {
         $payload.description | Should -Be 'Generated profile validation pending.'
         $payload.target_url | Should -Match 'profile-sync[.]yml'
     }
-
-    It 'regenerates before checking dispatched generated automation branches' {
-        $script:GeneratedPrWorkflows.ProfileSync | Should -Match "startsWith\(github[.]ref_name, 'automation/profile-'\)"
-        $script:GeneratedPrWorkflows.ProfileSync | Should -Match 'Validate generated profile branch'
-        $script:GeneratedPrWorkflows.ProfileSync | Should -Match 'sync-profile[.]ps1 -Write -Check'
-
-        $normalValidationStep = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)- name: Validate generated profile\r?\n.*?run: ./scripts/sync-profile[.]ps1 -Check').Value
-        $normalValidationStep | Should -Not -Match '-Write -Check'
-    }
-
-    It 'supports a side-effect-free generated PR dry run' {
-        $script:GeneratedPrHelper | Should -Match '\[switch\]\$DryRun'
-        $script:GeneratedPrHelper | Should -Match 'Dry run: no branch, commit, push, pull request, or validation dispatch will be created'
-        $script:GeneratedPrHelper | Should -Not -Match 'gh pr create.*--dry-run'
-
-        $script:GeneratedPrWorkflows.ProfileSync | Should -Match 'dry-run-pr'
-        $script:GeneratedPrWorkflows.ProfileSync | Should -Match '-DryRun'
-        $dryRunJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  dry-run-pr:.*').Value
-        $dryRunJob | Should -Match 'contents: read'
-        $dryRunJob | Should -Not -Match 'contents: write'
-        $dryRunJob | Should -Not -Match 'pull-requests: write'
-        $dryRunJob | Should -Not -Match 'actions: write'
-    }
-
-    It 'preflights workflow permission before pushing generated PR branches' {
-        $script:GeneratedPrHelper | Should -Match 'Assert-GitHubActionsCanCreatePullRequests'
-        $script:GeneratedPrHelper | Should -Match 'actions/permissions/workflow'
-        $script:GeneratedPrHelper | Should -Match 'can_approve_pull_request_reviews'
-        $script:GeneratedPrHelper | Should -Match 'Allow GitHub Actions to create and approve pull requests'
-        $script:GeneratedPrHelper | Should -Match 'Resource not accessible by integration'
-        $script:GeneratedPrHelper | Should -Match 'continuing to gh pr create'
-
-        $preflightIndex = $script:GeneratedPrHelper.IndexOf('Assert-GitHubActionsCanCreatePullRequests', [StringComparison]::Ordinal)
-        $branchIndex = $script:GeneratedPrHelper.IndexOf('git switch -c $branch', [StringComparison]::Ordinal)
-        $preflightIndex | Should -BeGreaterThan -1
-        $branchIndex | Should -BeGreaterThan -1
-        $preflightIndex | Should -BeLessThan $branchIndex
-    }
-
-    It 'centralizes branch creation, commit, push, pull request, and validation guards' {
-        $script:GeneratedPrHelper | Should -Match "\[ValidateSet\('automation/profile-sync-', 'automation/profile-assets-'\)\]"
-        $script:GeneratedPrHelper | Should -Match 'git diff --quiet'
-        $script:GeneratedPrHelper | Should -Match 'git diff --cached --quiet'
-        $script:GeneratedPrHelper | Should -Match 'git switch -c \$branch'
-        $script:GeneratedPrHelper | Should -Match 'git commit -m \$CommitMessage'
-        $script:GeneratedPrHelper | Should -Match 'gh pr create'
-        $script:GeneratedPrHelper | Should -Match 'git push origin --delete \$branch'
-
-        $script:GeneratedPrWorkflows.ProfileSync | Should -Match '-BranchPrefix "automation/profile-sync-"'
-        $script:GeneratedPrWorkflows.AssetsRefresh | Should -Match '-BranchPrefix "automation/profile-assets-"'
-        foreach ($workflow in $script:GeneratedPrWorkflows.Values) {
-            $workflow | Should -Not -Match 'git switch -c'
-            $workflow | Should -Not -Match 'git commit -m'
-            $workflow | Should -Not -Match 'gh pr create'
-        }
-    }
-
-    It 'keeps validation dispatch out of the read-only check job' {
-        $checkJob = [regex]::Match($script:GeneratedPrWorkflows.ProfileSync, '(?ms)^  check:.*?^  write-pr:').Value
-
-        $checkJob | Should -Match 'contents: read'
-        $checkJob | Should -Not -Match 'actions: write'
-        $checkJob | Should -Not -Match 'statuses: write'
-        $checkJob | Should -Not -Match 'open-generated-profile-pr[.]ps1'
-    }
 }
 
 Describe 'Generated automation branch cleanup' {
-    BeforeAll {
-        $script:AutomationCleanupWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/automation-branch-cleanup.yml') -Raw
-    }
-
-    It 'defaults to dry-run cleanup and staggers the weekly schedule' {
-        $script:AutomationCleanupWorkflow | Should -Match 'dry_run:'
-        $script:AutomationCleanupWorkflow | Should -Match 'default: "true"'
-        $script:AutomationCleanupWorkflow | Should -Match 'DRY_RUN: \$\{\{ github[.]event_name != ''workflow_dispatch'' \|\| inputs[.]dry_run == ''true'' \}\}'
-        $script:AutomationCleanupWorkflow | Should -Match 'cron: "43 8 [*] [*] 3"'
-    }
-
-    It 'limits deletion to merged generated profile branches' {
-        $script:AutomationCleanupWorkflow | Should -Match '"automation/profile-sync-"'
-        $script:AutomationCleanupWorkflow | Should -Match '"automation/profile-assets-"'
-        $script:AutomationCleanupWorkflow | Should -Match 'matching-refs/heads/automation/'
-        $script:AutomationCleanupWorkflow | Should -Match 'StartsWith\(\$prefix, \[StringComparison\]::Ordinal\)'
-        $script:AutomationCleanupWorkflow | Should -Match '\$_[.]state -eq "MERGED"'
-        $script:AutomationCleanupWorkflow | Should -Match 'mergedAt'
-        $script:AutomationCleanupWorkflow | Should -Match 'gh api -X DELETE "repos/\$repo/git/refs/heads/\$branch"'
-    }
-
-    It 'keeps write permissions scoped to the cleanup job' {
-        $workflowLevel = [regex]::Match($script:AutomationCleanupWorkflow, '(?ms)^permissions:\s*(?<block>.*?)(?=^jobs:)').Groups['block'].Value
-        $job = [regex]::Match($script:AutomationCleanupWorkflow, '(?ms)^  cleanup:.*').Value
-
-        $workflowLevel | Should -Match 'contents: read'
-        $workflowLevel | Should -Not -Match 'contents: write'
-        $job | Should -Match 'contents: write'
-        $job | Should -Match 'pull-requests: read'
+    It 'has no scheduled cleanup workflow under the local-only policy' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/automation-branch-cleanup.yml') | Should -BeFalse
     }
 }
 
@@ -3289,8 +2795,6 @@ Describe 'Profile sync report summaries' {
     BeforeAll {
         $script:SummaryScriptPath = Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1'
         $script:SummaryScript = Get-Content -LiteralPath $script:SummaryScriptPath -Raw
-        $script:ProfileSyncWorkflowForSummary = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') -Raw
-        $script:AssetsRefreshWorkflowForSummary = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') -Raw
     }
 
     It 'writes a public-safe aggregate summary from the committed report' {
@@ -3339,9 +2843,6 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'REST fallback release attempts'
             $summary | Should -Match 'REST fallback no-release 404s'
             $summary | Should -Match 'Repository setting warnings'
-            $summary | Should -Match 'Actions workflow default permissions'
-            $summary | Should -Match 'Actions PR creation allowed'
-            $summary | Should -Match 'Actions PR permission recommendation'
             $summary | Should -Match 'Required check readiness'
             $summary | Should -Match 'Required check candidates'
             $summary | Should -Match 'Required check blockers'
@@ -3357,7 +2858,7 @@ Describe 'Profile sync report summaries' {
             $summary | Should -Match 'Generated PR branch check runs'
             $summary | Should -Match 'Generated PR PR checks attached'
             $summary | Should -Match 'Generated PR status context'
-            $summary | Should -Match 'generated-profile/validation'
+            $summary | Should -Not -Match 'generated-profile/validation'
             $summary | Should -Match 'Candidate check exercise latest evidence'
             $summary | Should -Match 'Candidate check exercise failed names'
             $summary | Should -Match 'Routine PR drill status'
@@ -3489,411 +2990,18 @@ Describe 'Profile sync report summaries' {
         }
     }
 
-    It 'wires summaries and retained report artifacts into profile workflows' {
-        foreach ($workflow in @($script:ProfileSyncWorkflowForSummary, $script:AssetsRefreshWorkflowForSummary)) {
-            $workflow | Should -Match 'write-profile-sync-summary[.]ps1'
-            $workflow | Should -Match 'GITHUB_STEP_SUMMARY|Write sync report summary'
-            $workflow | Should -Match 'actions/upload-artifact@'
-            $workflow | Should -Match 'reports/profile-sync-report[.]json'
-            $workflow | Should -Match 'retention-days: 14'
-        }
+    It 'keeps report summary generation local when hosted workflows are absent' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') | Should -BeFalse
+        $script:SummaryScript | Should -Match 'profile-sync-report[.]json'
+        $script:SummaryScript | Should -Match 'scheduledWorkflowFreshness'
     }
 }
 
-Describe 'Maintenance workflow schedules' {
-    BeforeAll {
-        $script:MaintenanceScheduleWorkflows = [ordered]@{
-            AssetsRefresh = '.github/workflows/assets-refresh.yml'
-            WorkflowSecurity = '.github/workflows/workflow-security.yml'
-            AutomationBranchCleanup = '.github/workflows/automation-branch-cleanup.yml'
-            ProfileSync = '.github/workflows/profile-sync.yml'
-            Scorecard = '.github/workflows/scorecard.yml'
-        }
-    }
-
-    It 'stagger independent Wednesday maintenance workflows' {
-        $assetsRefresh = Get-Content -LiteralPath (Join-Path $script:RepoRoot $script:MaintenanceScheduleWorkflows.AssetsRefresh) -Raw
-        $workflowSecurity = Get-Content -LiteralPath (Join-Path $script:RepoRoot $script:MaintenanceScheduleWorkflows.WorkflowSecurity) -Raw
-        $automationCleanup = Get-Content -LiteralPath (Join-Path $script:RepoRoot $script:MaintenanceScheduleWorkflows.AutomationBranchCleanup) -Raw
-
-        $assetsRefresh | Should -Match 'cron: "19 8 [*] [*] 3"'
-        $automationCleanup | Should -Match 'cron: "43 8 [*] [*] 3"'
-        $workflowSecurity | Should -Match 'cron: "17 9 [*] [*] 3"'
-        $workflowSecurity | Should -Not -Match 'cron: "19 8 [*] [*] 3"'
-    }
-
-    It 'does not duplicate day-hour-minute schedule slots across maintenance workflows' {
-        $slots = foreach ($path in $script:MaintenanceScheduleWorkflows.Values) {
-            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $path) -Raw
-            foreach ($match in [regex]::Matches($content, 'cron:\s+"(?<cron>[^"]+)"')) {
-                $parts = $match.Groups['cron'].Value -split '\s+'
-                foreach ($day in ($parts[4] -split ',')) {
-                    '{0} {1} {2}' -f $parts[0], $parts[1], $day
-                }
-            }
-        }
-
-        $duplicates = $slots | Group-Object | Where-Object { $_.Count -gt 1 }
-
-        $duplicates | Should -BeNullOrEmpty
-    }
-}
-
-Describe 'Workflow timeout budgets' {
-    BeforeAll {
-        $script:WorkflowTimeoutBudgets = [ordered]@{
-            '.github/workflows/automation-branch-cleanup.yml' = 1
-            '.github/workflows/assets-refresh.yml' = 1
-            '.github/workflows/dependabot-auto-merge.yml' = 1
-            '.github/workflows/profile-sync.yml' = 4
-            '.github/workflows/scorecard.yml' = 1
-            '.github/workflows/tests.yml' = 5
-            '.github/workflows/workflow-security.yml' = 1
-        }
-    }
-
-    It 'declares a timeout for every workflow job' {
-        foreach ($entry in $script:WorkflowTimeoutBudgets.GetEnumerator()) {
-            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $entry.Key) -Raw
-            $timeouts = [regex]::Matches($content, '(?m)^\s+timeout-minutes:\s+\d+\s*$')
-
-            $timeouts.Count | Should -Be $entry.Value
-        }
-    }
-
-    It 'keeps timeout budgets bounded for maintenance and validation jobs' {
-        foreach ($path in $script:WorkflowTimeoutBudgets.Keys) {
-            $content = Get-Content -LiteralPath (Join-Path $script:RepoRoot $path) -Raw
-            foreach ($match in [regex]::Matches($content, '(?m)^\s+timeout-minutes:\s+(?<minutes>\d+)\s*$')) {
-                [int]$match.Groups['minutes'].Value | Should -BeLessOrEqual 30
-            }
-        }
-    }
-}
-
-Describe 'Workflow security actionlint lane' {
-    BeforeAll {
-        $script:WorkflowSecurityWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
-        $script:WorkflowSecurityCodeowners = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/CODEOWNERS') -Raw
-    }
-
-    It 'installs a pinned checksum-verified actionlint binary' {
-        $script:WorkflowSecurityWorkflow | Should -Match 'ACTIONLINT_VERSION: "1[.]7[.]12"'
-        $script:WorkflowSecurityWorkflow | Should -Match 'ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"'
-        $script:WorkflowSecurityWorkflow | Should -Match 'sha256sum -c -'
-    }
-
-    It 'runs actionlint and collects workflows plus local actions for zizmor' {
-        $script:WorkflowSecurityWorkflow | Should -Match 'actionlint [.]github/workflows/[*][.]yml'
-        $script:WorkflowSecurityWorkflow | Should -Match 'zizmor --strict-collection --collect=workflows --collect=actions [.]github'
-        $script:WorkflowSecurityWorkflow | Should -Not -Match 'zizmor [.]github/workflows'
-    }
-
-    It 'keeps local action changes covered by trigger and ownership rules' {
-        $script:WorkflowSecurityWorkflow | Should -Not -Match '(?ms)^  pull_request:\s*\r?\n\s+paths:'
-        $script:WorkflowSecurityCodeowners | Should -Match '(?m)^/[.]github/\s+@SysAdminDoc\s*$'
-    }
-}
-
-Describe 'CI validation tool pins' {
-    BeforeAll {
-        $script:TestsWorkflowForToolPins = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
-        $script:WorkflowSecurityForToolPins = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/workflow-security.yml') -Raw
-        $script:CiRequirements = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'requirements-ci.txt') -Raw
-    }
-
-    It 'installs exact PowerShell validation module versions' {
-        $script:TestsWorkflowForToolPins | Should -Match 'Install-Module PSScriptAnalyzer -RequiredVersion 1[.]25[.]0'
-        $script:TestsWorkflowForToolPins | Should -Match 'Install-Module Pester -RequiredVersion 5[.]7[.]1'
-        $script:TestsWorkflowForToolPins | Should -Not -Match 'Install-Module Pester -MinimumVersion'
-    }
-
-    It 'enables Pester coverage for the profile generator and writes the percentage to the job summary' {
-        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]Run[.]PassThru = \$true'
-        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]Enabled = \$true'
-        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]Path = ''scripts/sync-profile[.]ps1'''
-        $script:TestsWorkflowForToolPins | Should -Match '\$config[.]CodeCoverage[.]UseBreakpoints = \$false'
-        $script:TestsWorkflowForToolPins | Should -Match '\$coveragePercent = \[math\]::Round\(\[decimal\]\$coverage[.]CoveragePercent, 2\)'
-        $script:TestsWorkflowForToolPins | Should -Match 'Pester coverage: \$coveragePercent%'
-        $script:TestsWorkflowForToolPins | Should -Match 'GITHUB_STEP_SUMMARY'
-        $script:TestsWorkflowForToolPins | Should -Match 'Commands covered'
-        $script:TestsWorkflowForToolPins | Should -Match 'CoveragePercentTarget'
-    }
-
-    It 'installs zizmor from hash-checked pinned requirements' {
-        $script:WorkflowSecurityForToolPins | Should -Match 'python -m pip install --disable-pip-version-check --no-deps\s+--require-hashes --only-binary=:all: -r requirements-ci[.]txt'
-        $script:WorkflowSecurityForToolPins | Should -Not -Match 'pip install --upgrade zizmor'
-        $script:CiRequirements | Should -Match '(?m)^zizmor==1[.]25[.]2\s+\\'
-        $script:CiRequirements | Should -Match '--hash=sha256:c4246f1344d8dbeffc044d7bb11b131773a7db7eb57d9073c45942dfd3543a1f'
-        $script:CiRequirements | Should -Match '--hash=sha256:f26ffeb16659c8922c7b08203ca5a4f8bf5e1a7e8d190734961c40877cf778ea'
-    }
-
-    It 'keeps CI tool pins in tracked workflow and requirements files' {
-        $script:TestsWorkflowForToolPins | Should -Match 'Install-Module Pester -RequiredVersion 5[.]7[.]1'
-        $script:WorkflowSecurityForToolPins | Should -Match 'ACTIONLINT_VERSION: "1[.]7[.]12"'
-        $script:WorkflowSecurityForToolPins | Should -Match 'POUTINE_VERSION: "1[.]1[.]6"'
-        $script:WorkflowSecurityForToolPins | Should -Match 'POUTINE_SHA256:'
-        $script:CiRequirements | Should -Match '(?m)^zizmor==1[.]25[.]2\s+\\'
-    }
-}
-
-Describe 'Dependabot GitHub Actions update grouping' {
-    BeforeAll {
-        $script:DependabotConfig = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') -Raw
-        $script:DependabotAutoMergeWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/dependabot-auto-merge.yml') -Raw
-    }
-
-    It 'groups routine minor and patch action updates while leaving majors separate' {
-        $script:DependabotConfig | Should -Match 'package-ecosystem: "github-actions"'
-        $script:DependabotConfig | Should -Match 'open-pull-requests-limit: 5'
-        $script:DependabotConfig | Should -Match '(?ms)groups:\s*\r?\n\s+routine-actions:\s*\r?\n\s+patterns:\s*\r?\n\s+- "[*]"\s*\r?\n\s+update-types:\s*\r?\n\s+- "minor"\s*\r?\n\s+- "patch"'
-        $script:DependabotConfig | Should -Not -Match '(?m)^\s+- "major"\s*$'
-    }
-
-    It 'delays fresh version updates with Dependabot cooldown windows' {
-        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "github-actions".*?cooldown:\s*\r?\n\s+default-days: 7'
-        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "npm".*?cooldown:\s*\r?\n\s+default-days: 7\s*\r?\n\s+semver-major-days: 30\s*\r?\n\s+semver-minor-days: 7\s*\r?\n\s+semver-patch-days: 3'
-    }
-
-    It 'covers the hash-pinned CI Python toolchain with a pip ecosystem entry' {
-        $script:DependabotConfig | Should -Match 'package-ecosystem: "pip"'
-        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "pip".*?directory: "/"'
-        $script:DependabotConfig | Should -Match '(?ms)package-ecosystem: "pip".*?cooldown:\s*\r?\n\s+default-days: 7'
-    }
-
-    It 'enables auto-merge only for Dependabot GitHub Actions minor and patch updates' {
-        $script:DependabotAutoMergeWorkflow | Should -Match '(?m)^  pull_request_target:\s*(#.*)?$'
-        $script:DependabotAutoMergeWorkflow | Should -Not -Match '(?m)^  pull_request:\s*$'
-        $script:DependabotAutoMergeWorkflow | Should -Match "github[.]event[.]pull_request[.]user[.]login == 'dependabot\[bot\]'"
-        $script:DependabotAutoMergeWorkflow | Should -Match "github[.]repository == 'SysAdminDoc/SysAdminDoc'"
-        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]package-ecosystem == 'github-actions'"
-        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]update-type == 'version-update:semver-minor'"
-        $script:DependabotAutoMergeWorkflow | Should -Match "steps[.]metadata[.]outputs[.]update-type == 'version-update:semver-patch'"
-        $script:DependabotAutoMergeWorkflow | Should -Not -Match "version-update:semver-major.*gh pr merge"
-    }
-
-    It 'pins fetch-metadata v3 and uses scoped write permissions without checking out PR code' {
-        $script:DependabotAutoMergeWorkflow | Should -Match 'permissions: \{\}'
-        $script:DependabotAutoMergeWorkflow | Should -Match '(?ms)permissions:\s*\r?\n\s+contents: write\s*\r?\n\s+pull-requests: write'
-        $script:DependabotAutoMergeWorkflow | Should -Not -Match 'actions/checkout@'
-        $script:DependabotAutoMergeWorkflow | Should -Match 'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98'
-        $script:DependabotAutoMergeWorkflow | Should -Not -Match 'dependabot/fetch-metadata@v'
-        $script:DependabotAutoMergeWorkflow | Should -Match 'gh pr merge --auto --merge "\$PR_URL"'
-        $script:DependabotAutoMergeWorkflow | Should -Match 'GH_TOKEN: \$\{\{ github[.]token \}\}'
-    }
-}
-
-Describe 'Workflow checkout action pin' {
-    BeforeAll {
-        $script:WorkflowFilesForCheckout = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
-        $script:CheckoutV603Sha = 'df4cb1c069e1874edd31b4311f1884172cec0e10'
-        $script:CheckoutV431Sha = '34e114876b0b11c390a56381ad16ebd13914f8d5'
-    }
-
-    It 'uses the pinned checkout 6.0.3 action SHA everywhere checkout is needed' {
-        $allWorkflows = ($script:WorkflowFilesForCheckout | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
-        $checkoutUses = [regex]::Matches($allWorkflows, 'actions/checkout@(?<sha>[a-f0-9]{40})')
-
-        $checkoutUses.Count | Should -Be 12
-        foreach ($match in $checkoutUses) {
-            $match.Groups['sha'].Value | Should -Be $script:CheckoutV603Sha
-        }
-    }
-
-    It 'does not use the older checkout 4.3.1 action SHA' {
-        foreach ($workflowFile in $script:WorkflowFilesForCheckout) {
-            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:CheckoutV431Sha
-        }
-    }
-}
-
-Describe 'Harden-Runner egress auditing' {
-    BeforeAll {
-        $script:HardenRunnerSha = '9af89fc71515a100421586dfdb3dc9c984fbf411'
-        $script:WorkflowFilesForHardenRunner = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
-    }
-
-    It 'uses the pinned harden-runner SHA in every workflow' {
-        foreach ($workflowFile in $script:WorkflowFilesForHardenRunner) {
-            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
-            $content | Should -Match "step-security/harden-runner@$($script:HardenRunnerSha)" -Because "$($workflowFile.Name) must include the pinned harden-runner step"
-        }
-    }
-
-    It 'uses audit egress policy everywhere' {
-        foreach ($workflowFile in $script:WorkflowFilesForHardenRunner) {
-            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
-            $matches = [regex]::Matches($content, 'egress-policy:\s*(\S+)')
-            foreach ($match in $matches) {
-                $match.Groups[1].Value | Should -Be 'audit' -Because "$($workflowFile.Name) harden-runner must use audit egress policy"
-            }
-        }
-    }
-}
-
-Describe 'Workflow artifact upload action pin' {
-    BeforeAll {
-        $script:WorkflowFilesForUploadArtifact = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
-        $script:UploadArtifactV701Sha = '043fb46d1a93c77aae656e7c1c64a875d1fc6a0a'
-        $script:UploadArtifactV600Sha = 'b7c566a772e6b6bfb58ed0dc250532a479d7789f'
-    }
-
-    It 'uses the pinned upload-artifact 7.0.1 action SHA everywhere artifacts are retained' {
-        $allWorkflows = ($script:WorkflowFilesForUploadArtifact | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw }) -join "`n"
-        $uploadArtifactUses = [regex]::Matches($allWorkflows, 'actions/upload-artifact@(?<sha>[a-f0-9]{40})')
-
-        $uploadArtifactUses.Count | Should -Be 5
-        foreach ($match in $uploadArtifactUses) {
-            $match.Groups['sha'].Value | Should -Be $script:UploadArtifactV701Sha
-        }
-    }
-
-    It 'does not use floating upload-artifact tags' {
-        foreach ($workflowFile in $script:WorkflowFilesForUploadArtifact) {
-            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match 'actions/upload-artifact@v'
-        }
-    }
-
-    It 'does not use the older upload-artifact 6.0.0 action SHA' {
-        foreach ($workflowFile in $script:WorkflowFilesForUploadArtifact) {
-            Get-Content -LiteralPath $workflowFile.FullName -Raw | Should -Not -Match $script:UploadArtifactV600Sha
-        }
-    }
-}
-
-Describe 'Workflow CodeQL upload action pin' {
-    BeforeAll {
-        $script:ScorecardWorkflowForCodeQl = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
-        $script:CodeQlV4362Sha = '8aad20d150bbac5944a9f9d289da16a4b0d87c1e'
-        $script:CodeQlV4361Sha = '87557b9c84dde89fdd9b10e88954ac2f4248e463'
-        $script:CodeQlV3355Sha = '458d36d7d4f47d0dd16ca424c1d3cda0060f1360'
-    }
-
-    It 'uses the pinned CodeQL upload-sarif 4.36.2 action SHA' {
-        $script:ScorecardWorkflowForCodeQl | Should -Match "github/codeql-action/upload-sarif@$script:CodeQlV4362Sha"
-    }
-
-    It 'does not use the older CodeQL upload-sarif 4.36.1 action SHA' {
-        $script:ScorecardWorkflowForCodeQl | Should -Not -Match $script:CodeQlV4361Sha
-    }
-
-    It 'does not use the older CodeQL upload-sarif 3.35.5 action SHA' {
-        $script:ScorecardWorkflowForCodeQl | Should -Not -Match $script:CodeQlV3355Sha
-    }
-}
-
-Describe 'Workflow Scorecard action pin' {
-    BeforeAll {
-        $script:ScorecardWorkflowForActionPin = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/scorecard.yml') -Raw
-        $script:ScorecardActionV243Sha = '4eaacf0543bb3f2c246792bd56e8cdeffafb205a'
-    }
-
-    It 'uses the pinned Scorecard 2.4.3 Docker action SHA' {
-        $script:ScorecardWorkflowForActionPin | Should -Match "ossf/scorecard-action@$script:ScorecardActionV243Sha"
-    }
-
-    It 'does not use floating Scorecard action tags' {
-        $script:ScorecardWorkflowForActionPin | Should -Not -Match 'ossf/scorecard-action@v'
-    }
-}
-
-Describe 'Workflow dependency review action pin' {
-    BeforeAll {
-        $script:TestsWorkflowForDepReview = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
-        $script:DepReviewV500Sha = 'a1d282b36b6f3519aa1f3fc636f609c47dddb294'
-    }
-
-    It 'uses the pinned dependency-review-action 5.0.0 SHA on pull_request only' {
-        $script:TestsWorkflowForDepReview | Should -Match "actions/dependency-review-action@$script:DepReviewV500Sha"
-        $script:TestsWorkflowForDepReview | Should -Not -Match 'actions/dependency-review-action@v'
-        $script:TestsWorkflowForDepReview | Should -Match "(?ms)dependency-review:.*?if:.*?github\.event_name == 'pull_request'"
-    }
-
-    It 'configures an explicit dependency-review policy' {
-        $script:TestsWorkflowForDepReview | Should -Match '(?ms)actions/dependency-review-action@.*?with:'
-        $script:TestsWorkflowForDepReview | Should -Match 'fail-on-severity:\s*moderate'
-        $script:TestsWorkflowForDepReview | Should -Not -Match 'deny-licenses:'
-        $script:TestsWorkflowForDepReview | Should -Match 'comment-summary-in-pr:\s*on-failure'
-        $script:TestsWorkflowForDepReview | Should -Match '(?ms)dependency-review:.*?permissions:.*?pull-requests:\s*write'
-    }
-}
-
-Describe 'Workflow privileged-trigger and untrusted-expression guardrails' {
-    BeforeAll {
-        $script:GuardWorkflowFiles = Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') -Filter '*.yml' -File
-
-        function Get-WorkflowRunBlockText {
-            param([string]$Content)
-
-            $lines = $Content -split "\r?\n"
-            $blocks = New-Object System.Collections.Generic.List[string]
-            $inBlock = $false
-            $blockIndent = -1
-            for ($i = 0; $i -lt $lines.Count; $i++) {
-                $line = $lines[$i]
-                if (-not $inBlock) {
-                    $match = [regex]::Match($line, '^(?<indent>\s*)(-\s+)?run:\s*(?<inline>\S.*)?$')
-                    if ($match.Success) {
-                        $inline = $match.Groups['inline'].Value
-                        if ($inline -and $inline -notmatch '^[|>]') {
-                            $blocks.Add($inline)
-                        } else {
-                            $inBlock = $true
-                            $blockIndent = $match.Groups['indent'].Value.Length
-                        }
-                    }
-                } else {
-                    if ([string]::IsNullOrWhiteSpace($line)) { continue }
-                    $currentIndent = ($line -replace '\S.*$', '').Length
-                    if ($currentIndent -le $blockIndent) {
-                        $inBlock = $false
-                        $i--
-                        continue
-                    }
-                    $blocks.Add($line)
-                }
-            }
-
-            return ($blocks -join "`n")
-        }
-
-        # Attacker-controllable contexts that must never be interpolated directly into run: blocks.
-        $script:UntrustedRunContextPattern = '(?x)' +
-            'github\.head_ref' +
-            '|github\.event\.(issue|pull_request|discussion)\.(title|body)' +
-            '|github\.event\.comment\.body' +
-            '|github\.event\.review\.body' +
-            '|github\.event\.head_commit\.message' +
-            '|github\.event\.pull_request\.head\.(ref|label)' +
-            '|github\.event\.workflow_run\.head_branch'
-
-        $script:PrivilegedTriggerPattern = '(?m)^\s\s(pull_request_target|workflow_run|issue_comment):\s*(#.*)?$'
-    }
-
-    It 'never interpolates untrusted GitHub contexts directly inside run blocks' {
-        foreach ($workflowFile in $script:GuardWorkflowFiles) {
-            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
-            $runText = Get-WorkflowRunBlockText -Content $content
-            $found = @([regex]::Matches($runText, $script:UntrustedRunContextPattern) | ForEach-Object { $_.Value })
-            $found | Should -BeNullOrEmpty -Because "$($workflowFile.Name) must pass untrusted GitHub context values through env vars referenced as `$ENV, not direct `${{ }} interpolation inside run:"
-        }
-    }
-
-    It 'keeps privileged-trigger workflows from checking out or caching PR-controlled code' {
-        $privilegedFiles = @($script:GuardWorkflowFiles | Where-Object {
-                $onMatch = [regex]::Match((Get-Content -LiteralPath $_.FullName -Raw), '(?ms)^on:\s*\r?\n(?<body>.*?)(?=\r?\n\S)')
-                $onText = if ($onMatch.Success) { $onMatch.Groups['body'].Value } else { '' }
-                $onText -match $script:PrivilegedTriggerPattern
-            })
-
-        # dependabot-auto-merge uses pull_request_target and must stay the only guarded privileged workflow.
-        $privilegedFiles.Name | Should -Contain 'dependabot-auto-merge.yml'
-
-        foreach ($workflowFile in $privilegedFiles) {
-            $content = Get-Content -LiteralPath $workflowFile.FullName -Raw
-            $content | Should -Not -Match 'actions/checkout@' -Because "$($workflowFile.Name) is privileged-triggered and must not check out PR-controlled code"
-            $content | Should -Not -Match 'actions/cache@' -Because "$($workflowFile.Name) is privileged-triggered and must not restore PR-controlled caches"
-        }
+Describe 'Hosted automation removal contract' {
+    It 'keeps workflow and Dependabot automation files absent' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/renovate.json') | Should -BeFalse
     }
 }
 
@@ -4068,7 +3176,7 @@ Describe 'Test-ProfileState projects sync gate' {
 }
 
 Describe 'Test-MetadataDrift report' {
-    It 'marks star drift informational and branch/release drift fatal' {
+    It 'marks live metadata drift informational and branch drift fatal' {
         $current = [ordered]@{
             generatedAt = '2026-06-04T00:00:00Z'
             publicRepoCount = 1
@@ -4138,14 +3246,14 @@ Describe 'Test-MetadataDrift report' {
 
         $release = @($result.metadataDrift | Where-Object { $_.field -eq 'latestReleaseTag' })
         $release | Should -HaveCount 1
-        $release[0].severity | Should -Be 'fatal'
+        $release[0].severity | Should -Be 'info'
 
         $stars = @($result.metadataDrift | Where-Object { $_.field -eq 'stars' })
         $stars | Should -HaveCount 1
         $stars[0].severity | Should -Be 'info'
 
-        $result.fatalCount | Should -Be 3
-        $result.informationalCount | Should -Be 1
+        $result.fatalCount | Should -Be 1
+        $result.informationalCount | Should -Be 3
     }
 
     It 'marks transient release asset inspection loss informational' {
@@ -4442,16 +3550,19 @@ Describe 'Scheduled workflow freshness gate' {
         Get-CronMaxGapMinutes -Crons @('0 0 1 * *') | Should -BeNullOrEmpty
     }
 
-    It 'parses scheduled workflow definitions from the repository workflows' {
+    It 'returns no scheduled workflow definitions when hosted workflows are absent' {
         $definitions = Get-ScheduledWorkflowDefinitions
-        @($definitions).Count | Should -BeGreaterThan 0
-        $profileSync = @($definitions | Where-Object { $_.workflowFile -eq '.github/workflows/profile-sync.yml' })
-        $profileSync | Should -HaveCount 1
-        $profileSync[0].crons | Should -Contain '37 7 * * 2,5'
-        $profileSync[0].name | Should -Be 'Profile sync'
-        $profileSync[0].hasWorkflowDispatch | Should -BeTrue
-        # tests.yml has no schedule trigger and must be excluded.
-        @($definitions | Where-Object { $_.workflowFile -eq '.github/workflows/tests.yml' }) | Should -BeNullOrEmpty
+
+        @($definitions) | Should -HaveCount 0
+    }
+
+    It 'reports not applicable when no scheduled workflow definitions exist' {
+        $result = Test-ScheduledWorkflowFreshness -Definitions @() -RunLookup @{} -Now ([datetimeoffset]::Parse('2026-06-12T08:19:00Z'))
+
+        $result.status | Should -Be 'not-applicable'
+        $result.scheduledWorkflowCount | Should -Be 0
+        $result.warningCount | Should -Be 0
+        $result.rows | Should -BeNullOrEmpty
     }
 
     It 'reports ok when the latest successful scheduled run is within cadence plus grace' {
@@ -4598,9 +3709,7 @@ Describe 'Roadmap hygiene gate' {
         $result.warningCount | Should -Be 0
     }
 
-    It 'keeps the live committed workflows from regressing the shipped CI rules' {
-        # The built-in rules must actually detect current shipped state, so that a
-        # future re-added roadmap entry would be flagged.
+    It 'does not mark removed hosted automation tasks as shipped' {
         $rules = Get-RoadmapHygieneRules
         $synthetic = @'
 # Roadmap
@@ -4611,9 +3720,8 @@ Describe 'Roadmap hygiene gate' {
 - [ ] P1 -- Add Dependabot pip updates for hash-pinned CI tools
 '@
         $result = Test-RoadmapHygiene -RoadmapText $synthetic -Rules $rules
-        $result.shippedEntryCount | Should -Be 4
-        @($result.rows.ruleId) | Should -Contain 'upload-artifact-v7'
-        @($result.rows.ruleId) | Should -Contain 'pip-dependabot'
+        $result.shippedEntryCount | Should -Be 0
+        $result.rows | Should -BeNullOrEmpty
     }
 
     It 'exposes a roadmapHygiene contract in the summary script and report schema' {
@@ -4878,10 +3986,10 @@ Describe 'PowerShell version baseline' {
         $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7
     }
 
-    It 'documents the tested PowerShell baseline in the Tests workflow' {
-        $testsWorkflow = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
-        $testsWorkflow | Should -Match 'PowerShell 7\.6 LTS'
-        $testsWorkflow | Should -Match 'PowerShell runtime: \$\(\$PSVersionTable\.PSVersion\)'
+    It 'keeps the PowerShell baseline local-only without a Tests workflow' {
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+        $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7
+        $PSVersionTable.PSVersion.Minor | Should -BeGreaterOrEqual 4
     }
 }
 
@@ -4943,20 +4051,11 @@ Describe 'Profile SVG color contrast' {
     }
 }
 
-Describe 'Pester coverage floor enforcement' {
-    BeforeAll {
-        $script:TestsWorkflowForCoverage = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') -Raw
-    }
+Describe 'Pester local validation command' {
+    It 'documents the local Pester entrypoint in this test file' {
+        $testText = Get-Content -LiteralPath $PSCommandPath -Raw
 
-    It 'sets a documented coverage floor and fails meaningful drops' {
-        $script:TestsWorkflowForCoverage | Should -Match '\$coverageFloor\s*=\s*78'
-        $script:TestsWorkflowForCoverage | Should -Match 'CoveragePercentTarget\s*=\s*\$coverageFloor'
-        $script:TestsWorkflowForCoverage | Should -Match 'if \(\$coveragePercent -lt \$coverageFloor\)'
-        $script:TestsWorkflowForCoverage | Should -Match 'throw "Pester coverage .* below the documented .* floor'
-    }
-
-    It 'reports the floor and actual coverage in the job summary' {
-        $script:TestsWorkflowForCoverage | Should -Match '\| Coverage \| \$coveragePercent% \|'
-        $script:TestsWorkflowForCoverage | Should -Match '\| Floor \| \$coverageFloor% \|'
+        $testText | Should -Match 'Invoke-Pester -Path tests'
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
 }

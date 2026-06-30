@@ -2624,6 +2624,7 @@
         "status": {
           "type": "string",
           "enum": [
+            "not-applicable",
             "not-enabled",
             "enforcement-present",
             "needs-live-validation"
@@ -2632,6 +2633,7 @@
         "recommendation": {
           "type": "string",
           "enum": [
+            "local-validation-only",
             "defer-until-pr-delivery-or-bypass",
             "monitor-required-check-enforcement"
           ]
@@ -2702,6 +2704,7 @@
         "status": {
           "type": "string",
           "enum": [
+            "not-applicable",
             "ready",
             "blocked"
           ]
@@ -2785,6 +2788,7 @@
         "status": {
           "type": "string",
           "enum": [
+            "not-applicable",
             "ready",
             "blocked",
             "needs-live-validation"
@@ -4902,6 +4906,7 @@
         "status": {
           "type": "string",
           "enum": [
+            "not-applicable",
             "ok",
             "warning"
           ]
