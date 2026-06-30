@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-30T11:42:10.8572242-04:00",
+  "generatedAt": "2026-06-30T11:49:24.3885951-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 1,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "da2afc537b9775d62c96ae81dbc7a3ea3eea5a51",
+    "sourceCommit": "f0fa88eaa968b7a7e6c79686c750b2dca9b3c7f0",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "9411c28f66b5d3dbe859e804eb9b109886a37d9d5c24ffc28c178f7e7563e672",
+    "generatorSha256": "55bc7769be9c48e50ebf4997598a5e32c86735602c20099c7db205ae7bfe6a5f",
     "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T11:40:02.9809647-04:00",
+    "metadataSnapshotAt": "2026-06-30T11:47:34.2159862-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -218,7 +218,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-30T15:33:03.0000000Z",
+        "pushedAt": "2026-06-30T15:44:21.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -1709,7 +1709,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-30T11:40:02.9809647-04:00",
+          "queriedAt": "2026-06-30T11:47:34.2159862-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2096,7 +2096,7 @@
       "skipped": false,
       "targetCount": 186,
       "throttleLimit": 16,
-      "elapsedMs": 4929,
+      "elapsedMs": 4374,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2140,14 +2140,14 @@
   "linkValidationSummary": {
     "targetCount": 186,
     "throttleLimit": 16,
-    "elapsedMs": 4929,
+    "elapsedMs": 4374,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 64115,
+    "byteCount": 65181,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2167,8 +2167,8 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 601,
-    "detailsSectionCount": 11,
+    "lineCount": 626,
+    "detailsSectionCount": 12,
     "tableRowCount": 107,
     "projectRowCount": 174,
     "categoryCount": 10,
@@ -2441,7 +2441,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 64115,
+        "value": 65181,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2450,7 +2450,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 601,
+        "value": 626,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2468,7 +2468,7 @@
       {
         "artifact": "README.md",
         "metric": "detailsSections",
-        "value": 11,
+        "value": 12,
         "softLimit": 15,
         "overSoftLimit": false,
         "warning": null,
@@ -2486,7 +2486,7 @@
       {
         "artifact": "README.md",
         "metric": "codeBlocks",
-        "value": 67,
+        "value": 68,
         "softLimit": 100,
         "overSoftLimit": false,
         "warning": null,
@@ -2504,7 +2504,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 97861,
+        "value": 97639,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2549,12 +2549,12 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-28T10:49:00.0000148-04:00",
-    "latestReportAffectingCommitSha": "da2afc537b9775d62c96ae81dbc7a3ea3eea5a51",
-    "latestReportAffectingCommitDate": "2026-06-30T11:37:30.0000000-04:00",
+    "committedReportGeneratedAt": "2026-06-30T11:42:10.8572242-04:00",
+    "latestReportAffectingCommitSha": "f0fa88eaa968b7a7e6c79686c750b2dca9b3c7f0",
+    "latestReportAffectingCommitDate": "2026-06-30T11:43:59.0000000-04:00",
     "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 48.81,
-    "generatedWithCommit": false,
+    "reportAgeBehindHours": 0.03,
+    "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "not-run",
     "smokeEvidenceStale": true,
@@ -2569,10 +2569,9 @@
       "README.md"
     ],
     "warnings": [
-      "Committed sync report (2026-06-28T10:49:00.0000148-04:00) is older than the latest report-affecting commit da2afc5 (2026-06-30T11:37:30.0000000-04:00); regenerate and recommit reports/profile-sync-report.json.",
       "Committed rendered-smoke status is not-run; a hosted smoke artifact should have refreshed it."
     ],
-    "warningCount": 2
+    "warningCount": 1
   },
   "scheduledWorkflowFreshness": {
     "status": "not-applicable",

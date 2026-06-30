@@ -1778,6 +1778,7 @@ function New-DiscoverySection {
     $androidLink = New-CategoryLink "android"
     $webLink = New-CategoryLink "web"
     $setupLink = "[First-time setup](#first-time-setup)"
+    $validationLink = "[Local validation](#local-validation)"
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Start Here")
@@ -1790,6 +1791,7 @@ function New-DiscoverySection {
     $lines.Add("| Install browser or Android tools | $extensionsLink or $androidLink | CRX/XPI, userscript, APK, or source paths labeled per project. |")
     $lines.Add("| Launch a web tool | $webLink | Browser-first tools that do not need local setup. |")
     $lines.Add("| Prepare a fresh Windows machine | $setupLink | Inspectable setup path for Python, Git, pip, and winget checks. |")
+    $lines.Add("| Validate this repo | $validationLink | Installs pinned validation tools, then runs markdownlint, PSScriptAnalyzer, and Pester. |")
     $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |")
 
     return ($lines -join [Environment]::NewLine)
@@ -1825,6 +1827,34 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
 Already have Python and Git? Skip this section and open the category you need.
+
+</details>
+'@
+}
+
+function New-LocalValidationSection {
+    return @'
+<a id="local-validation"></a>
+
+<details>
+<summary><b>&#9989; Local validation</b> -- <i>Install pinned validation tools and run every local check.</i></summary>
+<br/>
+
+Use this from the repo root before pushing profile, catalog, or validation changes:
+
+```powershell
+pwsh -NoProfile -File .\scripts\validate-local.ps1
+```
+
+| Check | Behavior |
+|:------|:---------|
+| Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
+| PowerShell tools | Installs and imports Pester 5.7.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
+| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
+| Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
+| Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
+
+Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
 
 </details>
 '@
@@ -2615,6 +2645,8 @@ function New-Readme {
         $blocks.Add("")
     }
     $blocks.Add((New-FirstTimeSetupSection))
+    $blocks.Add("")
+    $blocks.Add((New-LocalValidationSection))
     $blocks.Add("")
 
     foreach ($definition in $CategoryDefinitions) {

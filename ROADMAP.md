@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P1 - Add a local validation bootstrap command that installs pinned tools before linting
-  Why: `npm run lint:markdown` fails on a clean checkout when `markdownlint-cli2` is not installed locally.
-  Evidence: `package.json`, `package-lock.json`, `.markdownlint-cli2.yaml`; local `npm run lint:markdown` output.
-  Touches: `package.json`, `README.md`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: A documented local command runs `npm ci`, markdownlint, PSScriptAnalyzer, and Pester from a clean checkout.
-  Complexity: S
-
 - [ ] P1 - Remove hosted-automation assumptions from repository security posture reporting
   Why: Code scanning, Scorecard, actionlint, hardened runner, and dependency-review report fields are useful only if the report distinguishes removed hosted controls from local controls.
   Evidence: `tests/sync-profile.Tests.ps1:2484-2531`, `3600-3823`; `.github/workflows` absent.

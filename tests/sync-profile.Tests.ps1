@@ -1377,6 +1377,17 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '-CheckOnly'
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
+    It 'renders local validation bootstrap guidance' {
+        $script:rendered | Should -Match 'Validate this repo'
+        $script:rendered | Should -Match '<a id="local-validation"></a>'
+        $script:rendered | Should -Match 'Install pinned validation tools and run every local check'
+        $script:rendered | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
+        $script:rendered | Should -Match 'npm ci'
+        $script:rendered | Should -Match 'Pester 5\.7\.1'
+        $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
+        $script:rendered | Should -Match 'Invoke-Pester -Path tests -Output Detailed'
+        $script:rendered | Should -Match '-SkipBootstrap'
+    }
     It 'renders upstream and license attribution in category rows' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $entry = @($cat.entries | Where-Object { $_.repo -eq 'WinTool' })[0]
@@ -2397,6 +2408,7 @@ Describe 'Markdownlint contract' {
 
     It 'pins markdownlint through npm and keeps local installs ignored' {
         $script:MarkdownlintPackage.scripts['lint:markdown'] | Should -Be 'markdownlint-cli2'
+        $script:MarkdownlintPackage.scripts['validate:local'] | Should -Be 'pwsh -NoProfile -File ./scripts/validate-local.ps1'
         $script:MarkdownlintPackage.devDependencies['markdownlint-cli2'] | Should -Be '0.22.1'
         $script:MarkdownlintPackageLock.name | Should -Be 'sysadmindoc-profile'
         $script:MarkdownlintPackageLock.packages[''].devDependencies['markdownlint-cli2'] | Should -Be '0.22.1'
@@ -4052,10 +4064,20 @@ Describe 'Profile SVG color contrast' {
 }
 
 Describe 'Pester local validation command' {
-    It 'documents the local Pester entrypoint in this test file' {
+    It 'wires a pinned local validation wrapper instead of a hosted workflow' {
         $testText = Get-Content -LiteralPath $PSCommandPath -Raw
+        $validationScriptPath = Join-Path $script:RepoRoot 'scripts/validate-local.ps1'
+        $validationScript = Get-Content -LiteralPath $validationScriptPath -Raw
 
         $testText | Should -Match 'Invoke-Pester -Path tests'
+        Test-Path -LiteralPath $validationScriptPath | Should -BeTrue
+        $validationScript | Should -Match '-ArgumentList @\("ci"\)'
+        $validationScript | Should -Match '-ArgumentList @\("run", "lint:markdown"\)'
+        $validationScript | Should -Match 'lint:markdown'
+        $validationScript | Should -Match 'Pester"; Version = "5\.7\.1"'
+        $validationScript | Should -Match 'PSScriptAnalyzer"; Version = "1\.25\.0"'
+        $validationScript | Should -Match 'Invoke-ScriptAnalyzer'
+        $validationScript | Should -Match 'Invoke-Pester -Path'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
 }
