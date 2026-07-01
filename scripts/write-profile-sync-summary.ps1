@@ -1,4 +1,5 @@
 #Requires -Version 7.1
+[CmdletBinding()]
 param(
     [string]$ReportPath = "reports/profile-sync-report.json",
     [string]$SummaryPath = $env:GITHUB_STEP_SUMMARY,

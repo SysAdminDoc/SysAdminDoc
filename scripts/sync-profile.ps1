@@ -103,6 +103,7 @@ $script:MetadataFetchFallbackReason = $null
 $CategoryDefinitions = @(
     [ordered]@{
         Slug = "powershell"
+        DisplayName = "PowerShell"
         Title = "&#9889; PowerShell System Utilities"
         Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Branch-pinned commands you can paste into PowerShell and run immediately.</i></summary>'
         Render = "code"
@@ -110,6 +111,7 @@ $CategoryDefinitions = @(
     },
     [ordered]@{
         Slug = "python"
+        DisplayName = "Python"
         Title = "&#128013; Python Desktop Applications"
         Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Clone-and-run desktop tools and automation built on Python 3.</i></summary>'
         Render = "code"
@@ -117,18 +119,21 @@ $CategoryDefinitions = @(
     },
     [ordered]@{
         Slug = "web"
+        DisplayName = "Web Apps"
         Title = "&#127760; Web Applications"
         Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Tools and dashboards that run directly in the browser -- no install needed.</i></summary>'
         Render = "web-table"
     },
     [ordered]@{
         Slug = "extensions"
+        DisplayName = "Extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
         Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome/Firefox extensions and userscripts with one-click installs.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
         Slug = "android"
+        DisplayName = "Android"
         Title = "&#128241; Android Applications"
         Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>Material You APKs and Android source projects.</i></summary>'
         Render = "download-table"
@@ -136,12 +141,14 @@ $CategoryDefinitions = @(
     },
     [ordered]@{
         Slug = "security"
+        DisplayName = "Security"
         Title = "&#128274; Security & Networking"
         Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network auditing, DNS management, and defensive security tools.</i></summary>'
         Render = "download-table"
     },
     [ordered]@{
         Slug = "media"
+        DisplayName = "Media"
         Title = "&#127916; Media & Conversion Tools"
         Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video editing, conversion, compression, subtitle removal, and streaming capture.</i></summary>'
         Render = "code"
@@ -149,18 +156,21 @@ $CategoryDefinitions = @(
     },
     [ordered]@{
         Slug = "desktop"
+        DisplayName = "Desktop"
         Title = "&#128421;&#65039; Native Desktop Applications"
         Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Compiled Windows and cross-platform desktop apps in C#, C++, Rust, and TypeScript.</i></summary>'
         Render = "desktop-table"
     },
     [ordered]@{
         Slug = "guides"
+        DisplayName = "Guides"
         Title = "&#128218; Guides & Resources"
         Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>Reference material, checklists, and public guides.</i></summary>'
         Render = "simple-table"
     },
     [ordered]@{
         Slug = "misc"
+        DisplayName = "Misc"
         Title = "&#128256; Misc & Forks"
         Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, continuations, and supporting utilities.</i></summary>'
         Render = "simple-table"
@@ -170,16 +180,13 @@ $CategoryDefinitions = @(
 function ConvertTo-CategorySlug {
     param([string]$SummaryLine)
 
-    if ($SummaryLine -match 'PowerShell System Utilities') { return "powershell" }
-    if ($SummaryLine -match 'Python Desktop Applications') { return "python" }
-    if ($SummaryLine -match 'Web Applications') { return "web" }
-    if ($SummaryLine -match 'Browser Extensions') { return "extensions" }
-    if ($SummaryLine -match 'Android Applications') { return "android" }
-    if ($SummaryLine -match 'Security & Networking') { return "security" }
-    if ($SummaryLine -match 'Media & Conversion Tools') { return "media" }
-    if ($SummaryLine -match 'Native Desktop Applications') { return "desktop" }
-    if ($SummaryLine -match 'Guides & Resources') { return "guides" }
-    if ($SummaryLine -match 'Misc & Forks') { return "misc" }
+    foreach ($def in $CategoryDefinitions) {
+        $title = [string]$def.Title
+        $plainTitle = [regex]::Replace($title, '&#\d+;|&#x[0-9a-fA-F]+;', '').Trim()
+        if ($SummaryLine -match [regex]::Escape($plainTitle)) {
+            return [string]$def.Slug
+        }
+    }
     return $null
 }
 
@@ -1610,19 +1617,11 @@ function Test-ReleaseAssetKindMatch {
 function Get-CategoryDisplayName {
     param([string]$Slug)
 
-    switch ($Slug) {
-        "powershell" { return "PowerShell" }
-        "python" { return "Python" }
-        "web" { return "Web" }
-        "extensions" { return "Extensions" }
-        "android" { return "Android" }
-        "security" { return "Security" }
-        "media" { return "Media" }
-        "desktop" { return "Desktop" }
-        "guides" { return "Guides" }
-        "misc" { return "Misc" }
-        default { return $Slug }
+    $def = $CategoryDefinitions | Where-Object { $_.Slug -eq $Slug } | Select-Object -First 1
+    if ($def -and -not [string]::IsNullOrWhiteSpace([string]$def.DisplayName)) {
+        return [string]$def.DisplayName
     }
+    return $Slug
 }
 
 function ConvertTo-SearchSlug {
