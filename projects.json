@@ -4,13 +4,13 @@
   "source": "SysAdminDoc/SysAdminDoc data/profile-catalog.json",
   "provenance": {
     "version": 1,
-    "feedSchemaVersion": 1,
+    "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "6fcef9bec432fc636ebcc2eb469ca239eae96fd8",
+    "sourceCommit": "a0c785cb1f38d194751d318d0ac216360e19fe3c",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "a17e7b8fbe90454ca7f44f608d05e89dbf142dc9fbcb3f9889c87b7b52aea0c7",
-    "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T12:41:54.7368494-04:00",
+    "generatorSha256": "477b972c9566c6dbfab1854d4a49a07ee88960c9e31c64f829d5a9eefde5a167",
+    "projectSchemaSha256": "8d904518114aa58aba0739026462283135e3de60c78fb2bdccebc518da7eb1d2",
+    "metadataSnapshotAt": "2026-06-30T23:07:54.2556369-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -46,6 +46,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/ZeusWatch/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -136,6 +148,18 @@
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/ClearCut/releases/latest"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -172,7 +196,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:47:49.0000000Z",
+      "pushedAt": "2026-07-01T03:07:30.0000000Z",
       "topics": [
         "android",
         "kotlin",
@@ -207,6 +231,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/HostShield/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -282,6 +318,18 @@
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/Aura/releases/latest"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -318,7 +366,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:47:50.0000000Z",
+      "pushedAt": "2026-06-30T20:53:46.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -363,6 +411,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/iOSIconPack/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -436,6 +496,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -511,6 +583,18 @@
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -551,7 +635,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:46:35.0000000Z",
+      "pushedAt": "2026-06-30T20:44:46.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -604,6 +688,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/AppManagerNG"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:java"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -649,7 +745,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:35:27.0000000Z",
+      "pushedAt": "2026-06-30T20:37:32.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -685,6 +781,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/CallShield/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -726,7 +834,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-29T17:11:01.0000000Z",
+      "pushedAt": "2026-06-30T17:34:23.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -760,6 +868,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/FileExplorer"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -801,7 +921,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:18:23.0000000Z",
+      "pushedAt": "2026-07-01T03:07:49.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -839,6 +959,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -918,6 +1050,18 @@
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/one-ui-home-clone/releases/latest"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -990,6 +1134,18 @@
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/SnapCrop/releases/latest"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -1060,6 +1216,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/BillMinder/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -1132,6 +1300,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/OpenSwift"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -1202,6 +1382,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/SwiftFloris"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -1284,6 +1476,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/OpenTasker"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -1320,7 +1524,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:50:20.0000000Z",
+      "pushedAt": "2026-07-01T02:54:19.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1354,6 +1558,18 @@
         "kind": "release",
         "label": "APK",
         "url": "https://github.com/SysAdminDoc/OpenLumen/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -1425,6 +1641,18 @@
         "kind": "release",
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/Droidsmith/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:rust"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -1504,6 +1732,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/GuitarTuner"
       },
+      "searchMetadata": {
+        "type": "android-app",
+        "labels": [
+          "Android",
+          "Android app"
+        ],
+        "filters": [
+          "category:android",
+          "type:android-app",
+          "language:kotlin"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -1565,6 +1805,18 @@
         "kind": "release",
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/MyPortfolio/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -1642,6 +1894,18 @@
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/LocalChromeStore/releases/latest"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -1650,20 +1914,20 @@
       "installKind": null,
       "language": "C#",
       "stars": 1,
-      "latestReleaseTag": "v0.3.9",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.3.9",
+      "latestReleaseTag": "v0.4.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.4.0",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "LocalChromeStore-v0.3.9-win-x64.zip",
-        "LocalChromeStore-v0.3.9-win-x64.zip.sha256.txt"
+        "LocalChromeStore-v0.4.0-win-x64.zip",
+        "LocalChromeStore-v0.4.0-win-x64.zip.sha256.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "LocalChromeStore-v0.3.9-win-x64.zip.sha256.txt"
+          "LocalChromeStore-v0.4.0-win-x64.zip.sha256.txt"
         ],
         "checksumCoverage": "full",
         "hasChecksumForEveryExecutable": true,
@@ -1682,7 +1946,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:38:14.0000000Z",
+      "pushedAt": "2026-07-01T02:59:20.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1717,6 +1981,18 @@
         "kind": "release",
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/LocalDesktopStore/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -1794,6 +2070,18 @@
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/Images/releases/latest"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -1838,7 +2126,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:38:02.0000000Z",
+      "pushedAt": "2026-06-30T20:49:38.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -1874,6 +2162,18 @@
         "kind": "release",
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/DeepPurge/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -1916,7 +2216,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-29T15:21:27.0000000Z",
+      "pushedAt": "2026-07-01T03:02:59.0000000Z",
       "topics": [
         "cleanup",
         "csharp",
@@ -1954,6 +2254,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Scour"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -2026,6 +2338,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/UniversalConverterX"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2095,6 +2419,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Devicer"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -2172,6 +2508,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Snapture"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2247,6 +2595,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/OrganizeContacts"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -2327,6 +2687,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Vigil"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2394,6 +2766,18 @@
         "kind": "release",
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/WolfPack/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:fluent"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -2470,6 +2854,18 @@
         "kind": "release",
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-plus-plus"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -2553,6 +2949,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/PhoneFork"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2619,6 +3027,18 @@
         "kind": "release",
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/QuotaGlass/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -2697,6 +3117,18 @@
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/TaskCopy/releases/latest"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2771,6 +3203,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/AndroidEmulatorPlus"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2837,6 +3281,18 @@
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/Keepr/releases/latest"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:typescript"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -2845,8 +3301,8 @@
       "installKind": null,
       "language": "TypeScript",
       "stars": 1,
-      "latestReleaseTag": "v0.25.3",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.3",
+      "latestReleaseTag": "v0.25.7",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.7",
       "releaseAssetKinds": [
         "crx",
         "exe",
@@ -2854,10 +3310,10 @@
       ],
       "releaseAssetNames": [
         "Keepr-portable.zip",
-        "Keepr-Web-Clipper-0.25.3.crx",
-        "Keepr-Web-Clipper-0.25.3.zip",
-        "Keepr_0.25.3_x64-setup.exe",
-        "Keepr_0.25.3_x64_en-US.msi"
+        "Keepr-Web-Clipper-0.25.7.crx",
+        "Keepr-Web-Clipper-0.25.7.zip",
+        "Keepr_0.25.7_x64-setup.exe",
+        "Keepr_0.25.7_x64_en-US.msi"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -2881,7 +3337,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:23:22.0000000Z",
+      "pushedAt": "2026-07-01T03:05:58.0000000Z",
       "topics": [
         "desktop-app",
         "privacy",
@@ -2917,6 +3373,18 @@
         "kind": "release",
         "label": "EXE",
         "url": "https://github.com/SysAdminDoc/TsunamiSimulator/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:rust"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -2990,6 +3458,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/REDplusplus"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -3080,6 +3560,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/RcloneBrowserNG"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-plus-plus"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -3146,6 +3638,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/PartitionPilot"
       },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -3182,7 +3686,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:29:23.0000000Z",
+      "pushedAt": "2026-07-01T03:01:44.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3213,6 +3717,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/OpenNetLimit"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -3275,6 +3791,18 @@
         "kind": "release",
         "label": "CRX/XPI",
         "url": "https://github.com/SysAdminDoc/Astra-Deck/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -3364,6 +3892,18 @@
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/ScriptVault/releases/latest"
       },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -3437,6 +3977,18 @@
         "kind": "release",
         "label": "CRX",
         "url": "https://github.com/SysAdminDoc/AmazonEnhanced/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -3513,6 +4065,18 @@
         "label": "CRX",
         "url": "https://github.com/SysAdminDoc/StyleKit/releases/latest"
       },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:vue"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -3521,16 +4085,16 @@
       "installKind": null,
       "language": "Vue",
       "stars": 1,
-      "latestReleaseTag": "v1.1.7",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.7",
+      "latestReleaseTag": "v1.1.11",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/StyleKit/releases/tag/v1.1.11",
       "releaseAssetKinds": [
         "crx",
         "zip"
       ],
       "releaseAssetNames": [
-        "StyleKit-v1.1.7-chrome.crx",
-        "StyleKit-v1.1.7-chrome.zip",
-        "StyleKit-v1.1.7-firefox.zip"
+        "StyleKit-v1.1.11-chrome.crx",
+        "StyleKit-v1.1.11-chrome.zip",
+        "StyleKit-v1.1.11-firefox.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -3553,7 +4117,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:30:28.0000000Z",
+      "pushedAt": "2026-07-01T02:43:19.0000000Z",
       "topics": [
         "chrome-extension",
         "css",
@@ -3591,6 +4155,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Vantage"
       },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -3623,7 +4199,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:36:23.0000000Z",
+      "pushedAt": "2026-07-01T02:41:32.0000000Z",
       "topics": [
         "catppuccin",
         "chrome-extension",
@@ -3664,6 +4240,18 @@
         "kind": "install",
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js"
+      },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -3711,7 +4299,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:44:28.0000000Z",
+      "pushedAt": "2026-07-01T03:06:51.0000000Z",
       "topics": [
         "ad-blocker",
         "javascript",
@@ -3747,6 +4335,18 @@
         "kind": "install",
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js"
+      },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -3817,6 +4417,18 @@
         "kind": "install",
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js"
+      },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -3891,6 +4503,18 @@
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/Chapterizer/main/Chapterizer.user.js"
       },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": true,
@@ -3958,6 +4582,18 @@
         "kind": "install",
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js"
+      },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -4028,6 +4664,18 @@
         "kind": "release",
         "label": "CRX",
         "url": "https://github.com/SysAdminDoc/uBlockVanced/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -4101,6 +4749,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/BackgroundSearch"
       },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -4170,6 +4830,18 @@
         "kind": "release",
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/StyleCraft/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -4245,6 +4917,18 @@
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js"
       },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": true,
@@ -4314,6 +4998,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/NDNS"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -4385,6 +5081,18 @@
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js"
       },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": true,
@@ -4455,6 +5163,18 @@
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js"
       },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": true,
@@ -4523,6 +5243,18 @@
         "kind": "install",
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js"
+      },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -4594,6 +5326,18 @@
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/GeminiBuddy/main/GeminiBuddy.user.js"
       },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": true,
@@ -4661,6 +5405,18 @@
         "kind": "release",
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/RumbleX/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -4741,6 +5497,18 @@
         "label": "CRX",
         "url": "https://github.com/SysAdminDoc/Discrub/releases/latest"
       },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:typescript"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -4812,6 +5580,18 @@
         "kind": "release",
         "label": "ZIP/XPI",
         "url": "https://github.com/SysAdminDoc/AI-Usage_Tracker/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -4891,6 +5671,18 @@
         "label": "Install",
         "url": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js"
       },
+      "searchMetadata": {
+        "type": "userscript",
+        "labels": [
+          "Extensions",
+          "Userscript"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:userscript",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": true,
@@ -4956,6 +5748,17 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/AI_Realism"
+      },
+      "searchMetadata": {
+        "type": "guide",
+        "labels": [
+          "Guides",
+          "Guide"
+        ],
+        "filters": [
+          "category:guides",
+          "type:guide"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -5025,6 +5828,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/facebook-exit-guide"
       },
+      "searchMetadata": {
+        "type": "guide",
+        "labels": [
+          "Guides",
+          "Guide"
+        ],
+        "filters": [
+          "category:guides",
+          "type:guide",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5093,6 +5908,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/android-debloat-list"
       },
+      "searchMetadata": {
+        "type": "guide",
+        "labels": [
+          "Guides",
+          "Guide"
+        ],
+        "filters": [
+          "category:guides",
+          "type:guide",
+          "language:php"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5158,6 +5985,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/"
+      },
+      "searchMetadata": {
+        "type": "guide",
+        "labels": [
+          "Guides",
+          "Guide"
+        ],
+        "filters": [
+          "category:guides",
+          "type:guide",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -5231,6 +6070,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/VideoCrush"
       },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5303,6 +6154,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/AlphaCut/releases/latest"
       },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5311,15 +6174,15 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v1.6.9",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.9",
+      "latestReleaseTag": "v1.6.13",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlphaCut/releases/tag/v1.6.13",
       "releaseAssetKinds": [
         "exe",
         "other"
       ],
       "releaseAssetNames": [
-        "AlphaCut-Setup-1.6.9.exe",
-        "AlphaCut-Setup-1.6.9.exe.sha256",
+        "AlphaCut-Setup-1.6.13.exe",
+        "AlphaCut-Setup-1.6.13.exe.sha256",
         "AlphaCut-windows.exe",
         "AlphaCut-windows.exe.sha256",
         "SHA256SUMS.txt"
@@ -5327,7 +6190,7 @@
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "AlphaCut-Setup-1.6.9.exe.sha256",
+          "AlphaCut-Setup-1.6.13.exe.sha256",
           "AlphaCut-windows.exe.sha256",
           "SHA256SUMS.txt"
         ],
@@ -5348,7 +6211,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:32:12.0000000Z",
+      "pushedAt": "2026-07-01T02:48:13.0000000Z",
       "topics": [
         "background-removal",
         "compositing",
@@ -5385,6 +6248,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/yt_livestream_downloader"
+      },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -5454,6 +6329,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/MediaForge"
+      },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -5527,6 +6414,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest"
       },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5534,7 +6433,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 25,
+      "stars": 26,
       "latestReleaseTag": "v3.17.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.17.1",
       "releaseAssetKinds": [
@@ -5563,7 +6462,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-29T14:57:52.0000000Z",
+      "pushedAt": "2026-06-30T20:47:10.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -5600,6 +6499,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/StreamKeep/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -5677,6 +6588,18 @@
         "kind": "release",
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/GIFM/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "media-tool",
+        "labels": [
+          "Media",
+          "Media tool"
+        ],
+        "filters": [
+          "category:media",
+          "type:media-tool",
+          "language:javascript"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -5757,6 +6680,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/octopus-factory"
       },
+      "searchMetadata": {
+        "type": "repository",
+        "labels": [
+          "Misc",
+          "Repository"
+        ],
+        "filters": [
+          "category:misc",
+          "type:repository",
+          "language:shell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5831,6 +6766,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/LTSC-MicrosoftStore"
       },
+      "searchMetadata": {
+        "type": "repository",
+        "labels": [
+          "Misc",
+          "Repository"
+        ],
+        "filters": [
+          "category:misc",
+          "type:repository",
+          "language:batchfile"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -5897,6 +6844,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/RcloneBrowser"
+      },
+      "searchMetadata": {
+        "type": "repository",
+        "labels": [
+          "Misc",
+          "Repository"
+        ],
+        "filters": [
+          "category:misc",
+          "type:repository",
+          "language:c-plus-plus"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -5965,6 +6924,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/TabExplorer"
       },
+      "searchMetadata": {
+        "type": "repository",
+        "labels": [
+          "Misc",
+          "Repository"
+        ],
+        "filters": [
+          "category:misc",
+          "type:repository",
+          "language:c-plus-plus"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -6031,6 +7002,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/TagStudio"
+      },
+      "searchMetadata": {
+        "type": "repository",
+        "labels": [
+          "Misc",
+          "Repository"
+        ],
+        "filters": [
+          "category:misc",
+          "type:repository",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -6101,6 +7084,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:c-sharp"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -6161,7 +7156,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:40:57.0000000Z",
+      "pushedAt": "2026-07-01T02:56:14.0000000Z",
       "topics": [
         "driver",
         "gui",
@@ -6198,6 +7193,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -6277,6 +7284,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/LibreSpot/releases/latest"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -6320,7 +7339,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:34:44.0000000Z",
+      "pushedAt": "2026-07-01T03:03:28.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -6357,6 +7376,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/WinForge"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -6426,6 +7457,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Debloat-Win11/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -6500,6 +7543,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Restore-WindowsDefaults"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -6568,6 +7623,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/DefenderControl/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -6646,6 +7713,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/DisableDefender/releases/latest"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -6684,7 +7763,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:40:05.0000000Z",
+      "pushedAt": "2026-07-01T03:01:37.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -6721,6 +7800,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/DefenderShield"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -6792,6 +7883,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/TelemetrySlayer"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -6860,6 +7963,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/FirewallForge"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -6930,6 +8045,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/NetForge/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -7009,6 +8136,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/SystemUpdatePro"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -7077,6 +8216,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/WURepair/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -7152,6 +8303,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/SoftwareScannerGUI"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -7220,6 +8383,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/NuclearDellRemover/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -7298,6 +8473,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -7374,6 +8561,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Wingetter/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -7456,6 +8655,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -7529,6 +8740,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/PathForge/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -7608,6 +8831,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/MonitorControl/releases/latest"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -7616,13 +8851,13 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v3.0.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/MonitorControl/releases/tag/v3.0.0",
+      "latestReleaseTag": "v3.34.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/MonitorControl/releases/tag/v3.34.0",
       "releaseAssetKinds": [
-        "script"
+        "zip"
       ],
       "releaseAssetNames": [
-        "MonitorControlPro.ps1"
+        "MonitorControlPro-v3.34.0.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -7637,14 +8872,14 @@
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
-          "script"
+          "zip"
         ],
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:41:30.0000000Z",
+      "pushedAt": "2026-07-01T02:50:03.0000000Z",
       "topics": [
         "brightness",
         "dark-theme",
@@ -7684,6 +8919,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/WallBrand"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -7752,6 +8999,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/VoidTools-Everything-Settings-Manager"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -7822,6 +9081,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/PfblockerngManager"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -7888,6 +9159,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/npp-sc-scanner"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -7958,6 +9241,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -8037,6 +9332,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/ThankYouJeffrey"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8102,6 +9409,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/EXTRACTORX/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -8179,6 +9498,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/AdapterLock"
       },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8245,6 +9576,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Brave-Portable-Updater"
+      },
+      "searchMetadata": {
+        "type": "powershell-tool",
+        "labels": [
+          "PowerShell",
+          "PowerShell tool"
+        ],
+        "filters": [
+          "category:powershell",
+          "type:powershell-tool",
+          "language:powershell"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -8314,6 +9657,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8357,7 +9712,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:38:45.0000000Z",
+      "pushedAt": "2026-07-01T02:49:06.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -8404,6 +9759,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Tunerize"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -8471,6 +9838,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Vertigo/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -8551,6 +9930,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/PromptCompanion/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8624,6 +10015,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/SunoJump/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8660,7 +10063,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T00:34:31.0000000Z",
+      "pushedAt": "2026-07-01T03:07:35.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -8697,6 +10100,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/PyWall/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8731,7 +10146,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:41:41.0000000Z",
+      "pushedAt": "2026-07-01T02:45:22.0000000Z",
       "topics": [
         "dark-theme",
         "firewall",
@@ -8770,6 +10185,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/HostsGuard/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -8845,6 +10272,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/PyShop"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -8912,6 +10351,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/SwiftShot/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -8989,6 +10440,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/Flux"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9058,6 +10521,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/GitForge/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -9131,6 +10606,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/UniFile/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -9208,6 +10695,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/QuickFind/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9282,6 +10781,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/FileOrganizer/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -9371,6 +10882,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/ImgConverter/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9456,6 +10979,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/FrameSnap/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9533,6 +11068,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9541,18 +11088,24 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v2.13.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.13.0",
+      "latestReleaseTag": "v2.14.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ExplorerTweaks/releases/tag/v2.14.0",
       "releaseAssetKinds": [
-        "exe"
+        "exe",
+        "other",
+        "zip"
       ],
       "releaseAssetNames": [
+        "ExplorerTweaks-v2.14.0-SHA256SUMS.txt",
+        "ExplorerTweaks-v2.14.0-win64.zip",
         "ExplorerTweaks.exe"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
+        "checksumAssets": [
+          "ExplorerTweaks-v2.14.0-SHA256SUMS.txt"
+        ],
+        "checksumCoverage": "partial",
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -9562,14 +11115,15 @@
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
-          "exe"
+          "exe",
+          "zip"
         ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 1,
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 3,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:32:16.0000000Z",
+      "pushedAt": "2026-06-30T20:40:52.0000000Z",
       "topics": [
         "dark-theme",
         "file-explorer",
@@ -9608,6 +11162,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/FaceSlim/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -9683,6 +11249,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/LipSight"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9752,6 +11330,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/LlamaLink/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -9826,6 +11416,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/SlunderStudio"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -9894,6 +11496,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/GmailDownloader"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -9964,6 +11578,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/UniversalCompiler"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10031,6 +11657,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/OpenCut/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10072,7 +11710,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:41:40.0000000Z",
+      "pushedAt": "2026-07-01T02:58:56.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -10109,6 +11747,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/bypassnroGen"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -10180,6 +11830,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/MSStoreHelper/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -10253,6 +11915,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Qwen3-TTS-Studio/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -10328,6 +12002,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/AppList/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10400,6 +12086,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/PillSleepTracker"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10467,6 +12165,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Mattpad/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -10542,6 +12252,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/HostsFileGet/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10616,6 +12338,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -10694,6 +12428,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/QR-Code-Generator-Pro"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10763,6 +12509,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/uBlock-Stylus-Converter/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -10841,6 +12599,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/KeepSyncNotes"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -10873,7 +12643,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:39:24.0000000Z",
+      "pushedAt": "2026-07-01T02:46:57.0000000Z",
       "topics": [
         "dark-theme",
         "google-keep",
@@ -10912,6 +12682,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/PDFedit"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -10984,6 +12766,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/CSV_Power_Tool"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -11051,6 +12845,18 @@
         "kind": "release",
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/AI-Model-Compass/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -11126,6 +12932,18 @@
         "label": "Download",
         "url": "https://github.com/SysAdminDoc/Stock-Video-Collector/releases/latest"
       },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
+      },
       "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -11162,7 +12980,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:37:54.0000000Z",
+      "pushedAt": "2026-07-01T03:00:13.0000000Z",
       "topics": [
         "crawler",
         "gui",
@@ -11200,6 +13018,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/GifText"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -11269,6 +13099,18 @@
         "kind": "release",
         "label": "ZIP",
         "url": "https://github.com/SysAdminDoc/FoxPort/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "python-tool",
+        "labels": [
+          "Python",
+          "Python tool"
+        ],
+        "filters": [
+          "category:python",
+          "type:python-tool",
+          "language:python"
+        ]
       },
       "hasDownload": true,
       "hasLiveDemo": false,
@@ -11346,6 +13188,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/pfSenseSuite"
       },
+      "searchMetadata": {
+        "type": "security-tool",
+        "labels": [
+          "Security",
+          "Security tool"
+        ],
+        "filters": [
+          "category:security",
+          "type:security-tool",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -11415,6 +13269,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/BetterNext"
+      },
+      "searchMetadata": {
+        "type": "security-tool",
+        "labels": [
+          "Security",
+          "Security tool"
+        ],
+        "filters": [
+          "category:security",
+          "type:security-tool",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -11490,6 +13356,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/ESET"
       },
+      "searchMetadata": {
+        "type": "security-tool",
+        "labels": [
+          "Security",
+          "Security tool"
+        ],
+        "filters": [
+          "category:security",
+          "type:security-tool",
+          "language:routeros-script"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -11557,6 +13435,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/Openshop/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -11628,6 +13518,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/StormviewRadar/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -11696,6 +13598,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/SkyTrack/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -11767,6 +13681,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/VIPTrack/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -11837,6 +13763,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/NukeMap/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -11904,6 +13842,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/SPECTRE/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -11973,6 +13923,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/CoolSites/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -12044,6 +14006,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/Multistreamer/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12074,7 +14048,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-30T16:39:25.0000000Z",
+      "pushedAt": "2026-07-01T02:59:29.0000000Z",
       "topics": [
         "html",
         "multi-stream",
@@ -12110,6 +14084,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/GifStudio/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -12177,6 +14163,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/ImageForge/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -12252,6 +14250,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/ClipForge/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:python"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12321,6 +14331,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/ConvertFlow/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12388,6 +14410,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/IconForge/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12418,7 +14452,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-30T16:37:44.0000000Z",
+      "pushedAt": "2026-07-01T03:03:46.0000000Z",
       "topics": [
         "browser-based",
         "converter",
@@ -12454,6 +14488,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/Base64Converter/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -12524,6 +14570,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/ImageXpert/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12591,6 +14649,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/BookmarkVault/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -12660,6 +14730,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/Text-Filter-Editor/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12726,6 +14808,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/kindred"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,
@@ -12796,6 +14890,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/DeGoogler/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -12868,6 +14974,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/SearchHub/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -12937,6 +15055,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/UserScriptHunt/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -13005,6 +15135,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/MHTMLens/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -13076,6 +15218,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/LogLens/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -13144,6 +15298,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/CronScope/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -13215,6 +15381,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:html"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -13281,6 +15459,18 @@
         "kind": "live",
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/HurricaneMap/"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:javascript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": true,
@@ -13351,6 +15541,18 @@
         "label": "Launch",
         "url": "https://sysadmindoc.github.io/ApocalypseWatch/"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": true,
       "hasDirectInstall": false,
@@ -13417,6 +15619,18 @@
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/StormScope"
       },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:javascript"
+        ]
+      },
       "hasDownload": false,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
@@ -13478,6 +15692,18 @@
         "kind": "repo",
         "label": "Repo",
         "url": "https://github.com/SysAdminDoc/AsteroidSimulator"
+      },
+      "searchMetadata": {
+        "type": "web-app",
+        "labels": [
+          "Web",
+          "Web app"
+        ],
+        "filters": [
+          "category:web",
+          "type:web-app",
+          "language:typescript"
+        ]
       },
       "hasDownload": false,
       "hasLiveDemo": false,

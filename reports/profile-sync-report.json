@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-30T12:44:07.8350477-04:00",
+  "generatedAt": "2026-06-30T23:10:41.2511632-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -71,13 +71,13 @@
   "includedReadmeCount": 174,
   "provenance": {
     "version": 1,
-    "feedSchemaVersion": 1,
+    "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "6fcef9bec432fc636ebcc2eb469ca239eae96fd8",
+    "sourceCommit": "a0c785cb1f38d194751d318d0ac216360e19fe3c",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "a17e7b8fbe90454ca7f44f608d05e89dbf142dc9fbcb3f9889c87b7b52aea0c7",
-    "projectSchemaSha256": "d8cd1b5d5519ca180facdb87636ca2269df964f6ef1447e309d2172d41011dbf",
-    "metadataSnapshotAt": "2026-06-30T12:41:54.7368494-04:00",
+    "generatorSha256": "477b972c9566c6dbfab1854d4a49a07ee88960c9e31c64f829d5a9eefde5a167",
+    "projectSchemaSha256": "8d904518114aa58aba0739026462283135e3de60c78fb2bdccebc518da7eb1d2",
+    "metadataSnapshotAt": "2026-06-30T23:07:54.2556369-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -218,7 +218,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-06-30T16:29:23.0000000Z",
+        "pushedAt": "2026-07-01T03:01:44.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -589,11 +589,11 @@
       },
       {
         "kind": "other",
-        "count": 42
+        "count": 43
       },
       {
         "kind": "script",
-        "count": 9
+        "count": 8
       },
       {
         "kind": "source-archive",
@@ -609,17 +609,17 @@
       },
       {
         "kind": "zip",
-        "count": 35
+        "count": 37
       }
     ],
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum-metadata",
-        "count": 31
+        "count": 32
       },
       {
         "trustLevel": "metadata-only",
-        "count": 109
+        "count": 108
       },
       {
         "trustLevel": "unknown",
@@ -683,7 +683,7 @@
         {
           "priorityRank": 2,
           "repo": "VideoSubtitleRemover",
-          "stars": 25,
+          "stars": 26,
           "latestReleaseTag": "v3.17.1",
           "executableAssetKinds": [
             "zip"
@@ -1598,6 +1598,9 @@
       "primaryAction.kind",
       "primaryAction.label",
       "primaryAction.url",
+      "searchMetadata.type",
+      "searchMetadata.labels",
+      "searchMetadata.filters",
       "hasDownload",
       "hasLiveDemo",
       "hasDirectInstall",
@@ -1617,6 +1620,7 @@
       "installUrl",
       "downloadUrl",
       "primaryAction",
+      "searchMetadata",
       "releaseAssetKinds",
       "releaseAssetNames",
       "releaseTrust"
@@ -1628,6 +1632,8 @@
     "redactedSuppressedRowsCompatible": true,
     "provenanceAvailable": true,
     "releaseTrustAvailable": true,
+    "searchMetadataAvailable": true,
+    "searchFiltersAvailable": true,
     "primaryActionKindCounts": [
       {
         "kind": "install",
@@ -1736,7 +1742,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-30T12:41:54.7368494-04:00",
+          "queriedAt": "2026-06-30T23:07:54.2556369-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2041,20 +2047,20 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.140",
-    "expectedDate": "2026-06-25",
+    "expectedVersion": "v4.9.141",
+    "expectedDate": "2026-07-01",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.140"
+        "value": "v4.9.141"
       }
     ],
     "dates": [
       {
         "path": "data/profile-version.json",
         "field": "date",
-        "value": "2026-06-25"
+        "value": "2026-07-01"
       }
     ],
     "changelogHeadingValidation": {
@@ -2069,14 +2075,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.140",
+    "expectedVersion": "v4.9.141",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.140",
+    "expectedTag": "v4.9.141",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2086,13 +2092,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.140",
+        "expectedVersion": "v4.9.141",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.140",
+        "expectedVersion": "v4.9.141",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2123,7 +2129,7 @@
       "skipped": false,
       "targetCount": 186,
       "throttleLimit": 16,
-      "elapsedMs": 5121,
+      "elapsedMs": 4317,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2157,7 +2163,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 28.85,
+      "ageDays": 29.29,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2167,14 +2173,14 @@
   "linkValidationSummary": {
     "targetCount": 186,
     "throttleLimit": 16,
-    "elapsedMs": 5121,
+    "elapsedMs": 4317,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 65181,
+    "byteCount": 65458,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2194,7 +2200,7 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 626,
+    "lineCount": 633,
     "detailsSectionCount": 12,
     "tableRowCount": 107,
     "projectRowCount": 174,
@@ -2468,7 +2474,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 65181,
+        "value": 65458,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2477,7 +2483,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 626,
+        "value": 633,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2513,7 +2519,7 @@
       {
         "artifact": "README.md",
         "metric": "codeBlocks",
-        "value": 68,
+        "value": 69,
         "softLimit": 100,
         "overSoftLimit": false,
         "warning": null,
@@ -2522,7 +2528,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 449491,
+        "value": 510828,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2531,7 +2537,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 98442,
+        "value": 98471,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2576,14 +2582,14 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "generated-with-commit",
+    "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-30T12:30:48.6459453-04:00",
-    "latestReportAffectingCommitSha": "6fcef9bec432fc636ebcc2eb469ca239eae96fd8",
-    "latestReportAffectingCommitDate": "2026-06-30T12:32:55.0000000-04:00",
-    "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.04,
-    "generatedWithCommit": true,
+    "committedReportGeneratedAt": "2026-06-30T23:06:47.6492446-04:00",
+    "latestReportAffectingCommitSha": "a0c785cb1f38d194751d318d0ac216360e19fe3c",
+    "latestReportAffectingCommitDate": "2026-06-30T22:51:59.0000000-04:00",
+    "reportAgeBehindCommit": false,
+    "reportAgeBehindHours": null,
+    "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": false,

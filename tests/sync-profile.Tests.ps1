@@ -1919,7 +1919,7 @@ Describe 'New-ProjectsExportJson feed' {
         $provenanceJson = $json.provenance | ConvertTo-Json -Depth 20
 
         $json.provenance.version | Should -Be 1
-        $json.provenance.feedSchemaVersion | Should -Be 1
+        $json.provenance.feedSchemaVersion | Should -Be 2
         $json.provenance.sourceRepository | Should -Be 'SysAdminDoc/SysAdminDoc'
         if ($null -ne $json.provenance.sourceCommit) {
             $json.provenance.sourceCommit | Should -Match '^[a-f0-9]{40}$'
@@ -1981,6 +1981,38 @@ Describe 'New-ProjectsExportJson feed' {
         $suppressedJson | Should -Not -Match 'HiddenTool|Should be excluded|github.com|repoUrl|primaryAction|description'
     }
 
+    It 'exports static search metadata hints for downstream portfolio filters' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        (@($cat.entries | Where-Object { $_.repo -eq 'WinTool' })[0]).language = 'C#'
+        (@($cat.entries | Where-Object { $_.repo -eq 'ReleaseTool' })[0]).language = 'C++'
+        $repos = @(
+            (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -AssetNames @('ReleaseTool-v1.0.0.zip')),
+            (New-TestRepoMeta -Name 'InstallTool' -Language 'JavaScript')
+        )
+
+        $json = New-ProjectsExportJson -Catalog $cat -Repos $repos | ConvertFrom-Json
+        $winTool = $json.projects | Where-Object { $_.repo -eq 'WinTool' }
+        $releaseTool = $json.projects | Where-Object { $_.repo -eq 'ReleaseTool' }
+        $installTool = $json.projects | Where-Object { $_.repo -eq 'InstallTool' }
+
+        $winTool.searchMetadata.type | Should -Be 'powershell-tool'
+        @($winTool.searchMetadata.labels) | Should -Contain 'PowerShell'
+        @($winTool.searchMetadata.labels) | Should -Contain 'PowerShell tool'
+        @($winTool.searchMetadata.filters) | Should -Contain 'category:powershell'
+        @($winTool.searchMetadata.filters) | Should -Contain 'type:powershell-tool'
+        @($winTool.searchMetadata.filters) | Should -Contain 'language:c-sharp'
+
+        $releaseTool.searchMetadata.type | Should -Be 'media-tool'
+        @($releaseTool.searchMetadata.labels) | Should -Contain 'Media tool'
+        @($releaseTool.searchMetadata.filters) | Should -Contain 'category:media'
+        @($releaseTool.searchMetadata.filters) | Should -Contain 'type:media-tool'
+        @($releaseTool.searchMetadata.filters) | Should -Contain 'language:c-plus-plus'
+
+        $installTool.searchMetadata.type | Should -Be 'userscript'
+        @($installTool.searchMetadata.labels) | Should -Contain 'Userscript'
+        @($installTool.searchMetadata.filters) | Should -Contain 'type:userscript'
+    }
+
     It 'accounts for every fixture catalog row as exported or redacted' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $json = New-ProjectsExportJson -Catalog $cat -Repos @()
@@ -2018,12 +2050,15 @@ Describe 'New-ProjectsExportJson feed' {
         $result.suppressedCountMatchesTopLevel | Should -BeTrue
         $result.projectRequiredFields | Should -Contain 'primaryAction.url'
         $result.projectRequiredFields | Should -Contain 'releaseTrust.trustLevel'
+        $result.projectRequiredFields | Should -Contain 'searchMetadata.filters'
         $result.projectRequiredFields | Should -Contain 'topics'
         $result.missingProjectFieldCount | Should -Be 0
         $result.suppressedIdentifierLeakCount | Should -Be 0
         $result.redactedSuppressedRowsCompatible | Should -BeTrue
         $result.provenanceAvailable | Should -BeTrue
         $result.releaseTrustAvailable | Should -BeTrue
+        $result.searchMetadataAvailable | Should -BeTrue
+        $result.searchFiltersAvailable | Should -BeTrue
         (($result.primaryActionKindCounts | ForEach-Object { $_.kind }) -join ',') | Should -Be 'install,live,release,repo'
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'install' }).count | Should -Be 1
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'live' }).count | Should -Be 1
@@ -2043,6 +2078,22 @@ Describe 'New-ProjectsExportJson feed' {
         $result.status | Should -Be 'incompatible'
         $result.missingProjectFieldCount | Should -Be 1
         $result.missingProjectFields[0].field | Should -Be 'primaryAction.url'
+        $result.fatalCount | Should -BeGreaterThan 0
+    }
+
+    It 'flags visible project rows missing search filter metadata' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $payload.projects[0].searchMetadata.filters = @()
+        $json = $payload | ConvertTo-Json -Depth 50
+
+        $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
+
+        $result.status | Should -Be 'incompatible'
+        $result.missingProjectFieldCount | Should -Be 1
+        $result.missingProjectFields[0].field | Should -Be 'searchMetadata.filters'
+        $result.searchMetadataAvailable | Should -BeTrue
+        $result.searchFiltersAvailable | Should -BeFalse
         $result.fatalCount | Should -BeGreaterThan 0
     }
 
@@ -3545,7 +3596,7 @@ Describe 'Test-MetadataDrift report' {
             source = 'SysAdminDoc/SysAdminDoc data/profile-catalog.json'
             provenance = [ordered]@{
                 version = 1
-                feedSchemaVersion = 1
+                feedSchemaVersion = 2
                 sourceRepository = 'SysAdminDoc/SysAdminDoc'
                 sourceCommit = '1111111111111111111111111111111111111111'
                 catalogSha256 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
@@ -3567,7 +3618,7 @@ Describe 'Test-MetadataDrift report' {
         }
         $expected = $current | ConvertTo-Json -Depth 20 | ConvertFrom-Json -AsHashtable
         $expected.provenance.sourceCommit = '2222222222222222222222222222222222222222'
-        $expected.provenance.feedSchemaVersion = 2
+        $expected.provenance.feedSchemaVersion = 3
         $expected.provenance.catalogSha256 = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'
         $expected.provenance.metadataSnapshotAt = '2026-06-06T01:00:00Z'
 

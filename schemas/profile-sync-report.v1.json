@@ -5383,6 +5383,8 @@
         "redactedSuppressedRowsCompatible",
         "provenanceAvailable",
         "releaseTrustAvailable",
+        "searchMetadataAvailable",
+        "searchFiltersAvailable",
         "primaryActionKindCounts",
         "warningCount",
         "warnings",
@@ -5456,6 +5458,12 @@
           "type": "boolean"
         },
         "releaseTrustAvailable": {
+          "type": "boolean"
+        },
+        "searchMetadataAvailable": {
+          "type": "boolean"
+        },
+        "searchFiltersAvailable": {
           "type": "boolean"
         },
         "primaryActionKindCounts": {

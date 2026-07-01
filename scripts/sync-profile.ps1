@@ -58,7 +58,7 @@ $ReadmeDetailsSectionSoftLimit = 15
 $ReadmeImageTagSoftLimit = 10
 $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
-$ProjectsFeedSchemaVersion = 1
+$ProjectsFeedSchemaVersion = 2
 $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
@@ -1625,6 +1625,121 @@ function Get-CategoryDisplayName {
     }
 }
 
+function ConvertTo-SearchSlug {
+    param([string]$Value)
+
+    $normalized = ([string]$Value).Trim().ToLowerInvariant()
+    if ([string]::IsNullOrWhiteSpace($normalized)) {
+        return $null
+    }
+
+    $normalized = $normalized -replace '#', ' sharp '
+    $normalized = $normalized -replace '\+', ' plus '
+    $slug = ($normalized -replace '[^a-z0-9]+', '-').Trim('-')
+    if ([string]::IsNullOrWhiteSpace($slug)) {
+        return $null
+    }
+
+    return $slug
+}
+
+function Add-SearchMetadataValue {
+    param(
+        [System.Collections.Generic.List[string]]$List,
+        [string]$Value
+    )
+
+    $clean = ([string]$Value).Trim()
+    if ([string]::IsNullOrWhiteSpace($clean)) {
+        return
+    }
+    if (-not $List.Contains($clean)) {
+        $List.Add($clean)
+    }
+}
+
+function Get-ProjectSearchType {
+    param(
+        [hashtable]$Entry,
+        [string]$PrimaryActionKind
+    )
+
+    $category = ([string]$Entry.category).ToLowerInvariant()
+    $downloadKind = ([string]$Entry.downloadKind).ToLowerInvariant()
+
+    if ($PrimaryActionKind -eq "install" -or $downloadKind -eq "userscript") {
+        return "userscript"
+    }
+
+    switch ($category) {
+        "android" { return "android-app" }
+        "desktop" { return "desktop-app" }
+        "extensions" { return "browser-extension" }
+        "guides" { return "guide" }
+        "media" { return "media-tool" }
+        "powershell" { return "powershell-tool" }
+        "python" { return "python-tool" }
+        "security" { return "security-tool" }
+        "web" { return "web-app" }
+        default {
+            if ($PrimaryActionKind -eq "release") { return "downloadable-project" }
+            return "repository"
+        }
+    }
+}
+
+function Get-ProjectSearchTypeLabel {
+    param([string]$Type)
+
+    switch ($Type) {
+        "android-app" { return "Android app" }
+        "browser-extension" { return "Browser extension" }
+        "desktop-app" { return "Desktop app" }
+        "downloadable-project" { return "Downloadable project" }
+        "guide" { return "Guide" }
+        "media-tool" { return "Media tool" }
+        "powershell-tool" { return "PowerShell tool" }
+        "python-tool" { return "Python tool" }
+        "repository" { return "Repository" }
+        "security-tool" { return "Security tool" }
+        "userscript" { return "Userscript" }
+        "web-app" { return "Web app" }
+        default { return "Project" }
+    }
+}
+
+function New-ProjectSearchMetadata {
+    param(
+        [hashtable]$Entry,
+        [object]$PrimaryAction,
+        [string]$Language
+    )
+
+    $category = ([string]$Entry.category).ToLowerInvariant()
+    $categoryLabel = Get-CategoryDisplayName -Slug $category
+    $actionKind = [string]$PrimaryAction["kind"]
+    $type = Get-ProjectSearchType -Entry $Entry -PrimaryActionKind $actionKind
+    $typeLabel = Get-ProjectSearchTypeLabel -Type $type
+    $languageSlug = ConvertTo-SearchSlug -Value $Language
+
+    $labels = New-Object System.Collections.Generic.List[string]
+    Add-SearchMetadataValue -List $labels -Value $categoryLabel
+    Add-SearchMetadataValue -List $labels -Value $typeLabel
+
+    $filters = New-Object System.Collections.Generic.List[string]
+    Add-SearchMetadataValue -List $filters -Value "category:$category"
+    Add-SearchMetadataValue -List $filters -Value "type:$type"
+    if (-not [string]::IsNullOrWhiteSpace($languageSlug)) {
+        Add-SearchMetadataValue -List $filters -Value "language:$languageSlug"
+    }
+
+    return [ordered]@{
+        type = $type
+        labels = @($labels.ToArray())
+        filters = @($filters.ToArray())
+    }
+}
+
 function Get-CategoryAnchor {
     param([string]$Slug)
 
@@ -2833,6 +2948,13 @@ function New-ProjectsExportJson {
             -AssetInspected $releaseAssetInspected `
             -Immutable $(if ($meta -and $meta.latestRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null }) `
             -AssetDigests $releaseDigests
+        $language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
+            [string]$entry.language
+        } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
+            [string]$meta.primaryLanguage.name
+        } else {
+            $null
+        }
 
         $row = [ordered]@{
             repo = [string]$entry.repo
@@ -2859,19 +2981,14 @@ function New-ProjectsExportJson {
                 label = [string]$primaryAction["label"]
                 url = [string]$primaryAction["url"]
             }
+            searchMetadata = New-ProjectSearchMetadata -Entry $entry -PrimaryAction $primaryAction -Language $language
             hasDownload = [bool]($primaryAction["kind"] -eq "release")
             hasLiveDemo = [bool]($primaryAction["kind"] -eq "live")
             hasDirectInstall = [bool]($primaryAction["kind"] -eq "install")
             branch = Get-Branch $entry $meta
             entrypoint = if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) { $null } else { [string]$entry.entrypoint }
             installKind = if ([string]::IsNullOrWhiteSpace([string]$entry.installKind)) { $null } else { [string]$entry.installKind }
-            language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
-                [string]$entry.language
-            } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
-                [string]$meta.primaryLanguage.name
-            } else {
-                $null
-            }
+            language = $language
             stars = if ($meta) { [int]$meta.stargazerCount } else { $null }
             latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
             latestReleaseUrl = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.url } else { $null }
@@ -3040,6 +3157,9 @@ function Test-PortfolioFeedCompatibility {
         "primaryAction.kind",
         "primaryAction.label",
         "primaryAction.url",
+        "searchMetadata.type",
+        "searchMetadata.labels",
+        "searchMetadata.filters",
         "hasDownload",
         "hasLiveDemo",
         "hasDirectInstall",
@@ -3058,6 +3178,7 @@ function Test-PortfolioFeedCompatibility {
         "installUrl",
         "downloadUrl",
         "primaryAction",
+        "searchMetadata",
         "releaseAssetKinds",
         "releaseAssetNames",
         "releaseTrust"
@@ -3091,6 +3212,8 @@ function Test-PortfolioFeedCompatibility {
             redactedSuppressedRowsCompatible = $false
             provenanceAvailable = $false
             releaseTrustAvailable = $false
+            searchMetadataAvailable = $false
+            searchFiltersAvailable = $false
             primaryActionKindCounts = @()
             warningCount = $warnings.Count
             warnings = @($warnings.ToArray())
@@ -3134,6 +3257,9 @@ function Test-PortfolioFeedCompatibility {
         foreach ($field in $requiredProjectFields) {
             if ($field -eq "topics") {
                 $missing = -not (Test-MemberExists -Object $project -Name $field)
+            } elseif ($field -in @("searchMetadata.labels", "searchMetadata.filters")) {
+                $value = Get-NestedMemberValue -Object $project -Path $field
+                $missing = ($null -eq $value -or @($value).Count -eq 0)
             } else {
                 $value = if ($field.Contains(".")) {
                     Get-NestedMemberValue -Object $project -Path $field
@@ -3210,6 +3336,17 @@ function Test-PortfolioFeedCompatibility {
     if (-not $releaseTrustAvailable) {
         $warnings.Add("Not every visible project row exposes releaseTrust metadata.")
     }
+    $searchMetadataAvailable = @($projects | Where-Object { $null -ne (Get-MemberValue -Object $_ -Name "searchMetadata") }).Count -eq $projects.Count
+    if (-not $searchMetadataAvailable) {
+        $warnings.Add("Not every visible project row exposes searchMetadata.")
+    }
+    $searchFiltersAvailable = @($projects | Where-Object {
+            $metadata = Get-MemberValue -Object $_ -Name "searchMetadata"
+            $null -ne $metadata -and @((Get-MemberValue -Object $metadata -Name "filters")).Count -gt 0
+        }).Count -eq $projects.Count
+    if (-not $searchFiltersAvailable) {
+        $warnings.Add("Not every visible project row exposes search filters.")
+    }
 
     $fatalCount = $errors.Count
     return [ordered]@{
@@ -3233,6 +3370,8 @@ function Test-PortfolioFeedCompatibility {
         redactedSuppressedRowsCompatible = [bool]($suppressedLeaksArray.Count -eq 0)
         provenanceAvailable = [bool]($null -ne $provenance)
         releaseTrustAvailable = $releaseTrustAvailable
+        searchMetadataAvailable = $searchMetadataAvailable
+        searchFiltersAvailable = $searchFiltersAvailable
         primaryActionKindCounts = @($primaryActionKindCounts.ToArray())
         warningCount = $warnings.Count
         warnings = @($warnings.ToArray())
@@ -7442,6 +7581,7 @@ function Test-TransientReleaseAssetInspectionDrift {
         "primaryAction.kind",
         "primaryAction.label",
         "primaryAction.url",
+        "searchMetadata",
         "hasDownload",
         "releaseAssetKinds",
         "releaseAssetNames",
@@ -7596,6 +7736,7 @@ function Test-MetadataDrift {
             "primaryAction.kind",
             "primaryAction.label",
             "primaryAction.url",
+            "searchMetadata",
             "hasDownload",
             "hasLiveDemo",
             "hasDirectInstall",

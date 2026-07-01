@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-07-01
+
+- Added schema-versioned static search metadata to `projects.json` so portfolio consumers can use stable category, type, and language filters without scraping README sections.
+
 ## 2026-06-30
 
 - Added a local dependency/advisory review command that captures npm audit status, override lock drift, pinned npm tools, PowerShell module pins, and hash-pinned zizmor evidence.
