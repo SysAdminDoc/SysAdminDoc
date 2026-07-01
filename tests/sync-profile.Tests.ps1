@@ -19,6 +19,34 @@ BeforeAll {
     # Run offline so nothing reaches out to GitHub.
     $script:Offline = $true
 
+    function Get-MarkdownTrailingWhitespaceViolations {
+        param(
+            [Parameter(Mandatory)]
+            [string]$RootPath,
+
+            [Parameter(Mandatory)]
+            [AllowEmptyCollection()]
+            [string[]]$RelativePaths
+        )
+
+        $violations = [System.Collections.Generic.List[string]]::new()
+        foreach ($relativePath in @($RelativePaths)) {
+            if ([string]::IsNullOrWhiteSpace($relativePath)) {
+                continue
+            }
+
+            $path = Join-Path $RootPath $relativePath
+            $lines = @([System.IO.File]::ReadAllLines($path))
+            for ($i = 0; $i -lt $lines.Count; $i++) {
+                if ([string]$lines[$i] -match '[ \t]+$') {
+                    $violations.Add(('{0}:{1}' -f $relativePath, ($i + 1)))
+                }
+            }
+        }
+
+        return $violations.ToArray()
+    }
+
     function New-TestEntry {
         param([string]$Repo, [string]$Category, [string]$Description = 'desc', [int]$Order = 1)
         ConvertTo-EntryHashtable (New-CatalogEntry -Repo $Repo -Category $Category -Description $Description -Order $Order)
@@ -2432,18 +2460,41 @@ Describe 'Repository formatting contract' {
     }
 
     It 'keeps tracked Markdown free of trailing whitespace' {
-        $markdownPaths = & git -C $script:RepoRoot ls-files '*.md'
-        $violations = foreach ($relativePath in $markdownPaths) {
-            $path = Join-Path $script:RepoRoot $relativePath
-            $lines = Get-Content -LiteralPath $path
-            for ($i = 0; $i -lt $lines.Count; $i++) {
-                if ($lines[$i] -match '[ \t]+$') {
-                    '{0}:{1}' -f $relativePath, ($i + 1)
-                }
+        $markdownPaths = @(& git -C $script:RepoRoot ls-files '*.md' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        $violations = @(Get-MarkdownTrailingWhitespaceViolations -RootPath $script:RepoRoot -RelativePaths $markdownPaths)
+
+        $violations | Should -HaveCount 0
+    }
+
+    It 'handles zero, one, and many Markdown trailing-whitespace violations' {
+        $root = Join-Path ([System.IO.Path]::GetTempPath()) ('SysAdminDoc-markdown-trailing-whitespace-' + [guid]::NewGuid().ToString('N'))
+        try {
+            $null = New-Item -ItemType Directory -Path $root -Force
+            $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+            [System.IO.File]::WriteAllText((Join-Path $root 'clean.md'), "# Clean`nNo trailing whitespace`n", $utf8NoBom)
+            [System.IO.File]::WriteAllText((Join-Path $root 'one.md'), ('trim me' + '  ' + "`n"), $utf8NoBom)
+            [System.IO.File]::WriteAllText(
+                (Join-Path $root 'many.md'),
+                ('first' + ' ' + "`n" + 'second' + "`t`n" + 'third' + "`n"),
+                $utf8NoBom
+            )
+
+            @(Get-MarkdownTrailingWhitespaceViolations -RootPath $root -RelativePaths 'clean.md') | Should -HaveCount 0
+
+            $oneViolation = @(Get-MarkdownTrailingWhitespaceViolations -RootPath $root -RelativePaths 'one.md')
+            $oneViolation | Should -HaveCount 1
+            $oneViolation[0] | Should -Be 'one.md:1'
+
+            $manyViolations = @(Get-MarkdownTrailingWhitespaceViolations -RootPath $root -RelativePaths @('one.md', 'many.md'))
+            $manyViolations | Should -HaveCount 3
+            $manyViolations | Should -Contain 'one.md:1'
+            $manyViolations | Should -Contain 'many.md:1'
+            $manyViolations | Should -Contain 'many.md:2'
+        } finally {
+            if (Test-Path -LiteralPath $root) {
+                Remove-Item -LiteralPath $root -Recurse -Force
             }
         }
-
-        @($violations) | Should -HaveCount 0
     }
 }
 
@@ -2469,8 +2520,25 @@ Describe 'Markdownlint contract' {
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "SECURITY[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "[.]github/pull_request_template[.]md"\s*$'
         $script:MarkdownlintConfig | Should -Not -Match 'docs/[*][*]/[*][.]md'
-        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "TODO[.]md"\s*$'
-        $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "RESEARCH_FEATURE_PLAN[.]md"\s*$'
+        $globsBlock = [regex]::Match($script:MarkdownlintConfig, '(?ms)^globs:\s*(?<body>.*?)(?=^ignores:|\z)').Groups['body'].Value
+        $ignoresBlock = [regex]::Match($script:MarkdownlintConfig, '(?ms)^ignores:\s*(?<body>.*)\z').Groups['body'].Value
+        foreach ($localDoc in @(
+                'AGENTS.md',
+                'CHANGELOG.md',
+                'CLAUDE.md',
+                'CODEX_CHANGELOG.md',
+                'CONTINUATION_PROMPT.md',
+                'PROJECT_CONTEXT.md',
+                'RESEARCH.md',
+                'ROADMAP.md',
+                'Roadmap_Blocked.md',
+                'TODO.md',
+                'RESEARCH_FEATURE_PLAN.md'
+            )) {
+            $quotedPattern = '(?m)^\s*- "{0}"\s*$' -f [regex]::Escape($localDoc)
+            $globsBlock | Should -Not -Match $quotedPattern
+            $ignoresBlock | Should -Match $quotedPattern
+        }
     }
 
     It 'pins markdownlint through npm and keeps local installs ignored' {

@@ -27,6 +27,15 @@ globs:
   - ".github/pull_request_template.md"
 
 ignores:
+  - "AGENTS.md"
+  - "CHANGELOG.md"
+  - "CLAUDE.md"
+  - "CODEX_CHANGELOG.md"
+  - "CONTINUATION_PROMPT.md"
+  - "PROJECT_CONTEXT.md"
+  - "RESEARCH.md"
   - "TODO.md"
+  - "ROADMAP.md"
+  - "Roadmap_Blocked.md"
   - "RESEARCH_FEATURE_PLAN.md"
   - "node_modules"

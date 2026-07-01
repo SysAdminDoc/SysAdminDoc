@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P2 - Keep markdown hygiene checks aligned with tracked-file reality
-  Why: Root planning docs are intentionally local/ignored, while tracked Markdown checks should not crash on scalar violation output.
-  Evidence: `tests/sync-profile.Tests.ps1:2426-2431`; `.gitignore`; `AGENTS.md`.
-  Touches: `tests/sync-profile.Tests.ps1`, `.markdownlint-cli2.yaml`.
-  Acceptance: Tracked Markdown trailing-whitespace tests pass with zero, one, or many violations and still ignore local-only planning docs.
-  Complexity: S
-
 - [ ] P3 - Add static-search metadata hints for the portfolio consumer
   Why: Static search tools such as Pagefind support filters; this repo can improve downstream discovery by exporting stable category/type/search labels without changing the profile README.
   Evidence: `projects.json`, `schemas/profile-projects.v1.json`, Pagefind filtering docs, `sysadmindoc.github.io` feed consumption.
