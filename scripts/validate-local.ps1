@@ -87,6 +87,10 @@ function Assert-ScriptAnalyzerClean {
         "scripts/sync-profile.ps1",
         "scripts/review-local-dependencies.ps1",
         "scripts/validate-local.ps1",
+        "scripts/render-profile-smoke.ps1",
+        "scripts/open-generated-profile-pr.ps1",
+        "scripts/write-profile-sync-summary.ps1",
+        "scripts/set-generated-validation-status.ps1",
         "setup.ps1"
     )
 

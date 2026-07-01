@@ -16,8 +16,6 @@ param(
 
     [string]$Sha = $env:GITHUB_SHA,
 
-    [string]$RunId = $env:GITHUB_RUN_ID,
-
     [string]$ServerUrl = $env:GITHUB_SERVER_URL,
 
     [string]$TargetUrl,

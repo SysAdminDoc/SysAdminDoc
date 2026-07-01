@@ -855,7 +855,7 @@ function Get-RepoMeta {
         [hashtable]$RepoLookup
     )
 
-    $key = $Entry.repo.ToLowerInvariant()
+    $key = ([string]$Entry.repo).ToLowerInvariant()
     if ($RepoLookup.ContainsKey($key)) {
         return $RepoLookup[$key]
     }

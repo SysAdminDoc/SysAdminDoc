@@ -293,9 +293,9 @@ $overrideReview = Get-PackageOverrideReview -PackageJson $packageJson -PackageLo
 $npmToolPins = @(Get-NpmToolPins -PackageJson $packageJson -PackageLock $packageLock)
 $powerShellPins = @(Get-PowerShellModulePins -ValidationScriptPath $validationScriptPath)
 $pythonToolPins = @(Get-PythonAuditToolPins -RequirementsPath $requirementsPath)
-$missingPins = @(
-    @($npmToolPins | Where-Object { $_.status -ne "aligned" })
-    @($powerShellPins | Where-Object { $_.status -ne "pinned" })
+$missingPins = (
+    @($npmToolPins | Where-Object { $_.status -ne "aligned" }) +
+    @($powerShellPins | Where-Object { $_.status -ne "pinned" }) +
     @($pythonToolPins | Where-Object { $_.status -ne "hash-pinned" })
 ).Count
 $status = if ($npmAudit.status -eq "clean" -and $overrideReview.driftCount -eq 0 -and $missingPins -eq 0) {
