@@ -6932,7 +6932,7 @@ $script:SupportedSchemaKeywords = @(
     '$schema', '$id', '$ref', '$defs', 'definitions',
     'title', 'description',
     'type', 'const', 'enum', 'format', 'pattern',
-    'minimum', 'minItems', 'items',
+    'minimum', 'minLength', 'minItems', 'items',
     'required', 'properties', 'additionalProperties'
 )
 

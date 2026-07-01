@@ -455,7 +455,8 @@
           "pattern": "^[A-Za-z0-9._-]+$"
         },
         "title": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "category": {
           "type": "string",

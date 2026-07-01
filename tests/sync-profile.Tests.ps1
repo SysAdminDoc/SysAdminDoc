@@ -2020,10 +2020,10 @@ Describe 'New-ProjectsExportJson feed' {
         $result = Test-CatalogFeedAccounting -Catalog $cat -ProjectsJson $json
 
         $result.passed | Should -BeTrue
-        $result.catalogEntryCount | Should -Be 6
-        $result.visitorFacingCatalogCount | Should -Be 5
+        $result.catalogEntryCount | Should -Be 7
+        $result.visitorFacingCatalogCount | Should -Be 6
         $result.suppressedCatalogCount | Should -Be 1
-        $result.exportedProjectCount | Should -Be 5
+        $result.exportedProjectCount | Should -Be 6
         $result.exportedSuppressedCount | Should -Be 1
         $result.unaccountedRowCount | Should -Be 0
         $result.fatalCount | Should -Be 0
@@ -2037,14 +2037,15 @@ Describe 'New-ProjectsExportJson feed' {
             (New-TestRepoMeta -Name 'PyTool' -Language 'Python' -Topics @('python', 'utility')),
             (New-TestRepoMeta -Name 'WebTool' -Language 'JavaScript' -Topics @('web', 'dashboard')),
             (New-TestRepoMeta -Name 'InstallTool' -Language 'JavaScript' -Topics @('userscript', 'browser-extension')),
-            (New-TestRepoMeta -Name 'ReleaseTool' -Language 'PowerShell' -Topics @('media', 'release') -WithRelease -AssetNames @('ReleaseTool-v1.0.0.zip', 'ReleaseTool-v1.0.0.zip.sha256'))
+            (New-TestRepoMeta -Name 'ReleaseTool' -Language 'PowerShell' -Topics @('media', 'release') -WithRelease -AssetNames @('ReleaseTool-v1.0.0.zip', 'ReleaseTool-v1.0.0.zip.sha256')),
+            (New-TestRepoMeta -Name 'ForkTool' -Language 'C#' -Topics @('csharp', 'fork') -IsFork $true)
         )
         $json = New-ProjectsExportJson -Catalog $cat -Repos $repos
 
         $result = Test-PortfolioFeedCompatibility -ProjectsJson $json
 
         $result.status | Should -Be 'compatible'
-        $result.projectCount | Should -Be 5
+        $result.projectCount | Should -Be 6
         $result.suppressedCount | Should -Be 1
         $result.projectCountMatchesTopLevel | Should -BeTrue
         $result.suppressedCountMatchesTopLevel | Should -BeTrue
@@ -2063,7 +2064,7 @@ Describe 'New-ProjectsExportJson feed' {
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'install' }).count | Should -Be 1
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'live' }).count | Should -Be 1
         ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'release' }).count | Should -Be 1
-        ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'repo' }).count | Should -Be 2
+        ($result.primaryActionKindCounts | Where-Object { $_.kind -eq 'repo' }).count | Should -Be 3
         $result.fatalCount | Should -Be 0
     }
 
@@ -3387,7 +3388,7 @@ Describe 'Test-ProfileState projects sync gate' {
         $result.Failed | Should -BeTrue
         $result.Report.catalogFeedAccounting.passed | Should -BeFalse
         $result.Report.catalogFeedAccounting.unaccountedRowCount | Should -Be 1
-        $result.Report.catalogFeedAccounting.unaccountedRows[0].catalogId | Should -Be 'catalog-007'
+        $result.Report.catalogFeedAccounting.unaccountedRows[0].catalogId | Should -Be 'catalog-008'
         $result.Report.catalogFeedAccounting.unaccountedRows[0].exportStatus | Should -Be 'unaccounted'
         ($result.Report.catalogFeedAccounting.unaccountedRows | ConvertTo-Json -Depth 20) | Should -Not -Match 'LocalOnly|github.com'
     }
