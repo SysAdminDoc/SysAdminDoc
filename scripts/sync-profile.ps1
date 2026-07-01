@@ -1900,16 +1900,16 @@ function New-DiscoverySection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Start Here")
     $lines.Add("")
-    $lines.Add("This profile is the fast routing surface for public projects. Use the portfolio for search and filters, or jump straight to the lane that matches the machine, browser, or device in front of you.")
+    $lines.Add("This profile organizes public projects by platform. Use the portfolio for search and filters, or jump to the section that matches your machine, browser, or device.")
     $lines.Add("")
     $lines.Add("| Goal | Best path | What to expect |")
     $lines.Add("|:-----|:----------|:---------------|")
-    $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | Branch-pinned commands and release downloads where artifacts exist. |")
-    $lines.Add("| Install browser or Android tools | $extensionsLink or $androidLink | CRX/XPI, userscript, APK, or source paths labeled per project. |")
-    $lines.Add("| Launch a web tool | $webLink | Browser-first tools that do not need local setup. |")
-    $lines.Add("| Prepare a fresh Windows machine | $setupLink | Inspectable setup path for Python, Git, pip, and winget checks. |")
-    $lines.Add("| Validate this repo | $validationLink | Installs pinned validation tools, runs markdownlint, PSScriptAnalyzer, Pester, and reviews local dependency pins. |")
-    $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |")
+    $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | One-liner install commands and release downloads. |")
+    $lines.Add("| Install a browser or Android tool | $extensionsLink or $androidLink | CRX, XPI, userscript, and APK installs labeled per project. |")
+    $lines.Add("| Launch a web tool | $webLink | Browser-based tools that work without local setup. |")
+    $lines.Add("| Set up a fresh Windows machine | $setupLink | Guided Python and Git setup with an inspect-before-install path. |")
+    $lines.Add("| Validate this repo | $validationLink | Runs markdownlint, PSScriptAnalyzer, and Pester with pinned tool versions. |")
+    $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable catalog generated from this repo's project feed. |")
 
     return ($lines -join [Environment]::NewLine)
 }

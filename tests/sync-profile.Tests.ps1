@@ -1469,13 +1469,13 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'renders the compact discovery block without catalog snapshot or featured projects' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
         $script:rendered | Should -Match '### Start Here'
-        $script:rendered | Should -Match 'This profile is the fast routing surface for public projects'
+        $script:rendered | Should -Match 'This profile organizes public projects by platform'
         $script:rendered | Should -Not -Match '### Catalog Snapshot'
         $script:rendered | Should -Not -Match '### Featured Projects'
     }
     It 'adds compact decision guidance without reintroducing the old profile chrome' {
-        $script:rendered | Should -Match 'Branch-pinned commands and release downloads where artifacts exist'
-        $script:rendered | Should -Match 'CRX/XPI, userscript, APK, or source paths labeled per project'
+        $script:rendered | Should -Match 'One-liner install commands and release downloads'
+        $script:rendered | Should -Match 'CRX, XPI, userscript, and APK installs labeled per project'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
         $script:rendered | Should -Match 'Suggested starting points:'
         $script:rendered | Should -Match 'Branch-pinned commands you can paste into PowerShell and run immediately'
