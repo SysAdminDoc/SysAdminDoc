@@ -155,7 +155,7 @@ $linkWarningCount = Get-Count $report.linkValidationWarnings
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
 $executableShortlist = if ($releaseDrift -and $releaseDrift.PSObject.Properties.Name -contains 'executableDownloadTrustShortlist') { $releaseDrift.executableDownloadTrustShortlist } else { $null }
 $executableDownloadCount = if ($executableShortlist) { [int]$executableShortlist.executableDownloadCount } else { 0 }
-$executableVerifiedCompleteCount = if ($executableShortlist) { [int]$executableShortlist.verifiedCompleteCount } else { 0 }
+$executableMetadataCompleteCount = if ($executableShortlist) { [int]$executableShortlist.metadataCompleteCount } else { 0 }
 $executableChecksumGapCount = if ($executableShortlist) { [int]$executableShortlist.checksumGapCount } else { 0 }
 $executableAttestationGapCount = if ($executableShortlist) { [int]$executableShortlist.attestationGapCount } else { 0 }
 $executableShortlistTopRepo = if ($executableShortlist -and @($executableShortlist.rows).Count -gt 0) { [string]$executableShortlist.rows[0].repo } else { "" }
@@ -429,7 +429,7 @@ $summary = @"
 | Archive review candidates | $archiveReviewCount |
 | Release rows checked | $releaseRowsChecked |
 | Executable downloads tracked | $executableDownloadCount |
-| Executable downloads fully verified | $executableVerifiedCompleteCount |
+| Executable downloads metadata complete | $executableMetadataCompleteCount |
 | Executable downloads missing checksums | $executableChecksumGapCount |
 | Executable downloads missing attestation | $executableAttestationGapCount |
 | Executable trust top priority | $executableShortlistTopRepo |

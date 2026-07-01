@@ -2,13 +2,6 @@
 
 ## Research-Driven Additions
 
-- [ ] P2 - Preserve release-trust evidence while avoiding unverifiable integrity claims
-  Why: GitHub release asset digests and artifact attestations are valuable signals, but this repo should not imply binary verification it does not perform.
-  Evidence: `schemas/profile-projects.v1.json:195`, `reports/profile-sync-report.json:624`, GitHub release asset and artifact attestation docs.
-  Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, `reports/profile-sync-report.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: Release-trust output labels digests, checksums, SBOMs, and attestations as metadata evidence unless an explicit local verification command succeeds.
-  Complexity: M
-
 - [ ] P2 - Keep markdown hygiene checks aligned with tracked-file reality
   Why: Root planning docs are intentionally local/ignored, while tracked Markdown checks should not crash on scalar violation output.
   Evidence: `tests/sync-profile.Tests.ps1:2426-2431`; `.gitignore`; `AGENTS.md`.

@@ -1139,16 +1139,16 @@ function New-ReleaseTrust {
     if ($HasRelease -and $AssetInspected) {
         $trustLevel = "metadata-only"
         if ($checksumAssets.Count -gt 0) {
-            $trustLevel = "checksum"
+            $trustLevel = "checksum-metadata"
         }
         if ($signatureAssets.Count -gt 0) {
-            $trustLevel = "signed"
+            $trustLevel = "signature-metadata"
         }
         if ($attestationAssets.Count -gt 0) {
-            $trustLevel = "attested"
+            $trustLevel = "attestation-metadata"
         }
         if ($signatureAssets.Count -gt 0 -and $attestationAssets.Count -gt 0) {
-            $trustLevel = "signed-and-attested"
+            $trustLevel = "signature-and-attestation-metadata"
         }
     }
 
@@ -1172,7 +1172,7 @@ function New-ReleaseTrust {
         trustLevel = $trustLevel
         platformDigestCount = if ($HasRelease) { [int]$AssetDigests.Count } else { 0 }
         releaseImmutable = if ($HasRelease -and $null -ne $Immutable) { [bool]$Immutable } else { $null }
-        notesPublic = if ($HasRelease -and $AssetInspected) { "Derived from release asset filenames; binaries were not downloaded or verified." } else { $null }
+        notesPublic = if ($HasRelease -and $AssetInspected) { "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified." } else { $null }
     }
 }
 
@@ -8253,35 +8253,35 @@ function Test-ReleaseAssetDrift {
                 $hasPlatformDigest = [bool]([int]$releaseTrust.platformDigestCount -gt 0)
                 $hasSbom = @($releaseTrust.sbomAssets).Count -gt 0
                 $hasAttestation = [bool]$releaseTrust.attestationAvailable
-                $hasIntegrityEvidence = $hasChecksum -or $hasPlatformDigest
+                $hasMetadataEvidence = $hasChecksum -or $hasPlatformDigest
                 $gapScore = 0
-                if (-not $hasIntegrityEvidence) { $gapScore++ }
+                if (-not $hasMetadataEvidence) { $gapScore++ }
                 if (-not $hasSbom) { $gapScore++ }
                 if (-not $hasAttestation) { $gapScore++ }
-                $nextAction = if (-not $hasIntegrityEvidence -and $checksumCoverage -eq "partial") {
+                $nextAction = if (-not $hasMetadataEvidence -and $checksumCoverage -eq "partial") {
                     "complete-missing-sha256sums"
-                } elseif (-not $hasIntegrityEvidence) {
+                } elseif (-not $hasMetadataEvidence) {
                     "publish-sha256sums"
                 } elseif (-not $hasAttestation) {
                     "publish-build-provenance-attestation"
                 } elseif (-not $hasSbom) {
                     "publish-sbom"
                 } else {
-                    "verified-complete"
+                    "metadata-complete"
                 }
                 $isImmutable = [bool]($releaseTrust.releaseImmutable -eq $true)
-                $readinessLevel = if ($hasIntegrityEvidence -and $hasAttestation -and $hasSbom -and $isImmutable) {
-                    "fully-evidenced"
+                $readinessLevel = if ($hasMetadataEvidence -and $hasAttestation -and $hasSbom -and $isImmutable) {
+                    "metadata-complete"
                 } elseif ($hasAttestation) {
-                    "attested"
+                    "attestation-metadata"
                 } elseif ($hasSbom) {
-                    "sbom-present"
+                    "sbom-metadata"
                 } elseif ($isImmutable) {
-                    "immutable-only"
-                } elseif ($hasIntegrityEvidence) {
-                    "digest-only"
+                    "immutable-metadata"
+                } elseif ($hasMetadataEvidence) {
+                    "digest-metadata"
                 } else {
-                    "no-integrity"
+                    "no-metadata-evidence"
                 }
                 $executableDownloadCandidates.Add([ordered]@{
                         repo = [string]$entry.repo
@@ -8289,11 +8289,11 @@ function Test-ReleaseAssetDrift {
                         latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
                         executableAssetKinds = @($releaseTrust.executableAssetKinds)
                         trustLevel = [string]$releaseTrust.trustLevel
-                        evidenceSource = "filename-and-platform"
+                        evidenceSource = "release-metadata-only"
                         hasChecksum = [bool]$hasChecksum
                         checksumCoverage = [string]$checksumCoverage
                         hasPlatformDigest = [bool]$hasPlatformDigest
-                        hasIntegrityEvidence = [bool]$hasIntegrityEvidence
+                        hasMetadataEvidence = [bool]$hasMetadataEvidence
                         hasSbom = [bool]$hasSbom
                         hasAttestation = [bool]$hasAttestation
                         isImmutable = [bool]$isImmutable
@@ -8389,9 +8389,9 @@ function Test-ReleaseAssetDrift {
     # Use Measure-Object for counts: arrays of OrderedDictionary rows otherwise
     # trigger PowerShell member-enumeration on .Count and return per-row counts.
     $executableDownloadCount = ($rankedCandidates | Measure-Object).Count
-    $verifiedCompleteCount = ($rankedCandidates | Where-Object { [int]$_.gapScore -eq 0 } | Measure-Object).Count
+    $metadataCompleteCount = ($rankedCandidates | Where-Object { [int]$_.gapScore -eq 0 } | Measure-Object).Count
     $checksumGapCount = ($rankedCandidates | Where-Object { -not $_.hasChecksum } | Measure-Object).Count
-    $integrityGapCount = ($rankedCandidates | Where-Object { -not $_.hasIntegrityEvidence } | Measure-Object).Count
+    $metadataEvidenceGapCount = ($rankedCandidates | Where-Object { -not $_.hasMetadataEvidence } | Measure-Object).Count
     $platformDigestCount = ($rankedCandidates | Where-Object { $_.hasPlatformDigest } | Measure-Object).Count
     $attestationGapCount = ($rankedCandidates | Where-Object { -not $_.hasAttestation } | Measure-Object).Count
     $sbomGapCount = ($rankedCandidates | Where-Object { -not $_.hasSbom } | Measure-Object).Count
@@ -8402,7 +8402,7 @@ function Test-ReleaseAssetDrift {
         if (-not $readinessBuckets.ContainsKey($level)) { $readinessBuckets[$level] = 0 }
         $readinessBuckets[$level]++
     }
-    $readinessCounts = @(foreach ($level in @("fully-evidenced", "attested", "sbom-present", "immutable-only", "digest-only", "no-integrity")) {
+    $readinessCounts = @(foreach ($level in @("metadata-complete", "attestation-metadata", "sbom-metadata", "immutable-metadata", "digest-metadata", "no-metadata-evidence")) {
         if ($readinessBuckets.ContainsKey($level)) {
             [ordered]@{ readinessLevel = $level; count = [int]$readinessBuckets[$level] }
         }
@@ -8410,11 +8410,11 @@ function Test-ReleaseAssetDrift {
     $shortlistTruncatedCount = [int]$executableDownloadCount - [int]$shortlistRows.Count
     if ($shortlistTruncatedCount -lt 0) { $shortlistTruncatedCount = 0 }
     $executableDownloadTrustShortlist = [ordered]@{
-        evidenceSource = "filename-and-platform"
+        evidenceSource = "release-metadata-only"
         executableDownloadCount = [int]$executableDownloadCount
-        verifiedCompleteCount = [int]$verifiedCompleteCount
+        metadataCompleteCount = [int]$metadataCompleteCount
         checksumGapCount = [int]$checksumGapCount
-        integrityGapCount = [int]$integrityGapCount
+        metadataEvidenceGapCount = [int]$metadataEvidenceGapCount
         platformDigestCount = [int]$platformDigestCount
         attestationGapCount = [int]$attestationGapCount
         sbomGapCount = [int]$sbomGapCount
@@ -8423,7 +8423,7 @@ function Test-ReleaseAssetDrift {
         shortlistSoftCap = [int]$shortlistSoftCap
         truncatedCount = [int]$shortlistTruncatedCount
         rows = @($shortlistRows.ToArray())
-        note = "Integrity evidence combines filename-derived sidecar checksums and GitHub platform asset digests. nextAction names the highest-impact missing evidence."
+        note = "Metadata evidence records filename-derived sidecar checksums, SBOM or attestation filenames, and GitHub platform asset digests; no binaries were downloaded or locally verified."
     }
 
     return [ordered]@{

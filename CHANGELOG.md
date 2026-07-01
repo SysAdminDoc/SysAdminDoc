@@ -2,6 +2,7 @@
 
 ## 2026-06-30
 
+- Re-labeled release trust, checksum, SBOM, digest, and attestation signals as metadata evidence so the feed and report no longer imply local binary verification.
 - Retired generated PR helper side effects so profile automation helpers are offline/manual previews under the local-only validation policy.
 - Replaced stale workflow/CI public intake with local-validation issue reporting and local-only audit tooling configuration.
 - Made rendered profile smoke evidence local and policy-aware, with passed desktop/mobile evidence folded into the sync report and legacy hosted-artifact warnings removed.

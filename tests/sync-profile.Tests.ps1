@@ -967,7 +967,7 @@ Describe 'Report schema depth helpers' {
         $trust.hasChecksumForEveryExecutable | Should -BeFalse
         $trust.executableAssetKinds | Should -Contain 'exe'
         $trust.executableAssetKinds | Should -Contain 'apk'
-        $trust.trustLevel | Should -Be 'signed-and-attested'
+        $trust.trustLevel | Should -Be 'signature-and-attestation-metadata'
     }
 
     It 'reports repos missing topics or public descriptions' {
@@ -1170,14 +1170,14 @@ Describe 'Report schema depth helpers' {
         ($result.executableDownloadsMissingChecksums | ForEach-Object { $_.repo }) | Should -Contain 'MismatchRelease'
         ($result.executableDownloadsMissingChecksums | ForEach-Object { $_.repo }) | Should -Not -Contain 'GoodRelease'
         (($result.releaseAssetKindCounts | ForEach-Object { $_.kind }) -join ',') | Should -Be 'apk,other,source-archive'
-        (($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) -join ',') | Should -Be 'checksum,metadata-only,unknown'
-        ($result.releaseTrustLevelCounts | Where-Object { $_.trustLevel -eq 'checksum' }).count | Should -Be 1
+        (($result.releaseTrustLevelCounts | ForEach-Object { $_.trustLevel }) -join ',') | Should -Be 'checksum-metadata,metadata-only,unknown'
+        ($result.releaseTrustLevelCounts | Where-Object { $_.trustLevel -eq 'checksum-metadata' }).count | Should -Be 1
         $result.assetApiInspected | Should -BeTrue
 
         $shortlist = $result.executableDownloadTrustShortlist
-        $shortlist.evidenceSource | Should -Be 'filename-and-platform'
+        $shortlist.evidenceSource | Should -Be 'release-metadata-only'
         $shortlist.executableDownloadCount | Should -Be 2
-        $shortlist.verifiedCompleteCount | Should -Be 0
+        $shortlist.metadataCompleteCount | Should -Be 0
         $shortlist.checksumGapCount | Should -Be 1
         $shortlist.attestationGapCount | Should -Be 2
         $shortlist.sbomGapCount | Should -Be 2
@@ -2085,7 +2085,7 @@ Describe 'New-ProjectsExportJson feed' {
         $winTool.releaseAssetKinds | Should -Contain 'apk'
         $winTool.releaseTrust.checksumAssets | Should -Contain 'WinTool-v1.0.0.apk.sha256'
         $winTool.releaseTrust.hasChecksumForEveryExecutable | Should -BeTrue
-        $winTool.releaseTrust.trustLevel | Should -Be 'checksum'
+        $winTool.releaseTrust.trustLevel | Should -Be 'checksum-metadata'
         $winTool.primaryAction.kind | Should -Be 'release'
         $pyTool.releaseAssetKinds | Should -Contain 'source-archive'
         $pyTool.releaseTrust.sourceOnlyRelease | Should -BeTrue
@@ -3389,7 +3389,7 @@ Describe 'Test-MetadataDrift report' {
                 trustLevel = 'metadata-only'
                 platformDigestCount = 0
                 releaseImmutable = $null
-                notesPublic = 'Derived from release asset filenames; binaries were not downloaded or verified.'
+                notesPublic = 'Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified.'
             }
         }
         $current = [ordered]@{

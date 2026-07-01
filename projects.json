@@ -92,10 +92,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 10,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:53:02.0000000Z",
       "topics": [
@@ -170,7 +170,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:47:49.0000000Z",
       "topics": [
@@ -242,7 +242,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:34:26.0000000Z",
       "topics": [
@@ -316,7 +316,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:47:50.0000000Z",
       "topics": [
@@ -398,7 +398,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:56:47.0000000Z",
       "topics": [
@@ -471,7 +471,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:50:11.0000000Z",
       "topics": [
@@ -546,10 +546,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:46:35.0000000Z",
       "topics": [
@@ -644,10 +644,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 6,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:35:27.0000000Z",
       "topics": [
@@ -721,10 +721,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T17:11:01.0000000Z",
       "topics": [
@@ -796,10 +796,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:18:23.0000000Z",
       "topics": [
@@ -878,10 +878,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:10.0000000Z",
       "topics": [
@@ -953,7 +953,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:31.0000000Z",
       "topics": [
@@ -1024,7 +1024,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:06.0000000Z",
       "topics": [
@@ -1095,7 +1095,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:04.0000000Z",
       "topics": [
@@ -1166,7 +1166,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:58:41.0000000Z",
       "topics": [
@@ -1238,10 +1238,10 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:30:09.0000000Z",
       "topics": [
@@ -1318,7 +1318,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:50:20.0000000Z",
       "topics": [
@@ -1389,7 +1389,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:35:42.0000000Z",
       "topics": [
@@ -1463,10 +1463,10 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T15:09:55.0000000Z",
       "topics": [
@@ -1601,10 +1601,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:21.0000000Z",
       "topics": [
@@ -1677,10 +1677,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:38:14.0000000Z",
       "topics": [
@@ -1753,10 +1753,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:12.0000000Z",
       "topics": [
@@ -1833,10 +1833,10 @@
           "exe",
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:38:02.0000000Z",
       "topics": [
@@ -1911,10 +1911,10 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T15:21:27.0000000Z",
       "topics": [
@@ -1985,7 +1985,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:59.0000000Z",
       "topics": [
@@ -2056,7 +2056,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:47:00.0000000Z",
       "topics": [
@@ -2131,10 +2131,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:25.0000000Z",
       "topics": [
@@ -2207,10 +2207,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:07.0000000Z",
       "topics": [
@@ -2286,10 +2286,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:38.0000000Z",
       "topics": [
@@ -2357,7 +2357,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-26T19:49:53.0000000Z",
       "topics": [
@@ -2432,7 +2432,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:46.0000000Z",
       "topics": [
@@ -2512,10 +2512,10 @@
           "exe",
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 6,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:49:19.0000000Z",
       "topics": [
@@ -2659,7 +2659,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 6,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:52.0000000Z",
       "topics": [
@@ -2732,7 +2732,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:23.0000000Z",
       "topics": [
@@ -2879,7 +2879,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 5,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:23:22.0000000Z",
       "topics": [
@@ -2953,7 +2953,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T00:14:06.0000000Z",
       "topics": [
@@ -3030,10 +3030,10 @@
           "exe",
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:46:43.0000000Z",
       "topics": [
@@ -3180,7 +3180,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:29:23.0000000Z",
       "topics": [],
@@ -3324,7 +3324,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 9,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T14:48:45.0000000Z",
       "topics": [
@@ -3398,7 +3398,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:24:32.0000000Z",
       "topics": [
@@ -3475,7 +3475,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:46:06.0000000Z",
       "topics": [
@@ -3551,7 +3551,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:30:28.0000000Z",
       "topics": [
@@ -3621,7 +3621,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:36:23.0000000Z",
       "topics": [
@@ -3706,10 +3706,10 @@
           "userscript",
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:44:28.0000000Z",
       "topics": [
@@ -3778,7 +3778,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:11.0000000Z",
       "topics": [
@@ -3852,7 +3852,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:13.0000000Z",
       "topics": [
@@ -3989,7 +3989,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:15.0000000Z",
       "topics": [
@@ -4063,7 +4063,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:30.0000000Z",
       "topics": [
@@ -4131,7 +4131,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:01.0000000Z",
       "topics": [
@@ -4205,7 +4205,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T00:48:45.0000000Z",
       "topics": [
@@ -4275,7 +4275,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:45:00.0000000Z",
       "topics": [
@@ -4345,7 +4345,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T13:17:56.0000000Z",
       "topics": [
@@ -4415,7 +4415,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:55.0000000Z",
       "topics": [
@@ -4485,7 +4485,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:29.0000000Z",
       "topics": [
@@ -4554,7 +4554,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:19.0000000Z",
       "topics": [
@@ -4698,10 +4698,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:58.0000000Z",
       "topics": [
@@ -4775,7 +4775,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:54.0000000Z",
       "topics": [
@@ -4853,7 +4853,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:36:50.0000000Z",
       "topics": [
@@ -5055,7 +5055,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:35.0000000Z",
       "topics": [
@@ -5193,7 +5193,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T06:31:28.0000000Z",
       "topics": [
@@ -5261,7 +5261,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:38.0000000Z",
       "topics": [
@@ -5343,10 +5343,10 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 5,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:32:12.0000000Z",
       "topics": [
@@ -5416,7 +5416,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:49.0000000Z",
       "topics": [
@@ -5485,7 +5485,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:16.0000000Z",
       "topics": [
@@ -5561,7 +5561,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T14:57:52.0000000Z",
       "topics": [
@@ -5636,10 +5636,10 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:47:32.0000000Z",
       "topics": [
@@ -5712,7 +5712,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:44.0000000Z",
       "topics": [
@@ -5787,7 +5787,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:30.0000000Z",
       "topics": [
@@ -6062,7 +6062,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-26T18:10:19.0000000Z",
       "topics": [
@@ -6156,10 +6156,10 @@
           "exe",
           "script"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 14,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T13:40:57.0000000Z",
       "topics": [
@@ -6234,10 +6234,10 @@
         "executableAssetKinds": [
           "script"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:54:08.0000000Z",
       "topics": [
@@ -6315,10 +6315,10 @@
           "exe",
           "script"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:34:44.0000000Z",
       "topics": [
@@ -6388,7 +6388,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:44.0000000Z",
       "topics": [
@@ -6461,7 +6461,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:26:52.0000000Z",
       "topics": [
@@ -6530,7 +6530,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:57.0000000Z",
       "topics": [
@@ -6604,10 +6604,10 @@
         "executableAssetKinds": [
           "script"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T04:05:23.0000000Z",
       "topics": [
@@ -6682,7 +6682,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:40:05.0000000Z",
       "topics": [
@@ -6752,7 +6752,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:23.0000000Z",
       "topics": [
@@ -6822,7 +6822,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:10:42.0000000Z",
       "topics": [
@@ -6891,7 +6891,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:39.0000000Z",
       "topics": [
@@ -6966,10 +6966,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:40:43.0000000Z",
       "topics": [
@@ -7039,7 +7039,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:22.0000000Z",
       "topics": [
@@ -7112,7 +7112,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T00:49:08.0000000Z",
       "topics": [
@@ -7182,7 +7182,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:08.0000000Z",
       "topics": [
@@ -7259,7 +7259,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:27.0000000Z",
       "topics": [
@@ -7333,10 +7333,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:14:36.0000000Z",
       "topics": [
@@ -7414,7 +7414,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:42:37.0000000Z",
       "topics": [
@@ -7490,7 +7490,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:44:29.0000000Z",
       "topics": [
@@ -7565,7 +7565,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:40.0000000Z",
       "topics": [
@@ -7642,7 +7642,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:41:30.0000000Z",
       "topics": [
@@ -7919,7 +7919,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:26.0000000Z",
       "topics": [
@@ -7998,7 +7998,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:02.0000000Z",
       "topics": [
@@ -8137,7 +8137,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:34.0000000Z",
       "topics": [
@@ -8352,10 +8352,10 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 5,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:45.0000000Z",
       "topics": [
@@ -8511,7 +8511,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T04:02:15.0000000Z",
       "topics": [
@@ -8585,7 +8585,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:43:28.0000000Z",
       "topics": [
@@ -8658,7 +8658,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T00:34:31.0000000Z",
       "topics": [
@@ -8729,7 +8729,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:41:41.0000000Z",
       "topics": [
@@ -8803,7 +8803,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:50.0000000Z",
       "topics": [
@@ -8948,7 +8948,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:19.0000000Z",
       "topics": [
@@ -9091,7 +9091,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:47.0000000Z",
       "topics": [
@@ -9166,7 +9166,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:42:54.0000000Z",
       "topics": [
@@ -9242,7 +9242,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:38:33.0000000Z",
       "topics": [
@@ -9320,7 +9320,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:32:55.0000000Z",
       "topics": [
@@ -9413,10 +9413,10 @@
         "executableAssetKinds": [
           "exe"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 6,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:29:07.0000000Z",
       "topics": [
@@ -9493,7 +9493,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:42.0000000Z",
       "topics": [
@@ -9567,7 +9567,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:32:16.0000000Z",
       "topics": [
@@ -9643,7 +9643,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T14:38:08.0000000Z",
       "topics": [
@@ -9713,7 +9713,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:08.0000000Z",
       "topics": [
@@ -9787,7 +9787,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:09.0000000Z",
       "topics": [
@@ -9856,7 +9856,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T00:41:35.0000000Z",
       "topics": [
@@ -9925,7 +9925,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:48.0000000Z",
       "topics": [
@@ -10070,7 +10070,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 4,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:41:40.0000000Z",
       "topics": [
@@ -10140,7 +10140,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:08.0000000Z",
       "topics": [
@@ -10213,7 +10213,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T14:00:42.0000000Z",
       "topics": [
@@ -10288,7 +10288,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:53.0000000Z",
       "topics": [
@@ -10360,7 +10360,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:20:57.0000000Z",
       "topics": [
@@ -10502,7 +10502,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:14.0000000Z",
       "topics": [
@@ -10576,7 +10576,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:53:44.0000000Z",
       "topics": [
@@ -10654,7 +10654,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-29T14:23:52.0000000Z",
       "topics": [
@@ -10724,7 +10724,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:50.0000000Z",
       "topics": [
@@ -10801,7 +10801,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 3,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:29.0000000Z",
       "topics": [
@@ -10871,7 +10871,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:39:24.0000000Z",
       "topics": [
@@ -10943,7 +10943,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:41.0000000Z",
       "topics": [
@@ -11084,7 +11084,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:36:49.0000000Z",
       "topics": [
@@ -11160,7 +11160,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T16:37:54.0000000Z",
       "topics": [
@@ -11231,7 +11231,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:32:13.0000000Z",
       "topics": [
@@ -11305,10 +11305,10 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:41.0000000Z",
       "topics": [
@@ -11376,7 +11376,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:10:21.0000000Z",
       "topics": [
@@ -11450,7 +11450,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:03.0000000Z",
       "topics": [
@@ -11588,7 +11588,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:17:32.0000000Z",
       "topics": [
@@ -11727,7 +11727,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:04.0000000Z",
       "topics": [
@@ -11797,7 +11797,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:40.0000000Z",
       "topics": [
@@ -11867,7 +11867,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T14:31:42.0000000Z",
       "topics": [
@@ -12004,7 +12004,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:16.0000000Z",
       "topics": [
@@ -12213,7 +12213,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 2,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:55.0000000Z",
       "topics": [
@@ -12282,7 +12282,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:14.0000000Z",
       "topics": [
@@ -12554,7 +12554,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:57.0000000Z",
       "topics": [
@@ -12757,7 +12757,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:05.0000000Z",
       "topics": [
@@ -12827,7 +12827,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:24.0000000Z",
       "topics": [
@@ -12898,7 +12898,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:39:03.0000000Z",
       "topics": [
@@ -12967,7 +12967,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-30T15:45:37.0000000Z",
       "topics": [
@@ -13036,7 +13036,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:17.0000000Z",
       "topics": [
@@ -13106,7 +13106,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:38:13.0000000Z",
       "topics": [
@@ -13175,7 +13175,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:37:17.0000000Z",
       "topics": [
@@ -13312,7 +13312,7 @@
         "trustLevel": "metadata-only",
         "platformDigestCount": 0,
         "releaseImmutable": false,
-        "notesPublic": "Derived from release asset filenames; binaries were not downloaded or verified."
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
       "pushedAt": "2026-06-28T03:46:17.0000000Z",
       "topics": [

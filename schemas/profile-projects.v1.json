@@ -275,11 +275,11 @@
         "trustLevel": {
           "type": "string",
           "enum": [
-            "attested",
-            "checksum",
+            "attestation-metadata",
+            "checksum-metadata",
             "metadata-only",
-            "signed",
-            "signed-and-attested",
+            "signature-metadata",
+            "signature-and-attestation-metadata",
             "unknown"
           ]
         },

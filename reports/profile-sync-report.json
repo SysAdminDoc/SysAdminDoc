@@ -614,7 +614,7 @@
     ],
     "releaseTrustLevelCounts": [
       {
-        "trustLevel": "checksum",
+        "trustLevel": "checksum-metadata",
         "count": 31
       },
       {
@@ -636,22 +636,22 @@
       "withoutDigestCount": 45
     },
     "executableDownloadTrustShortlist": {
-      "evidenceSource": "filename-and-platform",
+      "evidenceSource": "release-metadata-only",
       "executableDownloadCount": 74,
-      "verifiedCompleteCount": 0,
+      "metadataCompleteCount": 0,
       "checksumGapCount": 61,
-      "integrityGapCount": 0,
+      "metadataEvidenceGapCount": 0,
       "platformDigestCount": 74,
       "attestationGapCount": 74,
       "sbomGapCount": 72,
       "immutableCount": 0,
       "readinessCounts": [
         {
-          "readinessLevel": "sbom-present",
+          "readinessLevel": "sbom-metadata",
           "count": 2
         },
         {
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "count": 72
         }
       ],
@@ -667,16 +667,16 @@
             "exe",
             "script"
           ],
-          "trustLevel": "checksum",
-          "evidenceSource": "filename-and-platform",
+          "trustLevel": "checksum-metadata",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": true,
           "checksumCoverage": "full",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -689,15 +689,15 @@
             "zip"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -711,15 +711,15 @@
             "zip"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -732,15 +732,15 @@
             "apk"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -753,15 +753,15 @@
             "apk"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -774,16 +774,16 @@
             "exe",
             "script"
           ],
-          "trustLevel": "checksum",
-          "evidenceSource": "filename-and-platform",
+          "trustLevel": "checksum-metadata",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": true,
           "checksumCoverage": "full",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -796,15 +796,15 @@
             "apk"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -816,16 +816,16 @@
           "executableAssetKinds": [
             "exe"
           ],
-          "trustLevel": "checksum",
-          "evidenceSource": "filename-and-platform",
+          "trustLevel": "checksum-metadata",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "partial",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -841,15 +841,15 @@
             "zip"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
@@ -862,20 +862,20 @@
             "script"
           ],
           "trustLevel": "metadata-only",
-          "evidenceSource": "filename-and-platform",
+          "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
           "hasPlatformDigest": true,
-          "hasIntegrityEvidence": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "digest-only",
+          "readinessLevel": "digest-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         }
       ],
-      "note": "Integrity evidence combines filename-derived sidecar checksums and GitHub platform asset digests. nextAction names the highest-impact missing evidence."
+      "note": "Metadata evidence records filename-derived sidecar checksums, SBOM or attestation filenames, and GitHub platform asset digests; no binaries were downloaded or locally verified."
     },
     "executableDownloadsMissingChecksums": 61,
     "debugArtifactRows": [
@@ -887,7 +887,7 @@
       {
         "repo": "LocalAndroidStore",
         "latestReleaseTag": "v0.2.3",
-        "trustLevel": "checksum"
+        "trustLevel": "checksum-metadata"
       },
       {
         "repo": "one-ui-home-clone",

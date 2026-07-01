@@ -1157,9 +1157,9 @@
       "required": [
         "evidenceSource",
         "executableDownloadCount",
-        "verifiedCompleteCount",
+        "metadataCompleteCount",
         "checksumGapCount",
-        "integrityGapCount",
+        "metadataEvidenceGapCount",
         "platformDigestCount",
         "attestationGapCount",
         "sbomGapCount",
@@ -1177,13 +1177,13 @@
         "executableDownloadCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
-        "verifiedCompleteCount": {
+        "metadataCompleteCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "checksumGapCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
-        "integrityGapCount": {
+        "metadataEvidenceGapCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "platformDigestCount": {
@@ -1207,7 +1207,7 @@
             "properties": {
               "readinessLevel": {
                 "type": "string",
-                "enum": ["fully-evidenced", "attested", "sbom-present", "immutable-only", "digest-only", "no-integrity"]
+                "enum": ["metadata-complete", "attestation-metadata", "sbom-metadata", "immutable-metadata", "digest-metadata", "no-metadata-evidence"]
               },
               "count": {
                 "$ref": "#/$defs/nonNegativeInteger"
@@ -1237,7 +1237,7 @@
               "hasChecksum",
               "checksumCoverage",
               "hasPlatformDigest",
-              "hasIntegrityEvidence",
+              "hasMetadataEvidence",
               "hasSbom",
               "hasAttestation",
               "isImmutable",
@@ -1277,7 +1277,7 @@
               "hasPlatformDigest": {
                 "type": "boolean"
               },
-              "hasIntegrityEvidence": {
+              "hasMetadataEvidence": {
                 "type": "boolean"
               },
               "isImmutable": {
@@ -1285,7 +1285,7 @@
               },
               "readinessLevel": {
                 "type": "string",
-                "enum": ["fully-evidenced", "attested", "sbom-present", "immutable-only", "digest-only", "no-integrity"]
+                "enum": ["metadata-complete", "attestation-metadata", "sbom-metadata", "immutable-metadata", "digest-metadata", "no-metadata-evidence"]
               },
               "hasSbom": {
                 "type": "boolean"
@@ -1769,11 +1769,11 @@
         "trustLevel": {
           "type": "string",
           "enum": [
-            "attested",
-            "checksum",
+            "attestation-metadata",
+            "checksum-metadata",
             "metadata-only",
-            "signed",
-            "signed-and-attested",
+            "signature-metadata",
+            "signature-and-attestation-metadata",
             "unknown"
           ]
         },
