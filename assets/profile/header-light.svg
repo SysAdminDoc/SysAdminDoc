@@ -4,10 +4,10 @@
   <rect width="100%" height="100%" fill="#ffffff"/>
   <rect x="16" y="16" width="788" height="208" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
   <rect x="16" y="16" width="4" height="208" rx="2" fill="#0969da"/>
-  <line x1="318" y1="52" x2="502" y2="52" stroke="#0969da" stroke-width="2" opacity="0.9"/>
-  <text x="410" y="82" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">PUBLIC OPEN-SOURCE CATALOG</text>
-  <text x="410" y="130" text-anchor="middle" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700">SysAdminDoc</text>
-  <text x="410" y="164" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>
-  <text x="410" y="192" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="14">16+ years in IT operations | Windows, Android, web, automation, and imaging workflows</text>
-  <text x="410" y="216" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">PowerShell / Python / Kotlin / C# / Rust</text>
+  <line x1="260" y1="52" x2="560" y2="52" stroke="#0969da" stroke-width="1.5" opacity="0.7"/>
+  <text x="410" y="78" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="2">OPEN-SOURCE CATALOG</text>
+  <text x="410" y="126" text-anchor="middle" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700">SysAdminDoc</text>
+  <text x="410" y="162" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">Healthcare IT Engineer  ·  DICOM/PACS Specialist  ·  Product Builder</text>
+  <text x="410" y="190" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="14">16+ years in IT operations · Windows, Android, web, automation, and imaging workflows</text>
+  <text x="410" y="214" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">PowerShell · Python · Kotlin · C# · Rust</text>
 </svg>

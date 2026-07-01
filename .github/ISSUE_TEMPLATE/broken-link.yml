@@ -1,5 +1,5 @@
 name: Broken catalog link
-description: Report a public README, release, launch, install, or portfolio link that does not work.
+description: Report a README, release, launch, install, or portfolio link that returns an error or wrong destination.
 title: "Broken link: "
 labels:
   - broken-link
@@ -7,12 +7,12 @@ labels:
 body:
   - type: markdown
     attributes:
-      value: "Do not include private repository names, credentials, customer data, medical data, or other sensitive details."
+      value: "This repo is public. Do not include private repository names, credentials, customer data, medical data, or other sensitive details in any field."
   - type: input
     id: project
     attributes:
-      label: Public project or section
-      description: Name the public project row or README section where the link appears.
+      label: Project or section
+      description: Name the project row or README section where the broken link appears.
       placeholder: "Example: OpenCut, Start Here, PowerShell System Utilities"
     validations:
       required: true
@@ -20,7 +20,7 @@ body:
     id: url
     attributes:
       label: Broken URL
-      description: Paste the public URL exactly as shown.
+      description: Paste the full URL exactly as shown in the README or portfolio.
       placeholder: "https://github.com/SysAdminDoc/example/releases/latest"
     validations:
       required: true
@@ -28,7 +28,7 @@ body:
     id: observed
     attributes:
       label: What happened?
-      description: Describe the status code, redirect, download problem, or browser error.
+      description: Describe what you saw -- 404, redirect loop, wrong download, browser error, etc.
     validations:
       required: true
   - type: textarea
@@ -41,13 +41,12 @@ body:
   - type: dropdown
     id: surface
     attributes:
-      label: Surface
-      description: Where did you encounter the broken link?
+      label: Where did you find the broken link?
       options:
         - GitHub profile README
         - Full portfolio site
-        - Release download
-        - Install snippet
-        - Other public surface
+        - Release download page
+        - Install snippet (PowerShell one-liner)
+        - Other
     validations:
       required: true

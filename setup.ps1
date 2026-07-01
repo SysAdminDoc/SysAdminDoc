@@ -109,28 +109,31 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
 
 try {
     Write-Host ""
-    Write-Host "SysAdminDoc setup - Python 3 + Git" -ForegroundColor White
-    Write-Host "------------------------------------" -ForegroundColor White
+    Write-Host "SysAdminDoc Setup" -ForegroundColor Cyan
+    Write-Host "Installs Python 3 and Git so the README project snippets work." -ForegroundColor DarkGray
+    Write-Host ""
     Start-SetupTranscript
 
     if ($CheckOnly) {
         Write-Skip "Check-only mode: no packages will be installed."
+        Write-Host ""
         Update-PathFromRegistry
         $state = Test-SetupState
+        Write-Host ""
         if (-not $state.Winget) {
-            Write-Warn2 "winget missing; install 'App Installer' from the Microsoft Store if Python or Git must be installed."
+            Write-Warn2 "winget is missing. Install 'App Installer' from the Microsoft Store:"
             Write-Host  "    https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
         }
         if ($state.Python -and $state.Git) {
-            Write-Host "Python and Git are ready for the README install one-liners." -ForegroundColor Green
+            Write-Ok "Ready. Python and Git are installed -- the README snippets will work."
         } else {
-            Write-Host "One or more prerequisites are missing. Run without -CheckOnly to install with winget." -ForegroundColor Yellow
+            Write-Warn2 "One or more prerequisites are missing. Run without -CheckOnly to install with winget."
         }
         return
     }
 
     if (-not (Test-Cmd 'winget')) {
-        Write-Warn2 "winget not found. Install 'App Installer' from the Microsoft Store, then re-run:"
+        Write-Warn2 "winget is not available. Install 'App Installer' from the Microsoft Store first:"
         Write-Host  "    https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
         return
     }
@@ -145,9 +148,9 @@ try {
 
     Write-Host ""
     if ($state.Python -and $state.Git) {
-        Write-Host "Done. You can now paste any install one-liner from the README." -ForegroundColor Green
+        Write-Ok "Setup complete. You can now paste any install one-liner from the README."
     } else {
-        Write-Host "Setup incomplete. Close this window, open a NEW PowerShell, and try again." -ForegroundColor Yellow
+        Write-Warn2 "Setup incomplete. Close this window, open a new PowerShell, and try again."
     }
 } finally {
     Stop-SetupTranscript

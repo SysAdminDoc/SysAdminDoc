@@ -1,5 +1,5 @@
-name: Local validation or support problem
-description: Report a public local validation, setup, or generated profile support problem.
+name: Local validation or setup problem
+description: Report a problem with local validation, setup, or generated profile output.
 title: "Validation issue: "
 labels:
   - validation
@@ -7,11 +7,12 @@ labels:
 body:
   - type: markdown
     attributes:
-      value: "Do not paste secrets, tokens, private repository names, customer data, medical data, or sensitive logs. Redact anything non-public before submitting."
+      value: "This repo is public. Do not paste secrets, tokens, private repository names, customer data, medical data, or sensitive logs. Redact anything non-public before submitting."
   - type: input
     id: check
     attributes:
-      label: Local command or support path
+      label: Command or script
+      description: Which script or validation step failed?
       placeholder: "Example: scripts/validate-local.ps1, scripts/render-profile-smoke.ps1, setup.ps1 -CheckOnly"
     validations:
       required: true
@@ -19,30 +20,31 @@ body:
     id: environment
     attributes:
       label: Environment
-      placeholder: "Example: PowerShell 7.4 on Windows 11; Node dependencies already installed"
+      description: PowerShell version, OS, and any relevant tool versions.
+      placeholder: "Example: PowerShell 7.4.6 on Windows 11 24H2"
     validations:
       required: false
   - type: textarea
     id: observed
     attributes:
-      label: Observed behavior
-      description: Summarize the local validation failure, setup problem, or unexpected generated output.
+      label: What happened?
+      description: Paste the error output or describe the failure. Redact any sensitive paths or data.
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
       label: Expected behavior
-      description: What should the local command or support path do?
+      description: What should the command produce or do?
     validations:
       required: true
   - type: dropdown
     id: sensitive
     attributes:
       label: Does this involve sensitive data?
-      description: If yes, do not submit the issue. Use the security policy instead.
+      description: If yes, do not submit this issue. Use the security policy instead.
       options:
         - "No"
-        - "Yes - I will use SECURITY.md instead"
+        - "Yes -- I will use SECURITY.md instead"
     validations:
       required: true

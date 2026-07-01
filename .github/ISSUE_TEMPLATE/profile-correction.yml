@@ -7,33 +7,34 @@ labels:
 body:
   - type: markdown
     attributes:
-      value: "This repo is public. Do not include private repo names, customer data, medical data, or employer-specific details."
+      value: "This repo is public. Do not include private repo names, customer data, medical data, or employer-specific details in any field."
   - type: input
     id: project
     attributes:
       label: Public project or section
-      placeholder: "Example: Vantage, Featured Projects, Catalog Snapshot"
+      description: Name the project row or README section where the correction applies.
+      placeholder: "Example: Vantage, Start Here, PowerShell System Utilities"
     validations:
       required: true
   - type: textarea
     id: current
     attributes:
       label: Current text or metadata
-      description: Paste the public text or describe the current catalog value.
+      description: Paste the exact public text or describe the current catalog value you want corrected.
     validations:
       required: true
   - type: textarea
     id: proposed
     attributes:
-      label: Proposed public-safe correction
-      description: Describe the exact correction, category, action, or wording change.
+      label: Proposed correction
+      description: Describe the exact change -- wording, category, action label, or metadata value.
     validations:
       required: true
   - type: dropdown
     id: generated
     attributes:
       label: Is this in the generated catalog section?
-      description: Generated sections should be changed through `data/profile-catalog.json` and regenerated.
+      description: "Catalog sections (below the Start Here table) are generated from `data/profile-catalog.json`. Changes there must go through the catalog, not README edits."
       options:
         - "Yes"
         - "No"
