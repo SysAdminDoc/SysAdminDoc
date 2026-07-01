@@ -3,6 +3,11 @@
 ## 2026-07-01
 
 - Added schema-versioned static search metadata to `projects.json` so portfolio consumers can use stable category, type, and language filters without scraping README sections.
+- Polished community docs: enriched CONTRIBUTING.md with pipeline explanation, improved SECURITY.md structure, refined PR template guidance, and fixed stale placeholder references in issue templates.
+- Refined header and footer SVG assets: wider accent line, tighter label tracking, dot separators in header; smoother wave proportions in footer. Both themes updated.
+- Improved category summary descriptions from generic to action-oriented copy that tells visitors what each section contains.
+- Replaced internal jargon in the Start Here routing table with visitor-friendly descriptions.
+- Polished setup.ps1 terminal banner and messaging.
 
 ## 2026-06-30
 
