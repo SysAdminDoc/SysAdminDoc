@@ -104,27 +104,27 @@ $CategoryDefinitions = @(
     [ordered]@{
         Slug = "powershell"
         Title = "&#9889; PowerShell System Utilities"
-        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Branch-pinned Windows utilities with setup guidance below.</i></summary>'
+        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Branch-pinned commands you can paste into PowerShell and run immediately.</i></summary>'
         Render = "code"
         DefaultInstallKind = "powershell"
     },
     [ordered]@{
         Slug = "python"
         Title = "&#128013; Python Desktop Applications"
-        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Python 3 desktop and automation tools with clone-run snippets.</i></summary>'
+        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Clone-and-run desktop tools and automation built on Python 3.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
     [ordered]@{
         Slug = "web"
         Title = "&#127760; Web Applications"
-        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Hosted tools and dashboards that open directly in the browser.</i></summary>'
+        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Tools and dashboards that run directly in the browser -- no install needed.</i></summary>'
         Render = "web-table"
     },
     [ordered]@{
         Slug = "extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
-        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Browser extensions, release ZIPs, and userscript installs.</i></summary>'
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome/Firefox extensions and userscripts with one-click installs.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
@@ -137,20 +137,20 @@ $CategoryDefinitions = @(
     [ordered]@{
         Slug = "security"
         Title = "&#128274; Security & Networking"
-        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network, privacy, and defensive tooling.</i></summary>'
+        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network auditing, DNS management, and defensive security tools.</i></summary>'
         Render = "download-table"
     },
     [ordered]@{
         Slug = "media"
         Title = "&#127916; Media & Conversion Tools"
-        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Conversion, subtitles, compression, and media repair workflows.</i></summary>'
+        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video editing, conversion, compression, subtitle removal, and streaming capture.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
     [ordered]@{
         Slug = "desktop"
         Title = "&#128421;&#65039; Native Desktop Applications"
-        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Native Windows and cross-platform desktop tools.</i></summary>'
+        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Compiled Windows and cross-platform desktop apps in C#, C++, Rust, and TypeScript.</i></summary>'
         Render = "desktop-table"
     },
     [ordered]@{

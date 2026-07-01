@@ -1478,8 +1478,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'CRX/XPI, userscript, APK, or source paths labeled per project'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
         $script:rendered | Should -Match 'Suggested starting points:'
-        $script:rendered | Should -Match 'Branch-pinned Windows utilities with setup guidance below'
-        $script:rendered | Should -Match 'Hosted tools and dashboards that open directly in the browser'
+        $script:rendered | Should -Match 'Branch-pinned commands you can paste into PowerShell and run immediately'
+        $script:rendered | Should -Match 'Tools and dashboards that run directly in the browser'
     }
     It 'reports generated README byte size under the default soft budget' {
         $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
