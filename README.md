@@ -16,7 +16,7 @@ This profile is the fast routing surface for public projects. Use the portfolio 
 | Install browser or Android tools | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | CRX/XPI, userscript, APK, or source paths labeled per project. |
 | Launch a web tool | [Web](#web-applications) | Browser-first tools that do not need local setup. |
 | Prepare a fresh Windows machine | [First-time setup](#first-time-setup) | Inspectable setup path for Python, Git, pip, and winget checks. |
-| Validate this repo | [Local validation](#local-validation) | Installs pinned validation tools, then runs markdownlint, PSScriptAnalyzer, and Pester. |
+| Validate this repo | [Local validation](#local-validation) | Installs pinned validation tools, runs markdownlint, PSScriptAnalyzer, Pester, and reviews local dependency pins. |
 | Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |
 
 ---
@@ -64,9 +64,16 @@ Use this from the repo root before pushing profile, catalog, or validation chang
 pwsh -NoProfile -File .\scripts\validate-local.ps1
 ```
 
+Run the manual dependency and advisory review:
+
+```powershell
+npm run review:dependencies
+```
+
 | Check | Behavior |
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
+| Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock pins, and reports PowerShell plus Python audit-tool pins. |
 | PowerShell tools | Installs and imports Pester 5.7.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |

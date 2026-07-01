@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "lint:markdown": "markdownlint-cli2",
+    "review:dependencies": "pwsh -NoProfile -File ./scripts/review-local-dependencies.ps1",
     "validate:local": "pwsh -NoProfile -File ./scripts/validate-local.ps1"
   },
   "devDependencies": {

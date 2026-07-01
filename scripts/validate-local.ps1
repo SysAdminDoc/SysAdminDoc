@@ -85,6 +85,7 @@ function Assert-ScriptAnalyzerClean {
     $settingsPath = Join-Path $RepoRoot "PSScriptAnalyzerSettings.psd1"
     $targets = @(
         "scripts/sync-profile.ps1",
+        "scripts/review-local-dependencies.ps1",
         "scripts/validate-local.ps1",
         "setup.ps1"
     )

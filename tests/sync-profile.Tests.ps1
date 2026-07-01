@@ -1433,6 +1433,9 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '<a id="local-validation"></a>'
         $script:rendered | Should -Match 'Install pinned validation tools and run every local check'
         $script:rendered | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
+        $script:rendered | Should -Match 'manual dependency and advisory review'
+        $script:rendered | Should -Match 'npm run review:dependencies'
+        $script:rendered | Should -Match 'package override drift'
         $script:rendered | Should -Match 'npm ci'
         $script:rendered | Should -Match 'Pester 5\.7\.1'
         $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
@@ -4255,10 +4258,84 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match '-ArgumentList @\("ci"\)'
         $validationScript | Should -Match '-ArgumentList @\("run", "lint:markdown"\)'
         $validationScript | Should -Match 'lint:markdown'
+        $validationScript | Should -Match 'scripts/review-local-dependencies[.]ps1'
         $validationScript | Should -Match 'Pester"; Version = "5\.7\.1"'
         $validationScript | Should -Match 'PSScriptAnalyzer"; Version = "1\.25\.0"'
         $validationScript | Should -Match 'Invoke-ScriptAnalyzer'
         $validationScript | Should -Match 'Invoke-Pester -Path'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+    }
+}
+
+Describe 'Local dependency advisory review' {
+    BeforeAll {
+        $script:DependencyReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
+        $script:DependencyReviewScript = Get-Content -LiteralPath $script:DependencyReviewScriptPath -Raw
+        $script:DependencyReviewPackage = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'package.json') | ConvertFrom-Json -AsHashtable
+        $script:DependencyReviewReadme = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'README.md')
+    }
+
+    It 'documents a local dependency review command without hosted automation' {
+        Test-Path -LiteralPath $script:DependencyReviewScriptPath | Should -BeTrue
+        $script:DependencyReviewPackage.scripts['review:dependencies'] | Should -Be 'pwsh -NoProfile -File ./scripts/review-local-dependencies.ps1'
+        $script:DependencyReviewReadme | Should -Match 'npm run review:dependencies'
+        $script:DependencyReviewReadme | Should -Match 'manual dependency and advisory review'
+        $script:DependencyReviewReadme | Should -Match 'package override drift'
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+    }
+
+    It 'reports npm audit status, override drift, PowerShell pins, and hash-pinned audit tools' {
+        $auditPath = Join-Path ([System.IO.Path]::GetTempPath()) ('SysAdminDoc-npm-audit-' + [guid]::NewGuid().ToString('N') + '.json')
+        try {
+            $auditJson = @'
+{
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 0,
+      "dev": 1,
+      "optional": 0,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 1
+    }
+  }
+}
+'@
+            [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
+
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath
+            $LASTEXITCODE | Should -Be 0
+            $report = ($output -join "`n") | ConvertFrom-Json
+
+            $report.status | Should -Be 'ok'
+            $report.policy | Should -Be 'manual-local-only'
+            $report.commands.full | Should -Match 'review-local-dependencies[.]ps1'
+            $report.npm.audit.status | Should -Be 'clean'
+            $report.npm.audit.severityCounts.total | Should -Be 0
+            $report.npm.overrides.count | Should -BeGreaterThan 0
+            $report.npm.overrides.rows.package | Should -Contain 'js-yaml'
+            $report.npm.overrides.rows.package | Should -Contain 'markdown-it'
+            ($report.npm.overrides.rows | Where-Object { $_.package -eq 'js-yaml' }).status | Should -Be 'aligned'
+            $report.npm.devDependencyPins.package | Should -Contain 'markdownlint-cli2'
+            ($report.npm.devDependencyPins | Where-Object { $_.package -eq 'markdownlint-cli2' }).status | Should -Be 'aligned'
+            $report.powershell.requiredModules.name | Should -Contain 'Pester'
+            $report.powershell.requiredModules.name | Should -Contain 'PSScriptAnalyzer'
+            ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.7.1'
+            $report.python.auditTools.name | Should -Contain 'zizmor'
+            ($report.python.auditTools | Where-Object { $_.name -eq 'zizmor' }).hashPinned | Should -BeTrue
+        } finally {
+            if (Test-Path -LiteralPath $auditPath) {
+                Remove-Item -LiteralPath $auditPath -Force
+            }
+        }
     }
 }

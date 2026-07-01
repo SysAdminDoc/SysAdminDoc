@@ -2,6 +2,7 @@
 
 ## 2026-06-30
 
+- Added a local dependency/advisory review command that captures npm audit status, override lock drift, pinned npm tools, PowerShell module pins, and hash-pinned zizmor evidence.
 - Hardened markdown hygiene checks so tracked Markdown trailing-whitespace validation handles zero, single, and multiple violations while markdownlint stays limited to public tracked docs.
 - Re-labeled release trust, checksum, SBOM, digest, and attestation signals as metadata evidence so the feed and report no longer imply local binary verification.
 - Retired generated PR helper side effects so profile automation helpers are offline/manual previews under the local-only validation policy.

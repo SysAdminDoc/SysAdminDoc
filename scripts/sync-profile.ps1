@@ -1793,7 +1793,7 @@ function New-DiscoverySection {
     $lines.Add("| Install browser or Android tools | $extensionsLink or $androidLink | CRX/XPI, userscript, APK, or source paths labeled per project. |")
     $lines.Add("| Launch a web tool | $webLink | Browser-first tools that do not need local setup. |")
     $lines.Add("| Prepare a fresh Windows machine | $setupLink | Inspectable setup path for Python, Git, pip, and winget checks. |")
-    $lines.Add("| Validate this repo | $validationLink | Installs pinned validation tools, then runs markdownlint, PSScriptAnalyzer, and Pester. |")
+    $lines.Add("| Validate this repo | $validationLink | Installs pinned validation tools, runs markdownlint, PSScriptAnalyzer, Pester, and reviews local dependency pins. |")
     $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable portfolio generated from this repo's public project feed. |")
 
     return ($lines -join [Environment]::NewLine)
@@ -1848,9 +1848,16 @@ Use this from the repo root before pushing profile, catalog, or validation chang
 pwsh -NoProfile -File .\scripts\validate-local.ps1
 ```
 
+Run the manual dependency and advisory review:
+
+```powershell
+npm run review:dependencies
+```
+
 | Check | Behavior |
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
+| Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock pins, and reports PowerShell plus Python audit-tool pins. |
 | PowerShell tools | Installs and imports Pester 5.7.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |

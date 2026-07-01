@@ -8,12 +8,3 @@
   Touches: `schemas/profile-projects.v1.json`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`.
   Acceptance: Feed rows expose stable search/filter metadata that the portfolio can consume without scraping README section text.
   Complexity: M
-
-## Research-Driven Additions
-
-- [ ] P2 - Add a manual dependency and advisory review lane for local tooling
-  Why: `npm audit` is clean, but dependency updates are manual and the repo has explicit overrides plus PowerShell module/tool pins that need a repeatable review path.
-  Evidence: `package.json` overrides for `markdown-it` and `js-yaml`; `requirements-local-audit.txt`; `npm audit --json`; PSGallery versions for Pester and PSScriptAnalyzer; markdownlint-cli2 and zizmor release sources.
-  Touches: `package.json`, `package-lock.json`, `requirements-local-audit.txt`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, `README.md`.
-  Acceptance: A documented local command or report section captures npm audit status, manual override drift, pinned PowerShell tooling versions, and advisory-review results without adding Dependabot or workflows.
-  Complexity: M
