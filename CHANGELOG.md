@@ -8,6 +8,14 @@
 - Improved category summary descriptions from generic to action-oriented copy that tells visitors what each section contains.
 - Replaced internal jargon in the Start Here routing table with visitor-friendly descriptions.
 - Polished setup.ps1 terminal banner and messaging.
+- Fixed null-unsafe `ToLowerInvariant()` call in `Get-RepoMeta` that could crash under StrictMode when a catalog entry has a null repo field.
+- Fixed `$missingPins` count in `review-local-dependencies.ps1` that nested sub-arrays instead of flattening them, causing the dependency review status to falsely report "ok" when misaligned pins existed.
+- Bumped `write-profile-sync-summary.ps1` version requirement from 7.0 to 7.1 to match its use of the ternary operator.
+- Added all `scripts/` files to the PSScriptAnalyzer target list so findings in helper scripts are not missed during local validation.
+- Removed unused `RunId` parameter from `set-generated-validation-status.ps1`.
+- Added `minLength: 1` constraint on catalog and projects schema `title` fields to reject empty-string titles.
+- Added `minLength` to the schema keyword compatibility allowlist.
+- Added fork attribution fixture entry with `forkOf`, `upstreamLicense`, and `readmeReviewNote` fields for better schema validation coverage.
 
 ## 2026-06-30
 
