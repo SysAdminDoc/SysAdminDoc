@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-02
+
+- `setup.ps1` now selects the winget install scope by elevation (`Test-Admin`): a non-elevated novice running `irm | iex` installs user-scope directly instead of triggering a noisy machine-scope failure dump before the fallback. Verified on Windows PowerShell 5.1.
+- `render-profile-smoke.ps1`: kill the Chrome process tree on Windows (`taskkill /T`) instead of only the launcher PID, so failed runs no longer leak the locked temp `--user-data-dir`; restrict Chrome discovery to `-CommandType Application` so a same-named alias/function can't resolve to a broken path; guard the `artifactBudgets` lookup so a report missing that section still gets its rendered-smoke summary written.
+- `write-profile-sync-summary.ps1`: encode the `file=`/`title=` annotation properties (adds `:`/`,` escaping) so a workflow filename or status can't corrupt the GitHub annotation property list.
+- README profile nav now links all rendered category sections (added Security and Forks — previously 8 of 10 were navigable).
+- markdownlint now covers `.github/CONTRIBUTING.md` and `.github/CODE_OF_CONDUCT.md` (previously unlinted, so rule violations there passed silently).
+
 ## 2026-07-01
 
 - Added `Test-SafeGitHubName` and a fatal `catalogShape` check that rejects repo and `aliasOf` names not matching `^[A-Za-z0-9._-]+$`, plus a defense-in-depth guard in the `-ApplyTopics` path, preventing tampered catalog names from breaking out of `gh api` paths.

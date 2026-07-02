@@ -25,6 +25,8 @@ globs:
   - "README.md"
   - "SECURITY.md"
   - ".github/pull_request_template.md"
+  - ".github/CONTRIBUTING.md"
+  - ".github/CODE_OF_CONDUCT.md"
 
 ignores:
   - "AGENTS.md"
