@@ -336,6 +336,68 @@ Describe 'Catalog shape validation' {
         ($result.issues | Where-Object { $_.field -eq 'category' }).reason | Should -Be 'unknown category'
         ($result.issues | Where-Object { $_.field -eq 'downloadKind' }).reason | Should -Be 'unknown downloadKind'
     }
+
+    It 'flags an unsafe repo name that could break out of a gh api path' {
+        $entry = New-TestEntry -Repo '../secrets' -Category 'powershell'
+
+        $result = Test-CatalogShape -Catalog @{ entries = @($entry) }
+
+        $result.passed | Should -BeFalse
+        ($result.issues | Where-Object { $_.field -eq 'repo' }).reason | Should -Match '\^\[A-Za-z0-9'
+    }
+
+    It 'flags an unsafe aliasOf name' {
+        $entry = New-TestEntry -Repo 'CleanRepo' -Category 'powershell'
+        $entry.aliasOf = 'evil/../../path'
+
+        $result = Test-CatalogShape -Catalog @{ entries = @($entry) }
+
+        $result.passed | Should -BeFalse
+        ($result.issues | Where-Object { $_.field -eq 'aliasOf' }).reason | Should -Match '\^\[A-Za-z0-9'
+    }
+}
+
+Describe 'Test-SafeGitHubName repository name guard' {
+    It 'accepts valid GitHub repository names' {
+        foreach ($name in @('SysAdminDoc', 'win11-nvme-driver-patcher', 'IMDb_Enhanced', 'a.b-c_d')) {
+            Test-SafeGitHubName -Name $name | Should -BeTrue
+        }
+    }
+
+    It 'rejects traversal, slashes, whitespace, and empty values' {
+        foreach ($name in @('../etc', 'owner/repo', 'has space', 'semi;colon', '', '  ', 'quote"mark')) {
+            Test-SafeGitHubName -Name $name | Should -BeFalse
+        }
+    }
+}
+
+Describe 'Test-AllowedUserscriptUrl SSRF guard' {
+    It 'allows HTTPS GitHub raw-content hosts' {
+        foreach ($url in @(
+                'https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/finder.user.js',
+                'https://gist.githubusercontent.com/SysAdminDoc/abc/raw/x.user.js',
+                'https://github.com/SysAdminDoc/repo/raw/main/x.user.js')) {
+            Test-AllowedUserscriptUrl -Url $url | Should -BeTrue
+        }
+    }
+
+    It 'blocks non-HTTPS schemes, disallowed hosts, and internal targets' {
+        foreach ($url in @(
+                'http://raw.githubusercontent.com/x/y/main/z.user.js',
+                'https://evil.example.com/payload.user.js',
+                'https://169.254.169.254/latest/meta-data',
+                'file:///etc/passwd',
+                'https://localhost:8080/x.user.js',
+                '')) {
+            Test-AllowedUserscriptUrl -Url $url | Should -BeFalse
+        }
+    }
+
+    It 'returns a blocked fetch result without making a request for a disallowed URL' {
+        $result = Get-UserscriptContent -Url 'https://evil.example.com/x.user.js'
+        $result.succeeded | Should -BeFalse
+        $result.error | Should -Match 'Blocked userscript fetch'
+    }
 }
 
 Describe 'Repository settings and community-health baseline' {

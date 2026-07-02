@@ -965,6 +965,25 @@ function Get-StarText {
     return ""
 }
 
+function Test-SafeGitHubName {
+    <#
+    .SYNOPSIS
+    Returns true when a repository or owner name is safe to interpolate into a URL or gh api path.
+    .DESCRIPTION
+    GitHub repository names allow only ASCII letters, digits, period, underscore, and hyphen.
+    This guard rejects path-traversal (../), query/fragment injection, whitespace, and slashes so
+    catalog-sourced names cannot be tampered into unexpected gh api paths or generated install snippets.
+    .PARAMETER Name
+    The candidate repository or owner name.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param([string]$Name)
+
+    if ([string]::IsNullOrWhiteSpace($Name)) { return $false }
+    return $Name -match '^[A-Za-z0-9._-]+$'
+}
+
 function Get-RepoUrl {
     param([hashtable]$Entry)
 
@@ -5056,6 +5075,15 @@ function Test-CatalogShape {
             } else {
                 $seenRepos[$key] = $repo
             }
+
+            if (-not (Test-SafeGitHubName -Name $repo)) {
+                $issues.Add([ordered]@{ repo = $repo; field = "repo"; value = $repo; reason = "repo name must match ^[A-Za-z0-9._-]+$" })
+            }
+        }
+
+        $aliasOf = [string]$entry.aliasOf
+        if (-not [string]::IsNullOrWhiteSpace($aliasOf) -and -not (Test-SafeGitHubName -Name $aliasOf)) {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "aliasOf"; value = $aliasOf; reason = "aliasOf name must match ^[A-Za-z0-9._-]+$" })
         }
 
         $category = [string]$entry.category
@@ -8733,8 +8761,47 @@ function Test-UserscriptBroadScope {
     )
 }
 
+function Test-AllowedUserscriptUrl {
+    <#
+    .SYNOPSIS
+    Returns true when a userscript fetch URL is HTTPS on a trusted GitHub raw-content host.
+    .DESCRIPTION
+    Userscript install URLs are canonically raw.githubusercontent.com (Tampermonkey/Violentmonkey install links).
+    Restricting fetches to HTTPS on GitHub-owned hosts prevents a tampered catalog userscriptUrl from turning
+    the sync run into an SSRF probe against internal or arbitrary hosts.
+    .PARAMETER Url
+    The candidate userscript URL.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param([string]$Url)
+
+    if ([string]::IsNullOrWhiteSpace($Url)) { return $false }
+
+    $uri = $null
+    if (-not [System.Uri]::TryCreate($Url, [System.UriKind]::Absolute, [ref]$uri)) { return $false }
+    if ($uri.Scheme -ne 'https') { return $false }
+
+    $allowedHosts = @(
+        'raw.githubusercontent.com',
+        'gist.githubusercontent.com',
+        'objects.githubusercontent.com',
+        'github.com'
+    )
+    return $uri.Host -in $allowedHosts
+}
+
 function Get-UserscriptContent {
     param([string]$Url)
+
+    if (-not (Test-AllowedUserscriptUrl -Url $Url)) {
+        return [ordered]@{
+            succeeded = $false
+            content = $null
+            statusCode = $null
+            error = "Blocked userscript fetch: URL is not HTTPS on an allowed GitHub raw-content host."
+        }
+    }
 
     try {
         $response = Invoke-WebRequest -Uri $Url -Method Get -TimeoutSec 20 -MaximumRedirection 5 -UseBasicParsing
@@ -9617,6 +9684,11 @@ if ($ApplyTopics) {
     foreach ($entry in @($catalogForTopics.entries)) {
         $repoName = [string]$entry.repo
         if ($repoName -notin $allowlist) { continue }
+        if (-not (Test-SafeGitHubName -Name $repoName)) {
+            $skipped++
+            Write-Warning "SKIP $repoName (unsafe repo name; must match ^[A-Za-z0-9._-]+`$)"
+            continue
+        }
         $repo = $repoLookup[$repoName.ToLowerInvariant()]
         $existingTopics = @()
         if ($repo) {
