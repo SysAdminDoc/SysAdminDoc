@@ -69,6 +69,18 @@ function ConvertTo-GitHubAnnotationValue {
     return $Value.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A')
 }
 
+function ConvertTo-GitHubAnnotationProperty {
+    param([string]$Value)
+
+    if ($null -eq $Value) {
+        return ""
+    }
+
+    # Annotation properties (file=, title=) additionally require ':' and ',' encoded so a value
+    # containing them cannot corrupt the property list.
+    return $Value.Replace('%', '%25').Replace("`r", '%0D').Replace("`n", '%0A').Replace(':', '%3A').Replace(',', '%2C')
+}
+
 function Get-ObjectPropertyOrDefault {
     param(
         [object]$Object,
@@ -634,7 +646,9 @@ if ($scheduledWorkflowFailingCount -gt 0 -or $scheduledWorkflowStaleCount -gt 0)
             $rowWarning = [string](Get-ObjectPropertyOrDefault -Object $row -Name "warning")
             $workflowFile = [string](Get-ObjectPropertyOrDefault -Object $row -Name "workflowFile" -Default "")
             $annotation = if ([string]::IsNullOrWhiteSpace($rowWarning)) { "Scheduled workflow $workflowFile is $rowStatus." } else { $rowWarning }
-            Write-Output "::warning file=$workflowFile,title=Scheduled workflow $rowStatus::$(ConvertTo-GitHubAnnotationValue $annotation)"
+            $annotationFile = ConvertTo-GitHubAnnotationProperty $workflowFile
+            $annotationTitle = ConvertTo-GitHubAnnotationProperty "Scheduled workflow $rowStatus"
+            Write-Output "::warning file=$annotationFile,title=$annotationTitle::$(ConvertTo-GitHubAnnotationValue $annotation)"
         }
     }
 }

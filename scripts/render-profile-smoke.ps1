@@ -15,8 +15,10 @@ $ErrorActionPreference = "Stop"
 function Find-ChromeExecutable {
     $commands = @("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
     foreach ($command in $commands) {
-        $found = Get-Command $command -ErrorAction SilentlyContinue
-        if ($found) {
+        # Restrict to Application so a same-named alias/function/script shim cannot resolve to
+        # an empty or non-browser Source that later breaks Start-Process.
+        $found = Get-Command $command -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($found -and -not [string]::IsNullOrWhiteSpace($found.Source)) {
             return $found.Source
         }
     }
@@ -241,9 +243,14 @@ function Write-RenderedSmokeArtifact {
         try {
             $syncReport = Get-Content -LiteralPath $syncReportPath -Raw | ConvertFrom-Json -AsHashtable
             $syncReport["renderedProfileSmoke"] = New-RenderedProfileSmokeSummary -SmokeReport $Report -SourcePath $reportPath
+            $budgetRows = if ($syncReport.ContainsKey("artifactBudgets") -and $null -ne $syncReport["artifactBudgets"] -and $syncReport["artifactBudgets"].ContainsKey("rows")) {
+                @($syncReport["artifactBudgets"]["rows"])
+            } else {
+                @()
+            }
             for ($budgetPass = 0; $budgetPass -lt 2; $budgetPass++) {
                 $draftSyncReportJson = $syncReport | ConvertTo-Json -Depth 30
-                foreach ($row in @($syncReport["artifactBudgets"]["rows"])) {
+                foreach ($row in $budgetRows) {
                     if ($row["artifact"] -eq "reports/profile-sync-report.json" -and $row["metric"] -eq "bytes") {
                         $value = [System.Text.Encoding]::UTF8.GetByteCount($draftSyncReportJson + [Environment]::NewLine)
                         $row["value"] = [int]$value
@@ -351,7 +358,13 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
         }
     } finally {
         if ($process -and -not $process.HasExited) {
-            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            # Chrome (--headless=new) spawns a child process tree that keeps --user-data-dir
+            # locked; killing only the parent PID leaks the temp profile dir. Kill the tree.
+            if ($IsWindows) {
+                & taskkill.exe /PID $process.Id /T /F *> $null
+            } else {
+                Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+            }
             Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue
         }
         if (Test-Path -LiteralPath $profileDir) {
