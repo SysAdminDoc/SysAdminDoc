@@ -265,9 +265,18 @@ function Get-PythonAuditToolPins {
     )
 
     $requirementsText = Get-Content -LiteralPath $RequirementsPath -Raw
-    $hashCount = [regex]::Matches($requirementsText, '--hash=sha256:[a-fA-F0-9]{64}').Count
+    $hashPattern = '--hash=sha256:[a-fA-F0-9]{64}'
+    # Count --hash= directives per package by slicing the text between consecutive
+    # package declarations, so a multi-package requirements file reports each package's
+    # own hash count instead of the file-global total.
+    $packageMatches = @([regex]::Matches($requirementsText, '(?m)^(?<name>[A-Za-z0-9_.-]+)==(?<version>[^\s\\]+)'))
     return @(
-        foreach ($match in [regex]::Matches($requirementsText, '(?m)^(?<name>[A-Za-z0-9_.-]+)==(?<version>[^\s\\]+)')) {
+        for ($i = 0; $i -lt $packageMatches.Count; $i++) {
+            $match = $packageMatches[$i]
+            $spanStart = $match.Index
+            $spanEnd = if ($i + 1 -lt $packageMatches.Count) { $packageMatches[$i + 1].Index } else { $requirementsText.Length }
+            $block = $requirementsText.Substring($spanStart, $spanEnd - $spanStart)
+            $hashCount = [regex]::Matches($block, $hashPattern).Count
             [ordered]@{
                 name = [string]$match.Groups["name"].Value
                 requiredVersion = [string]$match.Groups["version"].Value

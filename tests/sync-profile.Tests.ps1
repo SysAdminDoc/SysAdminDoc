@@ -1493,6 +1493,22 @@ Describe 'Report schema depth helpers' {
     }
 }
 
+Describe 'Offline generation with an empty repository set' {
+    BeforeAll {
+        $script:emptyCat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+    }
+    It 'renders README, feed, and asset SVGs without a Count-on-null crash when repos bind to null' {
+        { New-Readme -Catalog $script:emptyCat -Repos $null } | Should -Not -Throw
+        { New-ProjectsExportJson -Catalog $script:emptyCat -Repos $null } | Should -Not -Throw
+        { New-ProfileAssetSvgs -Catalog $script:emptyCat -Repos $null -ContributionCalendar $null } | Should -Not -Throw
+    }
+    It 'reports zero live repositories in the feed provenance when the repo set is empty' {
+        $feed = New-ProjectsExportJson -Catalog $script:emptyCat -Repos @() | ConvertFrom-Json
+        $feed.publicRepoCount | Should -Be 0
+        $feed.provenance.repoEnumeration.returnedCount | Should -Be 0
+    }
+}
+
 Describe 'New-Readme generation (offline, fixture catalog)' {
     BeforeAll {
         $script:cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

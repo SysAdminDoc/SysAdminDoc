@@ -2602,8 +2602,8 @@ function New-ProfileAssetSvgs {
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
 
     $statsRows = @(
-        [ordered]@{ label = "active public repositories"; value = [string]$Repos.Count; detail = "live GitHub metadata" },
-        [ordered]@{ label = "visitor-facing projects"; value = [string]$entries.Count; detail = "generated profile catalog" },
+        [ordered]@{ label = "active public repositories"; value = [string]@($Repos | Where-Object { $null -ne $_ }).Count; detail = "live GitHub metadata" },
+        [ordered]@{ label = "visitor-facing projects"; value = [string]@($entries).Count; detail = "generated profile catalog" },
         [ordered]@{ label = "total public stars"; value = [string]$totalStars; detail = "live GitHub metadata" },
         [ordered]@{ label = "currently building"; value = [string]$currentBuilds; detail = "first-viewport queue" }
     )
@@ -2779,7 +2779,8 @@ function New-Readme {
     $entries = @($Catalog.entries | Where-Object {
         $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
     })
-    $readme = Get-Content -LiteralPath $ReadmePath -Raw
+    $readmeReadPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
+    $readme = Get-Content -LiteralPath $readmeReadPath -Raw
     $sectionMarkers = @($GeneratedCatalogNotice, "### Start Here", "### Featured Projects")
     $includeGeneratedNotice = $readme.Contains($GeneratedCatalogNotice)
     $includeDiscoverySection = $readme.Contains("### Start Here") -or $readme.Contains("### Catalog Snapshot")
@@ -2794,7 +2795,8 @@ function New-Readme {
         throw "README marker not found: generated catalog notice, ### Start Here, or ### Featured Projects"
     }
     $footer = New-ProfileFooter
-    $publicCount = if ($Repos.Count -gt 0) { $Repos.Count } else { ($entries | Select-Object -ExpandProperty repo -Unique).Count }
+    $repoCount = @($Repos | Where-Object { $null -ne $_ }).Count
+    $publicCount = if ($repoCount -gt 0) { $repoCount } else { @($entries | Select-Object -ExpandProperty repo -Unique).Count }
     $header = Update-Header -Header $readme.Substring(0, $start) -PublicRepoCount $publicCount -Entries $entries -RepoLookup $repoLookup
     $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
 
@@ -2933,7 +2935,7 @@ function New-ProjectsProvenance {
         metadataProvider = [string]$script:RepositoryMetadataProvider
         repoEnumeration = [ordered]@{
             requestedLimit = [int]$script:RepositoryEnumerationRequestedLimit
-            returnedCount = [int]@($Repos).Count
+            returnedCount = [int]@($Repos | Where-Object { $null -ne $_ }).Count
             truncated = [bool]$script:RepositoryEnumerationTruncated
         }
     }
@@ -3060,7 +3062,7 @@ function New-ProjectsExportJson {
         generatedAt = ConvertTo-IsoText $Catalog.generatedAt
         source = "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
         provenance = New-ProjectsProvenance -Repos $Repos
-        publicRepoCount = $Repos.Count
+        publicRepoCount = @($Repos | Where-Object { $null -ne $_ }).Count
         projectCount = $projects.Count
         suppressedCount = $suppressed.Count
         projects = $projects.ToArray()
@@ -3428,7 +3430,8 @@ function New-CatalogFromReadme {
     param([object[]]$Repos)
 
     $repoLookup = ConvertTo-Lookup $Repos
-    $readme = Get-Content -LiteralPath $ReadmePath -Raw
+    $readmeReadPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
+    $readme = Get-Content -LiteralPath $readmeReadPath -Raw
     $lines = $readme -split "\r?\n"
     $entries = [ordered]@{}
     $category = $null
@@ -9298,15 +9301,17 @@ function Test-ProfileState {
         }
     }
 
+    $readmeReadPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
+    $projectsReadPath = if ([System.IO.Path]::IsPathRooted($ProjectsPath)) { $ProjectsPath } else { Join-Path $RepoRoot $ProjectsPath }
     $currentReadme = if ($PSBoundParameters.ContainsKey("CurrentReadme")) {
         $CurrentReadme
     } else {
-        Get-Content -LiteralPath $ReadmePath -Raw
+        Get-Content -LiteralPath $readmeReadPath -Raw
     }
     $currentProjects = if ($PSBoundParameters.ContainsKey("CurrentProjects")) {
         $CurrentProjects
-    } elseif (Test-Path -LiteralPath $ProjectsPath) {
-        Get-Content -LiteralPath $ProjectsPath -Raw
+    } elseif (Test-Path -LiteralPath $projectsReadPath) {
+        Get-Content -LiteralPath $projectsReadPath -Raw
     } else {
         ""
     }
