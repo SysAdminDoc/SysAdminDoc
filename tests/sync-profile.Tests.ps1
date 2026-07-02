@@ -2947,6 +2947,33 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         $feed = Get-Content -LiteralPath $projectsPath -Raw | ConvertFrom-Json
         $feed.publicRepoCount | Should -Be 0
     }
+
+    It 'writes a report under -Check -Offline without a Count-on-null crash' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $reportPath = Join-Path $TestDrive 'offline-report.json'
+
+        $output = & pwsh -NoProfile -File $scriptPath -Check -Offline -SkipLinkValidation `
+            -CatalogPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') `
+            -ReportPath $reportPath *>&1
+
+        # Offline check legitimately reports drift (exit 1); the point is that it does not throw.
+        ($output | Out-String) | Should -Not -Match "property 'Count' cannot be found"
+        Test-Path -LiteralPath $reportPath | Should -BeTrue
+        $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+        $report.validationPerformance.metadataFetch.repoCount | Should -Be 0
+    }
+
+    It 'reaches the topic-apply block and exits cleanly on an empty allowlist' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $allowlistPath = Join-Path $TestDrive 'empty-allowlist.json'
+        '[]' | Set-Content -LiteralPath $allowlistPath -Encoding utf8
+
+        $output = & pwsh -NoProfile -File $scriptPath -ApplyTopics -Offline `
+            -TopicAllowlistPath $allowlistPath *>&1
+
+        $LASTEXITCODE | Should -Be 0
+        ($output | Out-String) | Should -Match 'allowlist is empty'
+    }
 }
 
 Describe 'Hosted workflow policy' {

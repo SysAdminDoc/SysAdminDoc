@@ -36,7 +36,7 @@ try {
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:SmokeReportPath = $SmokeReportPath
 
-if (-not $SeedCatalog -and -not $Write -and -not $Check) {
+if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) {
     $Check = $true
 }
 
@@ -314,6 +314,12 @@ function ConvertFrom-RestRepoPageJson {
 }
 
 function Test-GitHubCliAuthenticated {
+    # Authenticates via GH_TOKEN/GITHUB_TOKEN or the gh CLI keyring. Minimum token scopes:
+    #   - Read-only generation (-Write/-Check): public repo read is enough; a fine-grained
+    #     token needs read-only "Metadata" + "Contents" on public repos. GraphQL contribution
+    #     calendar data needs classic "read:user" (or fine-grained "Profile" read).
+    #   - -ApplyTopics (writes repo topics via PUT /repos/.../topics): needs classic "public_repo"
+    #     (or fine-grained "Administration: read and write" on the target public repos).
     if (-not [string]::IsNullOrWhiteSpace($env:GH_TOKEN) -or -not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
         return $true
     }
@@ -9242,6 +9248,9 @@ function Test-ProfileState {
         [string]$SmokeReportPath = $script:SmokeReportPath
     )
 
+    # Normalize to a null-filtered array so .Count and enumeration stay safe under StrictMode
+    # when the repo set is empty (e.g. offline runs bind $Repos to $null).
+    $Repos = @($Repos | Where-Object { $null -ne $_ })
     $repoLookup = ConvertTo-Lookup $Repos
     $entries = @($Catalog.entries)
     $catalogShape = Test-CatalogShape -Catalog $Catalog
@@ -9668,7 +9677,7 @@ $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
     $null
 }
 
-if ($catalogForRun) {
+if ($catalogForRun -and ($Write -or $Check)) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
     $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos
     $expectedAssets = New-ProfileAssetSvgs -Catalog $catalogForRun -Repos $repos -ContributionCalendar $contributionCalendar
