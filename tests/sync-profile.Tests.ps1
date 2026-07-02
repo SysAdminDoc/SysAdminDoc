@@ -2049,6 +2049,21 @@ Describe 'setup.ps1 hardening contract' {
         $script:setupSource | Should -Match '\$PID'
         $script:setupSource | Should -Match 'Stop-Transcript'
     }
+
+    It 'selects winget scope by elevation to avoid noisy machine-scope failures for non-admins' {
+        $script:setupSource | Should -Match 'function Test-Admin'
+        $script:setupSource | Should -Match 'WindowsBuiltInRole\]::Administrator'
+        $script:setupSource | Should -Match "\`$primaryScope = if \(Test-Admin\) \{ 'machine' \} else \{ 'user' \}"
+        $script:setupSource | Should -Match '--scope \$primaryScope'
+        $script:setupSource | Should -Match '--scope \$fallbackScope'
+    }
+
+    It 'parses as valid PowerShell (Windows PowerShell 5.1 floor)' {
+        $tokens = $null
+        $errors = $null
+        [System.Management.Automation.Language.Parser]::ParseFile($script:setupPath, [ref]$tokens, [ref]$errors) | Out-Null
+        $errors | Should -BeNullOrEmpty
+    }
 }
 
 Describe 'New-ProjectsExportJson feed' {

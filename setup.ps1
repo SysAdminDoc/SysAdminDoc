@@ -24,6 +24,16 @@ function Test-Cmd([string]$name) {
     [bool](Get-Command $name -ErrorAction SilentlyContinue)
 }
 
+function Test-Admin {
+    try {
+        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+        $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+        return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    } catch {
+        return $false
+    }
+}
+
 function Get-VersionLine([string]$name) {
     if (-not (Test-Cmd $name)) {
         return $null
@@ -89,7 +99,13 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
         return
     }
     Write-Step "Installing $display ($id)"
-    $output = winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope machine 2>&1
+    # Machine scope needs an elevated token. A novice pasting `irm | iex` usually runs
+    # non-elevated, so pick the scope that matches the token to avoid a noisy machine-scope
+    # failure dump before the fallback succeeds.
+    $primaryScope = if (Test-Admin) { 'machine' } else { 'user' }
+    $fallbackScope = if ($primaryScope -eq 'machine') { 'user' } else { 'machine' }
+
+    $output = winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope $primaryScope 2>&1
     $exitCode = $LASTEXITCODE
     ($output | Out-String).Trim() | Write-Host
     if ($exitCode -ne 0) {
@@ -98,8 +114,8 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
             Write-Ok "$display installed (winget reported non-zero exit but binary is present)"
             return
         }
-        Write-Warn2 "machine-scope install failed (exit $exitCode), retrying user-scope"
-        $output = winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope user 2>&1
+        Write-Warn2 "$primaryScope-scope install failed (exit $exitCode), retrying $fallbackScope-scope"
+        $output = winget install --id $id -e --silent --accept-package-agreements --accept-source-agreements --scope $fallbackScope 2>&1
         ($output | Out-String).Trim() | Write-Host
     }
     Update-PathFromRegistry
