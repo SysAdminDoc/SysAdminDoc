@@ -1509,6 +1509,23 @@ Describe 'Offline generation with an empty repository set' {
     }
 }
 
+Describe 'Empty category sections are not rendered' {
+    It 'returns an empty string for a category with no visible entries' {
+        $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'security' } | Select-Object -First 1
+        $entries = @((New-TestEntry -Repo 'OnlyPowerShell' -Category 'powershell'))
+        $section = New-CategorySection -Entries $entries -RepoLookup @{} -Definition $definition
+        [string]::IsNullOrEmpty($section) | Should -BeTrue
+    }
+
+    It 'renders a section when the category has at least one entry' {
+        $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'powershell' } | Select-Object -First 1
+        $entries = @((New-TestEntry -Repo 'OnlyPowerShell' -Category 'powershell'))
+        $section = New-CategorySection -Entries $entries -RepoLookup @{} -Definition $definition
+        $section | Should -Match '<details>'
+        $section | Should -Match 'OnlyPowerShell'
+    }
+}
+
 Describe 'New-Readme generation (offline, fixture catalog)' {
     BeforeAll {
         $script:cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

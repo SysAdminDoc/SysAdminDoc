@@ -14,6 +14,7 @@ param(
     [switch]$SkipLinkValidation,
     [switch]$ApplyTopics,
     [string]$TopicAllowlistPath = "data/topic-allowlist.json",
+    [string]$Owner = "SysAdminDoc",
     [switch]$Offline
 )
 
@@ -39,7 +40,8 @@ if (-not $SeedCatalog -and -not $Write -and -not $Check) {
     $Check = $true
 }
 
-$Owner = "SysAdminDoc"
+# $Owner is a script parameter (defaults to "SysAdminDoc") so the generator can target a
+# different GitHub account without code edits.
 # Word-boundary anchored so substrings (e.g. "dose" inside "glucose"/"overdose")
 # do not false-flag a benign public repo as medical-imaging.
 $MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
@@ -2039,6 +2041,10 @@ function New-CategorySection {
         $m = if ($RepoLookup -and $RepoLookup.ContainsKey($key)) { $RepoLookup[$key] } else { $null }
         if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
     }; Descending = $true }, repo)
+    # Skip categories with no visible entries so an empty <details> shell is never rendered.
+    if ($items.Count -eq 0) {
+        return ""
+    }
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("<a id=`"$(Get-CategoryAnchor $Definition.Slug)`"></a>")
     $lines.Add("<details>")
@@ -2819,7 +2825,11 @@ function New-Readme {
     $blocks.Add("")
 
     foreach ($definition in $CategoryDefinitions) {
-        $blocks.Add((New-CategorySection -Entries $entries -RepoLookup $repoLookup -Definition $definition))
+        $section = New-CategorySection -Entries $entries -RepoLookup $repoLookup -Definition $definition
+        if ([string]::IsNullOrEmpty($section)) {
+            continue
+        }
+        $blocks.Add($section)
         $blocks.Add("")
     }
 
@@ -3633,6 +3643,12 @@ function Test-ReadmeExperience {
 
     $missingAnchors = New-Object System.Collections.Generic.List[string]
     foreach ($definition in $CategoryDefinitions) {
+        # Categories with no visible entries render no section, so only require an anchor
+        # for categories that actually have at least one entry.
+        $categoryEntryCount = @($entries | Where-Object { $_.category -eq $definition.Slug }).Count
+        if ($categoryEntryCount -eq 0) {
+            continue
+        }
         $anchor = '<a id="{0}"></a>' -f (Get-CategoryAnchor $definition.Slug)
         if (-not $ExpectedReadme.Contains($anchor)) {
             $missingAnchors.Add($definition.Slug)
