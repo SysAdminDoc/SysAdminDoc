@@ -2822,24 +2822,52 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "generatedPrDryRunEvidence": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "generatedPrWriteEvidence": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "directMainMaintenancePolicy": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "candidateCheckExercisePlan": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "candidateCheckExerciseEvidence": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "routineMaintenancePrDrillEvidence": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "requiredCheckEnforcementEvidence": {
+          "type": [
+            "object",
+            "null"
+          ],
           "description": "Compact evidence summary (null or summary object)."
         },
         "items": {
