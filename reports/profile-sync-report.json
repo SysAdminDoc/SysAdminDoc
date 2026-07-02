@@ -1,9 +1,9 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-01T22:39:56.1363730-04:00",
+  "generatedAt": "2026-07-01T23:02:00.1496338-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
-  "profileAssetsInSync": false,
+  "profileAssetsInSync": true,
   "profileAssetChecks": [
     {
       "path": "assets/profile/activity-dark.svg",
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "bf004472b12b8095dace279b57f28d5722ccd2f3",
+    "sourceCommit": "0b7e2914a1513da5052f62793b1a158d402c4038",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "eef7e8e7e3178abfb0c38c41d6396caa4c8f00b7e6dde2de5f4d95071078a440",
+    "generatorSha256": "3dff68aaecef7dfb57b239a0fbdf616cab1d8965870a45e736c4e5a2d292d038",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-01T22:38:10.0345860-04:00",
+    "metadataSnapshotAt": "2026-07-01T23:00:15.7432317-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1741,7 +1741,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-01T22:38:10.0345860-04:00",
+          "queriedAt": "2026-07-01T23:00:15.7432317-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2128,7 +2128,7 @@
       "skipped": false,
       "targetCount": 187,
       "throttleLimit": 16,
-      "elapsedMs": 4229,
+      "elapsedMs": 3395,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2161,27 +2161,18 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-01T22:36:17.1896955-04:00",
-      "newValue": "2026-07-01T22:38:10.034586-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "QuickFind",
-      "category": "python",
-      "field": "pushedAt",
-      "oldValue": "2026-07-02T02:33:19Z",
-      "newValue": "2026-07-02T02:37:45Z",
+      "oldValue": "2026-07-01T22:58:48.9010935-04:00",
+      "newValue": "2026-07-01T23:00:15.7432317-04:00",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 2,
+    "informationalCount": 1,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 30.26,
+      "ageDays": 30.28,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2191,7 +2182,7 @@
   "linkValidationSummary": {
     "targetCount": 187,
     "throttleLimit": 16,
-    "elapsedMs": 4229,
+    "elapsedMs": 3395,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
@@ -2555,7 +2546,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99201,
+        "value": 98737,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2600,13 +2591,13 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "stale",
+    "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-30T23:10:41.2511632-04:00",
-    "latestReportAffectingCommitSha": "bf004472b12b8095dace279b57f28d5722ccd2f3",
-    "latestReportAffectingCommitDate": "2026-07-01T22:31:25.0000000-04:00",
-    "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 23.35,
+    "committedReportGeneratedAt": "2026-07-01T22:57:04.7740766-04:00",
+    "latestReportAffectingCommitSha": "0b7e2914a1513da5052f62793b1a158d402c4038",
+    "latestReportAffectingCommitDate": "2026-07-01T22:45:54.0000000-04:00",
+    "reportAgeBehindCommit": false,
+    "reportAgeBehindHours": null,
     "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
@@ -2621,10 +2612,8 @@
       "schemas",
       "README.md"
     ],
-    "warnings": [
-      "Committed sync report (2026-06-30T23:10:41.2511632-04:00) is older than the latest report-affecting commit bf00447 (2026-07-01T22:31:25.0000000-04:00); regenerate and recommit reports/profile-sync-report.json."
-    ],
-    "warningCount": 1
+    "warnings": [],
+    "warningCount": 0
   },
   "scheduledWorkflowFreshness": {
     "status": "not-applicable",

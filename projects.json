@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "bf004472b12b8095dace279b57f28d5722ccd2f3",
+    "sourceCommit": "0b7e2914a1513da5052f62793b1a158d402c4038",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "eef7e8e7e3178abfb0c38c41d6396caa4c8f00b7e6dde2de5f4d95071078a440",
+    "generatorSha256": "3dff68aaecef7dfb57b239a0fbdf616cab1d8965870a45e736c4e5a2d292d038",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-01T22:36:17.1896955-04:00",
+    "metadataSnapshotAt": "2026-07-01T22:58:48.9010935-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -9715,7 +9715,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T15:05:32.0000000Z",
+      "pushedAt": "2026-07-02T02:57:54.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -10209,13 +10209,13 @@
       "installKind": "python",
       "language": "Python",
       "stars": 0,
-      "latestReleaseTag": "v3.12.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v3.12.0",
+      "latestReleaseTag": "v3.13.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v3.13.0",
       "releaseAssetKinds": [
         "zip"
       ],
       "releaseAssetNames": [
-        "HostsGuard_v3.12.0_win64.zip"
+        "HostsGuard_v3.13.0_win64.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -10237,7 +10237,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:35:11.0000000Z",
+      "pushedAt": "2026-07-02T02:57:26.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -10752,7 +10752,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:33:19.0000000Z",
+      "pushedAt": "2026-07-02T02:37:45.0000000Z",
       "topics": [
         "dark-theme",
         "file-search",

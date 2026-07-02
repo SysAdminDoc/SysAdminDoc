@@ -187,8 +187,41 @@ Describe 'Function library loads via the dot-source test seam' {
 
     It 'uses a parameterized GraphQL query for contribution calendar lookup' {
         $script:SyncProfileScript | Should -Match 'query\(\$login: String!\)'
-        $script:SyncProfileScript | Should -Match '-f "login=\$Owner"'
+        $script:SyncProfileScript | Should -Match '"-f", "login=\$Owner"'
         $script:SyncProfileScript | Should -Not -Match "user\(login: `"\s*\+"
+    }
+}
+
+Describe 'Invoke-GhCli adapter seam' {
+    It 'returns structured output, exit code, and trimmed text from gh' {
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+            $global:LASTEXITCODE = 0
+            return "  $($Arguments -join ' ')  "
+        }
+        try {
+            $result = Invoke-GhCli -Arguments @('api', 'user')
+            $result.exitCode | Should -Be 0
+            $result.text | Should -Be 'api user'
+            $result.output | Should -Not -BeNullOrEmpty
+        } finally {
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+        }
+    }
+
+    It 'surfaces a non-zero gh exit code without throwing' {
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+            $global:LASTEXITCODE = 1
+            return "HTTP 404: Not Found ($($Arguments -join ' '))"
+        }
+        try {
+            $result = Invoke-GhCli -Arguments @('api', 'repos/Owner/Missing')
+            $result.exitCode | Should -Be 1
+            $result.text | Should -Match '404'
+        } finally {
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+        }
     }
 }
 

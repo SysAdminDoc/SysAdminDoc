@@ -190,14 +190,39 @@ function ConvertTo-CategorySlug {
     return $null
 }
 
+function Invoke-GhCli {
+    <#
+    .SYNOPSIS
+    Runs the GitHub CLI and returns its merged output, exit code, and trimmed text.
+    .DESCRIPTION
+    Single adapter seam for every read-path `gh` invocation so error handling, output
+    normalization, and test mocking live in one place instead of being duplicated at each
+    call site. Merges stderr into stdout (2>&1) and captures $LASTEXITCODE immediately so
+    callers can inspect gh's real exit code regardless of later pipeline commands. Pester
+    tests mock this function instead of replacing the raw `gh` command.
+    .PARAMETER Arguments
+    The argument list passed to gh (e.g. @("api", "repos/OWNER/REPO")).
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string[]]$Arguments)
+
+    $output = & gh @Arguments 2>&1
+    $exitCode = $LASTEXITCODE
+    return [ordered]@{
+        output = $output
+        exitCode = $exitCode
+        text = (($output | Out-String).Trim())
+    }
+}
+
 function Get-GitHubReposFromRest {
     if ($Offline) {
         return @()
     }
 
-    $repoJson = & gh api --paginate --slurp "users/$Owner/repos?per_page=100" 2>&1
-    $repoOutput = (($repoJson | Out-String).Trim())
-    if ($LASTEXITCODE -ne 0) {
+    $gh = Invoke-GhCli -Arguments @("api", "--paginate", "--slurp", "users/$Owner/repos?per_page=100")
+    $repoOutput = $gh.text
+    if ($gh.exitCode -ne 0) {
         throw "REST repo metadata fallback failed while enumerating repos. Last gh output: $repoOutput"
     }
 
@@ -291,8 +316,8 @@ function Test-GitHubCliAuthenticated {
         return $true
     }
 
-    $null = & gh auth status -h github.com 2>&1
-    return ($LASTEXITCODE -eq 0)
+    $gh = Invoke-GhCli -Arguments @("auth", "status", "-h", "github.com")
+    return ($gh.exitCode -eq 0)
 }
 
 function Test-GhApiNotFound {
@@ -418,10 +443,10 @@ function Get-GitHubRepos {
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
         $script:MetadataFetchAttemptCount = $attempt
-        $output = & gh @ghArgs 2>&1
-        $lastOutput = (($output | Out-String).Trim())
+        $gh = Invoke-GhCli -Arguments $ghArgs
+        $lastOutput = $gh.text
 
-        if ($LASTEXITCODE -eq 0) {
+        if ($gh.exitCode -eq 0) {
             try {
                 $repos = @($lastOutput | ConvertFrom-Json)
                 if ($repos.Count -eq 0) {
@@ -518,9 +543,9 @@ function Add-ReleaseAssetMetadata {
         }
 
         $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
-        $releaseJson = & gh api "repos/$Owner/$repoName/releases/latest" 2>&1
-        $releaseOutput = (($releaseJson | Out-String).Trim())
-        if ($LASTEXITCODE -ne 0) {
+        $gh = Invoke-GhCli -Arguments @("api", "repos/$Owner/$repoName/releases/latest")
+        $releaseOutput = $gh.text
+        if ($gh.exitCode -ne 0) {
             if (Test-GhApiNotFound -Output $releaseOutput) {
                 $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
                 continue
@@ -581,9 +606,9 @@ function Get-ContributionCalendar {
 
     $query = 'query($login: String!) { user(login: $login) { contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { contributionCount date weekday } } } } } }'
     try {
-        $output = & gh api graphql -f "query=$query" -f "login=$Owner" 2>&1
-        $raw = (($output | Out-String).Trim())
-        if ($LASTEXITCODE -ne 0) {
+        $gh = Invoke-GhCli -Arguments @("api", "graphql", "-f", "query=$query", "-f", "login=$Owner")
+        $raw = $gh.text
+        if ($gh.exitCode -ne 0) {
             Write-Warning "Contribution calendar fetch failed: $raw"
             return $null
         }
@@ -648,9 +673,9 @@ function Add-ForkParentMetadata {
             continue
         }
 
-        $repoJson = & gh api "repos/$Owner/$repoName" 2>&1
-        $repoOutput = (($repoJson | Out-String).Trim())
-        if ($LASTEXITCODE -ne 0) {
+        $gh = Invoke-GhCli -Arguments @("api", "repos/$Owner/$repoName")
+        $repoOutput = $gh.text
+        if ($gh.exitCode -ne 0) {
             Set-MemberValue -Object $repo -Name "forkParentFetchError" -Value $repoOutput
             continue
         }
@@ -5303,9 +5328,9 @@ function Get-LicenseMetadata {
 function Invoke-GhApiJsonSafe {
     param([string]$Path)
 
-    $output = & gh api $Path 2>&1
-    $text = (($output | Out-String).Trim())
-    if ($LASTEXITCODE -ne 0) {
+    $gh = Invoke-GhCli -Arguments @("api", $Path)
+    $text = $gh.text
+    if ($gh.exitCode -ne 0) {
         return [ordered]@{
             ok = $false
             value = $null
@@ -7360,9 +7385,9 @@ function Get-ProfileRepositoryTagRef {
         return $result
     }
 
-    $tagJson = & gh api "repos/$Repository/git/ref/tags/$TagName" 2>&1
-    $tagOutput = (($tagJson | Out-String).Trim())
-    if ($LASTEXITCODE -eq 0) {
+    $gh = Invoke-GhCli -Arguments @("api", "repos/$Repository/git/ref/tags/$TagName")
+    $tagOutput = $gh.text
+    if ($gh.exitCode -eq 0) {
         $tag = $tagOutput | ConvertFrom-Json
         $result.checked = $true
         $result.exists = $true
