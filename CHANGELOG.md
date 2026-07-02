@@ -2,6 +2,26 @@
 
 ## 2026-07-01
 
+- Added `Test-SafeGitHubName` and a fatal `catalogShape` check that rejects repo and `aliasOf` names not matching `^[A-Za-z0-9._-]+$`, plus a defense-in-depth guard in the `-ApplyTopics` path, preventing tampered catalog names from breaking out of `gh api` paths.
+- Added `Test-AllowedUserscriptUrl` guarding `Get-UserscriptContent` so userscript fetches are restricted to HTTPS on GitHub raw-content hosts (raw/gist/objects.githubusercontent.com, github.com), blocking SSRF-style requests from tampered `userscriptUrl` fields.
+- Upgraded pinned Pester from 5.7.1 to 5.8.0 across `validate-local.ps1`, the generated setup guidance, and the dependency-review contract; audited the suite for Pester 6.0-removed APIs (`Assert-MockCalled`, `Assert-VerifiableMocks`, `Set-ItResult -Pending`) and found none.
+- `validate-local.ps1` now runs Pester through a configuration object with profiler-based JaCoCo code coverage of `sync-profile.ps1`, writing gitignored `coverage.xml` and printing a coverage percentage.
+- Regenerated `README.md`, `projects.json`, and profile SVG assets to apply the pending premium-polish category summaries/routing copy and refresh live repository metadata.
+- Added an `Invoke-GhCli` adapter and routed every read-path `gh` invocation (repo enumeration, GraphQL contributions, release/fork-parent/tag fetches, auth status, JSON helper) through it, giving one mock/error seam instead of duplicated `& gh ... 2>&1; $LASTEXITCODE` blocks. Tests mock the adapter directly.
+- Resolved `$ReadmePath`/`$ProjectsPath` against `$RepoRoot` in `New-Readme`, `New-CatalogFromReadme`, and the check path so generation reads the correct files when the working directory is not the repo root.
+- Fixed `Get-PythonAuditToolPins` to count `--hash=` directives per package (slicing between consecutive package declarations) instead of stamping the file-global total on every package.
+- Fixed a StrictMode "property 'Count' cannot be found" crash on `sync-profile.ps1 -Write -Offline`: repo-count accesses in `New-Readme`, `New-ProjectsExportJson`, and `New-ProfileAssetSvgs` now null-filter the repo set so an empty/offline repo binding yields 0 instead of throwing.
+- Constrained the seven `prDeliveryTransition` evidence fields in `profile-sync-report.v1.json` to `["object", "null"]` so they no longer accept arbitrary JSON scalar/array values.
+- `New-CategorySection` now skips categories with zero visible entries instead of rendering an empty `<details>` shell; `Test-ReadmeExperience` only requires anchors for categories that have entries. (No effect on current output — all catalog categories are populated.)
+- Promoted `$Owner` from a hard-coded value to a script parameter (default `SysAdminDoc`) so the generator can target another account without code edits.
+- Resolved absolute `$ProjectsPath`/`$AssetsPath`/`$TopicAllowlistPath` correctly in the `-Write` and `-ApplyTopics` paths (previously only `$ReadmePath` honored absolute paths).
+- Test suite: tagged the four child-process Describes `Integration` (run `Invoke-Pester -ExcludeTag Integration` for a fast in-process loop), and added coverage for the full profile-SVG asset set, empty/offline repo generation, and a real `-Write -Offline` entrypoint run.
+- Documented the minimum GitHub token scopes inline at `Test-GitHubCliAuthenticated` (public-repo read for generation, `read:user` for the contribution calendar, `public_repo` for `-ApplyTopics`).
+- Fixed the same StrictMode Count-on-null crash in the `-Check` path by null-normalizing `$Repos` at the top of `Test-ProfileState`; `-Check -Offline` now writes a report instead of throwing.
+- Fixed `-ApplyTopics` being unreachable: it no longer defaults to `-Check` (which `exit`ed before the apply block), and generation is skipped unless `-Write`/`-Check` is set, so `-ApplyTopics` runs the topic-apply flow directly.
+
+## 2026-07-01 (earlier)
+
 - Added schema-versioned static search metadata to `projects.json` so portfolio consumers can use stable category, type, and language filters without scraping README sections.
 - Polished community docs: enriched CONTRIBUTING.md with pipeline explanation, improved SECURITY.md structure, refined PR template guidance, and fixed stale placeholder references in issue templates.
 - Refined header and footer SVG assets: wider accent line, tighter label tracking, dot separators in header; smoother wave proportions in footer. Both themes updated.
