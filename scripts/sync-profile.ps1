@@ -9363,7 +9363,14 @@ function Test-ProfileState {
             inSync = [bool]$assetInSync
         })
     }
-    $assetsInSync = @($assetChecks | Where-Object { $_.inSync -ne $true }).Count -eq 0
+    # Contribution heatmaps are regenerated from the live GitHub contribution calendar, which
+    # changes continuously for an active account, so committed-vs-fresh drift is expected between
+    # a -Write and a later -Check. Keep their per-asset drift visible in the rows but exclude them
+    # from the fatal sync gate; the deterministic catalog-driven assets remain fatal. Missing
+    # (non-existent) contribution files still fail the gate.
+    $assetsInSync = @($assetChecks | Where-Object {
+        $_.inSync -ne $true -and ($_.exists -ne $true -or [string]$_.path -notmatch 'contributions-(dark|light)\.svg$')
+    }).Count -eq 0
 
     $linkFailures = @()
     $linkWarnings = @()

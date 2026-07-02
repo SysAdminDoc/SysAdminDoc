@@ -3605,6 +3605,41 @@ Describe 'Test-ProfileState projects sync gate' {
     }
 }
 
+Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive' {
+    It 'does not fail the fatal asset gate when only the live contribution heatmaps drift' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $expectedAssets = @{
+            'assets/profile/contributions-dark.svg'  = '<svg>drifted heatmap</svg>'
+            'assets/profile/contributions-light.svg' = '<svg>drifted heatmap</svg>'
+        }
+
+        $result = Test-ProfileState -Catalog $cat -Repos @() `
+            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+            -ExpectedAssets $expectedAssets -SkipLinkValidation
+
+        $result.Report.profileAssetsInSync | Should -BeTrue
+        $contribRow = $result.Report.profileAssetChecks | Where-Object { $_.path -eq 'assets/profile/contributions-dark.svg' }
+        $contribRow.inSync | Should -BeFalse
+    }
+
+    It 'still fails the fatal asset gate when a deterministic (non-contribution) asset drifts' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $expectedAssets = @{ 'assets/profile/footer-dark.svg' = '<svg>drifted footer</svg>' }
+
+        $result = Test-ProfileState -Catalog $cat -Repos @() `
+            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+            -ExpectedAssets $expectedAssets -SkipLinkValidation
+
+        $result.Report.profileAssetsInSync | Should -BeFalse
+    }
+}
+
 Describe 'Test-MetadataDrift report' {
     It 'marks live metadata drift informational and branch drift fatal' {
         $current = [ordered]@{
