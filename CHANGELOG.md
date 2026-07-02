@@ -2,6 +2,7 @@
 
 ## 2026-07-02
 
+- Made the `-Check` profile-asset sync gate deterministic: contribution heatmap SVGs are regenerated from the live GitHub contribution calendar (which changes continuously for an active account), so their committed-vs-fresh drift is now reported per-asset but excluded from the fatal gate. Deterministic catalog-driven assets (header/stats/languages/activity/footer) still fail the gate, and a missing contribution file still fails.
 - `setup.ps1` now selects the winget install scope by elevation (`Test-Admin`): a non-elevated novice running `irm | iex` installs user-scope directly instead of triggering a noisy machine-scope failure dump before the fallback. Verified on Windows PowerShell 5.1.
 - `render-profile-smoke.ps1`: kill the Chrome process tree on Windows (`taskkill /T`) instead of only the launcher PID, so failed runs no longer leak the locked temp `--user-data-dir`; restrict Chrome discovery to `-CommandType Application` so a same-named alias/function can't resolve to a broken path; guard the `artifactBudgets` lookup so a report missing that section still gets its rendered-smoke summary written.
 - `write-profile-sync-summary.ps1`: encode the `file=`/`title=` annotation properties (adds `:`/`,` escaping) so a workflow filename or status can't corrupt the GitHub annotation property list.

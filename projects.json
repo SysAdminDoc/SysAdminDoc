@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5078d7c73deea3adbe909f06eb9763af035c6577",
+    "sourceCommit": "85128bd8b1f217e7f634685c44554da79bc3429b",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "8cd956c04d80c9952e7e3e56b5344f0dbfcc653ebfd35eefcefdb18f94339608",
+    "generatorSha256": "4491ce837d9d3e994a2bc9ab293b3cc43b9441ec60cdc61eafe3762135480948",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-01T23:42:48.0219183-04:00",
+    "metadataSnapshotAt": "2026-07-02T01:00:01.8602401-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2125,7 +2125,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:25:32.0000000Z",
+      "pushedAt": "2026-07-02T04:38:38.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -3939,7 +3939,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:33:39.0000000Z",
+      "pushedAt": "2026-07-02T04:33:46.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -8528,11 +8528,19 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:34:17.0000000Z",
+      "pushedAt": "2026-07-02T04:56:50.0000000Z",
       "topics": [
+        "adobe",
+        "creative-cloud",
+        "debloat",
+        "firewall",
+        "growthsdk",
+        "hosts-file",
         "powershell",
+        "privacy",
         "script",
         "sysadmin",
+        "telemetry",
         "windows"
       ],
       "featured": false,
@@ -10752,7 +10760,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:37:45.0000000Z",
+      "pushedAt": "2026-07-02T04:12:13.0000000Z",
       "topics": [
         "dark-theme",
         "file-search",
