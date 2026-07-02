@@ -9675,10 +9675,11 @@ if ($catalogForRun) {
 
     if ($Write) {
         $readmeFullPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
+        $projectsFullPath = if ([System.IO.Path]::IsPathRooted($ProjectsPath)) { $ProjectsPath } else { Join-Path $RepoRoot $ProjectsPath }
         [System.IO.File]::WriteAllText($readmeFullPath, $expected, [System.Text.UTF8Encoding]::new($false))
-        [System.IO.File]::WriteAllText((Join-Path $RepoRoot $ProjectsPath), $expectedProjects + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+        [System.IO.File]::WriteAllText($projectsFullPath, $expectedProjects + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
         foreach ($assetPath in @($expectedAssets.Keys)) {
-            $fullPath = Join-Path $RepoRoot $assetPath
+            $fullPath = if ([System.IO.Path]::IsPathRooted($assetPath)) { $assetPath } else { Join-Path $RepoRoot $assetPath }
             $assetDir = Split-Path -Parent $fullPath
             if ($assetDir -and -not (Test-Path -LiteralPath $assetDir)) {
                 New-Item -ItemType Directory -Path $assetDir | Out-Null
@@ -9710,7 +9711,7 @@ if ($catalogForRun) {
 }
 
 if ($ApplyTopics) {
-    $allowlistFullPath = Join-Path $RepoRoot $TopicAllowlistPath
+    $allowlistFullPath = if ([System.IO.Path]::IsPathRooted($TopicAllowlistPath)) { $TopicAllowlistPath } else { Join-Path $RepoRoot $TopicAllowlistPath }
     if (-not (Test-Path -LiteralPath $allowlistFullPath)) {
         Write-Error "Topic allowlist not found: $TopicAllowlistPath. Create a JSON array of repo names to apply topics to."
         exit 1

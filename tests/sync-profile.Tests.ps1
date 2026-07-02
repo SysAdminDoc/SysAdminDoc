@@ -8,6 +8,10 @@
     These tests never touch the network.
 
     Run:  pwsh -NoProfile -Command "Invoke-Pester -Path tests"
+
+    Describe blocks that spawn a child pwsh process (seed/summary/dependency-review/PR-handoff)
+    are tagged 'Integration'. For a faster in-process iteration loop, run
+    Invoke-Pester -Path tests -ExcludeTag Integration.
 #>
 
 BeforeAll {
@@ -1507,6 +1511,22 @@ Describe 'Offline generation with an empty repository set' {
         $feed.publicRepoCount | Should -Be 0
         $feed.provenance.repoEnumeration.returnedCount | Should -Be 0
     }
+
+    It 'generates the full set of theme-aware profile SVG assets' {
+        $assets = New-ProfileAssetSvgs -Catalog $script:emptyCat -Repos @() -ContributionCalendar $null
+        $expected = @(
+            'header-dark.svg', 'header-light.svg', 'stats-dark.svg', 'stats-light.svg',
+            'languages-dark.svg', 'languages-light.svg', 'activity-dark.svg', 'activity-light.svg',
+            'contributions-dark.svg', 'contributions-light.svg', 'footer-dark.svg', 'footer-light.svg'
+        )
+        @($assets.Keys).Count | Should -Be 12
+        foreach ($name in $expected) {
+            $key = @($assets.Keys | Where-Object { $_ -like "*$name" }) | Select-Object -First 1
+            $key | Should -Not -BeNullOrEmpty
+            $assets[$key] | Should -Match '<svg'
+            $assets[$key] | Should -Match 'role="img"'
+        }
+    }
 }
 
 Describe 'Empty category sections are not rendered' {
@@ -2863,7 +2883,7 @@ Describe 'Profile release/tag consistency' {
     }
 }
 
-Describe 'Seed catalog guard' {
+Describe 'Seed catalog guard' -Tag 'Integration' {
     It 'requires ForceSeedCatalog for the lossy legacy parser' {
         $blocked = Test-SeedCatalogGuard -SeedRequested $true -ForceRequested $false
         $blocked.allowed | Should -BeFalse
@@ -2905,6 +2925,27 @@ Describe 'Seed catalog guard' {
 Describe 'Profile sync entrypoint' {
     It 'exits explicitly after a successful check run' {
         $script:SyncProfileScript | Should -Match '(?s)Write-Host "Profile sync check passed[.] Report: \$ReportPath"\s+# Keep hosted shells from surfacing handled native-command failures[.]\s+exit 0'
+    }
+}
+
+Describe 'Generation entrypoint modes' -Tag 'Integration' {
+    It 'writes README, feed, and assets under -Write -Offline without crashing' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $readmePath = Join-Path $TestDrive 'README.md'
+        $projectsPath = Join-Path $TestDrive 'projects.json'
+        $assetsPath = Join-Path $TestDrive 'assets'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline `
+            -CatalogPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') `
+            -ReadmePath $readmePath -ProjectsPath $projectsPath -AssetsPath $assetsPath *>&1
+
+        $LASTEXITCODE | Should -Be 0
+        ($output | Out-String) | Should -Not -Match "property 'Count' cannot be found"
+        Test-Path -LiteralPath $readmePath | Should -BeTrue
+        Test-Path -LiteralPath $projectsPath | Should -BeTrue
+        $feed = Get-Content -LiteralPath $projectsPath -Raw | ConvertFrom-Json
+        $feed.publicRepoCount | Should -Be 0
     }
 }
 
@@ -3094,7 +3135,7 @@ Describe 'Tracked profile version metadata' {
     }
 }
 
-Describe 'Generated profile PR validation handoff' {
+Describe 'Generated profile PR validation handoff' -Tag 'Integration' {
     BeforeAll {
         $script:GeneratedPrHelper = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') -Raw
         $script:GeneratedValidationStatusScriptPath = Join-Path $script:RepoRoot 'scripts/set-generated-validation-status.ps1'
@@ -3136,7 +3177,7 @@ Describe 'Generated automation branch cleanup' {
     }
 }
 
-Describe 'Profile sync report summaries' {
+Describe 'Profile sync report summaries' -Tag 'Integration' {
     BeforeAll {
         $script:SummaryScriptPath = Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1'
         $script:SummaryScript = Get-Content -LiteralPath $script:SummaryScriptPath -Raw
@@ -4449,7 +4490,7 @@ Describe 'Pester local validation command' {
     }
 }
 
-Describe 'Local dependency advisory review' {
+Describe 'Local dependency advisory review' -Tag 'Integration' {
     BeforeAll {
         $script:DependencyReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
         $script:DependencyReviewScript = Get-Content -LiteralPath $script:DependencyReviewScriptPath -Raw
