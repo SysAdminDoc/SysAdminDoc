@@ -8,7 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $requiredModules = @(
-    [pscustomobject]@{ Name = "Pester"; Version = "5.7.1" },
+    [pscustomobject]@{ Name = "Pester"; Version = "5.8.0" },
     [pscustomobject]@{ Name = "PSScriptAnalyzer"; Version = "1.25.0" }
 )
 
@@ -123,9 +123,31 @@ try {
     Invoke-NativeCommand -FilePath $npm.Source -ArgumentList @("run", "lint:markdown")
     Assert-ScriptAnalyzerClean -RepoRoot $repoRoot
 
-    $pesterResult = Invoke-Pester -Path (Join-Path $repoRoot "tests") -Output Detailed -PassThru
+    # Invoke-Pester -Path tests with a configuration object so JaCoCo code coverage
+    # (coverage.xml, gitignored) is produced for the generation engine. Profiler-based
+    # coverage (UseBreakpoints = $false) keeps the large sync-profile.ps1 scan fast.
+    $coveragePath = Join-Path $repoRoot "coverage.xml"
+    $pesterConfig = New-PesterConfiguration
+    $pesterConfig.Run.Path = (Join-Path $repoRoot "tests")
+    $pesterConfig.Run.PassThru = $true
+    $pesterConfig.Output.Verbosity = "Detailed"
+    $pesterConfig.CodeCoverage.Enabled = $true
+    $pesterConfig.CodeCoverage.UseBreakpoints = $false
+    $pesterConfig.CodeCoverage.Path = @(Join-Path $repoRoot "scripts/sync-profile.ps1")
+    $pesterConfig.CodeCoverage.OutputFormat = "JaCoCo"
+    $pesterConfig.CodeCoverage.OutputPath = $coveragePath
+
+    $pesterResult = Invoke-Pester -Configuration $pesterConfig
     if ($pesterResult.FailedCount -gt 0) {
         throw "Pester reported $($pesterResult.FailedCount) failed test(s)."
+    }
+
+    $coverage = $pesterResult.CodeCoverage
+    if ($coverage) {
+        $percent = [math]::Round([double]$coverage.CoveragePercent, 2)
+        $covered = [int]$coverage.CommandsExecutedCount
+        $total = [int]$coverage.CommandsAnalyzedCount
+        Write-Host "Code coverage: $percent% ($covered/$total commands) -> $coveragePath (JaCoCo)"
     }
 } finally {
     Pop-Location

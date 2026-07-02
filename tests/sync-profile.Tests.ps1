@@ -1499,7 +1499,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'npm run review:dependencies'
         $script:rendered | Should -Match 'package override drift'
         $script:rendered | Should -Match 'npm ci'
-        $script:rendered | Should -Match 'Pester 5\.7\.1'
+        $script:rendered | Should -Match 'Pester 5\.8\.0'
         $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
         $script:rendered | Should -Match 'Invoke-Pester -Path tests -Output Detailed'
         $script:rendered | Should -Match '-SkipBootstrap'
@@ -4373,10 +4373,12 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match '-ArgumentList @\("run", "lint:markdown"\)'
         $validationScript | Should -Match 'lint:markdown'
         $validationScript | Should -Match 'scripts/review-local-dependencies[.]ps1'
-        $validationScript | Should -Match 'Pester"; Version = "5\.7\.1"'
+        $validationScript | Should -Match 'Pester"; Version = "5\.8\.0"'
         $validationScript | Should -Match 'PSScriptAnalyzer"; Version = "1\.25\.0"'
         $validationScript | Should -Match 'Invoke-ScriptAnalyzer'
-        $validationScript | Should -Match 'Invoke-Pester -Path'
+        $validationScript | Should -Match 'Invoke-Pester -Configuration'
+        $validationScript | Should -Match 'CodeCoverage\.Enabled = \$true'
+        $validationScript | Should -Match 'OutputFormat = "JaCoCo"'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
 }
@@ -4443,7 +4445,7 @@ Describe 'Local dependency advisory review' {
             ($report.npm.devDependencyPins | Where-Object { $_.package -eq 'markdownlint-cli2' }).status | Should -Be 'aligned'
             $report.powershell.requiredModules.name | Should -Contain 'Pester'
             $report.powershell.requiredModules.name | Should -Contain 'PSScriptAnalyzer'
-            ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.7.1'
+            ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.8.0'
             $report.python.auditTools.name | Should -Contain 'zizmor'
             ($report.python.auditTools | Where-Object { $_.name -eq 'zizmor' }).hashPinned | Should -BeTrue
         } finally {

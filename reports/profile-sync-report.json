@@ -1,9 +1,9 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-06-30T23:10:41.2511632-04:00",
+  "generatedAt": "2026-07-01T22:39:56.1363730-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
-  "profileAssetsInSync": true,
+  "profileAssetsInSync": false,
   "profileAssetChecks": [
     {
       "path": "assets/profile/activity-dark.svg",
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a0c785cb1f38d194751d318d0ac216360e19fe3c",
+    "sourceCommit": "bf004472b12b8095dace279b57f28d5722ccd2f3",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "477b972c9566c6dbfab1854d4a49a07ee88960c9e31c64f829d5a9eefde5a167",
-    "projectSchemaSha256": "8d904518114aa58aba0739026462283135e3de60c78fb2bdccebc518da7eb1d2",
-    "metadataSnapshotAt": "2026-06-30T23:07:54.2556369-04:00",
+    "generatorSha256": "eef7e8e7e3178abfb0c38c41d6396caa4c8f00b7e6dde2de5f4d95071078a440",
+    "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
+    "metadataSnapshotAt": "2026-07-01T22:38:10.0345860-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -218,7 +218,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-07-01T03:01:44.0000000Z",
+        "pushedAt": "2026-07-01T03:39:16.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -571,7 +571,7 @@
   "releaseAssetDrift": {
     "checkedCatalogRows": 174,
     "releaseBearingRows": 140,
-    "releaseActionRows": 80,
+    "releaseActionRows": 81,
     "assetApiInspected": true,
     "inspectedReleaseRows": 140,
     "releaseAssetKindCounts": [
@@ -585,19 +585,19 @@
       },
       {
         "kind": "exe",
-        "count": 38
+        "count": 39
       },
       {
         "kind": "other",
-        "count": 43
+        "count": 42
       },
       {
         "kind": "script",
-        "count": 8
+        "count": 9
       },
       {
         "kind": "source-archive",
-        "count": 45
+        "count": 44
       },
       {
         "kind": "userscript",
@@ -609,17 +609,17 @@
       },
       {
         "kind": "zip",
-        "count": 37
+        "count": 38
       }
     ],
     "releaseTrustLevelCounts": [
       {
         "trustLevel": "checksum-metadata",
-        "count": 32
+        "count": 33
       },
       {
         "trustLevel": "metadata-only",
-        "count": 108
+        "count": 107
       },
       {
         "trustLevel": "unknown",
@@ -632,18 +632,18 @@
       "unknownCount": 0
     },
     "platformDigestCoverage": {
-      "withDigestCount": 95,
-      "withoutDigestCount": 45
+      "withDigestCount": 96,
+      "withoutDigestCount": 44
     },
     "executableDownloadTrustShortlist": {
       "evidenceSource": "release-metadata-only",
-      "executableDownloadCount": 74,
+      "executableDownloadCount": 77,
       "metadataCompleteCount": 0,
-      "checksumGapCount": 61,
+      "checksumGapCount": 63,
       "metadataEvidenceGapCount": 0,
-      "platformDigestCount": 74,
-      "attestationGapCount": 74,
-      "sbomGapCount": 72,
+      "platformDigestCount": 77,
+      "attestationGapCount": 77,
+      "sbomGapCount": 75,
       "immutableCount": 0,
       "readinessCounts": [
         {
@@ -652,11 +652,11 @@
         },
         {
           "readinessLevel": "digest-metadata",
-          "count": 72
+          "count": 75
         }
       ],
       "shortlistSoftCap": 10,
-      "truncatedCount": 64,
+      "truncatedCount": 67,
       "rows": [
         {
           "priorityRank": 1,
@@ -683,7 +683,7 @@
         {
           "priorityRank": 2,
           "repo": "VideoSubtitleRemover",
-          "stars": 26,
+          "stars": 27,
           "latestReleaseTag": "v3.17.1",
           "executableAssetKinds": [
             "zip"
@@ -877,7 +877,7 @@
       ],
       "note": "Metadata evidence records filename-derived sidecar checksums, SBOM or attestation filenames, and GitHub platform asset digests; no binaries were downloaded or locally verified."
     },
-    "executableDownloadsMissingChecksums": 61,
+    "executableDownloadsMissingChecksums": 63,
     "debugArtifactRows": [
       {
         "repo": "Aura",
@@ -928,10 +928,9 @@
       },
       {
         "repo": "FileExplorer",
-        "latestReleaseTag": "v1.3.2",
+        "latestReleaseTag": "v1.4.0",
         "releaseAssetKinds": [
-          "apk",
-          "other"
+          "apk"
         ]
       },
       {
@@ -1482,7 +1481,7 @@
         "metadataBlockPresent": true,
         "metadataBlockClosed": true,
         "name": "UserScript Finder",
-        "version": "1.19.0",
+        "version": "1.28.0",
         "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
         "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js",
         "updateUrlSourceRef": "main",
@@ -1495,7 +1494,7 @@
         "downloadUrlProbeStatusCode": 200,
         "matchCount": 1,
         "includeCount": 0,
-        "grantCount": 8,
+        "grantCount": 9,
         "connectCount": 11,
         "requireCount": 0,
         "broadScope": true,
@@ -1645,11 +1644,11 @@
       },
       {
         "kind": "release",
-        "count": 81
+        "count": 82
       },
       {
         "kind": "repo",
-        "count": 66
+        "count": 65
       }
     ],
     "warningCount": 0,
@@ -1742,7 +1741,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-06-30T23:07:54.2556369-04:00",
+          "queriedAt": "2026-07-01T22:38:10.0345860-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2127,9 +2126,9 @@
     },
     "linkValidation": {
       "skipped": false,
-      "targetCount": 186,
+      "targetCount": 187,
       "throttleLimit": 16,
-      "elapsedMs": 4317,
+      "elapsedMs": 4229,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2157,13 +2156,32 @@
   "urlSchemeViolations": [],
   "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [],
+  "metadataDrift": [
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.metadataSnapshotAt",
+      "oldValue": "2026-07-01T22:36:17.1896955-04:00",
+      "newValue": "2026-07-01T22:38:10.034586-04:00",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "QuickFind",
+      "category": "python",
+      "field": "pushedAt",
+      "oldValue": "2026-07-02T02:33:19Z",
+      "newValue": "2026-07-02T02:37:45Z",
+      "severity": "info",
+      "failing": false
+    }
+  ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 0,
+    "informationalCount": 2,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 29.29,
+      "ageDays": 30.26,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2171,16 +2189,16 @@
   },
   "linkValidationSkipped": false,
   "linkValidationSummary": {
-    "targetCount": 186,
+    "targetCount": 187,
     "throttleLimit": 16,
-    "elapsedMs": 4317,
+    "elapsedMs": 4229,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 65458,
+    "byteCount": 65578,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2209,7 +2227,7 @@
     "lowSignalSoftLimit": 15,
     "largestCategory": "powershell",
     "largestCategoryCount": 30,
-    "repoOnlyProjectCount": 56,
+    "repoOnlyProjectCount": 55,
     "lowSignalProjectCount": 40,
     "portfolioOnlyCandidateCount": 0,
     "portfolioOnlyCandidateCategoryCount": 0,
@@ -2258,7 +2276,7 @@
         },
         {
           "category": "web",
-          "displayName": "Web",
+          "displayName": "Web Apps",
           "currentProjectCount": 29,
           "previewProjectCount": 29,
           "projectRowDelta": 0,
@@ -2338,8 +2356,8 @@
         "category": "powershell",
         "displayName": "PowerShell",
         "projectCount": 30,
-        "actionableCount": 16,
-        "repoOnlyCount": 14,
+        "actionableCount": 17,
+        "repoOnlyCount": 13,
         "lowSignalCount": 13,
         "overCategorySoftLimitBy": 0,
         "portfolioOnlyCandidateCount": 0,
@@ -2362,7 +2380,7 @@
       },
       {
         "category": "web",
-        "displayName": "Web",
+        "displayName": "Web Apps",
         "projectCount": 29,
         "actionableCount": 26,
         "repoOnlyCount": 3,
@@ -2474,7 +2492,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 65458,
+        "value": 65578,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2528,7 +2546,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 510828,
+        "value": 511391,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2537,7 +2555,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 98471,
+        "value": 99201,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2546,7 +2564,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 85220,
+        "value": 85364,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2582,13 +2600,13 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "fresh",
+    "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-06-30T23:06:47.6492446-04:00",
-    "latestReportAffectingCommitSha": "a0c785cb1f38d194751d318d0ac216360e19fe3c",
-    "latestReportAffectingCommitDate": "2026-06-30T22:51:59.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
+    "committedReportGeneratedAt": "2026-06-30T23:10:41.2511632-04:00",
+    "latestReportAffectingCommitSha": "bf004472b12b8095dace279b57f28d5722ccd2f3",
+    "latestReportAffectingCommitDate": "2026-07-01T22:31:25.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 23.35,
     "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
@@ -2603,8 +2621,10 @@
       "schemas",
       "README.md"
     ],
-    "warnings": [],
-    "warningCount": 0
+    "warnings": [
+      "Committed sync report (2026-06-30T23:10:41.2511632-04:00) is older than the latest report-affecting commit bf00447 (2026-07-01T22:31:25.0000000-04:00); regenerate and recommit reports/profile-sync-report.json."
+    ],
+    "warningCount": 1
   },
   "scheduledWorkflowFreshness": {
     "status": "not-applicable",

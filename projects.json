@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a0c785cb1f38d194751d318d0ac216360e19fe3c",
+    "sourceCommit": "bf004472b12b8095dace279b57f28d5722ccd2f3",
     "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "477b972c9566c6dbfab1854d4a49a07ee88960c9e31c64f829d5a9eefde5a167",
-    "projectSchemaSha256": "8d904518114aa58aba0739026462283135e3de60c78fb2bdccebc518da7eb1d2",
-    "metadataSnapshotAt": "2026-06-30T23:07:54.2556369-04:00",
+    "generatorSha256": "eef7e8e7e3178abfb0c38c41d6396caa4c8f00b7e6dde2de5f4d95071078a440",
+    "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
+    "metadataSnapshotAt": "2026-07-01T22:36:17.1896955-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -109,7 +109,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:53:02.0000000Z",
+      "pushedAt": "2026-07-01T21:34:35.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -196,7 +196,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:07:30.0000000Z",
+      "pushedAt": "2026-07-01T03:12:13.0000000Z",
       "topics": [
         "android",
         "kotlin",
@@ -280,7 +280,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:34:26.0000000Z",
+      "pushedAt": "2026-07-01T20:18:21.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -366,7 +366,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T20:53:46.0000000Z",
+      "pushedAt": "2026-07-01T20:20:00.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -545,7 +545,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:50:11.0000000Z",
+      "pushedAt": "2026-07-01T20:11:26.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -603,14 +603,17 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 5,
-      "latestReleaseTag": "v1.14.18",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlarmClockXtreme/releases/tag/v1.14.18",
+      "latestReleaseTag": "v1.15.14",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlarmClockXtreme/releases/tag/v1.15.14",
       "releaseAssetKinds": [
         "apk",
         "other"
       ],
       "releaseAssetNames": [
-        "AlarmClockXtreme-v1.14.18-play.apk",
+        "AlarmClockXtreme-v1.15.14-fdroid-release.apk",
+        "AlarmClockXtreme-v1.15.14-play-release.apk",
+        "AlarmClockXtreme-v1.15.14-wear-release.apk",
+        "APK-CERT-FINGERPRINTS.txt",
         "SHA256SUMS.txt"
       ],
       "releaseAssetInspected": true,
@@ -631,11 +634,11 @@
           "apk"
         ],
         "trustLevel": "checksum-metadata",
-        "platformDigestCount": 2,
+        "platformDigestCount": 5,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T20:44:46.0000000Z",
+      "pushedAt": "2026-07-01T20:18:03.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -707,7 +710,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Java",
-      "stars": 29,
+      "stars": 30,
       "latestReleaseTag": "v0.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppManagerNG/releases/tag/v0.6.1",
       "releaseAssetKinds": [
@@ -745,7 +748,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T20:37:32.0000000Z",
+      "pushedAt": "2026-07-01T20:19:50.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -834,7 +837,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T17:34:23.0000000Z",
+      "pushedAt": "2026-07-01T20:17:50.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -888,24 +891,20 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 1,
-      "latestReleaseTag": "v1.3.2",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.3.2",
+      "stars": 2,
+      "latestReleaseTag": "v1.4.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/FileExplorer/releases/tag/v1.4.0",
       "releaseAssetKinds": [
-        "apk",
-        "other"
+        "apk"
       ],
       "releaseAssetNames": [
-        "FileExplorer-v1.3.2.apk",
-        "FileExplorer-v1.3.2.apk.sha256"
+        "FileExplorer-v1.4.0.apk"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [
-          "FileExplorer-v1.3.2.apk.sha256"
-        ],
-        "checksumCoverage": "full",
-        "hasChecksumForEveryExecutable": true,
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
@@ -916,12 +915,12 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum-metadata",
-        "platformDigestCount": 2,
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:07:49.0000000Z",
+      "pushedAt": "2026-07-01T03:25:08.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -1435,7 +1434,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T16:30:09.0000000Z",
+      "pushedAt": "2026-07-01T21:24:35.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1607,7 +1606,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:35:42.0000000Z",
+      "pushedAt": "2026-07-01T20:15:35.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1696,7 +1695,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-29T15:09:55.0000000Z",
+      "pushedAt": "2026-07-01T04:10:20.0000000Z",
       "topics": [
         "android",
         "kotlin",
@@ -1914,20 +1913,20 @@
       "installKind": null,
       "language": "C#",
       "stars": 1,
-      "latestReleaseTag": "v0.4.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.4.0",
+      "latestReleaseTag": "v0.4.1",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/LocalChromeStore/releases/tag/v0.4.1",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "LocalChromeStore-v0.4.0-win-x64.zip",
-        "LocalChromeStore-v0.4.0-win-x64.zip.sha256.txt"
+        "LocalChromeStore-v0.4.1-win-x64.zip",
+        "LocalChromeStore-v0.4.1-win-x64.zip.sha256.txt"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [
-          "LocalChromeStore-v0.4.0-win-x64.zip.sha256.txt"
+          "LocalChromeStore-v0.4.1-win-x64.zip.sha256.txt"
         ],
         "checksumCoverage": "full",
         "hasChecksumForEveryExecutable": true,
@@ -1946,7 +1945,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T02:59:20.0000000Z",
+      "pushedAt": "2026-07-01T03:46:48.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2126,7 +2125,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T20:49:38.0000000Z",
+      "pushedAt": "2026-07-02T02:25:32.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2216,7 +2215,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:02:59.0000000Z",
+      "pushedAt": "2026-07-01T03:11:51.0000000Z",
       "topics": [
         "cleanup",
         "csharp",
@@ -2382,7 +2381,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:47:00.0000000Z",
+      "pushedAt": "2026-07-01T05:17:48.0000000Z",
       "topics": [
         "context-menu",
         "csharp",
@@ -2913,7 +2912,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:49:19.0000000Z",
+      "pushedAt": "2026-07-01T05:32:31.0000000Z",
       "topics": [
         "cpp",
         "desktop-app",
@@ -3245,7 +3244,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-28T14:22:14.0000000Z",
+      "pushedAt": "2026-07-01T16:44:48.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -3301,8 +3300,8 @@
       "installKind": null,
       "language": "TypeScript",
       "stars": 1,
-      "latestReleaseTag": "v0.25.7",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.7",
+      "latestReleaseTag": "v0.25.14",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Keepr/releases/tag/v0.25.14",
       "releaseAssetKinds": [
         "crx",
         "exe",
@@ -3310,10 +3309,10 @@
       ],
       "releaseAssetNames": [
         "Keepr-portable.zip",
-        "Keepr-Web-Clipper-0.25.7.crx",
-        "Keepr-Web-Clipper-0.25.7.zip",
-        "Keepr_0.25.7_x64-setup.exe",
-        "Keepr_0.25.7_x64_en-US.msi"
+        "Keepr-Web-Clipper-0.25.14.crx",
+        "Keepr-Web-Clipper-0.25.14.zip",
+        "Keepr_0.25.14_x64-setup.exe",
+        "Keepr_0.25.14_x64_en-US.msi"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -3337,7 +3336,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:05:58.0000000Z",
+      "pushedAt": "2026-07-01T06:10:21.0000000Z",
       "topics": [
         "desktop-app",
         "privacy",
@@ -3423,7 +3422,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T00:14:06.0000000Z",
+      "pushedAt": "2026-07-01T16:29:00.0000000Z",
       "topics": [
         "desktop-app",
         "rust",
@@ -3686,7 +3685,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:01:44.0000000Z",
+      "pushedAt": "2026-07-01T03:39:16.0000000Z",
       "topics": [],
       "featured": false,
       "featuredRank": null,
@@ -3940,7 +3939,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:24:32.0000000Z",
+      "pushedAt": "2026-07-02T02:33:39.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -4299,7 +4298,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:06:51.0000000Z",
+      "pushedAt": "2026-07-01T04:01:46.0000000Z",
       "topics": [
         "ad-blocker",
         "javascript",
@@ -4879,7 +4878,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T00:48:45.0000000Z",
+      "pushedAt": "2026-07-01T05:59:21.0000000Z",
       "topics": [
         "chrome-extension",
         "css-editor",
@@ -4961,7 +4960,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:45:00.0000000Z",
+      "pushedAt": "2026-07-01T05:21:21.0000000Z",
       "topics": [
         "github",
         "greasyfork",
@@ -6433,7 +6432,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 26,
+      "stars": 27,
       "latestReleaseTag": "v3.17.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.17.1",
       "releaseAssetKinds": [
@@ -6462,7 +6461,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T20:47:10.0000000Z",
+      "pushedAt": "2026-07-01T04:06:37.0000000Z",
       "topics": [
         "ai",
         "inpainting",
@@ -6552,7 +6551,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:47:32.0000000Z",
+      "pushedAt": "2026-07-01T05:39:02.0000000Z",
       "topics": [
         "conversion",
         "media",
@@ -7339,7 +7338,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:03:28.0000000Z",
+      "pushedAt": "2026-07-01T04:12:00.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -7506,7 +7505,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:26:52.0000000Z",
+      "pushedAt": "2026-07-01T04:28:24.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -7763,7 +7762,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:01:37.0000000Z",
+      "pushedAt": "2026-07-01T03:33:14.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -7879,9 +7878,9 @@
       "downloadUrl": "https://github.com/SysAdminDoc/TelemetrySlayer/releases/latest",
       "downloadKind": null,
       "primaryAction": {
-        "kind": "repo",
-        "label": "Repo",
-        "url": "https://github.com/SysAdminDoc/TelemetrySlayer"
+        "kind": "release",
+        "label": "Download",
+        "url": "https://github.com/SysAdminDoc/TelemetrySlayer/releases/latest"
       },
       "searchMetadata": {
         "type": "powershell-tool",
@@ -7895,7 +7894,7 @@
           "language:powershell"
         ]
       },
-      "hasDownload": false,
+      "hasDownload": true,
       "hasLiveDemo": false,
       "hasDirectInstall": false,
       "branch": "main",
@@ -7903,12 +7902,14 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v1.0.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/TelemetrySlayer/releases/tag/v1.0.1",
+      "latestReleaseTag": "v1.6.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/TelemetrySlayer/releases/tag/v1.6.0",
       "releaseAssetKinds": [
-        "source-archive"
+        "script"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "TelemetrySlayer.ps1"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -7920,14 +7921,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "script"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:10:42.0000000Z",
+      "pushedAt": "2026-07-01T14:02:30.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -8098,7 +8101,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:40:43.0000000Z",
+      "pushedAt": "2026-07-01T13:43:01.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -8265,7 +8268,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T00:49:08.0000000Z",
+      "pushedAt": "2026-07-01T13:51:48.0000000Z",
       "topics": [
         "networking",
         "powershell",
@@ -8493,14 +8496,14 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v2.3.6",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v2.3.6",
+      "latestReleaseTag": "v2.4.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v2.4.0",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "Disable-AdobeTelemetry-v2.3.6.zip",
+        "Disable-AdobeTelemetry-v2.4.0.zip",
         "SHA256SUMS.txt"
       ],
       "releaseAssetInspected": true,
@@ -8525,7 +8528,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:14:36.0000000Z",
+      "pushedAt": "2026-07-02T02:34:17.0000000Z",
       "topics": [
         "powershell",
         "script",
@@ -8615,7 +8618,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:42:37.0000000Z",
+      "pushedAt": "2026-07-02T02:13:13.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -8675,13 +8678,13 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v0.13.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/tag/v0.13.0",
+      "latestReleaseTag": "v0.14.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/tag/v0.14.0",
       "releaseAssetKinds": [
         "zip"
       ],
       "releaseAssetNames": [
-        "StartMenuOrganizer-v0.13.0.zip"
+        "StartMenuOrganizer-v0.14.0.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -8703,7 +8706,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:44:29.0000000Z",
+      "pushedAt": "2026-07-01T16:01:35.0000000Z",
       "topics": [
         "cleanup",
         "management",
@@ -9712,7 +9715,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T02:49:06.0000000Z",
+      "pushedAt": "2026-07-01T15:05:32.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -10063,7 +10066,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:07:35.0000000Z",
+      "pushedAt": "2026-07-01T04:01:48.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -10206,13 +10209,13 @@
       "installKind": "python",
       "language": "Python",
       "stars": 0,
-      "latestReleaseTag": "v3.6.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v3.6.0",
+      "latestReleaseTag": "v3.12.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v3.12.0",
       "releaseAssetKinds": [
-        "other"
+        "zip"
       ],
       "releaseAssetNames": [
-        "HostsGuard.py"
+        "HostsGuard_v3.12.0_win64.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -10226,13 +10229,15 @@
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
-        "executableAssetKinds": [],
+        "executableAssetKinds": [
+          "zip"
+        ],
         "trustLevel": "metadata-only",
         "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:37:50.0000000Z",
+      "pushedAt": "2026-07-02T02:35:11.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -10314,7 +10319,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-28T14:45:44.0000000Z",
+      "pushedAt": "2026-07-01T03:40:48.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -10627,18 +10632,22 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v9.3.15",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/UniFile/releases/tag/v9.3.15",
+      "latestReleaseTag": "v9.3.32",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/UniFile/releases/tag/v9.3.32",
       "releaseAssetKinds": [
+        "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "UniFile-v9.3.15-windows-x64.zip"
+        "UniFile-v9.3.32-win64.zip",
+        "UniFile.exe.sha256"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
+        "checksumAssets": [
+          "UniFile.exe.sha256"
+        ],
+        "checksumCoverage": "partial",
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -10650,12 +10659,12 @@
         "executableAssetKinds": [
           "zip"
         ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 1,
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 2,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:42:54.0000000Z",
+      "pushedAt": "2026-07-01T16:03:07.0000000Z",
       "topics": [
         "dark-theme",
         "file-organizer",
@@ -10743,7 +10752,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:38:33.0000000Z",
+      "pushedAt": "2026-07-02T02:33:19.0000000Z",
       "topics": [
         "dark-theme",
         "file-search",
@@ -10833,7 +10842,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:32:55.0000000Z",
+      "pushedAt": "2026-07-01T05:49:06.0000000Z",
       "topics": [
         "ai",
         "automation",
@@ -10941,7 +10950,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:29:07.0000000Z",
+      "pushedAt": "2026-07-01T14:20:38.0000000Z",
       "topics": [
         "conversion",
         "desktop-app",
@@ -11123,7 +11132,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T20:40:52.0000000Z",
+      "pushedAt": "2026-07-01T03:48:47.0000000Z",
       "topics": [
         "dark-theme",
         "file-explorer",
@@ -11211,7 +11220,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-29T14:38:08.0000000Z",
+      "pushedAt": "2026-07-01T04:06:16.0000000Z",
       "topics": [
         "ai",
         "face-slimming",
@@ -11460,7 +11469,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T00:41:35.0000000Z",
+      "pushedAt": "2026-07-01T05:04:25.0000000Z",
       "topics": [
         "ai",
         "music-generation",
@@ -12022,19 +12031,24 @@
       "installKind": "python",
       "language": "Python",
       "stars": 1,
-      "latestReleaseTag": "v1.0.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AppList/releases/tag/v1.0.0",
+      "latestReleaseTag": "v1.8.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AppList/releases/tag/v1.8.0",
       "releaseAssetKinds": [
+        "exe",
         "other"
       ],
       "releaseAssetNames": [
-        "AppList.py"
+        "AppList.exe",
+        "AppList.exe.sha256",
+        "release-manifest.json"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
+        "checksumAssets": [
+          "AppList.exe.sha256"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
@@ -12042,13 +12056,15 @@
         "attestationAvailable": false,
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
-        "executableAssetKinds": [],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 1,
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 3,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:20:57.0000000Z",
+      "pushedAt": "2026-07-01T16:10:20.0000000Z",
       "topics": [
         "installed-apps",
         "pyqt6",
@@ -12390,7 +12406,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-29T14:23:52.0000000Z",
+      "pushedAt": "2026-07-01T03:49:39.0000000Z",
       "topics": [
         "ai",
         "bookmarks",
@@ -12980,7 +12996,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T03:00:13.0000000Z",
+      "pushedAt": "2026-07-01T06:15:46.0000000Z",
       "topics": [
         "crawler",
         "gui",
@@ -13063,7 +13079,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:32:13.0000000Z",
+      "pushedAt": "2026-07-01T06:32:51.0000000Z",
       "topics": [
         "desktop-app",
         "python",
@@ -13439,7 +13455,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -13480,7 +13496,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:17:32.0000000Z",
+      "pushedAt": "2026-07-01T13:59:26.0000000Z",
       "topics": [
         "browser",
         "canvas",
@@ -13521,7 +13537,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -13602,7 +13618,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -13684,7 +13700,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -13766,7 +13782,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -13807,7 +13823,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T14:31:42.0000000Z",
+      "pushedAt": "2026-07-01T06:27:23.0000000Z",
       "topics": [
         "github-pages",
         "javascript",
@@ -13846,7 +13862,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -13927,7 +13943,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14009,7 +14025,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14048,7 +14064,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-07-01T02:59:29.0000000Z",
+      "pushedAt": "2026-07-01T04:02:04.0000000Z",
       "topics": [
         "html",
         "multi-stream",
@@ -14088,7 +14104,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14167,7 +14183,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14253,7 +14269,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14334,7 +14350,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14413,7 +14429,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14452,7 +14468,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-07-01T03:03:46.0000000Z",
+      "pushedAt": "2026-07-01T03:11:10.0000000Z",
       "topics": [
         "browser-based",
         "converter",
@@ -14492,7 +14508,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14573,7 +14589,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14653,7 +14669,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14733,7 +14749,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14812,7 +14828,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14894,7 +14910,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -14977,7 +14993,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15058,7 +15074,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15099,7 +15115,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T15:45:37.0000000Z",
+      "pushedAt": "2026-07-01T06:38:41.0000000Z",
       "topics": [
         "greasyfork",
         "html",
@@ -15139,7 +15155,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15221,7 +15237,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15302,7 +15318,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15384,7 +15400,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15463,7 +15479,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15544,7 +15560,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15622,7 +15638,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
@@ -15696,7 +15712,7 @@
       "searchMetadata": {
         "type": "web-app",
         "labels": [
-          "Web",
+          "Web Apps",
           "Web app"
         ],
         "filters": [
