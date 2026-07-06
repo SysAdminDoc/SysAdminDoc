@@ -15,6 +15,8 @@ param(
     [switch]$ApplyTopics,
     [string]$TopicAllowlistPath = "data/topic-allowlist.json",
     [string]$Owner = "SysAdminDoc",
+    [ValidateRange(1, 1000)]
+    [int]$GraphQlPageSize = 500,
     [switch]$Offline
 )
 
@@ -35,6 +37,7 @@ try {
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:SmokeReportPath = $SmokeReportPath
+$script:GraphQlPageSize = [int]$GraphQlPageSize
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) {
     $Check = $true
@@ -95,12 +98,15 @@ $ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
 $ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
 $script:ProfileVersionPath = Join-Path $RepoRoot "data/profile-version.json"
 $script:RepositoryMetadataProvider = "graphql"
-$script:RepositoryEnumerationRequestedLimit = 500
+$script:RepositoryEnumerationRequestedLimit = $script:GraphQlPageSize
 $script:RepositoryEnumerationTruncated = $false
 $script:MetadataSnapshotAt = (Get-Date).ToString("o")
 $script:RestFallbackReleaseFetchState = $null
 $script:MetadataFetchAttemptCount = 0
+$script:MetadataFetchRequestCount = 0
 $script:MetadataFetchFallbackReason = $null
+$script:MetadataFetchResourceLimitFallback = $false
+$script:MetadataFetchResourceLimitReason = $null
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -222,6 +228,7 @@ function Get-GitHubReposFromRest {
         return @()
     }
 
+    $script:MetadataFetchRequestCount = [int]$script:MetadataFetchRequestCount + 1
     $gh = Invoke-GhCli -Arguments @("api", "--paginate", "--slurp", "users/$Owner/repos?per_page=100")
     $repoOutput = $gh.text
     if ($gh.exitCode -ne 0) {
@@ -334,6 +341,16 @@ function Test-GhApiNotFound {
     return ((Get-GhApiHttpStatus -Output $Output) -eq 404 -or $Output -match '(?i)\bNot Found\b')
 }
 
+function Test-GitHubMetadataResourceLimit {
+    param([string]$Output)
+
+    if ([string]::IsNullOrWhiteSpace($Output)) {
+        return $false
+    }
+
+    return ($Output -match '(?i)(graphql resource limit|resource limit|secondary rate limit|api rate limit|rate limit exceeded|abuse detection|HTTP\s+50[234])')
+}
+
 function Get-GhApiHttpStatus {
     param([string]$Output)
 
@@ -421,6 +438,17 @@ function Get-RestFallbackReleaseFetchState {
     return $script:RestFallbackReleaseFetchState
 }
 
+function Reset-MetadataFetchTelemetry {
+    $script:RepositoryMetadataProvider = "graphql"
+    $script:RepositoryEnumerationRequestedLimit = [int]$script:GraphQlPageSize
+    $script:RepositoryEnumerationTruncated = $false
+    $script:MetadataFetchAttemptCount = 0
+    $script:MetadataFetchRequestCount = 0
+    $script:MetadataFetchFallbackReason = $null
+    $script:MetadataFetchResourceLimitFallback = $false
+    $script:MetadataFetchResourceLimitReason = $null
+}
+
 function Get-GitHubRepos {
     <#
     .SYNOPSIS
@@ -434,12 +462,14 @@ function Get-GitHubRepos {
     [CmdletBinding()]
     param()
 
+    Reset-MetadataFetchTelemetry
+
     if ($Offline) {
         Reset-RestFallbackReleaseFetchState
         return @()
     }
 
-    $repoLimit = 500
+    $repoLimit = [int]$script:GraphQlPageSize
     $ghArgs = @(
         "repo", "list", $Owner,
         "--visibility", "public",
@@ -451,6 +481,7 @@ function Get-GitHubRepos {
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
         $script:MetadataFetchAttemptCount = $attempt
+        $script:MetadataFetchRequestCount = [int]$script:MetadataFetchRequestCount + 1
         $gh = Invoke-GhCli -Arguments $ghArgs
         $lastOutput = $gh.text
 
@@ -469,6 +500,9 @@ function Get-GitHubRepos {
                 $script:RepositoryMetadataProvider = "graphql"
                 $script:RepositoryEnumerationRequestedLimit = $repoLimit
                 $script:RepositoryEnumerationTruncated = [bool]($repos.Count -ge $repoLimit)
+                $script:MetadataFetchFallbackReason = $null
+                $script:MetadataFetchResourceLimitFallback = $false
+                $script:MetadataFetchResourceLimitReason = $null
                 Reset-RestFallbackReleaseFetchState
                 return $repos
             } catch {
@@ -482,6 +516,8 @@ function Get-GitHubRepos {
     }
 
     $script:MetadataFetchFallbackReason = $lastOutput
+    $script:MetadataFetchResourceLimitFallback = Test-GitHubMetadataResourceLimit -Output $lastOutput
+    $script:MetadataFetchResourceLimitReason = if ($script:MetadataFetchResourceLimitFallback) { $lastOutput } else { $null }
     Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
     return Get-GitHubReposFromRest
 }
@@ -2129,6 +2165,7 @@ npm run review:dependencies
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
+| Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
 
 Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
 
@@ -7861,7 +7898,6 @@ function Test-MetadataDrift {
             "provenance.generatorSha256",
             "provenance.projectSchemaSha256",
             "provenance.metadataProvider",
-            "provenance.repoEnumeration.requestedLimit",
             "provenance.repoEnumeration.returnedCount",
             "provenance.repoEnumeration.truncated"
         )
@@ -7871,6 +7907,19 @@ function Test-MetadataDrift {
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
                 $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
             }
+        }
+
+        $currentRequestedLimit = Get-NestedMemberValue -Object $current -Path "provenance.repoEnumeration.requestedLimit"
+        $expectedRequestedLimit = Get-NestedMemberValue -Object $expected -Path "provenance.repoEnumeration.requestedLimit"
+        if ((ConvertTo-ComparableJson $currentRequestedLimit) -ne (ConvertTo-ComparableJson $expectedRequestedLimit)) {
+            $currentReturnedCount = Get-NestedMemberValue -Object $current -Path "provenance.repoEnumeration.returnedCount"
+            $expectedReturnedCount = Get-NestedMemberValue -Object $expected -Path "provenance.repoEnumeration.returnedCount"
+            $currentTruncated = ConvertTo-BooleanValue (Get-NestedMemberValue -Object $current -Path "provenance.repoEnumeration.truncated")
+            $expectedTruncated = ConvertTo-BooleanValue (Get-NestedMemberValue -Object $expected -Path "provenance.repoEnumeration.truncated")
+            $inventorySame = (ConvertTo-ComparableJson $currentReturnedCount) -eq (ConvertTo-ComparableJson $expectedReturnedCount)
+            $notTruncated = ($currentTruncated -eq $false -and $expectedTruncated -eq $false)
+            $severity = if ($inventorySame -and $notTruncated) { "info" } else { "fatal" }
+            $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field "provenance.repoEnumeration.requestedLimit" -OldValue $currentRequestedLimit -NewValue $expectedRequestedLimit -Severity $severity))
         }
 
         foreach ($field in @("provenance.sourceCommit", "provenance.metadataSnapshotAt")) {
@@ -9588,10 +9637,16 @@ function Test-ProfileState {
     $validationPerformance = [ordered]@{
         metadataFetch = [ordered]@{
             provider = [string]$script:RepositoryMetadataProvider
+            graphQlPageSize = [int]$script:GraphQlPageSize
+            requestCount = [int]$script:MetadataFetchRequestCount
             attemptCount = [int]$script:MetadataFetchAttemptCount
+            retryCount = [Math]::Max(0, ([int]$script:MetadataFetchAttemptCount - 1))
             fallbackUsed = [bool]($script:RepositoryMetadataProvider -eq "rest-fallback")
             fallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchFallbackReason)) { $null } else { [string]$script:MetadataFetchFallbackReason }
+            resourceLimitFallback = [bool]$script:MetadataFetchResourceLimitFallback
+            resourceLimitFallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchResourceLimitReason)) { $null } else { [string]$script:MetadataFetchResourceLimitReason }
             repoCount = [int]$Repos.Count
+            truncated = [bool]$script:RepositoryEnumerationTruncated
             fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback")
         }
         linkValidation = [ordered]@{

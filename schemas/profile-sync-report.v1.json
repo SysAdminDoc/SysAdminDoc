@@ -4191,13 +4191,19 @@
         "metadataFetch": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["provider", "attemptCount", "fallbackUsed", "fallbackReason", "repoCount", "fidelityDegraded"],
+          "required": ["provider", "graphQlPageSize", "requestCount", "attemptCount", "retryCount", "fallbackUsed", "fallbackReason", "resourceLimitFallback", "resourceLimitFallbackReason", "repoCount", "truncated", "fidelityDegraded"],
           "properties": {
             "provider": { "type": "string" },
+            "graphQlPageSize": { "$ref": "#/$defs/nonNegativeInteger" },
+            "requestCount": { "$ref": "#/$defs/nonNegativeInteger" },
             "attemptCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "retryCount": { "$ref": "#/$defs/nonNegativeInteger" },
             "fallbackUsed": { "type": "boolean" },
             "fallbackReason": { "$ref": "#/$defs/nullableString" },
+            "resourceLimitFallback": { "type": "boolean" },
+            "resourceLimitFallbackReason": { "$ref": "#/$defs/nullableString" },
             "repoCount": { "$ref": "#/$defs/nonNegativeInteger" },
+            "truncated": { "type": "boolean" },
             "fidelityDegraded": { "type": "boolean" }
           }
         },

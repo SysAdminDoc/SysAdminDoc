@@ -2,6 +2,8 @@
 
 ## 2026-07-06
 
+- Added GitHub metadata budget telemetry to profile sync: `-GraphQlPageSize` can exercise smaller repo-list pages, and `validationPerformance.metadataFetch` plus the public summary now record page size, request/retry counts, truncation, resource-limit fallback evidence, and REST release-fetch budgets.
+- Bumped the internal profile evidence version to `v4.9.148`.
 - Hardened userscript trust checks so `@updateURL` and `@downloadURL` metadata probes are blocked unless they use allowed GitHub raw-content hosts, preventing remote userscript headers from triggering arbitrary HTTP probes.
 - Routed the remaining `gh repo view` profile-state check through the shared `Invoke-GhCli` adapter and added an early `-Owner` validation guard before generated URLs or GitHub API paths are built.
 - Hardened `render-profile-smoke.ps1` with a bounded DevTools WebSocket connect and a guarded temp-profile cleanup helper that refuses recursive deletion outside the generated smoke-profile directory pattern.

@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "d85acd89d6b48630936ed1b2e12bafe68353a806",
+    "sourceCommit": "28b81b1f10ab2d06a120214d4fd616092d5037bc",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "2c28e0d48a077b74d008ffddf512e0a0318a6ace042d592aa2b6417a6aaa0993",
+    "generatorSha256": "c58d523679446142cc56f8db6ed44be947f4cb94d2c5a80aadbe9ea5a5571d54",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-05T22:40:00.9859617-04:00",
+    "metadataSnapshotAt": "2026-07-06T00:05:08.4449887-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1431,7 +1431,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-06T02:05:16.0000000Z",
+      "pushedAt": "2026-07-06T03:50:44.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -6170,13 +6170,13 @@
       "installKind": null,
       "language": "HTML",
       "stars": 0,
-      "latestReleaseTag": "v0.13.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/sysadmindoc.github.io/releases/tag/v0.13.1",
+      "latestReleaseTag": "v0.21.8",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/sysadmindoc.github.io/releases/tag/v0.21.8",
       "releaseAssetKinds": [
         "zip"
       ],
       "releaseAssetNames": [
-        "sysadmindoc-portfolio-v0.13.1.zip"
+        "sysadmindoc-portfolio-v0.21.8.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -6198,7 +6198,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-06T02:37:46.0000000Z",
+      "pushedAt": "2026-07-06T03:47:28.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -6597,7 +6597,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 29,
+      "stars": 30,
       "latestReleaseTag": "v3.17.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.17.1",
       "releaseAssetKinds": [
@@ -7503,7 +7503,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T04:12:00.0000000Z",
+      "pushedAt": "2026-07-06T03:45:25.0000000Z",
       "topics": [
         "automation",
         "dark-theme",

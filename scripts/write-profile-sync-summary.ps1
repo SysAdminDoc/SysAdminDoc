@@ -146,6 +146,7 @@ $rootMarkdownHygiene = if ($report.PSObject.Properties.Name -contains 'rootMarkd
 $profileAssetsAccessibility = if ($report.PSObject.Properties.Name -contains 'profileAssetsAccessibility') { $report.profileAssetsAccessibility } else { $null }
 $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readmeExperienceChecks') { $report.readmeExperienceChecks } else { $null }
 $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
+$metadataFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'metadataFetch') { $performance.metadataFetch } else { $null }
 
 $missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
 $missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
@@ -340,7 +341,19 @@ $renderedSmokeStatus = if ($renderedProfileSmoke) { [string]$renderedProfileSmok
 $renderedSmokeWarningCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.warningCount } else { 0 }
 $renderedSmokeViewportCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.viewportCount } else { 0 }
 $renderedSmokeMobileRootClientWidth = if ($renderedProfileSmoke -and $null -ne $renderedProfileSmoke.mobileRootClientWidth) { [int]$renderedProfileSmoke.mobileRootClientWidth } else { 0 }
+$metadataProvider = if ($metadataFetch) { [string](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "provider" -Default "unknown") } else { "unknown" }
+$metadataGraphQlPageSize = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "graphQlPageSize" -Default 0) } else { 0 }
+$metadataRequestCount = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "requestCount" -Default 0) } else { 0 }
+$metadataAttemptCount = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "attemptCount" -Default 0) } else { 0 }
+$metadataRetryCount = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "retryCount" -Default ([Math]::Max(0, $metadataAttemptCount - 1))) } else { 0 }
+$metadataResourceLimitFallback = if ($metadataFetch) { [bool](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "resourceLimitFallback" -Default $false) } else { $false }
+$metadataFallbackReason = if ($metadataFetch) { ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "fallbackReason") } else { "null" }
+$metadataResourceLimitReason = if ($metadataFetch) { ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "resourceLimitFallbackReason") } else { "null" }
+$metadataRepoCount = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "repoCount" -Default 0) } else { 0 }
+$metadataTruncated = if ($metadataFetch) { [bool](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "truncated" -Default $false) } else { $false }
 $restFallbackStatus = if ($restFallbackReleaseFetch) { [string]$restFallbackReleaseFetch.status } else { "unknown" }
+$restFallbackMaxReleaseFetches = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.maxReleaseFetches } else { 0 }
+$restFallbackUnauthenticatedReleaseFetchLimit = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.unauthenticatedReleaseFetchLimit } else { 0 }
 $restFallbackAttempted = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.attemptedReleaseFetches } else { 0 }
 $restFallbackNoRelease404Count = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.noRelease404Count } else { 0 }
 $restFallbackFatal = if ($restFallbackReleaseFetch) { [bool]$restFallbackReleaseFetch.fatal } else { $false }
@@ -462,7 +475,18 @@ $summary = @"
 | README userscript install targets | $readmeUserscriptInstallTargetCount |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
+| Metadata provider | $metadataProvider |
+| Metadata GraphQL page size | $metadataGraphQlPageSize |
+| Metadata request count | $metadataRequestCount |
+| Metadata retry count | $metadataRetryCount |
+| Metadata repo count | $metadataRepoCount |
+| Metadata truncated | $metadataTruncated |
+| Metadata resource-limit fallback | $metadataResourceLimitFallback |
+| Metadata fallback reason | $metadataFallbackReason |
+| Metadata resource-limit reason | $metadataResourceLimitReason |
 | REST fallback release status | $restFallbackStatus |
+| REST fallback release max requests | $restFallbackMaxReleaseFetches |
+| REST fallback release unauth cap | $restFallbackUnauthenticatedReleaseFetchLimit |
 | REST fallback release attempts | $restFallbackAttempted |
 | REST fallback no-release 404s | $restFallbackNoRelease404Count |
 | Repository setting warnings | $repositoryWarningCount |
@@ -704,6 +728,14 @@ if ($linkWarningCount -gt 0) {
 
 if ($restFallbackFatal) {
     Write-Output "::error::Profile sync report captured a fatal REST fallback release-fetch state: $restFallbackStatus."
+}
+
+if ($metadataResourceLimitFallback) {
+    Write-Output "::warning::Profile sync metadata enumeration fell back after a GitHub API resource or rate-limit signal: $(ConvertTo-GitHubAnnotationValue $metadataResourceLimitReason)"
+}
+
+if ($metadataTruncated) {
+    Write-Output "::warning::Profile sync metadata enumeration reached the configured GraphQL page size of $metadataGraphQlPageSize; lower or raise -GraphQlPageSize only after reviewing repo count evidence."
 }
 
 if ($missingLicenseCount -gt 0) {

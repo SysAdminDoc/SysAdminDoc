@@ -895,6 +895,122 @@ Describe 'REST fallback release request guard' {
         $script:SyncProfileScript | Should -Match 'partial default-page result'
     }
 
+    It 'classifies GitHub API resource and rate-limit metadata failures' {
+        Test-GitHubMetadataResourceLimit -Output 'GraphQL resource limit exceeded for this query' | Should -BeTrue
+        Test-GitHubMetadataResourceLimit -Output 'gh: API rate limit exceeded (HTTP 403)' | Should -BeTrue
+        Test-GitHubMetadataResourceLimit -Output 'gh: Bad Gateway (HTTP 502)' | Should -BeTrue
+        Test-GitHubMetadataResourceLimit -Output 'gh: Not Found (HTTP 404)' | Should -BeFalse
+    }
+
+    It 'uses the configured GraphQL page size and records successful metadata telemetry' {
+        $oldOffline = $script:Offline
+        $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+        $pageSizeVariable = Get-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+        $hadOwner = ($null -ne $ownerVariable)
+        $hadPageSize = ($null -ne $pageSizeVariable)
+        $oldOwner = if ($hadOwner) { $ownerVariable.Value } else { $null }
+        $oldPageSize = if ($hadPageSize) { $pageSizeVariable.Value } else { $null }
+        $script:Offline = $false
+        $script:Owner = 'SysAdminDoc'
+        $script:GraphQlPageSize = 25
+        $script:ghCommands = @()
+
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+
+            $script:ghCommands += ($Arguments -join ' ')
+            $global:LASTEXITCODE = 0
+            return @(
+                @{ name = 'RepoA' },
+                @{ name = 'RepoB' }
+            ) | ConvertTo-Json -Depth 5
+        }
+
+        try {
+            $repos = @(Get-GitHubRepos)
+
+            $repos | Should -HaveCount 2
+            $script:ghCommands[0] | Should -Match '--limit 25'
+            $script:MetadataFetchAttemptCount | Should -Be 1
+            $script:MetadataFetchRequestCount | Should -Be 1
+            $script:RepositoryEnumerationRequestedLimit | Should -Be 25
+            $script:RepositoryEnumerationTruncated | Should -BeFalse
+            $script:MetadataFetchResourceLimitFallback | Should -BeFalse
+        } finally {
+            $script:Offline = $oldOffline
+            if ($hadOwner) {
+                $script:Owner = $oldOwner
+            } else {
+                Remove-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+            }
+            if ($hadPageSize) {
+                $script:GraphQlPageSize = $oldPageSize
+            } else {
+                Remove-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+            }
+            Remove-Variable -Name ghCommands -Scope Script -ErrorAction SilentlyContinue
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+            Reset-MetadataFetchTelemetry
+            Reset-RestFallbackReleaseFetchState
+        }
+    }
+
+    It 'records request, retry, and resource-limit telemetry when GraphQL falls back to REST' {
+        $oldOffline = $script:Offline
+        $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+        $pageSizeVariable = Get-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+        $hadOwner = ($null -ne $ownerVariable)
+        $hadPageSize = ($null -ne $pageSizeVariable)
+        $oldOwner = if ($hadOwner) { $ownerVariable.Value } else { $null }
+        $oldPageSize = if ($hadPageSize) { $pageSizeVariable.Value } else { $null }
+        $script:Offline = $false
+        $script:Owner = 'SysAdminDoc'
+        $script:GraphQlPageSize = 75
+
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+
+            $command = $Arguments -join ' '
+            if ($command -like 'repo list *') {
+                $global:LASTEXITCODE = 1
+                return 'GraphQL resource limit exceeded for this query'
+            }
+            if ($command -eq 'api --paginate --slurp users/SysAdminDoc/repos?per_page=100') {
+                $global:LASTEXITCODE = 0
+                return '[[{"name":"RestRepo","description":"desc","stargazers_count":1,"default_branch":"main","fork":false,"private":false,"archived":false,"topics":["utility"],"pushed_at":"2026-07-06T00:00:00Z","html_url":"https://github.com/SysAdminDoc/RestRepo"}]]'
+            }
+
+            throw "Unexpected gh invocation: $command"
+        }
+
+        try {
+            $repos = @(Get-GitHubRepos)
+
+            $repos | Should -HaveCount 1
+            $script:RepositoryMetadataProvider | Should -Be 'rest-fallback'
+            $script:MetadataFetchAttemptCount | Should -Be 3
+            $script:MetadataFetchRequestCount | Should -Be 4
+            $script:MetadataFetchResourceLimitFallback | Should -BeTrue
+            $script:MetadataFetchResourceLimitReason | Should -Match 'resource limit'
+            $script:RepositoryEnumerationRequestedLimit | Should -Be 0
+        } finally {
+            $script:Offline = $oldOffline
+            if ($hadOwner) {
+                $script:Owner = $oldOwner
+            } else {
+                Remove-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+            }
+            if ($hadPageSize) {
+                $script:GraphQlPageSize = $oldPageSize
+            } else {
+                Remove-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+            }
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+            Reset-MetadataFetchTelemetry
+            Reset-RestFallbackReleaseFetchState
+        }
+    }
+
     It 'treats release 404 as no release while keeping rate limits fatal' {
         Test-GhApiNotFound -Output 'gh: Not Found (HTTP 404)' | Should -BeTrue
         Test-GhApiNotFound -Output 'gh: API rate limit exceeded (HTTP 403)' | Should -BeFalse
@@ -1663,6 +1779,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'Pester 5\.8\.0'
         $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
         $script:rendered | Should -Match 'Invoke-Pester -Path tests -Output Detailed'
+        $script:rendered | Should -Match ([regex]::Escape('sync-profile.ps1 -Check -GraphQlPageSize 300'))
         $script:rendered | Should -Match '-SkipBootstrap'
     }
     It 'renders upstream and license attribution in category rows' {
@@ -2564,6 +2681,15 @@ Describe 'Feed JSON Schema contracts' {
         @($reportResult.unsupportedKeywords) | Should -HaveCount 0
     }
 
+    It 'requires metadata fetch budget telemetry in the report schema' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $required = @($schema.'$defs'.validationPerformance.properties.metadataFetch.required)
+
+        foreach ($field in @('graphQlPageSize', 'requestCount', 'retryCount', 'resourceLimitFallback', 'resourceLimitFallbackReason', 'truncated')) {
+            $required | Should -Contain $field
+        }
+    }
+
     It 'validates the committed profile sync report contract' {
         $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
 
@@ -3072,6 +3198,10 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         Test-Path -LiteralPath $reportPath | Should -BeTrue
         $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
         $report.validationPerformance.metadataFetch.repoCount | Should -Be 0
+        $report.validationPerformance.metadataFetch.graphQlPageSize | Should -Be 500
+        $report.validationPerformance.metadataFetch.requestCount | Should -Be 0
+        $report.validationPerformance.metadataFetch.retryCount | Should -Be 0
+        $report.validationPerformance.metadataFetch.resourceLimitFallback | Should -BeFalse
     }
 
     It 'reaches the topic-apply block and exits cleanly on an empty allowlist' {
@@ -3376,7 +3506,14 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match 'README install snippet targets'
             $summary | Should -Match 'README download link targets'
             $summary | Should -Match 'README userscript install targets'
+            $summary | Should -Match 'Metadata provider'
+            $summary | Should -Match 'Metadata GraphQL page size'
+            $summary | Should -Match 'Metadata request count'
+            $summary | Should -Match 'Metadata retry count'
+            $summary | Should -Match 'Metadata resource-limit fallback'
             $summary | Should -Match 'REST fallback release status'
+            $summary | Should -Match 'REST fallback release max requests'
+            $summary | Should -Match 'REST fallback release unauth cap'
             $summary | Should -Match 'REST fallback release attempts'
             $summary | Should -Match 'REST fallback no-release 404s'
             $summary | Should -Match 'Repository setting warnings'
@@ -3475,6 +3612,8 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
         $script:SummaryScript | Should -Match 'portfolioOnlyPreview'
         $script:SummaryScript | Should -Match 'artifactBudgets'
         $script:SummaryScript | Should -Match 'renderedProfileSmoke'
+        $script:SummaryScript | Should -Match 'metadataFetch'
+        $script:SummaryScript | Should -Match 'Metadata GraphQL page size'
         $script:SummaryScript | Should -Match 'restFallbackReleaseFetch'
         $script:SummaryScript | Should -Match 'repositorySettings'
         $script:SummaryScript | Should -Match 'actionsWorkflowPermissions'
@@ -3672,6 +3811,7 @@ Describe 'Test-ProfileState projects sync gate' {
         $currentProjectsPayload = $expectedProjects | ConvertFrom-Json
         $currentProjectsPayload.provenance.sourceCommit = '0000000000000000000000000000000000000000'
         $currentProjectsPayload.provenance.metadataSnapshotAt = '2026-06-07T00:00:00Z'
+        $currentProjectsPayload.provenance.repoEnumeration.requestedLimit = 300
         $currentProjectsPayload.projects[0].pushedAt = '2026-06-07T10:05:07Z'
         $currentProjects = $currentProjectsPayload | ConvertTo-Json -Depth 20
 
@@ -3687,6 +3827,9 @@ Describe 'Test-ProfileState projects sync gate' {
         $result.Report.projectsExportInSync | Should -BeTrue
         $result.Report.metadataDriftSummary.fatalCount | Should -Be 0
         @($result.Report.metadataDrift | Where-Object { $_.severity -eq 'info' }) | Should -Not -BeNullOrEmpty
+        $limitDrift = @($result.Report.metadataDrift | Where-Object { $_.field -eq 'provenance.repoEnumeration.requestedLimit' })
+        $limitDrift | Should -HaveCount 1
+        $limitDrift[0].severity | Should -Be 'info'
     }
 
     It 'fails when a catalog row is excluded from both public feed arrays without a reason' {
