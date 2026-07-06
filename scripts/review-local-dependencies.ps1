@@ -307,7 +307,10 @@ $missingPins = (
     @($powerShellPins | Where-Object { $_.status -ne "pinned" }) +
     @($pythonToolPins | Where-Object { $_.status -ne "hash-pinned" })
 ).Count
-$status = if ($npmAudit.status -eq "clean" -and $overrideReview.driftCount -eq 0 -and $missingPins -eq 0) {
+$localPinReviewNeeded = [bool]($overrideReview.driftCount -ne 0 -or $missingPins -ne 0)
+$status = if ($localPinReviewNeeded) {
+    "review-needed"
+} elseif ($npmAudit.status -eq "clean") {
     "ok"
 } elseif ($npmAudit.status -eq "skipped") {
     "not-run"

@@ -4763,4 +4763,47 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             }
         }
     }
+
+    It 'still fails local pin drift when npm audit is skipped' {
+        $root = Join-Path $TestDrive 'dependency-review-drift'
+        New-Item -ItemType Directory -Path $root | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $root 'scripts') | Out-Null
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'requirements-local-audit.txt') -Destination (Join-Path $root 'requirements-local-audit.txt')
+        @'
+{
+  "name": "drift-fixture",
+  "private": true,
+  "devDependencies": {
+    "markdownlint-cli2": "0.22.1"
+  },
+  "overrides": {
+    "js-yaml": "4.2.0"
+  }
+}
+'@ | Set-Content -LiteralPath (Join-Path $root 'package.json') -Encoding utf8
+        @'
+{
+  "lockfileVersion": 3,
+  "packages": {
+    "": {},
+    "node_modules/markdownlint-cli2": {
+      "version": "0.22.1"
+    },
+    "node_modules/js-yaml": {
+      "version": "4.1.0"
+    }
+  }
+}
+'@ | Set-Content -LiteralPath (Join-Path $root 'package-lock.json') -Encoding utf8
+        '$requiredModules = @([pscustomobject]@{ Name = "Pester"; Version = "5.8.0" })' |
+            Set-Content -LiteralPath (Join-Path $root 'scripts/validate-local.ps1') -Encoding utf8
+
+        $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -RepoRoot $root -SkipNpmAudit *>&1
+        $LASTEXITCODE | Should -Be 1
+        $report = ($output -join "`n") | ConvertFrom-Json
+
+        $report.status | Should -Be 'review-needed'
+        $report.npm.audit.status | Should -Be 'skipped'
+        $report.npm.overrides.driftCount | Should -Be 1
+    }
 }
