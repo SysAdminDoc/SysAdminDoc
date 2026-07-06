@@ -8904,13 +8904,17 @@ function Test-AllowedUserscriptUrl {
     if (-not [System.Uri]::TryCreate($Url, [System.UriKind]::Absolute, [ref]$uri)) { return $false }
     if ($uri.Scheme -ne 'https') { return $false }
 
+    $hostName = $uri.Host.ToLowerInvariant()
+    if ($hostName -eq 'github.com') {
+        return ($uri.AbsolutePath -match '(?i)(^|/)raw(/|$)')
+    }
+
     $allowedHosts = @(
         'raw.githubusercontent.com',
         'gist.githubusercontent.com',
-        'objects.githubusercontent.com',
-        'github.com'
+        'objects.githubusercontent.com'
     )
-    return $uri.Host -in $allowedHosts
+    return $hostName -in $allowedHosts
 }
 
 function Get-UserscriptContent {
@@ -8985,6 +8989,16 @@ function Get-UserscriptUrlProbe {
             statusCode = Get-MemberValue -Object $probe -Name "status"
             error = Get-MemberValue -Object $probe -Name "error"
             fatal = [bool](Get-MemberValue -Object $probe -Name "fatal")
+        }
+    }
+
+    if (-not (Test-AllowedUserscriptUrl -Url $Url)) {
+        return [ordered]@{
+            checked = $true
+            ok = $false
+            statusCode = $null
+            error = "Blocked userscript metadata URL probe: URL is not HTTPS on an allowed GitHub raw-content host."
+            fatal = $false
         }
     }
 
@@ -9360,10 +9374,16 @@ function Test-ProfileState {
         if (-not $meta) {
             if (-not $Offline) {
                 $view = $null
-                try {
-                    $view = gh repo view "$Owner/$($entry.repo)" --json name,url,visibility 2>$null | ConvertFrom-Json
-                } catch {
-                    $view = $null
+                $entryRepo = [string]$entry.repo
+                if (Test-SafeGitHubName -Name $entryRepo) {
+                    $gh = Invoke-GhCli -Arguments @("repo", "view", "$Owner/$entryRepo", "--json", "name,url,visibility")
+                    if ($gh.exitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($gh.text)) {
+                        try {
+                            $view = $gh.text | ConvertFrom-Json
+                        } catch {
+                            $view = $null
+                        }
+                    }
                 }
                 if ($view -and $view.name -ne $entry.repo) {
                     $redirects += [ordered]@{
@@ -9728,6 +9748,11 @@ function Test-ProfileState {
 # Test seam: when dot-sourced (e.g. by Pester), load the functions above and stop
 # before running the live-metadata fetch / generation below.
 if ($MyInvocation.InvocationName -eq '.') { return }
+
+if (-not (Test-SafeGitHubName -Name $Owner)) {
+    Write-Error "Owner must match ^[A-Za-z0-9._-]+$ so generated URLs and gh API paths cannot contain slashes, whitespace, or shell metacharacters."
+    exit 1
+}
 
 Set-Location $RepoRoot
 

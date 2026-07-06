@@ -118,6 +118,25 @@ function Send-CdpCommand {
     throw "CDP $Method timed out waiting for response id $Id."
 }
 
+function Connect-CdpWebSocket {
+    param(
+        [string]$WebSocketUrl,
+        [int]$TimeoutSec = 10
+    )
+
+    $socket = [System.Net.WebSockets.ClientWebSocket]::new()
+    $cts = [Threading.CancellationTokenSource]::new([TimeSpan]::FromSeconds($TimeoutSec))
+    try {
+        $socket.ConnectAsync([uri]$WebSocketUrl, $cts.Token).GetAwaiter().GetResult() | Out-Null
+        return $socket
+    } catch {
+        $socket.Dispose()
+        throw
+    } finally {
+        $cts.Dispose()
+    }
+}
+
 function Invoke-RenderedSmoke {
     param(
         [System.Net.WebSockets.ClientWebSocket]$Socket,
@@ -273,6 +292,32 @@ function Write-RenderedSmokeArtifact {
     return $reportPath
 }
 
+function Remove-RenderedSmokeProfileDir {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    try {
+        $resolvedPath = (Resolve-Path -LiteralPath $Path -ErrorAction Stop).Path
+        $trimChars = [char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        $tempRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd($trimChars)
+        $parent = [System.IO.Path]::GetFullPath((Split-Path -Parent $resolvedPath)).TrimEnd($trimChars)
+        $leaf = Split-Path -Leaf $resolvedPath
+
+        if (-not [string]::Equals($parent, $tempRoot, [StringComparison]::OrdinalIgnoreCase) -or
+            $leaf -notmatch '^SysAdminDoc-render-smoke-[0-9a-f]{32}$') {
+            Write-Warning "Refusing to remove unexpected rendered-smoke profile directory: $resolvedPath"
+            return
+        }
+
+        Remove-Item -LiteralPath $resolvedPath -Recurse -Force -ErrorAction SilentlyContinue
+    } catch {
+        Write-Warning "Could not remove rendered-smoke profile directory '$Path': $($_.Exception.Message)"
+    }
+}
+
 $chrome = $null
 try {
     $chrome = Find-ChromeExecutable
@@ -330,8 +375,7 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
     try {
         Wait-ForDevTools -Port $attemptPort -TimeoutSec $TimeoutSec -Process $process | Out-Null
         $target = Invoke-RestMethod -Uri "http://127.0.0.1:$attemptPort/json/new?$([uri]::EscapeDataString($Url))" -Method Put -TimeoutSec 10
-        $socket = [System.Net.WebSockets.ClientWebSocket]::new()
-        $socket.ConnectAsync([uri]$target.webSocketDebuggerUrl, [Threading.CancellationToken]::None).GetAwaiter().GetResult() | Out-Null
+        $socket = Connect-CdpWebSocket -WebSocketUrl $target.webSocketDebuggerUrl -TimeoutSec 10
         try {
             $commandId = 0
             $viewports = @(
@@ -368,7 +412,7 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
             Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue
         }
         if (Test-Path -LiteralPath $profileDir) {
-            Remove-Item -LiteralPath $profileDir -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-RenderedSmokeProfileDir -Path $profileDir
         }
     }
 }

@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "530c443f223a6a5b544d209b8240535cb01c60dc",
+    "sourceCommit": "8fcc080791a36a6ad7e9ae162e5db595cb6ee9e4",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "62fb9959d92a6d8216cb8d992828cf58b9c4bc3dd173b8879805b1c74b092afb",
+    "generatorSha256": "9ccfd55741dfaa72b3f551240c9cb9b5b2cc4e8fb2f346baf4a33aee23410321",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-05T22:00:52.3996053-04:00",
+    "metadataSnapshotAt": "2026-07-05T22:19:11.5436105-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1403,22 +1403,18 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 11,
-      "latestReleaseTag": "v1.9.53",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.53",
+      "latestReleaseTag": "v1.9.55",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.55",
       "releaseAssetKinds": [
-        "apk",
-        "other"
+        "apk"
       ],
       "releaseAssetNames": [
-        "app-release.apk",
-        "SHA256SUMS"
+        "app-release.apk"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [
-          "SHA256SUMS"
-        ],
-        "checksumCoverage": "partial",
+        "checksumAssets": [],
+        "checksumCoverage": "none",
         "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
@@ -1430,12 +1426,12 @@
         "executableAssetKinds": [
           "apk"
         ],
-        "trustLevel": "checksum-metadata",
-        "platformDigestCount": 2,
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-05T20:19:36.0000000Z",
+      "pushedAt": "2026-07-06T02:05:16.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -6202,7 +6198,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-30T06:31:28.0000000Z",
+      "pushedAt": "2026-07-06T02:15:39.0000000Z",
       "topics": [
         "github-pages",
         "html",

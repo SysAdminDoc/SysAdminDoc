@@ -227,6 +227,11 @@ Describe 'Invoke-GhCli adapter seam' {
             Remove-Item Function:\gh -ErrorAction SilentlyContinue
         }
     }
+
+    It 'keeps profile-state repo-view checks behind the gh adapter seam' {
+        $script:SyncProfileScript | Should -Match 'Invoke-GhCli -Arguments @\("repo", "view"'
+        $script:SyncProfileScript | Should -Not -Match '\bgh repo view\b'
+    }
 }
 
 Describe 'ConvertTo-Lookup' {
@@ -422,6 +427,8 @@ Describe 'Test-AllowedUserscriptUrl SSRF guard' {
         foreach ($url in @(
                 'http://raw.githubusercontent.com/x/y/main/z.user.js',
                 'https://evil.example.com/payload.user.js',
+                'https://github.com/SysAdminDoc/repo/blob/main/x.user.js',
+                'https://github.com/SysAdminDoc/repo/issues',
                 'https://169.254.169.254/latest/meta-data',
                 'file:///etc/passwd',
                 'https://localhost:8080/x.user.js',
@@ -434,6 +441,16 @@ Describe 'Test-AllowedUserscriptUrl SSRF guard' {
         $result = Get-UserscriptContent -Url 'https://evil.example.com/x.user.js'
         $result.succeeded | Should -BeFalse
         $result.error | Should -Match 'Blocked userscript fetch'
+    }
+
+    It 'blocks userscript metadata URL probes outside allowed raw-content hosts' {
+        $result = Get-UserscriptUrlProbe -Url 'https://169.254.169.254/latest/meta-data'
+
+        $result.checked | Should -BeTrue
+        $result.ok | Should -BeFalse
+        $result.statusCode | Should -BeNullOrEmpty
+        $result.error | Should -Match 'Blocked userscript metadata URL probe'
+        $result.fatal | Should -BeFalse
     }
 }
 
@@ -3008,6 +3025,15 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         $feed.publicRepoCount | Should -Be 0
     }
 
+    It 'rejects unsafe Owner values before generation or network work' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+
+        $output = & pwsh -NoProfile -File $scriptPath -Owner '../bad' -Check -Offline *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match 'Owner must match'
+    }
+
     It 'writes a report under -Check -Offline without a Count-on-null crash' {
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
         $reportPath = Join-Path $TestDrive 'offline-report.json'
@@ -3077,6 +3103,15 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-chrome-\$attempt[.]err[.]log'
         $script:RenderSmokeScript | Should -Match 'for \(\$attempt = 1; \$attempt -le 2'
         $script:RenderSmokeScript | Should -Match 'Chrome exited before DevTools became ready'
+        $script:RenderSmokeScript | Should -Match 'function Connect-CdpWebSocket'
+        $script:RenderSmokeScript | Should -Match 'CancellationTokenSource'
+    }
+
+    It 'guards recursive cleanup to the generated temp profile directory' {
+        $script:RenderSmokeScript | Should -Match 'function Remove-RenderedSmokeProfileDir'
+        $script:RenderSmokeScript | Should -Match 'SysAdminDoc-render-smoke-\[0-9a-f\]\{32\}'
+        $script:RenderSmokeScript | Should -Match 'Refusing to remove unexpected rendered-smoke profile directory'
+        $script:RenderSmokeScript | Should -Match 'Remove-RenderedSmokeProfileDir -Path \$profileDir'
     }
 
     It 'remains a local smoke script while hosted workflows are absent' {
@@ -4681,6 +4716,47 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.8.0'
             $report.python.auditTools.name | Should -Contain 'zizmor'
             ($report.python.auditTools | Where-Object { $_.name -eq 'zizmor' }).hashPinned | Should -BeTrue
+        } finally {
+            if (Test-Path -LiteralPath $auditPath) {
+                Remove-Item -LiteralPath $auditPath -Force
+            }
+        }
+    }
+
+    It 'returns a non-zero exit when dependency review needs action' {
+        $auditPath = Join-Path ([System.IO.Path]::GetTempPath()) ('SysAdminDoc-npm-audit-' + [guid]::NewGuid().ToString('N') + '.json')
+        try {
+            $auditJson = @'
+{
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 0,
+      "critical": 0,
+      "total": 1
+    },
+    "dependencies": {
+      "prod": 0,
+      "dev": 1,
+      "optional": 0,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 1
+    }
+  }
+}
+'@
+            [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
+
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath *>&1
+            $LASTEXITCODE | Should -Be 1
+            $report = ($output -join "`n") | ConvertFrom-Json
+
+            $report.status | Should -Be 'review-needed'
+            $report.npm.audit.status | Should -Be 'vulnerabilities-found'
+            $report.npm.audit.severityCounts.moderate | Should -Be 1
         } finally {
             if (Test-Path -LiteralPath $auditPath) {
                 Remove-Item -LiteralPath $auditPath -Force

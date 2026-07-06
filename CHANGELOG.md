@@ -2,6 +2,11 @@
 
 ## 2026-07-06
 
+- Hardened userscript trust checks so `@updateURL` and `@downloadURL` metadata probes are blocked unless they use allowed GitHub raw-content hosts, preventing remote userscript headers from triggering arbitrary HTTP probes.
+- Routed the remaining `gh repo view` profile-state check through the shared `Invoke-GhCli` adapter and added an early `-Owner` validation guard before generated URLs or GitHub API paths are built.
+- Hardened `render-profile-smoke.ps1` with a bounded DevTools WebSocket connect and a guarded temp-profile cleanup helper that refuses recursive deletion outside the generated smoke-profile directory pattern.
+- Made `review-local-dependencies.ps1` exit nonzero when its structured result is `review-needed`, so local advisory or pin drift checks cannot be missed by release scripts.
+- Bumped the internal profile evidence version to `v4.9.145`.
 - Added a rendered-README action link audit to profile sync validation: generated clone/install snippets, `/releases/latest` download buttons, and raw userscript Install links are parsed from the README itself, probed through the shared HEAD/GET validator, and counted in `linkValidationSummary` plus profile-sync summaries.
 - Fixed live catalog drift found by the audit: `HostsGuard` now renders as a native desktop EXE-release row instead of a stale Python `HostsGuard.py` clone snippet, and `RES-Slim` is cataloged as a public extensions/fork row.
 - Bumped the internal profile evidence version to `v4.9.144`.

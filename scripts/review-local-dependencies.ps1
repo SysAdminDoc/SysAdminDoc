@@ -338,3 +338,6 @@ $review = [ordered]@{
 }
 
 Write-Output ($review | ConvertTo-Json -Depth 8)
+if ($status -eq "review-needed") {
+    exit 1
+}
