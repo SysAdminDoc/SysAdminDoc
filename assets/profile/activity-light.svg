@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="820" height="250" viewBox="0 0 820 250" role="img" aria-labelledby="profile-release-asset-health-light-title" aria-describedby="profile-release-asset-health-light-desc">
   <title id="profile-release-asset-health-light-title">Release Asset Health</title>
-  <desc id="profile-release-asset-health-light-desc">Generated release taxonomy and validation summary Rows: 140 latest releases inspected (asset names normalized); 0 release kind mismatches (catalog vs assets); 19 source-only release rows (kept as Repo actions); 0 asset fetch failures (latest report).</desc>
+  <desc id="profile-release-asset-health-light-desc">Generated release taxonomy and validation summary Rows: 141 latest releases inspected (asset names normalized); 1 release kind mismatches (catalog vs assets); 20 source-only release rows (kept as Repo actions); 0 asset fetch failures (latest report).</desc>
   <rect width="100%" height="100%" rx="0" fill="#ffffff"/>
   <rect x="12" y="12" width="796" height="226" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
   <line x1="28" y1="28" x2="792" y2="28" stroke="#0969da" stroke-width="1" opacity="0.45"/>
@@ -8,15 +8,15 @@
   <text x="32" y="70" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="13">Generated release taxonomy and validation summary</text>
   <line x1="32" y1="84" x2="788" y2="84" stroke="#d0d7de" stroke-width="0.5" opacity="0.6"/>
   <rect x="32" y="98" width="3" height="20" rx="1.5" fill="#0969da"/>
-  <text x="46" y="112" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">140</text>
+  <text x="46" y="112" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">141</text>
   <text x="46" y="132" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">latest releases inspected</text>
   <text x="46" y="148" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">asset names normalized</text>
   <rect x="410" y="98" width="3" height="20" rx="1.5" fill="#0969da"/>
-  <text x="424" y="112" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">0</text>
+  <text x="424" y="112" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">1</text>
   <text x="424" y="132" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">release kind mismatches</text>
   <text x="424" y="148" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">catalog vs assets</text>
   <rect x="32" y="152" width="3" height="20" rx="1.5" fill="#0969da"/>
-  <text x="46" y="166" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">19</text>
+  <text x="46" y="166" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">20</text>
   <text x="46" y="186" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">source-only release rows</text>
   <text x="46" y="202" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="11">kept as Repo actions</text>
   <rect x="410" y="152" width="3" height="20" rx="1.5" fill="#0969da"/>

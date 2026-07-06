@@ -1282,6 +1282,7 @@ function Get-AgeDays {
 
 function ConvertTo-RawGitHubUrl {
     param(
+        [string]$RepositoryOwner = $Owner,
         [string]$Repo,
         [string]$Branch,
         [string]$Path
@@ -1289,7 +1290,7 @@ function ConvertTo-RawGitHubUrl {
 
     $segments = $Path -split '[\\/]'
     $encodedPath = ($segments | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
-    return "https://raw.githubusercontent.com/$Owner/$Repo/$Branch/$encodedPath"
+    return "https://raw.githubusercontent.com/$RepositoryOwner/$Repo/$Branch/$encodedPath"
 }
 
 function Test-HttpUrl {
@@ -1445,6 +1446,77 @@ function Get-ReadmeHeaderLinkValidationTargets {
 
     foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)!\[[^\]]*\]\((?<url>https://[^\s)]+)[^)]*\)')) {
         Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type "header-image" -Url $match.Groups['url'].Value -FatalOnFailure $false
+    }
+
+    return $targets.ToArray()
+}
+
+function Get-ReadmeActionRepoFromUrl {
+    param([string]$Url)
+
+    try {
+        $uri = [Uri]$Url
+        $segments = @($uri.AbsolutePath.Trim('/') -split '/')
+        if ($segments.Count -ge 2 -and -not [string]::IsNullOrWhiteSpace($segments[1])) {
+            return [Uri]::UnescapeDataString($segments[1])
+        }
+    } catch {
+        return $Owner
+    }
+
+    return $Owner
+}
+
+function Add-ReadmeActionLinkValidationTarget {
+    param(
+        [System.Collections.Generic.List[object]]$Targets,
+        [System.Collections.Generic.HashSet[string]]$SeenTargets,
+        [string]$Type,
+        [string]$Url,
+        [string]$Repo = $null
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Url) -or -not $Url.StartsWith("https://", [StringComparison]::OrdinalIgnoreCase)) {
+        return
+    }
+
+    $targetKey = "$Type`n$Url"
+    if (-not $SeenTargets.Add($targetKey)) {
+        return
+    }
+
+    $targetRepo = if ([string]::IsNullOrWhiteSpace($Repo)) { Get-ReadmeActionRepoFromUrl -Url $Url } else { $Repo }
+    $Targets.Add((New-LinkValidationTarget -Repo $targetRepo -Type $Type -Url $Url -FatalOnFailure $true -Group "readme-actions"))
+}
+
+function Get-ReadmeActionLinkValidationTargets {
+    param([string]$ExpectedReadme)
+
+    $targets = New-Object System.Collections.Generic.List[object]
+    $seenTargets = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+
+    foreach ($block in [regex]::Matches($ExpectedReadme, '(?ms)```(?:powershell|pwsh|ps1)?\s*(?<script>.*?)```')) {
+        $scriptText = $block.Groups['script'].Value
+        $cloneMatch = [regex]::Match($scriptText, 'git clone -q --depth 1 -b (?<branch>[^\s;]+) https://github\.com/(?<owner>[^/\s;]+)/(?<repo>[^\s;]+) \$d')
+        $runnerMatch = [regex]::Match($scriptText, '(?:^|;)\s*(?:&|python)\s+"\$d\\(?<entry>[^"]+)"')
+        if (-not $cloneMatch.Success -or -not $runnerMatch.Success) {
+            continue
+        }
+
+        $cloneOwner = $cloneMatch.Groups['owner'].Value
+        $repo = $cloneMatch.Groups['repo'].Value
+        $branch = $cloneMatch.Groups['branch'].Value
+        $entrypoint = $runnerMatch.Groups['entry'].Value
+        $rawUrl = ConvertTo-RawGitHubUrl -RepositoryOwner $cloneOwner -Repo $repo -Branch $branch -Path $entrypoint
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-entrypoint" -Url $rawUrl -Repo $repo
+    }
+
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\]\((?<url>https://github\.com/[^)\s]+/releases/latest)\)')) {
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-download" -Url $match.Groups['url'].Value
+    }
+
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\[Install\]\((?<url>https://raw\.githubusercontent\.com/[^)\s]+)\)')) {
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-userscript-install" -Url $match.Groups['url'].Value
     }
 
     return $targets.ToArray()
@@ -9378,18 +9450,27 @@ function Test-ProfileState {
         targetCount = 0
         throttleLimit = $LinkValidationThrottle
         elapsedMs = 0
+        readmeActionTargetCount = 0
+        readmeInstallSnippetTargetCount = 0
+        readmeDownloadLinkTargetCount = 0
+        readmeUserscriptInstallTargetCount = 0
         warningCountByHost = @()
         headerHostWarnings = @()
     }
     if (-not $Offline -and -not $SkipLinkValidation) {
         $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
-        $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets $readmeHeaderTargets
+        $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme)
+        $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets @($readmeHeaderTargets + $readmeActionTargets)
         $linkFailures = @($linkResult.failures)
         $linkWarnings = @($linkResult.warnings)
         $linkValidationSummary = [ordered]@{
             targetCount = $linkResult.targetCount
             throttleLimit = $linkResult.throttleLimit
             elapsedMs = $linkResult.elapsedMs
+            readmeActionTargetCount = @($readmeActionTargets).Count
+            readmeInstallSnippetTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-install-entrypoint" }).Count
+            readmeDownloadLinkTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-download" }).Count
+            readmeUserscriptInstallTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-userscript-install" }).Count
             warningCountByHost = @($linkResult.warningCountByHost)
             headerHostWarnings = @($linkResult.headerHostWarnings)
         }

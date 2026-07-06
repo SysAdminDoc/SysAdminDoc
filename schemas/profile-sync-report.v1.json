@@ -5641,6 +5641,10 @@
         "targetCount",
         "throttleLimit",
         "elapsedMs",
+        "readmeActionTargetCount",
+        "readmeInstallSnippetTargetCount",
+        "readmeDownloadLinkTargetCount",
+        "readmeUserscriptInstallTargetCount",
         "warningCountByHost",
         "headerHostWarnings"
       ],
@@ -5652,6 +5656,18 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "elapsedMs": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readmeActionTargetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readmeInstallSnippetTargetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readmeDownloadLinkTargetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readmeUserscriptInstallTargetCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCountByHost": {

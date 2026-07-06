@@ -165,6 +165,10 @@ $fatalDriftRows = @($metadataDriftRows | Where-Object {
     })
 $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
+$readmeActionTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeActionTargetCount') { [int]$linkSummary.readmeActionTargetCount } else { 0 }
+$readmeInstallSnippetTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeInstallSnippetTargetCount') { [int]$linkSummary.readmeInstallSnippetTargetCount } else { 0 }
+$readmeDownloadLinkTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeDownloadLinkTargetCount') { [int]$linkSummary.readmeDownloadLinkTargetCount } else { 0 }
+$readmeUserscriptInstallTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeUserscriptInstallTargetCount') { [int]$linkSummary.readmeUserscriptInstallTargetCount } else { 0 }
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
 $executableShortlist = if ($releaseDrift -and $releaseDrift.PSObject.Properties.Name -contains 'executableDownloadTrustShortlist') { $releaseDrift.executableDownloadTrustShortlist } else { $null }
 $executableDownloadCount = if ($executableShortlist) { [int]$executableShortlist.executableDownloadCount } else { 0 }
@@ -452,6 +456,10 @@ $summary = @"
 | Userscript release-channel ready | $userscriptReleaseReadyCount |
 | Userscript release-channel blocked | $userscriptReleaseBlockedCount |
 | Link targets checked | $($linkSummary.targetCount) |
+| README action link targets | $readmeActionTargetCount |
+| README install snippet targets | $readmeInstallSnippetTargetCount |
+| README download link targets | $readmeDownloadLinkTargetCount |
+| README userscript install targets | $readmeUserscriptInstallTargetCount |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
 | REST fallback release status | $restFallbackStatus |

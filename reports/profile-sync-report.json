@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-02T01:03:16.9231169-04:00",
+  "generatedAt": "2026-07-05T22:02:38.1678673-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -66,22 +66,22 @@
       "inSync": true
     }
   ],
-  "publicRepoCount": 205,
-  "catalogEntryCount": 208,
-  "includedReadmeCount": 174,
+  "publicRepoCount": 206,
+  "catalogEntryCount": 209,
+  "includedReadmeCount": 175,
   "provenance": {
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "85128bd8b1f217e7f634685c44554da79bc3429b",
-    "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "4491ce837d9d3e994a2bc9ab293b3cc43b9441ec60cdc61eafe3762135480948",
+    "sourceCommit": "530c443f223a6a5b544d209b8240535cb01c60dc",
+    "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
+    "generatorSha256": "62fb9959d92a6d8216cb8d992828cf58b9c4bc3dd173b8879805b1c74b092afb",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-02T01:01:33.3177943-04:00",
+    "metadataSnapshotAt": "2026-07-05T22:00:52.3996053-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
-      "returnedCount": 205,
+      "returnedCount": 206,
       "truncated": false
     }
   },
@@ -91,7 +91,7 @@
     "issues": []
   },
   "metadataHygiene": {
-    "missingTopicCount": 18,
+    "missingTopicCount": 19,
     "missingDescriptionCount": 1,
     "topicHintPolicy": {
       "mutatesRepositories": false,
@@ -188,7 +188,7 @@
       {
         "repo": "notepad-plus-plus",
         "language": "C++",
-        "pushedAt": "2026-06-25T23:06:48.0000000Z",
+        "pushedAt": "2026-07-04T22:25:58.0000000Z",
         "category": "suppressed",
         "topicHints": [
           "cpp"
@@ -233,6 +233,17 @@
         "category": "suppressed",
         "topicHints": [
           "cpp"
+        ]
+      },
+      {
+        "repo": "RES-Slim",
+        "language": "JavaScript",
+        "pushedAt": "2026-06-28T03:00:07.0000000Z",
+        "category": "extensions",
+        "topicHints": [
+          "browser-extension",
+          "userscript",
+          "javascript"
         ]
       },
       {
@@ -287,8 +298,8 @@
     ]
   },
   "projectLicenseMetadata": {
-    "checkedCount": 174,
-    "detectedCount": 174,
+    "checkedCount": 175,
+    "detectedCount": 175,
     "missingCount": 0,
     "unknownCount": 3,
     "intentionalExceptionCount": 2,
@@ -317,7 +328,7 @@
         "licenseSpdxId": "GPL-3.0",
         "licenseKey": "gpl-3.0",
         "licenseName": "GNU General Public License v3.0",
-        "count": 7
+        "count": 8
       },
       {
         "licenseSpdxId": "LGPL-3.0",
@@ -376,11 +387,11 @@
     ]
   },
   "forkParentDrift": {
-    "checkedCount": 23,
+    "checkedCount": 24,
     "githubForkCount": 21,
-    "catalogForkOfCount": 23,
+    "catalogForkOfCount": 24,
     "matchingGitHubForkCount": 21,
-    "catalogContinuationCount": 2,
+    "catalogContinuationCount": 3,
     "missingCatalogAttributionCount": 0,
     "parentMismatchCount": 0,
     "parentUnavailableCount": 0,
@@ -499,6 +510,11 @@
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
       },
       {
+        "repo": "RES-Slim",
+        "catalogForkOf": "honestbleeps/Reddit-Enhancement-Suite",
+        "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
+      },
+      {
         "repo": "uBlockVanced",
         "catalogForkOf": "gorhill/uBlock",
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
@@ -510,7 +526,7 @@
     "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
   },
   "staleProjectReview": {
-    "checkedProjectCount": 185,
+    "checkedProjectCount": 186,
     "staleAfterDays": 365,
     "releaseStaleAfterDays": 540,
     "archiveAfterDays": 730,
@@ -526,7 +542,7 @@
       },
       {
         "kind": "current",
-        "count": 185
+        "count": 186
       },
       {
         "kind": "stale-review",
@@ -569,11 +585,11 @@
     "note": "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
   },
   "releaseAssetDrift": {
-    "checkedCatalogRows": 174,
-    "releaseBearingRows": 140,
+    "checkedCatalogRows": 175,
+    "releaseBearingRows": 141,
     "releaseActionRows": 81,
     "assetApiInspected": true,
-    "inspectedReleaseRows": 140,
+    "inspectedReleaseRows": 141,
     "releaseAssetKindCounts": [
       {
         "kind": "apk",
@@ -581,7 +597,7 @@
       },
       {
         "kind": "crx",
-        "count": 7
+        "count": 8
       },
       {
         "kind": "exe",
@@ -589,7 +605,7 @@
       },
       {
         "kind": "other",
-        "count": 42
+        "count": 43
       },
       {
         "kind": "script",
@@ -597,7 +613,7 @@
       },
       {
         "kind": "source-archive",
-        "count": 44
+        "count": 43
       },
       {
         "kind": "userscript",
@@ -609,7 +625,7 @@
       },
       {
         "kind": "zip",
-        "count": 38
+        "count": 39
       }
     ],
     "releaseTrustLevelCounts": [
@@ -619,7 +635,7 @@
       },
       {
         "trustLevel": "metadata-only",
-        "count": 107
+        "count": 108
       },
       {
         "trustLevel": "unknown",
@@ -628,18 +644,18 @@
     ],
     "releaseImmutability": {
       "immutableCount": 0,
-      "mutableCount": 140,
+      "mutableCount": 141,
       "unknownCount": 0
     },
     "platformDigestCoverage": {
-      "withDigestCount": 96,
-      "withoutDigestCount": 44
+      "withDigestCount": 98,
+      "withoutDigestCount": 43
     },
     "executableDownloadTrustShortlist": {
       "evidenceSource": "release-metadata-only",
       "executableDownloadCount": 77,
       "metadataCompleteCount": 0,
-      "checksumGapCount": 63,
+      "checksumGapCount": 64,
       "metadataEvidenceGapCount": 0,
       "platformDigestCount": 77,
       "attestationGapCount": 77,
@@ -683,7 +699,7 @@
         {
           "priorityRank": 2,
           "repo": "VideoSubtitleRemover",
-          "stars": 27,
+          "stars": 29,
           "latestReleaseTag": "v3.17.1",
           "executableAssetKinds": [
             "zip"
@@ -704,7 +720,7 @@
         {
           "priorityRank": 3,
           "repo": "OpenCut",
-          "stars": 24,
+          "stars": 25,
           "latestReleaseTag": "v1.25.1",
           "executableAssetKinds": [
             "exe",
@@ -726,7 +742,7 @@
         {
           "priorityRank": 4,
           "repo": "ClearCut",
-          "stars": 16,
+          "stars": 18,
           "latestReleaseTag": "v3.74.108",
           "executableAssetKinds": [
             "apk"
@@ -789,16 +805,16 @@
         },
         {
           "priorityRank": 7,
-          "repo": "Aura",
-          "stars": 10,
-          "latestReleaseTag": "v6.31.2",
+          "repo": "project-nomad-desktop",
+          "stars": 12,
+          "latestReleaseTag": "v7.32.0",
           "executableAssetKinds": [
-            "apk"
+            "exe"
           ],
-          "trustLevel": "metadata-only",
+          "trustLevel": "checksum-metadata",
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
-          "checksumCoverage": "none",
+          "checksumCoverage": "partial",
           "hasPlatformDigest": true,
           "hasMetadataEvidence": true,
           "hasSbom": false,
@@ -810,16 +826,16 @@
         },
         {
           "priorityRank": 8,
-          "repo": "project-nomad-desktop",
+          "repo": "Aura",
           "stars": 10,
-          "latestReleaseTag": "v7.32.0",
+          "latestReleaseTag": "v6.31.2",
           "executableAssetKinds": [
-            "exe"
+            "apk"
           ],
-          "trustLevel": "checksum-metadata",
+          "trustLevel": "metadata-only",
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
-          "checksumCoverage": "partial",
+          "checksumCoverage": "none",
           "hasPlatformDigest": true,
           "hasMetadataEvidence": true,
           "hasSbom": false,
@@ -877,7 +893,7 @@
       ],
       "note": "Metadata evidence records filename-derived sidecar checksums, SBOM or attestation filenames, and GitHub platform asset digests; no binaries were downloaded or locally verified."
     },
-    "executableDownloadsMissingChecksums": 63,
+    "executableDownloadsMissingChecksums": 64,
     "debugArtifactRows": [
       {
         "repo": "Aura",
@@ -888,11 +904,6 @@
         "repo": "LocalAndroidStore",
         "latestReleaseTag": "v0.2.3",
         "trustLevel": "checksum-metadata"
-      },
-      {
-        "repo": "one-ui-home-clone",
-        "latestReleaseTag": "v0.2.0",
-        "trustLevel": "metadata-only"
       }
     ],
     "sourceOnlyWithRelease": [
@@ -993,6 +1004,15 @@
         ]
       },
       {
+        "repo": "RES-Slim",
+        "latestReleaseTag": "v0.12.7",
+        "releaseAssetKinds": [
+          "crx",
+          "other",
+          "zip"
+        ]
+      },
+      {
         "repo": "Scour",
         "latestReleaseTag": "v0.3.0",
         "releaseAssetKinds": [
@@ -1039,7 +1059,22 @@
     ],
     "missingReleaseForDownloadKind": [],
     "releaseActionLabelMismatches": [],
-    "releaseAssetKindMismatches": [],
+    "releaseAssetKindMismatches": [
+      {
+        "repo": "Images",
+        "downloadKind": "exe",
+        "expectedAssetKinds": [
+          "exe"
+        ],
+        "releaseAssetKinds": [
+          "zip"
+        ],
+        "releaseAssetNames": [
+          "Images-v0.2.15-win-x64.zip"
+        ],
+        "primaryAction": "release"
+      }
+    ],
     "releaseAssetFetchFailures": [],
     "userscriptKindWithoutInstallUrl": [],
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
@@ -1564,10 +1599,10 @@
   },
   "catalogFeedAccounting": {
     "passed": true,
-    "catalogEntryCount": 208,
-    "visitorFacingCatalogCount": 185,
+    "catalogEntryCount": 209,
+    "visitorFacingCatalogCount": 186,
     "suppressedCatalogCount": 23,
-    "exportedProjectCount": 185,
+    "exportedProjectCount": 186,
     "exportedSuppressedCount": 23,
     "projectCountMatches": true,
     "suppressedCountMatches": true,
@@ -1582,9 +1617,9 @@
     "status": "compatible",
     "consumerContract": "sysadmindoc.github.io profile-feed importer",
     "feedSourceUrl": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json",
-    "projectCount": 185,
+    "projectCount": 186,
     "suppressedCount": 23,
-    "topLevelProjectCount": 185,
+    "topLevelProjectCount": 186,
     "topLevelSuppressedCount": 23,
     "projectCountMatchesTopLevel": true,
     "suppressedCountMatchesTopLevel": true,
@@ -1648,7 +1683,7 @@
       },
       {
         "kind": "repo",
-        "count": 65
+        "count": 66
       }
     ],
     "warningCount": 0,
@@ -1741,7 +1776,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-02T01:01:33.3177943-04:00",
+          "queriedAt": "2026-07-05T22:00:52.3996053-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2046,20 +2081,20 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.143",
-    "expectedDate": "2026-07-02",
+    "expectedVersion": "v4.9.144",
+    "expectedDate": "2026-07-06",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.143"
+        "value": "v4.9.144"
       }
     ],
     "dates": [
       {
         "path": "data/profile-version.json",
         "field": "date",
-        "value": "2026-07-02"
+        "value": "2026-07-06"
       }
     ],
     "changelogHeadingValidation": {
@@ -2074,14 +2109,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.143",
+    "expectedVersion": "v4.9.144",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.143",
+    "expectedTag": "v4.9.144",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2091,13 +2126,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.143",
+        "expectedVersion": "v4.9.144",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.143",
+        "expectedVersion": "v4.9.144",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2121,14 +2156,14 @@
       "attemptCount": 1,
       "fallbackUsed": false,
       "fallbackReason": null,
-      "repoCount": 205,
+      "repoCount": 206,
       "fidelityDegraded": false
     },
     "linkValidation": {
       "skipped": false,
-      "targetCount": 187,
+      "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 3913,
+      "elapsedMs": 4755,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2137,12 +2172,12 @@
     "restFallbackReleaseFetch": {
       "used": true,
       "status": "completed",
-      "repoCount": 205,
+      "repoCount": 206,
       "authenticated": true,
       "maxReleaseFetches": 240,
       "unauthenticatedReleaseFetchLimit": 50,
-      "attemptedReleaseFetches": 205,
-      "successfulReleaseFetches": 152,
+      "attemptedReleaseFetches": 206,
+      "successfulReleaseFetches": 153,
       "noRelease404Count": 53,
       "fatal": false,
       "abortRepo": null,
@@ -2156,41 +2191,13 @@
   "urlSchemeViolations": [],
   "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [
-    {
-      "repo": null,
-      "category": null,
-      "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-02T01:00:01.8602401-04:00",
-      "newValue": "2026-07-02T01:01:33.3177943-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "Disable-AdobeTelemetry",
-      "category": "powershell",
-      "field": "pushedAt",
-      "oldValue": "2026-07-02T04:56:50Z",
-      "newValue": "2026-07-02T05:00:44Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "ScriptVault",
-      "category": "extensions",
-      "field": "pushedAt",
-      "oldValue": "2026-07-02T04:33:46Z",
-      "newValue": "2026-07-02T05:00:12Z",
-      "severity": "info",
-      "failing": false
-    }
-  ],
+  "metadataDrift": [],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 3,
+    "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 30.36,
+      "ageDays": 34.24,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2198,16 +2205,20 @@
   },
   "linkValidationSkipped": false,
   "linkValidationSummary": {
-    "targetCount": 187,
+    "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 3913,
+    "elapsedMs": 4755,
+    "readmeActionTargetCount": 156,
+    "readmeInstallSnippetTargetCount": 64,
+    "readmeDownloadLinkTargetCount": 81,
+    "readmeUserscriptInstallTargetCount": 11,
     "warningCountByHost": [],
     "headerHostWarnings": []
   },
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 65662,
+    "byteCount": 65740,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2227,17 +2238,17 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 633,
+    "lineCount": 630,
     "detailsSectionCount": 12,
-    "tableRowCount": 107,
-    "projectRowCount": 174,
+    "tableRowCount": 109,
+    "projectRowCount": 175,
     "categoryCount": 10,
     "categorySoftLimit": 30,
     "lowSignalSoftLimit": 15,
     "largestCategory": "powershell",
     "largestCategoryCount": 30,
-    "repoOnlyProjectCount": 55,
-    "lowSignalProjectCount": 40,
+    "repoOnlyProjectCount": 56,
+    "lowSignalProjectCount": 41,
     "portfolioOnlyCandidateCount": 0,
     "portfolioOnlyCandidateCategoryCount": 0,
     "portfolioOnlyCandidateCategories": [],
@@ -2249,8 +2260,8 @@
       "candidateSource": "readmeDensity.portfolioOnlyCandidates",
       "candidateCount": 0,
       "candidateRepos": [],
-      "currentProjectRowCount": 174,
-      "previewProjectRowCount": 174,
+      "currentProjectRowCount": 175,
+      "previewProjectRowCount": 175,
       "projectRowDelta": 0,
       "currentLargestCategory": "powershell",
       "previewLargestCategory": "powershell",
@@ -2277,8 +2288,8 @@
         {
           "category": "python",
           "displayName": "Python",
-          "currentProjectCount": 30,
-          "previewProjectCount": 30,
+          "currentProjectCount": 29,
+          "previewProjectCount": 29,
           "projectRowDelta": 0,
           "currentOverSoftLimitBy": 0,
           "previewOverSoftLimitBy": 0
@@ -2295,8 +2306,8 @@
         {
           "category": "extensions",
           "displayName": "Extensions",
-          "currentProjectCount": 23,
-          "previewProjectCount": 23,
+          "currentProjectCount": 24,
+          "previewProjectCount": 24,
           "projectRowDelta": 0,
           "currentOverSoftLimitBy": 0,
           "previewOverSoftLimitBy": 0
@@ -2331,8 +2342,8 @@
         {
           "category": "desktop",
           "displayName": "Desktop",
-          "currentProjectCount": 23,
-          "previewProjectCount": 23,
+          "currentProjectCount": 24,
+          "previewProjectCount": 24,
           "projectRowDelta": 0,
           "currentOverSoftLimitBy": 0,
           "previewOverSoftLimitBy": 0
@@ -2377,8 +2388,8 @@
       {
         "category": "python",
         "displayName": "Python",
-        "projectCount": 30,
-        "actionableCount": 26,
+        "projectCount": 29,
+        "actionableCount": 25,
         "repoOnlyCount": 4,
         "lowSignalCount": 0,
         "overCategorySoftLimitBy": 0,
@@ -2403,10 +2414,10 @@
       {
         "category": "extensions",
         "displayName": "Extensions",
-        "projectCount": 23,
+        "projectCount": 24,
         "actionableCount": 20,
-        "repoOnlyCount": 3,
-        "lowSignalCount": 1,
+        "repoOnlyCount": 4,
+        "lowSignalCount": 2,
         "overCategorySoftLimitBy": 0,
         "portfolioOnlyCandidateCount": 0,
         "routingRecommendation": "keep-in-readme",
@@ -2455,8 +2466,8 @@
       {
         "category": "desktop",
         "displayName": "Desktop",
-        "projectCount": 23,
-        "actionableCount": 11,
+        "projectCount": 24,
+        "actionableCount": 12,
         "repoOnlyCount": 12,
         "lowSignalCount": 9,
         "overCategorySoftLimitBy": 0,
@@ -2494,14 +2505,16 @@
     ]
   },
   "artifactBudgets": {
-    "status": "within-budget",
-    "warningCount": 0,
-    "warnings": [],
+    "status": "warning",
+    "warningCount": 1,
+    "warnings": [
+      "projects.json bytes is 514363, above the 512000 soft limit."
+    ],
     "rows": [
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 65662,
+        "value": 65740,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2510,7 +2523,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 633,
+        "value": 630,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2519,7 +2532,7 @@
       {
         "artifact": "README.md",
         "metric": "tableRows",
-        "value": 107,
+        "value": 109,
         "softLimit": 220,
         "overSoftLimit": false,
         "warning": null,
@@ -2546,7 +2559,7 @@
       {
         "artifact": "README.md",
         "metric": "codeBlocks",
-        "value": 69,
+        "value": 68,
         "softLimit": 100,
         "overSoftLimit": false,
         "warning": null,
@@ -2555,16 +2568,16 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 511570,
+        "value": 514363,
         "softLimit": 512000,
-        "overSoftLimit": false,
-        "warning": null,
+        "overSoftLimit": true,
+        "warning": "projects.json bytes is 514363, above the 512000 soft limit.",
         "note": "Public portfolio feed size budget."
       },
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99236,
+        "value": 99658,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2573,7 +2586,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 85508,
+        "value": 84934,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2611,9 +2624,9 @@
   "evidenceFreshness": {
     "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-02T00:55:33.9853127-04:00",
-    "latestReportAffectingCommitSha": "85128bd8b1f217e7f634685c44554da79bc3429b",
-    "latestReportAffectingCommitDate": "2026-07-02T00:47:54.0000000-04:00",
+    "committedReportGeneratedAt": "2026-07-05T21:58:25.0975384-04:00",
+    "latestReportAffectingCommitSha": "530c443f223a6a5b544d209b8240535cb01c60dc",
+    "latestReportAffectingCommitDate": "2026-07-02T01:03:42.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,
@@ -2999,7 +3012,7 @@
     "currentlyBuildingActionColumn": true,
     "categoryAnchorCount": 10,
     "missingCategoryAnchors": [],
-    "primaryActionCoverage": 174,
+    "primaryActionCoverage": 175,
     "missingPrimaryActions": [],
     "unlabeledDownloadButtons": 0
   }

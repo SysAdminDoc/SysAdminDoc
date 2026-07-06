@@ -6,20 +6,20 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "85128bd8b1f217e7f634685c44554da79bc3429b",
-    "catalogSha256": "d51f1ff3d074c16f09056e8fa0e248ba24c43420d16f163521b2e1e67429680e",
-    "generatorSha256": "4491ce837d9d3e994a2bc9ab293b3cc43b9441ec60cdc61eafe3762135480948",
+    "sourceCommit": "530c443f223a6a5b544d209b8240535cb01c60dc",
+    "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
+    "generatorSha256": "62fb9959d92a6d8216cb8d992828cf58b9c4bc3dd173b8879805b1c74b092afb",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-02T01:00:01.8602401-04:00",
+    "metadataSnapshotAt": "2026-07-05T22:00:52.3996053-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
-      "returnedCount": 205,
+      "returnedCount": 206,
       "truncated": false
     }
   },
-  "publicRepoCount": 205,
-  "projectCount": 185,
+  "publicRepoCount": 206,
+  "projectCount": 186,
   "suppressedCount": 23,
   "projects": [
     {
@@ -109,7 +109,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T21:34:35.0000000Z",
+      "pushedAt": "2026-07-06T00:58:55.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -167,7 +167,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 16,
+      "stars": 18,
       "latestReleaseTag": "v3.74.108",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ClearCut/releases/tag/v3.74.108",
       "releaseAssetKinds": [
@@ -280,7 +280,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:18:21.0000000Z",
+      "pushedAt": "2026-07-05T19:20:28.0000000Z",
       "topics": [
         "ad-blocker",
         "android",
@@ -366,7 +366,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:20:00.0000000Z",
+      "pushedAt": "2026-07-05T21:23:14.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -460,7 +460,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T13:56:47.0000000Z",
+      "pushedAt": "2026-07-05T20:27:23.0000000Z",
       "topics": [
         "android",
         "image-tools",
@@ -545,7 +545,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:11:26.0000000Z",
+      "pushedAt": "2026-07-06T01:07:28.0000000Z",
       "topics": [
         "android",
         "dark-theme",
@@ -602,17 +602,17 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 5,
-      "latestReleaseTag": "v1.15.14",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlarmClockXtreme/releases/tag/v1.15.14",
+      "stars": 6,
+      "latestReleaseTag": "v1.15.27",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/AlarmClockXtreme/releases/tag/v1.15.27",
       "releaseAssetKinds": [
         "apk",
         "other"
       ],
       "releaseAssetNames": [
-        "AlarmClockXtreme-v1.15.14-fdroid-release.apk",
-        "AlarmClockXtreme-v1.15.14-play-release.apk",
-        "AlarmClockXtreme-v1.15.14-wear-release.apk",
+        "AlarmClockXtreme-v1.15.27-fdroid-release.apk",
+        "AlarmClockXtreme-v1.15.27-play-release.apk",
+        "AlarmClockXtreme-v1.15.27-wear-release.apk",
         "APK-CERT-FINGERPRINTS.txt",
         "SHA256SUMS.txt"
       ],
@@ -638,7 +638,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:18:03.0000000Z",
+      "pushedAt": "2026-07-06T01:12:01.0000000Z",
       "topics": [
         "alarm-clock",
         "amoled",
@@ -710,7 +710,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Java",
-      "stars": 30,
+      "stars": 31,
       "latestReleaseTag": "v0.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/AppManagerNG/releases/tag/v0.6.1",
       "releaseAssetKinds": [
@@ -748,7 +748,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:19:50.0000000Z",
+      "pushedAt": "2026-07-02T06:24:19.0000000Z",
       "topics": [
         "active-development",
         "android",
@@ -804,7 +804,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 2,
+      "stars": 3,
       "latestReleaseTag": "v1.7.11",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/CallShield/releases/tag/v1.7.11",
       "releaseAssetKinds": [
@@ -837,7 +837,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:17:50.0000000Z",
+      "pushedAt": "2026-07-03T21:53:13.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1069,14 +1069,15 @@
       "installKind": null,
       "language": "Kotlin",
       "stars": 1,
-      "latestReleaseTag": "v0.2.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/one-ui-home-clone/releases/tag/v0.2.0",
+      "latestReleaseTag": "v0.2.3",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/one-ui-home-clone/releases/tag/v0.2.3",
       "releaseAssetKinds": [
-        "apk"
+        "apk",
+        "other"
       ],
       "releaseAssetNames": [
-        "one-ui-home-clone-v0.2.0-debug.apk",
-        "one-ui-home-clone-v0.2.0-release.apk"
+        "one-ui-home-clone-v0.2.3-release.apk",
+        "one-ui-home-clone-v0.2.3-release.json"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -1088,7 +1089,7 @@
         "apkSignatureVerified": null,
         "sbomAssets": [],
         "attestationAvailable": false,
-        "debugArtifactPresent": true,
+        "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
           "apk"
@@ -1098,7 +1099,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:38:31.0000000Z",
+      "pushedAt": "2026-07-05T23:32:19.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1401,7 +1402,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 10,
+      "stars": 11,
       "latestReleaseTag": "v1.9.53",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.53",
       "releaseAssetKinds": [
@@ -1434,7 +1435,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T21:24:35.0000000Z",
+      "pushedAt": "2026-07-05T20:19:36.0000000Z",
       "topics": [
         "android",
         "florisboard",
@@ -1494,7 +1495,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 18,
+      "stars": 19,
       "latestReleaseTag": "v0.2.67",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.67",
       "releaseAssetKinds": [
@@ -1577,7 +1578,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 4,
+      "stars": 5,
       "latestReleaseTag": "v0.6.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenLumen/releases/tag/v0.6.1",
       "releaseAssetKinds": [
@@ -1606,7 +1607,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-01T20:15:35.0000000Z",
+      "pushedAt": "2026-07-05T19:31:34.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1660,7 +1661,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Rust",
-      "stars": 2,
+      "stars": 3,
       "latestReleaseTag": "v0.1.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Droidsmith/releases/tag/v0.1.0",
       "releaseAssetKinds": [
@@ -2089,26 +2090,19 @@
       "installKind": null,
       "language": "C#",
       "stars": 1,
-      "latestReleaseTag": "v0.2.11",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Images/releases/tag/v0.2.11",
+      "latestReleaseTag": "v0.2.15",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Images/releases/tag/v0.2.15",
       "releaseAssetKinds": [
-        "exe",
-        "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "ghostscript-10.07.0.tar.xz",
-        "Images-v0.2.11-checksums.txt",
-        "Images-v0.2.11-setup-win-x64.exe",
-        "Images-v0.2.11-win-x64.zip"
+        "Images-v0.2.15-win-x64.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
-        "checksumAssets": [
-          "Images-v0.2.11-checksums.txt"
-        ],
-        "checksumCoverage": "full",
-        "hasChecksumForEveryExecutable": true,
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
         "signatureAssets": [],
         "hasAuthenticodeSignature": null,
         "apkSignatureVerified": null,
@@ -2117,15 +2111,14 @@
         "debugArtifactPresent": false,
         "sourceOnlyRelease": false,
         "executableAssetKinds": [
-          "exe",
           "zip"
         ],
-        "trustLevel": "checksum-metadata",
-        "platformDigestCount": 4,
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T04:38:38.0000000Z",
+      "pushedAt": "2026-07-03T16:19:28.0000000Z",
       "topics": [
         "csharp",
         "desktop-app",
@@ -2305,6 +2298,94 @@
         "disk-scanner",
         "dotnet",
         "gui",
+        "windows"
+      ],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
+      "repo": "HostsGuard",
+      "title": "HostsGuard",
+      "category": "desktop",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "Real-time network privacy manager — DNS monitoring, hosts file management, firewall rules",
+      "forkOf": null,
+      "forkOfUrl": null,
+      "upstreamLicense": null,
+      "licenseKey": "mit",
+      "licenseName": "MIT License",
+      "licenseSpdxId": "MIT",
+      "repoUrl": "https://github.com/SysAdminDoc/HostsGuard",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/latest",
+      "downloadKind": "exe",
+      "primaryAction": {
+        "kind": "release",
+        "label": "EXE",
+        "url": "https://github.com/SysAdminDoc/HostsGuard/releases/latest"
+      },
+      "searchMetadata": {
+        "type": "desktop-app",
+        "labels": [
+          "Desktop",
+          "Desktop app"
+        ],
+        "filters": [
+          "category:desktop",
+          "type:desktop-app",
+          "language:c-sharp"
+        ]
+      },
+      "hasDownload": true,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "C#",
+      "stars": 0,
+      "latestReleaseTag": "v0.12.1",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v0.12.1",
+      "releaseAssetKinds": [
+        "exe"
+      ],
+      "releaseAssetNames": [
+        "HostsGuard-v0.12.1-dotnet-Setup.exe"
+      ],
+      "releaseAssetInspected": true,
+      "releaseTrust": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "pushedAt": "2026-07-05T19:26:02.0000000Z",
+      "topics": [
+        "dark-theme",
+        "gui",
+        "hosts-file",
+        "network-security",
+        "pyqt6",
+        "python",
         "windows"
       ],
       "featured": false,
@@ -3910,14 +3991,14 @@
       "entrypoint": null,
       "installKind": null,
       "language": "JavaScript",
-      "stars": 2,
-      "latestReleaseTag": "v3.11.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/ScriptVault/releases/tag/v3.11.0",
+      "stars": 3,
+      "latestReleaseTag": "v3.17.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/ScriptVault/releases/tag/v3.17.0",
       "releaseAssetKinds": [
         "zip"
       ],
       "releaseAssetNames": [
-        "ScriptVault-v3.11.0.zip"
+        "ScriptVault-v3.17.0.zip"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -3939,7 +4020,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T04:33:46.0000000Z",
+      "pushedAt": "2026-07-03T00:15:50.0000000Z",
       "topics": [
         "chrome-extension",
         "javascript",
@@ -5219,6 +5300,94 @@
       "notes": null
     },
     {
+      "repo": "RES-Slim",
+      "title": "RES-Slim",
+      "category": "extensions",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "suppressed": false,
+      "suppressionReason": null,
+      "description": "Stripped-down Reddit Enhancement Suite fork for old.reddit.com comment tweaks and media expandos",
+      "forkOf": "honestbleeps/Reddit-Enhancement-Suite",
+      "forkOfUrl": "https://github.com/honestbleeps/Reddit-Enhancement-Suite",
+      "upstreamLicense": "GPL-3.0",
+      "licenseKey": "gpl-3.0",
+      "licenseName": "GNU General Public License v3.0",
+      "licenseSpdxId": "GPL-3.0",
+      "repoUrl": "https://github.com/SysAdminDoc/RES-Slim",
+      "liveUrl": null,
+      "installUrl": null,
+      "downloadUrl": null,
+      "downloadKind": "repo",
+      "primaryAction": {
+        "kind": "repo",
+        "label": "Repo",
+        "url": "https://github.com/SysAdminDoc/RES-Slim"
+      },
+      "searchMetadata": {
+        "type": "browser-extension",
+        "labels": [
+          "Extensions",
+          "Browser extension"
+        ],
+        "filters": [
+          "category:extensions",
+          "type:browser-extension",
+          "language:javascript"
+        ]
+      },
+      "hasDownload": false,
+      "hasLiveDemo": false,
+      "hasDirectInstall": false,
+      "branch": "master",
+      "entrypoint": null,
+      "installKind": null,
+      "language": "JavaScript",
+      "stars": 0,
+      "latestReleaseTag": "v0.12.7",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/RES-Slim/releases/tag/v0.12.7",
+      "releaseAssetKinds": [
+        "crx",
+        "other",
+        "zip"
+      ],
+      "releaseAssetNames": [
+        "res-slim-chrome-v0.12.7.crx",
+        "res-slim-chrome-v0.12.7.zip",
+        "res-slim-firefox-v0.12.7.zip",
+        "SHA256SUMS-v0.12.7.txt"
+      ],
+      "releaseAssetInspected": true,
+      "releaseTrust": {
+        "checksumAssets": [
+          "SHA256SUMS-v0.12.7.txt"
+        ],
+        "checksumCoverage": "partial",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "crx",
+          "zip"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 4,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "pushedAt": "2026-06-28T03:00:07.0000000Z",
+      "topics": [],
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "notes": null
+    },
+    {
       "repo": "DarkModer",
       "title": "DarkModer",
       "category": "extensions",
@@ -6432,7 +6601,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 27,
+      "stars": 29,
       "latestReleaseTag": "v3.17.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.17.1",
       "releaseAssetKinds": [
@@ -8496,14 +8665,14 @@
       "installKind": "powershell",
       "language": "PowerShell",
       "stars": 1,
-      "latestReleaseTag": "v2.4.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v2.4.0",
+      "latestReleaseTag": "v2.5.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/tag/v2.5.0",
       "releaseAssetKinds": [
         "other",
         "zip"
       ],
       "releaseAssetNames": [
-        "Disable-AdobeTelemetry-v2.4.0.zip",
+        "Disable-AdobeTelemetry-v2.5.0.zip",
         "SHA256SUMS.txt"
       ],
       "releaseAssetInspected": true,
@@ -8528,7 +8697,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T04:56:50.0000000Z",
+      "pushedAt": "2026-07-02T05:05:08.0000000Z",
       "topics": [
         "adobe",
         "creative-cloud",
@@ -8685,7 +8854,7 @@
       "entrypoint": "StartMenuOrganizerPro.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 1,
+      "stars": 2,
       "latestReleaseTag": "v0.14.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/tag/v0.14.0",
       "releaseAssetKinds": [
@@ -8861,7 +9030,7 @@
       "entrypoint": "MonitorControlPro.ps1",
       "installKind": "powershell",
       "language": "PowerShell",
-      "stars": 1,
+      "stars": 2,
       "latestReleaseTag": "v3.34.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/MonitorControl/releases/tag/v3.34.0",
       "releaseAssetKinds": [
@@ -9687,7 +9856,7 @@
       "entrypoint": "nomad.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 10,
+      "stars": 12,
       "latestReleaseTag": "v7.32.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/project-nomad-desktop/releases/tag/v7.32.0",
       "releaseAssetKinds": [
@@ -9723,7 +9892,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-02T02:57:54.0000000Z",
+      "pushedAt": "2026-07-02T05:02:00.0000000Z",
       "topics": [
         "ai",
         "command-center",
@@ -10173,94 +10342,6 @@
       "notes": null
     },
     {
-      "repo": "HostsGuard",
-      "title": "HostsGuard",
-      "category": "python",
-      "includeInReadme": true,
-      "includeInPortfolio": true,
-      "suppressed": false,
-      "suppressionReason": null,
-      "description": "Real-time network privacy manager — DNS monitoring, hosts file management, firewall rules",
-      "forkOf": null,
-      "forkOfUrl": null,
-      "upstreamLicense": null,
-      "licenseKey": "mit",
-      "licenseName": "MIT License",
-      "licenseSpdxId": "MIT",
-      "repoUrl": "https://github.com/SysAdminDoc/HostsGuard",
-      "liveUrl": null,
-      "installUrl": null,
-      "downloadUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/latest",
-      "downloadKind": null,
-      "primaryAction": {
-        "kind": "release",
-        "label": "Download",
-        "url": "https://github.com/SysAdminDoc/HostsGuard/releases/latest"
-      },
-      "searchMetadata": {
-        "type": "python-tool",
-        "labels": [
-          "Python",
-          "Python tool"
-        ],
-        "filters": [
-          "category:python",
-          "type:python-tool",
-          "language:python"
-        ]
-      },
-      "hasDownload": true,
-      "hasLiveDemo": false,
-      "hasDirectInstall": false,
-      "branch": "main",
-      "entrypoint": "HostsGuard.py",
-      "installKind": "python",
-      "language": "Python",
-      "stars": 0,
-      "latestReleaseTag": "v3.14.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v3.14.0",
-      "releaseAssetKinds": [
-        "zip"
-      ],
-      "releaseAssetNames": [
-        "HostsGuard-v3.14.0-windows-x64.zip"
-      ],
-      "releaseAssetInspected": true,
-      "releaseTrust": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
-        "signatureAssets": [],
-        "hasAuthenticodeSignature": null,
-        "apkSignatureVerified": null,
-        "sbomAssets": [],
-        "attestationAvailable": false,
-        "debugArtifactPresent": false,
-        "sourceOnlyRelease": false,
-        "executableAssetKinds": [
-          "zip"
-        ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 1,
-        "releaseImmutable": false,
-        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
-      },
-      "pushedAt": "2026-07-02T03:11:34.0000000Z",
-      "topics": [
-        "dark-theme",
-        "gui",
-        "hosts-file",
-        "network-security",
-        "pyqt6",
-        "python",
-        "windows"
-      ],
-      "featured": false,
-      "featuredRank": null,
-      "currentlyBuilding": false,
-      "notes": null
-    },
-    {
       "repo": "PyShop",
       "title": "PyShop",
       "category": "python",
@@ -10385,8 +10466,8 @@
       "installKind": "powershell",
       "language": "Python",
       "stars": 0,
-      "latestReleaseTag": "v2.6.5",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftShot/releases/tag/v2.6.5",
+      "latestReleaseTag": "v2.8.0",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftShot/releases/tag/v2.8.0",
       "releaseAssetKinds": [
         "exe"
       ],
@@ -10414,7 +10495,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:39:19.0000000Z",
+      "pushedAt": "2026-07-03T16:14:01.0000000Z",
       "topics": [
         "dark-theme",
         "greenshot",
@@ -11199,7 +11280,7 @@
       "entrypoint": "FaceSlim.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 2,
+      "stars": 1,
       "latestReleaseTag": "v1.26.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/FaceSlim/releases/tag/v1.26.0",
       "releaseAssetKinds": [
@@ -11693,7 +11774,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 24,
+      "stars": 25,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [
@@ -12382,7 +12463,7 @@
       "entrypoint": "main.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 4,
+      "stars": 5,
       "latestReleaseTag": "v6.8.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/tag/v6.8.0",
       "releaseAssetKinds": [
@@ -13479,7 +13560,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "HTML",
-      "stars": 1,
+      "stars": 3,
       "latestReleaseTag": "v0.16.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/Openshop/releases/tag/v0.16.0",
       "releaseAssetKinds": [
@@ -15504,12 +15585,14 @@
       "installKind": null,
       "language": "JavaScript",
       "stars": 0,
-      "latestReleaseTag": "v1.0.0",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/HurricaneMap/releases/tag/v1.0.0",
+      "latestReleaseTag": "v1.4.6",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/HurricaneMap/releases/tag/v1.4.6",
       "releaseAssetKinds": [
-        "source-archive"
+        "zip"
       ],
-      "releaseAssetNames": [],
+      "releaseAssetNames": [
+        "HurricaneMap-v1.4.6.zip"
+      ],
       "releaseAssetInspected": true,
       "releaseTrust": {
         "checksumAssets": [],
@@ -15521,14 +15604,16 @@
         "sbomAssets": [],
         "attestationAvailable": false,
         "debugArtifactPresent": false,
-        "sourceOnlyRelease": true,
-        "executableAssetKinds": [],
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
         "trustLevel": "metadata-only",
-        "platformDigestCount": 0,
+        "platformDigestCount": 1,
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-06-28T03:46:17.0000000Z",
+      "pushedAt": "2026-07-03T23:37:19.0000000Z",
       "topics": [
         "github-pages",
         "javascript",
@@ -15607,7 +15692,7 @@
         "releaseImmutable": null,
         "notesPublic": null
       },
-      "pushedAt": "2026-06-28T03:36:56.0000000Z",
+      "pushedAt": "2026-07-04T08:13:28.0000000Z",
       "topics": [
         "github-pages",
         "javascript",

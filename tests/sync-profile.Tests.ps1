@@ -1070,6 +1070,47 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | i
         ($headerWarnings | Where-Object { $_.host -eq 'skillicons.dev' }).count | Should -Be 1
         ($headerWarnings | Where-Object { $_.host -eq 'img.shields.io' }).count | Should -Be 1
     }
+
+    It 'extracts rendered README install, download, and userscript action targets' {
+        $readme = @'
+```powershell
+$d="$env:TEMP\WinTool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Tools\Win Tool.ps1"
+```
+
+[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/MobileTool/releases/latest)
+| [**ScriptTool**](https://github.com/SysAdminDoc/ScriptTool) | Browser helper | [Install](https://raw.githubusercontent.com/SysAdminDoc/ScriptTool/main/ScriptTool.user.js) |
+'@
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
+
+        $targets | Should -HaveCount 3
+        ($targets | ForEach-Object { $_.type } | Sort-Object) -join ',' |
+            Should -Be 'readme-download,readme-install-entrypoint,readme-userscript-install'
+        ($targets | Where-Object { $_.type -eq 'readme-install-entrypoint' }).url |
+            Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/Tools/Win%20Tool.ps1'
+        ($targets | Where-Object { $_.type -eq 'readme-download' }).repo | Should -Be 'MobileTool'
+        ($targets | Where-Object { $_.type -eq 'readme-userscript-install' }).repo | Should -Be 'ScriptTool'
+        ($targets | Where-Object { $_.group -eq 'readme-actions' }) | Should -HaveCount 3
+    }
+
+    It 'keeps README action target failures visible through link validation rows' {
+        $readme = @'
+```powershell
+$d="$env:TEMP\WinTool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WinTool.ps1"
+```
+'@
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
+        $probe = {
+            param($target)
+
+            return [ordered]@{ ok = $false; status = 404; error = 'missing'; fatal = $true }
+        }
+
+        $result = Test-LinkTargets -Included @() -RepoLookup @{} -ExtraTargets $targets -ProbeScript $probe -ThrottleLimit 2
+
+        @($result.failures) | Should -HaveCount 1
+        $result.failures[0].type | Should -Be 'readme-install-entrypoint'
+        $result.failures[0].url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/WinTool.ps1'
+    }
 }
 
 Describe 'Report schema depth helpers' {
@@ -2545,6 +2586,10 @@ Describe 'Feed JSON Schema contracts' {
         $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelReadyCount'
         $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelKeepBranchCount'
         $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelBlockedCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeActionTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeInstallSnippetTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeDownloadLinkTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeUserscriptInstallTargetCount'
         $schema.'$defs'.releaseAssetDrift.required | Should -Contain 'executableDownloadTrustShortlist'
     }
 
@@ -3267,6 +3312,10 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match 'Userscript installs checked'
             $summary | Should -Match 'Userscript trust warnings'
             $summary | Should -Match 'Link targets checked'
+            $summary | Should -Match 'README action link targets'
+            $summary | Should -Match 'README install snippet targets'
+            $summary | Should -Match 'README download link targets'
+            $summary | Should -Match 'README userscript install targets'
             $summary | Should -Match 'REST fallback release status'
             $summary | Should -Match 'REST fallback release attempts'
             $summary | Should -Match 'REST fallback no-release 404s'

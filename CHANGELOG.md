@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-07-06
+
+- Added a rendered-README action link audit to profile sync validation: generated clone/install snippets, `/releases/latest` download buttons, and raw userscript Install links are parsed from the README itself, probed through the shared HEAD/GET validator, and counted in `linkValidationSummary` plus profile-sync summaries.
+- Fixed live catalog drift found by the audit: `HostsGuard` now renders as a native desktop EXE-release row instead of a stale Python `HostsGuard.py` clone snippet, and `RES-Slim` is cataloged as a public extensions/fork row.
+- Bumped the internal profile evidence version to `v4.9.144`.
+
 ## 2026-07-02
 
 - Made the `-Check` profile-asset sync gate deterministic: contribution heatmap SVGs are regenerated from the live GitHub contribution calendar (which changes continuously for an active account), so their committed-vs-fresh drift is now reported per-asset but excluded from the fatal gate. Deterministic catalog-driven assets (header/stats/languages/activity/footer) still fail the gate, and a missing contribution file still fails.
