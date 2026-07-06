@@ -17,6 +17,11 @@ function Write-Ok    ([string]$m) { Write-Host "  + $m" -ForegroundColor Green }
 function Write-Skip  ([string]$m) { Write-Host "  = $m" -ForegroundColor DarkGray }
 function Write-Warn2 ([string]$m) { Write-Host "  ! $m" -ForegroundColor Yellow }
 
+function Stop-SetupWithFailure([string]$Message) {
+    Write-Warn2 $Message
+    throw $Message
+}
+
 $script:TranscriptStarted = $false
 $script:TranscriptPath = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-setup-{0}-{1}.log" -f (Get-Date -Format 'yyyyMMdd-HHmmss'), $PID)
 
@@ -143,7 +148,7 @@ try {
         if ($state.Python -and $state.Git) {
             Write-Ok "Ready. Python and Git are installed -- the README snippets will work."
         } else {
-            Write-Warn2 "One or more prerequisites are missing. Run without -CheckOnly to install with winget."
+            Stop-SetupWithFailure "One or more prerequisites are missing. Run without -CheckOnly to install with winget."
         }
         return
     }
@@ -151,7 +156,7 @@ try {
     if (-not (Test-Cmd 'winget')) {
         Write-Warn2 "winget is not available. Install 'App Installer' from the Microsoft Store first:"
         Write-Host  "    https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
-        return
+        Stop-SetupWithFailure "Setup cannot continue until winget is available."
     }
 
     Install-Pkg 'Python.Python.3.12' 'Python 3.12' 'python'
@@ -166,7 +171,7 @@ try {
     if ($state.Python -and $state.Git) {
         Write-Ok "Setup complete. You can now paste any install one-liner from the README."
     } else {
-        Write-Warn2 "Setup incomplete. Close this window, open a new PowerShell, and try again."
+        Stop-SetupWithFailure "Setup incomplete. Close this window, open a new PowerShell, and try again."
     }
 } finally {
     Stop-SetupTranscript

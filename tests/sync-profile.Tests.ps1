@@ -2118,6 +2118,14 @@ Describe 'setup.ps1 hardening contract' {
         $script:setupSource | Should -Match 'Run without -CheckOnly to install with winget'
     }
 
+    It 'uses terminating failures when prerequisites remain missing' {
+        $script:setupSource | Should -Match 'function Stop-SetupWithFailure'
+        $script:setupSource | Should -Match 'throw \$Message'
+        $script:setupSource | Should -Match 'Stop-SetupWithFailure "One or more prerequisites are missing\.'
+        $script:setupSource | Should -Match 'Stop-SetupWithFailure "Setup cannot continue until winget is available\.'
+        $script:setupSource | Should -Match 'Stop-SetupWithFailure "Setup incomplete\.'
+    }
+
     It 'writes a best-effort setup transcript under temp' {
         $script:setupSource | Should -Match 'Start-Transcript'
         $script:setupSource | Should -Match 'SysAdminDoc-setup-\{0\}-\{1\}\.log'

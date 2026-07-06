@@ -8,7 +8,8 @@
 - Made `review-local-dependencies.ps1` exit nonzero when its structured result is `review-needed`, so local advisory or pin drift checks cannot be missed by release scripts.
 - Fixed the dependency-review skip path so local override or pin drift still reports `review-needed` and exits nonzero when the live npm audit is intentionally skipped.
 - Bounded profile link validation to response headers so GET fallbacks prove reachability without downloading release assets or raw file bodies.
-- Bumped the internal profile evidence version to `v4.9.146`.
+- Made `setup.ps1` fail loudly when `winget`, Python, or Git remain unavailable instead of returning success after warning-only incomplete setup paths.
+- Bumped the internal profile evidence version to `v4.9.147`.
 - Added a rendered-README action link audit to profile sync validation: generated clone/install snippets, `/releases/latest` download buttons, and raw userscript Install links are parsed from the README itself, probed through the shared HEAD/GET validator, and counted in `linkValidationSummary` plus profile-sync summaries.
 - Fixed live catalog drift found by the audit: `HostsGuard` now renders as a native desktop EXE-release row instead of a stale Python `HostsGuard.py` clone snippet, and `RES-Slim` is cataloged as a public extensions/fork row.
 - Bumped the internal profile evidence version to `v4.9.144`.
