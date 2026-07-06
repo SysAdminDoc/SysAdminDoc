@@ -2999,10 +2999,10 @@ Describe 'Markdownlint contract' {
     It 'pins markdownlint through npm and keeps local installs ignored' {
         $script:MarkdownlintPackage.scripts['lint:markdown'] | Should -Be 'markdownlint-cli2'
         $script:MarkdownlintPackage.scripts['validate:local'] | Should -Be 'pwsh -NoProfile -File ./scripts/validate-local.ps1'
-        $script:MarkdownlintPackage.devDependencies['markdownlint-cli2'] | Should -Be '0.22.1'
+        $script:MarkdownlintPackage.devDependencies['markdownlint-cli2'] | Should -Be '0.23.0'
         $script:MarkdownlintPackageLock.name | Should -Be 'sysadmindoc-profile'
-        $script:MarkdownlintPackageLock.packages[''].devDependencies['markdownlint-cli2'] | Should -Be '0.22.1'
-        $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].version | Should -Be '0.22.1'
+        $script:MarkdownlintPackageLock.packages[''].devDependencies['markdownlint-cli2'] | Should -Be '0.23.0'
+        $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].version | Should -Be '0.23.0'
         $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].integrity | Should -Match '^sha512-'
         $script:MarkdownlintGitIgnore | Should -Match '(?m)^node_modules/\s*$'
         $script:MarkdownlintCodeowners | Should -Match '(?m)^/[.]markdownlint-cli2[.]yaml\s+@SysAdminDoc\s*$'
@@ -4909,6 +4909,7 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
         $script:DependencyReviewReadme | Should -Match 'npm run review:dependencies'
         $script:DependencyReviewReadme | Should -Match 'manual dependency and advisory review'
         $script:DependencyReviewReadme | Should -Match 'package override drift'
+        $script:DependencyReviewReadme | Should -Match 'latest-known npm/Python audit-tool freshness'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') | Should -BeFalse
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
@@ -4947,6 +4948,9 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             $report.status | Should -Be 'ok'
             $report.policy | Should -Be 'manual-local-only'
             $report.commands.full | Should -Match 'review-local-dependencies[.]ps1'
+            $report.pinFreshness.status | Should -Be 'fresh'
+            $report.pinFreshness.latestCheckedAt | Should -Be '2026-07-06'
+            $report.pinFreshness.warningCount | Should -Be 0
             $report.npm.audit.status | Should -Be 'clean'
             $report.npm.audit.severityCounts.total | Should -Be 0
             $report.npm.overrides.count | Should -BeGreaterThan 0
@@ -4955,11 +4959,65 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             ($report.npm.overrides.rows | Where-Object { $_.package -eq 'js-yaml' }).status | Should -Be 'aligned'
             $report.npm.devDependencyPins.package | Should -Contain 'markdownlint-cli2'
             ($report.npm.devDependencyPins | Where-Object { $_.package -eq 'markdownlint-cli2' }).status | Should -Be 'aligned'
+            $markdownlintFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'markdownlint-cli2' }
+            $markdownlintFreshness.currentVersion | Should -Be '0.23.0'
+            $markdownlintFreshness.latestKnownVersion | Should -Be '0.23.0'
+            $markdownlintFreshness.latestStatus | Should -Be 'current'
+            $jsYamlFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'js-yaml' }
+            $jsYamlFreshness.latestKnownVersion | Should -Be '5.2.1'
+            $markdownItFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'markdown-it' }
+            $markdownItFreshness.latestKnownVersion | Should -Be '14.3.0'
             $report.powershell.requiredModules.name | Should -Contain 'Pester'
             $report.powershell.requiredModules.name | Should -Contain 'PSScriptAnalyzer'
             ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.8.0'
             $report.python.auditTools.name | Should -Contain 'zizmor'
             ($report.python.auditTools | Where-Object { $_.name -eq 'zizmor' }).hashPinned | Should -BeTrue
+            $zizmorFreshness = $report.pinFreshness.python.rows | Where-Object { $_.name -eq 'zizmor' }
+            $zizmorFreshness.currentVersion | Should -Be '1.26.1'
+            $zizmorFreshness.latestKnownVersion | Should -Be '1.26.1'
+            $zizmorFreshness.latestStatus | Should -Be 'current'
+        } finally {
+            if (Test-Path -LiteralPath $auditPath) {
+                Remove-Item -LiteralPath $auditPath -Force
+            }
+        }
+    }
+
+    It 'warns but does not fail when latest-known pin evidence is stale' {
+        $auditPath = Join-Path ([System.IO.Path]::GetTempPath()) ('SysAdminDoc-npm-audit-' + [guid]::NewGuid().ToString('N') + '.json')
+        try {
+            $auditJson = @'
+{
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 0,
+      "dev": 1,
+      "optional": 0,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 1
+    }
+  }
+}
+'@
+            [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
+
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -PinLatestCheckedAt '2026-05-01'
+            $LASTEXITCODE | Should -Be 0
+            $report = ($output -join "`n") | ConvertFrom-Json
+
+            $report.status | Should -Be 'ok'
+            $report.pinFreshness.status | Should -Be 'stale'
+            $report.pinFreshness.warningCount | Should -BeGreaterThan 0
+            $report.pinFreshness.warnings[0] | Should -Match 'refresh the manual pin review'
         } finally {
             if (Test-Path -LiteralPath $auditPath) {
                 Remove-Item -LiteralPath $auditPath -Force

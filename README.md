@@ -73,7 +73,7 @@ npm run review:dependencies
 | Check | Behavior |
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
-| Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock pins, and reports PowerShell plus Python audit-tool pins. |
+| Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock/hash pins, and reports latest-known npm/Python audit-tool freshness without failing solely on stale evidence. |
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |

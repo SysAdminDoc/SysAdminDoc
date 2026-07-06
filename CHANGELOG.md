@@ -2,6 +2,8 @@
 
 ## 2026-07-06
 
+- Refreshed local audit pins to `markdownlint-cli2` 0.23.0, `markdown-it` 14.3.0, `js-yaml` 5.2.1, and hash-pinned `zizmor` 1.26.1; dependency review now reports latest-known/current pin freshness and stale-review warnings without failing solely on stale evidence.
+- Bumped the internal profile evidence version to `v4.9.150`.
 - Added PowerShell runtime security posture reporting: setup now bootstraps PowerShell 7 while keeping Windows PowerShell 5.1 limited to `setup.ps1`, validation reports the active `pwsh` version/channel, and the profile sync report records current-LTS/preferred/runtime warning evidence.
 - Bumped the internal profile evidence version to `v4.9.149`.
 - Added GitHub metadata budget telemetry to profile sync: `-GraphQlPageSize` can exercise smaller repo-list pages, and `validationPerformance.metadataFetch` plus the public summary now record page size, request/retry counts, truncation, resource-limit fallback evidence, and REST release-fetch budgets.

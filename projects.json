@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "beaa476f2267a1e0d15f8d32786e2b6229358e13",
+    "sourceCommit": "a75d2b030340e4ccd47e2e00d68f2cc7cd0fb778",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "57171f6bd4dc880e0df56bba2d50a04ffe94787aaed73b32845fcbe905c04888",
+    "generatorSha256": "b910f0e73468872d456c1729c0436733e26d2af2e5392472b63c44a5094abc74",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-06T00:23:55.4446248-04:00",
+    "metadataSnapshotAt": "2026-07-06T00:32:43.1264104-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -6198,7 +6198,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-06T04:19:29.0000000Z",
+      "pushedAt": "2026-07-06T04:24:23.0000000Z",
       "topics": [
         "github-pages",
         "html",

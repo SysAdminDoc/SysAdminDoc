@@ -3,11 +3,22 @@
 param(
     [string]$RepoRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$NpmAuditJsonPath,
+    [string]$PinLatestCheckedAt = "2026-07-06",
+    [ValidateRange(1, 365)]
+    [int]$PinFreshnessStaleAfterDays = 30,
     [switch]$SkipNpmAudit
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$LatestKnownNpmVersions = [ordered]@{
+    "markdownlint-cli2" = "0.23.0"
+    "markdown-it" = "14.3.0"
+    "js-yaml" = "5.2.1"
+}
+$LatestKnownPythonVersions = [ordered]@{
+    "zizmor" = "1.26.1"
+}
 
 function Get-JsonHashtable {
     [CmdletBinding()]
@@ -289,6 +300,122 @@ function Get-PythonAuditToolPins {
     )
 }
 
+function New-PinFreshnessRow {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Name,
+
+        [Parameter(Mandatory)]
+        [string]$Kind,
+
+        [Parameter(Mandatory)]
+        [string]$CurrentVersion,
+
+        [System.Collections.IDictionary]$LatestKnownVersions = @{},
+
+        [Parameter(Mandatory)]
+        [string]$LatestCheckedAt,
+
+        [Parameter(Mandatory)]
+        [datetimeoffset]$Now,
+
+        [Parameter(Mandatory)]
+        [int]$StaleAfterDays
+    )
+
+    $latestKnownVersion = if ($LatestKnownVersions.Contains($Name)) { [string]$LatestKnownVersions[$Name] } else { $null }
+    $checkedAt = [datetimeoffset]::Parse($LatestCheckedAt)
+    $ageDays = [math]::Max(0, [math]::Round(($Now.ToUniversalTime() - $checkedAt.ToUniversalTime()).TotalDays, 2))
+    $freshnessStatus = if ($ageDays -gt $StaleAfterDays) { "stale" } else { "fresh" }
+    $latestStatus = if ([string]::IsNullOrWhiteSpace($latestKnownVersion)) {
+        "unknown"
+    } elseif ($CurrentVersion -eq $latestKnownVersion) {
+        "current"
+    } else {
+        "behind-latest-known"
+    }
+
+    [ordered]@{
+        name = $Name
+        kind = $Kind
+        currentVersion = $CurrentVersion
+        latestKnownVersion = $latestKnownVersion
+        latestStatus = $latestStatus
+        latestCheckedAt = $LatestCheckedAt
+        checkAgeDays = [double]$ageDays
+        staleAfterDays = [int]$StaleAfterDays
+        freshnessStatus = $freshnessStatus
+        warning = if ($freshnessStatus -eq "stale") { "Latest-known version evidence for $Kind '$Name' is $ageDays day(s) old; refresh the manual pin review." } else { $null }
+    }
+}
+
+function Get-DependencyPinFreshness {
+    [CmdletBinding()]
+    param(
+        [object[]]$NpmOverrideRows = @(),
+        [object[]]$NpmDevDependencyRows = @(),
+        [object[]]$PythonAuditRows = @(),
+        [Parameter(Mandatory)]
+        [string]$LatestCheckedAt,
+        [int]$StaleAfterDays = 30,
+        [datetimeoffset]$Now = [datetimeoffset]::Now
+    )
+
+    $npmRows = @(
+        foreach ($row in @($NpmOverrideRows)) {
+            New-PinFreshnessRow `
+                -Name ([string]$row.package) `
+                -Kind "npm-override" `
+                -CurrentVersion ([string]$row.lockedVersion) `
+                -LatestKnownVersions $LatestKnownNpmVersions `
+                -LatestCheckedAt $LatestCheckedAt `
+                -Now $Now `
+                -StaleAfterDays $StaleAfterDays
+        }
+        foreach ($row in @($NpmDevDependencyRows)) {
+            New-PinFreshnessRow `
+                -Name ([string]$row.package) `
+                -Kind "npm-devDependency" `
+                -CurrentVersion ([string]$row.lockedVersion) `
+                -LatestKnownVersions $LatestKnownNpmVersions `
+                -LatestCheckedAt $LatestCheckedAt `
+                -Now $Now `
+                -StaleAfterDays $StaleAfterDays
+        }
+    )
+    $pythonRows = @(
+        foreach ($row in @($PythonAuditRows)) {
+            New-PinFreshnessRow `
+                -Name ([string]$row.name) `
+                -Kind "python-audit-tool" `
+                -CurrentVersion ([string]$row.requiredVersion) `
+                -LatestKnownVersions $LatestKnownPythonVersions `
+                -LatestCheckedAt $LatestCheckedAt `
+                -Now $Now `
+                -StaleAfterDays $StaleAfterDays
+        }
+    )
+    $rows = @($npmRows + $pythonRows)
+    $warnings = @($rows | Where-Object { $_.freshnessStatus -eq "stale" } | ForEach-Object { [string]$_.warning })
+
+    [ordered]@{
+        status = if ($warnings.Count -gt 0) { "stale" } else { "fresh" }
+        latestCheckedAt = $LatestCheckedAt
+        staleAfterDays = [int]$StaleAfterDays
+        warningCount = [int]$warnings.Count
+        warnings = @($warnings)
+        npm = [ordered]@{
+            count = [int]$npmRows.Count
+            rows = $npmRows
+        }
+        python = [ordered]@{
+            count = [int]$pythonRows.Count
+            rows = $pythonRows
+        }
+    }
+}
+
 $resolvedRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
 $packageJsonPath = Join-Path $resolvedRoot "package.json"
 $packageLockPath = Join-Path $resolvedRoot "package-lock.json"
@@ -302,6 +429,12 @@ $overrideReview = Get-PackageOverrideReview -PackageJson $packageJson -PackageLo
 $npmToolPins = @(Get-NpmToolPins -PackageJson $packageJson -PackageLock $packageLock)
 $powerShellPins = @(Get-PowerShellModulePins -ValidationScriptPath $validationScriptPath)
 $pythonToolPins = @(Get-PythonAuditToolPins -RequirementsPath $requirementsPath)
+$pinFreshness = Get-DependencyPinFreshness `
+    -NpmOverrideRows @($overrideReview.rows) `
+    -NpmDevDependencyRows $npmToolPins `
+    -PythonAuditRows $pythonToolPins `
+    -LatestCheckedAt $PinLatestCheckedAt `
+    -StaleAfterDays $PinFreshnessStaleAfterDays
 $missingPins = (
     @($npmToolPins | Where-Object { $_.status -ne "aligned" }) +
     @($powerShellPins | Where-Object { $_.status -ne "pinned" }) +
@@ -326,6 +459,7 @@ $review = [ordered]@{
         full = "pwsh -NoProfile -File .\scripts\review-local-dependencies.ps1"
         npmAudit = "npm audit --json"
     }
+    pinFreshness = $pinFreshness
     npm = [ordered]@{
         audit = $npmAudit
         overrides = $overrideReview

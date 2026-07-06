@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-06T00:25:32.2588236-04:00",
+  "generatedAt": "2026-07-06T00:34:25.3583243-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "beaa476f2267a1e0d15f8d32786e2b6229358e13",
+    "sourceCommit": "a75d2b030340e4ccd47e2e00d68f2cc7cd0fb778",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "57171f6bd4dc880e0df56bba2d50a04ffe94787aaed73b32845fcbe905c04888",
+    "generatorSha256": "b910f0e73468872d456c1729c0436733e26d2af2e5392472b63c44a5094abc74",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-06T00:23:55.4446248-04:00",
+    "metadataSnapshotAt": "2026-07-06T00:32:43.1264104-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1775,7 +1775,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-06T00:23:55.4446248-04:00",
+          "queriedAt": "2026-07-06T00:32:43.1264104-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2080,13 +2080,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.149",
+    "expectedVersion": "v4.9.150",
     "expectedDate": "2026-07-06",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.149"
+        "value": "v4.9.150"
       }
     ],
     "dates": [
@@ -2108,14 +2108,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.149",
+    "expectedVersion": "v4.9.150",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.149",
+    "expectedTag": "v4.9.150",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2125,13 +2125,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.149",
+        "expectedVersion": "v4.9.150",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.149",
+        "expectedVersion": "v4.9.150",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2200,7 +2200,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 4431,
+      "elapsedMs": 4351,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2244,7 +2244,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 4431,
+    "elapsedMs": 4351,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2255,7 +2255,7 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 66307,
+    "byteCount": 66359,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2551,7 +2551,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 66307,
+        "value": 66359,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2614,7 +2614,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 100789,
+        "value": 100803,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2659,14 +2659,14 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "fresh",
+    "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-06T00:22:38.5074787-04:00",
-    "latestReportAffectingCommitSha": "beaa476f2267a1e0d15f8d32786e2b6229358e13",
-    "latestReportAffectingCommitDate": "2026-07-06T00:10:45.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
-    "generatedWithCommit": false,
+    "committedReportGeneratedAt": "2026-07-06T00:25:32.2588236-04:00",
+    "latestReportAffectingCommitSha": "a75d2b030340e4ccd47e2e00d68f2cc7cd0fb778",
+    "latestReportAffectingCommitDate": "2026-07-06T00:28:33.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.05,
+    "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": false,
