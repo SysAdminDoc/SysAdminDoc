@@ -11,6 +11,9 @@ $requiredModules = @(
     [pscustomobject]@{ Name = "Pester"; Version = "5.8.0" },
     [pscustomobject]@{ Name = "PSScriptAnalyzer"; Version = "1.25.0" }
 )
+$minimumPowerShellVersion = [version]"7.4.0"
+$preferredPowerShellVersion = [version]"7.6.0"
+$previousLtsAcceptedUntil = [datetimeoffset]::Parse("2026-11-10T23:59:59Z")
 
 function Invoke-NativeCommand {
     [CmdletBinding()]
@@ -24,6 +27,61 @@ function Invoke-NativeCommand {
     & $FilePath @ArgumentList
     if ($LASTEXITCODE -ne 0) {
         throw "$FilePath $($ArgumentList -join ' ') failed with exit code $LASTEXITCODE."
+    }
+}
+
+function Get-PowerShellRuntimeChannel {
+    param(
+        [Parameter(Mandatory)]
+        [version]$Version,
+
+        [string]$Edition = "Core"
+    )
+
+    if ($Edition -eq "Desktop" -or $Version.Major -lt 6) {
+        return "windows-powershell-bootstrap-only"
+    }
+    if ($Version.Major -lt 7 -or ($Version.Major -eq 7 -and $Version.Minor -lt 4)) {
+        return "unsupported"
+    }
+    if ($Version.Major -eq 7 -and $Version.Minor -eq 4) {
+        return "previous-lts"
+    }
+    if ($Version.Major -eq 7 -and $Version.Minor -eq 5) {
+        return "stable-non-lts"
+    }
+    if ($Version.Major -eq 7 -and $Version.Minor -eq 6) {
+        return "current-lts"
+    }
+    return "newer-than-current-lts"
+}
+
+function Get-ValidationPowerShellRuntimePosture {
+    $version = [version]::new([int]$PSVersionTable.PSVersion.Major, [int]$PSVersionTable.PSVersion.Minor, [int]$PSVersionTable.PSVersion.Patch)
+    $edition = [string]$PSVersionTable.PSEdition
+    $channel = Get-PowerShellRuntimeChannel -Version $version -Edition $edition
+    $warnings = New-Object System.Collections.Generic.List[string]
+    $schemaFileAvailable = [bool]((Get-Command Test-Json -ErrorAction Stop).Parameters.ContainsKey("SchemaFile"))
+    $meetsFloor = ($edition -ne "Desktop" -and $version -ge $minimumPowerShellVersion)
+    $withinTransition = ([datetimeoffset]::Now.ToUniversalTime() -le $previousLtsAcceptedUntil)
+
+    if (-not $meetsFloor) {
+        $warnings.Add("PowerShell $version is below the generator floor $minimumPowerShellVersion.")
+    } elseif ($version -lt $preferredPowerShellVersion) {
+        $warnings.Add("PowerShell $version is accepted until 2026-11-10 but current LTS $preferredPowerShellVersion is preferred for local validation.")
+    }
+    if (-not $schemaFileAvailable) {
+        $warnings.Add("Test-Json -SchemaFile is unavailable; native JSON Schema validation requires PowerShell 7.4 or newer.")
+    }
+
+    [pscustomobject]@{
+        Version = $version.ToString()
+        Edition = $edition
+        Channel = $channel
+        Supported = [bool]($meetsFloor -and $schemaFileAvailable -and ($version -ge $preferredPowerShellVersion -or $withinTransition))
+        Preferred = [bool]($version -ge $preferredPowerShellVersion)
+        WarningCount = [int]$warnings.Count
+        Warnings = @($warnings.ToArray())
     }
 }
 
@@ -107,6 +165,15 @@ function Assert-ScriptAnalyzerClean {
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location -LiteralPath $repoRoot
 try {
+    $runtimePosture = Get-ValidationPowerShellRuntimePosture
+    Write-Host ("PowerShell runtime: {0} ({1}, {2}); preferred LTS: {3}" -f $runtimePosture.Version, $runtimePosture.Edition, $runtimePosture.Channel, $preferredPowerShellVersion)
+    foreach ($warning in @($runtimePosture.Warnings)) {
+        Write-Warning $warning
+    }
+    if (-not $runtimePosture.Supported) {
+        throw "Unsupported PowerShell runtime for local validation."
+    }
+
     $npm = Get-Command npm -ErrorAction Stop
 
     if (-not $SkipBootstrap) {

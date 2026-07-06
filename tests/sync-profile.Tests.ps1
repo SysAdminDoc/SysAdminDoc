@@ -1759,8 +1759,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
     It 'renders setup inspect-before-run and check-only guidance' {
-        $script:rendered | Should -Match 'Install Python 3 \+ Git only if your machine needs them'
-        $script:rendered | Should -Match 'checks for Python and Git before installing anything'
+        $script:rendered | Should -Match 'Install PowerShell 7, Python 3, and Git only if your machine needs them'
+        $script:rendered | Should -Match 'checks for PowerShell 7, Python, and Git before installing anything'
         $script:rendered | Should -Match 'Inspect before installing'
         $script:rendered | Should -Match ([regex]::Escape('$u=''https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'''))
         $script:rendered | Should -Match 'SysAdminDoc-setup\.ps1'
@@ -1776,6 +1776,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'npm run review:dependencies'
         $script:rendered | Should -Match 'package override drift'
         $script:rendered | Should -Match 'npm ci'
+        $script:rendered | Should -Match 'PowerShell runtime'
+        $script:rendered | Should -Match 'warns below PowerShell 7\.6 LTS'
         $script:rendered | Should -Match 'Pester 5\.8\.0'
         $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
         $script:rendered | Should -Match 'Invoke-Pester -Path tests -Output Detailed'
@@ -2232,7 +2234,14 @@ Describe 'setup.ps1 hardening contract' {
     It 'supports check-only diagnostics without installation' {
         $script:setupSource | Should -Match '\[switch\]\$CheckOnly'
         $script:setupSource | Should -Match 'Check-only mode: no packages will be installed\.'
+        $script:setupSource | Should -Match "Pwsh = Write-ToolStatus 'pwsh' 'pwsh'"
+        $script:setupSource | Should -Match 'PowerShell 7, Python, and Git are installed'
         $script:setupSource | Should -Match 'Run without -CheckOnly to install with winget'
+    }
+
+    It 'installs PowerShell 7 while keeping Windows PowerShell as bootstrap only' {
+        $script:setupSource | Should -Match 'Windows PowerShell 5\.1 is bootstrap-only'
+        $script:setupSource | Should -Match "Install-Pkg 'Microsoft.PowerShell' 'PowerShell 7' 'pwsh'"
     }
 
     It 'uses terminating failures when prerequisites remain missing' {
@@ -2688,6 +2697,21 @@ Describe 'Feed JSON Schema contracts' {
         foreach ($field in @('graphQlPageSize', 'requestCount', 'retryCount', 'resourceLimitFallback', 'resourceLimitFallbackReason', 'truncated')) {
             $required | Should -Contain $field
         }
+    }
+
+    It 'requires PowerShell runtime security posture in the report schema' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        @($schema.required) | Should -Contain 'runtimeSecurity'
+        $schema.properties.runtimeSecurity.'$ref' | Should -Be '#/$defs/runtimeSecurity'
+
+        $required = @($schema.'$defs'.runtimeSecurity.required)
+        foreach ($field in @('status', 'current', 'policy', 'capabilities', 'supported', 'preferred', 'warningCount', 'warnings')) {
+            $required | Should -Contain $field
+        }
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'PowerShell runtime status'
+        $summaryScript | Should -Match 'PowerShell runtime posture'
     }
 
     It 'validates the committed profile sync report contract' {
@@ -4736,6 +4760,58 @@ Describe 'PowerShell version baseline' {
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
         $PSVersionTable.PSVersion.Major | Should -BeGreaterOrEqual 7
         $PSVersionTable.PSVersion.Minor | Should -BeGreaterOrEqual 4
+    }
+
+    It 'classifies current PowerShell LTS as preferred runtime' {
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.6.3') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-07-06T00:00:00Z'))
+
+        $result.status | Should -Be 'ok'
+        $result.current.channel | Should -Be 'current-lts'
+        $result.supported | Should -BeTrue
+        $result.preferred | Should -BeTrue
+        $result.warningCount | Should -Be 0
+    }
+
+    It 'warns for PowerShell 7.4 during the transition window' {
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.4.17') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-07-06T00:00:00Z'))
+
+        $result.status | Should -Be 'warning'
+        $result.current.channel | Should -Be 'previous-lts'
+        $result.supported | Should -BeTrue
+        $result.preferred | Should -BeFalse
+        $result.warnings[0] | Should -Match '2026-11-10'
+    }
+
+    It 'fails PowerShell 7.4 after the transition window' {
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.4.17') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-11-11T00:00:00Z'))
+
+        $result.status | Should -Be 'fail'
+        $result.supported | Should -BeFalse
+    }
+
+    It 'marks Windows PowerShell as bootstrap-only for setup.ps1' {
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'5.1.26100') `
+            -Edition 'Desktop' `
+            -NativeJsonSchemaAvailable $false `
+            -Now ([datetimeoffset]::Parse('2026-07-06T00:00:00Z'))
+
+        $result.status | Should -Be 'fail'
+        $result.current.channel | Should -Be 'windows-powershell-bootstrap-only'
+        $result.capabilities.setupBootstrapOnly | Should -BeTrue
+        $result.policy.windowsPowerShellAdvisory | Should -Be 'CVE-2025-54100'
     }
 }
 

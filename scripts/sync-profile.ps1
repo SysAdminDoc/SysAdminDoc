@@ -96,6 +96,13 @@ $ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
 $CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
 $ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
 $ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
+$PowerShellMinimumGeneratorVersion = [version]"7.4.0"
+$PowerShellPreferredLtsVersion = [version]"7.6.0"
+$PowerShellPreviousLtsAcceptedUntil = "2026-11-10"
+$WindowsPowerShellBootstrapVersion = "5.1"
+$WindowsPowerShellAdvisoryId = "CVE-2025-54100"
+$PowerShellLifecycleUrl = "https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle?view=powershell-7.6"
+$WindowsPowerShellAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2025-54100"
 $script:ProfileVersionPath = Join-Path $RepoRoot "data/profile-version.json"
 $script:RepositoryMetadataProvider = "graphql"
 $script:RepositoryEnumerationRequestedLimit = $script:GraphQlPageSize
@@ -2095,7 +2102,7 @@ function New-DiscoverySection {
     $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | One-liner install commands and release downloads. |")
     $lines.Add("| Install a browser or Android tool | $extensionsLink or $androidLink | CRX, XPI, userscript, and APK installs labeled per project. |")
     $lines.Add("| Launch a web tool | $webLink | Browser-based tools that work without local setup. |")
-    $lines.Add("| Set up a fresh Windows machine | $setupLink | Guided Python and Git setup with an inspect-before-install path. |")
+    $lines.Add("| Set up a fresh Windows machine | $setupLink | Guided PowerShell 7, Python, and Git setup with an inspect-before-install path. |")
     $lines.Add("| Validate this repo | $validationLink | Runs markdownlint, PSScriptAnalyzer, and Pester with pinned tool versions. |")
     $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable catalog generated from this repo's project feed. |")
 
@@ -2107,10 +2114,10 @@ function New-FirstTimeSetupSection {
 <a id="first-time-setup"></a>
 
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>Install Python 3 + Git only if your machine needs them.</i></summary>
+<summary><b>&#128190; First-time setup</b> -- <i>Install PowerShell 7, Python 3, and Git only if your machine needs them.</i></summary>
 <br/>
 
-The command below checks for Python and Git before installing anything, then refreshes the current shell so the project snippets work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+The command below checks for PowerShell 7, Python, and Git before installing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -2124,14 +2131,14 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 
 | Step | Behavior |
 |:-----|:---------|
-| Checks first | Skips Python or Git when already installed. |
-| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report Python, Git, pip, and winget state without installing. |
-| Installs with Windows tooling | Uses `winget` for [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/). |
+| Checks first | Skips PowerShell 7, Python, or Git when already installed. |
+| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
+| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have Python and Git? Skip this section and open the category you need.
+Already have PowerShell 7, Python, and Git? Skip this section and open the category you need.
 
 </details>
 '@
@@ -2161,6 +2168,7 @@ npm run review:dependencies
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
 | Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock pins, and reports PowerShell plus Python audit-tool pins. |
+| PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
@@ -5382,6 +5390,131 @@ function Set-MemberValue {
         $property.Value = $Value
     } else {
         Add-Member -InputObject $Object -NotePropertyName $Name -NotePropertyValue $Value -Force
+    }
+}
+
+function ConvertTo-VersionValue {
+    param([object]$Version)
+
+    if ($null -eq $Version) {
+        return [version]"0.0.0"
+    }
+    if ($Version -is [version]) {
+        $patch = if ($Version.Build -lt 0) { 0 } else { [int]$Version.Build }
+        return [version]::new([int]$Version.Major, [int]$Version.Minor, $patch)
+    }
+    if ($Version -is [string]) {
+        return ConvertTo-VersionValue -Version ([version]$Version)
+    }
+
+    $major = Get-MemberValue -Object $Version -Name "Major"
+    $minor = Get-MemberValue -Object $Version -Name "Minor"
+    $patch = Get-MemberValue -Object $Version -Name "Patch"
+    if ($null -eq $patch) {
+        $patch = Get-MemberValue -Object $Version -Name "Build"
+    }
+    $patchValue = if ($null -eq $patch) { 0 } else { [int]$patch }
+
+    return [version]::new([int]$major, [int]$minor, $patchValue)
+}
+
+function Test-NativeJsonSchemaAvailable {
+    $command = Get-Command Test-Json -ErrorAction SilentlyContinue
+    return [bool]($command -and $command.Parameters.ContainsKey("SchemaFile"))
+}
+
+function Get-PowerShellRuntimeChannel {
+    param(
+        [Parameter(Mandatory)]
+        [version]$Version,
+
+        [string]$Edition = "Core"
+    )
+
+    if ($Edition -eq "Desktop" -or $Version.Major -lt 6) {
+        return "windows-powershell-bootstrap-only"
+    }
+    if ($Version.Major -lt 7 -or ($Version.Major -eq 7 -and $Version.Minor -lt 4)) {
+        return "unsupported"
+    }
+    if ($Version.Major -eq 7 -and $Version.Minor -eq 4) {
+        return "previous-lts"
+    }
+    if ($Version.Major -eq 7 -and $Version.Minor -eq 5) {
+        return "stable-non-lts"
+    }
+    if ($Version.Major -eq 7 -and $Version.Minor -eq 6) {
+        return "current-lts"
+    }
+    return "newer-than-current-lts"
+}
+
+function Test-PowerShellRuntimeSecurity {
+    param(
+        [object]$Version = $PSVersionTable.PSVersion,
+        [string]$Edition = [string]$PSVersionTable.PSEdition,
+        [object]$NativeJsonSchemaAvailable = $null,
+        [datetimeoffset]$Now = [datetimeoffset]::Now
+    )
+
+    $versionValue = ConvertTo-VersionValue -Version $Version
+    $nativeJsonSchema = if ($null -ne $NativeJsonSchemaAvailable) { [bool]$NativeJsonSchemaAvailable } else { Test-NativeJsonSchemaAvailable }
+    $channel = Get-PowerShellRuntimeChannel -Version $versionValue -Edition $Edition
+    $transitionEnd = [datetimeoffset]::Parse("$PowerShellPreviousLtsAcceptedUntil`T23:59:59Z")
+    $warnings = New-Object System.Collections.Generic.List[string]
+
+    $isWindowsPowerShell = ($channel -eq "windows-powershell-bootstrap-only")
+    $meetsFloor = (-not $isWindowsPowerShell -and $versionValue -ge $PowerShellMinimumGeneratorVersion)
+    $withinTransition = ($Now.ToUniversalTime() -le $transitionEnd)
+
+    if ($isWindowsPowerShell) {
+        $warnings.Add("Windows PowerShell $WindowsPowerShellBootstrapVersion is allowed only for setup.ps1 bootstrap because $WindowsPowerShellAdvisoryId affects legacy Windows PowerShell command-injection posture.")
+    } elseif (-not $meetsFloor) {
+        $warnings.Add("PowerShell $versionValue is below the generator floor $PowerShellMinimumGeneratorVersion; install current LTS $PowerShellPreferredLtsVersion or newer.")
+    } elseif ($versionValue -lt $PowerShellPreferredLtsVersion) {
+        if ($withinTransition) {
+            $warnings.Add("PowerShell $versionValue is accepted during the 7.4 transition window through $PowerShellPreviousLtsAcceptedUntil, but local generation should move to current LTS $PowerShellPreferredLtsVersion.")
+        } else {
+            $warnings.Add("PowerShell $versionValue is below current LTS $PowerShellPreferredLtsVersion and the 7.4 transition window ended on $PowerShellPreviousLtsAcceptedUntil.")
+        }
+    }
+
+    if ($meetsFloor -and -not $nativeJsonSchema) {
+        $warnings.Add("PowerShell $versionValue does not expose Test-Json -SchemaFile; native JSON Schema validation requires PowerShell 7.4 or newer.")
+    }
+
+    $supported = [bool]($meetsFloor -and $nativeJsonSchema -and ($versionValue -ge $PowerShellPreferredLtsVersion -or $withinTransition))
+    $preferred = [bool]($supported -and $versionValue -ge $PowerShellPreferredLtsVersion)
+    $status = if (-not $supported) { "fail" } elseif ($warnings.Count -gt 0) { "warning" } else { "ok" }
+
+    return [ordered]@{
+        status = $status
+        current = [ordered]@{
+            edition = if ([string]::IsNullOrWhiteSpace($Edition)) { "unknown" } else { $Edition }
+            version = $versionValue.ToString()
+            major = [int]$versionValue.Major
+            minor = [int]$versionValue.Minor
+            patch = [int]$versionValue.Build
+            channel = $channel
+            executable = if ($isWindowsPowerShell) { "powershell" } else { "pwsh" }
+        }
+        policy = [ordered]@{
+            generatorMinimumVersion = $PowerShellMinimumGeneratorVersion.ToString()
+            preferredLtsVersion = $PowerShellPreferredLtsVersion.ToString()
+            previousLtsAcceptedUntil = $PowerShellPreviousLtsAcceptedUntil
+            windowsPowerShellBootstrapVersion = $WindowsPowerShellBootstrapVersion
+            windowsPowerShellBootstrapOnly = $true
+            windowsPowerShellAdvisory = $WindowsPowerShellAdvisoryId
+            sources = @($PowerShellLifecycleUrl, $WindowsPowerShellAdvisoryUrl)
+        }
+        capabilities = [ordered]@{
+            nativeJsonSchema = [bool]$nativeJsonSchema
+            setupBootstrapOnly = [bool]$isWindowsPowerShell
+        }
+        supported = $supported
+        preferred = $preferred
+        warningCount = [int]$warnings.Count
+        warnings = @($warnings.ToArray())
     }
 }
 
@@ -9626,6 +9759,7 @@ function Test-ProfileState {
         -Repos $Repos `
         -DocVersionConsistency $docVersionConsistency `
         -TagRef (Get-ProfileRepositoryTagRef -TagName ([string]$docVersionConsistency.expectedVersion))
+    $runtimeSecurity = Test-PowerShellRuntimeSecurity
     $reportGeneratedAt = (Get-Date).ToString("o")
     $feedProvenance = $null
     try {
@@ -9686,6 +9820,7 @@ function Test-ProfileState {
         schemaValidation = $schemaValidation
         docVersionConsistency = $docVersionConsistency
         profileReleaseConsistency = $profileReleaseConsistency
+        runtimeSecurity = $runtimeSecurity
         validationPerformance = $validationPerformance
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations
@@ -9820,6 +9955,7 @@ function Test-ProfileState {
         portfolioCompatibility = [bool]($portfolioCompatibility.fatalCount -gt 0)
         schemaValidation = [bool]($schemaValidation.passed -ne $true)
         docVersionConsistency = [bool]($docVersionConsistency.passed -ne $true)
+        runtimeSecurity = [bool]($runtimeSecurity.status -eq "fail")
     }
     $failed = $failureConditions.Values -contains $true
     return [ordered]@{

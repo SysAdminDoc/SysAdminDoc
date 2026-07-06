@@ -1,6 +1,7 @@
 #Requires -Version 5.1
-# SysAdminDoc setup.ps1 - installs Python 3 and Git via winget so the
-# README install one-liners work on a fresh machine.
+# SysAdminDoc setup.ps1 - installs PowerShell 7, Python 3, and Git via
+# winget so the README install one-liners and local validation work on a
+# fresh machine. Windows PowerShell 5.1 is bootstrap-only.
 #
 # Usage (paste into PowerShell):
 #   irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -91,6 +92,7 @@ function Test-SetupState {
     Write-Step "Checking prerequisites"
     [ordered]@{
         Winget = Write-ToolStatus 'winget' 'winget'
+        Pwsh = Write-ToolStatus 'pwsh' 'pwsh'
         Python = Write-ToolStatus 'python' 'python'
         Pip = Write-ToolStatus 'pip' 'pip'
         Git = Write-ToolStatus 'git' 'git'
@@ -131,7 +133,7 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
 try {
     Write-Host ""
     Write-Host "SysAdminDoc Setup" -ForegroundColor Cyan
-    Write-Host "Installs Python 3 and Git so the README project snippets work." -ForegroundColor DarkGray
+    Write-Host "Installs PowerShell 7, Python 3, and Git so the README project snippets and local validation work." -ForegroundColor DarkGray
     Write-Host ""
     Start-SetupTranscript
 
@@ -145,8 +147,8 @@ try {
             Write-Warn2 "winget is missing. Install 'App Installer' from the Microsoft Store:"
             Write-Host  "    https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
         }
-        if ($state.Python -and $state.Git) {
-            Write-Ok "Ready. Python and Git are installed -- the README snippets will work."
+        if ($state.Pwsh -and $state.Python -and $state.Git) {
+            Write-Ok "Ready. PowerShell 7, Python, and Git are installed -- the README snippets and local validation will work."
         } else {
             Stop-SetupWithFailure "One or more prerequisites are missing. Run without -CheckOnly to install with winget."
         }
@@ -159,8 +161,9 @@ try {
         Stop-SetupWithFailure "Setup cannot continue until winget is available."
     }
 
-    Install-Pkg 'Python.Python.3.12' 'Python 3.12' 'python'
-    Install-Pkg 'Git.Git'            'Git'         'git'
+    Install-Pkg 'Microsoft.PowerShell' 'PowerShell 7' 'pwsh'
+    Install-Pkg 'Python.Python.3.12'   'Python 3.12'  'python'
+    Install-Pkg 'Git.Git'              'Git'          'git'
 
     Update-PathFromRegistry
 
@@ -168,7 +171,7 @@ try {
     $state = Test-SetupState
 
     Write-Host ""
-    if ($state.Python -and $state.Git) {
+    if ($state.Pwsh -and $state.Python -and $state.Git) {
         Write-Ok "Setup complete. You can now paste any install one-liner from the README."
     } else {
         Stop-SetupWithFailure "Setup incomplete. Close this window, open a new PowerShell, and try again."

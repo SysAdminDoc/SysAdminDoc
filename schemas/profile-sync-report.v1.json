@@ -29,6 +29,7 @@
     "schemaValidation",
     "docVersionConsistency",
     "profileReleaseConsistency",
+    "runtimeSecurity",
     "validationPerformance",
     "missingPublicRepos",
     "privateVisibilityViolations",
@@ -130,6 +131,9 @@
     },
     "profileReleaseConsistency": {
       "$ref": "#/$defs/profileReleaseConsistency"
+    },
+    "runtimeSecurity": {
+      "$ref": "#/$defs/runtimeSecurity"
     },
     "validationPerformance": {
       "$ref": "#/$defs/validationPerformance"
@@ -4176,6 +4180,143 @@
         },
         "value": {
           "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "runtimeSecurity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "current",
+        "policy",
+        "capabilities",
+        "supported",
+        "preferred",
+        "warningCount",
+        "warnings"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "warning",
+            "fail"
+          ]
+        },
+        "current": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "edition",
+            "version",
+            "major",
+            "minor",
+            "patch",
+            "channel",
+            "executable"
+          ],
+          "properties": {
+            "edition": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "major": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "minor": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "patch": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "channel": {
+              "type": "string",
+              "enum": [
+                "windows-powershell-bootstrap-only",
+                "unsupported",
+                "previous-lts",
+                "stable-non-lts",
+                "current-lts",
+                "newer-than-current-lts"
+              ]
+            },
+            "executable": {
+              "type": "string",
+              "enum": [
+                "pwsh",
+                "powershell"
+              ]
+            }
+          }
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "generatorMinimumVersion",
+            "preferredLtsVersion",
+            "previousLtsAcceptedUntil",
+            "windowsPowerShellBootstrapVersion",
+            "windowsPowerShellBootstrapOnly",
+            "windowsPowerShellAdvisory",
+            "sources"
+          ],
+          "properties": {
+            "generatorMinimumVersion": {
+              "type": "string"
+            },
+            "preferredLtsVersion": {
+              "type": "string"
+            },
+            "previousLtsAcceptedUntil": {
+              "type": "string",
+              "format": "date"
+            },
+            "windowsPowerShellBootstrapVersion": {
+              "type": "string"
+            },
+            "windowsPowerShellBootstrapOnly": {
+              "type": "boolean"
+            },
+            "windowsPowerShellAdvisory": {
+              "type": "string"
+            },
+            "sources": {
+              "$ref": "#/$defs/stringArray"
+            }
+          }
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "nativeJsonSchema",
+            "setupBootstrapOnly"
+          ],
+          "properties": {
+            "nativeJsonSchema": {
+              "type": "boolean"
+            },
+            "setupBootstrapOnly": {
+              "type": "boolean"
+            }
+          }
+        },
+        "supported": {
+          "type": "boolean"
+        },
+        "preferred": {
+          "type": "boolean"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
         }
       }
     },

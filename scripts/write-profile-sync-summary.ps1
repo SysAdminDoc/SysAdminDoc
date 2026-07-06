@@ -132,6 +132,7 @@ $generatedPrWriteEvidence = if ($prDeliveryTransition -and $prDeliveryTransition
 $candidateCheckExerciseLatestEvidence = if ($prDeliveryTransition -and $prDeliveryTransition.PSObject.Properties.Name -contains 'candidateCheckExerciseEvidence') { $prDeliveryTransition.candidateCheckExerciseEvidence } else { $null }
 $communityHealth = $report.communityHealth
 $profileReleaseConsistency = if ($report.PSObject.Properties.Name -contains 'profileReleaseConsistency') { $report.profileReleaseConsistency } else { $null }
+$runtimeSecurity = if ($report.PSObject.Properties.Name -contains 'runtimeSecurity') { $report.runtimeSecurity } else { $null }
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
 $portfolioCompatibility = if ($report.PSObject.Properties.Name -contains 'portfolioCompatibility') { $report.portfolioCompatibility } else { $null }
@@ -300,6 +301,19 @@ $profileReleasePolicy = if ($profileReleaseConsistency -and $profileReleaseConsi
 $profileReleasePolicyStatus = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.status) { [string]$profileReleasePolicy.status } else { "unknown" }
 $profileReleaseWarningDisposition = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.warningDisposition) { [string]$profileReleasePolicy.warningDisposition } else { "unknown" }
 $profileReleaseCreationRecommended = if ($profileReleasePolicy -and $null -ne $profileReleasePolicy.releaseCreationRecommended) { [bool]$profileReleasePolicy.releaseCreationRecommended } else { $false }
+$runtimeCurrent = if ($runtimeSecurity -and $runtimeSecurity.PSObject.Properties.Name -contains 'current') { $runtimeSecurity.current } else { $null }
+$runtimePolicy = if ($runtimeSecurity -and $runtimeSecurity.PSObject.Properties.Name -contains 'policy') { $runtimeSecurity.policy } else { $null }
+$runtimeStatus = if ($runtimeSecurity -and $null -ne $runtimeSecurity.status) { [string]$runtimeSecurity.status } else { "unknown" }
+$runtimeVersion = if ($runtimeCurrent -and $null -ne $runtimeCurrent.version) { [string]$runtimeCurrent.version } else { "unknown" }
+$runtimeChannel = if ($runtimeCurrent -and $null -ne $runtimeCurrent.channel) { [string]$runtimeCurrent.channel } else { "unknown" }
+$runtimeExecutable = if ($runtimeCurrent -and $null -ne $runtimeCurrent.executable) { [string]$runtimeCurrent.executable } else { "unknown" }
+$runtimeSupported = if ($runtimeSecurity -and $null -ne $runtimeSecurity.supported) { [bool]$runtimeSecurity.supported } else { $false }
+$runtimePreferred = if ($runtimeSecurity -and $null -ne $runtimeSecurity.preferred) { [bool]$runtimeSecurity.preferred } else { $false }
+$runtimeWarningCount = if ($runtimeSecurity -and $null -ne $runtimeSecurity.warningCount) { [int]$runtimeSecurity.warningCount } else { 0 }
+$runtimePreferredVersion = if ($runtimePolicy -and $null -ne $runtimePolicy.preferredLtsVersion) { [string]$runtimePolicy.preferredLtsVersion } else { "unknown" }
+$runtimeTransitionEnd = if ($runtimePolicy -and $null -ne $runtimePolicy.previousLtsAcceptedUntil) { [string]$runtimePolicy.previousLtsAcceptedUntil } else { "unknown" }
+$runtimeBootstrapOnly = if ($runtimePolicy -and $null -ne $runtimePolicy.windowsPowerShellBootstrapOnly) { [bool]$runtimePolicy.windowsPowerShellBootstrapOnly } else { $false }
+$runtimeAdvisory = if ($runtimePolicy -and $null -ne $runtimePolicy.windowsPowerShellAdvisory) { [string]$runtimePolicy.windowsPowerShellAdvisory } else { "" }
 $userscriptInstallCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.installActionCount } else { 0 }
 $userscriptWarningCount = if ($userscriptInstallTrust) { [int]$userscriptInstallTrust.warningCount } else { 0 }
 $userscriptReleaseReadyCount = if ($userscriptInstallTrust -and $userscriptInstallTrust.PSObject.Properties.Name -contains 'releaseChannelReadyCount') { [int]$userscriptInstallTrust.releaseChannelReadyCount } else { 0 }
@@ -396,6 +410,17 @@ $summary = @"
 | Profile assets in sync | $($report.profileAssetsInSync) |
 | Schema validation passed | $($report.schemaValidation.passed) |
 | Profile version metadata valid | $($report.docVersionConsistency.passed) |
+| PowerShell runtime status | $runtimeStatus |
+| PowerShell runtime version | $runtimeVersion |
+| PowerShell runtime channel | $runtimeChannel |
+| PowerShell runtime executable | $runtimeExecutable |
+| PowerShell runtime supported | $runtimeSupported |
+| PowerShell runtime preferred | $runtimePreferred |
+| PowerShell runtime preferred LTS | $runtimePreferredVersion |
+| PowerShell runtime transition end | $runtimeTransitionEnd |
+| PowerShell runtime warnings | $runtimeWarningCount |
+| Windows PowerShell bootstrap-only | $runtimeBootstrapOnly |
+| Windows PowerShell advisory | $runtimeAdvisory |
 | Catalog rows accounted | $catalogAccountedCount |
 | Catalog accounting fatal gaps | $catalogAccountingFatalCount |
 | Portfolio compatibility | $portfolioCompatibilityStatus |
@@ -763,6 +788,18 @@ if ($profileReleaseWarningCount -gt 0) {
         Write-Output "::notice::Profile sync report has $profileReleaseWarningCount informational profile release/tag warning(s); policy: $profileReleasePolicyStatus."
     } else {
         Write-Output "::warning::Profile sync report has $profileReleaseWarningCount profile release/tag warning(s)."
+    }
+}
+
+if ($runtimeStatus -eq "fail") {
+    Write-Output "::error::Profile sync report was generated under unsupported PowerShell runtime $runtimeVersion ($runtimeChannel)."
+} elseif ($runtimeWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $runtimeWarningCount PowerShell runtime posture warning(s)."
+}
+
+if ($runtimeWarningCount -gt 0 -and $runtimeSecurity -and $runtimeSecurity.PSObject.Properties.Name -contains 'warnings') {
+    foreach ($warning in @($runtimeSecurity.warnings)) {
+        Write-Output "::warning title=PowerShell runtime posture::$(ConvertTo-GitHubAnnotationValue ([string]$warning))"
     }
 }
 

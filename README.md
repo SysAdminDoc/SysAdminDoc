@@ -15,7 +15,7 @@ This profile organizes public projects by platform. Use the portfolio for search
 | Run a Windows utility | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | One-liner install commands and release downloads. |
 | Install a browser or Android tool | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | CRX, XPI, userscript, and APK installs labeled per project. |
 | Launch a web tool | [Web Apps](#web-applications) | Browser-based tools that work without local setup. |
-| Set up a fresh Windows machine | [First-time setup](#first-time-setup) | Guided Python and Git setup with an inspect-before-install path. |
+| Set up a fresh Windows machine | [First-time setup](#first-time-setup) | Guided PowerShell 7, Python, and Git setup with an inspect-before-install path. |
 | Validate this repo | [Local validation](#local-validation) | Runs markdownlint, PSScriptAnalyzer, and Pester with pinned tool versions. |
 | Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable catalog generated from this repo's project feed. |
 
@@ -24,10 +24,10 @@ This profile organizes public projects by platform. Use the portfolio for search
 <a id="first-time-setup"></a>
 
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>Install Python 3 + Git only if your machine needs them.</i></summary>
+<summary><b>&#128190; First-time setup</b> -- <i>Install PowerShell 7, Python 3, and Git only if your machine needs them.</i></summary>
 <br/>
 
-The command below checks for Python and Git before installing anything, then refreshes the current shell so the project snippets work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+The command below checks for PowerShell 7, Python, and Git before installing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -41,14 +41,14 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 
 | Step | Behavior |
 |:-----|:---------|
-| Checks first | Skips Python or Git when already installed. |
-| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report Python, Git, pip, and winget state without installing. |
-| Installs with Windows tooling | Uses `winget` for [Python 3.12](https://www.python.org/) and [Git for Windows](https://git-scm.com/). |
+| Checks first | Skips PowerShell 7, Python, or Git when already installed. |
+| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
+| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have Python and Git? Skip this section and open the category you need.
+Already have PowerShell 7, Python, and Git? Skip this section and open the category you need.
 
 </details>
 
@@ -74,6 +74,7 @@ npm run review:dependencies
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
 | Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock pins, and reports PowerShell plus Python audit-tool pins. |
+| PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
