@@ -1299,33 +1299,62 @@ function Test-HttpUrl {
     # Returns ok/status/error plus a `fatal` flag. Only a definitive dead-link
     # response (404/410) is fatal; transient blocks (403/429/5xx/timeout) are
     # reported as non-fatal warnings so a flaky host does not fail the whole gate.
+    # Use HttpClient with ResponseHeadersRead so GET fallback proves reachability
+    # without downloading release assets or raw file bodies.
     $status = $null
     $err = $null
-    for ($attempt = 1; $attempt -le $Retries; $attempt++) {
-        foreach ($method in @('Head', 'Get')) {
-            try {
-                $response = Invoke-WebRequest -Uri $Url -Method $method -MaximumRedirection 5 -TimeoutSec $TimeoutSec
-                $code = [int]$response.StatusCode
-                return [ordered]@{ ok = ($code -ge 200 -and $code -lt 400); status = $code; error = $null; fatal = $false }
-            } catch {
-                $err = $_.Exception.Message
-                $status = $null
-                # StrictMode-safe: not every exception type (e.g. DNS failures) exposes
-                # a Response property, so probe for it before dereferencing.
-                $exception = $_.Exception
-                if ($exception.PSObject.Properties.Name -contains 'Response' -and $exception.Response) {
-                    $response = $exception.Response
-                    if ($response.PSObject.Properties.Name -contains 'StatusCode' -and $response.StatusCode) {
-                        $status = [int]$response.StatusCode
+
+    $handler = [System.Net.Http.HttpClientHandler]::new()
+    $handler.AllowAutoRedirect = $true
+    $handler.MaxAutomaticRedirections = 5
+    $client = [System.Net.Http.HttpClient]::new($handler)
+    $client.Timeout = [TimeSpan]::FromSeconds([Math]::Max(1, $TimeoutSec))
+    try {
+        for ($attempt = 1; $attempt -le $Retries; $attempt++) {
+            foreach ($methodName in @('Head', 'Get')) {
+                $request = $null
+                $response = $null
+                try {
+                    $method = if ($methodName -eq 'Head') { [System.Net.Http.HttpMethod]::Head } else { [System.Net.Http.HttpMethod]::Get }
+                    $request = [System.Net.Http.HttpRequestMessage]::new($method, $Url)
+                    $request.Headers.UserAgent.ParseAdd("SysAdminDoc-profile-link-validator")
+                    $request.Headers.Accept.ParseAdd("*/*")
+                    $response = $client.Send($request, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead)
+                    $code = [int]$response.StatusCode
+                    if ($code -ge 200 -and $code -lt 400) {
+                        return [ordered]@{ ok = $true; status = $code; error = $null; fatal = $false }
                     }
-                }
-                if ($status -eq 404 -or $status -eq 410) {
-                    return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
+                    $status = $code
+                    $err = "HTTP $code"
+                    if ($status -eq 404 -or $status -eq 410) {
+                        return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
+                    }
+                } catch {
+                    $err = $_.Exception.Message
+                    $status = $null
+                    # StrictMode-safe: not every exception type (e.g. DNS failures) exposes
+                    # a Response property, so probe for it before dereferencing.
+                    $exception = $_.Exception
+                    if ($exception.PSObject.Properties.Name -contains 'Response' -and $exception.Response) {
+                        $responseObject = $exception.Response
+                        if ($responseObject.PSObject.Properties.Name -contains 'StatusCode' -and $responseObject.StatusCode) {
+                            $status = [int]$responseObject.StatusCode
+                        }
+                    }
+                    if ($status -eq 404 -or $status -eq 410) {
+                        return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
+                    }
+                } finally {
+                    if ($response) { $response.Dispose() }
+                    if ($request) { $request.Dispose() }
                 }
             }
+            if ($attempt -lt $Retries) { Start-Sleep -Seconds $attempt }
         }
-        if ($attempt -lt $Retries) { Start-Sleep -Seconds $attempt }
+    } finally {
+        $client.Dispose()
     }
+
     return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false }
 }
 

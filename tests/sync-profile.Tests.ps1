@@ -335,6 +335,23 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
         $script:SyncProfileScript | Should -Match '\$\{function:Test-HttpUrl\}\.ToString\(\)'
         $script:SyncProfileScript | Should -Match '\$\{function:Test-HttpUrl\} = \$using:testHttpUrlDefinition'
     }
+
+    It 'keeps link probes bounded to response headers' {
+        $tokens = $null
+        $parseErrors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($script:SyncProfileScript, [ref]$tokens, [ref]$parseErrors)
+        $parseErrors | Should -BeNullOrEmpty
+        $functionAst = $ast.Find({
+            param($node)
+            $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Test-HttpUrl'
+        }, $true)
+        $functionAst | Should -Not -BeNullOrEmpty
+        $body = $functionAst.Extent.Text
+
+        $body | Should -Match 'ResponseHeadersRead'
+        $body | Should -Match 'HttpClient'
+        $body | Should -Not -Match 'Invoke-WebRequest'
+    }
 }
 
 Describe 'Catalog shape validation' {
