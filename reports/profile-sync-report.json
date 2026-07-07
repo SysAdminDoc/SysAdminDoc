@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T16:03:10.5478740-04:00",
+  "generatedAt": "2026-07-07T16:03:10.547874-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -193,7 +193,7 @@
       {
         "repo": "AsteroidSimulator",
         "language": "TypeScript",
-        "pushedAt": "2026-06-28T03:36:59.0000000Z",
+        "pushedAt": "2026-06-28T03:36:59Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -205,7 +205,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-06-28T03:37:49.0000000Z",
+        "pushedAt": "2026-06-28T03:37:49Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -215,7 +215,7 @@
       {
         "repo": "OpenNetLimit",
         "language": "C#",
-        "pushedAt": "2026-06-28T03:38:34.0000000Z",
+        "pushedAt": "2026-06-28T03:38:34Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -227,7 +227,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-07-01T03:39:16.0000000Z",
+        "pushedAt": "2026-07-01T03:39:16Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -238,7 +238,7 @@
       {
         "repo": "RES-Slim",
         "language": "JavaScript",
-        "pushedAt": "2026-06-28T03:00:07.0000000Z",
+        "pushedAt": "2026-06-28T03:00:07Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -249,7 +249,7 @@
       {
         "repo": "StormScope",
         "language": "Python",
-        "pushedAt": "2026-06-28T03:39:12.0000000Z",
+        "pushedAt": "2026-06-28T03:39:12Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -1623,7 +1623,7 @@
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-25T09:51:10.0000000Z",
+        "date": "2026-06-25T09:51:10Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
         "analyzedCommit": "e4c68d2b12bd66d32c014dcb3a5640f189c8f8cd",
         "unavailableReason": null
@@ -2003,7 +2003,7 @@
     "expectedVersion": "v4.9.153",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
-    "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
+    "latestReleasePublishedAt": "2026-07-07T19:56:24Z",
     "versionRelation": "matching",
     "latestReleaseMatchesExpected": true,
     "latestReleaseAtLeastExpected": true,
@@ -2122,7 +2122,7 @@
     "fatalCount": 0,
     "informationalCount": 1,
     "generatedAt": {
-      "value": "2026-06-01T16:18:55.0998940-04:00",
+      "value": "2026-06-01T16:18:55.099894-04:00",
       "ageDays": 35.99,
       "staleAfterDays": 7,
       "stale": true,
@@ -2504,7 +2504,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99604,
+        "value": 99532,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2534,7 +2534,7 @@
     "status": "passed",
     "source": "local-artifact",
     "sourcePath": "reports/rendered-profile-smoke.json",
-    "generatedAt": "2026-07-07T15:54:58.8868621-04:00",
+    "generatedAt": "2026-07-07T16:06:27.5573266-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,
@@ -2553,7 +2553,7 @@
     "committedReportPresent": true,
     "committedReportGeneratedAt": "2026-07-07T15:58:23.4866145-04:00",
     "latestReportAffectingCommitSha": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
-    "latestReportAffectingCommitDate": "2026-07-07T15:53:56.0000000-04:00",
+    "latestReportAffectingCommitDate": "2026-07-07T15:53:56-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,
