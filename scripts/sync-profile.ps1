@@ -3274,6 +3274,153 @@ function Get-RepoFileSha256 {
     }
 }
 
+function ConvertTo-NormalizedGeneratedText {
+    param([AllowNull()][string]$Text)
+
+    if ($null -eq $Text) {
+        return ""
+    }
+
+    return (($Text -replace "`r`n", "`n" -replace "`r", "`n").TrimEnd())
+}
+
+function Get-StringSha256 {
+    param([AllowNull()][string]$Text)
+
+    $normalizedText = ConvertTo-NormalizedGeneratedText -Text $Text
+    $contentBytes = [System.Text.Encoding]::UTF8.GetBytes($normalizedText)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($contentBytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
+function Get-CompactDiffSnippet {
+    param([AllowNull()][string]$Text)
+
+    if ($null -eq $Text) {
+        return $null
+    }
+
+    $snippet = (($Text -replace "`t", " ") -replace '\s+', ' ').Trim()
+    if ($snippet.Length -gt 180) {
+        return ($snippet.Substring(0, 177) + "...")
+    }
+
+    return $snippet
+}
+
+function Get-NearestDiffSectionMarker {
+    param(
+        [string[]]$Lines,
+        [int]$LineIndex
+    )
+
+    if ($null -eq $Lines -or $Lines.Count -eq 0 -or $LineIndex -lt 0) {
+        return $null
+    }
+
+    $start = [Math]::Min($LineIndex, $Lines.Count - 1)
+    for ($i = $start; $i -ge 0; $i--) {
+        $line = [string]$Lines[$i]
+        if ($line -match '^(#{1,6}\s+|<summary\b|\|\s*\[\*\*)') {
+            return [ordered]@{
+                line = [int]($i + 1)
+                text = Get-CompactDiffSnippet -Text $line
+            }
+        }
+    }
+
+    return $null
+}
+
+function New-TextArtifactDiffDiagnostic {
+    param(
+        [string]$Artifact,
+        [AllowNull()][string]$Current,
+        [AllowNull()][string]$Expected,
+        [bool]$InSync
+    )
+
+    $currentNormalized = ConvertTo-NormalizedGeneratedText -Text $Current
+    $expectedNormalized = ConvertTo-NormalizedGeneratedText -Text $Expected
+    $currentLines = @($currentNormalized -split "`n", -1)
+    $expectedLines = @($expectedNormalized -split "`n", -1)
+    $maxLineCount = [Math]::Max($currentLines.Count, $expectedLines.Count)
+    $firstDiff = $null
+
+    if (-not $InSync) {
+        for ($i = 0; $i -lt $maxLineCount; $i++) {
+            $currentLine = if ($i -lt $currentLines.Count) { [string]$currentLines[$i] } else { $null }
+            $expectedLine = if ($i -lt $expectedLines.Count) { [string]$expectedLines[$i] } else { $null }
+            if ($currentLine -ne $expectedLine) {
+                $firstDiff = [ordered]@{
+                    line = [int]($i + 1)
+                    sectionMarker = Get-NearestDiffSectionMarker -Lines $expectedLines -LineIndex $i
+                    current = Get-CompactDiffSnippet -Text $currentLine
+                    expected = Get-CompactDiffSnippet -Text $expectedLine
+                }
+                break
+            }
+        }
+    }
+
+    return [ordered]@{
+        artifact = $Artifact
+        inSync = [bool]$InSync
+        currentSha256 = Get-StringSha256 -Text $currentNormalized
+        expectedSha256 = Get-StringSha256 -Text $expectedNormalized
+        firstDiff = $firstDiff
+    }
+}
+
+function New-GeneratedArtifactDriftDiagnostics {
+    param(
+        [AllowNull()][string]$CurrentReadme,
+        [AllowNull()][string]$ExpectedReadme,
+        [AllowNull()][string]$CurrentProjects,
+        [AllowNull()][string]$ExpectedProjects,
+        [bool]$ReadmeInSync,
+        [bool]$ProjectsInSync,
+        [bool]$ProfileAssetsInSync,
+        [object[]]$AssetChecks,
+        [hashtable]$ExpectedAssets
+    )
+
+    $affectedAssets = New-Object System.Collections.Generic.List[object]
+    foreach ($assetCheck in @($AssetChecks | Where-Object { $null -ne $_ -and $_.inSync -ne $true })) {
+        $path = [string]$assetCheck.path
+        $currentText = ""
+        if ([bool]$assetCheck.exists) {
+            $assetFullPath = Join-Path $RepoRoot $path
+            if (Test-Path -LiteralPath $assetFullPath) {
+                $currentText = Get-Content -LiteralPath $assetFullPath -Raw
+            }
+        }
+        $expectedText = if ($ExpectedAssets -and $ExpectedAssets.ContainsKey($path)) { [string]$ExpectedAssets[$path] } else { "" }
+        $affectedAssets.Add([ordered]@{
+            path = $path
+            exists = [bool]$assetCheck.exists
+            fatal = [bool]($assetCheck.exists -ne $true -or $path -notmatch 'contributions-(dark|light)\.svg$')
+            currentSha256 = if ([bool]$assetCheck.exists) { Get-StringSha256 -Text $currentText } else { $null }
+            expectedSha256 = Get-StringSha256 -Text $expectedText
+        })
+    }
+
+    return [ordered]@{
+        remediationCommand = "pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write"
+        readme = New-TextArtifactDiffDiagnostic -Artifact "README.md" -Current $CurrentReadme -Expected $ExpectedReadme -InSync:$ReadmeInSync
+        projects = New-TextArtifactDiffDiagnostic -Artifact "projects.json" -Current $CurrentProjects -Expected $ExpectedProjects -InSync:$ProjectsInSync
+        assets = [ordered]@{
+            inSync = [bool]$ProfileAssetsInSync
+            affectedAssetCount = [int]$affectedAssets.Count
+            affectedAssets = $affectedAssets.ToArray()
+        }
+    }
+}
+
 function Get-GitHeadCommit {
     $head = & git -C $RepoRoot rev-parse HEAD 2>$null
     if ($LASTEXITCODE -ne 0) {
@@ -10095,11 +10242,7 @@ function Test-ProfileState {
     } else {
         ""
     }
-    $normalize = {
-        param([string]$Text)
-        return (($Text -replace "`r`n", "`n").TrimEnd())
-    }
-    $readmeInSync = (& $normalize $currentReadme) -eq (& $normalize $ExpectedReadme)
+    $readmeInSync = (ConvertTo-NormalizedGeneratedText -Text $currentReadme) -eq (ConvertTo-NormalizedGeneratedText -Text $ExpectedReadme)
     $projectsComparableInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -eq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
     $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
     $projectsInSync = $projectsComparableInSync -or ([int](Get-MemberValue -Object $metadataDriftResult -Name "fatalCount") -eq 0)
@@ -10110,7 +10253,7 @@ function Test-ProfileState {
         $assetInSync = $false
         if ($exists) {
             $currentAsset = Get-Content -LiteralPath $fullPath -Raw
-            $assetInSync = ((& $normalize $currentAsset) -eq (& $normalize ([string]$ExpectedAssets[$assetPath])))
+            $assetInSync = ((ConvertTo-NormalizedGeneratedText -Text $currentAsset) -eq (ConvertTo-NormalizedGeneratedText -Text ([string]$ExpectedAssets[$assetPath])))
         }
         $assetChecks.Add([ordered]@{
             path = [string]$assetPath
@@ -10126,6 +10269,16 @@ function Test-ProfileState {
     $assetsInSync = @($assetChecks | Where-Object {
         $_.inSync -ne $true -and ($_.exists -ne $true -or [string]$_.path -notmatch 'contributions-(dark|light)\.svg$')
     }).Count -eq 0
+    $artifactDriftDiagnostics = New-GeneratedArtifactDriftDiagnostics `
+        -CurrentReadme $currentReadme `
+        -ExpectedReadme $ExpectedReadme `
+        -CurrentProjects $currentProjects `
+        -ExpectedProjects $ExpectedProjects `
+        -ReadmeInSync:$readmeInSync `
+        -ProjectsInSync:$projectsInSync `
+        -ProfileAssetsInSync:$assetsInSync `
+        -AssetChecks $assetChecks.ToArray() `
+        -ExpectedAssets $ExpectedAssets
 
     $linkFailures = @()
     $linkWarnings = @()
@@ -10253,6 +10406,7 @@ function Test-ProfileState {
         readmeInSync = $readmeInSync
         projectsExportInSync = $projectsInSync
         profileAssetsInSync = $assetsInSync
+        artifactDriftDiagnostics = $artifactDriftDiagnostics
         profileAssetChecks = $assetChecks.ToArray()
         publicRepoCount = $Repos.Count
         catalogEntryCount = $entries.Count

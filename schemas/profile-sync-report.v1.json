@@ -10,6 +10,7 @@
     "readmeInSync",
     "projectsExportInSync",
     "profileAssetsInSync",
+    "artifactDriftDiagnostics",
     "profileAssetChecks",
     "publicRepoCount",
     "catalogEntryCount",
@@ -71,6 +72,9 @@
     },
     "profileAssetsInSync": {
       "type": "boolean"
+    },
+    "artifactDriftDiagnostics": {
+      "$ref": "#/$defs/artifactDriftDiagnostics"
     },
     "profileAssetChecks": {
       "type": "array",
@@ -284,6 +288,13 @@
       "type": "string",
       "pattern": "^[a-f0-9]{64}$"
     },
+    "nullableSha256": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
     "nullableCommitSha": {
       "type": [
         "string",
@@ -314,6 +325,155 @@
         },
         "inSync": {
           "type": "boolean"
+        }
+      }
+    },
+    "artifactDriftDiagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "remediationCommand",
+        "readme",
+        "projects",
+        "assets"
+      ],
+      "properties": {
+        "remediationCommand": {
+          "type": "string"
+        },
+        "readme": {
+          "$ref": "#/$defs/textArtifactDiagnostic"
+        },
+        "projects": {
+          "$ref": "#/$defs/textArtifactDiagnostic"
+        },
+        "assets": {
+          "$ref": "#/$defs/assetDriftDiagnostics"
+        }
+      }
+    },
+    "textArtifactDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact",
+        "inSync",
+        "currentSha256",
+        "expectedSha256",
+        "firstDiff"
+      ],
+      "properties": {
+        "artifact": {
+          "type": "string"
+        },
+        "inSync": {
+          "type": "boolean"
+        },
+        "currentSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "expectedSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "firstDiff": {
+          "$ref": "#/$defs/nullableTextFirstDiff"
+        }
+      }
+    },
+    "nullableTextFirstDiff": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "line",
+        "sectionMarker",
+        "current",
+        "expected"
+      ],
+      "properties": {
+        "line": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "sectionMarker": {
+          "$ref": "#/$defs/nullableDiffSectionMarker"
+        },
+        "current": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "expected": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "nullableDiffSectionMarker": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "line",
+        "text"
+      ],
+      "properties": {
+        "line": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "text": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "assetDriftDiagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inSync",
+        "affectedAssetCount",
+        "affectedAssets"
+      ],
+      "properties": {
+        "inSync": {
+          "type": "boolean"
+        },
+        "affectedAssetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "affectedAssets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/affectedAssetDrift"
+          }
+        }
+      }
+    },
+    "affectedAssetDrift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "exists",
+        "fatal",
+        "currentSha256",
+        "expectedSha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean"
+        },
+        "fatal": {
+          "type": "boolean"
+        },
+        "currentSha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "expectedSha256": {
+          "$ref": "#/$defs/sha256"
         }
       }
     },

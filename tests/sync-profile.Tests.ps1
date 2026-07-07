@@ -3676,9 +3676,82 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
         }
     }
 
+    It 'lists generated artifact drift diagnostics and remediation in summaries' {
+        $reportPath = New-TemporaryFile
+        $summaryPath = New-TemporaryFile
+        try {
+            $report = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
+            $report.readmeInSync = $false
+            $report.projectsExportInSync = $false
+            $report.profileAssetsInSync = $false
+            $artifactDriftDiagnostics = [pscustomobject]@{
+                remediationCommand = 'pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write'
+                readme = [pscustomobject]@{
+                    artifact = 'README.md'
+                    inSync = $false
+                    currentSha256 = ('a' * 64)
+                    expectedSha256 = ('b' * 64)
+                    firstDiff = [pscustomobject]@{
+                        line = 12
+                        sectionMarker = [pscustomobject]@{ line = 10; text = '## Tool Catalog' }
+                        current = 'old row'
+                        expected = 'new row'
+                    }
+                }
+                projects = [pscustomobject]@{
+                    artifact = 'projects.json'
+                    inSync = $false
+                    currentSha256 = ('c' * 64)
+                    expectedSha256 = ('d' * 64)
+                    firstDiff = [pscustomobject]@{
+                        line = 1
+                        sectionMarker = $null
+                        current = '{"stale":true}'
+                        expected = '{"schema":"profile"}'
+                    }
+                }
+                assets = [pscustomobject]@{
+                    inSync = $false
+                    affectedAssetCount = 1
+                    affectedAssets = @(
+                        [pscustomobject]@{
+                            path = 'assets/profile/footer-dark.svg'
+                            exists = $true
+                            fatal = $true
+                            currentSha256 = ('e' * 64)
+                            expectedSha256 = ('f' * 64)
+                        }
+                    )
+                }
+            }
+            if ($report.PSObject.Properties.Name -contains 'artifactDriftDiagnostics') {
+                $report.artifactDriftDiagnostics = $artifactDriftDiagnostics
+            } else {
+                $report | Add-Member -NotePropertyName artifactDriftDiagnostics -NotePropertyValue $artifactDriftDiagnostics
+            }
+            $report | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $reportPath.FullName -Encoding utf8
+
+            pwsh -NoProfile -File $script:SummaryScriptPath -ReportPath $reportPath.FullName -SummaryPath $summaryPath.FullName -Context 'Artifact drift test'
+            $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
+
+            $summary | Should -Match 'Generated Artifact Drift'
+            $summary | Should -Match 'Remediation: `pwsh -NoLogo -NoProfile -File ./scripts/sync-profile[.]ps1 -Write`'
+            $summary | Should -Match 'README[.]md'
+            $summary | Should -Match ('a' * 64)
+            $summary | Should -Match ('b' * 64)
+            $summary | Should -Match '## Tool Catalog'
+            $summary | Should -Match 'assets/profile/footer-dark[.]svg'
+        } finally {
+            Remove-Item -LiteralPath $reportPath.FullName -Force -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath $summaryPath.FullName -Force -ErrorAction SilentlyContinue
+        }
+    }
+
     It 'emits GitHub annotations and uses aggregate report sections only' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
         $script:SummaryScript | Should -Match 'metadataDrift'
+        $script:SummaryScript | Should -Match 'artifactDriftDiagnostics'
+        $script:SummaryScript | Should -Match 'Generated Artifact Drift'
         $script:SummaryScript | Should -Match 'Fatal Metadata Drift Details'
         $script:SummaryScript | Should -Match 'Metadata Hygiene Handoff'
         $script:SummaryScript | Should -Match 'metadataHandoff'
@@ -3871,19 +3944,31 @@ Describe 'URL scheme safety' {
 }
 
 Describe 'Test-ProfileState projects sync gate' {
-    It 'fails when projects.json is out of sync with the expected feed' {
+    It 'fails with artifact diagnostics when README and projects.json are out of sync' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
 
         $result = Test-ProfileState `
             -Catalog $cat `
             -Repos @() `
             -ExpectedReadme $expectedReadme `
-            -ExpectedProjects '{"stale": true}' `
+            -ExpectedProjects $expectedProjects `
+            -CurrentReadme "# stale profile`n" `
+            -CurrentProjects '{"stale":true}' `
             -SkipLinkValidation
 
         $result.Failed | Should -BeTrue
+        $result.Report.readmeInSync | Should -BeFalse
         $result.Report.projectsExportInSync | Should -BeFalse
+        $result.Report.artifactDriftDiagnostics.remediationCommand | Should -Be 'pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write'
+        $result.Report.artifactDriftDiagnostics.readme.currentSha256 | Should -Match '^[a-f0-9]{64}$'
+        $result.Report.artifactDriftDiagnostics.readme.expectedSha256 | Should -Match '^[a-f0-9]{64}$'
+        $result.Report.artifactDriftDiagnostics.readme.firstDiff.line | Should -Be 1
+        $result.Report.artifactDriftDiagnostics.readme.firstDiff.current | Should -Be '# stale profile'
+        $result.Report.artifactDriftDiagnostics.projects.currentSha256 | Should -Match '^[a-f0-9]{64}$'
+        $result.Report.artifactDriftDiagnostics.projects.expectedSha256 | Should -Match '^[a-f0-9]{64}$'
+        $result.Report.artifactDriftDiagnostics.projects.firstDiff.line | Should -Be 1
     }
 
     It 'passes when projects.json differs only by informational metadata drift' {
@@ -3976,6 +4061,11 @@ Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive
             -ExpectedAssets $expectedAssets -SkipLinkValidation
 
         $result.Report.profileAssetsInSync | Should -BeFalse
+        $result.Report.artifactDriftDiagnostics.assets.inSync | Should -BeFalse
+        $result.Report.artifactDriftDiagnostics.assets.affectedAssetCount | Should -Be 1
+        $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].path | Should -Be 'assets/profile/footer-dark.svg'
+        $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].fatal | Should -BeTrue
+        $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].expectedSha256 | Should -Match '^[a-f0-9]{64}$'
     }
 }
 

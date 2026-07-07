@@ -6,13 +6,6 @@
 
 ### P1
 
-- [ ] P1 — Emit actionable artifact diff diagnostics in `-Check`
-  Why: The report exposes `readmeInSync`, `projectsExportInSync`, and `profileAssetsInSync` as booleans, but a future generated-output mismatch needs to identify the exact drift without requiring a blind rewrite.
-  Evidence: `scripts/sync-profile.ps1` `Test-ProfileState`, `reports/profile-sync-report.json`, recent manual README/header drift fixed before this research pass.
-  Touches: `scripts/sync-profile.ps1`, `scripts/write-profile-sync-summary.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: failed checks include expected/current SHA-256, first differing normalized line or section marker for README/feed drift, affected asset names for SVG drift, and a direct remediation command in the summary output.
-  Complexity: M
-
 - [ ] P1 — Add conditional GitHub metadata and link-probe caching
   Why: Current validation probes 206 repos, 206 release fetches, and 342 links; GitHub REST/GraphQL limits and competitor reliability failures make bounded caching a root-cause resilience improvement.
   Evidence: `reports/profile-sync-report.json.validationPerformance`, GitHub REST and GraphQL rate-limit docs, `anuraghazra/github-readme-stats#4867`.

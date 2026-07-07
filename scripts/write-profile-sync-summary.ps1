@@ -149,6 +149,7 @@ $profileAssetsAccessibility = if ($report.PSObject.Properties.Name -contains 'pr
 $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readmeExperienceChecks') { $report.readmeExperienceChecks } else { $null }
 $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
 $metadataFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'metadataFetch') { $performance.metadataFetch } else { $null }
+$artifactDriftDiagnostics = if ($report.PSObject.Properties.Name -contains 'artifactDriftDiagnostics') { $report.artifactDriftDiagnostics } else { $null }
 
 $missingTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingTopicCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null))) } else { 0 }
 $missingDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingDescriptionCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null))) } else { 0 }
@@ -639,6 +640,47 @@ $summary = @"
 
 Report generated at $($report.generatedAt).
 "@
+
+if ($artifactDriftDiagnostics -and ($report.readmeInSync -ne $true -or $report.projectsExportInSync -ne $true -or $report.profileAssetsInSync -ne $true)) {
+    $detailLines = New-Object System.Collections.Generic.List[string]
+    $detailLines.Add("")
+    $detailLines.Add("#### Generated Artifact Drift")
+    $detailLines.Add("")
+    $remediationCommand = [string](Get-ObjectPropertyOrDefault -Object $artifactDriftDiagnostics -Name "remediationCommand" -Default "pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write")
+    $detailLines.Add("Remediation: ``$remediationCommand``")
+    $detailLines.Add("")
+    $detailLines.Add("| Artifact | Current SHA-256 | Expected SHA-256 | First differing line | Section | Current | Expected |")
+    $detailLines.Add("| --- | --- | --- | ---: | --- | --- | --- |")
+
+    foreach ($diagnostic in @($artifactDriftDiagnostics.readme, $artifactDriftDiagnostics.projects)) {
+        if ($diagnostic -and $diagnostic.inSync -ne $true) {
+            $firstDiff = Get-ObjectPropertyOrDefault -Object $diagnostic -Name "firstDiff"
+            $line = if ($firstDiff -and $null -ne $firstDiff.line) { [int]$firstDiff.line } else { 0 }
+            $section = ""
+            if ($firstDiff -and $firstDiff.PSObject.Properties.Name -contains 'sectionMarker' -and $firstDiff.sectionMarker) {
+                $section = [string](Get-ObjectPropertyOrDefault -Object $firstDiff.sectionMarker -Name "text" -Default "")
+            }
+            $current = if ($firstDiff) { [string](Get-ObjectPropertyOrDefault -Object $firstDiff -Name "current" -Default "") } else { "" }
+            $expected = if ($firstDiff) { [string](Get-ObjectPropertyOrDefault -Object $firstDiff -Name "expected" -Default "") } else { "" }
+            $detailLines.Add("| $(ConvertTo-MarkdownCell ([string]$diagnostic.artifact)) | ``$($diagnostic.currentSha256)`` | ``$($diagnostic.expectedSha256)`` | $line | $(ConvertTo-MarkdownCell $section) | $(ConvertTo-MarkdownCell $current) | $(ConvertTo-MarkdownCell $expected) |")
+        }
+    }
+
+    $assets = Get-ObjectPropertyOrDefault -Object $artifactDriftDiagnostics -Name "assets"
+    $affectedAssets = if ($assets -and $assets.PSObject.Properties.Name -contains 'affectedAssets') { @($assets.affectedAssets | Where-Object { $_.fatal -eq $true }) } else { @() }
+    if ($affectedAssets.Count -gt 0) {
+        $detailLines.Add("")
+        $detailLines.Add("| Asset | Exists | Current SHA-256 | Expected SHA-256 |")
+        $detailLines.Add("| --- | ---: | --- | --- |")
+        foreach ($asset in $affectedAssets) {
+            $currentHash = [string](Get-ObjectPropertyOrDefault -Object $asset -Name "currentSha256" -Default "")
+            $expectedHash = [string](Get-ObjectPropertyOrDefault -Object $asset -Name "expectedSha256" -Default "")
+            $detailLines.Add("| $(ConvertTo-MarkdownCell ([string]$asset.path)) | $($asset.exists) | ``$currentHash`` | ``$expectedHash`` |")
+        }
+    }
+
+    $summary = $summary.TrimEnd() + "`n" + ($detailLines -join "`n") + "`n"
+}
 
 if ((Get-Count $metadataHandoffTopicRows) -gt 0 -or (Get-Count $metadataHandoffDescriptionRows) -gt 0) {
     $detailLines = New-Object System.Collections.Generic.List[string]

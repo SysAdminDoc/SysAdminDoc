@@ -1,9 +1,46 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T17:20:55.3284077-04:00",
+  "generatedAt": "2026-07-07T17:40:21.1916233-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
+  "artifactDriftDiagnostics": {
+    "remediationCommand": "pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write",
+    "readme": {
+      "artifact": "README.md",
+      "inSync": true,
+      "currentSha256": "de2eb9851b328e03cc7d0aa3bee2e53e7bf22200c1eec2b8e7062b7601715bba",
+      "expectedSha256": "de2eb9851b328e03cc7d0aa3bee2e53e7bf22200c1eec2b8e7062b7601715bba",
+      "firstDiff": null
+    },
+    "projects": {
+      "artifact": "projects.json",
+      "inSync": true,
+      "currentSha256": "777e1df8041c825295dd70bf4db64a306def988687781f804559391fbf04c00e",
+      "expectedSha256": "062754fbb2311ca9d6a218737affda974d7491a39626f05cedda11517daf34c9",
+      "firstDiff": null
+    },
+    "assets": {
+      "inSync": true,
+      "affectedAssetCount": 2,
+      "affectedAssets": [
+        {
+          "path": "assets/profile/contributions-dark.svg",
+          "exists": true,
+          "fatal": false,
+          "currentSha256": "8e9a3fb14e9934f71b6ad0004380906642dbc474896e9f298b3717f641fdb743",
+          "expectedSha256": "043dc21f662622986098647b9faad6e02e007a9db5cabb241a8721646a24f2fb"
+        },
+        {
+          "path": "assets/profile/contributions-light.svg",
+          "exists": true,
+          "fatal": false,
+          "currentSha256": "4ccf2f0404e77e34bbaaee17579b45b2bd34d8d3f3cc48568ca6a21cb8ef15e5",
+          "expectedSha256": "7718683c47a6e3892facaeba8f90095218f9a3761a588e09d689bf90097b67a9"
+        }
+      ]
+    }
+  },
   "profileAssetChecks": [
     {
       "path": "assets/profile/activity-dark.svg",
@@ -18,12 +55,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +110,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "c779aa4f3044be9bbc8ab72b116a24ef4a6a9e2b",
+    "sourceCommit": "ed371adc0faf7c7b323d3c7a90e8efca256eb488",
     "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
-    "generatorSha256": "5c33e879c82b8efb8eda8bacec609db5e3fac99b810287b888d685f9f2f2ff24",
+    "generatorSha256": "f3f31d13ba4e222460a73453f915a122d14545a7033e77184bc6b831d312963a",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T17:18:53.5097621-04:00",
+    "metadataSnapshotAt": "2026-07-07T17:38:27.6388839-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1657,7 +1694,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-07T17:18:53.5097621-04:00",
+          "queriedAt": "2026-07-07T17:38:27.6388839-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2069,7 +2106,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 16338,
+      "elapsedMs": 5367,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2102,18 +2139,27 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T17:17:17.1805618-04:00",
-      "newValue": "2026-07-07T17:18:53.5097621-04:00",
+      "oldValue": "2026-07-07T17:36:47.6689459-04:00",
+      "newValue": "2026-07-07T17:38:27.6388839-04:00",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "LibreSpot",
+      "category": "powershell",
+      "field": "pushedAt",
+      "oldValue": "2026-07-07T21:34:00Z",
+      "newValue": "2026-07-07T21:36:58Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 1,
+    "informationalCount": 2,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 36.04,
+      "ageDays": 36.06,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2123,7 +2169,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 16338,
+    "elapsedMs": 5367,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2483,7 +2529,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 359589,
+        "value": 359592,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2492,7 +2538,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99538,
+        "value": 101258,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2537,14 +2583,14 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "generated-with-commit",
+    "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-07T17:09:36.6118573-04:00",
-    "latestReportAffectingCommitSha": "c779aa4f3044be9bbc8ab72b116a24ef4a6a9e2b",
-    "latestReportAffectingCommitDate": "2026-07-07T17:15:06.0000000-04:00",
-    "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.09,
-    "generatedWithCommit": true,
+    "committedReportGeneratedAt": "2026-07-07T17:33:47.0819898-04:00",
+    "latestReportAffectingCommitSha": "ed371adc0faf7c7b323d3c7a90e8efca256eb488",
+    "latestReportAffectingCommitDate": "2026-07-07T17:25:39.0000000-04:00",
+    "reportAgeBehindCommit": false,
+    "reportAgeBehindHours": null,
+    "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": false,
