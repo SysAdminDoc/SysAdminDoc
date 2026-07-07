@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a75d2b030340e4ccd47e2e00d68f2cc7cd0fb778",
+    "sourceCommit": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "b910f0e73468872d456c1729c0436733e26d2af2e5392472b63c44a5094abc74",
+    "generatorSha256": "d2759257246f2cd1414347c8dd768a6fac4c337ca5dae96a7fe273349f6903cc",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-06T00:32:43.1264104-04:00",
+    "metadataSnapshotAt": "2026-07-07T13:29:15.2549192-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -167,7 +167,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 18,
+      "stars": 19,
       "latestReleaseTag": "v3.74.108",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/ClearCut/releases/tag/v3.74.108",
       "releaseAssetKinds": [
@@ -837,7 +837,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-03T21:53:13.0000000Z",
+      "pushedAt": "2026-07-07T08:40:54.0000000Z",
       "topics": [
         "android",
         "kotlin"
@@ -1402,7 +1402,7 @@
       "entrypoint": null,
       "installKind": null,
       "language": "Kotlin",
-      "stars": 11,
+      "stars": 12,
       "latestReleaseTag": "v1.9.55",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.55",
       "releaseAssetKinds": [
@@ -2346,13 +2346,13 @@
       "installKind": null,
       "language": "C#",
       "stars": 0,
-      "latestReleaseTag": "v0.12.1",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v0.12.1",
+      "latestReleaseTag": "v0.12.3",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v0.12.3",
       "releaseAssetKinds": [
         "exe"
       ],
       "releaseAssetNames": [
-        "HostsGuard-v0.12.1-dotnet-Setup.exe"
+        "HostsGuard-v0.12.3-dotnet-Setup.exe"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -2374,7 +2374,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-05T19:26:02.0000000Z",
+      "pushedAt": "2026-07-07T16:59:07.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -6198,7 +6198,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-06T04:24:23.0000000Z",
+      "pushedAt": "2026-07-07T16:53:03.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -6597,7 +6597,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 30,
+      "stars": 32,
       "latestReleaseTag": "v3.17.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.17.1",
       "releaseAssetKinds": [
@@ -7267,7 +7267,7 @@
       "entrypoint": "NVMe_Driver_Patcher.ps1",
       "installKind": "powershell",
       "language": "C#",
-      "stars": 48,
+      "stars": 49,
       "latestReleaseTag": "v5.0.0",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/tag/v5.0.0",
       "releaseAssetKinds": [
@@ -7503,7 +7503,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-06T04:15:21.0000000Z",
+      "pushedAt": "2026-07-07T06:27:11.0000000Z",
       "topics": [
         "automation",
         "dark-theme",
@@ -10210,7 +10210,7 @@
       "entrypoint": "sunojump.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 4,
+      "stars": 5,
       "latestReleaseTag": "v1.5.16",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/SunoJump/releases/tag/v1.5.16",
       "releaseAssetKinds": [
@@ -11770,7 +11770,7 @@
       "entrypoint": "Install.ps1",
       "installKind": "powershell",
       "language": "Python",
-      "stars": 25,
+      "stars": 26,
       "latestReleaseTag": "v1.25.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.25.1",
       "releaseAssetKinds": [

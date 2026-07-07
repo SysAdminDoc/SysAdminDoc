@@ -581,7 +581,16 @@
       "required": [
         "missingTopicCount",
         "missingDescriptionCount",
+        "publicMissingTopicCount",
+        "publicMissingDescriptionCount",
+        "redactedTopicCount",
+        "redactedDescriptionCount",
+        "suppressedTopicCount",
+        "suppressedDescriptionCount",
+        "unsafeOrPrivateTopicCount",
+        "unsafeOrPrivateDescriptionCount",
         "topicHintPolicy",
+        "handoff",
         "missingTopics",
         "missingDescriptions"
       ],
@@ -592,8 +601,35 @@
         "missingDescriptionCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "publicMissingTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "publicMissingDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "redactedTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "redactedDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unsafeOrPrivateTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unsafeOrPrivateDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "topicHintPolicy": {
           "$ref": "#/$defs/topicHintPolicy"
+        },
+        "handoff": {
+          "$ref": "#/$defs/metadataHygieneHandoff"
         },
         "missingTopics": {
           "type": "array",
@@ -606,6 +642,69 @@
           "items": {
             "$ref": "#/$defs/missingDescriptionRow"
           }
+        }
+      }
+    },
+    "metadataHygieneHandoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "maxRows",
+        "topicRowCount",
+        "descriptionRowCount",
+        "excludedSuppressedTopicCount",
+        "excludedSuppressedDescriptionCount",
+        "excludedUnsafeOrPrivateTopicCount",
+        "excludedUnsafeOrPrivateDescriptionCount",
+        "topicRows",
+        "descriptionRows",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "actionable",
+            "redacted-only",
+            "clean"
+          ]
+        },
+        "maxRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "topicRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "descriptionRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "excludedSuppressedTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "excludedSuppressedDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "excludedUnsafeOrPrivateTopicCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "excludedUnsafeOrPrivateDescriptionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "topicRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/metadataHygieneTopicHandoffRow"
+          }
+        },
+        "descriptionRows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/metadataHygieneDescriptionHandoffRow"
+          }
+        },
+        "note": {
+          "type": "string"
         }
       }
     },
@@ -755,6 +854,8 @@
         "parentMismatchCount",
         "parentUnavailableCount",
         "warningCount",
+        "publicDetailRowCount",
+        "redactedDetailRowCount",
         "matchingGitHubForks",
         "catalogContinuations",
         "missingCatalogAttribution",
@@ -788,6 +889,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "publicDetailRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "redactedDetailRowCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "matchingGitHubForks": {
@@ -999,6 +1106,66 @@
         },
         "catalogDescription": {
           "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "metadataHygieneTopicHandoffRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "language",
+        "category",
+        "topicHints",
+        "command"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "category": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "topicHints": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "command": {
+          "type": "string"
+        }
+      }
+    },
+    "metadataHygieneDescriptionHandoffRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "language",
+        "category",
+        "catalogDescription",
+        "command",
+        "catalogPatchGuidance"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "category": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "catalogDescription": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "command": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "catalogPatchGuidance": {
+          "type": "string"
         }
       }
     },

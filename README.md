@@ -1,33 +1,39 @@
-<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, and media workflows<br/><sub>PowerShell · Python · C# · Kotlin · JavaScript · Rust · C++</sub></p>
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/header-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/header-light.svg"><img src="assets/profile/header-dark.svg" alt="SysAdminDoc public tools command center profile header" width="100%" /></picture>
+</p>
 
-<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio →</b></a></p>
+<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
-<p align="center"><a href="#powershell-system-utilities">PowerShell</a> · <a href="#python-desktop-applications">Python</a> · <a href="#web-applications">Web Apps</a> · <a href="#browser-extensions--userscripts">Extensions</a> · <a href="#android-applications">Android</a> · <a href="#security--networking">Security</a> · <a href="#native-desktop-applications">Desktop</a> · <a href="#media--conversion-tools">Media</a> · <a href="#guides--resources">Guides</a> · <a href="#misc--forks">Forks</a></p>
+<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
+
+<p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>
 
 <!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
 
 ### Start Here
 
-This profile organizes public projects by platform. Use the portfolio for search and filters, or jump to the section that matches your machine, browser, or device.
+Use this as a public tools command center: pick the route that matches the machine, browser, device, or validation job in front of you. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.
 
-| Goal | Best path | What to expect |
-|:-----|:----------|:---------------|
-| Run a Windows utility | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | One-liner install commands and release downloads. |
-| Install a browser or Android tool | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | CRX, XPI, userscript, and APK installs labeled per project. |
-| Launch a web tool | [Web Apps](#web-applications) | Browser-based tools that work without local setup. |
-| Set up a fresh Windows machine | [First-time setup](#first-time-setup) | Guided PowerShell 7, Python, and Git setup with an inspect-before-install path. |
-| Validate this repo | [Local validation](#local-validation) | Runs markdownlint, PSScriptAnalyzer, and Pester with pinned tool versions. |
-| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable catalog generated from this repo's project feed. |
+| Need | Best path | First action | Confidence signal |
+|:-----|:----------|:-------------|:------------------|
+| Run a Windows utility | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Use a branch-pinned command or latest release download. | Each row shows its install mode, release path, or repo fallback. |
+| Launch a browser-based tool | [Web Apps](#web-applications) | Open the live project link. | Web rows stay no-install and route to the deployed surface. |
+| Install an extension or Android app | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | Use the CRX, XPI, userscript, APK, or repo action shown per row. | Download labels are generated from release metadata. |
+| Work on security, media, or reference tasks | [Security](#security--networking), [Media](#media--conversion-tools), or [Guides](#guides--resources) | Jump to the matching platform section. | Category summaries call out the expected workflow before the rows. |
+| Set up or verify this profile repo | [First-time setup](#first-time-setup) or [Local validation](#local-validation) | Inspect setup first, then run the pinned local validation command. | Validation records markdown, PowerShell, schema, feed, and rendered-smoke evidence. |
+| Search across everything | [Full portfolio](https://sysadmindoc.github.io/) | Filter by platform, freshness, download type, and catalog metadata. | The portfolio consumes this repo's generated projects.json feed. |
+
+Quick platform map: [PowerShell](#powershell-system-utilities) &middot; [Python](#python-desktop-applications) &middot; [Web Apps](#web-applications) &middot; [Extensions](#browser-extensions--userscripts) &middot; [Android](#android-applications) &middot; [Desktop](#native-desktop-applications)
 
 ---
 
 <a id="first-time-setup"></a>
 
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>Install PowerShell 7, Python 3, and Git only if your machine needs them.</i></summary>
+<summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
 <br/>
 
-The command below checks for PowerShell 7, Python, and Git before installing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+The setup path checks for PowerShell 7, Python, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -41,10 +47,10 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 
 | Step | Behavior |
 |:-----|:---------|
-| Checks first | Skips PowerShell 7, Python, or Git when already installed. |
+| Checks first | Reports PowerShell 7, Python, and Git state before installing missing tools. |
 | Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
 | Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
-| Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
+| Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
@@ -55,10 +61,10 @@ Already have PowerShell 7, Python, and Git? Skip this section and open the categ
 <a id="local-validation"></a>
 
 <details>
-<summary><b>&#9989; Local validation</b> -- <i>Install pinned validation tools and run every local check.</i></summary>
+<summary><b>&#9989; Local validation</b> -- <i>Regenerate, lint, analyze, test, and smoke-check the profile feed locally.</i></summary>
 <br/>
 
-Use this from the repo root before pushing profile, catalog, or validation changes:
+Use this from the repo root before pushing profile, catalog, asset, or validation changes:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validate-local.ps1
@@ -76,7 +82,7 @@ npm run review:dependencies
 | Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock/hash pins, and reports latest-known npm/Python audit-tool freshness without failing solely on stale evidence. |
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
-| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
+| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
@@ -87,12 +93,12 @@ Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_
 
 <a id="powershell-system-utilities"></a>
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Branch-pinned commands you can paste into PowerShell and run immediately.</i></summary>
+<summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Clipboard-ready Windows administration tools with branch-pinned run commands.</i></summary>
 <br/>
 
 Suggested starting points: [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher), [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot), [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor).
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;48 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;49 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 ```powershell
 $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/win11-nvme-driver-patcher $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NVMe_Driver_Patcher.ps1"
 ```
@@ -246,12 +252,12 @@ $d="$env:TEMP\WinForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --
 
 <a id="python-desktop-applications"></a>
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> -- 29 repos -- <i>Clone-and-run desktop tools and automation built on Python 3.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> -- 29 repos -- <i>Local-first desktop utilities, media workflows, and automation built on Python 3.</i></summary>
 <br/>
 
 Suggested starting points: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;25 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;26 -- AI-powered video editing automation for Premiere Pro — caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 $d="$env:TEMP\OpenCut"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/OpenCut $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Install.ps1"
 ```
@@ -271,7 +277,7 @@ $d="$env:TEMP\Bookmark-Organizer-Pro"; if(Test-Path $d){git -C $d pull -q}else{g
 $d="$env:TEMP\SlunderStudio"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SlunderStudio $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\main.py"
 ```
 
-[**SunoJump**](https://github.com/SysAdminDoc/SunoJump) &#11088;4 -- Audio fingerprint masking for Suno AI — 10-pass pipeline, PyQt6 GUI, batch processing &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SunoJump/releases/latest)
+[**SunoJump**](https://github.com/SysAdminDoc/SunoJump) &#11088;5 -- Audio fingerprint masking for Suno AI — 10-pass pipeline, PyQt6 GUI, batch processing &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SunoJump/releases/latest)
 ```powershell
 $d="$env:TEMP\SunoJump"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/SunoJump $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\sunojump.py"
 ```
@@ -397,7 +403,7 @@ $d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{
 
 <a id="web-applications"></a>
 <details>
-<summary><b>&#127760; Web Applications</b> -- 29 repos -- <i>Tools and dashboards that run directly in the browser -- no install needed.</i></summary>
+<summary><b>&#127760; Web Applications</b> -- 29 repos -- <i>Launchable browser tools, dashboards, and project surfaces with no local install.</i></summary>
 <br/>
 
 Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Openshop), [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar), [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack).
@@ -438,7 +444,7 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 
 <a id="browser-extensions--userscripts"></a>
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 24 repos -- <i>Chrome/Firefox extensions and userscripts with one-click installs.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 24 repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths.</i></summary>
 <br/>
 
 Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault), [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced).
@@ -474,7 +480,7 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 
 <a id="android-applications"></a>
 <details>
-<summary><b>&#128241; Android Applications</b> -- 20 repos -- <i>Material You APKs and Android source projects.</i></summary>
+<summary><b>&#128241; Android Applications</b> -- 20 repos -- <i>AMOLED-friendly APKs, Android source projects, and device-focused utilities.</i></summary>
 <br/>
 
 Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**ClearCut**](https://github.com/SysAdminDoc/ClearCut), [**HostShield**](https://github.com/SysAdminDoc/HostShield).
@@ -482,10 +488,10 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | Project | Description | Download |
 |:--------|:------------|:--------:|
 | [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;31 | Power-user package manager — continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;19 | Full-featured Android video editor -- Kotlin, Jetpack Compose, and Media3 | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;19 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
-| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;18 | Full-featured Android video editor -- Kotlin, Jetpack Compose, and Media3 | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;12 | AMOLED-dark hosts-based ad blocker — inspired by AdAway | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
-| [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;11 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
+| [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;12 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;10 | Open-source Zedge alternative — wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;7 | Premium dark weather app — no API keys required | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;6 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
@@ -506,7 +512,7 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 
 <a id="security--networking"></a>
 <details>
-<summary><b>&#128274; Security & Networking</b> -- 3 repos -- <i>Network auditing, DNS management, and defensive security tools.</i></summary>
+<summary><b>&#128274; Security & Networking</b> -- 3 repos -- <i>Network auditing, DNS control, and defensive tooling with practical operator notes.</i></summary>
 <br/>
 
 Suggested starting points: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite), [**BetterNext**](https://github.com/SysAdminDoc/BetterNext), [**ESET**](https://github.com/SysAdminDoc/ESET).
@@ -521,12 +527,12 @@ Suggested starting points: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfS
 
 <a id="media--conversion-tools"></a>
 <details>
-<summary><b>&#127916; Media & Conversion Tools</b> -- 7 repos -- <i>Video editing, conversion, compression, subtitle removal, and streaming capture.</i></summary>
+<summary><b>&#127916; Media & Conversion Tools</b> -- 7 repos -- <i>Video repair, compression, conversion, subtitle removal, and stream-capture workflows.</i></summary>
 <br/>
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;30 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;32 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 ```powershell
 $d="$env:TEMP\VideoSubtitleRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoSubtitleRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\VideoSubtitleRemover.py"
 ```
@@ -562,7 +568,7 @@ $d="$env:TEMP\yt_livestream_downloader"; if(Test-Path $d){git -C $d pull -q}else
 
 <a id="native-desktop-applications"></a>
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 24 repos -- <i>Compiled Windows and cross-platform desktop apps in C#, C++, Rust, and TypeScript.</i></summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 24 repos -- <i>Installable Windows and cross-platform apps across C#, C++, Rust, and TypeScript.</i></summary>
 <br/>
 
 Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore), [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore).
@@ -598,7 +604,7 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 
 <a id="guides--resources"></a>
 <details>
-<summary><b>&#128218; Guides & Resources</b> -- 4 repos -- <i>Reference material, checklists, and public guides.</i></summary>
+<summary><b>&#128218; Guides & Resources</b> -- 4 repos -- <i>Public references, checklists, and companion guides for repeatable workflows.</i></summary>
 <br/>
 
 Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism), [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide), [**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list).
@@ -614,7 +620,7 @@ Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Re
 
 <a id="misc--forks"></a>
 <details>
-<summary><b>&#128256; Misc & Forks</b> -- 5 repos -- <i>Forks, continuations, and supporting utilities.</i></summary>
+<summary><b>&#128256; Misc & Forks</b> -- 5 repos -- <i>Forks, continuations, and supporting utilities with upstream context preserved.</i></summary>
 <br/>
 
 Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory), [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore), [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser).
@@ -629,4 +635,4 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 
 </details>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/footer-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/footer-light.svg"><img src="assets/profile/footer-dark.svg" alt="Decorative footer wave for the SysAdminDoc profile" width="100%" /></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/footer-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/footer-light.svg"><img src="assets/profile/footer-dark.svg" alt="SysAdminDoc generated profile footer" width="100%" /></picture>

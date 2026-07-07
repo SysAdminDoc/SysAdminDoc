@@ -1,7 +1,15 @@
 # Changelog
 
+## 2026-07-07
+
+- Reimagined the generated profile README as a local, theme-aware public tools command center with a stronger first-viewport header, centered routing actions, and no third-party render hosts.
+- Modernized Start Here routing, setup guidance, validation guidance, and category summaries so visitors can choose by platform, install path, and confidence signal without reading the full catalog first.
+- Bumped the internal profile evidence version to `v4.9.152`.
+
 ## 2026-07-06
 
+- Added public-safe metadata hygiene handoffs: the sync report now separates total topic/description gaps from public row details, redacts suppressed/private/unsafe repositories from exposed metadata and fork-parent detail rows, and renders ready-to-run `gh repo edit` commands or catalog guidance in the profile summary.
+- Bumped the internal profile evidence version to `v4.9.151`.
 - Refreshed local audit pins to `markdownlint-cli2` 0.23.0, `markdown-it` 14.3.0, `js-yaml` 5.2.1, and hash-pinned `zizmor` 1.26.1; dependency review now reports latest-known/current pin freshness and stale-review warnings without failing solely on stale evidence.
 - Bumped the internal profile evidence version to `v4.9.150`.
 - Added PowerShell runtime security posture reporting: setup now bootstraps PowerShell 7 while keeping Windows PowerShell 5.1 limited to `setup.ps1`, validation reports the active `pwsh` version/channel, and the profile sync report records current-LTS/preferred/runtime warning evidence.

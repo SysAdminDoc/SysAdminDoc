@@ -1291,33 +1291,61 @@ Describe 'Report schema depth helpers' {
     It 'reports repos missing topics or public descriptions' {
         $noTopicsEntry = New-TestEntry -Repo 'NoTopics' -Category 'powershell' -Description 'Catalog Windows utility'
         $noDescriptionEntry = New-TestEntry -Repo 'NoDescription' -Category 'web' -Description 'Catalog web dashboard'
+        $suppressedEntry = New-TestEntry -Repo 'SuppressedGap' -Category 'suppressed' -Description ''
         $repos = @(
             (New-TestRepoMeta -Name 'NoTopics' -Topics @() -Description 'has description'),
             (New-TestRepoMeta -Name 'NoDescription' -Topics @('windows') -Description ''),
+            (New-TestRepoMeta -Name 'SuppressedGap' -Topics @() -Description ''),
+            (New-TestRepoMeta -Name 'PrivateGap' -Topics @() -Description '' -Language 'PowerShell' | ForEach-Object {
+                    $_.isPrivate = $true
+                    $_.visibility = 'PRIVATE'
+                    $_
+                }),
             (New-TestRepoMeta -Name 'CompleteRepo' -Topics @('windows') -Description 'ready')
         )
 
-        $result = Test-MetadataHygiene -Repos $repos -CatalogEntries @($noTopicsEntry, $noDescriptionEntry)
+        $result = Test-MetadataHygiene -Repos $repos -CatalogEntries @($noTopicsEntry, $noDescriptionEntry, $suppressedEntry) -OwnerName 'SysAdminDoc'
 
-        $result.missingTopicCount | Should -Be 1
+        $result.missingTopicCount | Should -Be 3
+        $result.publicMissingTopicCount | Should -Be 1
+        $result.redactedTopicCount | Should -Be 2
+        $result.suppressedTopicCount | Should -Be 1
+        $result.unsafeOrPrivateTopicCount | Should -Be 1
         ($result.missingTopics | ForEach-Object { $_.repo }) | Should -Contain 'NoTopics'
+        ($result.missingTopics | ForEach-Object { $_.repo }) | Should -Not -Contain 'SuppressedGap'
+        ($result.missingTopics | ForEach-Object { $_.repo }) | Should -Not -Contain 'PrivateGap'
         $result.missingTopics[0].category | Should -Be 'powershell'
         $result.missingTopics[0].topicHints | Should -Contain 'powershell'
         $result.missingTopics[0].topicHints | Should -Contain 'windows'
         $result.topicHintPolicy.requiresExplicitAllowlist | Should -BeTrue
         $result.topicHintPolicy.mutatesRepositories | Should -BeFalse
-        $result.missingDescriptionCount | Should -Be 1
+        $result.missingDescriptionCount | Should -Be 3
+        $result.publicMissingDescriptionCount | Should -Be 1
+        $result.redactedDescriptionCount | Should -Be 2
+        $result.suppressedDescriptionCount | Should -Be 1
+        $result.unsafeOrPrivateDescriptionCount | Should -Be 1
         ($result.missingDescriptions | ForEach-Object { $_.repo }) | Should -Contain 'NoDescription'
+        ($result.missingDescriptions | ForEach-Object { $_.repo }) | Should -Not -Contain 'SuppressedGap'
+        ($result.missingDescriptions | ForEach-Object { $_.repo }) | Should -Not -Contain 'PrivateGap'
         $result.missingDescriptions[0].catalogDescription | Should -Be 'Catalog web dashboard'
+        $result.handoff.status | Should -Be 'actionable'
+        $result.handoff.topicRows[0].repo | Should -Be 'NoTopics'
+        $result.handoff.topicRows[0].command | Should -Be 'gh repo edit SysAdminDoc/NoTopics --add-topic powershell --add-topic windows --add-topic sysadmin'
+        $result.handoff.descriptionRows[0].repo | Should -Be 'NoDescription'
+        $result.handoff.descriptionRows[0].command | Should -Be "gh repo edit SysAdminDoc/NoDescription --description 'Catalog web dashboard'"
+        $result.handoff.excludedSuppressedTopicCount | Should -Be 1
+        $result.handoff.excludedSuppressedDescriptionCount | Should -Be 1
+        $result.handoff.excludedUnsafeOrPrivateTopicCount | Should -Be 1
+        $result.handoff.excludedUnsafeOrPrivateDescriptionCount | Should -Be 1
+        ($result.handoff | ConvertTo-Json -Depth 10) | Should -Not -Match 'SuppressedGap|PrivateGap'
     }
 
     It 'falls back to a generic topic hint when catalog and language signals are empty' {
-        $suppressedEntry = New-TestEntry -Repo 'NoSignals' -Category 'suppressed' -Description ''
         $repos = @(
             (New-TestRepoMeta -Name 'NoSignals' -Topics @() -Description '' -Language $null)
         )
 
-        $result = Test-MetadataHygiene -Repos $repos -CatalogEntries @($suppressedEntry)
+        $result = Test-MetadataHygiene -Repos $repos -CatalogEntries @()
 
         $result.missingTopics[0].topicHints | Should -Contain 'utility'
     }
@@ -1372,30 +1400,37 @@ Describe 'Report schema depth helpers' {
         $mismatch = New-TestEntry -Repo 'MismatchedFork' -Category 'desktop'
         $mismatch.forkOf = 'Catalog/WrongParent'
         $unavailable = New-TestEntry -Repo 'ParentUnavailable' -Category 'desktop'
+        $suppressedFork = New-TestEntry -Repo 'HiddenFork' -Category 'suppressed'
+        $suppressedFork.forkOf = 'Upstream/HiddenFork'
         $repos = @(
             (New-TestRepoMeta -Name 'MatchingFork' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'Upstream/MatchingFork' })),
             (New-TestRepoMeta -Name 'ContinuationOnly' -IsFork $false),
             (New-TestRepoMeta -Name 'MissingAttribution' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'Upstream/MissingAttribution' })),
             (New-TestRepoMeta -Name 'MismatchedFork' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'GitHub/ActualParent' })),
-            (New-TestRepoMeta -Name 'ParentUnavailable' -IsFork $true -ForkParentFetchError 'api unavailable')
+            (New-TestRepoMeta -Name 'ParentUnavailable' -IsFork $true -ForkParentFetchError 'api unavailable'),
+            (New-TestRepoMeta -Name 'HiddenFork' -IsFork $true -Parent ([pscustomobject]@{ nameWithOwner = 'Upstream/HiddenFork' }))
         )
 
-        $result = Test-ForkParentDrift -Repos $repos -CatalogEntries @($match, $continuation, $missing, $mismatch, $unavailable)
+        $result = Test-ForkParentDrift -Repos $repos -CatalogEntries @($match, $continuation, $missing, $mismatch, $unavailable, $suppressedFork)
 
-        $result.checkedCount | Should -Be 5
-        $result.githubForkCount | Should -Be 4
-        $result.catalogForkOfCount | Should -Be 3
-        $result.matchingGitHubForkCount | Should -Be 1
+        $result.checkedCount | Should -Be 6
+        $result.githubForkCount | Should -Be 5
+        $result.catalogForkOfCount | Should -Be 4
+        $result.matchingGitHubForkCount | Should -Be 2
         $result.catalogContinuationCount | Should -Be 1
         $result.missingCatalogAttributionCount | Should -Be 2
         $result.parentMismatchCount | Should -Be 1
         $result.parentUnavailableCount | Should -Be 1
         $result.warningCount | Should -Be 4
+        $result.publicDetailRowCount | Should -Be 6
+        $result.redactedDetailRowCount | Should -Be 1
         ($result.matchingGitHubForks | ForEach-Object { $_.repo }) | Should -Contain 'MatchingFork'
+        ($result.matchingGitHubForks | ForEach-Object { $_.repo }) | Should -Not -Contain 'HiddenFork'
         ($result.catalogContinuations | ForEach-Object { $_.repo }) | Should -Contain 'ContinuationOnly'
         ($result.missingCatalogAttribution | ForEach-Object { $_.repo }) | Should -Contain 'MissingAttribution'
         ($result.parentMismatches | ForEach-Object { $_.repo }) | Should -Contain 'MismatchedFork'
         ($result.parentUnavailable | ForEach-Object { $_.repo }) | Should -Contain 'ParentUnavailable'
+        ($result | ConvertTo-Json -Depth 10) | Should -Not -Match 'HiddenFork'
     }
 
     It 'reports stale and archive review candidates without exposing suppressed names' {
@@ -1759,8 +1794,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
     It 'renders setup inspect-before-run and check-only guidance' {
-        $script:rendered | Should -Match 'Install PowerShell 7, Python 3, and Git only if your machine needs them'
-        $script:rendered | Should -Match 'checks for PowerShell 7, Python, and Git before installing anything'
+        $script:rendered | Should -Match 'Inspect first, then install only the tooling your machine is missing'
+        $script:rendered | Should -Match 'checks for PowerShell 7, Python, and Git before changing anything'
         $script:rendered | Should -Match 'Inspect before installing'
         $script:rendered | Should -Match ([regex]::Escape('$u=''https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'''))
         $script:rendered | Should -Match 'SysAdminDoc-setup\.ps1'
@@ -1768,9 +1803,9 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
     It 'renders local validation bootstrap guidance' {
-        $script:rendered | Should -Match 'Validate this repo'
+        $script:rendered | Should -Match 'Set up or verify this profile repo'
         $script:rendered | Should -Match '<a id="local-validation"></a>'
-        $script:rendered | Should -Match 'Install pinned validation tools and run every local check'
+        $script:rendered | Should -Match 'Regenerate, lint, analyze, test, and smoke-check the profile feed locally'
         $script:rendered | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
         $script:rendered | Should -Match 'manual dependency and advisory review'
         $script:rendered | Should -Match 'npm run review:dependencies'
@@ -1794,13 +1829,15 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
 
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
-    It 'preserves the minimal public profile header without adding personal chrome' {
-        $script:rendered.TrimStart() | Should -Match '^<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools\.</b>'
-        $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View my full portfolio'
+    It 'renders the local profile command-center chrome without third-party render hosts' {
+        $script:rendered.TrimStart() | Should -Match '^<p align="center">\s*<picture>'
+        $script:rendered | Should -Match 'assets/profile/header-(dark|light)\.svg'
+        $script:rendered | Should -Match 'SysAdminDoc public tools command center profile header'
+        $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View full portfolio'
+        $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
         $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
-        $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
+        $script:rendered | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
         $script:rendered | Should -Not -Match '### Professional Focus'
-        $script:rendered | Should -Not -Match 'Healthcare IT engineer and DICOM/PACS specialist'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
         $script:rendered | Should -Not -Match 'https://skillicons\.dev'
         $script:rendered | Should -Not -Match 'assets/profile/(stats|languages|activity)-(dark|light)\.svg'
@@ -1811,17 +1848,18 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'renders the compact discovery block without catalog snapshot or featured projects' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
         $script:rendered | Should -Match '### Start Here'
-        $script:rendered | Should -Match 'This profile organizes public projects by platform'
+        $script:rendered | Should -Match 'public tools command center'
         $script:rendered | Should -Not -Match '### Catalog Snapshot'
         $script:rendered | Should -Not -Match '### Featured Projects'
     }
-    It 'adds compact decision guidance without reintroducing the old profile chrome' {
-        $script:rendered | Should -Match 'One-liner install commands and release downloads'
-        $script:rendered | Should -Match 'CRX, XPI, userscript, and APK installs labeled per project'
+    It 'adds decision guidance that routes visitors by install surface' {
+        $script:rendered | Should -Match 'Use a branch-pinned command or latest release download'
+        $script:rendered | Should -Match 'CRX, XPI, userscript, APK, or repo action'
+        $script:rendered | Should -Match 'Quick platform map'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
         $script:rendered | Should -Match 'Suggested starting points:'
-        $script:rendered | Should -Match 'Branch-pinned commands you can paste into PowerShell and run immediately'
-        $script:rendered | Should -Match 'Tools and dashboards that run directly in the browser'
+        $script:rendered | Should -Match 'Clipboard-ready Windows administration tools'
+        $script:rendered | Should -Match 'Launchable browser tools'
     }
     It 'reports generated README byte size under the default soft budget' {
         $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
@@ -2040,11 +2078,11 @@ Write-Host ok
         $result.startHereSection | Should -BeTrue
         $result.catalogSnapshotSection | Should -BeFalse
         $result.setupInspectPath | Should -BeTrue
-        $result.themeAwareImageChrome | Should -BeFalse
-        $result.plainTextTagline | Should -BeFalse
-        $result.meaningfulImageAltText | Should -BeFalse
-        $result.minimalProfileHeader | Should -BeTrue
-        $result.richProfileHeader | Should -BeFalse
+        $result.themeAwareImageChrome | Should -BeTrue
+        $result.plainTextTagline | Should -BeTrue
+        $result.meaningfulImageAltText | Should -BeTrue
+        $result.minimalProfileHeader | Should -BeFalse
+        $result.richProfileHeader | Should -BeTrue
         $result.genericImageAltTextCount | Should -Be 0
         $result.thirdPartyMetricHostCount | Should -Be 0
         $result.thirdPartyBadgeHostCount | Should -Be 0
@@ -2090,14 +2128,14 @@ Write-Host ok
         $assets['assets/profile/contributions-dark.svg'] | Should -Match 'Contribution Activity'
         $assets['assets/profile/contributions-dark.svg'] | Should -Match 'contributions in the last year'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'PUBLIC OPEN-SOURCE CATALOG'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'PowerShell / Python / Kotlin / C# / Rust'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'PUBLIC TOOLS COMMAND CENTER'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'Generated public catalog feed'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
-        $assets['assets/profile/footer-light.svg'] | Should -Match 'Static footer divider'
+        $assets['assets/profile/footer-light.svg'] | Should -Match 'Local checks first'
 
         foreach ($asset in $assets.GetEnumerator()) {
             [xml]$assetXml = $asset.Value
@@ -2171,47 +2209,19 @@ Write-Host ok
 
 Describe 'Update-Header idempotency' {
     It 'produces identical output when run twice on the same input' {
-        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $repoLookup = ConvertTo-Lookup @()
-        $entries = @($cat.entries | Where-Object {
-            $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
-        })
-        $header = @(
-            '### Professional Focus'
-            ''
-            'Test engineer with 16+ years.'
-            ''
-            '**Currently Building**'
-            ''
-            '| Project | Focus | Action |'
-            '|:--------|:------|:------:|'
-            '| [**WinTool**](https://github.com/SysAdminDoc/WinTool) | A test PowerShell tool | [Repo](https://github.com/SysAdminDoc/WinTool) |'
-            ''
-            '---'
-        ) -join [Environment]::NewLine
-
-        $first = Update-Header -Header $header -PublicRepoCount 10 -Entries $entries -RepoLookup $repoLookup
-        $second = Update-Header -Header $first -PublicRepoCount 10 -Entries $entries -RepoLookup $repoLookup
+        $first = Update-Header
+        $second = Update-Header
 
         $second | Should -Be $first
     }
 
-    It 'updates the repo count in the portfolio line' {
-        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $repoLookup = ConvertTo-Lookup @()
-        $entries = @($cat.entries | Where-Object {
-            $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
-        })
-        $header = @(
-            '### Professional Focus'
-            ''
-            'Public portfolio: 100 active repos, 50 visitor-facing projects, stuff.'
-        ) -join [Environment]::NewLine
+    It 'replaces legacy profile copy with the generated command-center chrome' {
+        $result = Update-Header
 
-        $result = Update-Header -Header $header -PublicRepoCount 200 -Entries $entries -RepoLookup $repoLookup
-
-        $result | Should -Match 'Public portfolio: 200 active repos'
-        $result | Should -Match "$($entries.Count) visitor-facing projects"
+        $result | Should -Match 'assets/profile/header-dark\.svg'
+        $result | Should -Match 'View full portfolio'
+        $result | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
+        $result | Should -Not -Match 'Professional Focus|Public portfolio: 100 active repos'
     }
 }
 
@@ -2697,6 +2707,29 @@ Describe 'Feed JSON Schema contracts' {
         foreach ($field in @('graphQlPageSize', 'requestCount', 'retryCount', 'resourceLimitFallback', 'resourceLimitFallbackReason', 'truncated')) {
             $required | Should -Contain $field
         }
+    }
+
+    It 'requires public-safe metadata hygiene handoff fields in the report schema and summary' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $required = @($schema.'$defs'.metadataHygiene.required)
+
+        foreach ($field in @('publicMissingTopicCount', 'publicMissingDescriptionCount', 'redactedTopicCount', 'redactedDescriptionCount', 'handoff')) {
+            $required | Should -Contain $field
+        }
+
+        $handoffRequired = @($schema.'$defs'.metadataHygieneHandoff.required)
+        foreach ($field in @('status', 'topicRows', 'descriptionRows', 'excludedSuppressedTopicCount', 'excludedUnsafeOrPrivateTopicCount')) {
+            $handoffRequired | Should -Contain $field
+        }
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Metadata Hygiene Handoff'
+        $summaryScript | Should -Match 'Only public-safe rows are shown'
+        $summaryScript | Should -Match 'Metadata handoff topic rows'
+
+        $forkRequired = @($schema.'$defs'.forkParentDrift.required)
+        $forkRequired | Should -Contain 'publicDetailRowCount'
+        $forkRequired | Should -Contain 'redactedDetailRowCount'
     }
 
     It 'requires PowerShell runtime security posture in the report schema' {
@@ -3493,9 +3526,15 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match 'Pester summary test report'
             $summary | Should -Match 'Fatal metadata drift'
             $summary | Should -Match 'Missing topic hints'
+            $summary | Should -Match 'Public missing topic rows'
+            $summary | Should -Match 'Redacted metadata topic gaps'
+            $summary | Should -Match 'Metadata hygiene handoff'
+            $summary | Should -Match 'Metadata handoff topic rows'
             $summary | Should -Match 'Missing project licenses'
             $summary | Should -Match 'Unknown project licenses'
             $summary | Should -Match 'Fork-parent warnings'
+            $summary | Should -Match 'Fork-parent public detail rows'
+            $summary | Should -Match 'Fork-parent redacted detail rows'
             $summary | Should -Match 'Stale project review rows'
             $summary | Should -Match 'Archive review candidates'
             $summary | Should -Match 'Catalog rows accounted'
@@ -3620,9 +3659,12 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
         $script:SummaryScript | Should -Match 'metadataDriftSummary'
         $script:SummaryScript | Should -Match 'metadataDrift'
         $script:SummaryScript | Should -Match 'Fatal Metadata Drift Details'
+        $script:SummaryScript | Should -Match 'Metadata Hygiene Handoff'
+        $script:SummaryScript | Should -Match 'metadataHandoff'
         $script:SummaryScript | Should -Match 'linkValidationSummary'
         $script:SummaryScript | Should -Match 'projectLicenseMetadata'
         $script:SummaryScript | Should -Match 'forkParentDrift'
+        $script:SummaryScript | Should -Match 'Fork-parent redacted detail rows'
         $script:SummaryScript | Should -Match 'staleProjectReview'
         $script:SummaryScript | Should -Match 'profileReleaseConsistency'
         $script:SummaryScript | Should -Match 'releasePolicy'

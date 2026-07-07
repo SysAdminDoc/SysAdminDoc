@@ -115,6 +115,7 @@ if (-not (Test-Path -LiteralPath $ReportPath)) {
 $report = Get-Content -LiteralPath $ReportPath -Raw | ConvertFrom-Json
 
 $metadataHygiene = $report.metadataHygiene
+$metadataHandoff = if ($metadataHygiene -and $metadataHygiene.PSObject.Properties.Name -contains 'handoff') { $metadataHygiene.handoff } else { $null }
 $projectLicenseMetadata = if ($report.PSObject.Properties.Name -contains 'projectLicenseMetadata') { $report.projectLicenseMetadata } else { $null }
 $forkParentDrift = if ($report.PSObject.Properties.Name -contains 'forkParentDrift') { $report.forkParentDrift } else { $null }
 $staleProjectReview = if ($report.PSObject.Properties.Name -contains 'staleProjectReview') { $report.staleProjectReview } else { $null }
@@ -149,13 +150,28 @@ $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readme
 $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
 $metadataFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'metadataFetch') { $performance.metadataFetch } else { $null }
 
-$missingTopicCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null)
-$missingDescriptionCount = Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null)
+$missingTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingTopicCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null))) } else { 0 }
+$missingDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingDescriptionCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null))) } else { 0 }
+$publicMissingTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "publicMissingTopicCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null))) } else { 0 }
+$publicMissingDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "publicMissingDescriptionCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null))) } else { 0 }
+$redactedTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "redactedTopicCount" -Default 0) } else { 0 }
+$redactedDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "redactedDescriptionCount" -Default 0) } else { 0 }
+$suppressedTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "suppressedTopicCount" -Default 0) } else { 0 }
+$suppressedDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "suppressedDescriptionCount" -Default 0) } else { 0 }
+$unsafeOrPrivateTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "unsafeOrPrivateTopicCount" -Default 0) } else { 0 }
+$unsafeOrPrivateDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "unsafeOrPrivateDescriptionCount" -Default 0) } else { 0 }
+$metadataHandoffStatus = if ($metadataHandoff -and $null -ne $metadataHandoff.status) { [string]$metadataHandoff.status } else { "unknown" }
+[object[]]$metadataHandoffTopicRows = if ($metadataHandoff -and $metadataHandoff.PSObject.Properties.Name -contains 'topicRows') { @($metadataHandoff.topicRows) } else { @() }
+[object[]]$metadataHandoffDescriptionRows = if ($metadataHandoff -and $metadataHandoff.PSObject.Properties.Name -contains 'descriptionRows') { @($metadataHandoff.descriptionRows) } else { @() }
+$metadataHandoffTopicRowCount = if ($metadataHandoff -and $null -ne $metadataHandoff.topicRowCount) { [int]$metadataHandoff.topicRowCount } else { Get-Count $metadataHandoffTopicRows }
+$metadataHandoffDescriptionRowCount = if ($metadataHandoff -and $null -ne $metadataHandoff.descriptionRowCount) { [int]$metadataHandoff.descriptionRowCount } else { Get-Count $metadataHandoffDescriptionRows }
 $missingLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.missingCount } else { 0 }
 $unknownLicenseCount = if ($projectLicenseMetadata) { [int]$projectLicenseMetadata.unknownCount } else { 0 }
 $intentionalLicenseExceptionCount = if ($projectLicenseMetadata -and $projectLicenseMetadata.PSObject.Properties.Name -contains 'intentionalExceptionCount') { [int]$projectLicenseMetadata.intentionalExceptionCount } else { 0 }
 $unresolvedUnknownLicenseCount = if ($projectLicenseMetadata -and $projectLicenseMetadata.PSObject.Properties.Name -contains 'unresolvedUnknownCount') { [int]$projectLicenseMetadata.unresolvedUnknownCount } else { $unknownLicenseCount }
 $forkParentWarningCount = if ($forkParentDrift) { [int]$forkParentDrift.warningCount } else { 0 }
+$forkParentPublicDetailRowCount = if ($forkParentDrift -and $forkParentDrift.PSObject.Properties.Name -contains 'publicDetailRowCount') { [int]$forkParentDrift.publicDetailRowCount } else { 0 }
+$forkParentRedactedDetailRowCount = if ($forkParentDrift -and $forkParentDrift.PSObject.Properties.Name -contains 'redactedDetailRowCount') { [int]$forkParentDrift.redactedDetailRowCount } else { 0 }
 $staleProjectWarningCount = if ($staleProjectReview) { [int]$staleProjectReview.warningCount } else { 0 }
 $archiveReviewCount = if ($staleProjectReview) { [int]$staleProjectReview.archiveReviewCount } else { 0 }
 $fatalDriftCount = if ($driftSummary) { [int]$driftSummary.fatalCount } else { 0 }
@@ -475,11 +491,24 @@ $summary = @"
 | Fatal metadata drift | $fatalDriftCount |
 | Missing topic hints | $missingTopicCount |
 | Missing descriptions | $missingDescriptionCount |
+| Public missing topic rows | $publicMissingTopicCount |
+| Public missing description rows | $publicMissingDescriptionCount |
+| Redacted metadata topic gaps | $redactedTopicCount |
+| Redacted metadata description gaps | $redactedDescriptionCount |
+| Suppressed topic gaps excluded | $suppressedTopicCount |
+| Suppressed description gaps excluded | $suppressedDescriptionCount |
+| Unsafe/private topic gaps excluded | $unsafeOrPrivateTopicCount |
+| Unsafe/private description gaps excluded | $unsafeOrPrivateDescriptionCount |
+| Metadata hygiene handoff | $metadataHandoffStatus |
+| Metadata handoff topic rows | $metadataHandoffTopicRowCount |
+| Metadata handoff description rows | $metadataHandoffDescriptionRowCount |
 | Missing project licenses | $missingLicenseCount |
 | Unknown project licenses | $unknownLicenseCount |
 | Intentional license exceptions | $intentionalLicenseExceptionCount |
 | Unresolved unknown project licenses | $unresolvedUnknownLicenseCount |
 | Fork-parent warnings | $forkParentWarningCount |
+| Fork-parent public detail rows | $forkParentPublicDetailRowCount |
+| Fork-parent redacted detail rows | $forkParentRedactedDetailRowCount |
 | Stale project review rows | $staleProjectWarningCount |
 | Archive review candidates | $archiveReviewCount |
 | Release rows checked | $releaseRowsChecked |
@@ -610,6 +639,39 @@ $summary = @"
 
 Report generated at $($report.generatedAt).
 "@
+
+if ((Get-Count $metadataHandoffTopicRows) -gt 0 -or (Get-Count $metadataHandoffDescriptionRows) -gt 0) {
+    $detailLines = New-Object System.Collections.Generic.List[string]
+    $detailLines.Add("")
+    $detailLines.Add("#### Metadata Hygiene Handoff")
+    $detailLines.Add("")
+    $detailLines.Add("Only public-safe rows are shown; suppressed, private, and unsafe repository names stay summarized by count.")
+    $detailLines.Add("")
+    $detailLines.Add("| Kind | Repo | Category | Action | Command or guidance |")
+    $detailLines.Add("| --- | --- | --- | --- | --- |")
+
+    foreach ($row in $metadataHandoffTopicRows) {
+        $repoLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "repo" -Default "")
+        $categoryLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "category" -Default "")
+        $hints = @((Get-ObjectPropertyOrDefault -Object $row -Name "topicHints" -Default @()) | ForEach-Object { [string]$_ }) -join ", "
+        $command = [string](Get-ObjectPropertyOrDefault -Object $row -Name "command" -Default "")
+        $commandCell = if ([string]::IsNullOrWhiteSpace($command)) { "" } else { "``$command``" }
+        $detailLines.Add("| Topics | $(ConvertTo-MarkdownCell $repoLabel) | $(ConvertTo-MarkdownCell $categoryLabel) | $(ConvertTo-MarkdownCell $hints) | $(ConvertTo-MarkdownCell $commandCell) |")
+    }
+
+    foreach ($row in $metadataHandoffDescriptionRows) {
+        $repoLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "repo" -Default "")
+        $categoryLabel = [string](Get-ObjectPropertyOrDefault -Object $row -Name "category" -Default "")
+        $catalogDescription = [string](Get-ObjectPropertyOrDefault -Object $row -Name "catalogDescription" -Default "")
+        $guidance = [string](Get-ObjectPropertyOrDefault -Object $row -Name "catalogPatchGuidance" -Default "")
+        $command = [string](Get-ObjectPropertyOrDefault -Object $row -Name "command" -Default "")
+        $action = if ([string]::IsNullOrWhiteSpace($catalogDescription)) { $guidance } else { $catalogDescription }
+        $commandOrGuidance = if ([string]::IsNullOrWhiteSpace($command)) { $guidance } else { "``$command``" }
+        $detailLines.Add("| Description | $(ConvertTo-MarkdownCell $repoLabel) | $(ConvertTo-MarkdownCell $categoryLabel) | $(ConvertTo-MarkdownCell $action) | $(ConvertTo-MarkdownCell $commandOrGuidance) |")
+    }
+
+    $summary = $summary.TrimEnd() + "`n" + ($detailLines -join "`n") + "`n"
+}
 
 if ($fatalDriftRows.Count -gt 0) {
     $detailLines = New-Object System.Collections.Generic.List[string]

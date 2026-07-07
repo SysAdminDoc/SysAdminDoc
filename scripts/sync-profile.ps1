@@ -120,7 +120,7 @@ $CategoryDefinitions = @(
         Slug = "powershell"
         DisplayName = "PowerShell"
         Title = "&#9889; PowerShell System Utilities"
-        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Branch-pinned commands you can paste into PowerShell and run immediately.</i></summary>'
+        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Clipboard-ready Windows administration tools with branch-pinned run commands.</i></summary>'
         Render = "code"
         DefaultInstallKind = "powershell"
     },
@@ -128,7 +128,7 @@ $CategoryDefinitions = @(
         Slug = "python"
         DisplayName = "Python"
         Title = "&#128013; Python Desktop Applications"
-        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Clone-and-run desktop tools and automation built on Python 3.</i></summary>'
+        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Local-first desktop utilities, media workflows, and automation built on Python 3.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
@@ -136,21 +136,21 @@ $CategoryDefinitions = @(
         Slug = "web"
         DisplayName = "Web Apps"
         Title = "&#127760; Web Applications"
-        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Tools and dashboards that run directly in the browser -- no install needed.</i></summary>'
+        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Launchable browser tools, dashboards, and project surfaces with no local install.</i></summary>'
         Render = "web-table"
     },
     [ordered]@{
         Slug = "extensions"
         DisplayName = "Extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
-        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome/Firefox extensions and userscripts with one-click installs.</i></summary>'
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
         Slug = "android"
         DisplayName = "Android"
         Title = "&#128241; Android Applications"
-        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>Material You APKs and Android source projects.</i></summary>'
+        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>AMOLED-friendly APKs, Android source projects, and device-focused utilities.</i></summary>'
         Render = "download-table"
         DefaultDownloadKind = "apk"
     },
@@ -158,14 +158,14 @@ $CategoryDefinitions = @(
         Slug = "security"
         DisplayName = "Security"
         Title = "&#128274; Security & Networking"
-        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network auditing, DNS management, and defensive security tools.</i></summary>'
+        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network auditing, DNS control, and defensive tooling with practical operator notes.</i></summary>'
         Render = "download-table"
     },
     [ordered]@{
         Slug = "media"
         DisplayName = "Media"
         Title = "&#127916; Media & Conversion Tools"
-        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video editing, conversion, compression, subtitle removal, and streaming capture.</i></summary>'
+        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video repair, compression, conversion, subtitle removal, and stream-capture workflows.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
@@ -173,21 +173,21 @@ $CategoryDefinitions = @(
         Slug = "desktop"
         DisplayName = "Desktop"
         Title = "&#128421;&#65039; Native Desktop Applications"
-        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Compiled Windows and cross-platform desktop apps in C#, C++, Rust, and TypeScript.</i></summary>'
+        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Installable Windows and cross-platform apps across C#, C++, Rust, and TypeScript.</i></summary>'
         Render = "desktop-table"
     },
     [ordered]@{
         Slug = "guides"
         DisplayName = "Guides"
         Title = "&#128218; Guides & Resources"
-        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>Reference material, checklists, and public guides.</i></summary>'
+        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>Public references, checklists, and companion guides for repeatable workflows.</i></summary>'
         Render = "simple-table"
     },
     [ordered]@{
         Slug = "misc"
         DisplayName = "Misc"
         Title = "&#128256; Misc & Forks"
-        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, continuations, and supporting utilities.</i></summary>'
+        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, continuations, and supporting utilities with upstream context preserved.</i></summary>'
         Render = "simple-table"
     }
 )
@@ -2085,26 +2085,32 @@ function New-CategoryPreviewLine {
 
 function New-DiscoverySection {
     $powershellLink = New-CategoryLink "powershell"
+    $pythonLink = New-CategoryLink "python"
     $desktopLink = New-CategoryLink "desktop"
     $extensionsLink = New-CategoryLink "extensions"
     $androidLink = New-CategoryLink "android"
     $webLink = New-CategoryLink "web"
+    $securityLink = New-CategoryLink "security"
+    $mediaLink = New-CategoryLink "media"
+    $guidesLink = New-CategoryLink "guides"
     $setupLink = "[First-time setup](#first-time-setup)"
     $validationLink = "[Local validation](#local-validation)"
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Start Here")
     $lines.Add("")
-    $lines.Add("This profile organizes public projects by platform. Use the portfolio for search and filters, or jump to the section that matches your machine, browser, or device.")
+    $lines.Add("Use this as a public tools command center: pick the route that matches the machine, browser, device, or validation job in front of you. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.")
     $lines.Add("")
-    $lines.Add("| Goal | Best path | What to expect |")
-    $lines.Add("|:-----|:----------|:---------------|")
-    $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | One-liner install commands and release downloads. |")
-    $lines.Add("| Install a browser or Android tool | $extensionsLink or $androidLink | CRX, XPI, userscript, and APK installs labeled per project. |")
-    $lines.Add("| Launch a web tool | $webLink | Browser-based tools that work without local setup. |")
-    $lines.Add("| Set up a fresh Windows machine | $setupLink | Guided PowerShell 7, Python, and Git setup with an inspect-before-install path. |")
-    $lines.Add("| Validate this repo | $validationLink | Runs markdownlint, PSScriptAnalyzer, and Pester with pinned tool versions. |")
-    $lines.Add("| Search the full catalog | [Full portfolio](https://sysadmindoc.github.io/) | Filterable catalog generated from this repo's project feed. |")
+    $lines.Add("| Need | Best path | First action | Confidence signal |")
+    $lines.Add("|:-----|:----------|:-------------|:------------------|")
+    $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | Use a branch-pinned command or latest release download. | Each row shows its install mode, release path, or repo fallback. |")
+    $lines.Add("| Launch a browser-based tool | $webLink | Open the live project link. | Web rows stay no-install and route to the deployed surface. |")
+    $lines.Add("| Install an extension or Android app | $extensionsLink or $androidLink | Use the CRX, XPI, userscript, APK, or repo action shown per row. | Download labels are generated from release metadata. |")
+    $lines.Add("| Work on security, media, or reference tasks | $securityLink, $mediaLink, or $guidesLink | Jump to the matching platform section. | Category summaries call out the expected workflow before the rows. |")
+    $lines.Add("| Set up or verify this profile repo | $setupLink or $validationLink | Inspect setup first, then run the pinned local validation command. | Validation records markdown, PowerShell, schema, feed, and rendered-smoke evidence. |")
+    $lines.Add("| Search across everything | [Full portfolio](https://sysadmindoc.github.io/) | Filter by platform, freshness, download type, and catalog metadata. | The portfolio consumes this repo's generated `projects.json` feed. |")
+    $lines.Add("")
+    $lines.Add("Quick platform map: $powershellLink &middot; $pythonLink &middot; $webLink &middot; $extensionsLink &middot; $androidLink &middot; $desktopLink")
 
     return ($lines -join [Environment]::NewLine)
 }
@@ -2114,10 +2120,10 @@ function New-FirstTimeSetupSection {
 <a id="first-time-setup"></a>
 
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>Install PowerShell 7, Python 3, and Git only if your machine needs them.</i></summary>
+<summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
 <br/>
 
-The command below checks for PowerShell 7, Python, and Git before installing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+The setup path checks for PowerShell 7, Python, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -2131,10 +2137,10 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 
 | Step | Behavior |
 |:-----|:---------|
-| Checks first | Skips PowerShell 7, Python, or Git when already installed. |
+| Checks first | Reports PowerShell 7, Python, and Git state before installing missing tools. |
 | Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
 | Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
-| Refreshes the shell | Updates the current `PATH` so the commands below work without reopening PowerShell. |
+| Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
@@ -2149,10 +2155,10 @@ function New-LocalValidationSection {
 <a id="local-validation"></a>
 
 <details>
-<summary><b>&#9989; Local validation</b> -- <i>Install pinned validation tools and run every local check.</i></summary>
+<summary><b>&#9989; Local validation</b> -- <i>Regenerate, lint, analyze, test, and smoke-check the profile feed locally.</i></summary>
 <br/>
 
-Use this from the repo root before pushing profile, catalog, or validation changes:
+Use this from the repo root before pushing profile, catalog, asset, or validation changes:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\validate-local.ps1
@@ -2170,7 +2176,7 @@ npm run review:dependencies
 | Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock/hash pins, and reports latest-known npm/Python audit-tool freshness without failing solely on stale evidence. |
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
-| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown set. |
+| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
@@ -2442,18 +2448,18 @@ function New-ProfileHeroSvg {
     param(
         [ValidateSet("dark", "light")]
         [string]$Theme,
-        [int]$Width = 820,
-        [int]$Height = 240
+        [int]$Width = 1000,
+        [int]$Height = 300
     )
 
     if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $accentStrong = "#1f6feb"
+        $bg = "#0d1117"; $panel = "#161b22"; $panelTwo = "#0f1720"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $accentStrong = "#1f6feb"; $success = "#3fb950"
     } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $accentStrong = "#0969da"
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $panelTwo = "#ffffff"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $accentStrong = "#0969da"; $success = "#1a7f37"
     }
 
     $title = "SysAdminDoc profile header"
-    $description = "Static profile header for a healthcare IT engineer, DICOM/PACS specialist, product builder, and public open-source catalog maintainer."
+    $description = "Static public tools command center header for Broadcast IT, Healthcare IT, systems automation, DICOM/PACS, and generated open-source project routing."
     $baseId = ConvertTo-SvgId "$title $Theme"
     $titleId = "$baseId-title"
     $descId = "$baseId-desc"
@@ -2463,15 +2469,33 @@ function New-ProfileHeroSvg {
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"$($Width - 32)`" height=`"$($Height - 32)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"16`" y=`"16`" width=`"4`" height=`"$($Height - 32)`" rx=`"2`" fill=`"$accentStrong`"/>")
-    $center = [math]::Floor($Width / 2)
-    $lines.Add("  <line x1=`"$($center - 92)`" y1=`"52`" x2=`"$($center + 92)`" y2=`"52`" stroke=`"$accent`" stroke-width=`"2`" opacity=`"0.9`"/>")
-    $lines.Add("  <text x=`"$center`" y=`"82`" text-anchor=`"middle`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`" font-weight=`"700`">PUBLIC OPEN-SOURCE CATALOG</text>")
-    $lines.Add("  <text x=`"$center`" y=`"130`" text-anchor=`"middle`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"48`" font-weight=`"700`">SysAdminDoc</text>")
-    $lines.Add("  <text x=`"$center`" y=`"164`" text-anchor=`"middle`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"17`" font-weight=`"600`">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>")
-    $lines.Add("  <text x=`"$center`" y=`"192`" text-anchor=`"middle`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`">16+ years in IT operations | Windows, Android, web, automation, and imaging workflows</text>")
-    $lines.Add("  <text x=`"$center`" y=`"216`" text-anchor=`"middle`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"600`">PowerShell / Python / Kotlin / C# / Rust</text>")
+    $lines.Add("  <rect x=`"14`" y=`"14`" width=`"$($Width - 28)`" height=`"$($Height - 28)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"34`" y=`"36`" width=`"4`" height=`"210`" rx=`"2`" fill=`"$accentStrong`"/>")
+    $lines.Add("  <line x1=`"58`" y1=`"48`" x2=`"560`" y2=`"48`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.8`"/>")
+    $lines.Add("  <text x=`"58`" y=`"76`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">PUBLIC TOOLS COMMAND CENTER</text>")
+    $lines.Add("  <text x=`"58`" y=`"126`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"52`" font-weight=`"700`">SysAdminDoc</text>")
+    $lines.Add("  <text x=`"60`" y=`"162`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"600`">Broadcast IT, Healthcare IT, systems automation, and practical public tools</text>")
+    $lines.Add("  <text x=`"60`" y=`"192`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`">Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence.</text>")
+    $lines.Add("  <rect x=`"58`" y=`"222`" width=`"122`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <text x=`"74`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">PowerShell</text>")
+    $lines.Add("  <rect x=`"192`" y=`"222`" width=`"98`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <text x=`"208`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">Python</text>")
+    $lines.Add("  <rect x=`"302`" y=`"222`" width=`"116`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <text x=`"318`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">Android</text>")
+    $lines.Add("  <rect x=`"430`" y=`"222`" width=`"116`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <text x=`"446`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">Desktop</text>")
+    $lines.Add("  <rect x=`"638`" y=`"44`" width=`"306`" height=`"58`" rx=`"10`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"656`" y=`"62`" width=`"10`" height=`"22`" rx=`"3`" fill=`"$accentStrong`"/>")
+    $lines.Add("  <text x=`"682`" y=`"72`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"15`" font-weight=`"700`">Installable Windows utilities</text>")
+    $lines.Add("  <text x=`"682`" y=`"91`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">Branch-pinned commands and release downloads</text>")
+    $lines.Add("  <rect x=`"638`" y=`"122`" width=`"306`" height=`"58`" rx=`"10`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"656`" y=`"140`" width=`"10`" height=`"22`" rx=`"3`" fill=`"$success`"/>")
+    $lines.Add("  <text x=`"682`" y=`"150`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"15`" font-weight=`"700`">Android, browser, and web tools</text>")
+    $lines.Add("  <text x=`"682`" y=`"169`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">APK, CRX, XPI, userscript, and live links</text>")
+    $lines.Add("  <rect x=`"638`" y=`"200`" width=`"306`" height=`"58`" rx=`"10`" fill=`"$panelTwo`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"656`" y=`"218`" width=`"10`" height=`"22`" rx=`"3`" fill=`"$accent`"/>")
+    $lines.Add("  <text x=`"682`" y=`"228`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"15`" font-weight=`"700`">Generated public catalog feed</text>")
+    $lines.Add("  <text x=`"682`" y=`"247`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">README, projects.json, schemas, and smoke evidence</text>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }
@@ -2480,18 +2504,18 @@ function New-ProfileFooterSvg {
     param(
         [ValidateSet("dark", "light")]
         [string]$Theme,
-        [int]$Width = 820,
-        [int]$Height = 120
+        [int]$Width = 1000,
+        [int]$Height = 140
     )
 
     if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $waveOne = "#161b22"; $waveTwo = "#1f6feb"; $line = "#30363d"
+        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $success = "#3fb950"
     } else {
-        $bg = "#ffffff"; $waveOne = "#f6f8fa"; $waveTwo = "#dbeafe"; $line = "#d0d7de"
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $success = "#1a7f37"
     }
 
-    $title = "Decorative footer wave for the SysAdminDoc profile"
-    $description = "Static footer divider used by the generated profile README."
+    $title = "SysAdminDoc profile footer"
+    $description = "Static footer divider showing the generated profile flow from catalog data to README, feed, and portfolio validation."
     $baseId = ConvertTo-SvgId "$title $Theme"
     $titleId = "$baseId-title"
     $descId = "$baseId-desc"
@@ -2501,9 +2525,13 @@ function New-ProfileFooterSvg {
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <path d=`"M0 70 C140 38 280 34 410 64 C540 94 670 88 820 50 L820 120 L0 120 Z`" fill=`"$waveOne`" stroke=`"$line`" stroke-width=`"0.5`"/>")
-    $lines.Add("  <path d=`"M0 88 C160 52 300 56 440 82 C570 108 690 100 820 66 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.25`"/>")
-    $lines.Add("  <path d=`"M0 100 C180 74 340 78 480 96 C600 112 720 106 820 82 L820 120 L0 120 Z`" fill=`"$waveTwo`" opacity=`"0.12`"/>")
+    $lines.Add("  <rect x=`"14`" y=`"18`" width=`"$($Width - 28)`" height=`"104`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <line x1=`"42`" y1=`"46`" x2=`"$($Width - 42)`" y2=`"46`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.7`"/>")
+    $lines.Add("  <text x=`"42`" y=`"76`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"700`">Catalog data to public README, portfolio feed, and local validation evidence</text>")
+    $lines.Add("  <text x=`"42`" y=`"101`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">Generated locally from data/profile-catalog.json, schema checks, release metadata, and rendered smoke evidence.</text>")
+    $lines.Add("  <rect x=`"$($Width - 214)`" y=`"68`" width=`"154`" height=`"30`" rx=`"8`" fill=`"$bg`" stroke=`"$border`"/>")
+    $lines.Add("  <rect x=`"$($Width - 198)`" y=`"78`" width=`"10`" height=`"10`" rx=`"2`" fill=`"$success`"/>")
+    $lines.Add("  <text x=`"$($Width - 178)`" y=`"88`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`" font-weight=`"700`">Local checks first</text>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }
@@ -2792,17 +2820,18 @@ function New-ProfileAssetSvgs {
 
 function New-ProfileChrome {
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    $headerImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/header-dark.svg" -LightUrl "$assetPathPrefix/header-light.svg" -Alt 'SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder' -Attributes 'width="100%"'
+    $headerImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/header-dark.svg" -LightUrl "$assetPathPrefix/header-light.svg" -Alt 'SysAdminDoc public tools command center profile header' -Attributes 'width="100%"'
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('<p align="center">')
     $lines.Add("  $headerImage")
     $lines.Add('</p>')
     $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add('  <strong>Healthcare IT engineer and DICOM/PACS specialist</strong><br/>')
-    $lines.Add('  16+ years in IT operations, 10+ production platforms, and public tools across Python, React, C++, C#, Go, Rust, Kotlin, and PowerShell.')
-    $lines.Add('</p>')
+    $lines.Add('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>')
+    $lines.Add('')
+    $lines.Add('<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
+    $lines.Add('')
+    $lines.Add('<p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>')
     $lines.Add('')
     return ($lines -join [Environment]::NewLine)
 }
@@ -2847,75 +2876,11 @@ function New-ProfileStatsChrome {
 
 function New-ProfileFooter {
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    return New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "Decorative footer wave for the SysAdminDoc profile" -Attributes 'width="100%"'
+    return New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "SysAdminDoc generated profile footer" -Attributes 'width="100%"'
 }
 
 function Update-Header {
-    param(
-        [string]$Header,
-        [int]$PublicRepoCount,
-        [hashtable[]]$Entries,
-        [hashtable]$RepoLookup
-    )
-
-    $chromePatterns = @(
-        '(?s)\r?\n(?:---\r?\n\r?\n)?<p align="center">\s*<a href="https://skillicons\.dev">.*?github-readme-activity-graph\.vercel\.app.*?</p>\r?\n\r?\n---',
-        '(?s)\r?\n(?:---\r?\n\r?\n)?<p align="center">\s*<a href="https://skillicons\.dev">.*?assets/profile/activity-(?:dark|light)\.svg.*?</p>\r?\n\r?\n---'
-    )
-    $updated = $Header
-    foreach ($chromePattern in $chromePatterns) {
-        do {
-            $previous = $updated
-            $updated = [regex]::Replace($updated, $chromePattern, [Environment]::NewLine)
-        } while ($updated -ne $previous)
-    }
-    $focusMarker = "### Professional Focus"
-    $hasRichProfileHeader = $updated.Contains($focusMarker) -or
-        $updated.Contains("Healthcare IT engineer and DICOM/PACS specialist") -or
-        $updated.Contains("https://skillicons.dev") -or
-        $updated.Contains("assets/profile/stats-")
-    $focusIndex = $updated.IndexOf($focusMarker, [StringComparison]::Ordinal)
-    if ($focusIndex -ge 0) {
-        $updated = $updated.Substring($focusIndex)
-    }
-
-    $updated = $updated -replace '\d+%2B\+open\+source\+tools', "$PublicRepoCount%2B+open+source+tools"
-    $updated = $updated -replace '- \d+\+ open source projects across', "- $PublicRepoCount+ open source projects across"
-    $updated = $updated -replace 'Public portfolio: \d+ active repos, \d+ visitor-facing projects,', "Public portfolio: $PublicRepoCount active repos, $($Entries.Count) visitor-facing projects,"
-    $updated = $updated -replace '\| Public catalog \| \d+ active repos,', "| Public catalog | $PublicRepoCount active repos,"
-
-    if ($hasRichProfileHeader) {
-        $updated = (New-ProfileChrome) + [Environment]::NewLine + [Environment]::NewLine + $updated
-    }
-
-    $building = @($Entries | Where-Object { $_.currentlyBuilding -eq $true } | Sort-Object @{ Expression = { [int]$_.order } }, repo)
-    if ($hasRichProfileHeader -and $building.Count -gt 0) {
-        $tableLines = New-Object System.Collections.Generic.List[string]
-        $tableLines.Add("**Currently Building**")
-        $tableLines.Add("")
-        $tableLines.Add("| Project | Focus | Action |")
-        $tableLines.Add("|:--------|:------|:------:|")
-        foreach ($entry in $building) {
-            $meta = Get-RepoMeta $entry $RepoLookup
-            $text = if (-not [string]::IsNullOrWhiteSpace([string]$entry.currentlyBuildingText)) {
-                "$([string]$entry.currentlyBuildingText)$(Get-UpstreamAttribution $entry)"
-            } else {
-                Get-DisplayDescription $entry $meta
-            }
-            $project = "[**$($entry.title)**]($(Get-RepoUrl $entry))"
-            $action = Get-ActionLink $entry $meta $entry.category
-            $tableLines.Add("| $project | $text | $action |")
-        }
-        $table = $tableLines -join [Environment]::NewLine
-        $pattern = '(?s)\*\*Currently Building\*\*\r?\n\r?\n\|[^\r\n]+\|\r?\n\|[:\-\| ]+\|\r?\n(?:\|.*?\|\r?\n)+'
-        $updated = [regex]::Replace($updated, $pattern, $table + [Environment]::NewLine)
-    }
-
-    $updated = [regex]::Replace($updated.TrimEnd(), '(\r?\n\s*---\s*)+$', '')
-    if ($hasRichProfileHeader) {
-        return $updated.TrimEnd() + [Environment]::NewLine + [Environment]::NewLine + (New-ProfileStatsChrome)
-    }
-    return $updated.TrimEnd()
+    return (New-ProfileChrome).TrimEnd()
 }
 
 function New-Readme {
@@ -2953,9 +2918,7 @@ function New-Readme {
         throw "README marker not found: generated catalog notice, ### Start Here, or ### Featured Projects"
     }
     $footer = New-ProfileFooter
-    $repoCount = @($Repos | Where-Object { $null -ne $_ }).Count
-    $publicCount = if ($repoCount -gt 0) { $repoCount } else { @($entries | Select-Object -ExpandProperty repo -Unique).Count }
-    $header = Update-Header -Header $readme.Substring(0, $start) -PublicRepoCount $publicCount -Entries $entries -RepoLookup $repoLookup
+    $header = Update-Header
     $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
 
     $blocks = New-Object System.Collections.Generic.List[string]
@@ -3818,11 +3781,8 @@ function Test-ReadmeExperience {
     $hasThemeAwareChrome = $ExpectedReadme.Contains("<picture>") -and
         $ExpectedReadme.Contains('(prefers-color-scheme: dark)') -and
         $ExpectedReadme.Contains('(prefers-color-scheme: light)') -and
-        $ExpectedReadme.Contains("theme=light") -and
-        $ExpectedReadme.Contains("assets/profile/stats-light.svg") -and
-        $ExpectedReadme.Contains("assets/profile/languages-light.svg") -and
-        $ExpectedReadme.Contains("assets/profile/activity-light.svg") -and
-        $ExpectedReadme.Contains("assets/profile/contributions-light.svg")
+        $ExpectedReadme.Contains("assets/profile/header-light.svg") -and
+        $ExpectedReadme.Contains("assets/profile/footer-light.svg")
     $thirdPartyMetricHostPattern = 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
     $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
     $thirdPartyBadgeHostPattern = 'img\.shields\.io/github/(?:followers|stars)'
@@ -3837,13 +3797,13 @@ function Test-ReadmeExperience {
     $motionPatternCount = [regex]::Matches($ExpectedReadme, $motionPattern).Count
     $motionSafeChrome = $motionPatternCount -eq 0
     $profileStatsChromeCount = [regex]::Matches($ExpectedReadme, '<a href="https://skillicons\.dev">').Count
-    $hasPlainTextTagline = $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -and
-        $ExpectedReadme.Contains("16+ years in IT operations")
+    $hasPlainTextTagline = $ExpectedReadme.Contains("Broadcast IT, Healthcare IT, and practical public tools.") -and
+        $ExpectedReadme.Contains("Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
     $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
     $hasMeaningfulAltText = $genericAltCount -eq 0 -and
-        $ExpectedReadme.Contains('alt="SysAdminDoc - Healthcare IT Engineer, DICOM/PACS Specialist, Product Builder"') -and
-        $ExpectedReadme.Contains('alt="PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub"')
+        $ExpectedReadme.Contains('alt="SysAdminDoc public tools command center profile header"') -and
+        $ExpectedReadme.Contains('alt="SysAdminDoc generated profile footer"')
     # Per GitHub accessibility guidance, every <img> needs descriptive alt text.
     # Warning-only completeness check across all rendered <img> tags.
     $genericAltValuePattern = '(?i)^(header|typing svg|profile views|followers|stars|tech stack|github stats|top languages|github streak|activity graph|footer|image|img|logo|icon|screenshot|banner)$'
@@ -3870,21 +3830,20 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains('<a href="#powershell-system-utilities">PowerShell</a>') -and
         -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and
         -not $ExpectedReadme.Contains('assets/profile/header-light.svg')
-    $hasRichProfileHeader = $ExpectedReadme.Contains("### Professional Focus") -or
-        $ExpectedReadme.Contains("Healthcare IT engineer and DICOM/PACS specialist") -or
-        $ExpectedReadme.Contains("https://skillicons.dev") -or
-        $profileStatsChromeCount -gt 0
+    $hasRichProfileHeader = $ExpectedReadme.Contains("assets/profile/header-dark.svg") -and
+        $ExpectedReadme.Contains("View full portfolio") -and
+        $ExpectedReadme.Contains("public tools command center")
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
         (-not $ExpectedReadme.Contains("**Currently Building**")) -or
         $ExpectedReadme.Contains("| Project | Focus | Action |")
     $hasDiscoveryContract = ($hasStartHere -and -not $hasSnapshot -and $hasGeneratedNotice) -or
         ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
-    $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 1) -or
+    $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 0) -or
         ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)
     $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasCurrentlyBuildingActionColumn -and
         $hasProfileHeaderContract -and
         $motionSafeChrome -and
-        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and
+        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $thirdPartyRenderHosts.Count -eq 0 -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
 
     return [ordered]@{
@@ -8274,15 +8233,186 @@ function Get-TopicHints {
     return @($hints | Select-Object -First 8)
 }
 
+function Test-PublicMetadataHygieneRow {
+    param(
+        [object]$Repo,
+        [string]$RepoName,
+        [string]$Category
+    )
+
+    if (-not (Test-SafeGitHubName -Name $RepoName)) {
+        return $false
+    }
+    if ([string]$Category -eq "suppressed") {
+        return $false
+    }
+    if (ConvertTo-BooleanValue (Get-MemberValue -Object $Repo -Name "isPrivate")) {
+        return $false
+    }
+
+    $visibility = [string](Get-MemberValue -Object $Repo -Name "visibility")
+    if (-not [string]::IsNullOrWhiteSpace($visibility) -and $visibility.ToUpperInvariant() -ne "PUBLIC") {
+        return $false
+    }
+
+    return $true
+}
+
+function ConvertTo-PowerShellSingleQuotedArgument {
+    param([AllowNull()][string]$Value)
+
+    $normalized = if ($null -eq $Value) { "" } else { (([string]$Value -replace "\r?\n", " ") -replace "\s+", " ").Trim() }
+    return "'$($normalized.Replace("'", "''"))'"
+}
+
+function Test-SafeTopicToken {
+    param([string]$Value)
+
+    return (-not [string]::IsNullOrWhiteSpace($Value) -and $Value -match '^[a-z0-9][a-z0-9-]{0,49}$')
+}
+
+function New-MetadataTopicCommand {
+    param(
+        [string]$OwnerName,
+        [string]$RepoName,
+        [string[]]$TopicHints
+    )
+
+    if (-not (Test-SafeGitHubName -Name $OwnerName) -or -not (Test-SafeGitHubName -Name $RepoName)) {
+        return $null
+    }
+
+    $safeTopics = New-Object System.Collections.Generic.List[string]
+    foreach ($hint in @($TopicHints)) {
+        $token = ConvertTo-TopicToken $hint
+        if ((Test-SafeTopicToken -Value $token) -and -not $safeTopics.Contains($token)) {
+            $safeTopics.Add($token)
+        }
+    }
+    if ($safeTopics.Count -eq 0) {
+        return $null
+    }
+
+    $topicArguments = @($safeTopics | ForEach-Object { "--add-topic $_" })
+    return "gh repo edit $OwnerName/$RepoName $($topicArguments -join ' ')"
+}
+
+function New-MetadataDescriptionCommand {
+    param(
+        [string]$OwnerName,
+        [string]$RepoName,
+        [string]$Description
+    )
+
+    if (-not (Test-SafeGitHubName -Name $OwnerName) -or -not (Test-SafeGitHubName -Name $RepoName)) {
+        return $null
+    }
+    if ([string]::IsNullOrWhiteSpace($Description)) {
+        return $null
+    }
+
+    return "gh repo edit $OwnerName/$RepoName --description $(ConvertTo-PowerShellSingleQuotedArgument -Value $Description)"
+}
+
+function New-MetadataDescriptionPatchGuidance {
+    param(
+        [string]$RepoName,
+        [string]$CatalogDescription
+    )
+
+    if ([string]::IsNullOrWhiteSpace($CatalogDescription)) {
+        return "Add descriptionOverride for $RepoName in data/profile-catalog.json or set a public GitHub description before rerunning sync."
+    }
+
+    return "Use the command to set the public GitHub description, or update descriptionOverride for $RepoName in data/profile-catalog.json if the catalog wording should differ."
+}
+
+function New-MetadataHygieneHandoff {
+    param(
+        [object[]]$MissingTopics,
+        [object[]]$MissingDescriptions,
+        [int]$SuppressedTopicCount,
+        [int]$SuppressedDescriptionCount,
+        [int]$UnsafeOrPrivateTopicCount,
+        [int]$UnsafeOrPrivateDescriptionCount,
+        [string]$OwnerName,
+        [int]$MaxRows = 10
+    )
+
+    $topicRows = New-Object System.Collections.Generic.List[object]
+    foreach ($row in @($MissingTopics | Select-Object -First $MaxRows)) {
+        $repoName = [string](Get-MemberValue -Object $row -Name "repo")
+        $topicHints = @((Get-MemberValue -Object $row -Name "topicHints") | ForEach-Object { [string]$_ })
+        $command = New-MetadataTopicCommand -OwnerName $OwnerName -RepoName $repoName -TopicHints $topicHints
+        if ([string]::IsNullOrWhiteSpace($command)) {
+            continue
+        }
+
+        $topicRows.Add([ordered]@{
+            repo = $repoName
+            language = Get-MemberValue -Object $row -Name "language"
+            category = Get-MemberValue -Object $row -Name "category"
+            topicHints = @($topicHints)
+            command = $command
+        })
+    }
+
+    $descriptionRows = New-Object System.Collections.Generic.List[object]
+    foreach ($row in @($MissingDescriptions | Select-Object -First $MaxRows)) {
+        $repoName = [string](Get-MemberValue -Object $row -Name "repo")
+        $catalogDescription = Get-MemberValue -Object $row -Name "catalogDescription"
+        $command = New-MetadataDescriptionCommand -OwnerName $OwnerName -RepoName $repoName -Description ([string]$catalogDescription)
+        $descriptionRows.Add([ordered]@{
+            repo = $repoName
+            language = Get-MemberValue -Object $row -Name "language"
+            category = Get-MemberValue -Object $row -Name "category"
+            catalogDescription = if ([string]::IsNullOrWhiteSpace([string]$catalogDescription)) { $null } else { [string]$catalogDescription }
+            command = if ([string]::IsNullOrWhiteSpace($command)) { $null } else { $command }
+            catalogPatchGuidance = New-MetadataDescriptionPatchGuidance -RepoName $repoName -CatalogDescription ([string]$catalogDescription)
+        })
+    }
+
+    $actionableCount = $topicRows.Count + $descriptionRows.Count
+    $redactedCount = $SuppressedTopicCount + $SuppressedDescriptionCount + $UnsafeOrPrivateTopicCount + $UnsafeOrPrivateDescriptionCount
+    $status = if ($actionableCount -gt 0) {
+        "actionable"
+    } elseif ($redactedCount -gt 0) {
+        "redacted-only"
+    } else {
+        "clean"
+    }
+
+    return [ordered]@{
+        status = $status
+        maxRows = $MaxRows
+        topicRowCount = $topicRows.Count
+        descriptionRowCount = $descriptionRows.Count
+        excludedSuppressedTopicCount = $SuppressedTopicCount
+        excludedSuppressedDescriptionCount = $SuppressedDescriptionCount
+        excludedUnsafeOrPrivateTopicCount = $UnsafeOrPrivateTopicCount
+        excludedUnsafeOrPrivateDescriptionCount = $UnsafeOrPrivateDescriptionCount
+        topicRows = $topicRows.ToArray()
+        descriptionRows = $descriptionRows.ToArray()
+        note = "Handoff rows intentionally exclude suppressed, private, and unsafe repository names; count fields preserve hidden gap totals."
+    }
+}
+
 function Test-MetadataHygiene {
     param(
         [object[]]$Repos,
-        [hashtable[]]$CatalogEntries = @()
+        [hashtable[]]$CatalogEntries = @(),
+        [string]$OwnerName = $Owner
     )
 
     $missingTopics = New-Object System.Collections.Generic.List[object]
     $missingDescriptions = New-Object System.Collections.Generic.List[object]
     $catalogLookup = New-CatalogEntryLookup -Entries $CatalogEntries
+    $totalMissingTopicCount = 0
+    $totalMissingDescriptionCount = 0
+    $suppressedTopicCount = 0
+    $suppressedDescriptionCount = 0
+    $unsafeOrPrivateTopicCount = 0
+    $unsafeOrPrivateDescriptionCount = 0
 
     foreach ($repo in @($Repos | Sort-Object name)) {
         $repoName = [string](Get-MemberValue -Object $repo -Name "name")
@@ -8300,6 +8430,8 @@ function Test-MetadataHygiene {
         if ($primaryLanguage) {
             $language = Get-MemberValue -Object $primaryLanguage -Name "name"
         }
+        $category = if ($catalogEntry) { [string]$catalogEntry.category } else { $null }
+        $publicHygieneRow = Test-PublicMetadataHygieneRow -Repo $repo -RepoName $repoName -Category $category
 
         $topicNames = @()
         $topics = Get-MemberValue -Object $repo -Name "repositoryTopics"
@@ -8311,34 +8443,65 @@ function Test-MetadataHygiene {
         }
 
         if ($topicNames.Count -eq 0) {
-            $missingTopics.Add([ordered]@{
-                repo = $repoName
-                language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
-                pushedAt = ConvertTo-IsoText (Get-MemberValue -Object $repo -Name "pushedAt")
-                category = if ($catalogEntry) { [string]$catalogEntry.category } else { $null }
-                topicHints = @(Get-TopicHints -Repo $repoName -Language $language -Entry $catalogEntry -Description ([string](Get-MemberValue -Object $repo -Name "description")))
-            })
+            $totalMissingTopicCount++
+            if ($publicHygieneRow) {
+                $missingTopics.Add([ordered]@{
+                    repo = $repoName
+                    language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
+                    pushedAt = ConvertTo-IsoText (Get-MemberValue -Object $repo -Name "pushedAt")
+                    category = if ([string]::IsNullOrWhiteSpace([string]$category)) { $null } else { $category }
+                    topicHints = @(Get-TopicHints -Repo $repoName -Language $language -Entry $catalogEntry -Description ([string](Get-MemberValue -Object $repo -Name "description")))
+                })
+            } elseif ($category -eq "suppressed") {
+                $suppressedTopicCount++
+            } else {
+                $unsafeOrPrivateTopicCount++
+            }
         }
 
         $description = Get-MemberValue -Object $repo -Name "description"
         if ([string]::IsNullOrWhiteSpace([string]$description)) {
-            $missingDescriptions.Add([ordered]@{
-                repo = $repoName
-                language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
-                category = if ($catalogEntry) { [string]$catalogEntry.category } else { $null }
-                catalogDescription = if ($catalogEntry -and -not [string]::IsNullOrWhiteSpace([string]$catalogEntry.descriptionOverride)) { [string]$catalogEntry.descriptionOverride } else { $null }
-            })
+            $totalMissingDescriptionCount++
+            if ($publicHygieneRow) {
+                $missingDescriptions.Add([ordered]@{
+                    repo = $repoName
+                    language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
+                    category = if ([string]::IsNullOrWhiteSpace([string]$category)) { $null } else { $category }
+                    catalogDescription = if ($catalogEntry -and -not [string]::IsNullOrWhiteSpace([string]$catalogEntry.descriptionOverride)) { [string]$catalogEntry.descriptionOverride } else { $null }
+                })
+            } elseif ($category -eq "suppressed") {
+                $suppressedDescriptionCount++
+            } else {
+                $unsafeOrPrivateDescriptionCount++
+            }
         }
     }
+    $handoff = New-MetadataHygieneHandoff `
+        -MissingTopics $missingTopics.ToArray() `
+        -MissingDescriptions $missingDescriptions.ToArray() `
+        -SuppressedTopicCount $suppressedTopicCount `
+        -SuppressedDescriptionCount $suppressedDescriptionCount `
+        -UnsafeOrPrivateTopicCount $unsafeOrPrivateTopicCount `
+        -UnsafeOrPrivateDescriptionCount $unsafeOrPrivateDescriptionCount `
+        -OwnerName $OwnerName
 
     return [ordered]@{
-        missingTopicCount = $missingTopics.Count
-        missingDescriptionCount = $missingDescriptions.Count
+        missingTopicCount = $totalMissingTopicCount
+        missingDescriptionCount = $totalMissingDescriptionCount
+        publicMissingTopicCount = $missingTopics.Count
+        publicMissingDescriptionCount = $missingDescriptions.Count
+        redactedTopicCount = $suppressedTopicCount + $unsafeOrPrivateTopicCount
+        redactedDescriptionCount = $suppressedDescriptionCount + $unsafeOrPrivateDescriptionCount
+        suppressedTopicCount = $suppressedTopicCount
+        suppressedDescriptionCount = $suppressedDescriptionCount
+        unsafeOrPrivateTopicCount = $unsafeOrPrivateTopicCount
+        unsafeOrPrivateDescriptionCount = $unsafeOrPrivateDescriptionCount
         topicHintPolicy = [ordered]@{
             mutatesRepositories = $false
             applyModeAvailable = $false
             requiresExplicitAllowlist = $true
         }
+        handoff = $handoff
         missingTopics = $missingTopics.ToArray()
         missingDescriptions = $missingDescriptions.ToArray()
     }
@@ -8448,6 +8611,13 @@ function Test-ForkParentDrift {
     $checkedCount = 0
     $githubForkCount = 0
     $catalogForkOfCount = 0
+    $matchingGitHubForkCount = 0
+    $catalogContinuationCount = 0
+    $missingCatalogAttributionCount = 0
+    $parentMismatchCount = 0
+    $parentUnavailableCount = 0
+    $publicDetailRowCount = 0
+    $redactedDetailRowCount = 0
 
     foreach ($repo in @($Repos | Sort-Object name)) {
         $repoName = [string](Get-MemberValue -Object $repo -Name "name")
@@ -8461,6 +8631,8 @@ function Test-ForkParentDrift {
             $entry = $catalogLookup[$repoKey]
         }
         $catalogForkOf = if ($entry -and -not [string]::IsNullOrWhiteSpace([string]$entry.forkOf)) { [string]$entry.forkOf } else { $null }
+        $category = if ($entry) { [string]$entry.category } else { $null }
+        $publicForkRow = Test-PublicMetadataHygieneRow -Repo $repo -RepoName $repoName -Category $category
         $isFork = ConvertTo-BooleanValue (Get-MemberValue -Object $repo -Name "isFork")
         $githubParent = Get-ForkParentNameWithOwner -Meta $repo
         $fetchError = Get-MemberValue -Object $repo -Name "forkParentFetchError"
@@ -8476,62 +8648,99 @@ function Test-ForkParentDrift {
         if ($isFork) {
             $githubForkCount++
             if ([string]::IsNullOrWhiteSpace([string]$githubParent)) {
-                $parentUnavailable.Add([ordered]@{
+                $parentUnavailableCount++
+                $row = [ordered]@{
                     repo = $repoName
                     reason = "GitHub marks this repository as a fork, but parent metadata was unavailable"
                     error = if ([string]::IsNullOrWhiteSpace([string]$fetchError)) { $null } else { [string]$fetchError }
-                })
+                }
+                if ($publicForkRow) {
+                    $parentUnavailable.Add($row)
+                    $publicDetailRowCount++
+                } else {
+                    $redactedDetailRowCount++
+                }
             }
             if ([string]::IsNullOrWhiteSpace($catalogForkOf)) {
-                $missingCatalogAttribution.Add([ordered]@{
+                $missingCatalogAttributionCount++
+                $row = [ordered]@{
                     repo = $repoName
                     githubParent = if ([string]::IsNullOrWhiteSpace([string]$githubParent)) { $null } else { [string]$githubParent }
                     reason = "GitHub marks this repository as a fork, but the catalog has no forkOf attribution"
-                })
+                }
+                if ($publicForkRow) {
+                    $missingCatalogAttribution.Add($row)
+                    $publicDetailRowCount++
+                } else {
+                    $redactedDetailRowCount++
+                }
                 continue
             }
             if (-not [string]::IsNullOrWhiteSpace([string]$githubParent) -and $catalogForkOf.ToLowerInvariant() -ne ([string]$githubParent).ToLowerInvariant()) {
-                $parentMismatches.Add([ordered]@{
+                $parentMismatchCount++
+                $row = [ordered]@{
                     repo = $repoName
                     catalogForkOf = $catalogForkOf
                     githubParent = [string]$githubParent
                     reason = "catalog forkOf does not match GitHub fork parent"
-                })
+                }
+                if ($publicForkRow) {
+                    $parentMismatches.Add($row)
+                    $publicDetailRowCount++
+                } else {
+                    $redactedDetailRowCount++
+                }
                 continue
             }
             if (-not [string]::IsNullOrWhiteSpace([string]$githubParent)) {
-                $matchingGitHubForks.Add([ordered]@{
+                $matchingGitHubForkCount++
+                $row = [ordered]@{
                     repo = $repoName
                     catalogForkOf = $catalogForkOf
                     githubParent = [string]$githubParent
-                })
+                }
+                if ($publicForkRow) {
+                    $matchingGitHubForks.Add($row)
+                    $publicDetailRowCount++
+                } else {
+                    $redactedDetailRowCount++
+                }
             }
             continue
         }
 
-        $catalogContinuations.Add([ordered]@{
+        $catalogContinuationCount++
+        $row = [ordered]@{
             repo = $repoName
             catalogForkOf = $catalogForkOf
             reason = "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
-        })
+        }
+        if ($publicForkRow) {
+            $catalogContinuations.Add($row)
+            $publicDetailRowCount++
+        } else {
+            $redactedDetailRowCount++
+        }
     }
 
     return [ordered]@{
         checkedCount = $checkedCount
         githubForkCount = $githubForkCount
         catalogForkOfCount = $catalogForkOfCount
-        matchingGitHubForkCount = $matchingGitHubForks.Count
-        catalogContinuationCount = $catalogContinuations.Count
-        missingCatalogAttributionCount = $missingCatalogAttribution.Count
-        parentMismatchCount = $parentMismatches.Count
-        parentUnavailableCount = $parentUnavailable.Count
-        warningCount = $missingCatalogAttribution.Count + $parentMismatches.Count + $parentUnavailable.Count
+        matchingGitHubForkCount = $matchingGitHubForkCount
+        catalogContinuationCount = $catalogContinuationCount
+        missingCatalogAttributionCount = $missingCatalogAttributionCount
+        parentMismatchCount = $parentMismatchCount
+        parentUnavailableCount = $parentUnavailableCount
+        warningCount = $missingCatalogAttributionCount + $parentMismatchCount + $parentUnavailableCount
+        publicDetailRowCount = $publicDetailRowCount
+        redactedDetailRowCount = $redactedDetailRowCount
         matchingGitHubForks = $matchingGitHubForks.ToArray()
         catalogContinuations = $catalogContinuations.ToArray()
         missingCatalogAttribution = $missingCatalogAttribution.ToArray()
         parentMismatches = $parentMismatches.ToArray()
         parentUnavailable = $parentUnavailable.ToArray()
-        note = "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
+        note = "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed. Detail rows intentionally exclude suppressed, private, and unsafe repository names."
     }
 }
 

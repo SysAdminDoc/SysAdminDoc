@@ -1,13 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="820" height="240" viewBox="0 0 820 240" role="img" aria-labelledby="profile-sysadmindoc-profile-header-light-title" aria-describedby="profile-sysadmindoc-profile-header-light-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="300" viewBox="0 0 1000 300" role="img" aria-labelledby="profile-sysadmindoc-profile-header-light-title" aria-describedby="profile-sysadmindoc-profile-header-light-desc">
   <title id="profile-sysadmindoc-profile-header-light-title">SysAdminDoc profile header</title>
-  <desc id="profile-sysadmindoc-profile-header-light-desc">Static profile header for a healthcare IT engineer, DICOM/PACS specialist, product builder, and public open-source catalog maintainer.</desc>
+  <desc id="profile-sysadmindoc-profile-header-light-desc">Static public tools command center header for Broadcast IT, Healthcare IT, systems automation, DICOM/PACS, and generated open-source project routing.</desc>
   <rect width="100%" height="100%" fill="#ffffff"/>
-  <rect x="16" y="16" width="788" height="208" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
-  <rect x="16" y="16" width="4" height="208" rx="2" fill="#0969da"/>
-  <line x1="318" y1="52" x2="502" y2="52" stroke="#0969da" stroke-width="2" opacity="0.9"/>
-  <text x="410" y="82" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">PUBLIC OPEN-SOURCE CATALOG</text>
-  <text x="410" y="130" text-anchor="middle" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700">SysAdminDoc</text>
-  <text x="410" y="164" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600">Healthcare IT Engineer | DICOM/PACS Specialist | Product Builder</text>
-  <text x="410" y="192" text-anchor="middle" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="14">16+ years in IT operations | Windows, Android, web, automation, and imaging workflows</text>
-  <text x="410" y="216" text-anchor="middle" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600">PowerShell / Python / Kotlin / C# / Rust</text>
+  <rect x="14" y="14" width="972" height="272" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+  <rect x="34" y="36" width="4" height="210" rx="2" fill="#0969da"/>
+  <line x1="58" y1="48" x2="560" y2="48" stroke="#0969da" stroke-width="1.5" opacity="0.8"/>
+  <text x="58" y="76" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">PUBLIC TOOLS COMMAND CENTER</text>
+  <text x="58" y="126" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="700">SysAdminDoc</text>
+  <text x="60" y="162" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Broadcast IT, Healthcare IT, systems automation, and practical public tools</text>
+  <text x="60" y="192" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="14">Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence.</text>
+  <rect x="58" y="222" width="122" height="38" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="74" y="246" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">PowerShell</text>
+  <rect x="192" y="222" width="98" height="38" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="208" y="246" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Python</text>
+  <rect x="302" y="222" width="116" height="38" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="318" y="246" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Android</text>
+  <rect x="430" y="222" width="116" height="38" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="446" y="246" fill="#0969da" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Desktop</text>
+  <rect x="638" y="44" width="306" height="58" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="656" y="62" width="10" height="22" rx="3" fill="#0969da"/>
+  <text x="682" y="72" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Installable Windows utilities</text>
+  <text x="682" y="91" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">Branch-pinned commands and release downloads</text>
+  <rect x="638" y="122" width="306" height="58" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="656" y="140" width="10" height="22" rx="3" fill="#1a7f37"/>
+  <text x="682" y="150" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Android, browser, and web tools</text>
+  <text x="682" y="169" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">APK, CRX, XPI, userscript, and live links</text>
+  <rect x="638" y="200" width="306" height="58" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+  <rect x="656" y="218" width="10" height="22" rx="3" fill="#0969da"/>
+  <text x="682" y="228" fill="#24292f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Generated public catalog feed</text>
+  <text x="682" y="247" fill="#57606a" font-family="Segoe UI, Arial, sans-serif" font-size="12">README, projects.json, schemas, and smoke evidence</text>
 </svg>

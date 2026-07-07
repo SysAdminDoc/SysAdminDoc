@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-06T00:34:25.3583243-04:00",
+  "generatedAt": "2026-07-06T00:49:57.1443169-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "a75d2b030340e4ccd47e2e00d68f2cc7cd0fb778",
+    "sourceCommit": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "b910f0e73468872d456c1729c0436733e26d2af2e5392472b63c44a5094abc74",
+    "generatorSha256": "a38a15566b62757c58bef30ecd8448f68c4c8ab59a7d5b6558ba1593b5896a7c",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-06T00:32:43.1264104-04:00",
+    "metadataSnapshotAt": "2026-07-06T00:48:16.3346386-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -93,22 +93,103 @@
   "metadataHygiene": {
     "missingTopicCount": 19,
     "missingDescriptionCount": 1,
+    "publicMissingTopicCount": 6,
+    "publicMissingDescriptionCount": 0,
+    "redactedTopicCount": 13,
+    "redactedDescriptionCount": 1,
+    "suppressedTopicCount": 13,
+    "suppressedDescriptionCount": 1,
+    "unsafeOrPrivateTopicCount": 0,
+    "unsafeOrPrivateDescriptionCount": 0,
     "topicHintPolicy": {
       "mutatesRepositories": false,
       "applyModeAvailable": false,
       "requiresExplicitAllowlist": true
     },
+    "handoff": {
+      "status": "actionable",
+      "maxRows": 10,
+      "topicRowCount": 6,
+      "descriptionRowCount": 0,
+      "excludedSuppressedTopicCount": 13,
+      "excludedSuppressedDescriptionCount": 1,
+      "excludedUnsafeOrPrivateTopicCount": 0,
+      "excludedUnsafeOrPrivateDescriptionCount": 0,
+      "topicRows": [
+        {
+          "repo": "AsteroidSimulator",
+          "language": "TypeScript",
+          "category": "web",
+          "topicHints": [
+            "web-app",
+            "javascript",
+            "github-pages",
+            "typescript"
+          ],
+          "command": "gh repo edit SysAdminDoc/AsteroidSimulator --add-topic web-app --add-topic javascript --add-topic github-pages --add-topic typescript"
+        },
+        {
+          "repo": "GuitarTuner",
+          "language": "Kotlin",
+          "category": "android",
+          "topicHints": [
+            "android",
+            "kotlin"
+          ],
+          "command": "gh repo edit SysAdminDoc/GuitarTuner --add-topic android --add-topic kotlin"
+        },
+        {
+          "repo": "OpenNetLimit",
+          "language": "C#",
+          "category": "desktop",
+          "topicHints": [
+            "desktop-app",
+            "windows",
+            "csharp",
+            "networking"
+          ],
+          "command": "gh repo edit SysAdminDoc/OpenNetLimit --add-topic desktop-app --add-topic windows --add-topic csharp --add-topic networking"
+        },
+        {
+          "repo": "PartitionPilot",
+          "language": "C#",
+          "category": "desktop",
+          "topicHints": [
+            "desktop-app",
+            "windows",
+            "csharp"
+          ],
+          "command": "gh repo edit SysAdminDoc/PartitionPilot --add-topic desktop-app --add-topic windows --add-topic csharp"
+        },
+        {
+          "repo": "RES-Slim",
+          "language": "JavaScript",
+          "category": "extensions",
+          "topicHints": [
+            "browser-extension",
+            "userscript",
+            "javascript"
+          ],
+          "command": "gh repo edit SysAdminDoc/RES-Slim --add-topic browser-extension --add-topic userscript --add-topic javascript"
+        },
+        {
+          "repo": "StormScope",
+          "language": "Python",
+          "category": "web",
+          "topicHints": [
+            "web-app",
+            "javascript",
+            "github-pages",
+            "python",
+            "weather"
+          ],
+          "command": "gh repo edit SysAdminDoc/StormScope --add-topic web-app --add-topic javascript --add-topic github-pages --add-topic python --add-topic weather"
+        }
+      ],
+      "descriptionRows": [],
+      "note": "Handoff rows intentionally exclude suppressed, private, and unsafe repository names; count fields preserve hidden gap totals."
+    },
     "missingTopics": [
-      {
-        "repo": "android-foss",
-        "language": "Python",
-        "pushedAt": "2026-06-28T14:46:38.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "python",
-          "privacy"
-        ]
-      },
       {
         "repo": "AsteroidSimulator",
         "language": "TypeScript",
@@ -122,51 +203,6 @@
         ]
       },
       {
-        "repo": "awesome-privacy",
-        "language": null,
-        "pushedAt": "2026-06-28T03:24:19.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "privacy"
-        ]
-      },
-      {
-        "repo": "CL4R1T4S",
-        "language": null,
-        "pushedAt": "2026-06-15T11:09:58.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "utility"
-        ]
-      },
-      {
-        "repo": "ews",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-26T18:46:36.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "javascript"
-        ]
-      },
-      {
-        "repo": "foss-apps",
-        "language": "HTML",
-        "pushedAt": "2026-06-28T14:45:02.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "html"
-        ]
-      },
-      {
-        "repo": "Gmail-MCP-Server",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-26T18:46:44.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "javascript"
-        ]
-      },
-      {
         "repo": "GuitarTuner",
         "language": "Kotlin",
         "pushedAt": "2026-06-28T03:37:49.0000000Z",
@@ -174,33 +210,6 @@
         "topicHints": [
           "android",
           "kotlin"
-        ]
-      },
-      {
-        "repo": "hermes-webui",
-        "language": "Python",
-        "pushedAt": "2026-06-26T18:48:35.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "python"
-        ]
-      },
-      {
-        "repo": "notepad-plus-plus",
-        "language": "C++",
-        "pushedAt": "2026-07-04T22:25:58.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "cpp"
-        ]
-      },
-      {
-        "repo": "NotepadNext",
-        "language": "C++",
-        "pushedAt": "2026-06-27T00:01:24.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "cpp"
         ]
       },
       {
@@ -227,15 +236,6 @@
         ]
       },
       {
-        "repo": "qBittorrent-Enhanced-Edition",
-        "language": "C++",
-        "pushedAt": "2026-06-26T18:51:03.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "cpp"
-        ]
-      },
-      {
         "repo": "RES-Slim",
         "language": "JavaScript",
         "pushedAt": "2026-06-28T03:00:07.0000000Z",
@@ -258,44 +258,9 @@
           "python",
           "weather"
         ]
-      },
-      {
-        "repo": "stylus",
-        "language": "JavaScript",
-        "pushedAt": "2026-06-25T23:08:01.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "javascript"
-        ]
-      },
-      {
-        "repo": "vcpkg",
-        "language": "CMake",
-        "pushedAt": "2026-06-25T23:06:47.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "cmake"
-        ]
-      },
-      {
-        "repo": "youtube-mcp-server",
-        "language": "Python",
-        "pushedAt": "2026-06-16T00:21:57.0000000Z",
-        "category": "suppressed",
-        "topicHints": [
-          "python",
-          "video"
-        ]
       }
     ],
-    "missingDescriptions": [
-      {
-        "repo": "ews",
-        "language": "JavaScript",
-        "category": "suppressed",
-        "catalogDescription": null
-      }
-    ]
+    "missingDescriptions": []
   },
   "projectLicenseMetadata": {
     "checkedCount": 175,
@@ -396,6 +361,8 @@
     "parentMismatchCount": 0,
     "parentUnavailableCount": 0,
     "warningCount": 0,
+    "publicDetailRowCount": 9,
+    "redactedDetailRowCount": 15,
     "matchingGitHubForks": [
       {
         "repo": "android-debloat-list",
@@ -403,79 +370,14 @@
         "githubParent": "MuntashirAkon/android-debloat-list"
       },
       {
-        "repo": "android-foss",
-        "catalogForkOf": "offa/android-foss",
-        "githubParent": "offa/android-foss"
-      },
-      {
-        "repo": "awesome-privacy",
-        "catalogForkOf": "pluja/awesome-privacy",
-        "githubParent": "pluja/awesome-privacy"
-      },
-      {
-        "repo": "CL4R1T4S",
-        "catalogForkOf": "elder-plinius/CL4R1T4S",
-        "githubParent": "elder-plinius/CL4R1T4S"
-      },
-      {
-        "repo": "ews",
-        "catalogForkOf": "kylemcdonald/ews",
-        "githubParent": "kylemcdonald/ews"
-      },
-      {
-        "repo": "foss-apps",
-        "catalogForkOf": "albertomosconi/foss-apps",
-        "githubParent": "albertomosconi/foss-apps"
-      },
-      {
-        "repo": "Gmail-MCP-Server",
-        "catalogForkOf": "GongRzhe/Gmail-MCP-Server",
-        "githubParent": "GongRzhe/Gmail-MCP-Server"
-      },
-      {
-        "repo": "hermes-webui",
-        "catalogForkOf": "nesquena/hermes-webui",
-        "githubParent": "nesquena/hermes-webui"
-      },
-      {
         "repo": "LTSC-MicrosoftStore",
         "catalogForkOf": "minihub/LTSC-Add-MicrosoftStore",
         "githubParent": "minihub/LTSC-Add-MicrosoftStore"
       },
       {
-        "repo": "mnamer",
-        "catalogForkOf": "jkwill87/mnamer",
-        "githubParent": "jkwill87/mnamer"
-      },
-      {
-        "repo": "notepad-plus-plus",
-        "catalogForkOf": "notepad-plus-plus/notepad-plus-plus",
-        "githubParent": "notepad-plus-plus/notepad-plus-plus"
-      },
-      {
-        "repo": "NotepadNext",
-        "catalogForkOf": "dail8859/NotepadNext",
-        "githubParent": "dail8859/NotepadNext"
-      },
-      {
-        "repo": "project-nomad",
-        "catalogForkOf": "Crosstalk-Solutions/project-nomad",
-        "githubParent": "Crosstalk-Solutions/project-nomad"
-      },
-      {
-        "repo": "qBittorrent-Enhanced-Edition",
-        "catalogForkOf": "c0re100/qBittorrent-Enhanced-Edition",
-        "githubParent": "c0re100/qBittorrent-Enhanced-Edition"
-      },
-      {
         "repo": "RcloneBrowser",
         "catalogForkOf": "kapitainsky/RcloneBrowser",
         "githubParent": "kapitainsky/RcloneBrowser"
-      },
-      {
-        "repo": "stylus",
-        "catalogForkOf": "openstyles/stylus",
-        "githubParent": "openstyles/stylus"
       },
       {
         "repo": "TabExplorer",
@@ -488,19 +390,9 @@
         "githubParent": "TagStudioDev/TagStudio"
       },
       {
-        "repo": "vcpkg",
-        "catalogForkOf": "microsoft/vcpkg",
-        "githubParent": "microsoft/vcpkg"
-      },
-      {
         "repo": "Vigil",
         "catalogForkOf": "ungoogled-software/ungoogled-chromium-windows",
         "githubParent": "ungoogled-software/ungoogled-chromium-windows"
-      },
-      {
-        "repo": "youtube-mcp-server",
-        "catalogForkOf": "pauling-ai/youtube-mcp-server",
-        "githubParent": "pauling-ai/youtube-mcp-server"
       }
     ],
     "catalogContinuations": [
@@ -523,7 +415,7 @@
     "missingCatalogAttribution": [],
     "parentMismatches": [],
     "parentUnavailable": [],
-    "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed."
+    "note": "GitHub fork-parent drift is warning-only: catalog continuations are allowed, while missing or mismatched GitHub fork attribution should be reviewed. Detail rows intentionally exclude suppressed, private, and unsafe repository names."
   },
   "staleProjectReview": {
     "checkedProjectCount": 186,
@@ -1775,7 +1667,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-06T00:32:43.1264104-04:00",
+          "queriedAt": "2026-07-06T00:48:16.3346386-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2080,13 +1972,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.150",
+    "expectedVersion": "v4.9.151",
     "expectedDate": "2026-07-06",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.150"
+        "value": "v4.9.151"
       }
     ],
     "dates": [
@@ -2108,14 +2000,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.150",
+    "expectedVersion": "v4.9.151",
     "latestReleaseTag": "v3.0.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
     "latestReleasePublishedAt": "2026-04-13T16:46:04.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.150",
+    "expectedTag": "v4.9.151",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2125,13 +2017,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.150",
+        "expectedVersion": "v4.9.151",
         "actualVersion": "v3.0.0",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.150",
+        "expectedVersion": "v4.9.151",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2200,7 +2092,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 4351,
+      "elapsedMs": 3936,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2234,7 +2126,7 @@
     "informationalCount": 0,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 34.34,
+      "ageDays": 34.35,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2244,7 +2136,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 4351,
+    "elapsedMs": 3936,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2614,7 +2506,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 100803,
+        "value": 98646,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2659,14 +2551,14 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "generated-with-commit",
+    "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-06T00:25:32.2588236-04:00",
-    "latestReportAffectingCommitSha": "a75d2b030340e4ccd47e2e00d68f2cc7cd0fb778",
-    "latestReportAffectingCommitDate": "2026-07-06T00:28:33.0000000-04:00",
-    "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.05,
-    "generatedWithCommit": true,
+    "committedReportGeneratedAt": "2026-07-06T00:45:42.5554320-04:00",
+    "latestReportAffectingCommitSha": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
+    "latestReportAffectingCommitDate": "2026-07-06T00:36:56.0000000-04:00",
+    "reportAgeBehindCommit": false,
+    "reportAgeBehindHours": null,
+    "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": false,
