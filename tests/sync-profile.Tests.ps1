@@ -1182,7 +1182,7 @@ Describe 'Test-LinkTargets batch reporting' {
 
     It 'adds non-catalog profile links and keeps image-host outages nonfatal' {
         $readme = @'
-**[View my full portfolio](https://sysadmindoc.github.io/)**
+**[View full portfolio](https://sysadmindoc.github.io/)**
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex

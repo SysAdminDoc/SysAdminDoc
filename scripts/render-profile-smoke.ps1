@@ -200,7 +200,7 @@ function Invoke-RenderedSmoke {
     rootScrollWidth: root.scrollWidth,
     rootOverflow,
     documentOverflow,
-    portfolioLinkText: text.includes("View my full portfolio"),
+    portfolioLinkText: text.includes("View full portfolio") || text.includes("View my full portfolio"),
     sections: sectionResults,
     failedImages: images.filter((img) => !img.complete || img.naturalWidth === 0).slice(0, 10)
   };
