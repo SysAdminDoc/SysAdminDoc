@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-06T00:49:57.1443169-04:00",
+  "generatedAt": "2026-07-07T14:03:29.1520237-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
+    "sourceCommit": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "a38a15566b62757c58bef30ecd8448f68c4c8ab59a7d5b6558ba1593b5896a7c",
+    "generatorSha256": "d2759257246f2cd1414347c8dd768a6fac4c337ca5dae96a7fe273349f6903cc",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-06T00:48:16.3346386-04:00",
+    "metadataSnapshotAt": "2026-07-07T14:01:26.7319397-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -193,7 +193,7 @@
       {
         "repo": "AsteroidSimulator",
         "language": "TypeScript",
-        "pushedAt": "2026-06-28T03:36:59Z",
+        "pushedAt": "2026-06-28T03:36:59.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -205,7 +205,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-06-28T03:37:49Z",
+        "pushedAt": "2026-06-28T03:37:49.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -215,7 +215,7 @@
       {
         "repo": "OpenNetLimit",
         "language": "C#",
-        "pushedAt": "2026-06-28T03:38:34Z",
+        "pushedAt": "2026-06-28T03:38:34.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -227,7 +227,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-07-01T03:39:16Z",
+        "pushedAt": "2026-07-01T03:39:16.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -238,7 +238,7 @@
       {
         "repo": "RES-Slim",
         "language": "JavaScript",
-        "pushedAt": "2026-06-28T03:00:07Z",
+        "pushedAt": "2026-06-28T03:00:07.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -249,7 +249,7 @@
       {
         "repo": "StormScope",
         "language": "Python",
-        "pushedAt": "2026-06-28T03:39:12Z",
+        "pushedAt": "2026-06-28T03:39:12.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -569,7 +569,7 @@
         {
           "priorityRank": 1,
           "repo": "win11-nvme-driver-patcher",
-          "stars": 48,
+          "stars": 49,
           "latestReleaseTag": "v5.0.0",
           "executableAssetKinds": [
             "exe",
@@ -591,7 +591,7 @@
         {
           "priorityRank": 2,
           "repo": "VideoSubtitleRemover",
-          "stars": 30,
+          "stars": 32,
           "latestReleaseTag": "v3.17.1",
           "executableAssetKinds": [
             "zip"
@@ -612,7 +612,7 @@
         {
           "priorityRank": 3,
           "repo": "OpenCut",
-          "stars": 25,
+          "stars": 26,
           "latestReleaseTag": "v1.25.1",
           "executableAssetKinds": [
             "exe",
@@ -634,7 +634,7 @@
         {
           "priorityRank": 4,
           "repo": "ClearCut",
-          "stars": 18,
+          "stars": 19,
           "latestReleaseTag": "v3.74.108",
           "executableAssetKinds": [
             "apk"
@@ -1623,7 +1623,7 @@
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-25T09:51:10Z",
+        "date": "2026-06-25T09:51:10.0000000Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
         "analyzedCommit": "e4c68d2b12bd66d32c014dcb3a5640f189c8f8cd",
         "unavailableReason": null
@@ -1667,7 +1667,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-06T00:48:16.3346386-04:00",
+          "queriedAt": "2026-07-07T14:01:26.7319397-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1972,20 +1972,20 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.151",
-    "expectedDate": "2026-07-06",
+    "expectedVersion": "v4.9.152",
+    "expectedDate": "2026-07-07",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.151"
+        "value": "v4.9.152"
       }
     ],
     "dates": [
       {
         "path": "data/profile-version.json",
         "field": "date",
-        "value": "2026-07-06"
+        "value": "2026-07-07"
       }
     ],
     "changelogHeadingValidation": {
@@ -1998,36 +1998,23 @@
     "warnings": []
   },
   "profileReleaseConsistency": {
-    "passed": false,
+    "passed": true,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.151",
-    "latestReleaseTag": "v3.0.0",
-    "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v3.0.0",
-    "latestReleasePublishedAt": "2026-04-13T16:46:04Z",
-    "versionRelation": "behind",
-    "latestReleaseMatchesExpected": false,
-    "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.151",
+    "expectedVersion": "v4.9.152",
+    "latestReleaseTag": "v4.9.152",
+    "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.152",
+    "latestReleasePublishedAt": "2026-07-07T17:58:47.0000000Z",
+    "versionRelation": "matching",
+    "latestReleaseMatchesExpected": true,
+    "latestReleaseAtLeastExpected": true,
+    "expectedTag": "v4.9.152",
     "expectedTagRefChecked": true,
-    "expectedTagExists": false,
-    "expectedTagUrl": null,
-    "expectedTagSha": null,
+    "expectedTagExists": true,
+    "expectedTagUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.152",
+    "expectedTagSha": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
     "expectedTagUnavailableReason": null,
-    "warningCount": 2,
-    "warnings": [
-      {
-        "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.151",
-        "actualVersion": "v3.0.0",
-        "message": "Latest profile release is older than the planning-doc version."
-      },
-      {
-        "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.151",
-        "actualVersion": null,
-        "message": "Expected profile tag is not published on GitHub."
-      }
-    ],
+    "warningCount": 0,
+    "warnings": [],
     "releasePolicy": {
       "status": "documented-internal-version-gap",
       "decisionDocumentPath": "decision:profile-release-tag-policy",
@@ -2092,7 +2079,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 3936,
+      "elapsedMs": 7210,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2120,13 +2107,32 @@
   "urlSchemeViolations": [],
   "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [],
+  "metadataDrift": [
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.sourceCommit",
+      "oldValue": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
+      "newValue": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.metadataSnapshotAt",
+      "oldValue": "2026-07-07T13:29:15.2549192-04:00",
+      "newValue": "2026-07-07T14:01:26.7319397-04:00",
+      "severity": "info",
+      "failing": false
+    }
+  ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 0,
+    "informationalCount": 2,
     "generatedAt": {
-      "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 34.35,
+      "value": "2026-06-01T16:18:55.0998940-04:00",
+      "ageDays": 35.91,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2136,7 +2142,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 3936,
+    "elapsedMs": 7210,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2147,7 +2153,7 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 66359,
+    "byteCount": 68114,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2167,7 +2173,7 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 632,
+    "lineCount": 638,
     "detailsSectionCount": 12,
     "tableRowCount": 109,
     "projectRowCount": 175,
@@ -2443,7 +2449,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 66359,
+        "value": 68114,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2452,7 +2458,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 632,
+        "value": 638,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2479,7 +2485,7 @@
       {
         "artifact": "README.md",
         "metric": "imageTags",
-        "value": 1,
+        "value": 2,
         "softLimit": 10,
         "overSoftLimit": false,
         "warning": null,
@@ -2506,7 +2512,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 98574,
+        "value": 99935,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2515,7 +2521,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 85078,
+        "value": 90284,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2551,13 +2557,13 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "fresh",
+    "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-06T00:45:42.555432-04:00",
-    "latestReportAffectingCommitSha": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
-    "latestReportAffectingCommitDate": "2026-07-06T00:36:56-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
+    "committedReportGeneratedAt": "2026-07-06T00:49:57.1443169-04:00",
+    "latestReportAffectingCommitSha": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
+    "latestReportAffectingCommitDate": "2026-07-07T13:45:13.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 36.92,
     "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
@@ -2572,8 +2578,10 @@
       "schemas",
       "README.md"
     ],
-    "warnings": [],
-    "warningCount": 0
+    "warnings": [
+      "Committed sync report (2026-07-06T00:49:57.1443169-04:00) is older than the latest report-affecting commit 5c6dc3b (2026-07-07T13:45:13.0000000-04:00); regenerate and recommit reports/profile-sync-report.json."
+    ],
+    "warningCount": 1
   },
   "scheduledWorkflowFreshness": {
     "status": "not-applicable",
@@ -2722,22 +2730,54 @@
       },
       {
         "asset": "footer-dark.svg",
-        "backgroundColor": "#0d1117",
-        "textColorCount": 0,
-        "minTextContrastRatio": null,
+        "backgroundColor": "#161b22",
+        "textColorCount": 3,
+        "minTextContrastRatio": 5.62,
         "belowTextMinCount": 0,
         "belowNonTextMinCount": 0,
-        "textColors": [],
+        "textColors": [
+          {
+            "foreground": "#8b949e",
+            "ratio": 5.62,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#c9d1d9",
+            "ratio": 11.21,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#f0f6fc",
+            "ratio": 15.89,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
         "pass": true
       },
       {
         "asset": "footer-light.svg",
-        "backgroundColor": "#ffffff",
-        "textColorCount": 0,
-        "minTextContrastRatio": null,
+        "backgroundColor": "#f6f8fa",
+        "textColorCount": 2,
+        "minTextContrastRatio": 6.0,
         "belowTextMinCount": 0,
         "belowNonTextMinCount": 0,
-        "textColors": [],
+        "textColors": [
+          {
+            "foreground": "#24292f",
+            "ratio": 13.76,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
+          {
+            "foreground": "#57606a",
+            "ratio": 6.0,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          }
+        ],
         "pass": true
       },
       {
@@ -2917,13 +2957,13 @@
     "catalogSnapshotSection": false,
     "generatedCatalogNotice": true,
     "setupInspectPath": true,
-    "themeAwareImageChrome": false,
-    "plainTextTagline": false,
-    "meaningfulImageAltText": false,
-    "minimalProfileHeader": true,
-    "richProfileHeader": false,
+    "themeAwareImageChrome": true,
+    "plainTextTagline": true,
+    "meaningfulImageAltText": true,
+    "minimalProfileHeader": false,
+    "richProfileHeader": true,
     "genericImageAltTextCount": 0,
-    "imageTagCount": 1,
+    "imageTagCount": 2,
     "imageAltTextIssueCount": 0,
     "imageAltTextComplete": true,
     "thirdPartyMetricHostCount": 0,
