@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T16:03:10.547874-04:00",
+  "generatedAt": "2026-07-07T17:09:36.6118573-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
+    "sourceCommit": "fc4a8d789449123386bab0fdc23484ad02327492",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "2143608d84201cf98c2ac26028baa80b84d4d003be60ab1630d50673e5ae4ec6",
+    "generatorSha256": "5c33e879c82b8efb8eda8bacec609db5e3fac99b810287b888d685f9f2f2ff24",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T16:01:22.4087634-04:00",
+    "metadataSnapshotAt": "2026-07-07T17:07:47.3753123-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -193,7 +193,7 @@
       {
         "repo": "AsteroidSimulator",
         "language": "TypeScript",
-        "pushedAt": "2026-06-28T03:36:59Z",
+        "pushedAt": "2026-06-28T03:36:59.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -205,7 +205,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-06-28T03:37:49Z",
+        "pushedAt": "2026-06-28T03:37:49.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -215,7 +215,7 @@
       {
         "repo": "OpenNetLimit",
         "language": "C#",
-        "pushedAt": "2026-06-28T03:38:34Z",
+        "pushedAt": "2026-06-28T03:38:34.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -227,7 +227,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-07-01T03:39:16Z",
+        "pushedAt": "2026-07-01T03:39:16.0000000Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -238,7 +238,7 @@
       {
         "repo": "RES-Slim",
         "language": "JavaScript",
-        "pushedAt": "2026-06-28T03:00:07Z",
+        "pushedAt": "2026-06-28T03:00:07.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -249,7 +249,7 @@
       {
         "repo": "StormScope",
         "language": "Python",
-        "pushedAt": "2026-06-28T03:39:12Z",
+        "pushedAt": "2026-06-28T03:39:12.0000000Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -1623,7 +1623,7 @@
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-25T09:51:10Z",
+        "date": "2026-06-25T09:51:10.0000000Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
         "analyzedCommit": "e4c68d2b12bd66d32c014dcb3a5640f189c8f8cd",
         "unavailableReason": null
@@ -1667,7 +1667,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-07T16:01:22.4087634-04:00",
+          "queriedAt": "2026-07-07T17:07:47.3753123-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2003,7 +2003,7 @@
     "expectedVersion": "v4.9.153",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
-    "latestReleasePublishedAt": "2026-07-07T19:56:24Z",
+    "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
     "versionRelation": "matching",
     "latestReleaseMatchesExpected": true,
     "latestReleaseAtLeastExpected": true,
@@ -2079,7 +2079,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 6192,
+      "elapsedMs": 4145,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2112,18 +2112,36 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T15:59:30.8009735-04:00",
-      "newValue": "2026-07-07T16:01:22.4087634-04:00",
+      "oldValue": "2026-07-07T17:03:00.8273727-04:00",
+      "newValue": "2026-07-07T17:07:47.3753123-04:00",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "LibreSpot",
+      "category": "powershell",
+      "field": "pushedAt",
+      "oldValue": "2026-07-07T20:59:18Z",
+      "newValue": "2026-07-07T21:04:05Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "sysadmindoc.github.io",
+      "category": "guides",
+      "field": "pushedAt",
+      "oldValue": "2026-07-07T20:57:05Z",
+      "newValue": "2026-07-07T21:06:19Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 1,
+    "informationalCount": 3,
     "generatedAt": {
-      "value": "2026-06-01T16:18:55.099894-04:00",
-      "ageDays": 35.99,
+      "value": "2026-06-01T16:18:55.0998940-04:00",
+      "ageDays": 36.04,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2133,7 +2151,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 6192,
+    "elapsedMs": 4145,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2432,11 +2450,9 @@
     ]
   },
   "artifactBudgets": {
-    "status": "warning",
-    "warningCount": 1,
-    "warnings": [
-      "projects.json bytes is 514281, above the 512000 soft limit."
-    ],
+    "status": "within-budget",
+    "warningCount": 0,
+    "warnings": [],
     "rows": [
       {
         "artifact": "README.md",
@@ -2495,16 +2511,16 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 514281,
+        "value": 359339,
         "softLimit": 512000,
-        "overSoftLimit": true,
-        "warning": "projects.json bytes is 514281, above the 512000 soft limit.",
+        "overSoftLimit": false,
+        "warning": null,
         "note": "Public portfolio feed size budget."
       },
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99532,
+        "value": 99971,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2551,9 +2567,9 @@
   "evidenceFreshness": {
     "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-07T15:58:23.4866145-04:00",
-    "latestReportAffectingCommitSha": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
-    "latestReportAffectingCommitDate": "2026-07-07T15:53:56-04:00",
+    "committedReportGeneratedAt": "2026-07-07T17:07:34.2144334-04:00",
+    "latestReportAffectingCommitSha": "dbb8f682e4310cc8d609ed16df5b3c9ab0f0bd42",
+    "latestReportAffectingCommitDate": "2026-07-07T16:06:01.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,

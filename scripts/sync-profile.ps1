@@ -3437,7 +3437,7 @@ function New-ProjectsExportJson {
         suppressed = $suppressed.ToArray()
     }
 
-    return ($payload | ConvertTo-Json -Depth 20)
+    return ($payload | ConvertTo-Json -Depth 20 -Compress)
 }
 
 function New-CatalogFeedAccountingRow {

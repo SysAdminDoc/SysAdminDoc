@@ -1982,6 +1982,14 @@ Write-Host ok
         $budgets.warningCount | Should -BeGreaterThan 0
         ($budgets.warnings -join ' ') | Should -Match 'README.md lines'
     }
+    It 'keeps the real projects feed under the public byte budget' {
+        $cat = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $projectsJson = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $bytes = [System.Text.Encoding]::UTF8.GetByteCount($projectsJson)
+
+        $projectsJson | Should -Not -Match "`n"
+        $bytes | Should -BeLessOrEqual 512000
+    }
     It 'summarizes rendered profile smoke reports and mobile render budgets' {
         $smoke = [pscustomobject]@{
             generatedAt = '2026-06-06T00:00:00Z'

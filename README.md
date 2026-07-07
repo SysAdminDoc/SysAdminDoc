@@ -468,7 +468,7 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 | Project | Description | Install |
 |:--------|:------------|:-------:|
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;8 | Premium YouTube enhancement extension — 150+ features for Chrome & Firefox | [<kbd>&#11015;&nbsp;CRX/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) |
-| [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) &#11088;4 | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
+| [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) &#11088;5 | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
 | [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;3 | Open-source Chrome MV3 userscript manager — Monaco editor, 35+ GM APIs | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/ScriptVault/releases/latest) |
 | [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) &#11088;3 | Discover userscripts for any website | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
 | [**NDNS**](https://github.com/SysAdminDoc/NDNS) &#11088;2 | NextDNS control panel userscript | [Repo](https://github.com/SysAdminDoc/NDNS) |

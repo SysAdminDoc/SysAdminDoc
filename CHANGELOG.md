@@ -2,6 +2,7 @@
 
 ## 2026-07-07
 
+- Compressed the generated public projects feed while preserving the existing schema, dropping `projects.json` under the 512 KB budget and adding a regression check for the real catalog output.
 - Tightened generated profile parity with the mock image: centered line-art header, signal-based Start Here routing, generated Tool Catalog cards, and footer action strip.
 - Bumped the internal profile evidence version to `v4.9.153`.
 - Reimagined the generated profile README as a local, theme-aware public tools command center with a stronger first-viewport header, centered routing actions, and no third-party render hosts.

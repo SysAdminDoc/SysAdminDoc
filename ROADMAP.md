@@ -4,13 +4,6 @@
 
 ### P0
 
-- [ ] P0 — Bring `projects.json` back under the public feed byte budget
-  Why: The current sync report warns that `projects.json` is 514281 bytes against a 512000-byte soft limit, so the public portfolio feed has crossed its configured growth budget.
-  Evidence: `reports/profile-sync-report.json.artifactBudgets`, `projects.json`, Pagefind static-search feed model.
-  Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`, downstream `sysadmindoc.github.io` feed importer.
-  Acceptance: `scripts/sync-profile.ps1 -Check` reports `artifactBudgets.status: ok`; `projects.json` stays under 512000 bytes by compacting repeated nonessential fields or adding a schema-versioned slim consumer feed while preserving portfolio compatibility.
-  Complexity: M
-
 - [ ] P0 — Clear current release and license drift warnings
   Why: The current report still has one release asset-kind mismatch and one unresolved `NOASSERTION` license row, leaving trust evidence noisy after the profile UX refresh.
   Evidence: `reports/profile-sync-report.json.releaseAssetDrift.releaseAssetKindMismatches`, `reports/profile-sync-report.json.projectLicenseMetadata.unknownLicenses`.
