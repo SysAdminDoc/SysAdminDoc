@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T14:03:29.1520237-04:00",
+  "generatedAt": "2026-07-07T16:03:10.5478740-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
+    "sourceCommit": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "d2759257246f2cd1414347c8dd768a6fac4c337ca5dae96a7fe273349f6903cc",
+    "generatorSha256": "2143608d84201cf98c2ac26028baa80b84d4d003be60ab1630d50673e5ae4ec6",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T14:01:26.7319397-04:00",
+    "metadataSnapshotAt": "2026-07-07T16:01:22.4087634-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -591,7 +591,7 @@
         {
           "priorityRank": 2,
           "repo": "VideoSubtitleRemover",
-          "stars": 32,
+          "stars": 33,
           "latestReleaseTag": "v3.17.1",
           "executableAssetKinds": [
             "zip"
@@ -1667,7 +1667,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-07T14:01:26.7319397-04:00",
+          "queriedAt": "2026-07-07T16:01:22.4087634-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1972,13 +1972,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.152",
+    "expectedVersion": "v4.9.153",
     "expectedDate": "2026-07-07",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.152"
+        "value": "v4.9.153"
       }
     ],
     "dates": [
@@ -2000,18 +2000,18 @@
   "profileReleaseConsistency": {
     "passed": true,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.152",
-    "latestReleaseTag": "v4.9.152",
-    "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.152",
-    "latestReleasePublishedAt": "2026-07-07T17:58:47.0000000Z",
+    "expectedVersion": "v4.9.153",
+    "latestReleaseTag": "v4.9.153",
+    "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
+    "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
     "versionRelation": "matching",
     "latestReleaseMatchesExpected": true,
     "latestReleaseAtLeastExpected": true,
-    "expectedTag": "v4.9.152",
+    "expectedTag": "v4.9.153",
     "expectedTagRefChecked": true,
     "expectedTagExists": true,
-    "expectedTagUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.152",
-    "expectedTagSha": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
+    "expectedTagUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
+    "expectedTagSha": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
     "expectedTagUnavailableReason": null,
     "warningCount": 0,
     "warnings": [],
@@ -2079,7 +2079,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 7210,
+      "elapsedMs": 6192,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2111,28 +2111,19 @@
     {
       "repo": null,
       "category": null,
-      "field": "provenance.sourceCommit",
-      "oldValue": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
-      "newValue": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": null,
-      "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T13:29:15.2549192-04:00",
-      "newValue": "2026-07-07T14:01:26.7319397-04:00",
+      "oldValue": "2026-07-07T15:59:30.8009735-04:00",
+      "newValue": "2026-07-07T16:01:22.4087634-04:00",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 2,
+    "informationalCount": 1,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 35.91,
+      "ageDays": 35.99,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2142,7 +2133,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 7210,
+    "elapsedMs": 6192,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2153,16 +2144,17 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 68114,
+    "byteCount": 73100,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
   },
   "readmeHeadingHierarchy": {
     "status": "ok",
-    "headingCount": 1,
+    "headingCount": 2,
     "firstLevel": 3,
     "headingSequence": [
+      3,
       3
     ],
     "profileContextMaxFirstLevel": 3,
@@ -2173,7 +2165,7 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 638,
+    "lineCount": 658,
     "detailsSectionCount": 12,
     "tableRowCount": 109,
     "projectRowCount": 175,
@@ -2449,7 +2441,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 68114,
+        "value": 73100,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2458,7 +2450,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 638,
+        "value": 658,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2512,7 +2504,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99935,
+        "value": 99604,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2521,7 +2513,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 90284,
+        "value": 105828,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2542,7 +2534,7 @@
     "status": "passed",
     "source": "local-artifact",
     "sourcePath": "reports/rendered-profile-smoke.json",
-    "generatedAt": "2026-07-07T13:40:19.5583684-04:00",
+    "generatedAt": "2026-07-07T15:54:58.8868621-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 2,
     "passedViewportCount": 2,
@@ -2557,13 +2549,13 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "stale",
+    "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-06T00:49:57.1443169-04:00",
-    "latestReportAffectingCommitSha": "5c6dc3b627bef5de5d615f6d282e8a31dd64842a",
-    "latestReportAffectingCommitDate": "2026-07-07T13:45:13.0000000-04:00",
-    "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 36.92,
+    "committedReportGeneratedAt": "2026-07-07T15:58:23.4866145-04:00",
+    "latestReportAffectingCommitSha": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
+    "latestReportAffectingCommitDate": "2026-07-07T15:53:56.0000000-04:00",
+    "reportAgeBehindCommit": false,
+    "reportAgeBehindHours": null,
     "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
@@ -2578,10 +2570,8 @@
       "schemas",
       "README.md"
     ],
-    "warnings": [
-      "Committed sync report (2026-07-06T00:49:57.1443169-04:00) is older than the latest report-affecting commit 5c6dc3b (2026-07-07T13:45:13.0000000-04:00); regenerate and recommit reports/profile-sync-report.json."
-    ],
-    "warningCount": 1
+    "warnings": [],
+    "warningCount": 0
   },
   "scheduledWorkflowFreshness": {
     "status": "not-applicable",
@@ -2731,11 +2721,17 @@
       {
         "asset": "footer-dark.svg",
         "backgroundColor": "#161b22",
-        "textColorCount": 3,
+        "textColorCount": 4,
         "minTextContrastRatio": 5.62,
         "belowTextMinCount": 0,
         "belowNonTextMinCount": 0,
         "textColors": [
+          {
+            "foreground": "#58a6ff",
+            "ratio": 6.85,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
           {
             "foreground": "#8b949e",
             "ratio": 5.62,
@@ -2760,11 +2756,17 @@
       {
         "asset": "footer-light.svg",
         "backgroundColor": "#f6f8fa",
-        "textColorCount": 2,
-        "minTextContrastRatio": 6.0,
+        "textColorCount": 3,
+        "minTextContrastRatio": 4.88,
         "belowTextMinCount": 0,
         "belowNonTextMinCount": 0,
         "textColors": [
+          {
+            "foreground": "#0969da",
+            "ratio": 4.88,
+            "meetsTextMin": true,
+            "meetsNonTextMin": true
+          },
           {
             "foreground": "#24292f",
             "ratio": 13.76,
@@ -2783,20 +2785,14 @@
       {
         "asset": "header-dark.svg",
         "backgroundColor": "#161b22",
-        "textColorCount": 4,
-        "minTextContrastRatio": 5.62,
+        "textColorCount": 3,
+        "minTextContrastRatio": 6.85,
         "belowTextMinCount": 0,
         "belowNonTextMinCount": 0,
         "textColors": [
           {
             "foreground": "#58a6ff",
             "ratio": 6.85,
-            "meetsTextMin": true,
-            "meetsNonTextMin": true
-          },
-          {
-            "foreground": "#8b949e",
-            "ratio": 5.62,
             "meetsTextMin": true,
             "meetsNonTextMin": true
           },
