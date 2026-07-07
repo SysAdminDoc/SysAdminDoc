@@ -1,7 +1,3 @@
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/header-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/header-light.svg"><img src="assets/profile/header-dark.svg" alt="SysAdminDoc public tools command center profile header" width="100%" /></picture>
-</p>
-
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
 <p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
