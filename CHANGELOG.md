@@ -2,6 +2,8 @@
 
 ## 2026-07-07
 
+- Tightened generated profile parity with the mock image: centered line-art header, signal-based Start Here routing, generated Tool Catalog cards, and footer action strip.
+- Bumped the internal profile evidence version to `v4.9.153`.
 - Reimagined the generated profile README as a local, theme-aware public tools command center with a stronger first-viewport header, centered routing actions, and no third-party render hosts.
 - Modernized Start Here routing, setup guidance, validation guidance, and category summaries so visitors can choose by platform, install path, and confidence signal without reading the full catalog first.
 - Bumped the internal profile evidence version to `v4.9.152`.

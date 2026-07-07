@@ -1835,7 +1835,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'SysAdminDoc public tools command center profile header'
         $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View full portfolio'
         $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
-        $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
+        $script:rendered | Should -Match '<a href="#powershell-system-utilities">&#9889; PowerShell</a>'
         $script:rendered | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
@@ -1853,13 +1853,16 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match '### Featured Projects'
     }
     It 'adds decision guidance that routes visitors by install surface' {
-        $script:rendered | Should -Match 'Use a branch-pinned command or latest release download'
-        $script:rendered | Should -Match 'CRX, XPI, userscript, APK, or repo action'
+        $script:rendered | Should -Match ([regex]::Escape("| Signal | I want to... | Best category | What you'll find | Action |"))
+        $script:rendered | Should -Match '<kbd>PS</kbd>'
+        $script:rendered | Should -Match 'Branch-pinned commands, release downloads, and focused desktop utilities'
+        $script:rendered | Should -Match 'CRX, XPI, userscript, source, and release-backed install paths'
         $script:rendered | Should -Match 'Quick platform map'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
-        $script:rendered | Should -Match 'Suggested starting points:'
-        $script:rendered | Should -Match 'Clipboard-ready Windows administration tools'
-        $script:rendered | Should -Match 'Launchable browser tools'
+        $script:rendered | Should -Match '### Tool Catalog'
+        $script:rendered | Should -Match 'Categories with suggested starting points and quick actions'
+        $script:rendered | Should -Match 'Windows automation and administration'
+        $script:rendered | Should -Match 'Self-hosted and online tools for IT'
     }
     It 'reports generated README byte size under the default soft budget' {
         $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
@@ -2128,14 +2131,16 @@ Write-Host ok
         $assets['assets/profile/contributions-dark.svg'] | Should -Match 'Contribution Activity'
         $assets['assets/profile/contributions-dark.svg'] | Should -Match 'contributions in the last year'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'PUBLIC TOOLS COMMAND CENTER'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'Generated public catalog feed'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc</text>'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
+        $assets['assets/profile/header-dark.svg'] | Should -Match 'View full portfolio -&gt;'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>'
         $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
         $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
-        $assets['assets/profile/footer-light.svg'] | Should -Match 'Local checks first'
+        $assets['assets/profile/footer-light.svg'] | Should -Match 'Built from Broadcast IT, Healthcare IT'
+        $assets['assets/profile/footer-light.svg'] | Should -Match 'View portfolio -&gt;'
 
         foreach ($asset in $assets.GetEnumerator()) {
             [xml]$assetXml = $asset.Value

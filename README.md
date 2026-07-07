@@ -2,22 +2,26 @@
 
 <p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
-<p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>
+<p align="center"><a href="#powershell-system-utilities">&#9889; PowerShell</a> &middot; <a href="#python-desktop-applications">&#128013; Python</a> &middot; <a href="#web-applications">&#127760; Web Apps</a> &middot; <a href="#browser-extensions--userscripts">&#129513; Extensions</a> &middot; <a href="#android-applications">&#128241; Android</a> &middot; <a href="#security--networking">&#128274; Security</a> &middot; <a href="#native-desktop-applications">&#128421;&#65039; Desktop</a> &middot; <a href="#media--conversion-tools">&#127916; Media</a> &middot; <a href="#guides--resources">&#128218; Guides</a> &middot; <a href="#misc--forks">&#128256; Forks</a></p>
 
 <!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
 
 ### Start Here
 
-Use this as a public tools command center: pick the route that matches the machine, browser, device, or validation job in front of you. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.
+Use this table to route quickly by task, platform, install path, and confidence signal. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.
 
-| Need | Best path | First action | Confidence signal |
-|:-----|:----------|:-------------|:------------------|
-| Run a Windows utility | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Use a branch-pinned command or latest release download. | Each row shows its install mode, release path, or repo fallback. |
-| Launch a browser-based tool | [Web Apps](#web-applications) | Open the live project link. | Web rows stay no-install and route to the deployed surface. |
-| Install an extension or Android app | [Extensions](#browser-extensions--userscripts) or [Android](#android-applications) | Use the CRX, XPI, userscript, APK, or repo action shown per row. | Download labels are generated from release metadata. |
-| Work on security, media, or reference tasks | [Security](#security--networking), [Media](#media--conversion-tools), or [Guides](#guides--resources) | Jump to the matching platform section. | Category summaries call out the expected workflow before the rows. |
-| Set up or verify this profile repo | [First-time setup](#first-time-setup) or [Local validation](#local-validation) | Inspect setup first, then run the pinned local validation command. | Validation records markdown, PowerShell, schema, feed, and rendered-smoke evidence. |
-| Search across everything | [Full portfolio](https://sysadmindoc.github.io/) | Filter by platform, freshness, download type, and catalog metadata. | The portfolio consumes this repo's generated projects.json feed. |
+| Signal | I want to... | Best category | What you'll find | Action |
+|:------:|:-------------|:--------------|:-----------------|:-------|
+| <kbd>PS</kbd> | Automate Windows administration | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Branch-pinned commands, release downloads, and focused desktop utilities. | [<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) |
+| <kbd>PY</kbd> | Build or run Python utilities | [Python](#python-desktop-applications) | Local-first tools, media workflows, automation, and integration helpers. | [<kbd>Browse &#8594;</kbd>](#python-desktop-applications) |
+| <kbd>WEB</kbd> | Use a browser tool | [Web Apps](#web-applications) | No-install dashboards and self-hosted or live project surfaces. | [<kbd>Open &#8594;</kbd>](#web-applications) |
+| <kbd>EXT</kbd> | Add browser functionality | [Extensions](#browser-extensions--userscripts) | CRX, XPI, userscript, source, and release-backed install paths. | [<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) |
+| <kbd>APK</kbd> | Use tools on Android devices | [Android](#android-applications) | APK releases, Android source projects, and mobile utility workflows. | [<kbd>Download &#8594;</kbd>](#android-applications) |
+| <kbd>SEC</kbd> | Audit, validate, or secure systems | [Security](#security--networking) | Network checks, DNS control, defensive tooling, and operator notes. | [<kbd>Browse &#8594;</kbd>](#security--networking) |
+| <kbd>MED</kbd> | Capture, convert, or repair media | [Media](#media--conversion-tools) | Stream capture, video repair, compression, conversion, and cleanup tools. | [<kbd>Download &#8594;</kbd>](#media--conversion-tools) |
+| <kbd>DOC</kbd> | Learn a repeatable workflow | [Guides](#guides--resources) | Public references, checklists, companion guides, and setup material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
+| <kbd>OPS</kbd> | Set up or verify this profile repo | [First-time setup](#first-time-setup) or [Local validation](#local-validation) | Install checks, local linting, Pester, schema validation, and smoke evidence. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
+| <kbd>ALL</kbd> | Search across everything | [Full portfolio](https://sysadmindoc.github.io/) or [Misc](#misc--forks) | Filterable portfolio data from the generated projects.json feed. | [<kbd>Search &#8594;</kbd>](https://sysadmindoc.github.io/) |
 
 Quick platform map: [PowerShell](#powershell-system-utilities) &middot; [Python](#python-desktop-applications) &middot; [Web Apps](#web-applications) &middot; [Extensions](#browser-extensions--userscripts) &middot; [Android](#android-applications) &middot; [Desktop](#native-desktop-applications)
 
@@ -86,6 +90,18 @@ npm run review:dependencies
 Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
 
 </details>
+
+### Tool Catalog
+
+Categories with suggested starting points and quick actions before the full generated catalog below.
+
+| PowerShell | Python | Web Apps | Extensions | Android |
+|:---|:---|:---|:---|:---|
+| &#9889; **PowerShell**<br/>Windows automation and administration.<br/><sub>[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher)<br/>[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot)<br/>[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor)</sub><br/>[<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) | &#128013; **Python**<br/>Utilities, libraries, and integration tools.<br/><sub>[**OpenCut**](https://github.com/SysAdminDoc/OpenCut)<br/>[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop)<br/>[**Vertigo**](https://github.com/SysAdminDoc/Vertigo)</sub><br/>[<kbd>Browse &#8594;</kbd>](#python-desktop-applications) | &#127760; **Web Apps**<br/>Self-hosted and online tools for IT.<br/><sub>[**Openshop**](https://github.com/SysAdminDoc/Openshop)<br/>[**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar)<br/>[**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack)</sub><br/>[<kbd>Open &#8594;</kbd>](#web-applications) | &#129513; **Extensions**<br/>Browser installs for productivity and security.<br/><sub>[**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck)<br/>[**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault)<br/>[**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced)</sub><br/>[<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) | &#128241; **Android**<br/>Utilities and assistants for mobile workflows.<br/><sub>[**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch)<br/>[**ClearCut**](https://github.com/SysAdminDoc/ClearCut)<br/>[**HostShield**](https://github.com/SysAdminDoc/HostShield)</sub><br/>[<kbd>Download &#8594;</kbd>](#android-applications) |
+
+| Security | Desktop | Media | Guides | Misc |
+|:---|:---|:---|:---|:---|
+| &#128274; **Security**<br/>Audit, validate, and secure systems.<br/><sub>[**pfSenseSuite**](https://github.com/SysAdminDoc/pfSenseSuite)<br/>[**BetterNext**](https://github.com/SysAdminDoc/BetterNext)<br/>[**ESET**](https://github.com/SysAdminDoc/ESET)</sub><br/>[<kbd>Browse &#8594;</kbd>](#security--networking) | &#128421;&#65039; **Desktop**<br/>Focused Windows and cross-platform apps.<br/><sub>[**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio)<br/>[**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore)<br/>[**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore)</sub><br/>[<kbd>Download &#8594;</kbd>](#native-desktop-applications) | &#127916; **Media**<br/>Capture, conversion, and media repair tools.<br/><sub>[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover)<br/>[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush)<br/>[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut)</sub><br/>[<kbd>Download &#8594;</kbd>](#media--conversion-tools) | &#128218; **Guides**<br/>Step-by-step guides and reference material.<br/><sub>[**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism)<br/>[**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide)<br/>[**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list)</sub><br/>[<kbd>Read &#8594;</kbd>](#guides--resources) | &#128256; **Misc**<br/>Forks, continuations, and supporting utilities.<br/><sub>[**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory)<br/>[**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore)<br/>[**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser)</sub><br/>[<kbd>Explore &#8594;</kbd>](#misc--forks) |
 
 <a id="powershell-system-utilities"></a>
 <details>
@@ -528,7 +544,7 @@ Suggested starting points: [**pfSenseSuite**](https://github.com/SysAdminDoc/pfS
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;32 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;33 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 ```powershell
 $d="$env:TEMP\VideoSubtitleRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoSubtitleRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\VideoSubtitleRemover.py"
 ```
@@ -631,4 +647,8 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 
 </details>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/footer-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/footer-light.svg"><img src="assets/profile/footer-dark.svg" alt="SysAdminDoc generated profile footer" width="100%" /></picture>
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/profile/footer-dark.svg"><source media="(prefers-color-scheme: light)" srcset="assets/profile/footer-light.svg"><img src="assets/profile/footer-dark.svg" alt="SysAdminDoc generated profile footer" width="100%" /></picture>
+</p>
+
+<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>

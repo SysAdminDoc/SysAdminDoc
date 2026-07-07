@@ -1820,6 +1820,32 @@ function Get-CategoryDisplayName {
     return $Slug
 }
 
+function Get-CategoryIcon {
+    param([string]$Slug)
+
+    $def = $CategoryDefinitions | Where-Object { $_.Slug -eq $Slug } | Select-Object -First 1
+    if (-not $def) {
+        return ""
+    }
+
+    $title = [string]$def.Title
+    if ($title -match '^((?:&#\d+;|&#x[0-9a-fA-F]+;)+)') {
+        return $Matches[1]
+    }
+
+    return ""
+}
+
+function Get-ProfileNavLabel {
+    param([string]$Slug)
+
+    if ($Slug -eq "misc") {
+        return "Forks"
+    }
+
+    return Get-CategoryDisplayName -Slug $Slug
+}
+
 function ConvertTo-SearchSlug {
     param([string]$Value)
 
@@ -2083,7 +2109,7 @@ function New-CategoryPreviewLine {
     return "Suggested starting points: $($links -join ', ')."
 }
 
-function New-DiscoverySection {
+function Get-ProfileRouteDefinitions {
     $powershellLink = New-CategoryLink "powershell"
     $pythonLink = New-CategoryLink "python"
     $desktopLink = New-CategoryLink "desktop"
@@ -2093,24 +2119,204 @@ function New-DiscoverySection {
     $securityLink = New-CategoryLink "security"
     $mediaLink = New-CategoryLink "media"
     $guidesLink = New-CategoryLink "guides"
+    $miscLink = New-CategoryLink "misc"
     $setupLink = "[First-time setup](#first-time-setup)"
     $validationLink = "[Local validation](#local-validation)"
+
+    return @(
+        [ordered]@{
+            Signal = "<kbd>PS</kbd>"
+            Want = "Automate Windows administration"
+            Best = "$powershellLink or $desktopLink"
+            Find = "Branch-pinned commands, release downloads, and focused desktop utilities."
+            Action = "[<kbd>Browse &#8594;</kbd>](#powershell-system-utilities)"
+        },
+        [ordered]@{
+            Signal = "<kbd>PY</kbd>"
+            Want = "Build or run Python utilities"
+            Best = $pythonLink
+            Find = "Local-first tools, media workflows, automation, and integration helpers."
+            Action = "[<kbd>Browse &#8594;</kbd>](#python-desktop-applications)"
+        },
+        [ordered]@{
+            Signal = "<kbd>WEB</kbd>"
+            Want = "Use a browser tool"
+            Best = $webLink
+            Find = "No-install dashboards and self-hosted or live project surfaces."
+            Action = "[<kbd>Open &#8594;</kbd>](#web-applications)"
+        },
+        [ordered]@{
+            Signal = "<kbd>EXT</kbd>"
+            Want = "Add browser functionality"
+            Best = $extensionsLink
+            Find = "CRX, XPI, userscript, source, and release-backed install paths."
+            Action = "[<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts)"
+        },
+        [ordered]@{
+            Signal = "<kbd>APK</kbd>"
+            Want = "Use tools on Android devices"
+            Best = $androidLink
+            Find = "APK releases, Android source projects, and mobile utility workflows."
+            Action = "[<kbd>Download &#8594;</kbd>](#android-applications)"
+        },
+        [ordered]@{
+            Signal = "<kbd>SEC</kbd>"
+            Want = "Audit, validate, or secure systems"
+            Best = $securityLink
+            Find = "Network checks, DNS control, defensive tooling, and operator notes."
+            Action = "[<kbd>Browse &#8594;</kbd>](#security--networking)"
+        },
+        [ordered]@{
+            Signal = "<kbd>MED</kbd>"
+            Want = "Capture, convert, or repair media"
+            Best = $mediaLink
+            Find = "Stream capture, video repair, compression, conversion, and cleanup tools."
+            Action = "[<kbd>Download &#8594;</kbd>](#media--conversion-tools)"
+        },
+        [ordered]@{
+            Signal = "<kbd>DOC</kbd>"
+            Want = "Learn a repeatable workflow"
+            Best = $guidesLink
+            Find = "Public references, checklists, companion guides, and setup material."
+            Action = "[<kbd>Read &#8594;</kbd>](#guides--resources)"
+        },
+        [ordered]@{
+            Signal = "<kbd>OPS</kbd>"
+            Want = "Set up or verify this profile repo"
+            Best = "$setupLink or $validationLink"
+            Find = "Install checks, local linting, Pester, schema validation, and smoke evidence."
+            Action = "[<kbd>Verify &#8594;</kbd>](#local-validation)"
+        },
+        [ordered]@{
+            Signal = "<kbd>ALL</kbd>"
+            Want = "Search across everything"
+            Best = "[Full portfolio](https://sysadmindoc.github.io/) or $miscLink"
+            Find = "Filterable portfolio data from the generated `projects.json` feed."
+            Action = "[<kbd>Search &#8594;</kbd>](https://sysadmindoc.github.io/)"
+        }
+    )
+}
+
+function Get-ToolCatalogDescription {
+    param([string]$Slug)
+
+    switch ($Slug) {
+        "powershell" { return "Windows automation and administration." }
+        "python" { return "Utilities, libraries, and integration tools." }
+        "web" { return "Self-hosted and online tools for IT." }
+        "extensions" { return "Browser installs for productivity and security." }
+        "android" { return "Utilities and assistants for mobile workflows." }
+        "security" { return "Audit, validate, and secure systems." }
+        "desktop" { return "Focused Windows and cross-platform apps." }
+        "media" { return "Capture, conversion, and media repair tools." }
+        "guides" { return "Step-by-step guides and reference material." }
+        "misc" { return "Forks, continuations, and supporting utilities." }
+        default { return "Public projects and supporting utilities." }
+    }
+}
+
+function Get-ToolCatalogActionLabel {
+    param([string]$Slug)
+
+    switch ($Slug) {
+        "web" { return "Open" }
+        "extensions" { return "Install" }
+        "android" { return "Download" }
+        "desktop" { return "Download" }
+        "media" { return "Download" }
+        "guides" { return "Read" }
+        "misc" { return "Explore" }
+        default { return "Browse" }
+    }
+}
+
+function New-ToolCatalogCell {
+    param(
+        [string]$Slug,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq $Slug } | Select-Object -First 1
+    if (-not $definition) {
+        return ""
+    }
+
+    $lookup = $RepoLookup
+    $items = @($Entries | Where-Object { $_.category -eq $Slug } | Sort-Object @{ Expression = {
+        $key = ([string]$_.repo).ToLowerInvariant()
+        $m = if ($lookup -and $lookup.ContainsKey($key)) { $lookup[$key] } else { $null }
+        if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
+    }; Descending = $true }, repo)
+
+    $picks = @($items |
+        Sort-Object @{ Expression = { if ($_.featured -eq $true) { 0 } else { 1 } } },
+                    @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { [int]$_.order } } },
+                    repo |
+        Select-Object -First 3)
+
+    $pickLinks = @($picks | ForEach-Object { "[**$($_.title)**]($(Get-RepoUrl $_))" })
+    if ($pickLinks.Count -eq 0) {
+        $pickLinks = @("No public rows")
+    }
+
+    $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
+    $anchor = Get-CategoryAnchor $Slug
+    $description = Get-ToolCatalogDescription -Slug $Slug
+    $icon = Get-CategoryIcon -Slug $Slug
+    $heading = if ([string]::IsNullOrWhiteSpace($icon)) {
+        "**$($definition.DisplayName)**"
+    } else {
+        "$icon **$($definition.DisplayName)**"
+    }
+
+    return "$heading<br/>$description<br/><sub>$($pickLinks -join '<br/>')</sub><br/>[<kbd>$actionLabel &#8594;</kbd>](#$anchor)"
+}
+
+function New-ToolCatalogSection {
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $rows = @(
+        @("powershell", "python", "web", "extensions", "android"),
+        @("security", "desktop", "media", "guides", "misc")
+    )
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("### Tool Catalog")
+    $lines.Add("")
+    $lines.Add("Categories with suggested starting points and quick actions before the full generated catalog below.")
+    $lines.Add("")
+
+    foreach ($row in $rows) {
+        $headers = @($row | ForEach-Object { Get-CategoryDisplayName -Slug $_ })
+        $cells = @($row | ForEach-Object { New-ToolCatalogCell -Slug $_ -Entries $Entries -RepoLookup $RepoLookup })
+        $lines.Add("| $($headers -join ' | ') |")
+        $lines.Add("|$((@(':---') * $headers.Count) -join '|')|")
+        $lines.Add("| $($cells -join ' | ') |")
+        $lines.Add("")
+    }
+
+    return ($lines -join [Environment]::NewLine).TrimEnd()
+}
+
+function New-DiscoverySection {
+    $routes = @(Get-ProfileRouteDefinitions)
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Start Here")
     $lines.Add("")
-    $lines.Add("Use this as a public tools command center: pick the route that matches the machine, browser, device, or validation job in front of you. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.")
+    $lines.Add("Use this table to route quickly by task, platform, install path, and confidence signal. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.")
     $lines.Add("")
-    $lines.Add("| Need | Best path | First action | Confidence signal |")
-    $lines.Add("|:-----|:----------|:-------------|:------------------|")
-    $lines.Add("| Run a Windows utility | $powershellLink or $desktopLink | Use a branch-pinned command or latest release download. | Each row shows its install mode, release path, or repo fallback. |")
-    $lines.Add("| Launch a browser-based tool | $webLink | Open the live project link. | Web rows stay no-install and route to the deployed surface. |")
-    $lines.Add("| Install an extension or Android app | $extensionsLink or $androidLink | Use the CRX, XPI, userscript, APK, or repo action shown per row. | Download labels are generated from release metadata. |")
-    $lines.Add("| Work on security, media, or reference tasks | $securityLink, $mediaLink, or $guidesLink | Jump to the matching platform section. | Category summaries call out the expected workflow before the rows. |")
-    $lines.Add("| Set up or verify this profile repo | $setupLink or $validationLink | Inspect setup first, then run the pinned local validation command. | Validation records markdown, PowerShell, schema, feed, and rendered-smoke evidence. |")
-    $lines.Add("| Search across everything | [Full portfolio](https://sysadmindoc.github.io/) | Filter by platform, freshness, download type, and catalog metadata. | The portfolio consumes this repo's generated `projects.json` feed. |")
+    $lines.Add("| Signal | I want to... | Best category | What you'll find | Action |")
+    $lines.Add("|:------:|:-------------|:--------------|:-----------------|:-------|")
+    foreach ($route in $routes) {
+        $lines.Add("| $($route.Signal) | $($route.Want) | $($route.Best) | $($route.Find) | $($route.Action) |")
+    }
     $lines.Add("")
-    $lines.Add("Quick platform map: $powershellLink &middot; $pythonLink &middot; $webLink &middot; $extensionsLink &middot; $androidLink &middot; $desktopLink")
+    $lines.Add("Quick platform map: $(New-CategoryLink 'powershell') &middot; $(New-CategoryLink 'python') &middot; $(New-CategoryLink 'web') &middot; $(New-CategoryLink 'extensions') &middot; $(New-CategoryLink 'android') &middot; $(New-CategoryLink 'desktop')")
 
     return ($lines -join [Environment]::NewLine)
 }
@@ -2469,33 +2675,47 @@ function New-ProfileHeroSvg {
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"14`" y=`"14`" width=`"$($Width - 28)`" height=`"$($Height - 28)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"34`" y=`"36`" width=`"4`" height=`"210`" rx=`"2`" fill=`"$accentStrong`"/>")
-    $lines.Add("  <line x1=`"58`" y1=`"48`" x2=`"560`" y2=`"48`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.8`"/>")
-    $lines.Add("  <text x=`"58`" y=`"76`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">PUBLIC TOOLS COMMAND CENTER</text>")
-    $lines.Add("  <text x=`"58`" y=`"126`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"52`" font-weight=`"700`">SysAdminDoc</text>")
-    $lines.Add("  <text x=`"60`" y=`"162`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"600`">Broadcast IT, Healthcare IT, systems automation, and practical public tools</text>")
-    $lines.Add("  <text x=`"60`" y=`"192`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"14`">Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence.</text>")
-    $lines.Add("  <rect x=`"58`" y=`"222`" width=`"122`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <text x=`"74`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">PowerShell</text>")
-    $lines.Add("  <rect x=`"192`" y=`"222`" width=`"98`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <text x=`"208`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">Python</text>")
-    $lines.Add("  <rect x=`"302`" y=`"222`" width=`"116`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <text x=`"318`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">Android</text>")
-    $lines.Add("  <rect x=`"430`" y=`"222`" width=`"116`" height=`"38`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <text x=`"446`" y=`"246`" fill=`"$accent`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">Desktop</text>")
-    $lines.Add("  <rect x=`"638`" y=`"44`" width=`"306`" height=`"58`" rx=`"10`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"656`" y=`"62`" width=`"10`" height=`"22`" rx=`"3`" fill=`"$accentStrong`"/>")
-    $lines.Add("  <text x=`"682`" y=`"72`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"15`" font-weight=`"700`">Installable Windows utilities</text>")
-    $lines.Add("  <text x=`"682`" y=`"91`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">Branch-pinned commands and release downloads</text>")
-    $lines.Add("  <rect x=`"638`" y=`"122`" width=`"306`" height=`"58`" rx=`"10`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"656`" y=`"140`" width=`"10`" height=`"22`" rx=`"3`" fill=`"$success`"/>")
-    $lines.Add("  <text x=`"682`" y=`"150`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"15`" font-weight=`"700`">Android, browser, and web tools</text>")
-    $lines.Add("  <text x=`"682`" y=`"169`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">APK, CRX, XPI, userscript, and live links</text>")
-    $lines.Add("  <rect x=`"638`" y=`"200`" width=`"306`" height=`"58`" rx=`"10`" fill=`"$panelTwo`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"656`" y=`"218`" width=`"10`" height=`"22`" rx=`"3`" fill=`"$accent`"/>")
-    $lines.Add("  <text x=`"682`" y=`"228`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"15`" font-weight=`"700`">Generated public catalog feed</text>")
-    $lines.Add("  <text x=`"682`" y=`"247`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">README, projects.json, schemas, and smoke evidence</text>")
+    $lines.Add("  <rect x=`"14`" y=`"14`" width=`"$($Width - 28)`" height=`"$($Height - 28)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
+    foreach ($x in 32, 46, 60, 74, 88, 102, 116) {
+        foreach ($y in 30, 44, 58, 72, 86, 100) {
+            $lines.Add("  <rect x=`"$x`" y=`"$y`" width=`"6`" height=`"6`" rx=`"1`" fill=`"$accent`" opacity=`"0.14`"/>")
+        }
+    }
+    foreach ($x in ($Width - 132), ($Width - 118), ($Width - 104), ($Width - 90), ($Width - 76), ($Width - 62), ($Width - 48)) {
+        foreach ($y in 30, 44, 58, 72, 86, 100) {
+            $lines.Add("  <rect x=`"$x`" y=`"$y`" width=`"6`" height=`"6`" rx=`"1`" fill=`"$accent`" opacity=`"0.14`"/>")
+        }
+    }
+    $lines.Add("  <path d=`"M58 132 H128 V106 H202 V72 H276 V40 H352`" fill=`"none`" stroke=`"$accent`" stroke-width=`"1`" opacity=`"0.28`"/>")
+    $lines.Add("  <path d=`"M648 40 H722 V72 H798 V106 H874 V132 H942`" fill=`"none`" stroke=`"$accent`" stroke-width=`"1`" opacity=`"0.28`"/>")
+    $lines.Add("  <rect x=`"86`" y=`"54`" width=`"116`" height=`"98`" rx=`"6`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.75`"/>")
+    foreach ($rowY in 74, 102, 130) {
+        $lines.Add("  <line x1=`"104`" y1=`"$rowY`" x2=`"184`" y2=`"$rowY`" stroke=`"$border`" stroke-width=`"1`"/>")
+        $lines.Add("  <circle cx=`"164`" cy=`"$($rowY - 10)`" r=`"3`" fill=`"$success`"/>")
+        $lines.Add("  <circle cx=`"176`" cy=`"$($rowY - 10)`" r=`"3`" fill=`"$success`" opacity=`"0.65`"/>")
+    }
+    $lines.Add("  <rect x=`"220`" y=`"94`" width=`"88`" height=`"56`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.75`"/>")
+    $lines.Add("  <path d=`"M242 112 L256 124 L242 136`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
+    $lines.Add("  <line x1=`"266`" y1=`"136`" x2=`"290`" y2=`"136`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`"/>")
+    $lines.Add("  <path d=`"M500 42 L548 64 V104 C548 132 528 152 500 164 C472 152 452 132 452 104 V64 Z`" fill=`"$panelTwo`" stroke=`"$accent`" stroke-width=`"1.4`" opacity=`"0.85`"/>")
+    $lines.Add("  <line x1=`"500`" y1=`"80`" x2=`"500`" y2=`"126`" stroke=`"$accentStrong`" stroke-width=`"10`" stroke-linecap=`"round`"/>")
+    $lines.Add("  <line x1=`"477`" y1=`"103`" x2=`"523`" y2=`"103`" stroke=`"$accentStrong`" stroke-width=`"10`" stroke-linecap=`"round`"/>")
+    $lines.Add("  <rect x=`"620`" y=`"58`" width=`"126`" height=`"76`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.78`"/>")
+    $lines.Add("  <polyline points=`"638,102 660,102 672,82 690,118 704,94 716,102 732,102`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
+    $lines.Add("  <line x1=`"670`" y1=`"150`" x2=`"698`" y2=`"150`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.5`"/>")
+    $lines.Add("  <line x1=`"684`" y1=`"134`" x2=`"684`" y2=`"150`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.5`"/>")
+    $lines.Add("  <rect x=`"770`" y=`"70`" width=`"62`" height=`"72`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.72`"/>")
+    $lines.Add("  <path d=`"M790 88 C812 100 814 120 792 134 M812 88 C790 100 788 120 810 134`" fill=`"none`" stroke=`"$muted`" stroke-width=`"2`" opacity=`"0.85`"/>")
+    $lines.Add("  <line x1=`"801`" y1=`"84`" x2=`"801`" y2=`"138`" stroke=`"$muted`" stroke-width=`"1`" opacity=`"0.45`"/>")
+    $lines.Add("  <rect x=`"852`" y=`"66`" width=`"86`" height=`"58`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.75`"/>")
+    $lines.Add("  <circle cx=`"870`" cy=`"80`" r=`"2`" fill=`"$muted`"/>")
+    $lines.Add("  <circle cx=`"880`" cy=`"80`" r=`"2`" fill=`"$muted`"/>")
+    $lines.Add("  <path d=`"M886 98 L874 108 L886 118 M904 98 L916 108 L904 118`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
+    $lines.Add("  <text x=`"500`" y=`"192`" fill=`"$titleColor`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"54`" font-weight=`"700`">SysAdminDoc</text>")
+    $lines.Add("  <line x1=`"456`" y1=`"210`" x2=`"544`" y2=`"210`" stroke=`"$accent`" stroke-width=`"2`"/>")
+    $lines.Add("  <text x=`"500`" y=`"238`" fill=`"$text`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"600`">Broadcast IT, Healthcare IT, and practical public tools</text>")
+    $lines.Add("  <rect x=`"412`" y=`"252`" width=`"176`" height=`"32`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$accent`"/>")
+    $lines.Add("  <text x=`"500`" y=`"273`" fill=`"$accent`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">View full portfolio -&gt;</text>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }
@@ -2509,9 +2729,9 @@ function New-ProfileFooterSvg {
     )
 
     if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $success = "#3fb950"
+        $bg = "#0d1117"; $panel = "#161b22"; $panelTwo = "#0f1720"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $success = "#3fb950"
     } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $success = "#1a7f37"
+        $bg = "#ffffff"; $panel = "#f6f8fa"; $panelTwo = "#ffffff"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $success = "#1a7f37"
     }
 
     $title = "SysAdminDoc profile footer"
@@ -2525,13 +2745,15 @@ function New-ProfileFooterSvg {
     $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
     $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
     $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"14`" y=`"18`" width=`"$($Width - 28)`" height=`"104`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <line x1=`"42`" y1=`"46`" x2=`"$($Width - 42)`" y2=`"46`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.7`"/>")
-    $lines.Add("  <text x=`"42`" y=`"76`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"700`">Catalog data to public README, portfolio feed, and local validation evidence</text>")
-    $lines.Add("  <text x=`"42`" y=`"101`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">Generated locally from data/profile-catalog.json, schema checks, release metadata, and rendered smoke evidence.</text>")
-    $lines.Add("  <rect x=`"$($Width - 214)`" y=`"68`" width=`"154`" height=`"30`" rx=`"8`" fill=`"$bg`" stroke=`"$border`"/>")
-    $lines.Add("  <rect x=`"$($Width - 198)`" y=`"78`" width=`"10`" height=`"10`" rx=`"2`" fill=`"$success`"/>")
-    $lines.Add("  <text x=`"$($Width - 178)`" y=`"88`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`" font-weight=`"700`">Local checks first</text>")
+    $lines.Add("  <rect x=`"14`" y=`"18`" width=`"$($Width - 28)`" height=`"104`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
+    $lines.Add("  <path d=`"M44 58 L64 48 L84 58 V82 C84 96 74 106 64 112 C54 106 44 96 44 82 Z`" fill=`"$panelTwo`" stroke=`"$accent`" stroke-width=`"1.4`"/>")
+    $lines.Add("  <path d=`"M56 80 L62 86 L74 70`" fill=`"none`" stroke=`"$success`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
+    $lines.Add("  <text x=`"104`" y=`"62`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"16`" font-weight=`"700`">Built from Broadcast IT, Healthcare IT (DICOM/PACS), and systems automation experience</text>")
+    $lines.Add("  <text x=`"104`" y=`"88`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">Practical tools, generated catalog data, local validation evidence, and public-safe release metadata.</text>")
+    $lines.Add("  <rect x=`"$($Width - 254)`" y=`"52`" width=`"146`" height=`"34`" rx=`"8`" fill=`"$bg`" stroke=`"$accent`"/>")
+    $lines.Add("  <text x=`"$($Width - 181)`" y=`"74`" fill=`"$accent`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`" font-weight=`"700`">View portfolio -&gt;</text>")
+    $lines.Add("  <rect x=`"$($Width - 94)`" y=`"52`" width=`"58`" height=`"34`" rx=`"8`" fill=`"$bg`" stroke=`"$border`"/>")
+    $lines.Add("  <text x=`"$($Width - 65)`" y=`"74`" fill=`"$text`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`" font-weight=`"700`">Repos</text>")
     $lines.Add("</svg>")
     return ($lines -join [Environment]::NewLine)
 }
@@ -2831,7 +3053,19 @@ function New-ProfileChrome {
     $lines.Add('')
     $lines.Add('<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
-    $lines.Add('<p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>')
+    $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
+    $categoryLinks = @($navSlugs | ForEach-Object {
+        $slug = [string]$_
+        $icon = Get-CategoryIcon -Slug $slug
+        $displayName = Get-ProfileNavLabel -Slug $slug
+        $label = if ([string]::IsNullOrWhiteSpace($icon)) {
+            $displayName
+        } else {
+            "$icon $displayName"
+        }
+        "<a href=`"#$((Get-CategoryAnchor $slug))`">$label</a>"
+    })
+    $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
     $lines.Add('')
     return ($lines -join [Environment]::NewLine)
 }
@@ -2876,7 +3110,14 @@ function New-ProfileStatsChrome {
 
 function New-ProfileFooter {
     $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    return New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "SysAdminDoc generated profile footer" -Attributes 'width="100%"'
+    $image = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "SysAdminDoc generated profile footer" -Attributes 'width="100%"'
+    return @(
+        '<p align="center">'
+        "  $image"
+        '</p>'
+        ''
+        '<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>'
+    ) -join [Environment]::NewLine
 }
 
 function Update-Header {
@@ -2937,6 +3178,8 @@ function New-Readme {
     $blocks.Add((New-FirstTimeSetupSection))
     $blocks.Add("")
     $blocks.Add((New-LocalValidationSection))
+    $blocks.Add("")
+    $blocks.Add((New-ToolCatalogSection -Entries $entries -RepoLookup $repoLookup))
     $blocks.Add("")
 
     foreach ($definition in $CategoryDefinitions) {

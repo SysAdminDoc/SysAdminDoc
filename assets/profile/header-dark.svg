@@ -2,31 +2,123 @@
   <title id="profile-sysadmindoc-profile-header-dark-title">SysAdminDoc profile header</title>
   <desc id="profile-sysadmindoc-profile-header-dark-desc">Static public tools command center header for Broadcast IT, Healthcare IT, systems automation, DICOM/PACS, and generated open-source project routing.</desc>
   <rect width="100%" height="100%" fill="#0d1117"/>
-  <rect x="14" y="14" width="972" height="272" rx="12" fill="#161b22" stroke="#30363d"/>
-  <rect x="34" y="36" width="4" height="210" rx="2" fill="#1f6feb"/>
-  <line x1="58" y1="48" x2="560" y2="48" stroke="#58a6ff" stroke-width="1.5" opacity="0.8"/>
-  <text x="58" y="76" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">PUBLIC TOOLS COMMAND CENTER</text>
-  <text x="58" y="126" fill="#f0f6fc" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="700">SysAdminDoc</text>
-  <text x="60" y="162" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Broadcast IT, Healthcare IT, systems automation, and practical public tools</text>
-  <text x="60" y="192" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="14">Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence.</text>
-  <rect x="58" y="222" width="122" height="38" rx="8" fill="#0f1720" stroke="#30363d"/>
-  <text x="74" y="246" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">PowerShell</text>
-  <rect x="192" y="222" width="98" height="38" rx="8" fill="#0f1720" stroke="#30363d"/>
-  <text x="208" y="246" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Python</text>
-  <rect x="302" y="222" width="116" height="38" rx="8" fill="#0f1720" stroke="#30363d"/>
-  <text x="318" y="246" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Android</text>
-  <rect x="430" y="222" width="116" height="38" rx="8" fill="#0f1720" stroke="#30363d"/>
-  <text x="446" y="246" fill="#58a6ff" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">Desktop</text>
-  <rect x="638" y="44" width="306" height="58" rx="10" fill="#0f1720" stroke="#30363d"/>
-  <rect x="656" y="62" width="10" height="22" rx="3" fill="#1f6feb"/>
-  <text x="682" y="72" fill="#f0f6fc" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Installable Windows utilities</text>
-  <text x="682" y="91" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="12">Branch-pinned commands and release downloads</text>
-  <rect x="638" y="122" width="306" height="58" rx="10" fill="#0f1720" stroke="#30363d"/>
-  <rect x="656" y="140" width="10" height="22" rx="3" fill="#3fb950"/>
-  <text x="682" y="150" fill="#f0f6fc" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Android, browser, and web tools</text>
-  <text x="682" y="169" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="12">APK, CRX, XPI, userscript, and live links</text>
-  <rect x="638" y="200" width="306" height="58" rx="10" fill="#0f1720" stroke="#30363d"/>
-  <rect x="656" y="218" width="10" height="22" rx="3" fill="#58a6ff"/>
-  <text x="682" y="228" fill="#f0f6fc" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Generated public catalog feed</text>
-  <text x="682" y="247" fill="#8b949e" font-family="Segoe UI, Arial, sans-serif" font-size="12">README, projects.json, schemas, and smoke evidence</text>
+  <rect x="14" y="14" width="972" height="272" rx="8" fill="#161b22" stroke="#30363d"/>
+  <rect x="32" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="32" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="32" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="32" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="32" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="32" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="46" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="46" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="46" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="46" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="46" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="46" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="60" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="60" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="60" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="60" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="60" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="60" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="74" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="74" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="74" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="74" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="74" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="74" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="88" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="88" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="88" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="88" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="88" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="88" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="102" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="102" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="102" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="102" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="102" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="102" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="116" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="116" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="116" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="116" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="116" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="116" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="868" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="868" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="868" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="868" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="868" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="868" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="882" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="882" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="882" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="882" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="882" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="882" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="896" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="896" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="896" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="896" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="896" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="896" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="910" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="910" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="910" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="910" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="910" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="910" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="924" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="924" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="924" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="924" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="924" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="924" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="938" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="938" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="938" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="938" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="938" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="938" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="952" y="30" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="952" y="44" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="952" y="58" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="952" y="72" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="952" y="86" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <rect x="952" y="100" width="6" height="6" rx="1" fill="#58a6ff" opacity="0.14"/>
+  <path d="M58 132 H128 V106 H202 V72 H276 V40 H352" fill="none" stroke="#58a6ff" stroke-width="1" opacity="0.28"/>
+  <path d="M648 40 H722 V72 H798 V106 H874 V132 H942" fill="none" stroke="#58a6ff" stroke-width="1" opacity="0.28"/>
+  <rect x="86" y="54" width="116" height="98" rx="6" fill="#0f1720" stroke="#58a6ff" opacity="0.75"/>
+  <line x1="104" y1="74" x2="184" y2="74" stroke="#30363d" stroke-width="1"/>
+  <circle cx="164" cy="64" r="3" fill="#3fb950"/>
+  <circle cx="176" cy="64" r="3" fill="#3fb950" opacity="0.65"/>
+  <line x1="104" y1="102" x2="184" y2="102" stroke="#30363d" stroke-width="1"/>
+  <circle cx="164" cy="92" r="3" fill="#3fb950"/>
+  <circle cx="176" cy="92" r="3" fill="#3fb950" opacity="0.65"/>
+  <line x1="104" y1="130" x2="184" y2="130" stroke="#30363d" stroke-width="1"/>
+  <circle cx="164" cy="120" r="3" fill="#3fb950"/>
+  <circle cx="176" cy="120" r="3" fill="#3fb950" opacity="0.65"/>
+  <rect x="220" y="94" width="88" height="56" rx="5" fill="#0f1720" stroke="#58a6ff" opacity="0.75"/>
+  <path d="M242 112 L256 124 L242 136" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="266" y1="136" x2="290" y2="136" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M500 42 L548 64 V104 C548 132 528 152 500 164 C472 152 452 132 452 104 V64 Z" fill="#0f1720" stroke="#58a6ff" stroke-width="1.4" opacity="0.85"/>
+  <line x1="500" y1="80" x2="500" y2="126" stroke="#1f6feb" stroke-width="10" stroke-linecap="round"/>
+  <line x1="477" y1="103" x2="523" y2="103" stroke="#1f6feb" stroke-width="10" stroke-linecap="round"/>
+  <rect x="620" y="58" width="126" height="76" rx="5" fill="#0f1720" stroke="#58a6ff" opacity="0.78"/>
+  <polyline points="638,102 660,102 672,82 690,118 704,94 716,102 732,102" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="670" y1="150" x2="698" y2="150" stroke="#58a6ff" stroke-width="1.5" opacity="0.5"/>
+  <line x1="684" y1="134" x2="684" y2="150" stroke="#58a6ff" stroke-width="1.5" opacity="0.5"/>
+  <rect x="770" y="70" width="62" height="72" rx="5" fill="#0f1720" stroke="#58a6ff" opacity="0.72"/>
+  <path d="M790 88 C812 100 814 120 792 134 M812 88 C790 100 788 120 810 134" fill="none" stroke="#8b949e" stroke-width="2" opacity="0.85"/>
+  <line x1="801" y1="84" x2="801" y2="138" stroke="#8b949e" stroke-width="1" opacity="0.45"/>
+  <rect x="852" y="66" width="86" height="58" rx="5" fill="#0f1720" stroke="#58a6ff" opacity="0.75"/>
+  <circle cx="870" cy="80" r="2" fill="#8b949e"/>
+  <circle cx="880" cy="80" r="2" fill="#8b949e"/>
+  <path d="M886 98 L874 108 L886 118 M904 98 L916 108 L904 118" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="500" y="192" fill="#f0f6fc" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="54" font-weight="700">SysAdminDoc</text>
+  <line x1="456" y1="210" x2="544" y2="210" stroke="#58a6ff" stroke-width="2"/>
+  <text x="500" y="238" fill="#c9d1d9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Broadcast IT, Healthcare IT, and practical public tools</text>
+  <rect x="412" y="252" width="176" height="32" rx="8" fill="#0f1720" stroke="#58a6ff"/>
+  <text x="500" y="273" fill="#58a6ff" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">View full portfolio -&gt;</text>
 </svg>

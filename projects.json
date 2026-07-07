@@ -6,11 +6,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "d331af3920f1d028eb49e8d1215d6396f57a5dc1",
+    "sourceCommit": "b8e1d99c9e14c8e36afe149192c7318c124cde1c",
     "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
-    "generatorSha256": "d2759257246f2cd1414347c8dd768a6fac4c337ca5dae96a7fe273349f6903cc",
+    "generatorSha256": "2143608d84201cf98c2ac26028baa80b84d4d003be60ab1630d50673e5ae4ec6",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T13:29:15.2549192-04:00",
+    "metadataSnapshotAt": "2026-07-07T15:36:13.5162609-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -2346,13 +2346,13 @@
       "installKind": null,
       "language": "C#",
       "stars": 0,
-      "latestReleaseTag": "v0.12.3",
-      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v0.12.3",
+      "latestReleaseTag": "v0.12.5",
+      "latestReleaseUrl": "https://github.com/SysAdminDoc/HostsGuard/releases/tag/v0.12.5",
       "releaseAssetKinds": [
         "exe"
       ],
       "releaseAssetNames": [
-        "HostsGuard-v0.12.3-dotnet-Setup.exe"
+        "HostsGuard-v0.12.5-dotnet-Setup.exe"
       ],
       "releaseAssetInspected": true,
       "releaseTrust": {
@@ -2374,7 +2374,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-07T16:59:07.0000000Z",
+      "pushedAt": "2026-07-07T19:18:22.0000000Z",
       "topics": [
         "dark-theme",
         "gui",
@@ -6198,7 +6198,7 @@
         "releaseImmutable": false,
         "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
       },
-      "pushedAt": "2026-07-07T16:53:03.0000000Z",
+      "pushedAt": "2026-07-07T19:29:45.0000000Z",
       "topics": [
         "github-pages",
         "html",
@@ -6597,7 +6597,7 @@
       "entrypoint": "VideoSubtitleRemover.py",
       "installKind": "python",
       "language": "Python",
-      "stars": 32,
+      "stars": 33,
       "latestReleaseTag": "v3.17.1",
       "latestReleaseUrl": "https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/tag/v3.17.1",
       "releaseAssetKinds": [
