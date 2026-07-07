@@ -4,13 +4,6 @@
 
 ### P0
 
-- [ ] P0 — Clear current release and license drift warnings
-  Why: The current report still has one release asset-kind mismatch and one unresolved `NOASSERTION` license row, leaving trust evidence noisy after the profile UX refresh.
-  Evidence: `reports/profile-sync-report.json.releaseAssetDrift.releaseAssetKindMismatches`, `reports/profile-sync-report.json.projectLicenseMetadata.unknownLicenses`.
-  Touches: `data/profile-catalog.json`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, affected source repository metadata if needed.
-  Acceptance: `releaseAssetDrift.releaseAssetKindMismatches` is empty and `projectLicenseMetadata.unresolvedUnknownCount` is `0` without hiding intentional license exceptions.
-  Complexity: S
-
 ### P1
 
 - [ ] P1 — Emit actionable artifact diff diagnostics in `-Check`

@@ -3629,7 +3629,7 @@
       "branch": "main",
       "entrypoint": null,
       "installKind": null,
-      "downloadKind": "exe",
+      "downloadKind": "zip",
       "userscriptUrl": null,
       "liveUrl": null,
       "language": "C#",
@@ -3833,7 +3833,9 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "notes": null
+      "forkOf": "c0re100/qBittorrent-Enhanced-Edition",
+      "upstreamLicense": "GPL-2.0-or-later / GPL-3.0-or-later assets",
+      "notes": "Custom LICENSE summarizes GPL-2.0-or-later source terms and GPL-3.0-or-later binary/assets terms; GitHub reports it as Other."
     },
     {
       "repo": "AI_Realism",

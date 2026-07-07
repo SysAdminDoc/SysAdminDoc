@@ -2771,6 +2771,14 @@ Describe 'Feed JSON Schema contracts' {
         $result.valid | Should -BeTrue
     }
 
+    It 'keeps committed release and license trust drift resolved' {
+        $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
+
+        @(Get-JsonArrayItems $report.releaseAssetDrift.releaseAssetKindMismatches) | Should -HaveCount 0
+        [int]$report.projectLicenseMetadata.unresolvedUnknownCount | Should -Be 0
+        @(Get-JsonArrayItems $report.projectLicenseMetadata.unknownLicenses | Where-Object { $_.intentionalException -ne $true }) | Should -HaveCount 0
+    }
+
     It 'allows arbitrary metadata drift old and new values in the report schema' {
         $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
         $metadataDrift = @(

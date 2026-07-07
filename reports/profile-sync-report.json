@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T17:09:36.6118573-04:00",
+  "generatedAt": "2026-07-07T17:20:55.3284077-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -18,12 +18,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -73,11 +73,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "fc4a8d789449123386bab0fdc23484ad02327492",
-    "catalogSha256": "9fd323368e8bef0dd47ab367e5ade24bbed771988e56c0240bfbfdac25808c9a",
+    "sourceCommit": "c779aa4f3044be9bbc8ab72b116a24ef4a6a9e2b",
+    "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
     "generatorSha256": "5c33e879c82b8efb8eda8bacec609db5e3fac99b810287b888d685f9f2f2ff24",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T17:07:47.3753123-04:00",
+    "metadataSnapshotAt": "2026-07-07T17:18:53.5097621-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -267,9 +267,9 @@
     "detectedCount": 175,
     "missingCount": 0,
     "unknownCount": 3,
-    "intentionalExceptionCount": 2,
-    "unresolvedUnknownCount": 1,
-    "warningCount": 1,
+    "intentionalExceptionCount": 3,
+    "unresolvedUnknownCount": 0,
+    "warningCount": 0,
     "licenseCounts": [
       {
         "licenseSpdxId": "AGPL-3.0",
@@ -346,22 +346,22 @@
         "licenseName": "Other",
         "licenseSpdxId": "NOASSERTION",
         "reason": "GitHub reported an unrecognized or non-standard license",
-        "intentionalException": false,
-        "exceptionReason": null
+        "intentionalException": true,
+        "exceptionReason": "Custom LICENSE summarizes GPL-2.0-or-later source terms and GPL-3.0-or-later binary/assets terms; GitHub reports it as Other."
       }
     ]
   },
   "forkParentDrift": {
-    "checkedCount": 24,
+    "checkedCount": 25,
     "githubForkCount": 21,
-    "catalogForkOfCount": 24,
+    "catalogForkOfCount": 25,
     "matchingGitHubForkCount": 21,
-    "catalogContinuationCount": 3,
+    "catalogContinuationCount": 4,
     "missingCatalogAttributionCount": 0,
     "parentMismatchCount": 0,
     "parentUnavailableCount": 0,
     "warningCount": 0,
-    "publicDetailRowCount": 9,
+    "publicDetailRowCount": 10,
     "redactedDetailRowCount": 15,
     "matchingGitHubForks": [
       {
@@ -399,6 +399,11 @@
       {
         "repo": "AppManagerNG",
         "catalogForkOf": "MuntashirAkon/AppManager",
+        "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
+      },
+      {
+        "repo": "qBittorrent-Vanced",
+        "catalogForkOf": "c0re100/qBittorrent-Enhanced-Edition",
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
       },
       {
@@ -950,22 +955,7 @@
     ],
     "missingReleaseForDownloadKind": [],
     "releaseActionLabelMismatches": [],
-    "releaseAssetKindMismatches": [
-      {
-        "repo": "Images",
-        "downloadKind": "exe",
-        "expectedAssetKinds": [
-          "exe"
-        ],
-        "releaseAssetKinds": [
-          "zip"
-        ],
-        "releaseAssetNames": [
-          "Images-v0.2.15-win-x64.zip"
-        ],
-        "primaryAction": "release"
-      }
-    ],
+    "releaseAssetKindMismatches": [],
     "releaseAssetFetchFailures": [],
     "userscriptKindWithoutInstallUrl": [],
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
@@ -1667,7 +1657,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-07T17:07:47.3753123-04:00",
+          "queriedAt": "2026-07-07T17:18:53.5097621-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2079,7 +2069,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 4145,
+      "elapsedMs": 16338,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2112,33 +2102,15 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T17:03:00.8273727-04:00",
-      "newValue": "2026-07-07T17:07:47.3753123-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "LibreSpot",
-      "category": "powershell",
-      "field": "pushedAt",
-      "oldValue": "2026-07-07T20:59:18Z",
-      "newValue": "2026-07-07T21:04:05Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "sysadmindoc.github.io",
-      "category": "guides",
-      "field": "pushedAt",
-      "oldValue": "2026-07-07T20:57:05Z",
-      "newValue": "2026-07-07T21:06:19Z",
+      "oldValue": "2026-07-07T17:17:17.1805618-04:00",
+      "newValue": "2026-07-07T17:18:53.5097621-04:00",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 3,
+    "informationalCount": 1,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
       "ageDays": 36.04,
@@ -2151,7 +2123,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 4145,
+    "elapsedMs": 16338,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2162,7 +2134,7 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 73100,
+    "byteCount": 73274,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2457,7 +2429,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 73100,
+        "value": 73274,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2511,7 +2483,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 359339,
+        "value": 359589,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2520,7 +2492,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 99971,
+        "value": 99538,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2565,14 +2537,14 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "fresh",
+    "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-07T17:07:34.2144334-04:00",
-    "latestReportAffectingCommitSha": "dbb8f682e4310cc8d609ed16df5b3c9ab0f0bd42",
-    "latestReportAffectingCommitDate": "2026-07-07T16:06:01.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
-    "generatedWithCommit": false,
+    "committedReportGeneratedAt": "2026-07-07T17:09:36.6118573-04:00",
+    "latestReportAffectingCommitSha": "c779aa4f3044be9bbc8ab72b116a24ef4a6a9e2b",
+    "latestReportAffectingCommitDate": "2026-07-07T17:15:06.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.09,
+    "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": false,
