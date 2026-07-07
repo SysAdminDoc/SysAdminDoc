@@ -150,6 +150,7 @@ $readmeExperienceChecks = if ($report.PSObject.Properties.Name -contains 'readme
 $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readmeHeadingHierarchy') { $report.readmeHeadingHierarchy } else { $null }
 $metadataFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'metadataFetch') { $performance.metadataFetch } else { $null }
 $artifactDriftDiagnostics = if ($report.PSObject.Properties.Name -contains 'artifactDriftDiagnostics') { $report.artifactDriftDiagnostics } else { $null }
+$validationCache = if ($performance -and $performance.PSObject.Properties.Name -contains 'cache') { $performance.cache } else { $null }
 
 $missingTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingTopicCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null))) } else { 0 }
 $missingDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingDescriptionCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null))) } else { 0 }
@@ -382,6 +383,17 @@ $metadataFallbackReason = if ($metadataFetch) { ConvertTo-CompactSummaryValue (G
 $metadataResourceLimitReason = if ($metadataFetch) { ConvertTo-CompactSummaryValue (Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "resourceLimitFallbackReason") } else { "null" }
 $metadataRepoCount = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "repoCount" -Default 0) } else { 0 }
 $metadataTruncated = if ($metadataFetch) { [bool](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "truncated" -Default $false) } else { $false }
+$cacheEnabled = if ($validationCache) { [bool](Get-ObjectPropertyOrDefault -Object $validationCache -Name "enabled" -Default $false) } else { $false }
+$cacheTtlHours = if ($validationCache) { [int](Get-ObjectPropertyOrDefault -Object $validationCache -Name "ttlHours" -Default 0) } else { 0 }
+$metadataCache = if ($validationCache -and $validationCache.PSObject.Properties.Name -contains 'metadata') { $validationCache.metadata } else { $null }
+$releaseCache = if ($validationCache -and $validationCache.PSObject.Properties.Name -contains 'releases') { $validationCache.releases } else { $null }
+$linkCache = if ($validationCache -and $validationCache.PSObject.Properties.Name -contains 'links') { $validationCache.links } else { $null }
+$metadataCacheHits = if ($metadataCache) { [int](Get-ObjectPropertyOrDefault -Object $metadataCache -Name "hitCount" -Default 0) } else { 0 }
+$metadataCacheFallback = if ($metadataCache) { [bool](Get-ObjectPropertyOrDefault -Object $metadataCache -Name "usedForFallback" -Default $false) } else { $false }
+$releaseCacheHits = if ($releaseCache) { [int](Get-ObjectPropertyOrDefault -Object $releaseCache -Name "hitCount" -Default 0) } else { 0 }
+$releaseCacheFallback = if ($releaseCache) { [bool](Get-ObjectPropertyOrDefault -Object $releaseCache -Name "usedForFallback" -Default $false) } else { $false }
+$linkCacheHits = if ($linkCache) { [int](Get-ObjectPropertyOrDefault -Object $linkCache -Name "hitCount" -Default 0) } else { 0 }
+$linkCacheWrites = if ($linkCache) { [int](Get-ObjectPropertyOrDefault -Object $linkCache -Name "writeCount" -Default 0) } else { 0 }
 $restFallbackStatus = if ($restFallbackReleaseFetch) { [string]$restFallbackReleaseFetch.status } else { "unknown" }
 $restFallbackMaxReleaseFetches = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.maxReleaseFetches } else { 0 }
 $restFallbackUnauthenticatedReleaseFetchLimit = if ($restFallbackReleaseFetch) { [int]$restFallbackReleaseFetch.unauthenticatedReleaseFetchLimit } else { 0 }
@@ -539,6 +551,14 @@ $summary = @"
 | Metadata resource-limit fallback | $metadataResourceLimitFallback |
 | Metadata fallback reason | $metadataFallbackReason |
 | Metadata resource-limit reason | $metadataResourceLimitReason |
+| Validation cache enabled | $cacheEnabled |
+| Validation cache TTL hours | $cacheTtlHours |
+| Metadata cache hits | $metadataCacheHits |
+| Metadata cache fallback used | $metadataCacheFallback |
+| Release cache hits | $releaseCacheHits |
+| Release cache fallback used | $releaseCacheFallback |
+| Link cache hits | $linkCacheHits |
+| Link cache writes | $linkCacheWrites |
 | REST fallback release status | $restFallbackStatus |
 | REST fallback release max requests | $restFallbackMaxReleaseFetches |
 | REST fallback release unauth cap | $restFallbackUnauthenticatedReleaseFetchLimit |

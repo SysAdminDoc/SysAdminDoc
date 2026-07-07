@@ -4653,7 +4653,8 @@
       "required": [
         "metadataFetch",
         "linkValidation",
-        "restFallbackReleaseFetch"
+        "restFallbackReleaseFetch",
+        "cache"
       ],
       "properties": {
         "metadataFetch": {
@@ -4680,6 +4681,77 @@
         },
         "restFallbackReleaseFetch": {
           "$ref": "#/$defs/restFallbackReleaseFetch"
+        },
+        "cache": {
+          "$ref": "#/$defs/validationCache"
+        }
+      }
+    },
+    "validationCache": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "path",
+        "ttlHours",
+        "metadata",
+        "releases",
+        "links"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "path": {
+          "type": "string"
+        },
+        "ttlHours": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "metadata": {
+          "$ref": "#/$defs/validationCacheBucket"
+        },
+        "releases": {
+          "$ref": "#/$defs/validationCacheBucket"
+        },
+        "links": {
+          "$ref": "#/$defs/validationCacheBucket"
+        }
+      }
+    },
+    "validationCacheBucket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hitCount",
+        "missCount",
+        "staleCount",
+        "writeCount",
+        "fallbackHitCount",
+        "usedForFallback",
+        "lastFallbackReason"
+      ],
+      "properties": {
+        "hitCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "staleCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "writeCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "fallbackHitCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "usedForFallback": {
+          "type": "boolean"
+        },
+        "lastFallbackReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },

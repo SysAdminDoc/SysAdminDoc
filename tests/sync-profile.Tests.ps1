@@ -1057,6 +1057,232 @@ Describe 'REST fallback release request guard' {
     }
 }
 
+Describe 'Validation cache' {
+    BeforeEach {
+        $script:TestValidationCachePath = Join-Path ([System.IO.Path]::GetTempPath()) ("sysadmindoc-cache-test-" + [guid]::NewGuid().ToString("N"))
+        $script:OldValidationCachePath = $script:CachePath
+        $script:OldValidationCacheTtlHours = $script:CacheTtlHours
+        $script:OldValidationCacheEnabled = $script:CacheEnabled
+        $script:OldValidationOffline = $script:Offline
+        $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+        $pageSizeVariable = Get-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+        $providerVariable = Get-Variable -Name RepositoryMetadataProvider -Scope Script -ErrorAction SilentlyContinue
+        $script:HadValidationOwner = ($null -ne $ownerVariable)
+        $script:HadValidationGraphQlPageSize = ($null -ne $pageSizeVariable)
+        $script:HadValidationRepositoryMetadataProvider = ($null -ne $providerVariable)
+        $script:OldValidationOwner = if ($script:HadValidationOwner) { $ownerVariable.Value } else { $null }
+        $script:OldValidationGraphQlPageSize = if ($script:HadValidationGraphQlPageSize) { $pageSizeVariable.Value } else { $null }
+        $script:OldValidationRepositoryMetadataProvider = if ($script:HadValidationRepositoryMetadataProvider) { $providerVariable.Value } else { $null }
+
+        $script:CachePath = $script:TestValidationCachePath
+        $script:CacheTtlHours = 24
+        $script:CacheEnabled = $true
+        $script:Owner = 'SysAdminDoc'
+        $script:GraphQlPageSize = 50
+        Reset-ValidationCacheState
+        Reset-RestFallbackReleaseFetchState
+    }
+
+    AfterEach {
+        $script:CachePath = $script:OldValidationCachePath
+        $script:CacheTtlHours = $script:OldValidationCacheTtlHours
+        $script:CacheEnabled = $script:OldValidationCacheEnabled
+        $script:Offline = $script:OldValidationOffline
+        if ($script:HadValidationOwner) {
+            $script:Owner = $script:OldValidationOwner
+        } else {
+            Remove-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+        }
+        if ($script:HadValidationGraphQlPageSize) {
+            $script:GraphQlPageSize = $script:OldValidationGraphQlPageSize
+        } else {
+            Remove-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+        }
+        if ($script:HadValidationRepositoryMetadataProvider) {
+            $script:RepositoryMetadataProvider = $script:OldValidationRepositoryMetadataProvider
+        } else {
+            Remove-Variable -Name RepositoryMetadataProvider -Scope Script -ErrorAction SilentlyContinue
+        }
+        Reset-ValidationCacheState
+        Reset-RestFallbackReleaseFetchState
+        Remove-Item Function:\gh -ErrorAction SilentlyContinue
+        Remove-Item Function:\Start-Sleep -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $script:TestValidationCachePath -Recurse -Force -ErrorAction SilentlyContinue
+        foreach ($name in @(
+                'TestValidationCachePath',
+                'OldValidationCachePath',
+                'OldValidationCacheTtlHours',
+                'OldValidationCacheEnabled',
+                'OldValidationOffline',
+                'HadValidationOwner',
+                'OldValidationOwner',
+                'HadValidationGraphQlPageSize',
+                'OldValidationGraphQlPageSize',
+                'HadValidationRepositoryMetadataProvider',
+                'OldValidationRepositoryMetadataProvider'
+            )) {
+            Remove-Variable -Name $name -Scope Script -ErrorAction SilentlyContinue
+        }
+    }
+
+    It 'reads fresh entries and marks stale entries without leaking cache files into git' {
+        $cacheKey = 'unit-metadata'
+        Write-ValidationCacheEntry `
+            -Bucket metadata `
+            -Key $cacheKey `
+            -Value ([pscustomobject]@{ name = 'CachedRepo' }) `
+            -Headers @{ ETag = '"abc123"'; 'Last-Modified' = 'Tue, 07 Jul 2026 00:00:00 GMT' }
+
+        $value = Get-ValidationCacheValue -Bucket metadata -Key $cacheKey
+        $state = Get-ValidationCacheState
+
+        $value.name | Should -Be 'CachedRepo'
+        $state.metadata.writeCount | Should -Be 1
+        $state.metadata.hitCount | Should -Be 1
+        $state.metadata.missCount | Should -Be 0
+        (Get-Content -LiteralPath (Join-Path $script:RepoRoot '.gitignore') -Raw) | Should -Match '(?m)^\.cache/$'
+
+        $cacheFile = Get-ValidationCacheFilePath -Bucket metadata -Key $cacheKey
+        $entry = Get-Content -LiteralPath $cacheFile -Raw | ConvertFrom-Json
+        $entry.fetchedAt = (Get-Date).ToUniversalTime().AddHours(-48).ToString("o")
+        $entry | ConvertTo-Json -Depth 50 | Set-Content -LiteralPath $cacheFile -Encoding utf8
+
+        Get-ValidationCacheValue -Bucket metadata -Key $cacheKey | Should -BeNullOrEmpty
+        (Get-ValidationCacheState).metadata.staleCount | Should -Be 1
+    }
+
+    It 'uses cached repository metadata for offline runs and records degraded fidelity' {
+        $Owner = 'SysAdminDoc'
+        $GraphQlPageSize = 37
+        $Offline = $true
+        $script:Offline = $true
+        $script:GraphQlPageSize = 37
+        Write-ValidationCacheEntry -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -Value @(
+            (New-TestRepoMeta -Name 'CachedOfflineRepo')
+        )
+
+        $repos = @(Get-GitHubRepos)
+        $state = Get-ValidationCacheState
+
+        $repos | Should -HaveCount 1
+        $repos[0].name | Should -Be 'CachedOfflineRepo'
+        $script:RepositoryMetadataProvider | Should -Be 'cache-offline'
+        $script:MetadataFetchFallbackReason | Should -Be 'offline cache hit'
+        $state.metadata.hitCount | Should -Be 1
+        $state.metadata.usedForFallback | Should -BeTrue
+        $state.metadata.lastFallbackReason | Should -Be 'offline'
+    }
+
+    It 'uses cached repository metadata after GraphQL resource-limit failures' {
+        $Owner = 'SysAdminDoc'
+        $GraphQlPageSize = 41
+        $Offline = $false
+        $script:Offline = $false
+        $script:GraphQlPageSize = 41
+        Write-ValidationCacheEntry -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -Value @(
+            (New-TestRepoMeta -Name 'CachedFallbackRepo')
+        )
+
+        function Start-Sleep {
+            param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Arguments)
+        }
+
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+
+            $global:LASTEXITCODE = 1
+            return 'gh: API rate limit exceeded (HTTP 403)'
+        }
+
+        $repos = @(Get-GitHubRepos)
+        $state = Get-ValidationCacheState
+
+        $repos | Should -HaveCount 1
+        $repos[0].name | Should -Be 'CachedFallbackRepo'
+        $script:RepositoryMetadataProvider | Should -Be 'cache-fallback'
+        $script:MetadataFetchAttemptCount | Should -Be 3
+        $script:MetadataFetchRequestCount | Should -Be 3
+        $script:MetadataFetchResourceLimitFallback | Should -BeTrue
+        $state.metadata.usedForFallback | Should -BeTrue
+        $state.metadata.lastFallbackReason | Should -Match 'rate limit'
+    }
+
+    It 'uses cached release metadata when latest-release fetches are rate-limited' {
+        $Owner = 'SysAdminDoc'
+        $Offline = $false
+        $script:Offline = $false
+        $script:RepositoryMetadataProvider = 'rest-fallback'
+        $releaseKey = Get-ReleaseMetadataCacheKey -Repo 'CachedRelease'
+        Write-ValidationCacheEntry -Bucket releases -Key $releaseKey -Value ([pscustomobject]@{
+                tagName = 'v9.0.0'
+                url = 'https://github.com/SysAdminDoc/CachedRelease/releases/tag/v9.0.0'
+                name = 'v9.0.0'
+                publishedAt = '2026-07-07T00:00:00Z'
+                releaseAssetNames = @('CachedRelease.exe')
+                releaseAssetKinds = @('exe')
+                releaseAssetDigests = @()
+                assetApiInspected = $true
+                immutable = $true
+            })
+
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+
+            $command = $Arguments -join ' '
+            if ($command -eq 'auth status -h github.com') {
+                $global:LASTEXITCODE = 0
+                return 'Logged in to github.com'
+            }
+            if ($command -eq 'api repos/SysAdminDoc/CachedRelease/releases/latest') {
+                $global:LASTEXITCODE = 1
+                return 'gh: API rate limit exceeded (HTTP 403)'
+            }
+
+            throw "Unexpected gh invocation: $command"
+        }
+
+        $result = @(Add-ReleaseAssetMetadata -Repos @((New-TestRepoMeta -Name 'CachedRelease')))
+        $releaseState = Get-RestFallbackReleaseFetchState
+        $cacheState = Get-ValidationCacheState
+
+        $result[0].latestRelease.tagName | Should -Be 'v9.0.0'
+        $result[0].latestRelease.releaseAssetKinds | Should -Contain 'exe'
+        $releaseState.status | Should -Be 'completed'
+        $releaseState.attemptedReleaseFetches | Should -Be 1
+        $releaseState.successfulReleaseFetches | Should -Be 1
+        $cacheState.releases.usedForFallback | Should -BeTrue
+        $cacheState.releases.lastFallbackReason | Should -Match 'rate limit'
+    }
+
+    It 'uses cached link probe results without touching the network path' {
+        $url = 'https://example.test/ok'
+        Write-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url $url) -Value ([ordered]@{
+                ok = $true
+                status = 204
+                error = $null
+                fatal = $false
+            })
+        $target = [ordered]@{
+            repo = 'CachedLinkRepo'
+            type = 'launch'
+            url = $url
+            host = 'example.test'
+            fatalOnFailure = $true
+        }
+
+        $batch = Invoke-LinkProbeBatch -Targets @($target) -ThrottleLimit 1
+        $state = Get-ValidationCacheState
+
+        $batch.targetCount | Should -Be 1
+        $batch.results | Should -HaveCount 1
+        $batch.results[0].ok | Should -BeTrue
+        $batch.results[0].status | Should -Be 204
+        $batch.results[0].fatal | Should -BeFalse
+        $state.links.hitCount | Should -Be 1
+        $state.links.writeCount | Should -Be 1
+    }
+}
+
 Describe 'Repository metadata enrichment' {
     It 'keeps latestRelease out of the bulk repo-list GraphQL request' {
         $script:SyncProfileScript | Should -Match '"--json", "name,description,stargazerCount,defaultBranchRef,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"'
@@ -2720,6 +2946,19 @@ Describe 'Feed JSON Schema contracts' {
         foreach ($field in @('graphQlPageSize', 'requestCount', 'retryCount', 'resourceLimitFallback', 'resourceLimitFallbackReason', 'truncated')) {
             $required | Should -Contain $field
         }
+
+        @($schema.'$defs'.validationPerformance.required) | Should -Contain 'cache'
+        $schema.'$defs'.validationPerformance.properties.cache.'$ref' | Should -Be '#/$defs/validationCache'
+
+        $cacheRequired = @($schema.'$defs'.validationCache.required)
+        foreach ($field in @('enabled', 'path', 'ttlHours', 'metadata', 'releases', 'links')) {
+            $cacheRequired | Should -Contain $field
+        }
+
+        $cacheBucketRequired = @($schema.'$defs'.validationCacheBucket.required)
+        foreach ($field in @('hitCount', 'missCount', 'staleCount', 'writeCount', 'fallbackHitCount', 'usedForFallback', 'lastFallbackReason')) {
+            $cacheBucketRequired | Should -Contain $field
+        }
     }
 
     It 'requires public-safe metadata hygiene handoff fields in the report schema and summary' {
@@ -3595,6 +3834,14 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match 'Metadata request count'
             $summary | Should -Match 'Metadata retry count'
             $summary | Should -Match 'Metadata resource-limit fallback'
+            $summary | Should -Match 'Validation cache enabled'
+            $summary | Should -Match 'Validation cache TTL hours'
+            $summary | Should -Match 'Metadata cache hits'
+            $summary | Should -Match 'Metadata cache fallback used'
+            $summary | Should -Match 'Release cache hits'
+            $summary | Should -Match 'Release cache fallback used'
+            $summary | Should -Match 'Link cache hits'
+            $summary | Should -Match 'Link cache writes'
             $summary | Should -Match 'REST fallback release status'
             $summary | Should -Match 'REST fallback release max requests'
             $summary | Should -Match 'REST fallback release unauth cap'

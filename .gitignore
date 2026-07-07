@@ -8,6 +8,7 @@ AGENTS.md
 CODEX_CHANGELOG.md
 .claude/
 .ai/
+.cache/
 RESEARCH_FEATURE_PLAN.md
 TODO.md
 reports/rendered-profile-smoke*.json

@@ -17,6 +17,10 @@ param(
     [string]$Owner = "SysAdminDoc",
     [ValidateRange(1, 1000)]
     [int]$GraphQlPageSize = 500,
+    [string]$CachePath = ".cache/profile-sync",
+    [ValidateRange(1, 720)]
+    [int]$CacheTtlHours = 24,
+    [switch]$NoCache,
     [switch]$Offline
 )
 
@@ -38,6 +42,9 @@ try {
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:SmokeReportPath = $SmokeReportPath
 $script:GraphQlPageSize = [int]$GraphQlPageSize
+$script:CachePath = $CachePath
+$script:CacheTtlHours = [int]$CacheTtlHours
+$script:CacheEnabled = -not [bool]$NoCache
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) {
     $Check = $true
@@ -114,6 +121,7 @@ $script:MetadataFetchRequestCount = 0
 $script:MetadataFetchFallbackReason = $null
 $script:MetadataFetchResourceLimitFallback = $false
 $script:MetadataFetchResourceLimitReason = $null
+$script:ValidationCacheState = $null
 
 $CategoryDefinitions = @(
     [ordered]@{
@@ -454,6 +462,7 @@ function Reset-MetadataFetchTelemetry {
     $script:MetadataFetchFallbackReason = $null
     $script:MetadataFetchResourceLimitFallback = $false
     $script:MetadataFetchResourceLimitReason = $null
+    Reset-ValidationCacheState
 }
 
 function Get-GitHubRepos {
@@ -472,6 +481,15 @@ function Get-GitHubRepos {
     Reset-MetadataFetchTelemetry
 
     if ($Offline) {
+        $cachedRepos = Get-ValidationCacheValue -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -FallbackReason 'offline'
+        if ($null -ne $cachedRepos) {
+            $script:RepositoryMetadataProvider = "cache-offline"
+            $script:RepositoryEnumerationRequestedLimit = [int]$script:GraphQlPageSize
+            $script:RepositoryEnumerationTruncated = $false
+            $script:MetadataFetchFallbackReason = "offline cache hit"
+            Reset-RestFallbackReleaseFetchState
+            return @($cachedRepos)
+        }
         Reset-RestFallbackReleaseFetchState
         return @()
     }
@@ -525,6 +543,15 @@ function Get-GitHubRepos {
     $script:MetadataFetchFallbackReason = $lastOutput
     $script:MetadataFetchResourceLimitFallback = Test-GitHubMetadataResourceLimit -Output $lastOutput
     $script:MetadataFetchResourceLimitReason = if ($script:MetadataFetchResourceLimitFallback) { $lastOutput } else { $null }
+    $cachedFallbackRepos = Get-ValidationCacheValue -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -FallbackReason $lastOutput
+    if ($null -ne $cachedFallbackRepos) {
+        Write-Warning "GraphQL repo metadata failed after 3 attempts; using cached metadata. Last gh output: $lastOutput"
+        $script:RepositoryMetadataProvider = "cache-fallback"
+        $script:RepositoryEnumerationRequestedLimit = [int]$script:GraphQlPageSize
+        $script:RepositoryEnumerationTruncated = $false
+        Reset-RestFallbackReleaseFetchState
+        return @($cachedFallbackRepos)
+    }
     Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
     return Get-GitHubReposFromRest
 }
@@ -558,7 +585,7 @@ function Add-ReleaseAssetMetadata {
     [CmdletBinding()]
     param([object[]]$Repos)
 
-    if ($Offline) {
+    if ($Offline -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase)) {
         return @($Repos)
     }
 
@@ -594,11 +621,19 @@ function Add-ReleaseAssetMetadata {
         }
 
         $script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["attemptedReleaseFetches"] + 1
+        $releaseCacheKey = Get-ReleaseMetadataCacheKey -Repo $repoName
         $gh = Invoke-GhCli -Arguments @("api", "repos/$Owner/$repoName/releases/latest")
         $releaseOutput = $gh.text
         if ($gh.exitCode -ne 0) {
             if (Test-GhApiNotFound -Output $releaseOutput) {
                 $script:RestFallbackReleaseFetchState["noRelease404Count"] = [int]$script:RestFallbackReleaseFetchState["noRelease404Count"] + 1
+                continue
+            }
+
+            $cachedRelease = Get-ValidationCacheValue -Bucket releases -Key $releaseCacheKey -FallbackReason $releaseOutput
+            if ($null -ne $cachedRelease) {
+                Set-MemberValue -Object $repo -Name "latestRelease" -Value $cachedRelease
+                $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
                 continue
             }
 
@@ -620,8 +655,10 @@ function Add-ReleaseAssetMetadata {
         }
 
         $releaseData = $releaseOutput | ConvertFrom-Json
+        $releaseMetadata = ConvertFrom-RestReleaseMetadata -Release $releaseData
+        Write-ValidationCacheEntry -Bucket releases -Key $releaseCacheKey -Value $releaseMetadata
         $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
-        Set-MemberValue -Object $repo -Name "latestRelease" -Value (ConvertFrom-RestReleaseMetadata -Release $releaseData)
+        Set-MemberValue -Object $repo -Name "latestRelease" -Value $releaseMetadata
     }
 
     $script:RestFallbackReleaseFetchState["status"] = "completed"
@@ -799,7 +836,9 @@ function Add-LiveRepositoryMetadata {
         $enrichedRepos = @(Set-ForkParentMetadataEnrichmentFailure -Repos $enrichedRepos -Message $message)
     }
 
-    return @(Add-ReleaseAssetMetadata -Repos $enrichedRepos)
+    $enrichedRepos = @(Add-ReleaseAssetMetadata -Repos $enrichedRepos)
+    Write-ValidationCacheEntry -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -Value $enrichedRepos
+    return @($enrichedRepos)
 }
 
 function ConvertTo-Lookup {
@@ -1633,12 +1672,42 @@ function Invoke-LinkProbeBatch {
                 ok = [bool]$result.ok
                 status = $result.status
                 error = $result.error
+                probeFatal = [bool]$result.fatal
                 fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
             }
         }
     } else {
+        $cachedRows = New-Object System.Collections.Generic.List[object]
+        $uncachedTargets = New-Object System.Collections.Generic.List[object]
+        foreach ($target in $targetList) {
+            $cachedProbe = Get-ValidationCacheValue -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string]$target.url))
+            if ($null -eq $cachedProbe) {
+                $uncachedTargets.Add($target)
+                continue
+            }
+
+            $targetFatalOnFailure = if ($target -is [System.Collections.IDictionary] -and $target.Contains('fatalOnFailure')) {
+                [bool]$target['fatalOnFailure']
+            } elseif ($target.PSObject.Properties.Name -contains 'fatalOnFailure') {
+                [bool]$target.fatalOnFailure
+            } else {
+                $true
+            }
+            $cachedRows.Add([ordered]@{
+                repo = $target.repo
+                type = $target.type
+                url = $target.url
+                host = $target.host
+                ok = [bool](Get-MemberValue -Object $cachedProbe -Name 'ok')
+                status = Get-MemberValue -Object $cachedProbe -Name 'status'
+                error = Get-MemberValue -Object $cachedProbe -Name 'error'
+                probeFatal = [bool](Get-MemberValue -Object $cachedProbe -Name 'fatal')
+                fatal = [bool]($targetFatalOnFailure -and [bool](Get-MemberValue -Object $cachedProbe -Name 'fatal'))
+            })
+        }
+
         $testHttpUrlDefinition = ${function:Test-HttpUrl}.ToString()
-        $probeRows = $targetList | ForEach-Object -Parallel {
+        $freshRows = @($uncachedTargets.ToArray() | ForEach-Object -Parallel {
             ${function:Test-HttpUrl} = $using:testHttpUrlDefinition
             $target = $_
             $result = Test-HttpUrl -Url $target.url
@@ -1657,9 +1726,21 @@ function Invoke-LinkProbeBatch {
                 ok = [bool]$result.ok
                 status = $result.status
                 error = $result.error
+                probeFatal = [bool]$result.fatal
                 fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
             }
-        } -ThrottleLimit $throttle
+        } -ThrottleLimit $throttle)
+
+        foreach ($row in @($freshRows)) {
+            Write-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string]$row.url)) -Value ([ordered]@{
+                    ok = [bool]$row.ok
+                    status = $row.status
+                    error = $row.error
+                    fatal = [bool]$row.probeFatal
+                })
+        }
+
+        $probeRows = @($cachedRows.ToArray() + $freshRows)
     }
 
     $stopwatch.Stop()
@@ -3295,6 +3376,192 @@ function Get-StringSha256 {
     } finally {
         $sha256.Dispose()
     }
+}
+
+function New-ValidationCacheBucket {
+    return [ordered]@{
+        hitCount = 0
+        missCount = 0
+        staleCount = 0
+        writeCount = 0
+        fallbackHitCount = 0
+        usedForFallback = $false
+        lastFallbackReason = $null
+    }
+}
+
+function Reset-ValidationCacheState {
+    $script:ValidationCacheState = [ordered]@{
+        enabled = [bool]$script:CacheEnabled
+        path = [string]$script:CachePath
+        ttlHours = [int]$script:CacheTtlHours
+        metadata = New-ValidationCacheBucket
+        releases = New-ValidationCacheBucket
+        links = New-ValidationCacheBucket
+    }
+}
+
+function Get-ValidationCacheState {
+    if ($null -eq $script:ValidationCacheState) {
+        Reset-ValidationCacheState
+    }
+
+    return $script:ValidationCacheState
+}
+
+function Add-ValidationCacheCounter {
+    param(
+        [ValidateSet('metadata', 'releases', 'links')]
+        [string]$Bucket,
+        [ValidateSet('hitCount', 'missCount', 'staleCount', 'writeCount', 'fallbackHitCount')]
+        [string]$Counter,
+        [string]$FallbackReason = $null
+    )
+
+    $state = Get-ValidationCacheState
+    $bucketState = $state[$Bucket]
+    $bucketState[$Counter] = [int]$bucketState[$Counter] + 1
+    if ($Counter -eq 'fallbackHitCount') {
+        $bucketState['usedForFallback'] = $true
+        if (-not [string]::IsNullOrWhiteSpace($FallbackReason)) {
+            $bucketState['lastFallbackReason'] = $FallbackReason
+        }
+    }
+}
+
+function Get-ValidationCacheRoot {
+    if ([string]::IsNullOrWhiteSpace([string]$script:CachePath)) {
+        return $null
+    }
+    if ([System.IO.Path]::IsPathRooted([string]$script:CachePath)) {
+        return [string]$script:CachePath
+    }
+
+    return (Join-Path $RepoRoot ([string]$script:CachePath))
+}
+
+function Get-ValidationCacheFilePath {
+    param(
+        [ValidateSet('metadata', 'releases', 'links')]
+        [string]$Bucket,
+        [string]$Key
+    )
+
+    $root = Get-ValidationCacheRoot
+    if ([string]::IsNullOrWhiteSpace($root)) {
+        return $null
+    }
+
+    $hash = Get-StringSha256 -Text $Key
+    return (Join-Path (Join-Path $root $Bucket) "$hash.json")
+}
+
+function Read-ValidationCacheEntry {
+    param(
+        [ValidateSet('metadata', 'releases', 'links')]
+        [string]$Bucket,
+        [string]$Key
+    )
+
+    if (-not [bool]$script:CacheEnabled) {
+        Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount
+        return $null
+    }
+
+    $path = Get-ValidationCacheFilePath -Bucket $Bucket -Key $Key
+    if ([string]::IsNullOrWhiteSpace($path) -or -not (Test-Path -LiteralPath $path)) {
+        Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount
+        return $null
+    }
+
+    try {
+        $entry = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+        $fetchedAtText = [string](Get-MemberValue -Object $entry -Name 'fetchedAt')
+        $fetchedAt = if ([string]::IsNullOrWhiteSpace($fetchedAtText)) { [datetime]::MinValue } else { [datetime]::Parse($fetchedAtText, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind) }
+        $ageHours = ((Get-Date).ToUniversalTime() - $fetchedAt.ToUniversalTime()).TotalHours
+        if ($ageHours -gt [int]$script:CacheTtlHours) {
+            Add-ValidationCacheCounter -Bucket $Bucket -Counter staleCount
+            return $null
+        }
+
+        Add-ValidationCacheCounter -Bucket $Bucket -Counter hitCount
+        return $entry
+    } catch {
+        Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount
+        return $null
+    }
+}
+
+function Write-ValidationCacheEntry {
+    param(
+        [ValidateSet('metadata', 'releases', 'links')]
+        [string]$Bucket,
+        [string]$Key,
+        [AllowNull()]
+        [object]$Value,
+        [hashtable]$Headers = @{}
+    )
+
+    if (-not [bool]$script:CacheEnabled) {
+        return
+    }
+
+    $path = Get-ValidationCacheFilePath -Bucket $Bucket -Key $Key
+    if ([string]::IsNullOrWhiteSpace($path)) {
+        return
+    }
+
+    $dir = Split-Path -Parent $path
+    if ($dir -and -not (Test-Path -LiteralPath $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+
+    $entry = [ordered]@{
+        key = $Key
+        fetchedAt = (Get-Date).ToUniversalTime().ToString("o")
+        etag = if ($Headers.ContainsKey('ETag')) { [string]$Headers['ETag'] } else { $null }
+        lastModified = if ($Headers.ContainsKey('Last-Modified')) { [string]$Headers['Last-Modified'] } else { $null }
+        value = $Value
+    }
+
+    $entry | ConvertTo-Json -Depth 50 | Set-Content -LiteralPath $path -Encoding utf8
+    Add-ValidationCacheCounter -Bucket $Bucket -Counter writeCount
+}
+
+function Get-ValidationCacheValue {
+    param(
+        [ValidateSet('metadata', 'releases', 'links')]
+        [string]$Bucket,
+        [string]$Key,
+        [string]$FallbackReason = $null
+    )
+
+    $entry = Read-ValidationCacheEntry -Bucket $Bucket -Key $Key
+    if ($null -eq $entry) {
+        return $null
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($FallbackReason)) {
+        Add-ValidationCacheCounter -Bucket $Bucket -Counter fallbackHitCount -FallbackReason $FallbackReason
+    }
+
+    return (Get-MemberValue -Object $entry -Name 'value')
+}
+
+function Get-LiveRepositoryMetadataCacheKey {
+    return "github-repos-live:${Owner}:$([int]$script:GraphQlPageSize)"
+}
+
+function Get-ReleaseMetadataCacheKey {
+    param([string]$Repo)
+
+    return "github-release:${Owner}:${Repo}"
+}
+
+function Get-LinkProbeCacheKey {
+    param([string]$Url)
+
+    return "link-probe:$Url"
 }
 
 function Get-CompactDiffSnippet {
@@ -10380,13 +10647,13 @@ function Test-ProfileState {
             requestCount = [int]$script:MetadataFetchRequestCount
             attemptCount = [int]$script:MetadataFetchAttemptCount
             retryCount = [Math]::Max(0, ([int]$script:MetadataFetchAttemptCount - 1))
-            fallbackUsed = [bool]($script:RepositoryMetadataProvider -eq "rest-fallback")
+            fallbackUsed = [bool]($script:RepositoryMetadataProvider -eq "rest-fallback" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
             fallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchFallbackReason)) { $null } else { [string]$script:MetadataFetchFallbackReason }
             resourceLimitFallback = [bool]$script:MetadataFetchResourceLimitFallback
             resourceLimitFallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchResourceLimitReason)) { $null } else { [string]$script:MetadataFetchResourceLimitReason }
             repoCount = [int]$Repos.Count
             truncated = [bool]$script:RepositoryEnumerationTruncated
-            fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback")
+            fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
         }
         linkValidation = [ordered]@{
             skipped = [bool]($Offline -or $SkipLinkValidation)
@@ -10399,6 +10666,7 @@ function Test-ProfileState {
             headerWarningHostCount = @($linkValidationSummary.headerHostWarnings).Count
         }
         restFallbackReleaseFetch = Get-RestFallbackReleaseFetchState
+        cache = Get-ValidationCacheState
     }
     $report = [ordered]@{
         schema = $ReportSchemaUrl

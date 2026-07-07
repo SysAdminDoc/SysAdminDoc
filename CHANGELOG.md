@@ -2,6 +2,8 @@
 
 ## 2026-07-07
 
+- Added bounded validation caching for live GitHub metadata, latest-release metadata, and README link probes; `-Check` now reports cache counters, TTL, and fallback use for offline/API-limit runs.
+- Bumped the internal profile evidence version to `v4.9.154`.
 - Added generated artifact drift diagnostics to profile sync reports and summaries: failed README/feed checks now include normalized SHA-256s, first differing line/section context, affected SVG assets, and the regeneration command.
 - Cleared the remaining release/license drift warnings by aligning the Images catalog row to its ZIP release asset and documenting the qBittorrent-Vanced multi-license exception from its repository license files.
 - Compressed the generated public projects feed while preserving the existing schema, dropping `projects.json` under the 512 KB budget and adding a regression check for the real catalog output.

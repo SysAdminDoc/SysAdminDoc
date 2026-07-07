@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T17:40:21.1916233-04:00",
+  "generatedAt": "2026-07-07T18:00:31.4614720-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -16,8 +16,8 @@
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "777e1df8041c825295dd70bf4db64a306def988687781f804559391fbf04c00e",
-      "expectedSha256": "062754fbb2311ca9d6a218737affda974d7491a39626f05cedda11517daf34c9",
+      "currentSha256": "3c916b26d59c61b32a0cd1fe54bfdd70be5e7b141fb9115eb3677e33351fa29e",
+      "expectedSha256": "00cd07b84d7a6d6749dddec0276cea8d4abd89ab622b293d91d42048b3a0eae4",
       "firstDiff": null
     },
     "assets": {
@@ -28,15 +28,15 @@
           "path": "assets/profile/contributions-dark.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "8e9a3fb14e9934f71b6ad0004380906642dbc474896e9f298b3717f641fdb743",
-          "expectedSha256": "043dc21f662622986098647b9faad6e02e007a9db5cabb241a8721646a24f2fb"
+          "currentSha256": "624b2a4aed88ae7e99f90483004b41c120276a9bbd5997a4178770ac411a6d5f",
+          "expectedSha256": "2f709f89c937ba4743dc2a94003500e3932e3a581b29b169abddaca419ae17d4"
         },
         {
           "path": "assets/profile/contributions-light.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "4ccf2f0404e77e34bbaaee17579b45b2bd34d8d3f3cc48568ca6a21cb8ef15e5",
-          "expectedSha256": "7718683c47a6e3892facaeba8f90095218f9a3761a588e09d689bf90097b67a9"
+          "currentSha256": "792c338bd799f2a9e3e454898bc30f905c34d1b51b0acdfe1dd1e84d7fc39570",
+          "expectedSha256": "4f109d27871dd401e52342f8523aa9c532b1f70b9a21392f7878e543a6612f43"
         }
       ]
     }
@@ -110,11 +110,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "ed371adc0faf7c7b323d3c7a90e8efca256eb488",
+    "sourceCommit": "84664afd1d20d9071fd3872543d18c6d40702dc9",
     "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
-    "generatorSha256": "f3f31d13ba4e222460a73453f915a122d14545a7033e77184bc6b831d312963a",
+    "generatorSha256": "9033a178b99b0783b0abcad3c8a2b96bc0abad7ba15f9c3c984cecf89d09b4e0",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T17:38:27.6388839-04:00",
+    "metadataSnapshotAt": "2026-07-07T17:58:52.2707030-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1694,7 +1694,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-07T17:38:27.6388839-04:00",
+          "queriedAt": "2026-07-07T17:58:52.2707030-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1999,13 +1999,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.153",
+    "expectedVersion": "v4.9.154",
     "expectedDate": "2026-07-07",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.153"
+        "value": "v4.9.154"
       }
     ],
     "dates": [
@@ -2025,23 +2025,36 @@
     "warnings": []
   },
   "profileReleaseConsistency": {
-    "passed": true,
+    "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.153",
+    "expectedVersion": "v4.9.154",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
     "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
-    "versionRelation": "matching",
-    "latestReleaseMatchesExpected": true,
-    "latestReleaseAtLeastExpected": true,
-    "expectedTag": "v4.9.153",
+    "versionRelation": "behind",
+    "latestReleaseMatchesExpected": false,
+    "latestReleaseAtLeastExpected": false,
+    "expectedTag": "v4.9.154",
     "expectedTagRefChecked": true,
-    "expectedTagExists": true,
-    "expectedTagUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
-    "expectedTagSha": "cb3bcb0c7c02f1e798883d19faa06a114ca869a5",
+    "expectedTagExists": false,
+    "expectedTagUrl": null,
+    "expectedTagSha": null,
     "expectedTagUnavailableReason": null,
-    "warningCount": 0,
-    "warnings": [],
+    "warningCount": 2,
+    "warnings": [
+      {
+        "kind": "latest-release-behind",
+        "expectedVersion": "v4.9.154",
+        "actualVersion": "v4.9.153",
+        "message": "Latest profile release is older than the planning-doc version."
+      },
+      {
+        "kind": "expected-version-tag-missing",
+        "expectedVersion": "v4.9.154",
+        "actualVersion": null,
+        "message": "Expected profile tag is not published on GitHub."
+      }
+    ],
     "releasePolicy": {
       "status": "documented-internal-version-gap",
       "decisionDocumentPath": "decision:profile-release-tag-policy",
@@ -2106,7 +2119,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 5367,
+      "elapsedMs": 200,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2126,6 +2139,38 @@
       "abortRepo": null,
       "abortHttpStatus": null,
       "abortMessage": null
+    },
+    "cache": {
+      "enabled": true,
+      "path": ".cache/profile-sync",
+      "ttlHours": 24,
+      "metadata": {
+        "hitCount": 0,
+        "missCount": 0,
+        "staleCount": 0,
+        "writeCount": 1,
+        "fallbackHitCount": 0,
+        "usedForFallback": false,
+        "lastFallbackReason": null
+      },
+      "releases": {
+        "hitCount": 1,
+        "missCount": 0,
+        "staleCount": 0,
+        "writeCount": 152,
+        "fallbackHitCount": 1,
+        "usedForFallback": true,
+        "lastFallbackReason": "{\r\n  \"message\": \"Bad credentials\",\r\n  \"documentation_url\": \"https://docs.github.com/rest\",\r\n  \"status\": \"401\"\r\ngh: Bad credentials (HTTP 401)\r\n}"
+      },
+      "links": {
+        "hitCount": 342,
+        "missCount": 0,
+        "staleCount": 0,
+        "writeCount": 0,
+        "fallbackHitCount": 0,
+        "usedForFallback": false,
+        "lastFallbackReason": null
+      }
     }
   },
   "missingPublicRepos": [],
@@ -2139,27 +2184,18 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T17:36:47.6689459-04:00",
-      "newValue": "2026-07-07T17:38:27.6388839-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "LibreSpot",
-      "category": "powershell",
-      "field": "pushedAt",
-      "oldValue": "2026-07-07T21:34:00Z",
-      "newValue": "2026-07-07T21:36:58Z",
+      "oldValue": "2026-07-07T17:57:19.5262258-04:00",
+      "newValue": "2026-07-07T17:58:52.270703-04:00",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 2,
+    "informationalCount": 1,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 36.06,
+      "ageDays": 36.07,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2169,7 +2205,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 5367,
+    "elapsedMs": 200,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2538,7 +2574,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 101258,
+        "value": 102333,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2585,9 +2621,9 @@
   "evidenceFreshness": {
     "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-07T17:33:47.0819898-04:00",
-    "latestReportAffectingCommitSha": "ed371adc0faf7c7b323d3c7a90e8efca256eb488",
-    "latestReportAffectingCommitDate": "2026-07-07T17:25:39.0000000-04:00",
+    "committedReportGeneratedAt": "2026-07-07T17:54:18.9015715-04:00",
+    "latestReportAffectingCommitSha": "84664afd1d20d9071fd3872543d18c6d40702dc9",
+    "latestReportAffectingCommitDate": "2026-07-07T17:42:31.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,
