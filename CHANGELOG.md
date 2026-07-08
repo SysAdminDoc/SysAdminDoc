@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-07-08
+
+- Fixed GitHub-rendered profile chrome by replacing sanitized theme `<picture>` blocks with GitHub-visible dark/light image fragments for the generated profile header and footer.
+- Added rendered profile smoke evidence for desktop/mobile dark/light screenshots, first-viewport header and Start Here routing, document-level Tool Catalog/footer presence, blank/cropped/overlap checks, and summary/schema fields.
+- Bumped the internal profile evidence version to `v4.9.155`.
+
 ## 2026-07-07
 
 - Added bounded validation caching for live GitHub metadata, latest-release metadata, and README link probes; `-Check` now reports cache counters, TTL, and fallback use for offline/API-limit runs.

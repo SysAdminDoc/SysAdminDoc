@@ -5345,6 +5345,15 @@
         "failedImageCount",
         "missingSectionCount",
         "overflowCount",
+        "screenshotCount",
+        "screenshotPaths",
+        "firstViewportHeaderCount",
+        "firstViewportStartHereCount",
+        "toolCatalogPresenceCount",
+        "footerPresenceCount",
+        "blankViewportCount",
+        "croppedElementCount",
+        "overlapWarningCount",
         "minimumRootClientWidth",
         "mobileRootClientWidth",
         "skipReason",
@@ -5392,6 +5401,36 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "overflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "screenshotCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "screenshotPaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "firstViewportHeaderCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "firstViewportStartHereCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "toolCatalogPresenceCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "footerPresenceCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "blankViewportCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "croppedElementCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "overlapWarningCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "minimumRootClientWidth": {

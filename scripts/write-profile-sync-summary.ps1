@@ -373,6 +373,14 @@ $renderedSmokeStatus = if ($renderedProfileSmoke) { [string]$renderedProfileSmok
 $renderedSmokeWarningCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.warningCount } else { 0 }
 $renderedSmokeViewportCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.viewportCount } else { 0 }
 $renderedSmokeMobileRootClientWidth = if ($renderedProfileSmoke -and $null -ne $renderedProfileSmoke.mobileRootClientWidth) { [int]$renderedProfileSmoke.mobileRootClientWidth } else { 0 }
+$renderedSmokeScreenshotCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'screenshotCount') { [int]$renderedProfileSmoke.screenshotCount } else { 0 }
+$renderedSmokeFirstViewportHeaderCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'firstViewportHeaderCount') { [int]$renderedProfileSmoke.firstViewportHeaderCount } else { 0 }
+$renderedSmokeFirstViewportStartHereCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'firstViewportStartHereCount') { [int]$renderedProfileSmoke.firstViewportStartHereCount } else { 0 }
+$renderedSmokeToolCatalogPresenceCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'toolCatalogPresenceCount') { [int]$renderedProfileSmoke.toolCatalogPresenceCount } else { 0 }
+$renderedSmokeFooterPresenceCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'footerPresenceCount') { [int]$renderedProfileSmoke.footerPresenceCount } else { 0 }
+$renderedSmokeBlankViewportCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'blankViewportCount') { [int]$renderedProfileSmoke.blankViewportCount } else { 0 }
+$renderedSmokeCroppedElementCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'croppedElementCount') { [int]$renderedProfileSmoke.croppedElementCount } else { 0 }
+$renderedSmokeOverlapWarningCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'overlapWarningCount') { [int]$renderedProfileSmoke.overlapWarningCount } else { 0 }
 $metadataProvider = if ($metadataFetch) { [string](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "provider" -Default "unknown") } else { "unknown" }
 $metadataGraphQlPageSize = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "graphQlPageSize" -Default 0) } else { 0 }
 $metadataRequestCount = if ($metadataFetch) { [int](Get-ObjectPropertyOrDefault -Object $metadataFetch -Name "requestCount" -Default 0) } else { 0 }
@@ -472,6 +480,14 @@ $summary = @"
 | Rendered smoke warnings | $renderedSmokeWarningCount |
 | Rendered smoke viewports | $renderedSmokeViewportCount |
 | Rendered smoke mobile root px | $renderedSmokeMobileRootClientWidth |
+| Rendered smoke screenshots | $renderedSmokeScreenshotCount |
+| Rendered smoke first-viewport header count | $renderedSmokeFirstViewportHeaderCount |
+| Rendered smoke first-viewport Start Here count | $renderedSmokeFirstViewportStartHereCount |
+| Rendered smoke Tool Catalog count | $renderedSmokeToolCatalogPresenceCount |
+| Rendered smoke footer count | $renderedSmokeFooterPresenceCount |
+| Rendered smoke blank viewports | $renderedSmokeBlankViewportCount |
+| Rendered smoke cropped elements | $renderedSmokeCroppedElementCount |
+| Rendered smoke overlap warnings | $renderedSmokeOverlapWarningCount |
 | Evidence freshness | $evidenceFreshnessStatus |
 | Evidence freshness warnings | $evidenceFreshnessWarningCount |
 | Committed report generated at | $evidenceReportGeneratedAt |

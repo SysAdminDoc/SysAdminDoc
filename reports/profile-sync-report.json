@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-07T18:00:31.4614720-04:00",
+  "generatedAt": "2026-07-08T00:02:04.7301189-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -9,36 +9,21 @@
     "readme": {
       "artifact": "README.md",
       "inSync": true,
-      "currentSha256": "de2eb9851b328e03cc7d0aa3bee2e53e7bf22200c1eec2b8e7062b7601715bba",
-      "expectedSha256": "de2eb9851b328e03cc7d0aa3bee2e53e7bf22200c1eec2b8e7062b7601715bba",
+      "currentSha256": "f22ba0727f61136ded8741eb386d91c82633697df9d28ad1e17d623bb97bf946",
+      "expectedSha256": "f22ba0727f61136ded8741eb386d91c82633697df9d28ad1e17d623bb97bf946",
       "firstDiff": null
     },
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "3c916b26d59c61b32a0cd1fe54bfdd70be5e7b141fb9115eb3677e33351fa29e",
-      "expectedSha256": "00cd07b84d7a6d6749dddec0276cea8d4abd89ab622b293d91d42048b3a0eae4",
+      "currentSha256": "82c25189aae1b7ed9dabcca8615fd45dfbbcef4c449d4c5c0f8f0ef4ea75d3bd",
+      "expectedSha256": "95895156830c5ba0cedaf4db1b8b1a4ca3a35b9d2bf7cae0757936d89436d61b",
       "firstDiff": null
     },
     "assets": {
       "inSync": true,
-      "affectedAssetCount": 2,
-      "affectedAssets": [
-        {
-          "path": "assets/profile/contributions-dark.svg",
-          "exists": true,
-          "fatal": false,
-          "currentSha256": "624b2a4aed88ae7e99f90483004b41c120276a9bbd5997a4178770ac411a6d5f",
-          "expectedSha256": "2f709f89c937ba4743dc2a94003500e3932e3a581b29b169abddaca419ae17d4"
-        },
-        {
-          "path": "assets/profile/contributions-light.svg",
-          "exists": true,
-          "fatal": false,
-          "currentSha256": "792c338bd799f2a9e3e454898bc30f905c34d1b51b0acdfe1dd1e84d7fc39570",
-          "expectedSha256": "4f109d27871dd401e52342f8523aa9c532b1f70b9a21392f7878e543a6612f43"
-        }
-      ]
+      "affectedAssetCount": 0,
+      "affectedAssets": []
     }
   },
   "profileAssetChecks": [
@@ -55,12 +40,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": false
+      "inSync": true
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -110,11 +95,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "84664afd1d20d9071fd3872543d18c6d40702dc9",
+    "sourceCommit": "31b1cf9f29e11903b9ec40a7e77cd44a9845658a",
     "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
-    "generatorSha256": "9033a178b99b0783b0abcad3c8a2b96bc0abad7ba15f9c3c984cecf89d09b4e0",
+    "generatorSha256": "be8c60d25b931b11c0ba0c2b83b8f79f7dc64b27713daba251951799ec6f0c5e",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-07T17:58:52.2707030-04:00",
+    "metadataSnapshotAt": "2026-07-08T00:00:22.5356433-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -527,7 +512,7 @@
     "releaseAssetKindCounts": [
       {
         "kind": "apk",
-        "count": 18
+        "count": 17
       },
       {
         "kind": "crx",
@@ -547,7 +532,7 @@
       },
       {
         "kind": "source-archive",
-        "count": 43
+        "count": 44
       },
       {
         "kind": "userscript",
@@ -582,8 +567,8 @@
       "unknownCount": 0
     },
     "platformDigestCoverage": {
-      "withDigestCount": 98,
-      "withoutDigestCount": 43
+      "withDigestCount": 97,
+      "withoutDigestCount": 44
     },
     "executableDownloadTrustShortlist": {
       "evidenceSource": "release-metadata-only",
@@ -781,14 +766,11 @@
         },
         {
           "priorityRank": 9,
-          "repo": "Astra-Deck",
-          "stars": 8,
-          "latestReleaseTag": "v4.46.4",
+          "repo": "DisableDefender",
+          "stars": 9,
+          "latestReleaseTag": "v0.0.4",
           "executableAssetKinds": [
-            "crx",
-            "exe",
-            "xpi",
-            "zip"
+            "script"
           ],
           "trustLevel": "metadata-only",
           "evidenceSource": "release-metadata-only",
@@ -805,11 +787,14 @@
         },
         {
           "priorityRank": 10,
-          "repo": "DisableDefender",
+          "repo": "Astra-Deck",
           "stars": 8,
-          "latestReleaseTag": "v0.0.4",
+          "latestReleaseTag": "v4.46.4",
           "executableAssetKinds": [
-            "script"
+            "crx",
+            "exe",
+            "xpi",
+            "zip"
           ],
           "trustLevel": "metadata-only",
           "evidenceSource": "release-metadata-only",
@@ -963,9 +948,9 @@
       },
       {
         "repo": "SwiftFloris",
-        "latestReleaseTag": "v1.9.55",
+        "latestReleaseTag": "v1.9.56",
         "releaseAssetKinds": [
-          "apk"
+          "source-archive"
         ]
       },
       {
@@ -1694,7 +1679,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-07T17:58:52.2707030-04:00",
+          "queriedAt": "2026-07-08T00:00:22.5356433-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1999,20 +1984,20 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.154",
-    "expectedDate": "2026-07-07",
+    "expectedVersion": "v4.9.155",
+    "expectedDate": "2026-07-08",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.154"
+        "value": "v4.9.155"
       }
     ],
     "dates": [
       {
         "path": "data/profile-version.json",
         "field": "date",
-        "value": "2026-07-07"
+        "value": "2026-07-08"
       }
     ],
     "changelogHeadingValidation": {
@@ -2027,14 +2012,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.154",
+    "expectedVersion": "v4.9.155",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
     "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.154",
+    "expectedTag": "v4.9.155",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2044,13 +2029,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.154",
+        "expectedVersion": "v4.9.155",
         "actualVersion": "v4.9.153",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.154",
+        "expectedVersion": "v4.9.155",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2119,7 +2104,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 200,
+      "elapsedMs": 234,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2154,13 +2139,13 @@
         "lastFallbackReason": null
       },
       "releases": {
-        "hitCount": 1,
+        "hitCount": 0,
         "missCount": 0,
         "staleCount": 0,
-        "writeCount": 152,
-        "fallbackHitCount": 1,
-        "usedForFallback": true,
-        "lastFallbackReason": "{\r\n  \"message\": \"Bad credentials\",\r\n  \"documentation_url\": \"https://docs.github.com/rest\",\r\n  \"status\": \"401\"\r\ngh: Bad credentials (HTTP 401)\r\n}"
+        "writeCount": 153,
+        "fallbackHitCount": 0,
+        "usedForFallback": false,
+        "lastFallbackReason": null
       },
       "links": {
         "hitCount": 342,
@@ -2184,18 +2169,123 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T17:57:19.5262258-04:00",
-      "newValue": "2026-07-07T17:58:52.270703-04:00",
+      "oldValue": "2026-07-07T23:58:54.3682826-04:00",
+      "newValue": "2026-07-08T00:00:22.5356433-04:00",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "LibreSpot",
+      "category": "powershell",
+      "field": "pushedAt",
+      "oldValue": "2026-07-08T03:55:51Z",
+      "newValue": "2026-07-08T03:59:53Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "ScriptVault",
+      "category": "extensions",
+      "field": "pushedAt",
+      "oldValue": "2026-07-08T03:48:11Z",
+      "newValue": "2026-07-08T03:59:49Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "SwiftFloris",
+      "category": "android",
+      "field": "releaseAssetKinds",
+      "oldValue": [
+        "apk",
+        "other"
+      ],
+      "newValue": "source-archive",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "SwiftFloris",
+      "category": "android",
+      "field": "releaseAssetNames",
+      "oldValue": [
+        "app-release.apk",
+        "SHA256SUMS"
+      ],
+      "newValue": null,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "SwiftFloris",
+      "category": "android",
+      "field": "releaseTrust",
+      "oldValue": {
+        "checksumAssets": [
+          "SHA256SUMS"
+        ],
+        "checksumCoverage": "partial",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 2,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "newValue": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": true,
+        "executableAssetKinds": [],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 0,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "SwiftFloris",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-07-06T03:50:44Z",
+      "newValue": "2026-07-08T03:59:44Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "sysadmindoc.github.io",
+      "category": "guides",
+      "field": "pushedAt",
+      "oldValue": "2026-07-08T03:55:04Z",
+      "newValue": "2026-07-08T03:59:26Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 1,
+    "informationalCount": 8,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 36.07,
+      "ageDays": 36.32,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2205,7 +2295,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 200,
+    "elapsedMs": 234,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2216,7 +2306,7 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 73274,
+    "byteCount": 73186,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2511,7 +2601,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 73274,
+        "value": 73186,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2547,7 +2637,7 @@
       {
         "artifact": "README.md",
         "metric": "imageTags",
-        "value": 2,
+        "value": 4,
         "softLimit": 10,
         "overSoftLimit": false,
         "warning": null,
@@ -2565,7 +2655,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 359592,
+        "value": 359637,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -2574,7 +2664,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 102333,
+        "value": 105569,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2583,7 +2673,7 @@
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 105828,
+        "value": 105972,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -2601,34 +2691,53 @@
     ]
   },
   "renderedProfileSmoke": {
-    "status": "passed",
+    "status": "warning",
     "source": "local-artifact",
     "sourcePath": "reports/rendered-profile-smoke.json",
-    "generatedAt": "2026-07-07T16:06:27.5573266-04:00",
+    "generatedAt": "2026-07-07T23:50:41.2306057-04:00",
     "url": "https://github.com/SysAdminDoc",
-    "viewportCount": 2,
-    "passedViewportCount": 2,
-    "failedViewportCount": 0,
+    "viewportCount": 4,
+    "passedViewportCount": 0,
+    "failedViewportCount": 4,
     "failedImageCount": 0,
     "missingSectionCount": 0,
     "overflowCount": 0,
+    "screenshotCount": 4,
+    "screenshotPaths": [
+      "reports/rendered-profile-smoke-desktop-dark.png",
+      "reports/rendered-profile-smoke-desktop-light.png",
+      "reports/rendered-profile-smoke-mobile-dark.png",
+      "reports/rendered-profile-smoke-mobile-light.png"
+    ],
+    "firstViewportHeaderCount": 0,
+    "firstViewportStartHereCount": 0,
+    "toolCatalogPresenceCount": 4,
+    "footerPresenceCount": 0,
+    "blankViewportCount": 0,
+    "croppedElementCount": 0,
+    "overlapWarningCount": 0,
     "minimumRootClientWidth": 308,
     "mobileRootClientWidth": 308,
     "skipReason": null,
-    "warningCount": 0,
-    "warnings": []
+    "warningCount": 4,
+    "warnings": [
+      "Rendered profile smoke has 4 failed viewport(s).",
+      "Rendered profile smoke did not find the profile header region in any first viewport.",
+      "Rendered profile smoke did not find Start Here routing in any first viewport.",
+      "Rendered profile smoke did not find the profile footer in the rendered document."
+    ]
   },
   "evidenceFreshness": {
     "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-07T17:54:18.9015715-04:00",
-    "latestReportAffectingCommitSha": "84664afd1d20d9071fd3872543d18c6d40702dc9",
-    "latestReportAffectingCommitDate": "2026-07-07T17:42:31.0000000-04:00",
+    "committedReportGeneratedAt": "2026-07-07T23:58:14.2230586-04:00",
+    "latestReportAffectingCommitSha": "31b1cf9f29e11903b9ec40a7e77cd44a9845658a",
+    "latestReportAffectingCommitDate": "2026-07-07T18:03:15.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,
     "sameCommitThresholdMinutes": 10,
-    "smokeStatus": "passed",
+    "smokeStatus": "warning",
     "smokeEvidenceStale": false,
     "reportAffectingPaths": [
       "scripts/sync-profile.ps1",
@@ -3029,7 +3138,7 @@
     "minimalProfileHeader": false,
     "richProfileHeader": true,
     "genericImageAltTextCount": 0,
-    "imageTagCount": 2,
+    "imageTagCount": 4,
     "imageAltTextIssueCount": 0,
     "imageAltTextComplete": true,
     "thirdPartyMetricHostCount": 0,

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/profile/header-dark.svg#gh-dark-mode-only" alt="SysAdminDoc public tools command center profile header" width="100%" /><img src="assets/profile/header-light.svg#gh-light-mode-only" alt="SysAdminDoc public tools command center profile header" width="100%" />
+</p>
+
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
 <p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
@@ -120,7 +124,7 @@ $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}els
 $d="$env:TEMP\LibreSpot"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/LibreSpot $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\LibreSpot.ps1"
 ```
 
-[**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;8 -- Defender disabler/remover with CLI + premium WPF GUI; firewall preserved &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DisableDefender/releases/latest)
+[**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;9 -- Defender disabler/remover with CLI + premium WPF GUI; firewall preserved &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DisableDefender/releases/latest)
 ```powershell
 $d="$env:TEMP\DisableDefender"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/DisableDefender $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\DisableDefender.ps1"
 ```
@@ -647,3 +651,8 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 
 </details>
 
+<p align="center">
+  <img src="assets/profile/footer-dark.svg#gh-dark-mode-only" alt="SysAdminDoc generated profile footer" width="100%" /><img src="assets/profile/footer-light.svg#gh-light-mode-only" alt="SysAdminDoc generated profile footer" width="100%" />
+</p>
+
+<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>

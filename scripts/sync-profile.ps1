@@ -2612,7 +2612,7 @@ function New-ThemeAwareImage {
     )
 
     $suffix = if ([string]::IsNullOrWhiteSpace($Attributes)) { "" } else { " $Attributes" }
-    return "<picture><source media=`"(prefers-color-scheme: dark)`" srcset=`"$DarkUrl`"><source media=`"(prefers-color-scheme: light)`" srcset=`"$LightUrl`"><img src=`"$DarkUrl`" alt=`"$Alt`"$suffix /></picture>"
+    return "<img src=`"$DarkUrl#gh-dark-mode-only`" alt=`"$Alt`"$suffix /><img src=`"$LightUrl#gh-light-mode-only`" alt=`"$Alt`"$suffix />"
 }
 
 function ConvertTo-SvgText {
@@ -4435,11 +4435,10 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains("-CheckOnly") -and
         $ExpectedReadme.Contains("SysAdminDoc-setup.ps1") -and
         $ExpectedReadme.Contains("SysAdminDoc-setup-*.log")
-    $hasThemeAwareChrome = $ExpectedReadme.Contains("<picture>") -and
-        $ExpectedReadme.Contains('(prefers-color-scheme: dark)') -and
-        $ExpectedReadme.Contains('(prefers-color-scheme: light)') -and
-        $ExpectedReadme.Contains("assets/profile/header-light.svg") -and
-        $ExpectedReadme.Contains("assets/profile/footer-light.svg")
+    $hasThemeAwareChrome = $ExpectedReadme.Contains("#gh-dark-mode-only") -and
+        $ExpectedReadme.Contains("#gh-light-mode-only") -and
+        $ExpectedReadme.Contains("assets/profile/header-light.svg#gh-light-mode-only") -and
+        $ExpectedReadme.Contains("assets/profile/footer-light.svg#gh-light-mode-only")
     $thirdPartyMetricHostPattern = 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
     $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
     $thirdPartyBadgeHostPattern = 'img\.shields\.io/github/(?:followers|stars)'
@@ -5047,6 +5046,15 @@ function New-RenderedProfileSmokeSummary {
             failedImageCount = 0
             missingSectionCount = 0
             overflowCount = 0
+            screenshotCount = 0
+            screenshotPaths = @()
+            firstViewportHeaderCount = 0
+            firstViewportStartHereCount = 0
+            toolCatalogPresenceCount = 0
+            footerPresenceCount = 0
+            blankViewportCount = 0
+            croppedElementCount = 0
+            overlapWarningCount = 0
             minimumRootClientWidth = $null
             mobileRootClientWidth = $null
             skipReason = $reason
@@ -5063,20 +5071,64 @@ function New-RenderedProfileSmokeSummary {
     $failedImageCount = 0
     $missingSectionCount = 0
     $overflowCount = 0
+    $screenshotPaths = New-Object System.Collections.Generic.List[string]
+    $firstViewportHeaderCount = 0
+    $firstViewportStartHereCount = 0
+    $toolCatalogPresenceCount = 0
+    $footerPresenceCount = 0
+    $blankViewportCount = 0
+    $croppedElementCount = 0
+    $overlapWarningCount = 0
+    $visualEvidenceAvailable = $false
     $rootWidths = New-Object System.Collections.Generic.List[int]
     $mobileRootClientWidth = $null
     foreach ($viewport in $viewports) {
+        $viewportProperties = @($viewport.PSObject.Properties.Name)
+        $screenshotPath = Get-MemberValue -Object $viewport -Name "screenshotPath"
+        if ([string]::IsNullOrWhiteSpace([string]$screenshotPath)) {
+            $screenshotPath = Get-MemberValue -Object $viewport -Name "screenshot"
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$screenshotPath)) {
+            $screenshotPaths.Add((ConvertTo-RepoRelativeReportPath -Path ([string]$screenshotPath)))
+        }
+
         $failedImageCount += @(Get-MemberValue -Object $viewport -Name "failedImages").Count
         $missingSectionCount += @(Get-MemberValue -Object $viewport -Name "missingSections").Count
         if ([bool](Get-MemberValue -Object $viewport -Name "rootOverflow") -or [bool](Get-MemberValue -Object $viewport -Name "documentOverflow")) {
             $overflowCount++
         }
+        if ($viewportProperties -contains "componentPresence" -or $viewportProperties -contains "firstViewportComponentPresence" -or $viewportProperties -contains "blankPage" -or $viewportProperties -contains "croppedElementCount" -or $viewportProperties -contains "overlapWarningCount") {
+            $visualEvidenceAvailable = $true
+        }
+
+        $firstViewportComponentPresence = Get-MemberValue -Object $viewport -Name "firstViewportComponentPresence"
+        if ($null -ne $firstViewportComponentPresence) {
+            $firstViewportHeaderCount += [int](Get-MemberValue -Object $firstViewportComponentPresence -Name "header")
+            $firstViewportStartHereCount += [int](Get-MemberValue -Object $firstViewportComponentPresence -Name "startHere")
+        }
+
+        $componentPresence = Get-MemberValue -Object $viewport -Name "componentPresence"
+        if ($null -ne $componentPresence) {
+            $toolCatalogPresenceCount += [int](Get-MemberValue -Object $componentPresence -Name "toolCatalog")
+            $footerPresenceCount += [int](Get-MemberValue -Object $componentPresence -Name "footer")
+        }
+
+        if (($viewportProperties -contains "blankPage") -and [bool](Get-MemberValue -Object $viewport -Name "blankPage")) {
+            $blankViewportCount++
+        }
+        if ($viewportProperties -contains "croppedElementCount") {
+            $croppedElementCount += [int](Get-MemberValue -Object $viewport -Name "croppedElementCount")
+        }
+        if ($viewportProperties -contains "overlapWarningCount") {
+            $overlapWarningCount += [int](Get-MemberValue -Object $viewport -Name "overlapWarningCount")
+        }
+
         $rootClientWidth = Get-MemberValue -Object $viewport -Name "rootClientWidth"
         if ($null -ne $rootClientWidth) {
             $widthValue = [int]$rootClientWidth
             $rootWidths.Add($widthValue)
             if ([string](Get-MemberValue -Object $viewport -Name "name") -eq "mobile") {
-                $mobileRootClientWidth = $widthValue
+                $mobileRootClientWidth = if ($null -eq $mobileRootClientWidth) { $widthValue } else { [Math]::Min([int]$mobileRootClientWidth, $widthValue) }
             }
         }
     }
@@ -5102,6 +5154,32 @@ function New-RenderedProfileSmokeSummary {
     if ($null -ne $mobileRootClientWidth -and $mobileRootClientWidth -lt $MinimumRootClientWidth) {
         $warnings.Add("Rendered profile mobile root width is $mobileRootClientWidth px, below the $MinimumRootClientWidth px budget.")
     }
+    if ($visualEvidenceAvailable) {
+        if ($screenshotPaths.Count -lt $viewports.Count) {
+            $warnings.Add("Rendered profile smoke captured $($screenshotPaths.Count) screenshot path(s) for $($viewports.Count) viewport(s).")
+        }
+        if ($firstViewportHeaderCount -eq 0) {
+            $warnings.Add("Rendered profile smoke did not find the profile header region in any first viewport.")
+        }
+        if ($firstViewportStartHereCount -eq 0) {
+            $warnings.Add("Rendered profile smoke did not find Start Here routing in any first viewport.")
+        }
+        if ($toolCatalogPresenceCount -eq 0) {
+            $warnings.Add("Rendered profile smoke did not find the Tool Catalog in the rendered document.")
+        }
+        if ($footerPresenceCount -eq 0) {
+            $warnings.Add("Rendered profile smoke did not find the profile footer in the rendered document.")
+        }
+        if ($blankViewportCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $blankViewportCount blank viewport(s).")
+        }
+        if ($croppedElementCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $croppedElementCount horizontally cropped element(s).")
+        }
+        if ($overlapWarningCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $overlapWarningCount first-viewport overlap warning(s).")
+        }
+    }
     if ($skipped) {
         $reason = if ([string]::IsNullOrWhiteSpace($skipReason)) { "reason unavailable" } else { $skipReason }
         $warnings.Add("Rendered profile smoke did not run locally: $reason")
@@ -5119,6 +5197,15 @@ function New-RenderedProfileSmokeSummary {
         failedImageCount = [int]$failedImageCount
         missingSectionCount = [int]$missingSectionCount
         overflowCount = [int]$overflowCount
+        screenshotCount = [int]$screenshotPaths.Count
+        screenshotPaths = @($screenshotPaths.ToArray())
+        firstViewportHeaderCount = [int]$firstViewportHeaderCount
+        firstViewportStartHereCount = [int]$firstViewportStartHereCount
+        toolCatalogPresenceCount = [int]$toolCatalogPresenceCount
+        footerPresenceCount = [int]$footerPresenceCount
+        blankViewportCount = [int]$blankViewportCount
+        croppedElementCount = [int]$croppedElementCount
+        overlapWarningCount = [int]$overlapWarningCount
         minimumRootClientWidth = $minimumRootClientWidthValue
         mobileRootClientWidth = $mobileRootClientWidth
         skipReason = if ([string]::IsNullOrWhiteSpace($skipReason)) { $null } else { $skipReason }

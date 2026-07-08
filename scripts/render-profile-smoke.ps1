@@ -143,6 +143,8 @@ function Invoke-RenderedSmoke {
         [ref]$CommandId,
         [string]$Url,
         [string]$Name,
+        [ValidateSet("dark", "light")]
+        [string]$Theme,
         [int]$Width,
         [int]$Height,
         [string]$ScreenshotPath
@@ -158,6 +160,15 @@ function Invoke-RenderedSmoke {
         height = $Height
         deviceScaleFactor = 1
         mobile = ($Width -lt 600)
+    } | Out-Null
+    $CommandId.Value++
+    Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Emulation.setEmulatedMedia" -Params @{
+        features = @(
+            @{
+                name = "prefers-color-scheme"
+                value = $Theme
+            }
+        )
     } | Out-Null
     $CommandId.Value++
     Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Page.navigate" -Params @{ url = $Url } | Out-Null
@@ -185,9 +196,86 @@ function Invoke-RenderedSmoke {
   const sectionResults = Object.fromEntries(sections.map((name) => [name, text.includes(name)]));
   const rootOverflow = root.scrollWidth > root.clientWidth + 2;
   const documentOverflow = document.documentElement.scrollWidth > window.innerWidth + 2;
+  const viewportBottom = window.innerHeight;
+  const isVisible = (element) => {
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      rect.width > 1 &&
+      rect.height > 1 &&
+      rect.bottom > 0 &&
+      rect.top < viewportBottom;
+  };
+  const textMatch = (selector, value) => Array.from(root.querySelectorAll(selector)).filter((element) => (element.textContent || "").trim() === value);
+  const textIncludesAll = (element, values) => {
+    const elementText = element ? (element.textContent || "") : "";
+    return values.every((value) => elementText.includes(value));
+  };
+  const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i]'));
+  const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Broadcast IT", "practical public tools"]));
+  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["View full portfolio", "Start Here", "Local validation"]));
+  const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
+  const startHereNodes = textMatch("h1,h2,h3", "Start Here");
+  const toolCatalogNodes = textMatch("h1,h2,h3", "Tool Catalog");
+  const footerNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
+  const countVisible = (nodes) => nodes.filter(isVisible).length;
+  const firstViewportComponentPresence = {
+    header: countVisible(headerNodes),
+    navigation: countVisible(navigationNodes),
+    startHere: countVisible(startHereNodes),
+    toolCatalog: countVisible(toolCatalogNodes),
+    footer: countVisible(footerNodes)
+  };
+  const componentPresence = {
+    header: headerNodes.length,
+    headerAsset: headerAssetNodes.length,
+    hero: heroTextNodes.length,
+    navigation: navigationNodes.length,
+    startHere: startHereNodes.length,
+    toolCatalog: toolCatalogNodes.length,
+    footer: footerNodes.length
+  };
+  const blankPage = text.trim().length < 80 || root.getBoundingClientRect().height < 100;
+  const importantNodes = Array.from(root.querySelectorAll("h1,h2,h3,p,table,details,img,picture")).filter(isVisible);
+  const croppedElements = importantNodes.filter((element) => {
+    const rect = element.getBoundingClientRect();
+    return rect.left < -2 || rect.right > window.innerWidth + 2;
+  });
+  const topLevelVisible = Array.from(root.children).filter(isVisible).map((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      tag: element.tagName.toLowerCase(),
+      text: (element.textContent || "").trim().slice(0, 80),
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      width: rect.width,
+      height: rect.height
+    };
+  });
+  let overlapWarningCount = 0;
+  const overlapSamples = [];
+  for (let i = 0; i < topLevelVisible.length; i++) {
+    for (let j = i + 1; j < topLevelVisible.length; j++) {
+      const a = topLevelVisible[i];
+      const b = topLevelVisible[j];
+      const overlapWidth = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+      const overlapHeight = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+      const overlapArea = overlapWidth * overlapHeight;
+      const smallerArea = Math.min(a.width * a.height, b.width * b.height);
+      if (smallerArea > 0 && overlapArea > Math.max(24, smallerArea * 0.2)) {
+        overlapWarningCount++;
+        if (overlapSamples.length < 5) overlapSamples.push(`${a.tag}:${a.text} <-> ${b.tag}:${b.text}`);
+      }
+    }
+  }
   const images = Array.from(root.querySelectorAll("img")).map((img) => ({
     src: img.currentSrc || img.src,
     alt: img.alt || "",
+    visible: isVisible(img),
     complete: img.complete,
     naturalWidth: img.naturalWidth || 0
   }));
@@ -202,7 +290,17 @@ function Invoke-RenderedSmoke {
     documentOverflow,
     portfolioLinkText: text.includes("View full portfolio") || text.includes("View my full portfolio"),
     sections: sectionResults,
-    failedImages: images.filter((img) => !img.complete || img.naturalWidth === 0).slice(0, 10)
+    componentPresence,
+    firstViewportComponentPresence,
+    blankPage,
+    croppedElementCount: croppedElements.length,
+    croppedElementSamples: croppedElements.slice(0, 5).map((element) => ({
+      tag: element.tagName.toLowerCase(),
+      text: (element.textContent || element.alt || "").trim().slice(0, 80)
+    })),
+    overlapWarningCount,
+    overlapSamples,
+    failedImages: images.filter((img) => img.visible && (!img.complete || img.naturalWidth === 0)).slice(0, 10)
   };
 })()
 '@
@@ -223,22 +321,41 @@ function Invoke-RenderedSmoke {
 
     $missingSections = @($result.sections.PSObject.Properties | Where-Object { -not [bool]$_.Value } | ForEach-Object { $_.Name })
     $failedImages = @($result.failedImages)
+    $componentPresence = $result.componentPresence
+    $firstViewportComponentPresence = $result.firstViewportComponentPresence
     $passed = ($missingSections.Count -eq 0) -and
         [bool]$result.portfolioLinkText -and
         (-not [bool]$result.rootOverflow) -and
         (-not [bool]$result.documentOverflow) -and
-        ($failedImages.Count -eq 0)
+        ($failedImages.Count -eq 0) -and
+        (-not [bool]$result.blankPage) -and
+        ([int]$result.croppedElementCount -eq 0) -and
+        ([int]$result.overlapWarningCount -eq 0) -and
+        ([int]$firstViewportComponentPresence.header -gt 0) -and
+        ([int]$firstViewportComponentPresence.navigation -gt 0) -and
+        ([int]$firstViewportComponentPresence.startHere -gt 0) -and
+        ([int]$componentPresence.toolCatalog -gt 0) -and
+        ([int]$componentPresence.footer -gt 0)
 
     return [ordered]@{
         name = $Name
+        theme = $Theme
         width = $Width
         height = $Height
         passed = $passed
         screenshot = $ScreenshotPath
+        screenshotPath = $ScreenshotPath
         title = $result.title
         finalUrl = $result.url
         portfolioLinkText = [bool]$result.portfolioLinkText
         missingSections = $missingSections
+        componentPresence = $componentPresence
+        firstViewportComponentPresence = $firstViewportComponentPresence
+        blankPage = [bool]$result.blankPage
+        croppedElementCount = [int]$result.croppedElementCount
+        croppedElementSamples = @($result.croppedElementSamples)
+        overlapWarningCount = [int]$result.overlapWarningCount
+        overlapSamples = @($result.overlapSamples)
         rootOverflow = [bool]$result.rootOverflow
         documentOverflow = [bool]$result.documentOverflow
         rootClientWidth = [int]$result.rootClientWidth
@@ -382,15 +499,19 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
                 [ordered]@{ Name = "desktop"; Width = 1280; Height = 900 },
                 [ordered]@{ Name = "mobile"; Width = 390; Height = 900 }
             )
+            $themes = @("dark", "light")
             $results = foreach ($viewport in $viewports) {
-                Invoke-RenderedSmoke `
-                    -Socket $socket `
-                    -CommandId ([ref]$commandId) `
-                    -Url $Url `
-                    -Name $viewport.Name `
-                    -Width $viewport.Width `
-                    -Height $viewport.Height `
-                    -ScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name).png")
+                foreach ($theme in $themes) {
+                    Invoke-RenderedSmoke `
+                        -Socket $socket `
+                        -CommandId ([ref]$commandId) `
+                        -Url $Url `
+                        -Name $viewport.Name `
+                        -Theme $theme `
+                        -Width $viewport.Width `
+                        -Height $viewport.Height `
+                        -ScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name)-$theme.png")
+                }
             }
         } finally {
             $socket.Dispose()

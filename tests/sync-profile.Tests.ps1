@@ -2056,9 +2056,11 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
     It 'renders the local profile command-center chrome without third-party render hosts' {
-        $script:rendered.TrimStart() | Should -Match '^<p align="center">\s*<picture>'
-        $script:rendered | Should -Match 'assets/profile/header-(dark|light)\.svg'
+        $script:rendered.TrimStart() | Should -Match '^<p align="center">\s*<img src="assets/profile/header-dark\.svg#gh-dark-mode-only"'
+        $script:rendered | Should -Match 'assets/profile/header-(dark|light)\.svg#gh-(dark|light)-mode-only'
         $script:rendered | Should -Match 'SysAdminDoc public tools command center profile header'
+        $script:rendered | Should -Match '#gh-dark-mode-only'
+        $script:rendered | Should -Match '#gh-light-mode-only'
         $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View full portfolio'
         $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
         $script:rendered | Should -Match '<a href="#powershell-system-utilities">&#9889; PowerShell</a>'
@@ -2253,6 +2255,61 @@ Write-Host ok
         $summary.mobileRootClientWidth | Should -Be 308
         $summary.warningCount | Should -Be 0
     }
+
+    It 'summarizes screenshot paths and first-viewport component evidence' {
+        $viewports = foreach ($viewportName in @('desktop', 'mobile')) {
+            foreach ($theme in @('dark', 'light')) {
+                [pscustomobject]@{
+                    name = $viewportName
+                    theme = $theme
+                    passed = $true
+                    screenshotPath = "reports/rendered-profile-smoke-$viewportName-$theme.png"
+                    rootClientWidth = if ($viewportName -eq 'mobile') { 308 } else { 846 }
+                    rootOverflow = $false
+                    documentOverflow = $false
+                    failedImages = @()
+                    missingSections = @()
+                    componentPresence = [pscustomobject]@{
+                        header = 1
+                        toolCatalog = 1
+                        footer = 1
+                    }
+                    firstViewportComponentPresence = [pscustomobject]@{
+                        header = 1
+                        navigation = 1
+                        startHere = 1
+                        toolCatalog = 0
+                        footer = 0
+                    }
+                    blankPage = $false
+                    croppedElementCount = 0
+                    overlapWarningCount = 0
+                }
+            }
+        }
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $true
+            viewports = @($viewports)
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.status | Should -Be 'passed'
+        $summary.viewportCount | Should -Be 4
+        $summary.screenshotCount | Should -Be 4
+        $summary.screenshotPaths | Should -Contain 'reports/rendered-profile-smoke-desktop-dark.png'
+        $summary.firstViewportHeaderCount | Should -Be 4
+        $summary.firstViewportStartHereCount | Should -Be 4
+        $summary.toolCatalogPresenceCount | Should -Be 4
+        $summary.footerPresenceCount | Should -Be 4
+        $summary.blankViewportCount | Should -Be 0
+        $summary.croppedElementCount | Should -Be 0
+        $summary.overlapWarningCount | Should -Be 0
+        $summary.warningCount | Should -Be 0
+    }
+
     It 'warns on rendered smoke overflow and narrow mobile root width' {
         $smoke = [pscustomobject]@{
             generatedAt = '2026-06-06T00:00:00Z'
@@ -2267,6 +2324,21 @@ Write-Host ok
                     documentOverflow = $false
                     failedImages = @([pscustomobject]@{ src = 'missing.png' })
                     missingSections = @('Start Here')
+                    componentPresence = [pscustomobject]@{
+                        header = 0
+                        toolCatalog = 0
+                        footer = 0
+                    }
+                    firstViewportComponentPresence = [pscustomobject]@{
+                        header = 0
+                        navigation = 0
+                        startHere = 0
+                        toolCatalog = 0
+                        footer = 0
+                    }
+                    blankPage = $true
+                    croppedElementCount = 2
+                    overlapWarningCount = 3
                 }
             )
         }
@@ -2278,8 +2350,14 @@ Write-Host ok
         $summary.failedImageCount | Should -Be 1
         $summary.missingSectionCount | Should -Be 1
         $summary.overflowCount | Should -Be 1
+        $summary.blankViewportCount | Should -Be 1
+        $summary.croppedElementCount | Should -Be 2
+        $summary.overlapWarningCount | Should -Be 3
         $summary.warningCount | Should -BeGreaterThan 0
         ($summary.warnings -join ' ') | Should -Match 'below the 300 px budget'
+        ($summary.warnings -join ' ') | Should -Match 'blank viewport'
+        ($summary.warnings -join ' ') | Should -Match 'cropped element'
+        ($summary.warnings -join ' ') | Should -Match 'overlap warning'
     }
     It 'summarizes skipped rendered smoke artifacts with an explicit reason' {
         $smoke = [pscustomobject]@{
@@ -2999,6 +3077,35 @@ Describe 'Feed JSON Schema contracts' {
         $summaryScript | Should -Match 'PowerShell runtime posture'
     }
 
+    It 'requires rendered smoke visual evidence fields in the report schema and summary' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $required = @($schema.'$defs'.renderedProfileSmoke.required)
+
+        foreach ($field in @(
+                'screenshotCount',
+                'screenshotPaths',
+                'firstViewportHeaderCount',
+                'firstViewportStartHereCount',
+                'toolCatalogPresenceCount',
+                'footerPresenceCount',
+                'blankViewportCount',
+                'croppedElementCount',
+                'overlapWarningCount'
+            )) {
+            $required | Should -Contain $field
+        }
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Rendered smoke screenshots'
+        $summaryScript | Should -Match 'Rendered smoke first-viewport header count'
+        $summaryScript | Should -Match 'Rendered smoke first-viewport Start Here count'
+        $summaryScript | Should -Match 'Rendered smoke Tool Catalog count'
+        $summaryScript | Should -Match 'Rendered smoke footer count'
+        $summaryScript | Should -Match 'Rendered smoke blank viewports'
+        $summaryScript | Should -Match 'Rendered smoke cropped elements'
+        $summaryScript | Should -Match 'Rendered smoke overlap warnings'
+    }
+
     It 'validates the committed profile sync report contract' {
         $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
 
@@ -3549,7 +3656,11 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'Width = 1280'
         $script:RenderSmokeScript | Should -Match 'Width = 390'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-'
+        $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-\$\(\$viewport[.]Name\)-\$theme[.]png'
         $script:RenderSmokeScript | Should -Match 'viewport\.Name'
+        $script:RenderSmokeScript | Should -Match 'themes = @\("dark", "light"\)'
+        $script:RenderSmokeScript | Should -Match 'Emulation[.]setEmulatedMedia'
+        $script:RenderSmokeScript | Should -Match 'prefers-color-scheme'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke[.]json'
         $script:RenderSmokeScript | Should -Match 'renderedProfileSmoke'
         $script:RenderSmokeScript | Should -Match 'skipReason'
@@ -3561,12 +3672,20 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Not -Match 'Catalog Snapshot'
         $script:RenderSmokeScript | Should -Not -Match 'Featured Projects'
         $script:RenderSmokeScript | Should -Match 'First-time setup'
+        $script:RenderSmokeScript | Should -Match 'Tool Catalog'
         $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'
         $script:RenderSmokeScript | Should -Match 'Python Desktop Applications'
         $script:RenderSmokeScript | Should -Match 'Browser Extensions & Userscripts'
         $script:RenderSmokeScript | Should -Not -Match 'Python Applications'
         $script:RenderSmokeScript | Should -Match 'rootOverflow'
         $script:RenderSmokeScript | Should -Match 'failedImages'
+        $script:RenderSmokeScript | Should -Match 'componentPresence'
+        $script:RenderSmokeScript | Should -Match 'firstViewportComponentPresence'
+        $script:RenderSmokeScript | Should -Match 'navigation'
+        $script:RenderSmokeScript | Should -Match 'startHere'
+        $script:RenderSmokeScript | Should -Match 'blankPage'
+        $script:RenderSmokeScript | Should -Match 'croppedElementCount'
+        $script:RenderSmokeScript | Should -Match 'overlapWarningCount'
     }
 
     It 'uses CI-friendly Chrome launch flags and retries DevTools startup' {
