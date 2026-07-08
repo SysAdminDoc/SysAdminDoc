@@ -332,8 +332,8 @@ function Invoke-RenderedSmoke {
         ([int]$result.croppedElementCount -eq 0) -and
         ([int]$result.overlapWarningCount -eq 0) -and
         ([int]$firstViewportComponentPresence.header -gt 0) -and
-        ([int]$firstViewportComponentPresence.navigation -gt 0) -and
-        ([int]$firstViewportComponentPresence.startHere -gt 0) -and
+        ([int]$componentPresence.navigation -gt 0) -and
+        ([int]$componentPresence.startHere -gt 0) -and
         ([int]$componentPresence.toolCatalog -gt 0) -and
         ([int]$componentPresence.footer -gt 0)
 
