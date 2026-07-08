@@ -228,19 +228,28 @@ function Invoke-GhCli {
     .PARAMETER TimeoutSeconds
     Wall-clock timeout for real gh.exe invocations. Function/alias mocks use the direct
     PowerShell invocation path so Pester can replace gh without starting a child process.
+    .PARAMETER StandardInput
+    Optional text to send to gh stdin for commands such as `gh api --input -`.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [string[]]$Arguments,
 
+        [string]$StandardInput,
+
         [ValidateRange(1, 600)]
         [int]$TimeoutSeconds = 45
     )
 
     $command = Get-Command gh -ErrorAction Stop
+    $hasStandardInput = $PSBoundParameters.ContainsKey("StandardInput")
     if ($command.CommandType -ne [System.Management.Automation.CommandTypes]::Application) {
-        $output = & gh @Arguments 2>&1
+        $output = if ($hasStandardInput) {
+            $StandardInput | gh @Arguments 2>&1
+        } else {
+            & gh @Arguments 2>&1
+        }
         $exitCode = $LASTEXITCODE
         return [ordered]@{
             output = $output
@@ -253,6 +262,7 @@ function Invoke-GhCli {
     $startInfo.FileName = $command.Source
     $startInfo.RedirectStandardOutput = $true
     $startInfo.RedirectStandardError = $true
+    $startInfo.RedirectStandardInput = $hasStandardInput
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
     foreach ($argument in $Arguments) {
@@ -267,6 +277,10 @@ function Invoke-GhCli {
     $stderrText = ""
     try {
         [void]$process.Start()
+        if ($hasStandardInput) {
+            $process.StandardInput.Write($StandardInput)
+            $process.StandardInput.Close()
+        }
         $stdoutTask = $process.StandardOutput.ReadToEndAsync()
         $stderrTask = $process.StandardError.ReadToEndAsync()
         $completed = $process.WaitForExit($TimeoutSeconds * 1000)
@@ -11138,9 +11152,9 @@ if ($ApplyTopics) {
         }
         Write-Host "APPLY $repoName -> $($hints -join ', ')"
         $topicPayload = @{ names = $hints } | ConvertTo-Json -Compress
-        $topicOutput = $topicPayload | gh api "repos/$Owner/$repoName/topics" -X PUT --input - 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Failed to apply topics to $repoName (exit code $LASTEXITCODE): $topicOutput"
+        $topicGh = Invoke-GhCli -Arguments @("api", "repos/$Owner/$repoName/topics", "-X", "PUT", "--input", "-") -StandardInput $topicPayload
+        if ($topicGh.exitCode -ne 0) {
+            Write-Warning "Failed to apply topics to $repoName (exit code $($topicGh.exitCode)): $($topicGh.text)"
         } else {
             $applied++
         }

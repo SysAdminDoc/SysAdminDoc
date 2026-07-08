@@ -228,11 +228,38 @@ Describe 'Invoke-GhCli adapter seam' {
         }
     }
 
+    It 'passes stdin through the mockable adapter path for gh api write calls' {
+        function gh {
+            process {
+                $script:SeenGhInput = $_
+                $global:LASTEXITCODE = 0
+                return "stdin=$_ args=$($args -join ' ')"
+            }
+        }
+        try {
+            $payload = '{"names":["powershell"]}'
+            $result = Invoke-GhCli -Arguments @('api', 'repos/Owner/Repo/topics', '-X', 'PUT', '--input', '-') -StandardInput $payload
+
+            $script:SeenGhInput | Should -Be $payload
+            $result.exitCode | Should -Be 0
+            $result.text | Should -Match 'repos/Owner/Repo/topics'
+        } finally {
+            Remove-Variable -Name SeenGhInput -Scope Script -ErrorAction SilentlyContinue
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+        }
+    }
+
     It 'bounds real gh.exe invocations so live metadata probes cannot hang forever' {
         $script:SyncProfileScript | Should -Match 'TimeoutSeconds = 45'
+        $script:SyncProfileScript | Should -Match '\[string\]\$StandardInput'
         $script:SyncProfileScript | Should -Match 'WaitForExit\(\$TimeoutSeconds \* 1000\)'
         $script:SyncProfileScript | Should -Match 'gh timed out after \$TimeoutSeconds second\(s\)'
         $script:SyncProfileScript | Should -Match 'exitCode = 124'
+    }
+
+    It 'routes topic apply writes through the bounded gh adapter' {
+        $script:SyncProfileScript | Should -Match 'Invoke-GhCli -Arguments @\("api", "repos/\$Owner/\$repoName/topics", "-X", "PUT", "--input", "-"\) -StandardInput \$topicPayload'
+        $script:SyncProfileScript | Should -Not -Match '\$topicPayload \| gh api "repos/\$Owner/\$repoName/topics"'
     }
 
     It 'keeps profile-state repo-view checks behind the gh adapter seam' {

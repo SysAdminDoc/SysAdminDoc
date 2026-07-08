@@ -7,7 +7,8 @@
 - Wired `scripts/validate-local.ps1` to execute the local dependency review so npm advisory, override, module, and hash-pin drift cannot pass the standard validation command unnoticed.
 - Fixed `setup.ps1` readiness gates so missing `pip` fails check-only and final setup validation instead of reporting a false-ready state.
 - Bounded real `gh.exe` adapter calls so local validation reports a timed-out GitHub metadata probe instead of hanging indefinitely.
-- Bumped the internal profile evidence version to `v4.9.158`.
+- Routed `-ApplyTopics` topic writes through the same bounded GitHub CLI adapter, including stdin payload handling for `gh api --input -`.
+- Bumped the internal profile evidence version to `v4.9.159`.
 
 ## 2026-07-07
 

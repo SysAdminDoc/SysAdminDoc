@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-08T01:02:54.4218261-04:00",
+  "generatedAt": "2026-07-08T01:11:55.1828471-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -16,8 +16,8 @@
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "761e40693091f2ac555ce4de127b178d25548af7d3ee5a590a512381ab893916",
-      "expectedSha256": "9dfc06d9cf40d4f7ddfa22a8e3d464dcccdb33252db863ad94a1093c844882b2",
+      "currentSha256": "81154c2ad1f1db0585208d995810260f62e33139dffe61562a21922e83965958",
+      "expectedSha256": "bfa78f838483cd7af299e1303a4957bcca563b6239dcd8d336b948caaa2284a3",
       "firstDiff": null
     },
     "assets": {
@@ -28,15 +28,15 @@
           "path": "assets/profile/contributions-dark.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "cc16236821c1d8ddd65c40b0afdaa19b64f2e76151f7e45651c6f47064fc6c78",
-          "expectedSha256": "fa705acd39c9d1dc53838168f81c76fd8d369ef40e4efc927cb157133238c6a6"
+          "currentSha256": "5f46c41c1951d214fa1f7b4e753f34237846f867d24594796beb56720f487645",
+          "expectedSha256": "05dd8149ba0b34c46dfa48b43001ca663a021459dc408e50f81a45159966d8a9"
         },
         {
           "path": "assets/profile/contributions-light.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "fb4b5240f605bc37acefb5057fd0d9c71733369a9014ad2b0da76e0293a5180b",
-          "expectedSha256": "efc6b2971c08f439722eb97a34c5452bd2c8dac0f1496bd295133a2bb256cb25"
+          "currentSha256": "103cccb8ee9085ab8f7b12391e6d89a43e2a37559c30c153462c5abc768be30e",
+          "expectedSha256": "161fa2e84b0a2e8f15a405e32d1d66e43d8d66a90e16b826fe337ae526c3b1f6"
         }
       ]
     }
@@ -110,11 +110,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "6055569180d88e2895b028a2aae3c070d88fb5f9",
+    "sourceCommit": "54bd0d09dfb47008af31967a971c479537166b14",
     "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
-    "generatorSha256": "886fa4e1e5557f6a11f84cc47897b94a7da17ad57c3e3bde44249836bd70feee",
+    "generatorSha256": "bb70f6cc42da295ace26573f886874f33f45ae6d7265384aa7fb5579e8ea8478",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-08T01:01:00.5490836-04:00",
+    "metadataSnapshotAt": "2026-07-08T01:10:10.4921811-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1694,7 +1694,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-08T01:01:00.5490836-04:00",
+          "queriedAt": "2026-07-08T01:10:10.4921811-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1999,13 +1999,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.158",
+    "expectedVersion": "v4.9.159",
     "expectedDate": "2026-07-08",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.158"
+        "value": "v4.9.159"
       }
     ],
     "dates": [
@@ -2027,14 +2027,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.158",
+    "expectedVersion": "v4.9.159",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
     "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.158",
+    "expectedTag": "v4.9.159",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2044,13 +2044,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.158",
+        "expectedVersion": "v4.9.159",
         "actualVersion": "v4.9.153",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.158",
+        "expectedVersion": "v4.9.159",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2119,7 +2119,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 279,
+      "elapsedMs": 203,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2184,17 +2184,8 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-08T00:58:58.7131699-04:00",
-      "newValue": "2026-07-08T01:01:00.5490836-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "Images",
-      "category": "desktop",
-      "field": "pushedAt",
-      "oldValue": "2026-07-08T04:55:34Z",
-      "newValue": "2026-07-08T05:00:01Z",
+      "oldValue": "2026-07-08T01:08:35.3080904-04:00",
+      "newValue": "2026-07-08T01:10:10.4921811-04:00",
       "severity": "info",
       "failing": false
     },
@@ -2202,27 +2193,18 @@
       "repo": "ScriptVault",
       "category": "extensions",
       "field": "pushedAt",
-      "oldValue": "2026-07-08T04:55:19Z",
-      "newValue": "2026-07-08T04:59:47Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "sysadmindoc.github.io",
-      "category": "guides",
-      "field": "pushedAt",
-      "oldValue": "2026-07-08T04:05:13Z",
-      "newValue": "2026-07-08T04:59:22Z",
+      "oldValue": "2026-07-08T05:04:52Z",
+      "newValue": "2026-07-08T05:09:12Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 4,
+    "informationalCount": 2,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 36.36,
+      "ageDays": 36.37,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2232,7 +2214,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 279,
+    "elapsedMs": 203,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2601,7 +2583,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 103438,
+        "value": 102954,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2662,11 +2644,11 @@
   "evidenceFreshness": {
     "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-08T00:16:58.5632108-04:00",
-    "latestReportAffectingCommitSha": "6055569180d88e2895b028a2aae3c070d88fb5f9",
-    "latestReportAffectingCommitDate": "2026-07-08T00:20:01.0000000-04:00",
+    "committedReportGeneratedAt": "2026-07-08T01:02:54.4218261-04:00",
+    "latestReportAffectingCommitSha": "54bd0d09dfb47008af31967a971c479537166b14",
+    "latestReportAffectingCommitDate": "2026-07-08T01:05:31.0000000-04:00",
     "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.05,
+    "reportAgeBehindHours": 0.04,
     "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
