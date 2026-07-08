@@ -133,7 +133,7 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
 try {
     Write-Host ""
     Write-Host "SysAdminDoc Setup" -ForegroundColor Cyan
-    Write-Host "Installs PowerShell 7, Python 3, and Git so the README project snippets and local validation work." -ForegroundColor DarkGray
+    Write-Host "Installs PowerShell 7, Python 3 with pip, and Git so the README project snippets and local validation work." -ForegroundColor DarkGray
     Write-Host ""
     Start-SetupTranscript
 
@@ -147,8 +147,8 @@ try {
             Write-Warn2 "winget is missing. Install 'App Installer' from the Microsoft Store:"
             Write-Host  "    https://apps.microsoft.com/detail/9NBLGGH4NNS1" -ForegroundColor Yellow
         }
-        if ($state.Pwsh -and $state.Python -and $state.Git) {
-            Write-Ok "Ready. PowerShell 7, Python, and Git are installed -- the README snippets and local validation will work."
+        if ($state.Pwsh -and $state.Python -and $state.Pip -and $state.Git) {
+            Write-Ok "Ready. PowerShell 7, Python, pip, and Git are installed -- the README snippets and local validation will work."
         } else {
             Stop-SetupWithFailure "One or more prerequisites are missing. Run without -CheckOnly to install with winget."
         }
@@ -171,7 +171,7 @@ try {
     $state = Test-SetupState
 
     Write-Host ""
-    if ($state.Pwsh -and $state.Python -and $state.Git) {
+    if ($state.Pwsh -and $state.Python -and $state.Pip -and $state.Git) {
         Write-Ok "Setup complete. You can now paste any install one-liner from the README."
     } else {
         Stop-SetupWithFailure "Setup incomplete. Close this window, open a new PowerShell, and try again."

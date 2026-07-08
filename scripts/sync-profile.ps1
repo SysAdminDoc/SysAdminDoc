@@ -225,16 +225,88 @@ function Invoke-GhCli {
     tests mock this function instead of replacing the raw `gh` command.
     .PARAMETER Arguments
     The argument list passed to gh (e.g. @("api", "repos/OWNER/REPO")).
+    .PARAMETER TimeoutSeconds
+    Wall-clock timeout for real gh.exe invocations. Function/alias mocks use the direct
+    PowerShell invocation path so Pester can replace gh without starting a child process.
     #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)][string[]]$Arguments)
+    param(
+        [Parameter(Mandatory)]
+        [string[]]$Arguments,
 
-    $output = & gh @Arguments 2>&1
-    $exitCode = $LASTEXITCODE
+        [ValidateRange(1, 600)]
+        [int]$TimeoutSeconds = 45
+    )
+
+    $command = Get-Command gh -ErrorAction Stop
+    if ($command.CommandType -ne [System.Management.Automation.CommandTypes]::Application) {
+        $output = & gh @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+        return [ordered]@{
+            output = $output
+            exitCode = $exitCode
+            text = (($output | Out-String).Trim())
+        }
+    }
+
+    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $command.Source
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    foreach ($argument in $Arguments) {
+        [void]$startInfo.ArgumentList.Add($argument)
+    }
+
+    $process = [System.Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    $stdoutTask = $null
+    $stderrTask = $null
+    $stdoutText = ""
+    $stderrText = ""
+    try {
+        [void]$process.Start()
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        $completed = $process.WaitForExit($TimeoutSeconds * 1000)
+        if (-not $completed) {
+            try {
+                $process.Kill($true)
+            } catch {
+                try {
+                    $process.Kill()
+                } catch {
+                    Write-Warning "Could not terminate timed-out gh process: $($_.Exception.Message)"
+                }
+            }
+            try {
+                [void]$process.WaitForExit(5000)
+            } catch {
+                Write-Warning "Could not observe timed-out gh process exit: $($_.Exception.Message)"
+            }
+            $text = "gh timed out after $TimeoutSeconds second(s): gh $($Arguments -join ' ')"
+            return [ordered]@{
+                output = @($text)
+                exitCode = 124
+                text = $text
+            }
+        }
+
+        $process.WaitForExit()
+        $exitCode = $process.ExitCode
+        $stdoutText = if ($stdoutTask) { $stdoutTask.GetAwaiter().GetResult() } else { "" }
+        $stderrText = if ($stderrTask) { $stderrTask.GetAwaiter().GetResult() } else { "" }
+    } finally {
+        $process.Dispose()
+    }
+
+    $text = (($stdoutText, $stderrText) -join "`n").Trim()
+    $output = if ([string]::IsNullOrWhiteSpace($text)) { @() } else { @($text -split "\r?\n") }
     return [ordered]@{
         output = $output
         exitCode = $exitCode
-        text = (($output | Out-String).Trim())
+        text = $text
     }
 }
 
@@ -2410,7 +2482,7 @@ function New-FirstTimeSetupSection {
 <summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
 <br/>
 
-The setup path checks for PowerShell 7, Python, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -2424,14 +2496,14 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 
 | Step | Behavior |
 |:-----|:---------|
-| Checks first | Reports PowerShell 7, Python, and Git state before installing missing tools. |
+| Checks first | Reports PowerShell 7, Python, pip, and Git state before installing missing tools. |
 | Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
 | Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have PowerShell 7, Python, and Git? Skip this section and open the category you need.
+Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
 
 </details>
 '@

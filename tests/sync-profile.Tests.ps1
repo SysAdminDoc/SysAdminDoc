@@ -228,6 +228,13 @@ Describe 'Invoke-GhCli adapter seam' {
         }
     }
 
+    It 'bounds real gh.exe invocations so live metadata probes cannot hang forever' {
+        $script:SyncProfileScript | Should -Match 'TimeoutSeconds = 45'
+        $script:SyncProfileScript | Should -Match 'WaitForExit\(\$TimeoutSeconds \* 1000\)'
+        $script:SyncProfileScript | Should -Match 'gh timed out after \$TimeoutSeconds second\(s\)'
+        $script:SyncProfileScript | Should -Match 'exitCode = 124'
+    }
+
     It 'keeps profile-state repo-view checks behind the gh adapter seam' {
         $script:SyncProfileScript | Should -Match 'Invoke-GhCli -Arguments @\("repo", "view"'
         $script:SyncProfileScript | Should -Not -Match '\bgh repo view\b'
@@ -2021,7 +2028,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     }
     It 'renders setup inspect-before-run and check-only guidance' {
         $script:rendered | Should -Match 'Inspect first, then install only the tooling your machine is missing'
-        $script:rendered | Should -Match 'checks for PowerShell 7, Python, and Git before changing anything'
+        $script:rendered | Should -Match 'checks for PowerShell 7, Python, pip, and Git before changing anything'
         $script:rendered | Should -Match 'Inspect before installing'
         $script:rendered | Should -Match ([regex]::Escape('$u=''https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'''))
         $script:rendered | Should -Match 'SysAdminDoc-setup\.ps1'
@@ -2562,7 +2569,9 @@ Describe 'setup.ps1 hardening contract' {
         $script:setupSource | Should -Match '\[switch\]\$CheckOnly'
         $script:setupSource | Should -Match 'Check-only mode: no packages will be installed\.'
         $script:setupSource | Should -Match "Pwsh = Write-ToolStatus 'pwsh' 'pwsh'"
-        $script:setupSource | Should -Match 'PowerShell 7, Python, and Git are installed'
+        $script:setupSource | Should -Match "Pip = Write-ToolStatus 'pip' 'pip'"
+        $script:setupSource | Should -Match '\$state\.Pwsh -and \$state\.Python -and \$state\.Pip -and \$state\.Git'
+        $script:setupSource | Should -Match 'PowerShell 7, Python, pip, and Git are installed'
         $script:setupSource | Should -Match 'Run without -CheckOnly to install with winget'
     }
 

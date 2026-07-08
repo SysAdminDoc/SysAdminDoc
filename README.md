@@ -37,7 +37,7 @@ Quick platform map: [PowerShell](#powershell-system-utilities) &middot; [Python]
 <summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
 <br/>
 
-The setup path checks for PowerShell 7, Python, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
@@ -51,14 +51,14 @@ $u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $
 
 | Step | Behavior |
 |:-----|:---------|
-| Checks first | Reports PowerShell 7, Python, and Git state before installing missing tools. |
+| Checks first | Reports PowerShell 7, Python, pip, and Git state before installing missing tools. |
 | Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
 | Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
 
-Already have PowerShell 7, Python, and Git? Skip this section and open the category you need.
+Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
 
 </details>
 

@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-08T00:16:58.5632108-04:00",
+  "generatedAt": "2026-07-08T01:02:54.4218261-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -9,15 +9,15 @@
     "readme": {
       "artifact": "README.md",
       "inSync": true,
-      "currentSha256": "f22ba0727f61136ded8741eb386d91c82633697df9d28ad1e17d623bb97bf946",
-      "expectedSha256": "f22ba0727f61136ded8741eb386d91c82633697df9d28ad1e17d623bb97bf946",
+      "currentSha256": "c48bdc052ef19e21936e577c9d688b06e9db6f774cea6ba68bcbeda9ed93ddf6",
+      "expectedSha256": "c48bdc052ef19e21936e577c9d688b06e9db6f774cea6ba68bcbeda9ed93ddf6",
       "firstDiff": null
     },
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "2b264ea2ec1056f20ea3809799ec0ef1da21476e7893b0ea0aae55a04a0a368e",
-      "expectedSha256": "15775075bc7e2c3433c54b6f72ee0a3b3dcf1e7e640c4b460e51031d20d0c604",
+      "currentSha256": "761e40693091f2ac555ce4de127b178d25548af7d3ee5a590a512381ab893916",
+      "expectedSha256": "9dfc06d9cf40d4f7ddfa22a8e3d464dcccdb33252db863ad94a1093c844882b2",
       "firstDiff": null
     },
     "assets": {
@@ -28,15 +28,15 @@
           "path": "assets/profile/contributions-dark.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "5c6816b0026cc0d6164dd608ea1c53f71a3e1ae6e3c31420ac0744fe3f5ea43c",
-          "expectedSha256": "c9b1400daa7444157bc1734e70b4c84b5210615221cd29814b72b1edfd11f756"
+          "currentSha256": "cc16236821c1d8ddd65c40b0afdaa19b64f2e76151f7e45651c6f47064fc6c78",
+          "expectedSha256": "fa705acd39c9d1dc53838168f81c76fd8d369ef40e4efc927cb157133238c6a6"
         },
         {
           "path": "assets/profile/contributions-light.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "0552fee55304a74e408020795c1efd8c02253c872e70ef1a1598bbda2a1290e3",
-          "expectedSha256": "c118a531c579bc090863000de383c8a7c9793584f9e3d58462f87d1947ccba33"
+          "currentSha256": "fb4b5240f605bc37acefb5057fd0d9c71733369a9014ad2b0da76e0293a5180b",
+          "expectedSha256": "efc6b2971c08f439722eb97a34c5452bd2c8dac0f1496bd295133a2bb256cb25"
         }
       ]
     }
@@ -110,11 +110,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "8d9b4433a9411ecfe913ed356adf6e8b0063e6f9",
+    "sourceCommit": "6055569180d88e2895b028a2aae3c070d88fb5f9",
     "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
-    "generatorSha256": "be8c60d25b931b11c0ba0c2b83b8f79f7dc64b27713daba251951799ec6f0c5e",
+    "generatorSha256": "886fa4e1e5557f6a11f84cc47897b94a7da17ad57c3e3bde44249836bd70feee",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-08T00:15:15.0039695-04:00",
+    "metadataSnapshotAt": "2026-07-08T01:01:00.5490836-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1694,7 +1694,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-08T00:15:15.0039695-04:00",
+          "queriedAt": "2026-07-08T01:01:00.5490836-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -1999,13 +1999,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.156",
+    "expectedVersion": "v4.9.158",
     "expectedDate": "2026-07-08",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.156"
+        "value": "v4.9.158"
       }
     ],
     "dates": [
@@ -2027,14 +2027,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.156",
+    "expectedVersion": "v4.9.158",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
     "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.156",
+    "expectedTag": "v4.9.158",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2044,13 +2044,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.156",
+        "expectedVersion": "v4.9.158",
         "actualVersion": "v4.9.153",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.156",
+        "expectedVersion": "v4.9.158",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2119,7 +2119,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 361,
+      "elapsedMs": 279,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2184,17 +2184,17 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-08T00:13:31.2564206-04:00",
-      "newValue": "2026-07-08T00:15:15.0039695-04:00",
+      "oldValue": "2026-07-08T00:58:58.7131699-04:00",
+      "newValue": "2026-07-08T01:01:00.5490836-04:00",
       "severity": "info",
       "failing": false
     },
     {
-      "repo": "Network_Security_Auditor",
-      "category": "powershell",
+      "repo": "Images",
+      "category": "desktop",
       "field": "pushedAt",
-      "oldValue": "2026-07-08T04:12:29Z",
-      "newValue": "2026-07-08T04:15:09Z",
+      "oldValue": "2026-07-08T04:55:34Z",
+      "newValue": "2026-07-08T05:00:01Z",
       "severity": "info",
       "failing": false
     },
@@ -2202,18 +2202,27 @@
       "repo": "ScriptVault",
       "category": "extensions",
       "field": "pushedAt",
-      "oldValue": "2026-07-08T04:10:24Z",
-      "newValue": "2026-07-08T04:14:45Z",
+      "oldValue": "2026-07-08T04:55:19Z",
+      "newValue": "2026-07-08T04:59:47Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "sysadmindoc.github.io",
+      "category": "guides",
+      "field": "pushedAt",
+      "oldValue": "2026-07-08T04:05:13Z",
+      "newValue": "2026-07-08T04:59:22Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 3,
+    "informationalCount": 4,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 36.33,
+      "ageDays": 36.36,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2223,7 +2232,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 361,
+    "elapsedMs": 279,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2234,7 +2243,7 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 73186,
+    "byteCount": 73201,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2529,7 +2538,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 73186,
+        "value": 73201,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2592,7 +2601,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 103210,
+        "value": 103438,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2653,11 +2662,11 @@
   "evidenceFreshness": {
     "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-08T00:09:22.1287078-04:00",
-    "latestReportAffectingCommitSha": "8d9b4433a9411ecfe913ed356adf6e8b0063e6f9",
-    "latestReportAffectingCommitDate": "2026-07-08T00:11:48.0000000-04:00",
+    "committedReportGeneratedAt": "2026-07-08T00:16:58.5632108-04:00",
+    "latestReportAffectingCommitSha": "6055569180d88e2895b028a2aae3c070d88fb5f9",
+    "latestReportAffectingCommitDate": "2026-07-08T00:20:01.0000000-04:00",
     "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.04,
+    "reportAgeBehindHours": 0.05,
     "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
