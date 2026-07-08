@@ -162,6 +162,34 @@ function Assert-ScriptAnalyzerClean {
     }
 }
 
+function Invoke-DependencyReview {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot
+    )
+
+    $pwsh = Get-Command pwsh -ErrorAction Stop
+    $reviewScript = Join-Path $RepoRoot "scripts/review-local-dependencies.ps1"
+    $output = & $pwsh.Source -NoProfile -File $reviewScript 2>&1
+    $exitCode = $LASTEXITCODE
+    $text = ($output | Out-String).Trim()
+
+    if ($exitCode -ne 0) {
+        if (-not [string]::IsNullOrWhiteSpace($text)) {
+            Write-Warning $text
+        }
+        throw "Dependency review failed with exit code $exitCode."
+    }
+
+    try {
+        $review = $text | ConvertFrom-Json
+        Write-Host ("Dependency review: {0}; npm audit: {1}; pin freshness: {2}" -f $review.status, $review.npm.audit.status, $review.pinFreshness.status)
+    } catch {
+        Write-Host "Dependency review passed, but the JSON summary could not be parsed: $($_.Exception.Message)"
+    }
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location -LiteralPath $repoRoot
 try {
@@ -189,6 +217,7 @@ try {
 
     Invoke-NativeCommand -FilePath $npm.Source -ArgumentList @("run", "lint:markdown")
     Assert-ScriptAnalyzerClean -RepoRoot $repoRoot
+    Invoke-DependencyReview -RepoRoot $repoRoot
 
     # Invoke-Pester -Path tests with a configuration object so JaCoCo code coverage
     # (coverage.xml, gitignored) is produced for the generation engine. Profiler-based

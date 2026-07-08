@@ -4,7 +4,8 @@
 
 - Fixed GitHub-rendered profile chrome by replacing sanitized theme `<picture>` blocks with GitHub-visible dark/light image fragments for the generated profile header and footer.
 - Added rendered profile smoke evidence for desktop/mobile dark/light screenshots, first-viewport header and Start Here routing, document-level Tool Catalog/footer presence, blank/cropped/overlap checks, and summary/schema fields.
-- Bumped the internal profile evidence version to `v4.9.155`.
+- Wired `scripts/validate-local.ps1` to execute the local dependency review so npm advisory, override, module, and hash-pin drift cannot pass the standard validation command unnoticed.
+- Bumped the internal profile evidence version to `v4.9.156`.
 
 ## 2026-07-07
 

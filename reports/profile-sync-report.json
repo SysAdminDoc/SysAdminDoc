@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-07-08T00:09:22.1287078-04:00",
+  "generatedAt": "2026-07-08T00:16:58.5632108-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -16,8 +16,8 @@
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "82c25189aae1b7ed9dabcca8615fd45dfbbcef4c449d4c5c0f8f0ef4ea75d3bd",
-      "expectedSha256": "0a2f8f4bcc2db5efba10ad746efbdc2469408c4403a9466ee56337f34ecb8e1a",
+      "currentSha256": "2b264ea2ec1056f20ea3809799ec0ef1da21476e7893b0ea0aae55a04a0a368e",
+      "expectedSha256": "15775075bc7e2c3433c54b6f72ee0a3b3dcf1e7e640c4b460e51031d20d0c604",
       "firstDiff": null
     },
     "assets": {
@@ -28,15 +28,15 @@
           "path": "assets/profile/contributions-dark.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "2b31c8598695f7ab9d33e52bd4250e20b43824860f40805666cbf867fba6d34e",
-          "expectedSha256": "49fee3e47e645d3627e1568a629bf408f346ff7c2b8a60bd166f62b1222d7fcb"
+          "currentSha256": "5c6816b0026cc0d6164dd608ea1c53f71a3e1ae6e3c31420ac0744fe3f5ea43c",
+          "expectedSha256": "c9b1400daa7444157bc1734e70b4c84b5210615221cd29814b72b1edfd11f756"
         },
         {
           "path": "assets/profile/contributions-light.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "b973f4b788d78de7394eeecb0b2e31ab2ff92c399b8f799f3f3a67469cc08e7d",
-          "expectedSha256": "cdc2511c9204c2461e26bf6c306505d747af1d73f2eaebbd4786c817a1ca7c56"
+          "currentSha256": "0552fee55304a74e408020795c1efd8c02253c872e70ef1a1598bbda2a1290e3",
+          "expectedSha256": "c118a531c579bc090863000de383c8a7c9793584f9e3d58462f87d1947ccba33"
         }
       ]
     }
@@ -110,11 +110,11 @@
     "version": 1,
     "feedSchemaVersion": 2,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "6a7a51e3d40436ca5df20b8b5fb60cce44b74760",
+    "sourceCommit": "8d9b4433a9411ecfe913ed356adf6e8b0063e6f9",
     "catalogSha256": "db84282e428b664907abeae1aa81385e94ce3effdf5884b3d9dc7d0f1c16e416",
     "generatorSha256": "be8c60d25b931b11c0ba0c2b83b8f79f7dc64b27713daba251951799ec6f0c5e",
     "projectSchemaSha256": "29400ff432b5df988a7273a252727d3edb40be1da180f927234bbc7b2c25d28a",
-    "metadataSnapshotAt": "2026-07-08T00:07:15.5257729-04:00",
+    "metadataSnapshotAt": "2026-07-08T00:15:15.0039695-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 500,
@@ -1005,20 +1005,20 @@
     "rawGitHubCount": 11,
     "branchSourceCount": 11,
     "tagOrCommitSourceCount": 0,
-    "metadataBlockCount": 10,
-    "missingMetadataBlockCount": 1,
-    "missingVersionCount": 1,
-    "missingUpdateUrlCount": 1,
-    "missingDownloadUrlCount": 1,
+    "metadataBlockCount": 11,
+    "missingMetadataBlockCount": 0,
+    "missingVersionCount": 0,
+    "missingUpdateUrlCount": 0,
+    "missingDownloadUrlCount": 0,
     "updateUrlProbeFailureCount": 0,
     "downloadUrlProbeFailureCount": 0,
     "updateUrlRefMismatchCount": 0,
     "downloadUrlRefMismatchCount": 0,
     "broadScopeCount": 3,
     "releaseChannelReadyCount": 0,
-    "releaseChannelKeepBranchCount": 10,
-    "releaseChannelBlockedCount": 1,
-    "warningCount": 4,
+    "releaseChannelKeepBranchCount": 11,
+    "releaseChannelBlockedCount": 0,
+    "warningCount": 3,
     "fatalCount": 0,
     "rows": [
       {
@@ -1294,45 +1294,39 @@
         "sourceRefType": "branch",
         "sourcePath": "IMDb_Enhanced.user.js",
         "rawGitHub": true,
-        "fetchSucceeded": false,
-        "fetchStatusCode": 429,
-        "metadataBlockPresent": false,
-        "metadataBlockClosed": false,
-        "name": null,
-        "version": null,
-        "updateUrl": null,
-        "downloadUrl": null,
-        "updateUrlSourceRef": null,
-        "updateUrlRefMatchesSource": null,
-        "updateUrlProbeSucceeded": null,
-        "updateUrlProbeStatusCode": null,
-        "downloadUrlSourceRef": null,
-        "downloadUrlRefMatchesSource": null,
-        "downloadUrlProbeSucceeded": null,
-        "downloadUrlProbeStatusCode": null,
-        "matchCount": 0,
+        "fetchSucceeded": true,
+        "fetchStatusCode": 200,
+        "metadataBlockPresent": true,
+        "metadataBlockClosed": true,
+        "name": "IMDb Enhanced",
+        "version": "2.5.0",
+        "updateUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "downloadUrl": "https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js",
+        "updateUrlSourceRef": "main",
+        "updateUrlRefMatchesSource": true,
+        "updateUrlProbeSucceeded": true,
+        "updateUrlProbeStatusCode": 200,
+        "downloadUrlSourceRef": "main",
+        "downloadUrlRefMatchesSource": true,
+        "downloadUrlProbeSucceeded": true,
+        "downloadUrlProbeStatusCode": 200,
+        "matchCount": 10,
         "includeCount": 0,
-        "grantCount": 0,
-        "connectCount": 0,
+        "grantCount": 7,
+        "connectCount": 8,
         "requireCount": 0,
         "broadScope": false,
-        "releaseChannelReadiness": "blocked",
-        "releaseChannelNextAction": "Add @version, @updateURL, and @downloadURL metadata before evaluating a tag/release install channel.",
+        "releaseChannelReadiness": "keep-branch",
+        "releaseChannelNextAction": "Keep the branch-hosted raw install per the userscript install-posture decision; metadata is complete.",
         "releaseChannelEvidence": {
-          "metadataComplete": false,
+          "metadataComplete": true,
           "sourceRefType": "branch",
-          "hasVersion": false,
-          "updateUrlAligned": false
+          "hasVersion": true,
+          "updateUrlAligned": true
         },
-        "warningCount": 1,
+        "warningCount": 0,
         "fatalCount": 0,
-        "warnings": [
-          {
-            "kind": "userscript-fetch-failed",
-            "message": "Could not fetch the raw userscript for metadata inspection.",
-            "fatal": false
-          }
-        ]
+        "warnings": []
       },
       {
         "repo": "MediaDL",
@@ -1700,7 +1694,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-07-08T00:07:15.5257729-04:00",
+          "queriedAt": "2026-07-08T00:15:15.0039695-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2005,13 +1999,13 @@
   },
   "docVersionConsistency": {
     "passed": true,
-    "expectedVersion": "v4.9.155",
+    "expectedVersion": "v4.9.156",
     "expectedDate": "2026-07-08",
     "versions": [
       {
         "path": "data/profile-version.json",
         "field": "version",
-        "value": "v4.9.155"
+        "value": "v4.9.156"
       }
     ],
     "dates": [
@@ -2033,14 +2027,14 @@
   "profileReleaseConsistency": {
     "passed": false,
     "repository": "SysAdminDoc/SysAdminDoc",
-    "expectedVersion": "v4.9.155",
+    "expectedVersion": "v4.9.156",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
     "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
-    "expectedTag": "v4.9.155",
+    "expectedTag": "v4.9.156",
     "expectedTagRefChecked": true,
     "expectedTagExists": false,
     "expectedTagUrl": null,
@@ -2050,13 +2044,13 @@
     "warnings": [
       {
         "kind": "latest-release-behind",
-        "expectedVersion": "v4.9.155",
+        "expectedVersion": "v4.9.156",
         "actualVersion": "v4.9.153",
         "message": "Latest profile release is older than the planning-doc version."
       },
       {
         "kind": "expected-version-tag-missing",
-        "expectedVersion": "v4.9.155",
+        "expectedVersion": "v4.9.156",
         "actualVersion": null,
         "message": "Expected profile tag is not published on GitHub."
       }
@@ -2125,7 +2119,7 @@
       "skipped": false,
       "targetCount": 342,
       "throttleLimit": 16,
-      "elapsedMs": 391,
+      "elapsedMs": 361,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2189,36 +2183,9 @@
     {
       "repo": null,
       "category": null,
-      "field": "provenance.sourceCommit",
-      "oldValue": "31b1cf9f29e11903b9ec40a7e77cd44a9845658a",
-      "newValue": "6a7a51e3d40436ca5df20b8b5fb60cce44b74760",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": null,
-      "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-07-07T23:58:54.3682826-04:00",
-      "newValue": "2026-07-08T00:07:15.5257729-04:00",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "HostsGuard",
-      "category": "desktop",
-      "field": "pushedAt",
-      "oldValue": "2026-07-08T03:58:44Z",
-      "newValue": "2026-07-08T04:04:55Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "LibreSpot",
-      "category": "powershell",
-      "field": "pushedAt",
-      "oldValue": "2026-07-08T03:55:51Z",
-      "newValue": "2026-07-08T04:06:20Z",
+      "oldValue": "2026-07-08T00:13:31.2564206-04:00",
+      "newValue": "2026-07-08T00:15:15.0039695-04:00",
       "severity": "info",
       "failing": false
     },
@@ -2226,8 +2193,8 @@
       "repo": "Network_Security_Auditor",
       "category": "powershell",
       "field": "pushedAt",
-      "oldValue": "2026-07-08T03:58:02Z",
-      "newValue": "2026-07-08T04:06:17Z",
+      "oldValue": "2026-07-08T04:12:29Z",
+      "newValue": "2026-07-08T04:15:09Z",
       "severity": "info",
       "failing": false
     },
@@ -2235,122 +2202,15 @@
       "repo": "ScriptVault",
       "category": "extensions",
       "field": "pushedAt",
-      "oldValue": "2026-07-08T03:48:11Z",
-      "newValue": "2026-07-08T04:02:15Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "latestReleaseTag",
-      "oldValue": "v1.9.56",
-      "newValue": "v1.9.55",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "latestReleaseUrl",
-      "oldValue": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.56",
-      "newValue": "https://github.com/SysAdminDoc/SwiftFloris/releases/tag/v1.9.55",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "releaseAssetKinds",
-      "oldValue": [
-        "apk",
-        "other"
-      ],
-      "newValue": "apk",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "releaseAssetNames",
-      "oldValue": [
-        "app-release.apk",
-        "SHA256SUMS"
-      ],
-      "newValue": "app-release.apk",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "releaseTrust",
-      "oldValue": {
-        "checksumAssets": [
-          "SHA256SUMS"
-        ],
-        "checksumCoverage": "partial",
-        "hasChecksumForEveryExecutable": false,
-        "signatureAssets": [],
-        "hasAuthenticodeSignature": null,
-        "apkSignatureVerified": null,
-        "sbomAssets": [],
-        "attestationAvailable": false,
-        "debugArtifactPresent": false,
-        "sourceOnlyRelease": false,
-        "executableAssetKinds": [
-          "apk"
-        ],
-        "trustLevel": "checksum-metadata",
-        "platformDigestCount": 2,
-        "releaseImmutable": false,
-        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
-      },
-      "newValue": {
-        "checksumAssets": [],
-        "checksumCoverage": "none",
-        "hasChecksumForEveryExecutable": false,
-        "signatureAssets": [],
-        "hasAuthenticodeSignature": null,
-        "apkSignatureVerified": null,
-        "sbomAssets": [],
-        "attestationAvailable": false,
-        "debugArtifactPresent": false,
-        "sourceOnlyRelease": false,
-        "executableAssetKinds": [
-          "apk"
-        ],
-        "trustLevel": "metadata-only",
-        "platformDigestCount": 1,
-        "releaseImmutable": false,
-        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
-      },
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "pushedAt",
-      "oldValue": "2026-07-06T03:50:44Z",
-      "newValue": "2026-07-08T04:03:48Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "sysadmindoc.github.io",
-      "category": "guides",
-      "field": "pushedAt",
-      "oldValue": "2026-07-08T03:55:04Z",
-      "newValue": "2026-07-08T04:05:13Z",
+      "oldValue": "2026-07-08T04:10:24Z",
+      "newValue": "2026-07-08T04:14:45Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 13,
+    "informationalCount": 3,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
       "ageDays": 36.33,
@@ -2363,7 +2223,7 @@
   "linkValidationSummary": {
     "targetCount": 342,
     "throttleLimit": 16,
-    "elapsedMs": 391,
+    "elapsedMs": 361,
     "readmeActionTargetCount": 156,
     "readmeInstallSnippetTargetCount": 64,
     "readmeDownloadLinkTargetCount": 81,
@@ -2732,7 +2592,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 107278,
+        "value": 103210,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2793,11 +2653,11 @@
   "evidenceFreshness": {
     "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-07-08T00:02:04.7301189-04:00",
-    "latestReportAffectingCommitSha": "6a7a51e3d40436ca5df20b8b5fb60cce44b74760",
-    "latestReportAffectingCommitDate": "2026-07-08T00:05:44.0000000-04:00",
+    "committedReportGeneratedAt": "2026-07-08T00:09:22.1287078-04:00",
+    "latestReportAffectingCommitSha": "8d9b4433a9411ecfe913ed356adf6e8b0063e6f9",
+    "latestReportAffectingCommitDate": "2026-07-08T00:11:48.0000000-04:00",
     "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.06,
+    "reportAgeBehindHours": 0.04,
     "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
