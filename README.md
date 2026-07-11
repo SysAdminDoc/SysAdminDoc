@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/profile/header-dark.svg#gh-dark-mode-only" alt="SysAdminDoc public tools command center profile header" width="100%" /><img src="assets/profile/header-light.svg#gh-light-mode-only" alt="SysAdminDoc public tools command center profile header" width="100%" />
-</p>
-
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
 <p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
@@ -651,8 +647,3 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 
 </details>
 
-<p align="center">
-  <img src="assets/profile/footer-dark.svg#gh-dark-mode-only" alt="SysAdminDoc generated profile footer" width="100%" /><img src="assets/profile/footer-light.svg#gh-light-mode-only" alt="SysAdminDoc generated profile footer" width="100%" />
-</p>
-
-<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>
