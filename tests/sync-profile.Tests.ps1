@@ -2089,15 +2089,15 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
 
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
-    It 'renders the local profile command-center chrome without third-party render hosts' {
-        $script:rendered.TrimStart() | Should -Match '^<p align="center">\s*<img src="assets/profile/header-dark\.svg#gh-dark-mode-only"'
-        $script:rendered | Should -Match 'assets/profile/header-(dark|light)\.svg#gh-(dark|light)-mode-only'
-        $script:rendered | Should -Match 'SysAdminDoc public tools command center profile header'
-        $script:rendered | Should -Match '#gh-dark-mode-only'
-        $script:rendered | Should -Match '#gh-light-mode-only'
-        $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View full portfolio'
+    It 'renders a minimal text-only profile chrome without images or third-party render hosts' {
+        $script:rendered.TrimStart() | Should -Match '^<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools\.</b>'
+        $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
+        $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
+        $script:rendered | Should -Not -Match '<img '
+        $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
+        $script:rendered | Should -Match '<p align="center"><a href="https://sysadmindoc\.github\.io/"><b>View my full portfolio'
         $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
-        $script:rendered | Should -Match '<a href="#powershell-system-utilities">&#9889; PowerShell</a>'
+        $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
         $script:rendered | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
@@ -2110,7 +2110,6 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'renders the compact discovery block without catalog snapshot or featured projects' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
         $script:rendered | Should -Match '### Start Here'
-        $script:rendered | Should -Match 'public tools command center'
         $script:rendered | Should -Not -Match '### Catalog Snapshot'
         $script:rendered | Should -Not -Match '### Featured Projects'
     }
@@ -2427,11 +2426,11 @@ Write-Host ok
         $result.startHereSection | Should -BeTrue
         $result.catalogSnapshotSection | Should -BeFalse
         $result.setupInspectPath | Should -BeTrue
-        $result.themeAwareImageChrome | Should -BeTrue
-        $result.plainTextTagline | Should -BeTrue
-        $result.meaningfulImageAltText | Should -BeTrue
-        $result.minimalProfileHeader | Should -BeFalse
-        $result.richProfileHeader | Should -BeTrue
+        $result.themeAwareImageChrome | Should -BeFalse
+        $result.plainTextTagline | Should -BeFalse
+        $result.meaningfulImageAltText | Should -BeFalse
+        $result.minimalProfileHeader | Should -BeTrue
+        $result.richProfileHeader | Should -BeFalse
         $result.genericImageAltTextCount | Should -Be 0
         $result.thirdPartyMetricHostCount | Should -Be 0
         $result.thirdPartyBadgeHostCount | Should -Be 0
@@ -2566,12 +2565,14 @@ Describe 'Update-Header idempotency' {
         $second | Should -Be $first
     }
 
-    It 'replaces legacy profile copy with the generated command-center chrome' {
+    It 'produces a minimal text-only header with no image chrome' {
         $result = Update-Header
 
-        $result | Should -Match 'assets/profile/header-dark\.svg'
-        $result | Should -Match 'View full portfolio'
+        $result | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
+        $result | Should -Not -Match '<img '
+        $result | Should -Match 'View my full portfolio'
         $result | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
+        $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
         $result | Should -Not -Match 'Professional Focus|Public portfolio: 100 active repos'
     }
 }

@@ -3208,29 +3208,20 @@ function New-ProfileAssetSvgs {
 }
 
 function New-ProfileChrome {
-    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    $headerImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/header-dark.svg" -LightUrl "$assetPathPrefix/header-light.svg" -Alt 'SysAdminDoc public tools command center profile header' -Attributes 'width="100%"'
-
+    # Minimal, text-only header: no SVG/image chrome. Satisfies the minimal
+    # profile-header contract in Test-GeneratedProfileContract (README must start
+    # with the plain-text tagline paragraph, carry the "View my full portfolio"
+    # link, and expose plain category nav anchors with no header image).
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add('<p align="center">')
-    $lines.Add("  $headerImage")
-    $lines.Add('</p>')
+    $lines.Add('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>')
     $lines.Add('')
-    $lines.Add('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>')
-    $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
+    $lines.Add('<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
     $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
     $categoryLinks = @($navSlugs | ForEach-Object {
         $slug = [string]$_
-        $icon = Get-CategoryIcon -Slug $slug
         $displayName = Get-ProfileNavLabel -Slug $slug
-        $label = if ([string]::IsNullOrWhiteSpace($icon)) {
-            $displayName
-        } else {
-            "$icon $displayName"
-        }
-        "<a href=`"#$((Get-CategoryAnchor $slug))`">$label</a>"
+        "<a href=`"#$((Get-CategoryAnchor $slug))`">$displayName</a>"
     })
     $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
     $lines.Add('')
@@ -3276,14 +3267,11 @@ function New-ProfileStatsChrome {
 }
 
 function New-ProfileFooter {
-    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    $image = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/footer-dark.svg" -LightUrl "$assetPathPrefix/footer-light.svg" -Alt "SysAdminDoc generated profile footer" -Attributes 'width="100%"'
+    # Minimal, text-only footer: no SVG/image chrome.
     return @(
-        '<p align="center">'
-        "  $image"
-        '</p>'
+        '---'
         ''
-        '<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>'
+        '<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>'
     ) -join [Environment]::NewLine
 }
 

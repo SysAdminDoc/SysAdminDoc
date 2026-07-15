@@ -1,8 +1,8 @@
-<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/>Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence<br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
+<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
-<p align="center"><a href="https://sysadmindoc.github.io/"><b>View full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
+<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
-<p align="center"><a href="#powershell-system-utilities">&#9889; PowerShell</a> &middot; <a href="#python-desktop-applications">&#128013; Python</a> &middot; <a href="#web-applications">&#127760; Web Apps</a> &middot; <a href="#browser-extensions--userscripts">&#129513; Extensions</a> &middot; <a href="#android-applications">&#128241; Android</a> &middot; <a href="#security--networking">&#128274; Security</a> &middot; <a href="#native-desktop-applications">&#128421;&#65039; Desktop</a> &middot; <a href="#media--conversion-tools">&#127916; Media</a> &middot; <a href="#guides--resources">&#128218; Guides</a> &middot; <a href="#misc--forks">&#128256; Forks</a></p>
+<p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>
 
 <!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
 
@@ -647,3 +647,6 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 
 </details>
 
+---
+
+<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>

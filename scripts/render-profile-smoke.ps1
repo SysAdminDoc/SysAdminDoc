@@ -215,11 +215,13 @@ function Invoke-RenderedSmoke {
   };
   const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i]'));
   const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Broadcast IT", "practical public tools"]));
-  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["View full portfolio", "Start Here", "Local validation"]));
+  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["portfolio", "Start Here", "Local validation"]));
   const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
   const startHereNodes = textMatch("h1,h2,h3", "Start Here");
   const toolCatalogNodes = textMatch("h1,h2,h3", "Tool Catalog");
-  const footerNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
+  const footerImageNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
+  const footerTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Browse repositories"]));
+  const footerNodes = footerImageNodes.length > 0 ? footerImageNodes : footerTextNodes;
   const countVisible = (nodes) => nodes.filter(isVisible).length;
   const firstViewportComponentPresence = {
     header: countVisible(headerNodes),

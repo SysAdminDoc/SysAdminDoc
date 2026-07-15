@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-07-15
+
+- Replaced the generated profile header and footer image chrome with a minimal, text-only header (plain tagline, portfolio and category links) and footer, removing all rendered SVG/image chrome from the profile README while preserving Start Here routing and the full tool catalog.
+- Updated the generated-profile smoke renderer to detect the text-only header and footer, and aligned the profile header/experience contract tests to the minimal-header path.
+- Bumped the internal profile evidence version to `v4.9.160`.
+
 ## 2026-07-08
 
 - Fixed GitHub-rendered profile chrome by replacing sanitized theme `<picture>` blocks with GitHub-visible dark/light image fragments for the generated profile header and footer.
