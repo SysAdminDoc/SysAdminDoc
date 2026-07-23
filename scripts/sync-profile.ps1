@@ -3210,12 +3210,18 @@ function New-ProfileAssetSvgs {
 function New-ProfileChrome {
     # Minimal, text-only header: no SVG/image chrome. Satisfies the minimal
     # profile-header contract in Test-GeneratedProfileContract (README must start
-    # with the plain-text tagline paragraph, carry the "View my full portfolio"
-    # link, and expose plain category nav anchors with no header image).
+    # with the plain-text tagline paragraph, carry the AI services and portfolio
+    # links, and expose plain category nav anchors with no header image).
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>')
     $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a> &middot; <a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
+    $lines.Add('## AI Implementation Services')
+    $lines.Add('')
+    $lines.Add('AI implementation contractor with a 15-year enterprise IT and healthcare systems background. I help small and mid-size businesses adopt AI end-to-end: tool selection and rollout, custom workflow automation, employee training, and ongoing problem-solving on a flat monthly retainer. Proof: 186+ shipped software projects at [sysadmindoc.github.io](https://sysadmindoc.github.io/), all built AI-first by one person.')
+    $lines.Add('')
+    $lines.Add('<p align="center"><a href="https://sysadmindoc.github.io/ai/"><b>Explore AI implementation services</b></a> &middot; <a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a></p>')
+    $lines.Add('')
+    $lines.Add('<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
     $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
     $categoryLinks = @($navSlugs | ForEach-Object {
