@@ -2,9 +2,9 @@
 
 ## AI Implementation Services
 
-AI implementation consultant with 15+ years across enterprise IT, healthcare systems, and operations. I help small and mid-size businesses roll out AI tools, automate repetitive workflows, train teams on real work, and maintain what ships through a flat month-to-month retainer. The proof is inspectable: 186+ shipped projects and 22 live apps, built and released by one person directing AI tooling.
+I help small and midsize businesses put AI to work through tool rollout, workflow automation, team training, and ongoing support. I bring 15 years of enterprise IT and healthcare systems experience.
 
-<p align="center"><a href="https://getparkerai.com/"><b>Explore Parker AI services</b></a> &middot; <a href="https://sysadmindoc.github.io/"><b>Inspect the project portfolio</b></a> &middot; <a href="https://sysadmindoc.github.io/ai/"><b>Read the service overview</b></a></p>
+<p align="center"><a href="https://getparkerai.com/"><b>Explore Parker AI services</b></a> &middot; <a href="https://sysadmindoc.github.io/ai/"><b>AI service overview</b></a></p>
 
 <p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
