@@ -1,17 +1,8 @@
 # Roadmap
 
-## Research-Driven Additions
+Actionable work only. Historical and completed roadmap material is archived in CHANGELOG.md; blocked work is kept in Roadmap_Blocked.md.
 
-### P0
-
-### P1
-
-- [ ] P1 — Add conditional GitHub metadata and link-probe caching
-  Why: Current validation probes 206 repos, 206 release fetches, and 342 links; GitHub REST/GraphQL limits and competitor reliability failures make bounded caching a root-cause resilience improvement.
-  Evidence: `reports/profile-sync-report.json.validationPerformance`, GitHub REST and GraphQL rate-limit docs, `anuraghazra/github-readme-stats#4867`.
-  Touches: `scripts/sync-profile.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`, `.gitignore` cache rules if a local cache path is added.
-  Acceptance: read-only cache entries record ETag/Last-Modified or fetched-at metadata for repo, release, and link probes; API-limit/offline fallback can reuse non-stale cache with `fidelityDegraded` evidence and redaction-safe report fields.
-  Complexity: L
+## Actionable Items
 
 - [ ] P1 — Persist rendered visual evidence for profile UX parity
   Why: Rendered smoke currently passes viewport/image/overflow checks, but it does not persist screenshot paths or assert first-viewport header, Tool Catalog, and footer presence after the mock-driven redesign.
@@ -26,8 +17,6 @@
   Touches: `schemas/profile-projects.v1.json`, `scripts/sync-profile.ps1`, `tests/sync-profile.Tests.ps1`, downstream `sysadmindoc.github.io` importer.
   Acceptance: each visible project row has a stable `id`, `canonicalRepo`, and optional `aliases`; the report flags duplicate/missing IDs and portfolio compatibility tests prove older consumers can ignore the additive fields.
   Complexity: M
-
-### P2
 
 - [ ] P2 — Generate actionable metadata hygiene handoffs
   Why: The current report still shows 19 missing-topic rows and 1 missing-description row, but the maintainer handoff is indirect.
@@ -91,8 +80,6 @@
   Touches: `tests/sync-profile.Tests.ps1`, `tests/fixtures/`, `scripts/sync-profile.ps1`.
   Acceptance: a small non-SysAdminDoc fixture proves `-Owner` changes schema URLs, repo URLs, profile URLs, and metadata fetch paths without touching the real SysAdminDoc outputs; no private owner/repo names are introduced.
   Complexity: M
-
-### P3
 
 - [ ] P3 — Extend rendered README accessibility smoke checks
   Why: Rendered smoke verifies layout and image health, but the large generated README still needs explicit checks for details/table keyboard and link-label accessibility.
