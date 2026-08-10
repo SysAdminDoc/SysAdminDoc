@@ -2,9 +2,9 @@
 
 ## AI Implementation Services
 
-AI implementation contractor with a 15-year enterprise IT and healthcare systems background. I help small and mid-size businesses adopt AI end-to-end: tool selection and rollout, custom workflow automation, employee training, and ongoing problem-solving on a flat monthly retainer. Proof: 186+ shipped software projects at [sysadmindoc.github.io](https://sysadmindoc.github.io/), all built AI-first by one person.
+I help small and midsize businesses put AI to work through tool rollout, workflow automation, team training, and ongoing support. I bring 15 years of enterprise IT and healthcare systems experience.
 
-<p align="center"><a href="https://sysadmindoc.github.io/ai/"><b>Explore AI implementation services</b></a> &middot; <a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a></p>
+<p align="center"><a href="https://getparkerai.com/"><b>Explore Parker AI services</b></a> &middot; <a href="https://sysadmindoc.github.io/ai/"><b>AI service overview</b></a></p>
 
 <p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
