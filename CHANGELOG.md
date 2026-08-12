@@ -2,6 +2,7 @@
 
 ## 2026-07-15
 
+- Added a local support-bundle command and `validate-local.ps1 -SupportBundlePath` integration that package tool versions, validation output, profile-sync evidence, dependency review, and optional setup transcripts into redaction-safe JSON/ZIP diagnostics. Common user paths, tokens, secrets, query credentials, and caller-supplied private values are removed before packaging.
 - Added stable public feed entity IDs, canonical repository/alias metadata, and default `en-US`/`en` plus `Latn` locale/script hints for visible project rows.
 - Added feed/report schema migration policy evidence with supported-version windows and required migration notes, plus report checks for duplicate or missing entity identities.
 - Added a non-SysAdminDoc catalog fixture covering owner-qualified feed URLs and schema provenance.

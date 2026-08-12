@@ -4,13 +4,6 @@ Actionable work only. Historical and completed roadmap material is archived in C
 
 ## Actionable Items
 
-- [ ] P2 — Add redacted local support bundles
-  Why: Setup transcripts and validation reports exist, but issue reporters do not have a single redacted diagnostic artifact for local validation/setup failures.
-  Evidence: `.github/ISSUE_TEMPLATE/local-validation.yml`, `setup.ps1` transcript logging, `reports/profile-sync-report.json`, `scripts/validate-local.ps1`.
-  Touches: `scripts/validate-local.ps1`, a new `scripts/new-support-bundle.ps1`, `tests/sync-profile.Tests.ps1`, `README.md`.
-  Acceptance: local validation can create a zip/json bundle containing tool versions, validation output, profile sync report, dependency review summary, and redacted paths/tokens; tests prove private names/secrets are excluded.
-  Complexity: M
-
 - [ ] P2 — Reconcile working notes with the current local-only posture
   Why: `CLAUDE.md` still contains many historical GitHub Actions and Dependabot notes while the live `.github` tree has no workflows or Dependabot config, which can mislead future agents.
   Evidence: `CLAUDE.md`, `.github/`, `AGENTS.md`, current repository policy.
