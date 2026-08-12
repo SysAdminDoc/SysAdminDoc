@@ -96,6 +96,12 @@ Run the manual dependency and advisory review:
 npm run review:dependencies
 ```
 
+Emit an optional redaction-safe Backstage catalog export:
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\reports\backstage-catalog.json
+```
+
 | Check | Behavior |
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
@@ -106,6 +112,7 @@ npm run review:dependencies
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
+| Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 

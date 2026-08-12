@@ -121,6 +121,7 @@ $forkParentDrift = if ($report.PSObject.Properties.Name -contains 'forkParentDri
 $staleProjectReview = if ($report.PSObject.Properties.Name -contains 'staleProjectReview') { $report.staleProjectReview } else { $null }
 $releaseDrift = $report.releaseAssetDrift
 $branchTipProvenance = if ($report.PSObject.Properties.Name -contains 'branchTipProvenance') { $report.branchTipProvenance } else { $null }
+$backstageCatalogExport = if ($report.PSObject.Properties.Name -contains 'backstageCatalogExport') { $report.backstageCatalogExport } else { $null }
 $releaseArtifactVerification = if ($report.PSObject.Properties.Name -contains 'releaseArtifactVerification') { $report.releaseArtifactVerification } else { $null }
 $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
@@ -198,6 +199,10 @@ $branchTipStatus = if ($branchTipProvenance) { [string]$branchTipProvenance.stat
 $branchTipCheckedCount = if ($branchTipProvenance) { [int]$branchTipProvenance.checkedInstallActionCount } else { 0 }
 $branchTipFreshCount = if ($branchTipProvenance) { [int]$branchTipProvenance.freshCount } else { 0 }
 $branchTipWarningCount = if ($branchTipProvenance) { [int]$branchTipProvenance.warningCount } else { 0 }
+$backstageExportStatus = if ($backstageCatalogExport) { [string]$backstageCatalogExport.status } else { "unknown" }
+$backstageComponentCount = if ($backstageCatalogExport) { [int]$backstageCatalogExport.componentCount } else { 0 }
+$backstageSuppressedCount = if ($backstageCatalogExport) { [int]$backstageCatalogExport.suppressedCount } else { 0 }
+$backstagePrivateSkippedCount = if ($backstageCatalogExport) { [int]$backstageCatalogExport.privateSkippedCount } else { 0 }
 $executableShortlist = if ($releaseDrift -and $releaseDrift.PSObject.Properties.Name -contains 'executableDownloadTrustShortlist') { $releaseDrift.executableDownloadTrustShortlist } else { $null }
 $executableDownloadCount = if ($executableShortlist) { [int]$executableShortlist.executableDownloadCount } else { 0 }
 $executableMetadataCompleteCount = if ($executableShortlist) { [int]$executableShortlist.metadataCompleteCount } else { 0 }
@@ -571,6 +576,10 @@ $summary = @"
 | Branch-backed install actions checked | $branchTipCheckedCount |
 | Fresh branch-tip rows | $branchTipFreshCount |
 | Branch-tip warnings | $branchTipWarningCount |
+| Backstage export | $backstageExportStatus |
+| Backstage components | $backstageComponentCount |
+| Backstage suppressed rows omitted | $backstageSuppressedCount |
+| Backstage private rows omitted | $backstagePrivateSkippedCount |
 | Executable downloads tracked | $executableDownloadCount |
 | Executable downloads metadata complete | $executableMetadataCompleteCount |
 | Executable downloads missing checksums | $executableChecksumGapCount |

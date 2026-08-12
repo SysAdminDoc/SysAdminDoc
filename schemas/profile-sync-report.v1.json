@@ -27,6 +27,7 @@
     "staleProjectReview",
     "releaseAssetDrift",
     "branchTipProvenance",
+    "backstageCatalogExport",
     "releaseArtifactVerification",
     "userscriptInstallTrust",
     "repositorySettings",
@@ -130,6 +131,9 @@
     },
     "branchTipProvenance": {
       "$ref": "#/$defs/branchTipProvenance"
+    },
+    "backstageCatalogExport": {
+      "$ref": "#/$defs/backstageCatalogExport"
     },
     "releaseArtifactVerification": {
       "$ref": "#/$defs/releaseArtifactVerification"
@@ -1869,6 +1873,56 @@
         },
         "warning": {
           "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "backstageCatalogExport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "status",
+        "outputPath",
+        "schemaVersion",
+        "componentCount",
+        "suppressedCount",
+        "privateSkippedCount",
+        "missingMetadataCount",
+        "redactionSafe",
+        "note"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["disabled", "generated"]
+        },
+        "outputPath": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "const": "sysadmindoc-backstage-catalog.v1"
+        },
+        "componentCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "suppressedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "privateSkippedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingMetadataCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "redactionSafe": {
+          "const": true
+        },
+        "note": {
+          "type": "string"
         }
       }
     },

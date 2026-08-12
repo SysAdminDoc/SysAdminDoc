@@ -26,6 +26,7 @@ param(
     [int]$ReleaseVerificationMaxAssets = 4,
     [ValidateRange(1024, 52428800)]
     [int]$ReleaseVerificationMaxBytes = 5MB,
+    [string]$BackstageExportPath,
     [switch]$Offline
 )
 
@@ -2995,6 +2996,161 @@ function Get-BranchTipActionEvidence {
     }
 }
 
+function Get-BackstageEntityName {
+    param([hashtable]$Entry)
+
+    $entityName = [string](Get-StableProjectEntityId -Entry $Entry)
+    $entityName = ([regex]::Replace($entityName.ToLowerInvariant(), '[^a-z0-9-]', '-')).Trim('-')
+    if ($entityName.Length -gt 63) {
+        $entityName = $entityName.Substring(0, 63).TrimEnd('-')
+    }
+    return $entityName
+}
+
+function Get-BackstageComponentType {
+    param([string]$Category)
+
+    switch ($Category) {
+        'web' { return 'website' }
+        'guides' { return 'documentation' }
+        'python' { return 'library' }
+        default { return 'service' }
+    }
+}
+
+function ConvertTo-BackstageTag {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $null
+    }
+
+    $tag = [regex]::Replace($Value.ToLowerInvariant(), '[^a-z0-9:+#-]', '-')
+    $tag = [regex]::Replace($tag, '-{2,}', '-').Trim('-')
+    if ($tag.Length -gt 63) {
+        $tag = $tag.Substring(0, 63).TrimEnd('-')
+    }
+    return $tag
+}
+
+function New-BackstageCatalogExport {
+    <#
+    .SYNOPSIS
+    Builds redaction-safe Backstage Component descriptors from public catalog rows.
+    .DESCRIPTION
+    The export uses Backstage's v1alpha1 Component envelope. Suppressed rows, rows
+    excluded from the public portfolio, private metadata, and metadata-unavailable
+    rows are counted but never emitted or named in the export.
+    .PARAMETER Catalog
+    Normalized profile catalog returned by Get-Catalog.
+    .PARAMETER Repos
+    Public repository metadata used to confirm export eligibility and enrich links.
+    #>
+    [CmdletBinding()]
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos
+    )
+
+    $repoLookup = ConvertTo-Lookup $Repos
+    $components = New-Object System.Collections.Generic.List[object]
+    $suppressedCount = 0
+    $privateSkippedCount = 0
+    $missingMetadataCount = 0
+
+    foreach ($entry in @($Catalog.entries | Sort-Object category, @{ Expression = { [int]$_.order } }, repo)) {
+        $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
+        if ($isSuppressed -or $entry.includeInPortfolio -eq $false) {
+            $suppressedCount++
+            continue
+        }
+
+        $meta = Get-RepoMeta $entry $repoLookup
+        if (-not $meta) {
+            $missingMetadataCount++
+            continue
+        }
+        if ((Get-MemberValue -Object $meta -Name 'isPrivate') -eq $true -or [string](Get-MemberValue -Object $meta -Name 'visibility') -ne 'PUBLIC') {
+            $privateSkippedCount++
+            continue
+        }
+
+        $repoUrl = Get-RepoUrl -Entry $entry
+        $links = New-Object System.Collections.Generic.List[object]
+        $links.Add([ordered]@{ title = 'Repository'; url = $repoUrl })
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.liveUrl) -and (Test-UrlScheme -Url ([string]$entry.liveUrl))) {
+            $links.Add([ordered]@{ title = 'Live site'; url = [string]$entry.liveUrl })
+        }
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl) -and (Test-UrlScheme -Url ([string]$entry.userscriptUrl))) {
+            $links.Add([ordered]@{ title = 'Install'; url = [string]$entry.userscriptUrl })
+        }
+        if ($meta.latestRelease -and [string]$entry.downloadKind -ne 'repo') {
+            $links.Add([ordered]@{ title = 'Release'; url = Get-ReleaseUrl -Entry $entry })
+        }
+
+        $language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) { [string]$entry.language } elseif ($meta.primaryLanguage) { [string]$meta.primaryLanguage.name } else { $null }
+        $tags = New-Object System.Collections.Generic.List[string]
+        foreach ($tagValue in @(
+                (ConvertTo-BackstageTag -Value ('category-' + [string]$entry.category)),
+                (ConvertTo-BackstageTag -Value $language),
+                (ConvertTo-BackstageTag -Value ([string]$entry.downloadKind)))) {
+            if (-not [string]::IsNullOrWhiteSpace($tagValue) -and -not $tags.Contains($tagValue)) {
+                $tags.Add($tagValue)
+            }
+        }
+
+        $components.Add([ordered]@{
+            apiVersion = 'backstage.io/v1alpha1'
+            kind = 'Component'
+            metadata = [ordered]@{
+                name = Get-BackstageEntityName -Entry $entry
+                title = [string]$entry.title
+                description = Get-Description -Entry $entry -Meta $meta
+                tags = @($tags | Sort-Object)
+                links = $links.ToArray()
+            }
+            spec = [ordered]@{
+                type = Get-BackstageComponentType -Category ([string]$entry.category)
+                lifecycle = if ($entry.currentlyBuilding -eq $true) { 'experimental' } else { 'production' }
+                owner = "user:default/$($Owner.ToLowerInvariant())"
+            }
+        })
+    }
+
+    $componentJson = if ($components.Count -eq 0) { '[]' } else { $components.ToArray() | ConvertTo-Json -Depth 15 }
+
+    [ordered]@{
+        json = $componentJson
+        summary = [ordered]@{
+            schemaVersion = 'sysadmindoc-backstage-catalog.v1'
+            componentCount = [int]$components.Count
+            suppressedCount = [int]$suppressedCount
+            privateSkippedCount = [int]$privateSkippedCount
+            missingMetadataCount = [int]$missingMetadataCount
+            redactionSafe = $true
+            note = 'Only public, visitor-facing catalog rows with public repository metadata are emitted as Backstage Component descriptors.'
+        }
+    }
+}
+
+function New-BackstageCatalogExportJson {
+    <#
+    .SYNOPSIS
+    Returns the optional redaction-safe Backstage Component export as JSON.
+    .PARAMETER Catalog
+    Normalized profile catalog returned by Get-Catalog.
+    .PARAMETER Repos
+    Public repository metadata used to confirm export eligibility.
+    #>
+    [CmdletBinding()]
+    param(
+        [hashtable]$Catalog,
+        [object[]]$Repos
+    )
+
+    return (New-BackstageCatalogExport -Catalog $Catalog -Repos $Repos).json
+}
+
 function New-CategoryLink {
     param([string]$Slug)
 
@@ -3317,6 +3473,12 @@ Run the manual dependency and advisory review:
 npm run review:dependencies
 ```
 
+Emit an optional redaction-safe Backstage catalog export:
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\reports\backstage-catalog.json
+```
+
 | Check | Behavior |
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
@@ -3327,6 +3489,7 @@ npm run review:dependencies
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
+| Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
@@ -11633,6 +11796,10 @@ function Test-ProfileState {
     Maximum number of release assets considered by the opt-in verification pilot.
     .PARAMETER ReleaseVerificationMaxBytes
     Maximum size of each release asset download in the opt-in verification pilot.
+    .PARAMETER BackstageExport
+    Optional in-memory Backstage export generated for an opt-in output path.
+    .PARAMETER BackstageExportPath
+    Optional output path used only as a public-safe filename in the sync report.
     #>
     [CmdletBinding()]
     param(
@@ -11649,6 +11816,8 @@ function Test-ProfileState {
     [int]$ReleaseVerificationMaxAssets = $script:ReleaseVerificationMaxAssets,
     [ValidateRange(1024, 52428800)]
     [int]$ReleaseVerificationMaxBytes = $script:ReleaseVerificationMaxBytes,
+    [object]$BackstageExport,
+    [string]$BackstageExportPath,
     [string]$SmokeReportPath = $script:SmokeReportPath
     )
 
@@ -11851,6 +12020,35 @@ function Test-ProfileState {
     $staleProjectReview = Test-StaleProjectReview -Entries $entries -RepoLookup $repoLookup
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
     $branchTipProvenance = Test-BranchTipProvenance -Entries $included -RepoLookup $repoLookup
+    $backstageCatalogExport = if ($null -eq $BackstageExport) {
+        [ordered]@{
+            enabled = $false
+            status = "disabled"
+            outputPath = $null
+            schemaVersion = "sysadmindoc-backstage-catalog.v1"
+            componentCount = 0
+            suppressedCount = 0
+            privateSkippedCount = 0
+            missingMetadataCount = 0
+            redactionSafe = $true
+            note = "Opt-in only: pass -BackstageExportPath to emit public-safe Backstage Component descriptors."
+        }
+    } else {
+        $summary = $BackstageExport.summary
+        $outputName = if ([string]::IsNullOrWhiteSpace([string]$BackstageExportPath)) { $null } else { [System.IO.Path]::GetFileName([string]$BackstageExportPath) }
+        [ordered]@{
+            enabled = $true
+            status = "generated"
+            outputPath = $outputName
+            schemaVersion = [string]$summary.schemaVersion
+            componentCount = [int]$summary.componentCount
+            suppressedCount = [int]$summary.suppressedCount
+            privateSkippedCount = [int]$summary.privateSkippedCount
+            missingMetadataCount = [int]$summary.missingMetadataCount
+            redactionSafe = [bool]$summary.redactionSafe
+            note = [string]$summary.note
+        }
+    }
     $releaseArtifactVerification = Test-ReleaseArtifactVerification `
         -Entries $included `
         -RepoLookup $repoLookup `
@@ -11937,6 +12135,7 @@ function Test-ProfileState {
         staleProjectReview = $staleProjectReview
         releaseAssetDrift = $releaseAssetDrift
         branchTipProvenance = $branchTipProvenance
+        backstageCatalogExport = $backstageCatalogExport
         releaseArtifactVerification = $releaseArtifactVerification
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting
@@ -12145,6 +12344,7 @@ if ($catalogForRun -and ($Write -or $Check)) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
     $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos
     $expectedAssets = New-ProfileAssetSvgs -Catalog $catalogForRun -Repos $repos -ContributionCalendar $contributionCalendar
+    $backstageExport = if ([string]::IsNullOrWhiteSpace($BackstageExportPath)) { $null } else { New-BackstageCatalogExport -Catalog $catalogForRun -Repos $repos }
 
     if ($Write) {
         $readmeFullPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
@@ -12164,6 +12364,16 @@ if ($catalogForRun -and ($Write -or $Check)) {
         Write-Host "Wrote profile assets to $AssetsPath."
     }
 
+    if ($backstageExport) {
+        $backstageFullPath = if ([System.IO.Path]::IsPathRooted($BackstageExportPath)) { $BackstageExportPath } else { Join-Path $RepoRoot $BackstageExportPath }
+        $backstageDir = Split-Path -Parent $backstageFullPath
+        if ($backstageDir -and -not (Test-Path -LiteralPath $backstageDir)) {
+            New-Item -ItemType Directory -Path $backstageDir -Force | Out-Null
+        }
+        [System.IO.File]::WriteAllText($backstageFullPath, [string]$backstageExport.json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
+        Write-Host "Wrote Backstage export to $BackstageExportPath."
+    }
+
     if ($Check) {
         $result = Test-ProfileState `
             -Catalog $catalogForRun `
@@ -12174,7 +12384,9 @@ if ($catalogForRun -and ($Write -or $Check)) {
             -SkipLinkValidation:$SkipLinkValidation `
             -VerifyReleaseArtifacts:$VerifyReleaseArtifacts `
             -ReleaseVerificationMaxAssets $ReleaseVerificationMaxAssets `
-            -ReleaseVerificationMaxBytes $ReleaseVerificationMaxBytes
+            -ReleaseVerificationMaxBytes $ReleaseVerificationMaxBytes `
+            -BackstageExport $backstageExport `
+            -BackstageExportPath $BackstageExportPath
         $reportDir = Split-Path -Parent $ReportPath
         if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
             New-Item -ItemType Directory -Path $reportDir | Out-Null

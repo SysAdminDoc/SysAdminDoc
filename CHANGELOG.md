@@ -4,6 +4,7 @@
 
 - Added a local support-bundle command and `validate-local.ps1 -SupportBundlePath` integration that package tool versions, validation output, profile-sync evidence, dependency review, and optional setup transcripts into redaction-safe JSON/ZIP diagnostics. Common user paths, tokens, secrets, query credentials, and caller-supplied private values are removed before packaging.
 - Added warning-only branch-tip provenance for clone/install actions: `projects.json` rows now carry the advertised branch's observed tip SHA, fetched-at timestamp, and fresh/stale/unreachable state, while the sync report summarizes the evidence without changing branch-current README snippets.
+- Added an opt-in redaction-safe Backstage `backstage.io/v1alpha1` Component export with stable names, public owner/lifecycle/tags/links metadata, and report counts for suppressed, private, and metadata-unavailable rows.
 - Added stable public feed entity IDs, canonical repository/alias metadata, and default `en-US`/`en` plus `Latn` locale/script hints for visible project rows.
 - Added feed/report schema migration policy evidence with supported-version windows and required migration notes, plus report checks for duplicate or missing entity identities.
 - Added a non-SysAdminDoc catalog fixture covering owner-qualified feed URLs and schema provenance.

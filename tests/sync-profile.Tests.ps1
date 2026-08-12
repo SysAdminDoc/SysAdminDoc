@@ -175,6 +175,8 @@ Describe 'Function library loads via the dot-source test seam' {
             'New-ContributionAssetSvg',
             'New-Readme',
             'New-ProjectsExportJson',
+            'New-BackstageCatalogExport',
+            'New-BackstageCatalogExportJson',
             'Get-ProjectCanonicalRepo',
             'Get-ProjectAliases',
             'Get-StableProjectEntityId',
@@ -3241,6 +3243,52 @@ Describe 'New-ProjectsExportJson feed' {
     }
 }
 
+Describe 'Backstage catalog export' {
+    It 'emits public Component descriptors and omits suppressed or private rows' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $privateEntry = New-TestEntry -Repo 'PrivateTool' -Category 'misc' -Description 'Private fixture row'
+        $cat.entries = @($cat.entries) + @($privateEntry)
+
+        $publicMeta = New-TestRepoMeta -Name 'WinTool' -Description 'Public fixture metadata'
+        $privateMeta = New-TestRepoMeta -Name 'PrivateTool' -Description 'Private fixture metadata'
+        $privateMeta.isPrivate = $true
+        $privateMeta.visibility = 'PRIVATE'
+
+        $export = New-BackstageCatalogExport -Catalog $cat -Repos @($publicMeta, $privateMeta)
+        $entities = @($export.json | ConvertFrom-Json)
+
+        $entities | Should -HaveCount 1
+        $entity = $entities[0]
+        $entity.apiVersion | Should -Be 'backstage.io/v1alpha1'
+        $entity.kind | Should -Be 'Component'
+        $entity.metadata.name | Should -Match '^[a-z0-9][a-z0-9-]{0,62}$'
+        $entity.metadata.title | Should -Be 'WinTool'
+        @($entity.metadata.tags) | Should -Not -BeNullOrEmpty
+        $repositoryLink = @($entity.metadata.links)[0]
+        $repositoryLink.title | Should -Be 'Repository'
+        $repositoryLink.url | Should -Be 'https://github.com/SysAdminDoc/WinTool'
+        $entity.spec.owner | Should -Be 'user:default/sysadmindoc'
+        $entity.spec.lifecycle | Should -Be 'production'
+        $entity.spec.type | Should -Be 'service'
+
+        $export.summary.schemaVersion | Should -Be 'sysadmindoc-backstage-catalog.v1'
+        $export.summary.componentCount | Should -Be 1
+        $export.summary.suppressedCount | Should -Be 1
+        $export.summary.privateSkippedCount | Should -Be 1
+        $export.summary.redactionSafe | Should -BeTrue
+        $export.json | Should -Not -Match 'HiddenTool|PrivateTool|PRIVATE'
+    }
+
+    It 'emits an empty JSON array when public metadata is unavailable' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-BackstageCatalogExportJson -Catalog $cat -Repos @()
+
+        $json | Should -Be '[]'
+        @($json | ConvertFrom-Json) | Should -HaveCount 0
+        $json | Should -Not -Match 'WinTool|HiddenTool'
+    }
+}
+
 Describe 'Feed JSON Schema contracts' {
     It 'validates the normalized fixture catalog and generated projects feed' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
@@ -3434,6 +3482,23 @@ Describe 'Feed JSON Schema contracts' {
         $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
         $summaryScript | Should -Match 'Branch-tip provenance'
         $summaryScript | Should -Match 'Fresh branch-tip rows'
+    }
+
+    It 'requires the opt-in Backstage catalog export report contract' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        @($schema.required) | Should -Contain 'backstageCatalogExport'
+        $required = @($schema.'$defs'.backstageCatalogExport.required)
+        foreach ($field in @('enabled', 'status', 'outputPath', 'schemaVersion', 'componentCount', 'suppressedCount', 'privateSkippedCount', 'missingMetadataCount', 'redactionSafe', 'note')) {
+            $required | Should -Contain $field
+        }
+        $schema.'$defs'.backstageCatalogExport.properties.schemaVersion.const | Should -Be 'sysadmindoc-backstage-catalog.v1'
+        $schema.'$defs'.backstageCatalogExport.properties.redactionSafe.const | Should -BeTrue
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Backstage export'
+        $summaryScript | Should -Match 'Backstage components'
+        $summaryScript | Should -Match 'Backstage suppressed rows omitted'
+        $summaryScript | Should -Match 'Backstage private rows omitted'
     }
 
     It 'validates the committed profile sync report contract' {

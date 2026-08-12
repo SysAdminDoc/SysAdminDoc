@@ -11,13 +11,6 @@ Actionable work only. Historical and completed roadmap material is archived in C
   Acceptance: working notes clearly mark hosted-workflow/Dependabot history as historical or remove stale operational guidance, while preserving current local validation, feed, and blocked-roadmap instructions.
   Complexity: S
 
-- [ ] P2 — Generate an optional Backstage-compatible catalog export
-  Why: SysAdminDoc already maintains a structured software catalog; a narrow Backstage export adds integration value without turning the generator into a plugin framework.
-  Evidence: Backstage Software Catalog descriptor docs, `projects.json`, `schemas/profile-projects.v1.json`.
-  Touches: `scripts/sync-profile.ps1`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`, optional generated YAML/JSON export path.
-  Acceptance: an opt-in command emits redaction-safe Backstage Component entries with name, title, owner, lifecycle, tags, links, and repo URL; schema/report tests verify suppressed/private rows cannot leak.
-  Complexity: M
-
 - [ ] P3 — Extend rendered README accessibility smoke checks
   Why: Rendered smoke verifies layout and image health, but the large generated README still needs explicit checks for details/table keyboard and link-label accessibility.
   Evidence: WCAG 2.2, `scripts/render-profile-smoke.ps1`, `reports/profile-sync-report.json.renderedProfileSmoke`, `readmeExperienceChecks`.
