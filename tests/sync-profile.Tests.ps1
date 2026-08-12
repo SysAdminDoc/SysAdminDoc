@@ -5661,7 +5661,105 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match 'Invoke-Pester -Configuration'
         $validationScript | Should -Match 'CodeCoverage\.Enabled = \$true'
         $validationScript | Should -Match 'OutputFormat = "JaCoCo"'
+        $validationScript | Should -Match 'SupportBundlePath'
+        $validationScript | Should -Match 'New-LocalSupportBundle'
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+    }
+}
+
+Describe 'Redacted local support bundles' -Tag 'Integration' {
+    BeforeAll {
+        $script:SupportBundleScriptPath = Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1'
+    }
+
+    It 'writes a ZIP manifest and evidence set without private names, paths, or tokens' {
+        $inputRoot = Join-Path $TestDrive 'support-input'
+        New-Item -ItemType Directory -Path $inputRoot | Out-Null
+        $validationPath = Join-Path $inputRoot 'validation.log'
+        $reportPath = Join-Path $inputRoot 'report.json'
+        $dependencyPath = Join-Path $inputRoot 'dependency.json'
+        $transcriptPath = Join-Path $inputRoot 'setup.log'
+        @'
+Validation failed at C:\Users\Alice\PrivateRepo.
+Authorization: Bearer ghp_private_token_value
+'@ | Set-Content -LiteralPath $validationPath -Encoding utf8
+        @'
+{"repo":"https://github.com/private-owner/PrivateRepo","secret":"do-not-export","path":"C:\Users\Alice\PrivateRepo"}
+'@ | Set-Content -LiteralPath $reportPath -Encoding utf8
+        @'
+{"status":"review-needed","access_token":"github_pat_private_value"}
+'@ | Set-Content -LiteralPath $dependencyPath -Encoding utf8
+        @'
+setup saw PrivateRepo at C:\Users\Alice\PrivateRepo
+'@ | Set-Content -LiteralPath $transcriptPath -Encoding utf8
+
+        $outputPath = Join-Path $TestDrive 'SysAdminDoc-support.zip'
+        $commandOutput = & pwsh -NoProfile -File $script:SupportBundleScriptPath `
+            -OutputPath $outputPath `
+            -RepoRoot $script:RepoRoot `
+            -ValidationOutputPath $validationPath `
+            -ProfileReportPath $reportPath `
+            -DependencyReviewPath $dependencyPath `
+            -SetupTranscriptPath $transcriptPath `
+            -ValidationStatus failed `
+            -RedactValue 'PrivateRepo,private-owner,Alice' *>&1
+
+        $LASTEXITCODE | Should -Be 0
+        Test-Path -LiteralPath $outputPath | Should -BeTrue
+
+        Add-Type -AssemblyName System.IO.Compression
+        $archive = [System.IO.Compression.ZipFile]::OpenRead($outputPath)
+        try {
+            $entries = @($archive.Entries)
+            $entries.FullName | Should -Contain 'manifest.json'
+            $entries.FullName | Should -Contain 'evidence/validation-output.txt'
+            $manifestEntry = $entries | Where-Object FullName -eq 'manifest.json'
+            $manifestReader = [System.IO.StreamReader]::new($manifestEntry.Open())
+            try {
+                $manifest = $manifestReader.ReadToEnd() | ConvertFrom-Json
+            } finally {
+                $manifestReader.Dispose()
+            }
+
+            $manifest.schemaVersion | Should -Be 'sysadmindoc-support-bundle.v1'
+            $manifest.validationStatus | Should -Be 'failed'
+            $manifest.redaction.applied | Should -BeTrue
+            @($manifest.evidence).Count | Should -Be 4
+
+            $evidenceText = foreach ($entry in $entries | Where-Object FullName -like 'evidence/*') {
+                $reader = [System.IO.StreamReader]::new($entry.Open())
+                try {
+                    $reader.ReadToEnd()
+                } finally {
+                    $reader.Dispose()
+                }
+            }
+            $combined = $evidenceText -join "`n"
+            $combined | Should -Match '<REDACTED_'
+            $combined | Should -Not -Match 'PrivateRepo|private-owner|Alice|ghp_private_token_value|github_pat_private_value|do-not-export'
+            $combined | Should -Not -Match 'C:\\Users\\Alice'
+        } finally {
+            $archive.Dispose()
+        }
+    }
+
+    It 'writes JSON when the output extension is json' {
+        $inputPath = Join-Path $TestDrive 'validation.log'
+        'token=ghp_json_secret' | Set-Content -LiteralPath $inputPath -Encoding utf8
+        $outputPath = Join-Path $TestDrive 'SysAdminDoc-support.json'
+
+        & pwsh -NoProfile -File $script:SupportBundleScriptPath `
+            -OutputPath $outputPath `
+            -RepoRoot $script:RepoRoot `
+            -ValidationOutputPath $inputPath `
+            -RedactValue 'ghp_json_secret' | Out-Null
+
+        $LASTEXITCODE | Should -Be 0
+        $bundle = Get-Content -LiteralPath $outputPath -Raw | ConvertFrom-Json
+        $bundle.redaction.applied | Should -BeTrue
+        ($bundle.evidence | Where-Object name -eq 'validation-output.txt').content | Should -Not -Match 'ghp_json_secret'
+        ($bundle.evidence | Where-Object name -eq 'validation-output.txt').content | Should -Match '<REDACTED_'
     }
 }
 

@@ -1,7 +1,11 @@
 #Requires -Version 7.4
 [CmdletBinding()]
 param(
-    [switch]$SkipBootstrap
+    [switch]$SkipBootstrap,
+
+    [string]$SupportBundlePath,
+
+    [string[]]$SupportBundleRedactValue = @()
 )
 
 Set-StrictMode -Version Latest
@@ -149,6 +153,7 @@ function Assert-ScriptAnalyzerClean {
         "scripts/open-generated-profile-pr.ps1",
         "scripts/write-profile-sync-summary.ps1",
         "scripts/set-generated-validation-status.ps1",
+        "scripts/new-support-bundle.ps1",
         "setup.ps1"
     )
 
@@ -166,7 +171,9 @@ function Invoke-DependencyReview {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [string]$RepoRoot
+        [string]$RepoRoot,
+
+        [string]$OutputPath
     )
 
     $pwsh = Get-Command pwsh -ErrorAction Stop
@@ -174,6 +181,14 @@ function Invoke-DependencyReview {
     $output = & $pwsh.Source -NoProfile -File $reviewScript 2>&1
     $exitCode = $LASTEXITCODE
     $text = ($output | Out-String).Trim()
+
+    if (-not [string]::IsNullOrWhiteSpace($OutputPath)) {
+        $outputParent = Split-Path -Parent $OutputPath
+        if (-not [string]::IsNullOrWhiteSpace($outputParent)) {
+            New-Item -ItemType Directory -Path $outputParent -Force | Out-Null
+        }
+        [System.IO.File]::WriteAllText($OutputPath, $text, [System.Text.UTF8Encoding]::new($false))
+    }
 
     if ($exitCode -ne 0) {
         if (-not [string]::IsNullOrWhiteSpace($text)) {
@@ -190,7 +205,83 @@ function Invoke-DependencyReview {
     }
 }
 
+function New-LocalSupportBundle {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot,
+
+        [Parameter(Mandatory)]
+        [string]$OutputPath,
+
+        [Parameter(Mandatory)]
+        [string]$ValidationOutputPath,
+
+        [Parameter(Mandatory)]
+        [string]$DependencyReviewPath,
+
+        [Parameter(Mandatory)]
+        [ValidateSet('passed', 'failed')]
+        [string]$ValidationStatus,
+
+        [string[]]$RedactValue = @()
+    )
+
+    $pwsh = Get-Command pwsh -ErrorAction Stop
+    $bundleScript = Join-Path $RepoRoot 'scripts/new-support-bundle.ps1'
+    $arguments = @(
+        '-NoProfile'
+        '-File'
+        $bundleScript
+        '-OutputPath'
+        $OutputPath
+        '-RepoRoot'
+        $RepoRoot
+        '-ValidationOutputPath'
+        $ValidationOutputPath
+        '-ProfileReportPath'
+        (Join-Path $RepoRoot 'reports/profile-sync-report.json')
+        '-DependencyReviewPath'
+        $DependencyReviewPath
+        '-ValidationStatus'
+        $ValidationStatus
+    )
+    if (@($RedactValue).Count -gt 0) {
+        $arguments += @('-RedactValue', ($RedactValue -join ','))
+    }
+
+    $bundleOutput = & $pwsh.Source @arguments 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Support bundle generation failed with exit code $LASTEXITCODE. $($bundleOutput | Out-String)"
+    }
+
+    Write-Host "Support bundle written to $OutputPath"
+}
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
+$supportBundlePathResolved = $null
+$validationOutputPath = $null
+$dependencyReviewPath = $null
+$validationTranscriptStarted = $false
+$validationStatus = 'passed'
+$supportBundleError = $null
+
+if (-not [string]::IsNullOrWhiteSpace($SupportBundlePath)) {
+    $supportBundlePathResolved = if ([System.IO.Path]::IsPathRooted($SupportBundlePath)) {
+        [System.IO.Path]::GetFullPath($SupportBundlePath)
+    } else {
+        [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $SupportBundlePath))
+    }
+    $validationOutputPath = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-validation-{0}.log" -f [guid]::NewGuid().ToString('N'))
+    $dependencyReviewPath = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-dependency-review-{0}.json" -f [guid]::NewGuid().ToString('N'))
+    try {
+        Start-Transcript -Path $validationOutputPath -Force | Out-Null
+        $validationTranscriptStarted = $true
+    } catch {
+        Write-Warning "Validation transcript unavailable: $($_.Exception.Message)"
+    }
+}
+
 Push-Location -LiteralPath $repoRoot
 try {
     $runtimePosture = Get-ValidationPowerShellRuntimePosture
@@ -217,7 +308,7 @@ try {
 
     Invoke-NativeCommand -FilePath $npm.Source -ArgumentList @("run", "lint:markdown")
     Assert-ScriptAnalyzerClean -RepoRoot $repoRoot
-    Invoke-DependencyReview -RepoRoot $repoRoot
+    Invoke-DependencyReview -RepoRoot $repoRoot -OutputPath $dependencyReviewPath
 
     # Invoke-Pester -Path tests with a configuration object so JaCoCo code coverage
     # (coverage.xml, gitignored) is produced for the generation engine. Profiler-based
@@ -245,6 +336,30 @@ try {
         $total = [int]$coverage.CommandsAnalyzedCount
         Write-Host "Code coverage: $percent% ($covered/$total commands) -> $coveragePath (JaCoCo)"
     }
+} catch {
+    $validationStatus = 'failed'
+    throw
 } finally {
     Pop-Location
+
+    if ($validationTranscriptStarted) {
+        try {
+            Stop-Transcript | Out-Null
+        } catch {
+            Write-Warning "Validation transcript could not be closed cleanly: $($_.Exception.Message)"
+        }
+    }
+
+    if ($supportBundlePathResolved) {
+        try {
+            New-LocalSupportBundle -RepoRoot $repoRoot -OutputPath $supportBundlePathResolved -ValidationOutputPath $validationOutputPath -DependencyReviewPath $dependencyReviewPath -ValidationStatus $validationStatus -RedactValue $SupportBundleRedactValue
+        } catch {
+            $supportBundleError = $_
+            Write-Warning "Support bundle generation failed: $($_.Exception.Message)"
+        }
+    }
+}
+
+if ($supportBundleError) {
+    throw $supportBundleError
 }

@@ -1,6 +1,8 @@
 *.bak
 *.log
 *.tmp
+SysAdminDoc-support*.zip
+SysAdminDoc-support*.json
 .env
 node_modules/
 CLAUDE.md

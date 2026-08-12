@@ -78,6 +78,18 @@ Use this from the repo root before pushing profile, catalog, asset, or validatio
 pwsh -NoProfile -File .\scripts\validate-local.ps1
 ```
 
+Create a redacted support bundle when local validation or setup needs troubleshooting:
+
+```powershell
+pwsh -NoProfile -File .\scripts\validate-local.ps1 -SupportBundlePath .\SysAdminDoc-support.zip -SupportBundleRedactValue 'PrivateRepoName'
+```
+
+The bundle contains tool versions, validation output, the profile sync report, and dependency-review evidence. User paths, common tokens/secrets, query credentials, and values supplied through `-SupportBundleRedactValue` are redacted. A setup transcript can be added directly when needed:
+
+```powershell
+pwsh -NoProfile -File .\scripts\new-support-bundle.ps1 -OutputPath .\SysAdminDoc-setup-support.zip -ProfileReportPath .\reports\profile-sync-report.json -SetupTranscriptPath (Get-ChildItem "$env:TEMP\SysAdminDoc-setup-*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+```
+
 Run the manual dependency and advisory review:
 
 ```powershell
@@ -93,6 +105,7 @@ npm run review:dependencies
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
+| Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
