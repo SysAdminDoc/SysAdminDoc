@@ -3,6 +3,8 @@
 param(
     [switch]$SkipBootstrap,
 
+    [switch]$Pester6Compatibility,
+
     [string]$SupportBundlePath,
 
     [string[]]$SupportBundleRedactValue = @()
@@ -15,6 +17,7 @@ $requiredModules = @(
     [pscustomobject]@{ Name = "Pester"; Version = "5.8.0" },
     [pscustomobject]@{ Name = "PSScriptAnalyzer"; Version = "1.25.0" }
 )
+$pester6CompatibilityVersion = [version]"6.0.1"
 $minimumPowerShellVersion = [version]"7.4.0"
 $preferredPowerShellVersion = [version]"7.6.0"
 $previousLtsAcceptedUntil = [datetimeoffset]::Parse("2026-11-10T23:59:59Z")
@@ -135,6 +138,126 @@ function Import-RequiredModule {
     )
 
     Import-Module -Name $Name -RequiredVersion $Version -Force -ErrorAction Stop
+}
+
+function Remove-IsolatedPester6ModulePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    try {
+        $resolvedPath = (Resolve-Path -LiteralPath $Path -ErrorAction Stop).Path
+        $trimChars = [char[]]@([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        $tempRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd($trimChars)
+        $parent = [System.IO.Path]::GetFullPath((Split-Path -Parent $resolvedPath)).TrimEnd($trimChars)
+        $leaf = Split-Path -Leaf $resolvedPath
+
+        if (-not [string]::Equals($parent, $tempRoot, [StringComparison]::OrdinalIgnoreCase) -or
+            $leaf -notmatch '^SysAdminDoc-Pester6-[0-9a-f]{32}$') {
+            throw "Refusing to remove unexpected Pester 6 module path: $resolvedPath"
+        }
+
+        Remove-Item -LiteralPath $resolvedPath -Recurse -Force -ErrorAction Stop
+    } catch {
+        Write-Warning "Could not remove isolated Pester 6 module path '$Path': $($_.Exception.Message)"
+    }
+}
+
+function Invoke-Pester6Compatibility {
+    <#
+    .SYNOPSIS
+    Installs Pester 6 into an isolated temporary module path and runs non-integration tests.
+    .DESCRIPTION
+    The compatibility lane runs in a child PowerShell with PSModulePath restricted to the
+    temporary Save-Module destination. It never changes the default Pester 5.8.0 module pin.
+    .PARAMETER RepoRoot
+    Repository root containing the tests directory.
+    .PARAMETER Version
+    Pester 6 version to save and import for this lane.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot,
+
+        [Parameter(Mandatory)]
+        [version]$Version
+    )
+
+    $moduleRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("SysAdminDoc-Pester6-{0}" -f [guid]::NewGuid().ToString('N'))
+    $result = $null
+    try {
+        New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
+        $saveModule = Get-Command Save-Module -ErrorAction Stop
+        & $saveModule.Name -Name Pester -RequiredVersion $Version.ToString() -Path $moduleRoot -Repository PSGallery -Force -ErrorAction Stop
+
+        $pwsh = Get-Command pwsh -CommandType Application -ErrorAction Stop | Select-Object -First 1
+        $repoTests = Join-Path $RepoRoot "tests"
+        $moduleRootJson = $moduleRoot | ConvertTo-Json -Compress
+        $repoTestsJson = $repoTests | ConvertTo-Json -Compress
+        $versionJson = $Version.ToString() | ConvertTo-Json -Compress
+        $childScript = @"
+`$ErrorActionPreference = 'Stop'
+`$env:PSModulePath = $moduleRootJson + [System.IO.Path]::PathSeparator + `$env:PSModulePath
+Import-Module Pester -RequiredVersion $versionJson -Force -ErrorAction Stop
+`$pesterModule = Get-Module Pester
+`$pesterResult = Invoke-Pester -Path $repoTestsJson -ExcludeTag Integration -PassThru -Output None
+[ordered]@{
+    pesterVersion = [string]`$pesterModule.Version
+    total = [int]`$pesterResult.TotalCount
+    passed = [int]`$pesterResult.PassedCount
+    failed = [int]`$pesterResult.FailedCount
+    skipped = [int]`$pesterResult.SkippedCount
+    notRun = [int]`$pesterResult.NotRunCount
+} | ConvertTo-Json -Compress
+if ([int]`$pesterResult.FailedCount -gt 0) { exit 1 }
+"@
+        $encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($childScript))
+        $output = @(& $pwsh.Source -NoProfile -EncodedCommand $encodedCommand 2>&1 | ForEach-Object { [string]$_ })
+        $exitCode = $LASTEXITCODE
+        $jsonLine = @($output | Where-Object { $_ -match '^\s*\{' } | Select-Object -Last 1)
+        if ($jsonLine.Count -eq 0) {
+            throw "Pester 6 child process returned no result JSON. Output: $($output -join ' ')"
+        }
+
+        $childResult = $jsonLine[0] | ConvertFrom-Json
+        $result = [ordered]@{
+            status = if ($exitCode -eq 0) { "passed" } else { "failed" }
+            targetVersion = $Version.ToString()
+            loadedVersion = [string]$childResult.pesterVersion
+            total = [int]$childResult.total
+            passed = [int]$childResult.passed
+            failed = [int]$childResult.failed
+            skipped = [int]$childResult.skipped
+            notRun = [int]$childResult.notRun
+            isolation = "temporary PSModulePath"
+            note = if ($exitCode -eq 0) { "Pester 6 compatibility suite passed without changing the default Pester 5.8.0 validation lane." } else { "Pester 6 compatibility suite reported one or more failures." }
+        }
+    } catch {
+        $result = [ordered]@{
+            status = "unavailable"
+            targetVersion = $Version.ToString()
+            loadedVersion = $null
+            total = 0
+            passed = 0
+            failed = 0
+            skipped = 0
+            notRun = 0
+            isolation = "temporary PSModulePath"
+            note = $_.Exception.Message
+        }
+    } finally {
+        Remove-IsolatedPester6ModulePath -Path $moduleRoot
+    }
+
+    Write-Host ("Pester 6 compatibility: {0}; target {1}; loaded {2}; tests {3}; passed {4}; failed {5}; skipped {6}; not run {7}." -f $result.status, $result.targetVersion, $result.loadedVersion, $result.total, $result.passed, $result.failed, $result.skipped, $result.notRun)
+    return $result
 }
 
 function Assert-ScriptAnalyzerClean {
@@ -291,6 +414,14 @@ try {
     }
     if (-not $runtimePosture.Supported) {
         throw "Unsupported PowerShell runtime for local validation."
+    }
+
+    if ($Pester6Compatibility) {
+        $pester6Result = Invoke-Pester6Compatibility -RepoRoot $repoRoot -Version $pester6CompatibilityVersion
+        if ($pester6Result.status -ne "passed") {
+            throw "Pester 6 compatibility status: $($pester6Result.status). $($pester6Result.note)"
+        }
+        return
     }
 
     $npm = Get-Command npm -ErrorAction Stop

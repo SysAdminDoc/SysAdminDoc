@@ -19,6 +19,7 @@ $LatestKnownNpmVersions = [ordered]@{
 $LatestKnownPythonVersions = [ordered]@{
     "zizmor" = "1.26.1"
 }
+$Pester6CompatibilityVersion = "6.0.1"
 
 function Get-JsonHashtable {
     [CmdletBinding()]
@@ -467,6 +468,15 @@ $review = [ordered]@{
     }
     powershell = [ordered]@{
         requiredModules = $powerShellPins
+        compatibilityLanes = [ordered]@{
+            pester6 = [ordered]@{
+                status = "opt-in"
+                targetVersion = $Pester6CompatibilityVersion
+                command = "pwsh -NoProfile -File .\scripts\validate-local.ps1 -Pester6Compatibility"
+                isolation = "temporary PSModulePath"
+                note = "The default validation lane remains pinned to Pester 5.8.0."
+            }
+        }
     }
     python = [ordered]@{
         requirementsFile = "requirements-local-audit.txt"

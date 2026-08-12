@@ -5935,6 +5935,14 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match 'OutputFormat = "JaCoCo"'
         $validationScript | Should -Match 'SupportBundlePath'
         $validationScript | Should -Match 'New-LocalSupportBundle'
+        $validationScript | Should -Match 'Pester6Compatibility'
+        $validationScript | Should -Match 'function Invoke-Pester6Compatibility'
+        $validationScript | Should -Match 'Save-Module'
+        $validationScript | Should -Match 'PSModulePath'
+        $validationScript | Should -Match 'ExcludeTag Integration'
+        $validationScript | Should -Match 'Pester6CompatibilityVersion'
+        $script:SyncProfileScript | Should -Match 'Pester 6 compatibility lane'
+        $script:SyncProfileScript | Should -Match 'validate-local[.]ps1 -Pester6Compatibility'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
@@ -6050,6 +6058,9 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
         $script:DependencyReviewReadme | Should -Match 'manual dependency and advisory review'
         $script:DependencyReviewReadme | Should -Match 'package override drift'
         $script:DependencyReviewReadme | Should -Match 'latest-known npm/Python audit-tool freshness'
+        $script:DependencyReviewScript | Should -Match 'compatibilityLanes'
+        $script:DependencyReviewScript | Should -Match 'Pester6CompatibilityVersion'
+        $script:DependencyReviewReadme | Should -Match 'Pester 6 compatibility lane'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/dependabot.yml') | Should -BeFalse
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
