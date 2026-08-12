@@ -21,6 +21,11 @@ param(
     [ValidateRange(1, 720)]
     [int]$CacheTtlHours = 24,
     [switch]$NoCache,
+    [switch]$VerifyReleaseArtifacts,
+    [ValidateRange(1, 32)]
+    [int]$ReleaseVerificationMaxAssets = 4,
+    [ValidateRange(1024, 52428800)]
+    [int]$ReleaseVerificationMaxBytes = 5MB,
     [switch]$Offline
 )
 
@@ -45,6 +50,9 @@ $script:GraphQlPageSize = [int]$GraphQlPageSize
 $script:CachePath = $CachePath
 $script:CacheTtlHours = [int]$CacheTtlHours
 $script:CacheEnabled = -not [bool]$NoCache
+$script:ReleaseVerificationEnabled = [bool]$VerifyReleaseArtifacts
+$script:ReleaseVerificationMaxAssets = [int]$ReleaseVerificationMaxAssets
+$script:ReleaseVerificationMaxBytes = [int]$ReleaseVerificationMaxBytes
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) {
     $Check = $true
@@ -647,6 +655,16 @@ function ConvertFrom-RestReleaseMetadata {
 
     $assetNames = @(Get-ReleaseAssetNamesFromApiRelease -Release $Release)
     $assetDigests = Get-ReleaseAssetDigestsFromApiRelease -Release $Release
+    $releaseAssets = foreach ($asset in @((Get-MemberValue -Object $Release -Name "assets"))) {
+        $assetName = [string](Get-MemberValue -Object $asset -Name "name")
+        if ([string]::IsNullOrWhiteSpace($assetName)) { continue }
+        [pscustomobject]@{
+            name = $assetName
+            browserDownloadUrl = Get-MemberValue -Object $asset -Name "browser_download_url"
+            size = if ($null -eq (Get-MemberValue -Object $asset -Name "size")) { $null } else { [int64](Get-MemberValue -Object $asset -Name "size") }
+            digest = Get-MemberValue -Object $asset -Name "digest"
+        }
+    }
 
     return [pscustomobject]@{
         tagName = Get-MemberValue -Object $Release -Name "tag_name"
@@ -656,6 +674,7 @@ function ConvertFrom-RestReleaseMetadata {
         releaseAssetNames = $assetNames
         releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames $assetNames)
         releaseAssetDigests = $assetDigests
+        releaseAssets = @($releaseAssets)
         assetApiInspected = $true
         immutable = Get-MemberValue -Object $Release -Name "immutable"
     }
@@ -1429,6 +1448,324 @@ function Get-ReleaseAssetNamesFromMeta {
     if (-not $release) { return @() }
     $names = @(Get-MemberValue -Object $release -Name "releaseAssetNames")
     return @($names | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+}
+
+function Test-AllowedReleaseArtifactUrl {
+    param([string]$Url)
+
+    if ([string]::IsNullOrWhiteSpace($Url)) { return $false }
+    try {
+        $uri = [Uri]$Url
+        if ($uri.Scheme -ne "https") { return $false }
+        return $uri.Host.ToLowerInvariant() -in @(
+            "github.com",
+            "objects.githubusercontent.com",
+            "release-assets.githubusercontent.com"
+        )
+    } catch {
+        return $false
+    }
+}
+
+function Get-ReleaseArtifactVerificationTargets {
+    <#
+    .SYNOPSIS
+    Builds bounded, public-safe release artifact candidates from REST asset metadata.
+    .PARAMETER Entries
+    Visible catalog entries to inspect.
+    .PARAMETER RepoLookup
+    Repository metadata keyed by repository name.
+    #>
+    [CmdletBinding()]
+    param(
+        [object[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $allowedKinds = @("apk", "crx", "deb", "dmg", "exe", "jar", "rpm", "xpi", "zip")
+    $targets = New-Object System.Collections.Generic.List[object]
+    foreach ($entry in @($Entries)) {
+        $meta = Get-RepoMeta -Entry $entry -RepoLookup $RepoLookup
+        $release = if ($meta) { Get-MemberValue -Object $meta -Name "latestRelease" } else { $null }
+        if ($null -eq $release) { continue }
+        $assets = @(Get-JsonArrayItems (Get-MemberValue -Object $release -Name "releaseAssets"))
+        if ($assets.Count -eq 0) { continue }
+
+        $checksumAssets = @($assets | Where-Object {
+                $name = [string](Get-MemberValue -Object $_ -Name "name")
+                $name -match '(?i)(sha256|sha512|checksum|checksums|sums)'
+            })
+        foreach ($asset in $assets) {
+            $assetName = [string](Get-MemberValue -Object $asset -Name "name")
+            $assetKind = ConvertTo-ReleaseAssetKind -Name $assetName
+            if ([string]::IsNullOrWhiteSpace($assetName) -or $assetKind -notin $allowedKinds) { continue }
+
+            $checksum = $null
+            foreach ($candidate in $checksumAssets) {
+                $candidateName = [string](Get-MemberValue -Object $candidate -Name "name")
+                if ($candidateName -match [regex]::Escape($assetName)) {
+                    $checksum = $candidate
+                    break
+                }
+            }
+            if ($null -eq $checksum -and $checksumAssets.Count -eq 1) {
+                $checksum = $checksumAssets[0]
+            }
+
+            $targets.Add([ordered]@{
+                repo = [string]$entry.repo
+                assetName = $assetName
+                assetKind = $assetKind
+                assetUrl = Get-MemberValue -Object $asset -Name "browserDownloadUrl"
+                assetSize = Get-MemberValue -Object $asset -Name "size"
+                checksumAssetName = if ($checksum) { [string](Get-MemberValue -Object $checksum -Name "name") } else { $null }
+                checksumUrl = if ($checksum) { Get-MemberValue -Object $checksum -Name "browserDownloadUrl" } else { $null }
+                checksumSize = if ($checksum) { Get-MemberValue -Object $checksum -Name "size" } else { $null }
+            })
+        }
+    }
+
+    return @($targets.ToArray())
+}
+
+function Get-ReleaseArtifactDownload {
+    param(
+        [string]$Url,
+        [int]$MaxBytes
+    )
+
+    if (-not (Test-AllowedReleaseArtifactUrl -Url $Url)) {
+        return [ordered]@{ ok = $false; bytes = @(); text = $null; error = "download URL is not an allowed HTTPS GitHub release host"; bytesRead = 0 }
+    }
+
+    $handler = [System.Net.Http.HttpClientHandler]::new()
+    $handler.AllowAutoRedirect = $true
+    $client = [System.Net.Http.HttpClient]::new($handler)
+    $client.Timeout = [TimeSpan]::FromSeconds(30)
+    $response = $null
+    $stream = $null
+    $memory = [System.IO.MemoryStream]::new()
+    try {
+        $response = $client.GetAsync($Url, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead).GetAwaiter().GetResult()
+        if (-not $response.IsSuccessStatusCode) {
+            return [ordered]@{ ok = $false; bytes = @(); text = $null; error = "HTTP $([int]$response.StatusCode)"; bytesRead = 0 }
+        }
+        $contentLength = $response.Content.Headers.ContentLength
+        if ($contentLength.HasValue -and $contentLength.Value -gt $MaxBytes) {
+            return [ordered]@{ ok = $false; bytes = @(); text = $null; error = "response exceeds the configured byte cap"; bytesRead = [int64]$contentLength.Value }
+        }
+
+        $stream = $response.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
+        $buffer = New-Object byte[] 81920
+        while (($read = $stream.Read($buffer, 0, $buffer.Length)) -gt 0) {
+            if (($memory.Length + $read) -gt $MaxBytes) {
+                return [ordered]@{ ok = $false; bytes = @(); text = $null; error = "response exceeds the configured byte cap"; bytesRead = [int64]($memory.Length + $read) }
+            }
+            $memory.Write($buffer, 0, $read)
+        }
+        $bytes = $memory.ToArray()
+        return [ordered]@{
+            ok = $true
+            bytes = $bytes
+            text = [System.Text.Encoding]::UTF8.GetString($bytes)
+            error = $null
+            bytesRead = [int64]$bytes.Length
+        }
+    } catch {
+        return [ordered]@{ ok = $false; bytes = @(); text = $null; error = $_.Exception.Message; bytesRead = [int64]$memory.Length }
+    } finally {
+        if ($stream) { $stream.Dispose() }
+        if ($response) { $response.Dispose() }
+        $memory.Dispose()
+        $client.Dispose()
+        $handler.Dispose()
+    }
+}
+
+function Get-ReleaseArtifactSha256 {
+    param([byte[]]$Bytes)
+
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($Bytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
+function Get-ReleaseArtifactChecksumFromText {
+    param(
+        [string]$Text,
+        [string]$AssetName
+    )
+
+    $hashPattern = '(?i)\b[a-f0-9]{64}\b'
+    foreach ($line in @(([string]$Text) -split "\r?\n")) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        if (-not [string]::IsNullOrWhiteSpace($AssetName) -and $line -notmatch [regex]::Escape($AssetName)) { continue }
+        $match = [regex]::Match($line, $hashPattern)
+        if ($match.Success) { return $match.Value.ToLowerInvariant() }
+    }
+    $fallback = [regex]::Match([string]$Text, $hashPattern)
+    if ($fallback.Success) { return $fallback.Value.ToLowerInvariant() }
+    return $null
+}
+
+function Test-ReleaseArtifactVerification {
+    <#
+    .SYNOPSIS
+    Optionally verifies capped release assets against matching checksum sidecars.
+    .DESCRIPTION
+    Verification is disabled by default. The default releaseTrust wording remains
+    metadata-only; this pilot only runs when explicitly enabled by the caller.
+    .PARAMETER Entries
+    Visible catalog entries to inspect.
+    .PARAMETER RepoLookup
+    Repository metadata keyed by repository name.
+    .PARAMETER Targets
+    Optional test or caller-supplied target rows; when omitted, targets are derived from Entries.
+    .PARAMETER Enabled
+    Enables bounded downloads and checksum comparison.
+    .PARAMETER MaxAssets
+    Maximum number of eligible assets considered in one run.
+    .PARAMETER MaxBytes
+    Maximum byte size for each downloaded asset.
+    .PARAMETER DownloadScript
+    Optional injectable downloader used by hermetic tests.
+    #>
+    [CmdletBinding()]
+    param(
+        [object[]]$Entries,
+        [hashtable]$RepoLookup,
+        [object[]]$Targets,
+        [switch]$Enabled,
+        [ValidateRange(1, 32)]
+        [int]$MaxAssets = $script:ReleaseVerificationMaxAssets,
+        [ValidateRange(1024, 52428800)]
+        [int]$MaxBytes = $script:ReleaseVerificationMaxBytes,
+        [scriptblock]$DownloadScript
+    )
+
+    $targetRows = if ($PSBoundParameters.ContainsKey("Targets")) {
+        @($Targets)
+    } else {
+        @(Get-ReleaseArtifactVerificationTargets -Entries $Entries -RepoLookup $RepoLookup)
+    }
+    $rows = New-Object System.Collections.Generic.List[object]
+    if (-not $Enabled) {
+        return [ordered]@{
+            enabled = $false
+            status = "disabled"
+            verificationMode = "opt-in"
+            maxAssets = [int]$MaxAssets
+            maxBytes = [int]$MaxBytes
+            targetCount = [int]$targetRows.Count
+            checkedAssetCount = 0
+            verifiedCount = 0
+            skippedCount = 0
+            failureCount = 0
+            downloadedBytes = 0
+            rows = @()
+            errors = @()
+            note = "Metadata evidence only: release artifacts were not downloaded or locally verified. Use -VerifyReleaseArtifacts for the capped pilot."
+        }
+    }
+
+    $eligibleCount = 0
+    $verifiedCount = 0
+    $skippedCount = 0
+    $failureCount = 0
+    $downloadedBytes = [int64]0
+    $allowedKinds = @("apk", "crx", "deb", "dmg", "exe", "jar", "rpm", "xpi", "zip")
+    foreach ($target in $targetRows) {
+        $repo = [string](Get-MemberValue -Object $target -Name "repo")
+        $assetName = [string](Get-MemberValue -Object $target -Name "assetName")
+        $assetKind = [string](Get-MemberValue -Object $target -Name "assetKind")
+        $checksumName = Get-MemberValue -Object $target -Name "checksumAssetName"
+        $status = "skipped"
+        $reason = $null
+        $expected = $null
+        $actual = $null
+        $assetBytes = [int64]0
+
+        if ($assetKind -notin $allowedKinds) {
+            $reason = "asset kind is outside the verification allowlist"
+        } elseif ($eligibleCount -ge $MaxAssets) {
+            $reason = "per-run asset count cap reached"
+        } elseif ([string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "assetUrl"))) {
+            $reason = "asset download URL is missing"
+        } elseif ($null -eq (Get-MemberValue -Object $target -Name "assetSize")) {
+            $reason = "asset size is unknown; refusing an uncapped download"
+        } elseif ([int64](Get-MemberValue -Object $target -Name "assetSize") -gt $MaxBytes) {
+            $reason = "asset exceeds the configured byte cap"
+        } elseif ([string]::IsNullOrWhiteSpace([string]$checksumName) -or [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "checksumUrl"))) {
+            $reason = "matching checksum sidecar is missing"
+        } else {
+            $eligibleCount++
+            $assetDownload = if ($DownloadScript) { & $DownloadScript $target "asset" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "assetUrl")) -MaxBytes $MaxBytes }
+            if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "ok"))) {
+                $status = "failed"
+                $reason = "asset download failed: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
+            } else {
+                $assetByteValue = Get-MemberValue -Object $assetDownload -Name "bytes"
+                $assetBytesValue = if ($assetByteValue -is [byte[]]) { $assetByteValue } else { [byte[]]@($assetByteValue) }
+                $assetBytes = [int64]$assetBytesValue.Length
+                $downloadedBytes += $assetBytes
+                $checksumDownload = if ($DownloadScript) { & $DownloadScript $target "checksum" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "checksumUrl")) -MaxBytes ([Math]::Min($MaxBytes, 256KB)) }
+                if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "ok"))) {
+                    $status = "failed"
+                    $reason = "checksum sidecar download failed: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
+                } else {
+                    $checksumText = [string](Get-MemberValue -Object $checksumDownload -Name "text")
+                    $expected = Get-ReleaseArtifactChecksumFromText -Text $checksumText -AssetName $assetName
+                    if ([string]::IsNullOrWhiteSpace($expected)) {
+                        $status = "failed"
+                        $reason = "checksum sidecar did not contain a SHA-256 value"
+                    } else {
+                        $actual = Get-ReleaseArtifactSha256 -Bytes $assetBytesValue
+                        if ($actual -eq $expected) {
+                            $status = "verified"
+                        } else {
+                            $status = "failed"
+                            $reason = "SHA-256 mismatch"
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($status -eq "verified") { $verifiedCount++ }
+        elseif ($status -eq "failed") { $failureCount++ }
+        else { $skippedCount++ }
+        $rows.Add([ordered]@{
+            repo = $repo
+            asset = $assetName
+            assetKind = $assetKind
+            checksumAsset = if ([string]::IsNullOrWhiteSpace([string]$checksumName)) { $null } else { [string]$checksumName }
+            status = $status
+            reason = if ([string]::IsNullOrWhiteSpace([string]$reason)) { $null } else { [string]$reason }
+            expectedSha256 = $expected
+            actualSha256 = $actual
+            assetBytes = $assetBytes
+        })
+    }
+
+    return [ordered]@{
+        enabled = $true
+        status = if ($failureCount -gt 0) { "failed" } elseif ($verifiedCount -gt 0) { "verified" } elseif ($skippedCount -gt 0) { "skipped" } else { "no-candidates" }
+        verificationMode = "opt-in"
+        maxAssets = [int]$MaxAssets
+        maxBytes = [int]$MaxBytes
+        targetCount = [int]$targetRows.Count
+        checkedAssetCount = [int]$eligibleCount
+        verifiedCount = [int]$verifiedCount
+        skippedCount = [int]$skippedCount
+        failureCount = [int]$failureCount
+        downloadedBytes = $downloadedBytes
+        rows = @($rows.ToArray())
+        errors = @()
+        note = "Opt-in pilot only: eligible GitHub release assets were capped by count and bytes, then compared with matching SHA-256 sidecars. Default releaseTrust remains metadata-only."
+    }
 }
 
 function Test-HasDownloadableReleaseAsset {
@@ -2705,6 +3042,7 @@ npm run review:dependencies
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
+| Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
 Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
 
@@ -10918,8 +11256,13 @@ function Test-ProfileState {
         [string]$CurrentReadme,
         [string]$CurrentProjects,
         [hashtable]$ExpectedAssets = @{},
-        [switch]$SkipLinkValidation,
-        [string]$SmokeReportPath = $script:SmokeReportPath
+    [switch]$SkipLinkValidation,
+    [switch]$VerifyReleaseArtifacts,
+    [ValidateRange(1, 32)]
+    [int]$ReleaseVerificationMaxAssets = $script:ReleaseVerificationMaxAssets,
+    [ValidateRange(1024, 52428800)]
+    [int]$ReleaseVerificationMaxBytes = $script:ReleaseVerificationMaxBytes,
+    [string]$SmokeReportPath = $script:SmokeReportPath
     )
 
     # Normalize to a null-filtered array so .Count and enumeration stay safe under StrictMode
@@ -11120,6 +11463,12 @@ function Test-ProfileState {
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
     $staleProjectReview = Test-StaleProjectReview -Entries $entries -RepoLookup $repoLookup
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
+    $releaseArtifactVerification = Test-ReleaseArtifactVerification `
+        -Entries $included `
+        -RepoLookup $repoLookup `
+        -Enabled:$VerifyReleaseArtifacts `
+        -MaxAssets $ReleaseVerificationMaxAssets `
+        -MaxBytes $ReleaseVerificationMaxBytes
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
@@ -11199,6 +11548,7 @@ function Test-ProfileState {
         forkParentDrift = $forkParentDrift
         staleProjectReview = $staleProjectReview
         releaseAssetDrift = $releaseAssetDrift
+        releaseArtifactVerification = $releaseArtifactVerification
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting
         portfolioCompatibility = $portfolioCompatibility
@@ -11347,6 +11697,7 @@ function Test-ProfileState {
         schemaValidation = [bool]($schemaValidation.passed -ne $true)
         docVersionConsistency = [bool]($docVersionConsistency.passed -ne $true)
         runtimeSecurity = [bool]($runtimeSecurity.status -eq "fail")
+        releaseArtifactVerification = [bool]($VerifyReleaseArtifacts -and $releaseArtifactVerification.failureCount -gt 0)
     }
     $failed = $failureConditions.Values -contains $true
     return [ordered]@{
@@ -11425,7 +11776,16 @@ if ($catalogForRun -and ($Write -or $Check)) {
     }
 
     if ($Check) {
-        $result = Test-ProfileState -Catalog $catalogForRun -Repos $repos -ExpectedReadme $expected -ExpectedProjects $expectedProjects -ExpectedAssets $expectedAssets -SkipLinkValidation:$SkipLinkValidation
+        $result = Test-ProfileState `
+            -Catalog $catalogForRun `
+            -Repos $repos `
+            -ExpectedReadme $expected `
+            -ExpectedProjects $expectedProjects `
+            -ExpectedAssets $expectedAssets `
+            -SkipLinkValidation:$SkipLinkValidation `
+            -VerifyReleaseArtifacts:$VerifyReleaseArtifacts `
+            -ReleaseVerificationMaxAssets $ReleaseVerificationMaxAssets `
+            -ReleaseVerificationMaxBytes $ReleaseVerificationMaxBytes
         $reportDir = Split-Path -Parent $ReportPath
         if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
             New-Item -ItemType Directory -Path $reportDir | Out-Null

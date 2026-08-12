@@ -150,6 +150,8 @@ Describe 'Function library loads via the dot-source test seam' {
         $documentedFunctions = @(
             'Get-GitHubRepos',
             'Add-ReleaseAssetMetadata',
+            'Get-ReleaseArtifactVerificationTargets',
+            'Test-ReleaseArtifactVerification',
             'Add-ForkParentMetadata',
             'Add-LiveRepositoryMetadata',
             'ConvertTo-Lookup',
@@ -1552,6 +1554,88 @@ Describe 'Report schema depth helpers' {
         $trust.executableAssetKinds | Should -Contain 'exe'
         $trust.executableAssetKinds | Should -Contain 'apk'
         $trust.trustLevel | Should -Be 'signature-and-attestation-metadata'
+    }
+
+    It 'keeps release verification disabled and metadata-only by default' {
+        $target = [ordered]@{
+            repo = 'VerifiedTool'
+            assetName = 'VerifiedTool.zip'
+            assetKind = 'zip'
+            assetUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/VerifiedTool.zip'
+            assetSize = 32
+            checksumAssetName = 'SHA256SUMS'
+            checksumUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/SHA256SUMS'
+            checksumSize = 80
+        }
+
+        $result = Test-ReleaseArtifactVerification -Targets @($target)
+
+        $result.enabled | Should -BeFalse
+        $result.status | Should -Be 'disabled'
+        $result.failureCount | Should -Be 0
+        $result.note | Should -Match 'Metadata evidence only'
+    }
+
+    It 'verifies, rejects, and skips capped release artifact candidates' {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes('release payload')
+        $hash = Get-ReleaseArtifactSha256 -Bytes $bytes
+        $targets = @(
+            [ordered]@{
+                repo = 'VerifiedTool'; assetName = 'VerifiedTool.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/VerifiedTool.zip'; assetSize = $bytes.Length; checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/SHA256SUMS'; checksumSize = 80
+            },
+            [ordered]@{
+                repo = 'MismatchTool'; assetName = 'MismatchTool.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/MismatchTool/releases/download/v1/MismatchTool.zip'; assetSize = $bytes.Length; checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/MismatchTool/releases/download/v1/SHA256SUMS'; checksumSize = 80
+            },
+            [ordered]@{
+                repo = 'TooLargeTool'; assetName = 'TooLargeTool.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/TooLargeTool/releases/download/v1/TooLargeTool.zip'; assetSize = 4096; checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/TooLargeTool/releases/download/v1/SHA256SUMS'; checksumSize = 80
+            },
+            [ordered]@{
+                repo = 'NoChecksumTool'; assetName = 'NoChecksumTool.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/NoChecksumTool/releases/download/v1/NoChecksumTool.zip'; assetSize = $bytes.Length; checksumAssetName = $null; checksumUrl = $null; checksumSize = $null
+            },
+            [ordered]@{
+                repo = 'ScriptTool'; assetName = 'ScriptTool.user.js'; assetKind = 'userscript'; assetUrl = 'https://github.com/SysAdminDoc/ScriptTool/releases/download/v1/ScriptTool.user.js'; assetSize = $bytes.Length; checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/ScriptTool/releases/download/v1/SHA256SUMS'; checksumSize = 80
+            }
+        )
+        $download = {
+            param($target, $kind)
+            $text = if ($kind -eq 'checksum' -and $target.repo -eq 'VerifiedTool') { "$hash  VerifiedTool.zip" } elseif ($kind -eq 'checksum') { ('0' * 64) + "  $($target.assetName)" } else { $null }
+            [ordered]@{
+                ok = $true
+                bytes = if ($kind -eq 'asset') { $bytes } else { [System.Text.Encoding]::UTF8.GetBytes([string]$text) }
+                text = $text
+                error = $null
+                bytesRead = if ($kind -eq 'asset') { $bytes.Length } else { [string]$text.Length }
+            }
+        }
+
+        $result = Test-ReleaseArtifactVerification -Targets $targets -Enabled -MaxAssets 10 -MaxBytes 1024 -DownloadScript $download
+
+        $result.status | Should -Be 'failed'
+        $result.verifiedCount | Should -Be 1
+        $result.failureCount | Should -Be 1
+        $result.skippedCount | Should -Be 3
+        $result.checkedAssetCount | Should -Be 2
+        ($result.rows | Where-Object { $_.repo -eq 'VerifiedTool' }).status | Should -Be 'verified'
+        ($result.rows | Where-Object { $_.repo -eq 'MismatchTool' }).reason | Should -Be 'SHA-256 mismatch'
+        ($result.rows | Where-Object { $_.repo -eq 'TooLargeTool' }).reason | Should -Match 'byte cap'
+        ($result.rows | Where-Object { $_.repo -eq 'NoChecksumTool' }).reason | Should -Match 'checksum sidecar'
+        ($result.rows | Where-Object { $_.repo -eq 'ScriptTool' }).reason | Should -Match 'allowlist'
+    }
+
+    It 'derives verification targets only from capped asset classes with checksum candidates' {
+        $entry = New-TestEntry -Repo 'VerifiedTool' -Category 'desktop'
+        $repo = New-TestRepoMeta -Name 'VerifiedTool' -WithRelease -AssetNames @('VerifiedTool.zip', 'SHA256SUMS')
+        Set-MemberValue -Object $repo.latestRelease -Name 'releaseAssets' -Value @(
+            [pscustomobject]@{ name = 'VerifiedTool.zip'; browserDownloadUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/VerifiedTool.zip'; size = 12 },
+            [pscustomobject]@{ name = 'SHA256SUMS'; browserDownloadUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/SHA256SUMS'; size = 80 },
+            [pscustomobject]@{ name = 'VerifiedTool.user.js'; browserDownloadUrl = 'https://github.com/SysAdminDoc/VerifiedTool/releases/download/v1/VerifiedTool.user.js'; size = 12 }
+        )
+
+        $targets = @(Get-ReleaseArtifactVerificationTargets -Entries @($entry) -RepoLookup (ConvertTo-Lookup @($repo)))
+
+        $targets | Should -HaveCount 1
+        $targets[0].assetName | Should -Be 'VerifiedTool.zip'
+        $targets[0].checksumAssetName | Should -Be 'SHA256SUMS'
     }
 
     It 'reports repos missing topics or public descriptions' {
@@ -3249,6 +3333,24 @@ Describe 'Feed JSON Schema contracts' {
         $summaryScript | Should -Match 'Rendered smoke blank viewports'
         $summaryScript | Should -Match 'Rendered smoke cropped elements'
         $summaryScript | Should -Match 'Rendered smoke overlap warnings'
+    }
+
+    It 'requires the opt-in release artifact verification report contract' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        @($schema.required) | Should -Contain 'releaseArtifactVerification'
+        $required = @($schema.'$defs'.releaseArtifactVerification.required)
+        foreach ($field in @('enabled', 'status', 'verificationMode', 'maxAssets', 'maxBytes', 'verifiedCount', 'skippedCount', 'failureCount', 'rows', 'note')) {
+            $required | Should -Contain $field
+        }
+        $rowRequired = @($schema.'$defs'.releaseArtifactVerificationRow.required)
+        foreach ($field in @('repo', 'asset', 'checksumAsset', 'status', 'reason', 'expectedSha256', 'actualSha256')) {
+            $rowRequired | Should -Contain $field
+        }
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Release artifact verification'
+        $summaryScript | Should -Match 'Release artifacts verified'
+        $summaryScript | Should -Match 'Release artifact verification failures'
     }
 
     It 'validates the committed profile sync report contract' {

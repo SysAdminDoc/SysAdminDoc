@@ -4,13 +4,6 @@ Actionable work only. Historical and completed roadmap material is archived in C
 
 ## Actionable Items
 
-- [ ] P2 — Add an opt-in release artifact verification pilot
-  Why: Current `releaseTrust` is correctly metadata-only, but a bounded verifier can validate checksum sidecars for small release assets without implying universal binary trust.
-  Evidence: `releaseTrust.notesPublic`, `releaseAssetDrift`, GitHub release asset metadata, `schemas/profile-projects.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Touches: `scripts/sync-profile.ps1`, `schemas/profile-sync-report.v1.json`, `schemas/profile-projects.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: an opt-in switch downloads only capped asset classes with matching checksum sidecars, records verified/skipped/failure counts and reasons, preserves metadata-only default wording, and tests checksum success/mismatch/skip paths.
-  Complexity: L
-
 - [ ] P2 — Add redacted local support bundles
   Why: Setup transcripts and validation reports exist, but issue reporters do not have a single redacted diagnostic artifact for local validation/setup failures.
   Evidence: `.github/ISSUE_TEMPLATE/local-validation.yml`, `setup.ps1` transcript logging, `reports/profile-sync-report.json`, `scripts/validate-local.ps1`.

@@ -120,6 +120,7 @@ $projectLicenseMetadata = if ($report.PSObject.Properties.Name -contains 'projec
 $forkParentDrift = if ($report.PSObject.Properties.Name -contains 'forkParentDrift') { $report.forkParentDrift } else { $null }
 $staleProjectReview = if ($report.PSObject.Properties.Name -contains 'staleProjectReview') { $report.staleProjectReview } else { $null }
 $releaseDrift = $report.releaseAssetDrift
+$releaseArtifactVerification = if ($report.PSObject.Properties.Name -contains 'releaseArtifactVerification') { $report.releaseArtifactVerification } else { $null }
 $linkSummary = $report.linkValidationSummary
 $driftSummary = $report.metadataDriftSummary
 $performance = $report.validationPerformance
@@ -348,6 +349,10 @@ $catalogAccountingFatalCount = if ($catalogFeedAccounting) { [int]$catalogFeedAc
 $portfolioCompatibilityStatus = if ($portfolioCompatibility) { [string]$portfolioCompatibility.status } else { "unknown" }
 $portfolioCompatibilityFatalCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.fatalCount } else { 0 }
 $portfolioCompatibilityWarningCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.warningCount } else { 0 }
+$releaseArtifactVerificationStatus = if ($releaseArtifactVerification) { [string]$releaseArtifactVerification.status } else { "unknown" }
+$releaseArtifactVerificationVerifiedCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.verifiedCount } else { 0 }
+$releaseArtifactVerificationSkippedCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.skippedCount } else { 0 }
+$releaseArtifactVerificationFailureCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.failureCount } else { 0 }
 $stableEntityIdsStatus = if ($stableEntityIds) { [string]$stableEntityIds.status } else { "unknown" }
 $stableEntityIdsFatalCount = if ($stableEntityIds) { [int]$stableEntityIds.fatalCount } else { 0 }
 $feedSchemaMigrationStatus = if ($feedSchemaMigration) { [string]$feedSchemaMigration.status } else { "unknown" }
@@ -470,6 +475,10 @@ $summary = @"
 | Portfolio compatibility | $portfolioCompatibilityStatus |
 | Portfolio compatibility fatal gaps | $portfolioCompatibilityFatalCount |
 | Portfolio compatibility warnings | $portfolioCompatibilityWarningCount |
+| Release artifact verification | $releaseArtifactVerificationStatus |
+| Release artifacts verified | $releaseArtifactVerificationVerifiedCount |
+| Release artifacts skipped | $releaseArtifactVerificationSkippedCount |
+| Release artifact verification failures | $releaseArtifactVerificationFailureCount |
 | Stable feed entity IDs | $stableEntityIdsStatus |
 | Stable feed entity ID gaps | $stableEntityIdsFatalCount |
 | Feed schema migration policy | $feedSchemaMigrationStatus |
@@ -822,6 +831,10 @@ if ($portfolioCompatibilityFatalCount -gt 0) {
 
 if ($portfolioCompatibilityWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $portfolioCompatibilityWarningCount portfolio compatibility warning(s)."
+}
+
+if ($releaseArtifactVerificationFailureCount -gt 0) {
+    Write-Output "::error::Profile sync report has $releaseArtifactVerificationFailureCount release artifact verification failure(s)."
 }
 
 if ($readmeDensityWarningCount -gt 0) {

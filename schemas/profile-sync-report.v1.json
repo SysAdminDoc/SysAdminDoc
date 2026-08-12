@@ -26,6 +26,7 @@
     "forkParentDrift",
     "staleProjectReview",
     "releaseAssetDrift",
+    "releaseArtifactVerification",
     "userscriptInstallTrust",
     "repositorySettings",
     "communityHealth",
@@ -125,6 +126,9 @@
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
+    },
+    "releaseArtifactVerification": {
+      "$ref": "#/$defs/releaseArtifactVerification"
     },
     "userscriptInstallTrust": {
       "$ref": "#/$defs/userscriptInstallTrust"
@@ -1768,6 +1772,71 @@
         "note": {
           "type": "string"
         }
+      }
+    },
+    "releaseArtifactVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "status",
+        "verificationMode",
+        "maxAssets",
+        "maxBytes",
+        "targetCount",
+        "checkedAssetCount",
+        "verifiedCount",
+        "skippedCount",
+        "failureCount",
+        "downloadedBytes",
+        "rows",
+        "errors",
+        "note"
+      ],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["disabled", "verified", "skipped", "failed", "no-candidates"] },
+        "verificationMode": { "type": "string", "const": "opt-in" },
+        "maxAssets": { "$ref": "#/$defs/positiveInteger" },
+        "maxBytes": { "$ref": "#/$defs/positiveInteger" },
+        "targetCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "checkedAssetCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "verifiedCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "skippedCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "failureCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "downloadedBytes": { "$ref": "#/$defs/nonNegativeInteger" },
+        "rows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/releaseArtifactVerificationRow" }
+        },
+        "errors": { "$ref": "#/$defs/stringArray" },
+        "note": { "type": "string" }
+      }
+    },
+    "releaseArtifactVerificationRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "asset",
+        "assetKind",
+        "checksumAsset",
+        "status",
+        "reason",
+        "expectedSha256",
+        "actualSha256",
+        "assetBytes"
+      ],
+      "properties": {
+        "repo": { "type": "string" },
+        "asset": { "type": "string" },
+        "assetKind": { "type": "string" },
+        "checksumAsset": { "$ref": "#/$defs/nullableString" },
+        "status": { "type": "string", "enum": ["verified", "skipped", "failed"] },
+        "reason": { "$ref": "#/$defs/nullableString" },
+        "expectedSha256": { "$ref": "#/$defs/nullableSha256" },
+        "actualSha256": { "$ref": "#/$defs/nullableSha256" },
+        "assetBytes": { "$ref": "#/$defs/nonNegativeInteger" }
       }
     },
     "userscriptInstallTrust": {
