@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-08-12
+
+- Bumped the internal profile evidence version to `v4.9.161` after draining the active roadmap.
+
 ## 2026-07-15
 
 - Added a local support-bundle command and `validate-local.ps1 -SupportBundlePath` integration that package tool versions, validation output, profile-sync evidence, dependency review, and optional setup transcripts into redaction-safe JSON/ZIP diagnostics. Common user paths, tokens, secrets, query credentials, and caller-supplied private values are removed before packaging.
