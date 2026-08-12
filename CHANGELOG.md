@@ -7,6 +7,7 @@
 - Added an opt-in redaction-safe Backstage `backstage.io/v1alpha1` Component export with stable names, public owner/lifecycle/tags/links metadata, and report counts for suppressed, private, and metadata-unavailable rows.
 - Extended rendered README smoke evidence with `<details>` focus/activation checks, table overflow counts, accessible/actionable link-label counts, and explicit desktop/mobile pass/fail totals; the current GitHub mobile render records its expected table overflow as a warning.
 - Added an opt-in Pester 6.0.1 compatibility lane that installs into an isolated temporary module path and runs the non-integration suite, while dependency review documents the lane and the default Pester 5.8.0 validation pin remains unchanged.
+- Reconciled ignored working notes with the current local-only workflow and Dependabot posture while preserving historical hosted-automation context and current blocked-roadmap guidance.
 - Added stable public feed entity IDs, canonical repository/alias metadata, and default `en-US`/`en` plus `Latn` locale/script hints for visible project rows.
 - Added feed/report schema migration policy evidence with supported-version windows and required migration notes, plus report checks for duplicate or missing entity identities.
 - Added a non-SysAdminDoc catalog fixture covering owner-qualified feed URLs and schema provenance.
