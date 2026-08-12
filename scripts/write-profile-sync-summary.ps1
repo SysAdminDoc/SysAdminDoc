@@ -395,6 +395,31 @@ $renderedSmokeStatus = if ($renderedProfileSmoke) { [string]$renderedProfileSmok
 $renderedSmokeWarningCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.warningCount } else { 0 }
 $renderedSmokeViewportCount = if ($renderedProfileSmoke) { [int]$renderedProfileSmoke.viewportCount } else { 0 }
 $renderedSmokeMobileRootClientWidth = if ($renderedProfileSmoke -and $null -ne $renderedProfileSmoke.mobileRootClientWidth) { [int]$renderedProfileSmoke.mobileRootClientWidth } else { 0 }
+$renderedSmokeAccessibilityEvidenceAvailable = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'accessibilityEvidenceAvailable') { [bool]$renderedProfileSmoke.accessibilityEvidenceAvailable } else { $false }
+$renderedSmokeDetailsCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsCount') { [int]$renderedProfileSmoke.detailsCount } else { 0 }
+$renderedSmokeDetailsSummaryCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsSummaryCount') { [int]$renderedProfileSmoke.detailsSummaryCount } else { 0 }
+$renderedSmokeDetailsKeyboardCheckCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsKeyboardCheckCount') { [int]$renderedProfileSmoke.detailsKeyboardCheckCount } else { 0 }
+$renderedSmokeDetailsKeyboardPassedCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsKeyboardPassedCount') { [int]$renderedProfileSmoke.detailsKeyboardPassedCount } else { 0 }
+$renderedSmokeDetailsKeyboardFailedCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsKeyboardFailedCount') { [int]$renderedProfileSmoke.detailsKeyboardFailedCount } else { 0 }
+$renderedSmokeDetailsCollapsedFocusPassCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsCollapsedFocusPassCount') { [int]$renderedProfileSmoke.detailsCollapsedFocusPassCount } else { 0 }
+$renderedSmokeDetailsExpandedFocusPassCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsExpandedFocusPassCount') { [int]$renderedProfileSmoke.detailsExpandedFocusPassCount } else { 0 }
+$renderedSmokeDetailsActivationPassCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsActivationPassCount') { [int]$renderedProfileSmoke.detailsActivationPassCount } else { 0 }
+$renderedSmokeDetailsKeyboardSanityPassed = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'detailsKeyboardSanityPassed') { $renderedProfileSmoke.detailsKeyboardSanityPassed } else { $null }
+$renderedSmokeTableCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'tableCount') { [int]$renderedProfileSmoke.tableCount } else { 0 }
+$renderedSmokeTableOverflowCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'tableOverflowCount') { [int]$renderedProfileSmoke.tableOverflowCount } else { 0 }
+$renderedSmokeLinkCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'linkCount') { [int]$renderedProfileSmoke.linkCount } else { 0 }
+$renderedSmokeLinkLabelCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'linkLabelCount') { [int]$renderedProfileSmoke.linkLabelCount } else { 0 }
+$renderedSmokeUniqueLinkLabelCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'uniqueLinkLabelCount') { [int]$renderedProfileSmoke.uniqueLinkLabelCount } else { 0 }
+$renderedSmokeDuplicateLinkLabelCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'duplicateLinkLabelCount') { [int]$renderedProfileSmoke.duplicateLinkLabelCount } else { 0 }
+$renderedSmokeActionableLinkCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'actionableLinkCount') { [int]$renderedProfileSmoke.actionableLinkCount } else { 0 }
+$renderedSmokeUniqueActionableLinkLabelCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'uniqueActionableLinkLabelCount') { [int]$renderedProfileSmoke.uniqueActionableLinkLabelCount } else { 0 }
+$renderedSmokeEmptyLinkLabelCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'emptyLinkLabelCount') { [int]$renderedProfileSmoke.emptyLinkLabelCount } else { 0 }
+$renderedSmokeNonActionableLinkCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'nonActionableLinkCount') { [int]$renderedProfileSmoke.nonActionableLinkCount } else { 0 }
+$renderedSmokeLinkLabelSanityPassed = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'linkLabelSanityPassed') { $renderedProfileSmoke.linkLabelSanityPassed } else { $null }
+$renderedSmokeDesktopPassedCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'desktopPassedCount') { [int]$renderedProfileSmoke.desktopPassedCount } else { 0 }
+$renderedSmokeDesktopFailedCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'desktopFailedCount') { [int]$renderedProfileSmoke.desktopFailedCount } else { 0 }
+$renderedSmokeMobilePassedCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'mobilePassedCount') { [int]$renderedProfileSmoke.mobilePassedCount } else { 0 }
+$renderedSmokeMobileFailedCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'mobileFailedCount') { [int]$renderedProfileSmoke.mobileFailedCount } else { 0 }
 $renderedSmokeScreenshotCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'screenshotCount') { [int]$renderedProfileSmoke.screenshotCount } else { 0 }
 $renderedSmokeFirstViewportHeaderCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'firstViewportHeaderCount') { [int]$renderedProfileSmoke.firstViewportHeaderCount } else { 0 }
 $renderedSmokeFirstViewportStartHereCount = if ($renderedProfileSmoke -and $renderedProfileSmoke.PSObject.Properties.Name -contains 'firstViewportStartHereCount') { [int]$renderedProfileSmoke.firstViewportStartHereCount } else { 0 }
@@ -511,6 +536,31 @@ $summary = @"
 | Rendered smoke warnings | $renderedSmokeWarningCount |
 | Rendered smoke viewports | $renderedSmokeViewportCount |
 | Rendered smoke mobile root px | $renderedSmokeMobileRootClientWidth |
+| Rendered smoke accessibility evidence | $renderedSmokeAccessibilityEvidenceAvailable |
+| Rendered smoke details | $renderedSmokeDetailsCount |
+| Rendered smoke details summaries | $renderedSmokeDetailsSummaryCount |
+| Rendered smoke details keyboard checks | $renderedSmokeDetailsKeyboardCheckCount |
+| Rendered smoke details keyboard passed | $renderedSmokeDetailsKeyboardPassedCount |
+| Rendered smoke details keyboard failed | $renderedSmokeDetailsKeyboardFailedCount |
+| Rendered smoke details collapsed focus passed | $renderedSmokeDetailsCollapsedFocusPassCount |
+| Rendered smoke details expanded focus passed | $renderedSmokeDetailsExpandedFocusPassCount |
+| Rendered smoke details activation passed | $renderedSmokeDetailsActivationPassCount |
+| Rendered smoke details keyboard sanity | $renderedSmokeDetailsKeyboardSanityPassed |
+| Rendered smoke tables | $renderedSmokeTableCount |
+| Rendered smoke table overflow | $renderedSmokeTableOverflowCount |
+| Rendered smoke links | $renderedSmokeLinkCount |
+| Rendered smoke link labels | $renderedSmokeLinkLabelCount |
+| Rendered smoke unique link labels | $renderedSmokeUniqueLinkLabelCount |
+| Rendered smoke duplicate link labels | $renderedSmokeDuplicateLinkLabelCount |
+| Rendered smoke actionable links | $renderedSmokeActionableLinkCount |
+| Rendered smoke unique actionable link labels | $renderedSmokeUniqueActionableLinkLabelCount |
+| Rendered smoke empty link labels | $renderedSmokeEmptyLinkLabelCount |
+| Rendered smoke non-actionable links | $renderedSmokeNonActionableLinkCount |
+| Rendered smoke link-label sanity | $renderedSmokeLinkLabelSanityPassed |
+| Rendered smoke desktop passed | $renderedSmokeDesktopPassedCount |
+| Rendered smoke desktop failed | $renderedSmokeDesktopFailedCount |
+| Rendered smoke mobile passed | $renderedSmokeMobilePassedCount |
+| Rendered smoke mobile failed | $renderedSmokeMobileFailedCount |
 | Rendered smoke screenshots | $renderedSmokeScreenshotCount |
 | Rendered smoke first-viewport header count | $renderedSmokeFirstViewportHeaderCount |
 | Rendered smoke first-viewport Start Here count | $renderedSmokeFirstViewportStartHereCount |

@@ -243,7 +243,7 @@
       {
         "repo": ".github",
         "language": null,
-        "pushedAt": "2026-07-30T15:25:16.0000000Z",
+        "pushedAt": "2026-07-30T15:25:16Z",
         "category": null,
         "topicHints": [
           "utility"
@@ -252,7 +252,7 @@
       {
         "repo": "AIUsageTracker",
         "language": "Python",
-        "pushedAt": "2026-08-10T16:42:24.0000000Z",
+        "pushedAt": "2026-08-10T16:42:24Z",
         "category": null,
         "topicHints": [
           "python"
@@ -261,7 +261,7 @@
       {
         "repo": "AstraDownloader",
         "language": "Python",
-        "pushedAt": "2026-08-12T10:49:35.0000000Z",
+        "pushedAt": "2026-08-12T10:49:35Z",
         "category": null,
         "topicHints": [
           "python",
@@ -271,7 +271,7 @@
       {
         "repo": "ForceBGTab",
         "language": "JavaScript",
-        "pushedAt": "2026-08-12T04:36:26.0000000Z",
+        "pushedAt": "2026-08-12T04:36:26Z",
         "category": null,
         "topicHints": [
           "javascript"
@@ -280,7 +280,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-08-10T16:45:19.0000000Z",
+        "pushedAt": "2026-08-10T16:45:19Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -290,7 +290,7 @@
       {
         "repo": "HostnameForensics",
         "language": "PowerShell",
-        "pushedAt": "2026-07-31T15:47:17.0000000Z",
+        "pushedAt": "2026-07-31T15:47:17Z",
         "category": null,
         "topicHints": [
           "powershell"
@@ -299,7 +299,7 @@
       {
         "repo": "LogVerdict",
         "language": "PowerShell",
-        "pushedAt": "2026-08-10T16:23:54.0000000Z",
+        "pushedAt": "2026-08-10T16:23:54Z",
         "category": null,
         "topicHints": [
           "powershell"
@@ -308,7 +308,7 @@
       {
         "repo": "OpenNetLimit",
         "language": "C#",
-        "pushedAt": "2026-08-10T16:55:33.0000000Z",
+        "pushedAt": "2026-08-10T16:55:33Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -320,7 +320,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-08-10T16:22:23.0000000Z",
+        "pushedAt": "2026-08-10T16:22:23Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -331,7 +331,7 @@
       {
         "repo": "PatchDock",
         "language": "Kotlin",
-        "pushedAt": "2026-08-02T01:46:04.0000000Z",
+        "pushedAt": "2026-08-02T01:46:04Z",
         "category": null,
         "topicHints": [
           "kotlin"
@@ -340,7 +340,7 @@
       {
         "repo": "RES-Slim",
         "language": "JavaScript",
-        "pushedAt": "2026-08-10T16:42:59.0000000Z",
+        "pushedAt": "2026-08-10T16:42:59Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -351,7 +351,7 @@
       {
         "repo": "StormScope",
         "language": "JavaScript",
-        "pushedAt": "2026-08-10T16:47:37.0000000Z",
+        "pushedAt": "2026-08-10T16:47:37Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -363,7 +363,7 @@
       {
         "repo": "SurfaceMedic",
         "language": "C#",
-        "pushedAt": "2026-07-10T18:47:30.0000000Z",
+        "pushedAt": "2026-07-10T18:47:30Z",
         "category": null,
         "topicHints": [
           "csharp"
@@ -372,7 +372,7 @@
       {
         "repo": "TerminalAI",
         "language": "Rust",
-        "pushedAt": "2026-08-10T16:45:39.0000000Z",
+        "pushedAt": "2026-08-10T16:45:39Z",
         "category": null,
         "topicHints": [
           "rust"
@@ -381,7 +381,7 @@
       {
         "repo": "winget-pkgs",
         "language": null,
-        "pushedAt": "2026-07-17T05:21:45.0000000Z",
+        "pushedAt": "2026-07-17T05:21:45Z",
         "category": null,
         "topicHints": [
           "utility"
@@ -2042,7 +2042,7 @@
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-25T09:51:10.0000000Z",
+        "date": "2026-06-25T09:51:10Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
         "analyzedCommit": "e4c68d2b12bd66d32c014dcb3a5640f189c8f8cd",
         "unavailableReason": null
@@ -2424,7 +2424,7 @@
     "expectedVersion": "v4.9.160",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
-    "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
+    "latestReleasePublishedAt": "2026-07-07T19:56:24Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
@@ -2689,7 +2689,7 @@
     "fatalCount": 0,
     "informationalCount": 0,
     "generatedAt": {
-      "value": "2026-06-01T16:18:55.0998940-04:00",
+      "value": "2026-06-01T16:18:55.099894-04:00",
       "ageDays": 71.69,
       "staleAfterDays": 7,
       "stale": true,
@@ -3070,10 +3070,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 113881,
+        "value": 114746,
         "softLimit": 114688,
-        "overSoftLimit": false,
-        "warning": null,
+        "overSoftLimit": true,
+        "warning": "reports/profile-sync-report.json bytes is 114746, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {
@@ -3097,10 +3097,10 @@
     ]
   },
   "renderedProfileSmoke": {
-    "status": "passed",
+    "status": "warning",
     "source": "local-artifact",
     "sourcePath": "reports/rendered-profile-smoke.json",
-    "generatedAt": "2026-07-08T00:07:02.2367432-04:00",
+    "generatedAt": "2026-08-12T09:11:52.9784538-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 4,
     "passedViewportCount": 4,
@@ -3108,6 +3108,31 @@
     "failedImageCount": 0,
     "missingSectionCount": 0,
     "overflowCount": 0,
+    "accessibilityEvidenceAvailable": true,
+    "detailsCount": 48,
+    "detailsSummaryCount": 48,
+    "detailsKeyboardCheckCount": 48,
+    "detailsKeyboardPassedCount": 48,
+    "detailsKeyboardFailedCount": 0,
+    "detailsCollapsedFocusPassCount": 48,
+    "detailsExpandedFocusPassCount": 48,
+    "detailsActivationPassCount": 48,
+    "detailsKeyboardSanityPassed": true,
+    "tableCount": 48,
+    "tableOverflowCount": 20,
+    "linkCount": 1820,
+    "linkLabelCount": 1820,
+    "uniqueLinkLabelCount": 912,
+    "duplicateLinkLabelCount": 908,
+    "actionableLinkCount": 1820,
+    "uniqueActionableLinkLabelCount": 912,
+    "emptyLinkLabelCount": 0,
+    "nonActionableLinkCount": 0,
+    "linkLabelSanityPassed": true,
+    "desktopPassedCount": 2,
+    "desktopFailedCount": 0,
+    "mobilePassedCount": 2,
+    "mobileFailedCount": 0,
     "screenshotCount": 4,
     "screenshotPaths": [
       "reports/rendered-profile-smoke-desktop-dark.png",
@@ -3118,22 +3143,24 @@
     "firstViewportHeaderCount": 4,
     "firstViewportStartHereCount": 2,
     "toolCatalogPresenceCount": 4,
-    "footerPresenceCount": 8,
+    "footerPresenceCount": 4,
     "blankViewportCount": 0,
     "croppedElementCount": 0,
     "overlapWarningCount": 0,
     "minimumRootClientWidth": 308,
     "mobileRootClientWidth": 308,
     "skipReason": null,
-    "warningCount": 0,
-    "warnings": []
+    "warningCount": 1,
+    "warnings": [
+      "Rendered profile smoke found 20 table overflow warning(s)."
+    ]
   },
   "evidenceFreshness": {
     "status": "generated-with-commit",
     "committedReportPresent": true,
     "committedReportGeneratedAt": "2026-08-12T08:39:04.9127862-04:00",
     "latestReportAffectingCommitSha": "560b6e5824927c8627c0dba0caffc66a89c54113",
-    "latestReportAffectingCommitDate": "2026-08-12T08:43:29.0000000-04:00",
+    "latestReportAffectingCommitDate": "2026-08-12T08:43:29-04:00",
     "reportAgeBehindCommit": true,
     "reportAgeBehindHours": 0.07,
     "generatedWithCommit": true,

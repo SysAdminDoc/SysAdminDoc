@@ -215,7 +215,7 @@ function Invoke-RenderedSmoke {
   };
   const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i]'));
   const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Broadcast IT", "practical public tools"]));
-  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["portfolio", "Start Here", "Local validation"]));
+  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Start Here", "Local validation"]));
   const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
   const startHereNodes = textMatch("h1,h2,h3", "Start Here");
   const toolCatalogNodes = textMatch("h1,h2,h3", "Tool Catalog");
@@ -281,6 +281,90 @@ function Invoke-RenderedSmoke {
     complete: img.complete,
     naturalWidth: img.naturalWidth || 0
   }));
+  const rendered = (element) => {
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      rect.width > 1 &&
+      rect.height > 1;
+  };
+  const details = Array.from(root.querySelectorAll("details"));
+  const detailKeyboardRows = details.map((detail) => {
+    const summary = Array.from(detail.children).find((child) => child.tagName.toLowerCase() === "summary") || detail.querySelector("summary");
+    const originalOpen = detail.open;
+    if (!summary) {
+      return {
+        hasSummary: false,
+        summaryFocusable: false,
+        collapsedFocus: false,
+        expandedFocus: false,
+        activation: false,
+        passed: false
+      };
+    }
+
+    const summaryFocusable = rendered(summary) && summary.tabIndex >= 0;
+    detail.open = false;
+    summary.focus({ preventScroll: true });
+    const collapsedFocus = !detail.open && document.activeElement === summary;
+    summary.click();
+    const openedByActivation = detail.open;
+    summary.click();
+    const closedByActivation = !detail.open;
+    detail.open = true;
+    summary.focus({ preventScroll: true });
+    const expandedFocus = detail.open && document.activeElement === summary;
+    const expandedContent = Array.from(detail.children).filter((child) => child !== summary);
+    const expandedContentRendered = expandedContent.length === 0 || expandedContent.some(rendered);
+    detail.open = originalOpen;
+
+    return {
+      hasSummary: true,
+      summaryFocusable,
+      collapsedFocus,
+      expandedFocus,
+      activation: openedByActivation && closedByActivation,
+      expandedContentRendered,
+      passed: summaryFocusable && collapsedFocus && expandedFocus && openedByActivation && closedByActivation && expandedContentRendered
+    };
+  });
+  const detailsKeyboardSanity = {
+    detailCount: details.length,
+    summaryCount: detailKeyboardRows.filter((row) => row.hasSummary).length,
+    collapsedFocusPassCount: detailKeyboardRows.filter((row) => row.collapsedFocus).length,
+    expandedFocusPassCount: detailKeyboardRows.filter((row) => row.expandedFocus).length,
+    activationPassCount: detailKeyboardRows.filter((row) => row.activation).length,
+    failedCount: detailKeyboardRows.filter((row) => !row.passed).length,
+    passed: detailKeyboardRows.every((row) => row.passed)
+  };
+  const tables = Array.from(root.querySelectorAll("table"));
+  const rootRect = root.getBoundingClientRect();
+  const tableOverflowRows = tables.filter((table) => {
+    const rect = table.getBoundingClientRect();
+    return table.scrollWidth > table.clientWidth + 2 || rect.left < rootRect.left - 2 || rect.right > rootRect.right + 2;
+  });
+  const normalizeLabel = (value) => (value || "").replace(/\s+/g, " ").trim().toLowerCase();
+  const getLinkLabel = (anchor) => {
+    const ariaLabel = normalizeLabel(anchor.getAttribute("aria-label"));
+    if (ariaLabel) return ariaLabel;
+    const textLabel = normalizeLabel(anchor.innerText || anchor.textContent);
+    if (textLabel) return textLabel;
+    const image = anchor.querySelector("img[alt]");
+    return normalizeLabel(image ? image.getAttribute("alt") : "");
+  };
+  const links = Array.from(root.querySelectorAll("a[href]"));
+  const linkRows = links.map((anchor) => {
+    const rawHref = (anchor.getAttribute("href") || "").trim();
+    const label = getLinkLabel(anchor);
+    const actionable = rawHref.length > 0 && rawHref !== "#" && !/^javascript:/i.test(rawHref);
+    return { label, actionable, rawHref };
+  });
+  const linkLabels = linkRows.filter((row) => row.label).map((row) => row.label);
+  const actionableLinkLabels = linkRows.filter((row) => row.actionable && row.label).map((row) => row.label);
+  const unique = (values) => Array.from(new Set(values));
+  const linkLabelIssues = linkRows.filter((row) => !row.label || !row.actionable).slice(0, 10);
   return {
     title: document.title,
     url: location.href,
@@ -290,6 +374,22 @@ function Invoke-RenderedSmoke {
     rootScrollWidth: root.scrollWidth,
     rootOverflow,
     documentOverflow,
+    detailsCount: details.length,
+    detailsSummaryCount: detailsKeyboardSanity.summaryCount,
+    detailsKeyboardSanity,
+    tableCount: tables.length,
+    tableOverflowCount: tableOverflowRows.length,
+    tableOverflowSamples: tableOverflowRows.slice(0, 5).map((table) => (table.textContent || "").trim().replace(/\s+/g, " ").slice(0, 80)),
+    linkCount: links.length,
+    linkLabelCount: linkLabels.length,
+    uniqueLinkLabelCount: unique(linkLabels).length,
+    duplicateLinkLabelCount: Math.max(0, linkLabels.length - unique(linkLabels).length),
+    actionableLinkCount: linkRows.filter((row) => row.actionable).length,
+    uniqueActionableLinkLabelCount: unique(actionableLinkLabels).length,
+    emptyLinkLabelCount: linkRows.filter((row) => !row.label).length,
+    nonActionableLinkCount: linkRows.filter((row) => !row.actionable).length,
+    linkLabelSanityPassed: linkRows.every((row) => row.label && row.actionable),
+    linkLabelIssues,
     portfolioLinkText: text.includes("View full portfolio") || text.includes("View my full portfolio"),
     sections: sectionResults,
     componentPresence,
@@ -330,9 +430,11 @@ function Invoke-RenderedSmoke {
         (-not [bool]$result.rootOverflow) -and
         (-not [bool]$result.documentOverflow) -and
         ($failedImages.Count -eq 0) -and
-        (-not [bool]$result.blankPage) -and
-        ([int]$result.croppedElementCount -eq 0) -and
-        ([int]$result.overlapWarningCount -eq 0) -and
+    (-not [bool]$result.blankPage) -and
+    ([int]$result.croppedElementCount -eq 0) -and
+    ([int]$result.overlapWarningCount -eq 0) -and
+        [bool]$result.detailsKeyboardSanity.passed -and
+        [bool]$result.linkLabelSanityPassed -and
         ([int]$firstViewportComponentPresence.header -gt 0) -and
         ([int]$componentPresence.navigation -gt 0) -and
         ([int]$componentPresence.startHere -gt 0) -and
@@ -363,6 +465,22 @@ function Invoke-RenderedSmoke {
         rootClientWidth = [int]$result.rootClientWidth
         rootScrollWidth = [int]$result.rootScrollWidth
         documentScrollWidth = [int]$result.documentScrollWidth
+        detailsCount = [int]$result.detailsCount
+        detailsSummaryCount = [int]$result.detailsSummaryCount
+        detailsKeyboardSanity = $result.detailsKeyboardSanity
+        tableCount = [int]$result.tableCount
+        tableOverflowCount = [int]$result.tableOverflowCount
+        tableOverflowSamples = @($result.tableOverflowSamples)
+        linkCount = [int]$result.linkCount
+        linkLabelCount = [int]$result.linkLabelCount
+        uniqueLinkLabelCount = [int]$result.uniqueLinkLabelCount
+        duplicateLinkLabelCount = [int]$result.duplicateLinkLabelCount
+        actionableLinkCount = [int]$result.actionableLinkCount
+        uniqueActionableLinkLabelCount = [int]$result.uniqueActionableLinkLabelCount
+        emptyLinkLabelCount = [int]$result.emptyLinkLabelCount
+        nonActionableLinkCount = [int]$result.nonActionableLinkCount
+        linkLabelSanityPassed = [bool]$result.linkLabelSanityPassed
+        linkLabelIssues = @($result.linkLabelIssues)
         failedImages = $failedImages
     }
 }

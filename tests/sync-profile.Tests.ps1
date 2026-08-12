@@ -2505,6 +2505,95 @@ Write-Host ok
         $summary.warningCount | Should -Be 0
     }
 
+    It 'summarizes rendered README accessibility evidence and desktop/mobile outcomes' {
+        $viewports = @(
+            [pscustomobject]@{
+                name = 'desktop'
+                passed = $true
+                detailsCount = 2
+                detailsSummaryCount = 2
+                detailsKeyboardSanity = [pscustomobject]@{
+                    detailCount = 2
+                    collapsedFocusPassCount = 2
+                    expandedFocusPassCount = 2
+                    activationPassCount = 2
+                    failedCount = 0
+                    passed = $true
+                }
+                tableCount = 4
+                tableOverflowCount = 0
+                linkCount = 12
+                linkLabelCount = 12
+                uniqueLinkLabelCount = 9
+                duplicateLinkLabelCount = 3
+                actionableLinkCount = 12
+                uniqueActionableLinkLabelCount = 9
+                emptyLinkLabelCount = 0
+                nonActionableLinkCount = 0
+                linkLabelSanityPassed = $true
+            },
+            [pscustomobject]@{
+                name = 'mobile'
+                passed = $false
+                detailsCount = 2
+                detailsSummaryCount = 1
+                detailsKeyboardSanity = [pscustomobject]@{
+                    detailCount = 2
+                    collapsedFocusPassCount = 1
+                    expandedFocusPassCount = 1
+                    activationPassCount = 1
+                    failedCount = 1
+                    passed = $false
+                }
+                tableCount = 4
+                tableOverflowCount = 1
+                linkCount = 12
+                linkLabelCount = 11
+                uniqueLinkLabelCount = 8
+                duplicateLinkLabelCount = 3
+                actionableLinkCount = 11
+                uniqueActionableLinkLabelCount = 8
+                emptyLinkLabelCount = 1
+                nonActionableLinkCount = 0
+                linkLabelSanityPassed = $false
+            }
+        )
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $false
+            viewports = $viewports
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.accessibilityEvidenceAvailable | Should -BeTrue
+        $summary.detailsCount | Should -Be 4
+        $summary.detailsSummaryCount | Should -Be 3
+        $summary.detailsKeyboardCheckCount | Should -Be 4
+        $summary.detailsKeyboardPassedCount | Should -Be 3
+        $summary.detailsKeyboardFailedCount | Should -Be 1
+        $summary.detailsCollapsedFocusPassCount | Should -Be 3
+        $summary.detailsExpandedFocusPassCount | Should -Be 3
+        $summary.detailsActivationPassCount | Should -Be 3
+        $summary.detailsKeyboardSanityPassed | Should -BeFalse
+        $summary.tableCount | Should -Be 8
+        $summary.tableOverflowCount | Should -Be 1
+        $summary.uniqueLinkLabelCount | Should -Be 17
+        $summary.actionableLinkCount | Should -Be 23
+        $summary.uniqueActionableLinkLabelCount | Should -Be 17
+        $summary.emptyLinkLabelCount | Should -Be 1
+        $summary.linkLabelSanityPassed | Should -BeFalse
+        $summary.desktopPassedCount | Should -Be 1
+        $summary.desktopFailedCount | Should -Be 0
+        $summary.mobilePassedCount | Should -Be 0
+        $summary.mobileFailedCount | Should -Be 1
+        $summary.warningCount | Should -BeGreaterThan 0
+        ($summary.warnings -join ' ') | Should -Match 'table overflow'
+        ($summary.warnings -join ' ') | Should -Match 'accessible label'
+        ($summary.warnings -join ' ') | Should -Match 'keyboard/focus sanity'
+    }
+
     It 'warns on rendered smoke overflow and narrow mobile root width' {
         $smoke = [pscustomobject]@{
             generatedAt = '2026-06-06T00:00:00Z'
@@ -3433,7 +3522,32 @@ Describe 'Feed JSON Schema contracts' {
                 'footerPresenceCount',
                 'blankViewportCount',
                 'croppedElementCount',
-                'overlapWarningCount'
+                'overlapWarningCount',
+                'accessibilityEvidenceAvailable',
+                'detailsCount',
+                'detailsSummaryCount',
+                'detailsKeyboardCheckCount',
+                'detailsKeyboardPassedCount',
+                'detailsKeyboardFailedCount',
+                'detailsCollapsedFocusPassCount',
+                'detailsExpandedFocusPassCount',
+                'detailsActivationPassCount',
+                'detailsKeyboardSanityPassed',
+                'tableCount',
+                'tableOverflowCount',
+                'linkCount',
+                'linkLabelCount',
+                'uniqueLinkLabelCount',
+                'duplicateLinkLabelCount',
+                'actionableLinkCount',
+                'uniqueActionableLinkLabelCount',
+                'emptyLinkLabelCount',
+                'nonActionableLinkCount',
+                'linkLabelSanityPassed',
+                'desktopPassedCount',
+                'desktopFailedCount',
+                'mobilePassedCount',
+                'mobileFailedCount'
             )) {
             $required | Should -Contain $field
         }
@@ -3447,6 +3561,11 @@ Describe 'Feed JSON Schema contracts' {
         $summaryScript | Should -Match 'Rendered smoke blank viewports'
         $summaryScript | Should -Match 'Rendered smoke cropped elements'
         $summaryScript | Should -Match 'Rendered smoke overlap warnings'
+        $summaryScript | Should -Match 'Rendered smoke details keyboard sanity'
+        $summaryScript | Should -Match 'Rendered smoke table overflow'
+        $summaryScript | Should -Match 'Rendered smoke unique actionable link labels'
+        $summaryScript | Should -Match 'Rendered smoke desktop passed'
+        $summaryScript | Should -Match 'Rendered smoke mobile failed'
     }
 
     It 'requires the opt-in release artifact verification report contract' {
@@ -4081,6 +4200,11 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'blankPage'
         $script:RenderSmokeScript | Should -Match 'croppedElementCount'
         $script:RenderSmokeScript | Should -Match 'overlapWarningCount'
+        $script:RenderSmokeScript | Should -Match 'detailsCount'
+        $script:RenderSmokeScript | Should -Match 'detailsKeyboardSanity'
+        $script:RenderSmokeScript | Should -Match 'tableOverflowCount'
+        $script:RenderSmokeScript | Should -Match 'uniqueActionableLinkLabelCount'
+        $script:RenderSmokeScript | Should -Match 'linkLabelSanityPassed'
     }
 
     It 'uses CI-friendly Chrome launch flags and retries DevTools startup' {

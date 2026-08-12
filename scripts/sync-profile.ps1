@@ -6231,6 +6231,31 @@ function New-RenderedProfileSmokeSummary {
             failedImageCount = 0
             missingSectionCount = 0
             overflowCount = 0
+            accessibilityEvidenceAvailable = $false
+            detailsCount = 0
+            detailsSummaryCount = 0
+            detailsKeyboardCheckCount = 0
+            detailsKeyboardPassedCount = 0
+            detailsKeyboardFailedCount = 0
+            detailsCollapsedFocusPassCount = 0
+            detailsExpandedFocusPassCount = 0
+            detailsActivationPassCount = 0
+            detailsKeyboardSanityPassed = $null
+            tableCount = 0
+            tableOverflowCount = 0
+            linkCount = 0
+            linkLabelCount = 0
+            uniqueLinkLabelCount = 0
+            duplicateLinkLabelCount = 0
+            actionableLinkCount = 0
+            uniqueActionableLinkLabelCount = 0
+            emptyLinkLabelCount = 0
+            nonActionableLinkCount = 0
+            linkLabelSanityPassed = $null
+            desktopPassedCount = 0
+            desktopFailedCount = 0
+            mobilePassedCount = 0
+            mobileFailedCount = 0
             screenshotCount = 0
             screenshotPaths = @()
             firstViewportHeaderCount = 0
@@ -6256,6 +6281,31 @@ function New-RenderedProfileSmokeSummary {
     $failedImageCount = 0
     $missingSectionCount = 0
     $overflowCount = 0
+    $accessibilityEvidenceAvailable = $false
+    $detailsCount = 0
+    $detailsSummaryCount = 0
+    $detailsKeyboardCheckCount = 0
+    $detailsKeyboardPassedCount = 0
+    $detailsKeyboardFailedCount = 0
+    $detailsCollapsedFocusPassCount = 0
+    $detailsExpandedFocusPassCount = 0
+    $detailsActivationPassCount = 0
+    $detailsKeyboardSanityPassed = $null
+    $tableCount = 0
+    $tableOverflowCount = 0
+    $linkCount = 0
+    $linkLabelCount = 0
+    $uniqueLinkLabelCount = 0
+    $duplicateLinkLabelCount = 0
+    $actionableLinkCount = 0
+    $uniqueActionableLinkLabelCount = 0
+    $emptyLinkLabelCount = 0
+    $nonActionableLinkCount = 0
+    $linkLabelSanityPassed = $null
+    $desktopPassedCount = 0
+    $desktopFailedCount = 0
+    $mobilePassedCount = 0
+    $mobileFailedCount = 0
     $screenshotPaths = New-Object System.Collections.Generic.List[string]
     $firstViewportHeaderCount = 0
     $firstViewportStartHereCount = 0
@@ -6268,7 +6318,13 @@ function New-RenderedProfileSmokeSummary {
     $rootWidths = New-Object System.Collections.Generic.List[int]
     $mobileRootClientWidth = $null
     foreach ($viewport in $viewports) {
-        $viewportProperties = @($viewport.PSObject.Properties.Name)
+        $viewportProperties = @(Get-ObjectPropertyNames -Object $viewport)
+        $viewportName = [string](Get-MemberValue -Object $viewport -Name "name")
+        if ($viewportName -eq "desktop") {
+            if ([bool](Get-MemberValue -Object $viewport -Name "passed")) { $desktopPassedCount++ } else { $desktopFailedCount++ }
+        } elseif ($viewportName -eq "mobile") {
+            if ([bool](Get-MemberValue -Object $viewport -Name "passed")) { $mobilePassedCount++ } else { $mobileFailedCount++ }
+        }
         $screenshotPath = Get-MemberValue -Object $viewport -Name "screenshotPath"
         if ([string]::IsNullOrWhiteSpace([string]$screenshotPath)) {
             $screenshotPath = Get-MemberValue -Object $viewport -Name "screenshot"
@@ -6284,6 +6340,38 @@ function New-RenderedProfileSmokeSummary {
         }
         if ($viewportProperties -contains "componentPresence" -or $viewportProperties -contains "firstViewportComponentPresence" -or $viewportProperties -contains "blankPage" -or $viewportProperties -contains "croppedElementCount" -or $viewportProperties -contains "overlapWarningCount") {
             $visualEvidenceAvailable = $true
+        }
+        if ($viewportProperties -contains "detailsCount" -or $viewportProperties -contains "tableOverflowCount" -or $viewportProperties -contains "linkLabelCount") {
+            $accessibilityEvidenceAvailable = $true
+            $detailsCount += [int](Get-MemberValue -Object $viewport -Name "detailsCount")
+            $detailsSummaryCount += [int](Get-MemberValue -Object $viewport -Name "detailsSummaryCount")
+            $tableCount += [int](Get-MemberValue -Object $viewport -Name "tableCount")
+            $tableOverflowCount += [int](Get-MemberValue -Object $viewport -Name "tableOverflowCount")
+            $linkCount += [int](Get-MemberValue -Object $viewport -Name "linkCount")
+            $linkLabelCount += [int](Get-MemberValue -Object $viewport -Name "linkLabelCount")
+            $uniqueLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "uniqueLinkLabelCount")
+            $duplicateLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "duplicateLinkLabelCount")
+            $actionableLinkCount += [int](Get-MemberValue -Object $viewport -Name "actionableLinkCount")
+            $uniqueActionableLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "uniqueActionableLinkLabelCount")
+            $emptyLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "emptyLinkLabelCount")
+            $nonActionableLinkCount += [int](Get-MemberValue -Object $viewport -Name "nonActionableLinkCount")
+            $viewportLinkLabelSanity = Get-MemberValue -Object $viewport -Name "linkLabelSanityPassed"
+            if ($null -ne $viewportLinkLabelSanity) {
+                $linkLabelSanityPassed = if ($null -eq $linkLabelSanityPassed) { [bool]$viewportLinkLabelSanity } else { [bool]$linkLabelSanityPassed -and [bool]$viewportLinkLabelSanity }
+            }
+            $keyboard = Get-MemberValue -Object $viewport -Name "detailsKeyboardSanity"
+            if ($null -ne $keyboard) {
+                $detailsKeyboardCheckCount += [int](Get-MemberValue -Object $keyboard -Name "detailCount")
+                $detailsKeyboardPassedCount += [int](Get-MemberValue -Object $keyboard -Name "detailCount") - [int](Get-MemberValue -Object $keyboard -Name "failedCount")
+                $detailsKeyboardFailedCount += [int](Get-MemberValue -Object $keyboard -Name "failedCount")
+                $detailsCollapsedFocusPassCount += [int](Get-MemberValue -Object $keyboard -Name "collapsedFocusPassCount")
+                $detailsExpandedFocusPassCount += [int](Get-MemberValue -Object $keyboard -Name "expandedFocusPassCount")
+                $detailsActivationPassCount += [int](Get-MemberValue -Object $keyboard -Name "activationPassCount")
+                $viewportKeyboardSanity = Get-MemberValue -Object $keyboard -Name "passed"
+                if ($null -ne $viewportKeyboardSanity) {
+                    $detailsKeyboardSanityPassed = if ($null -eq $detailsKeyboardSanityPassed) { [bool]$viewportKeyboardSanity } else { [bool]$detailsKeyboardSanityPassed -and [bool]$viewportKeyboardSanity }
+                }
+            }
         }
 
         $firstViewportComponentPresence = Get-MemberValue -Object $viewport -Name "firstViewportComponentPresence"
@@ -6365,6 +6453,23 @@ function New-RenderedProfileSmokeSummary {
             $warnings.Add("Rendered profile smoke found $overlapWarningCount first-viewport overlap warning(s).")
         }
     }
+    if ($accessibilityEvidenceAvailable) {
+        if ($tableOverflowCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $tableOverflowCount table overflow warning(s).")
+        }
+        if ($emptyLinkLabelCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $emptyLinkLabelCount link(s) without an accessible label.")
+        }
+        if ($nonActionableLinkCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $nonActionableLinkCount non-actionable link target(s).")
+        }
+        if ($null -ne $detailsKeyboardSanityPassed -and -not $detailsKeyboardSanityPassed) {
+            $warnings.Add("Rendered profile smoke found $detailsKeyboardFailedCount details keyboard/focus sanity failure(s).")
+        }
+        if ($null -ne $linkLabelSanityPassed -and -not $linkLabelSanityPassed -and $emptyLinkLabelCount -eq 0 -and $nonActionableLinkCount -eq 0) {
+            $warnings.Add("Rendered profile smoke could not confirm actionable accessible link labels.")
+        }
+    }
     if ($skipped) {
         $reason = if ([string]::IsNullOrWhiteSpace($skipReason)) { "reason unavailable" } else { $skipReason }
         $warnings.Add("Rendered profile smoke did not run locally: $reason")
@@ -6382,6 +6487,31 @@ function New-RenderedProfileSmokeSummary {
         failedImageCount = [int]$failedImageCount
         missingSectionCount = [int]$missingSectionCount
         overflowCount = [int]$overflowCount
+        accessibilityEvidenceAvailable = [bool]$accessibilityEvidenceAvailable
+        detailsCount = [int]$detailsCount
+        detailsSummaryCount = [int]$detailsSummaryCount
+        detailsKeyboardCheckCount = [int]$detailsKeyboardCheckCount
+        detailsKeyboardPassedCount = [int]$detailsKeyboardPassedCount
+        detailsKeyboardFailedCount = [int]$detailsKeyboardFailedCount
+        detailsCollapsedFocusPassCount = [int]$detailsCollapsedFocusPassCount
+        detailsExpandedFocusPassCount = [int]$detailsExpandedFocusPassCount
+        detailsActivationPassCount = [int]$detailsActivationPassCount
+        detailsKeyboardSanityPassed = $detailsKeyboardSanityPassed
+        tableCount = [int]$tableCount
+        tableOverflowCount = [int]$tableOverflowCount
+        linkCount = [int]$linkCount
+        linkLabelCount = [int]$linkLabelCount
+        uniqueLinkLabelCount = [int]$uniqueLinkLabelCount
+        duplicateLinkLabelCount = [int]$duplicateLinkLabelCount
+        actionableLinkCount = [int]$actionableLinkCount
+        uniqueActionableLinkLabelCount = [int]$uniqueActionableLinkLabelCount
+        emptyLinkLabelCount = [int]$emptyLinkLabelCount
+        nonActionableLinkCount = [int]$nonActionableLinkCount
+        linkLabelSanityPassed = $linkLabelSanityPassed
+        desktopPassedCount = [int]$desktopPassedCount
+        desktopFailedCount = [int]$desktopFailedCount
+        mobilePassedCount = [int]$mobilePassedCount
+        mobileFailedCount = [int]$mobileFailedCount
         screenshotCount = [int]$screenshotPaths.Count
         screenshotPaths = @($screenshotPaths.ToArray())
         firstViewportHeaderCount = [int]$firstViewportHeaderCount

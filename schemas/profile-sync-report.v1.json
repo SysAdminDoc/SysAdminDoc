@@ -5574,6 +5574,31 @@
         "failedImageCount",
         "missingSectionCount",
         "overflowCount",
+        "accessibilityEvidenceAvailable",
+        "detailsCount",
+        "detailsSummaryCount",
+        "detailsKeyboardCheckCount",
+        "detailsKeyboardPassedCount",
+        "detailsKeyboardFailedCount",
+        "detailsCollapsedFocusPassCount",
+        "detailsExpandedFocusPassCount",
+        "detailsActivationPassCount",
+        "detailsKeyboardSanityPassed",
+        "tableCount",
+        "tableOverflowCount",
+        "linkCount",
+        "linkLabelCount",
+        "uniqueLinkLabelCount",
+        "duplicateLinkLabelCount",
+        "actionableLinkCount",
+        "uniqueActionableLinkLabelCount",
+        "emptyLinkLabelCount",
+        "nonActionableLinkCount",
+        "linkLabelSanityPassed",
+        "desktopPassedCount",
+        "desktopFailedCount",
+        "mobilePassedCount",
+        "mobileFailedCount",
         "screenshotCount",
         "screenshotPaths",
         "firstViewportHeaderCount",
@@ -5630,6 +5655,81 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "overflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "accessibilityEvidenceAvailable": {
+          "type": "boolean"
+        },
+        "detailsCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsSummaryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsKeyboardCheckCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsKeyboardPassedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsKeyboardFailedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsCollapsedFocusPassCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsExpandedFocusPassCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsActivationPassCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "detailsKeyboardSanityPassed": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "tableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "tableOverflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "linkCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "linkLabelCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "uniqueLinkLabelCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "duplicateLinkLabelCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "actionableLinkCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "uniqueActionableLinkLabelCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "emptyLinkLabelCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "nonActionableLinkCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "linkLabelSanityPassed": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "desktopPassedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "desktopFailedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "mobilePassedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "mobileFailedCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "screenshotCount": {
