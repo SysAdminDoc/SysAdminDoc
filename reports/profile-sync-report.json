@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-08-12T07:46:32.5289362-04:00",
+  "generatedAt": "2026-08-12T08:02:56.3997062-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -9,15 +9,15 @@
     "readme": {
       "artifact": "README.md",
       "inSync": true,
-      "currentSha256": "5c48b731171884770b0f0404713ce3e6a0542518732c73c6b9e818306442254b",
-      "expectedSha256": "5c48b731171884770b0f0404713ce3e6a0542518732c73c6b9e818306442254b",
+      "currentSha256": "f7dd870f7fc071204e1c1a5f390fed7bf95797ece9f4ce785348cdbcfc4026fe",
+      "expectedSha256": "f7dd870f7fc071204e1c1a5f390fed7bf95797ece9f4ce785348cdbcfc4026fe",
       "firstDiff": null
     },
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "c0457d93cf85b61b93a4e693bd51279152904b04db291019b32771836a22c7ee",
-      "expectedSha256": "b3ef253150c5e163675b2d85d92efda6431fb242551dfdf125ce2203cf1b9cdd",
+      "currentSha256": "1b820c2212acb216c2493866c516e8614eac9a1979221327e1375998267b14ae",
+      "expectedSha256": "a10178689358f1fa3065847069ce72dff30b7fc791ef1d7a2d0fdfe467133730",
       "firstDiff": null
     },
     "assets": {
@@ -28,15 +28,15 @@
           "path": "assets/profile/contributions-dark.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "2611d46d8cbc0c7093c5c9ecd1e7e76a46b5f3a28883f88bfb61ce1d7d0cce86",
-          "expectedSha256": "6523c57be88f7878845828bf12b875bbc660de75ed8d57fda52f4794cd36a5c2"
+          "currentSha256": "ac31ecc0084f84c93b6eb2d22b07cf68f3b38d84102c0d64e1717a70a832125a",
+          "expectedSha256": "9e7d4bbb4063f910fd1bbdacc5cf43ecfc76635b90b72815b23dd7dade98b4c9"
         },
         {
           "path": "assets/profile/contributions-light.svg",
           "exists": true,
           "fatal": false,
-          "currentSha256": "1a6a62031c39044dfffa760a17527b33ca085c992fd542e8b69e0c0c3f61813c",
-          "expectedSha256": "d5274001ff4ee26acc54af2c8d14a189dbc2bba3c909149ed95cd120fdd9b168"
+          "currentSha256": "5916d7fc371fbad5aeb0229b9e45f052504bcba1e14ad56d6513672a02abf7e3",
+          "expectedSha256": "693d538e31e4eee667ba7105b47d8a86ae1c79bf5718c24c3cbfaed815558a76"
         }
       ]
     }
@@ -110,11 +110,11 @@
     "version": 1,
     "feedSchemaVersion": 3,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "879f9d3c9408e42808d24d5cc4217c6d692f6f50",
+    "sourceCommit": "dbeb7a852c5b5e3adbeed2f787084bf7d663cbe3",
     "catalogSha256": "e3925c0584c8a6d6f503c307e6c9435bd9ad58d4e8161ecc1c995117b2ea1308",
-    "generatorSha256": "6b9562390349e496d9dff85f92f310aaac1ae150aaa094f7c8d58c5b1d6cde1f",
+    "generatorSha256": "d77ac5b24594b32d6b7805cb79aa87c2cd3ff6e8ca0a80954d8f4b27a8f7d00b",
     "projectSchemaSha256": "eec1e8c93f0b5c62d44ec9b4b1bf1edac404113e5956891c5c5893a5ec4588ff",
-    "metadataSnapshotAt": "2026-08-12T07:43:22.8143832-04:00",
+    "metadataSnapshotAt": "2026-08-12T07:58:15.3440813-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 300,
@@ -1283,6 +1283,22 @@
     "userscriptKindWithoutInstallUrl": [],
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
   },
+  "releaseArtifactVerification": {
+    "enabled": false,
+    "status": "disabled",
+    "verificationMode": "opt-in",
+    "maxAssets": 4,
+    "maxBytes": 5242880,
+    "targetCount": 170,
+    "checkedAssetCount": 0,
+    "verifiedCount": 0,
+    "skippedCount": 0,
+    "failureCount": 0,
+    "downloadedBytes": 0,
+    "rows": [],
+    "errors": [],
+    "note": "Metadata evidence only: release artifacts were not downloaded or locally verified. Use -VerifyReleaseArtifacts for the capped pilot."
+  },
   "userscriptInstallTrust": {
     "skipped": true,
     "skipReason": "link validation skipped",
@@ -1530,7 +1546,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-08-12T07:43:22.8143832-04:00",
+          "queriedAt": "2026-08-12T07:58:15.3440813-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2133,36 +2149,27 @@
       "repo": null,
       "category": null,
       "field": "provenance.metadataSnapshotAt",
-      "oldValue": "2026-08-12T07:40:56.7445483-04:00",
-      "newValue": "2026-08-12T07:43:22.8143832-04:00",
+      "oldValue": "2026-08-12T07:55:09.4156868-04:00",
+      "newValue": "2026-08-12T07:58:15.3440813-04:00",
       "severity": "info",
       "failing": false
     },
     {
-      "repo": "StyleKit",
-      "category": "extensions",
+      "repo": "StreamKeep",
+      "category": "media",
       "field": "pushedAt",
-      "oldValue": "2026-08-12T11:35:21Z",
-      "newValue": "2026-08-12T11:41:36Z",
-      "severity": "info",
-      "failing": false
-    },
-    {
-      "repo": "SwiftFloris",
-      "category": "android",
-      "field": "pushedAt",
-      "oldValue": "2026-08-12T11:17:04Z",
-      "newValue": "2026-08-12T11:42:39Z",
+      "oldValue": "2026-08-12T11:45:55Z",
+      "newValue": "2026-08-12T11:55:59Z",
       "severity": "info",
       "failing": false
     }
   ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 3,
+    "informationalCount": 2,
     "generatedAt": {
       "value": "2026-06-01T16:18:55.0998940-04:00",
-      "ageDays": 71.64,
+      "ageDays": 71.66,
       "staleAfterDays": 7,
       "stale": true,
       "warning": "projects.json generatedAt is older than 7 days"
@@ -2183,7 +2190,7 @@
   "linkValidationFailures": [],
   "linkValidationWarnings": [],
   "readmeSizeBudget": {
-    "byteCount": 73429,
+    "byteCount": 73615,
     "softLimitBytes": 98304,
     "overSoftLimit": false,
     "warning": null
@@ -2205,7 +2212,7 @@
     "warningCount": 0
   },
   "readmeDensity": {
-    "lineCount": 660,
+    "lineCount": 661,
     "detailsSectionCount": 12,
     "tableRowCount": 109,
     "projectRowCount": 175,
@@ -2479,7 +2486,7 @@
       {
         "artifact": "README.md",
         "metric": "bytes",
-        "value": 73429,
+        "value": 73615,
         "softLimit": 98304,
         "overSoftLimit": false,
         "warning": null,
@@ -2488,7 +2495,7 @@
       {
         "artifact": "README.md",
         "metric": "lines",
-        "value": 660,
+        "value": 661,
         "softLimit": 1000,
         "overSoftLimit": false,
         "warning": null,
@@ -2542,7 +2549,7 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 96532,
+        "value": 96815,
         "softLimit": 114688,
         "overSoftLimit": false,
         "warning": null,
@@ -2601,14 +2608,14 @@
     "warnings": []
   },
   "evidenceFreshness": {
-    "status": "fresh",
+    "status": "generated-with-commit",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-08-12T07:39:39.5098897-04:00",
-    "latestReportAffectingCommitSha": "879f9d3c9408e42808d24d5cc4217c6d692f6f50",
-    "latestReportAffectingCommitDate": "2026-08-12T07:34:53.0000000-04:00",
-    "reportAgeBehindCommit": false,
-    "reportAgeBehindHours": null,
-    "generatedWithCommit": false,
+    "committedReportGeneratedAt": "2026-08-12T07:46:32.5289362-04:00",
+    "latestReportAffectingCommitSha": "dbeb7a852c5b5e3adbeed2f787084bf7d663cbe3",
+    "latestReportAffectingCommitDate": "2026-08-12T07:54:46.0000000-04:00",
+    "reportAgeBehindCommit": true,
+    "reportAgeBehindHours": 0.14,
+    "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": false,
