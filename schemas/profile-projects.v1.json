@@ -646,6 +646,30 @@
         "branch": {
           "type": "string"
         },
+        "branchTipSha": {
+          "$ref": "#/$defs/nullableString",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "branchTipFetchedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "branchTipStatus": {
+          "type": "string",
+          "enum": [
+            "fresh",
+            "stale",
+            "unreachable",
+            "missing",
+            "not-applicable"
+          ]
+        },
+        "branchTipWarning": {
+          "$ref": "#/$defs/nullableString"
+        },
         "entrypoint": {
           "$ref": "#/$defs/nullableString"
         },

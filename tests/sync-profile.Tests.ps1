@@ -70,7 +70,9 @@ BeforeAll {
             [string]$ReleaseTag = 'v1.0.0',
             [string]$ReleasePublishedAt = '2026-06-04T00:00:00Z',
             [string]$PushedAt = '2026-06-04T00:00:00Z',
-            [string[]]$AssetNames = @()
+            [string[]]$AssetNames = @(),
+            [string]$BranchTipSha = $null,
+            [string]$BranchTipFetchedAt = $null
         )
 
         $assetKinds = if ($WithRelease) { @(Get-ReleaseAssetKinds -AssetNames $AssetNames) } else { @() }
@@ -79,7 +81,14 @@ BeforeAll {
             description = $Description
             primaryLanguage = [pscustomobject]@{ name = $Language }
             repositoryTopics = @($Topics | ForEach-Object { [pscustomobject]@{ name = $_ } })
-            defaultBranchRef = [pscustomobject]@{ name = 'main' }
+            defaultBranchRef = [pscustomobject]@{
+                name = 'main'
+                target = if ($BranchTipSha) { [pscustomobject]@{ oid = $BranchTipSha } } else { $null }
+            }
+            branchTipSha = $BranchTipSha
+            branchTipFetchedAt = $BranchTipFetchedAt
+            branchTipStatus = if ($BranchTipSha) { 'fresh' } else { 'unreachable' }
+            branchTipWarning = if ($BranchTipSha) { $null } else { 'fixture has no branch-tip evidence' }
             latestRelease = if ($WithRelease) {
                 [pscustomobject]@{
                     tagName = $ReleaseTag
@@ -152,6 +161,9 @@ Describe 'Function library loads via the dot-source test seam' {
             'Add-ReleaseAssetMetadata',
             'Get-ReleaseArtifactVerificationTargets',
             'Test-ReleaseArtifactVerification',
+            'Get-BranchTipRows',
+            'Set-BranchTipMetadata',
+            'Test-BranchTipProvenance',
             'Add-ForkParentMetadata',
             'Add-LiveRepositoryMetadata',
             'ConvertTo-Lookup',
@@ -326,6 +338,60 @@ Describe 'Get-InstallSnippet' {
     It 'returns null when the entry has no entrypoint' {
         $e = New-TestEntry -Repo 'NoEntry' -Category 'powershell'
         Get-InstallSnippet -Entry $e -Meta $null -Category 'powershell' | Should -BeNullOrEmpty
+    }
+}
+
+Describe 'Branch-tip provenance' {
+    It 'records the advertised branch, current tip SHA, and fetched-at time for a fresh response' {
+        $sha = 'a' * 40
+        $repo = New-TestRepoMeta -Name 'WinTool'
+        $fetch = [ordered]@{
+            succeeded = $true
+            fetchedAt = '2026-08-12T12:00:00Z'
+            error = $null
+            rows = @([ordered]@{ name = 'WinTool'; branch = 'main'; sha = $sha })
+        }
+
+        $updated = @(Set-BranchTipMetadata -Repos @($repo) -FetchResult $fetch)
+
+        $updated[0].defaultBranchRef.name | Should -Be 'main'
+        $updated[0].branchTipSha | Should -Be $sha
+        $updated[0].branchTipFetchedAt | Should -Be '2026-08-12T12:00:00Z'
+        $updated[0].branchTipStatus | Should -Be 'fresh'
+        $updated[0].branchTipWarning | Should -BeNullOrEmpty
+    }
+
+    It 'marks previously fetched evidence stale when refresh is unreachable' {
+        $sha = 'b' * 40
+        $repo = New-TestRepoMeta -Name 'WinTool' -BranchTipSha $sha -BranchTipFetchedAt '2026-08-10T12:00:00Z'
+        $fetch = [ordered]@{
+            succeeded = $false
+            fetchedAt = $null
+            error = 'HTTP 503 branch ref unavailable'
+            rows = @()
+        }
+
+        $updated = @(Set-BranchTipMetadata -Repos @($repo) -FetchResult $fetch -StaleAfterHours 24)
+
+        $updated[0].branchTipSha | Should -Be $sha
+        $updated[0].branchTipStatus | Should -Be 'stale'
+        $updated[0].branchTipWarning | Should -Match 'unreachable'
+    }
+
+    It 'reports branch-tip evidence only for branch-backed install actions' {
+        $entry = New-TestEntry -Repo 'WinTool' -Category 'powershell'
+        $entry.entrypoint = 'WinTool.ps1'
+        $entry.installKind = 'powershell'
+        $sha = 'c' * 40
+        $meta = New-TestRepoMeta -Name 'WinTool' -BranchTipSha $sha -BranchTipFetchedAt '2026-08-12T12:00:00Z'
+        $result = Test-BranchTipProvenance -Entries @($entry) -RepoLookup (ConvertTo-Lookup @($meta)) -Now ([datetimeoffset]'2026-08-12T12:30:00Z')
+
+        $result.status | Should -Be 'ok'
+        $result.checkedInstallActionCount | Should -Be 1
+        $result.freshCount | Should -Be 1
+        $result.warningCount | Should -Be 0
+        $result.rows[0].branch | Should -Be 'main'
+        $result.rows[0].branchTipSha | Should -Be $sha
     }
 }
 
@@ -3351,6 +3417,23 @@ Describe 'Feed JSON Schema contracts' {
         $summaryScript | Should -Match 'Release artifact verification'
         $summaryScript | Should -Match 'Release artifacts verified'
         $summaryScript | Should -Match 'Release artifact verification failures'
+    }
+
+    It 'requires branch-tip provenance evidence for branch-backed install actions' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        @($schema.required) | Should -Contain 'branchTipProvenance'
+        $required = @($schema.'$defs'.branchTipProvenance.required)
+        foreach ($field in @('status', 'checkedInstallActionCount', 'staleAfterHours', 'freshCount', 'staleCount', 'unreachableCount', 'missingCount', 'warningCount', 'statusCounts', 'rows', 'note')) {
+            $required | Should -Contain $field
+        }
+        $rowRequired = @($schema.'$defs'.branchTipProvenanceRow.required)
+        foreach ($field in @('repo', 'branch', 'branchTipSha', 'branchTipFetchedAt', 'status', 'warning')) {
+            $rowRequired | Should -Contain $field
+        }
+
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'Branch-tip provenance'
+        $summaryScript | Should -Match 'Fresh branch-tip rows'
     }
 
     It 'validates the committed profile sync report contract' {

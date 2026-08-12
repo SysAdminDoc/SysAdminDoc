@@ -11,13 +11,6 @@ Actionable work only. Historical and completed roadmap material is archived in C
   Acceptance: working notes clearly mark hosted-workflow/Dependabot history as historical or remove stale operational guidance, while preserving current local validation, feed, and blocked-roadmap instructions.
   Complexity: S
 
-- [ ] P2 — Add branch-tip provenance to clone and install snippets
-  Why: README install snippets are branch-pinned for current installs but do not record the branch tip SHA or freshness evidence that a visitor or portfolio consumer can verify.
-  Evidence: `README.md` generated clone snippets, `docs/decisions/2026-06-07-userscript-install-posture.md`, GitHub REST refs API behavior.
-  Touches: `scripts/sync-profile.ps1`, `schemas/profile-projects.v1.json`, `schemas/profile-sync-report.v1.json`, `tests/sync-profile.Tests.ps1`.
-  Acceptance: generated feed/report rows record advertised branch, current tip SHA, fetched-at time, and stale/unreachable warning state for branch-backed install actions while keeping branch-current snippets as the README default.
-  Complexity: M
-
 - [ ] P2 — Generate an optional Backstage-compatible catalog export
   Why: SysAdminDoc already maintains a structured software catalog; a narrow Backstage export adds integration value without turning the generator into a plugin framework.
   Evidence: Backstage Software Catalog descriptor docs, `projects.json`, `schemas/profile-projects.v1.json`.

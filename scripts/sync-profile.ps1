@@ -87,6 +87,7 @@ $RenderedSmokeMinimumRootClientWidth = 300
 # before its latest successful scheduled run is treated as stale. Covers runner
 # queue delays and the GitHub-documented cron drift on busy schedules.
 $ScheduledWorkflowGraceMinutes = 1440
+$BranchTipStaleAfterHours = 24
 # Paths whose changes can alter the committed sync report / rendered smoke evidence.
 # Used to detect a committed report that predates the latest report-affecting commit.
 $ReportAffectingPaths = @(
@@ -398,6 +399,10 @@ function ConvertFrom-RestRepoMetadata {
         description = Get-MemberValue -Object $Repo -Name "description"
         stargazerCount = [int](Get-MemberValue -Object $Repo -Name "stargazers_count")
         defaultBranchRef = [pscustomobject]@{ name = Get-MemberValue -Object $Repo -Name "default_branch" }
+        branchTipSha = $null
+        branchTipFetchedAt = $null
+        branchTipStatus = "unreachable"
+        branchTipWarning = "REST repository metadata does not include the default-branch commit tip."
         latestRelease = $Release
         licenseInfo = Get-MemberValue -Object $Repo -Name "license"
         isFork = [bool](Get-MemberValue -Object $Repo -Name "fork")
@@ -648,6 +653,241 @@ function Get-GitHubRepos {
     }
     Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
     return Get-GitHubReposFromRest
+}
+
+function Get-BranchTipRows {
+    <#
+    .SYNOPSIS
+    Fetches public owner repository default-branch names and tip OIDs in one paginated GraphQL query.
+    .DESCRIPTION
+    Branch-tip evidence is warning-only. A failed query never blocks generation; callers mark affected
+    branch-backed install actions as unreachable or stale instead of inventing a commit SHA.
+    .PARAMETER Repos
+    Repository metadata rows used to limit the returned rows to repositories in this run.
+    #>
+    [CmdletBinding()]
+    param([object[]]$Repos)
+
+    if ($Offline) {
+        return [ordered]@{
+            succeeded = $false
+            fetchedAt = $null
+            error = "Branch-tip lookup skipped in offline mode."
+            rows = @()
+        }
+    }
+
+    $requestedNames = @{}
+    foreach ($repo in @($Repos | Where-Object { $null -ne $_ })) {
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        if (-not [string]::IsNullOrWhiteSpace($repoName)) {
+            $requestedNames[$repoName.ToLowerInvariant()] = $true
+        }
+    }
+
+    $query = 'query($login: String!, $cursor: String) { user(login: $login) { repositories(first: 100, after: $cursor, ownerAffiliations: OWNER, privacy: PUBLIC) { nodes { name defaultBranchRef { name target { oid } } } pageInfo { hasNextPage endCursor } } } }'
+    $rows = New-Object System.Collections.Generic.List[object]
+    $cursor = $null
+    $lastError = $null
+
+    try {
+        for ($page = 0; $page -lt 10; $page++) {
+            $arguments = @(
+                "api",
+                "graphql",
+                "-f",
+                "query=$query",
+                "-f",
+                "login=$Owner"
+            )
+            if ($null -eq $cursor) {
+                $arguments += @("-F", "cursor=null")
+            } else {
+                $arguments += @("-f", "cursor=$cursor")
+            }
+
+            $gh = Invoke-GhCli -Arguments $arguments
+            if ($gh.exitCode -ne 0) {
+                $lastError = $gh.text
+                break
+            }
+
+            $payload = $gh.text | ConvertFrom-Json
+            $connection = Get-MemberValue -Object (Get-MemberValue -Object (Get-MemberValue -Object $payload -Name "data") -Name "user") -Name "repositories"
+            if ($null -eq $connection) {
+                $lastError = "GitHub branch-tip query returned no repository connection."
+                break
+            }
+
+            foreach ($node in @($connection.nodes)) {
+                $nodeName = [string](Get-MemberValue -Object $node -Name "name")
+                if ($requestedNames.Count -gt 0 -and -not $requestedNames.ContainsKey($nodeName.ToLowerInvariant())) {
+                    continue
+                }
+                $ref = Get-MemberValue -Object $node -Name "defaultBranchRef"
+                $target = Get-MemberValue -Object $ref -Name "target"
+                $rows.Add([ordered]@{
+                    name = $nodeName
+                    branch = [string](Get-MemberValue -Object $ref -Name "name")
+                    sha = [string](Get-MemberValue -Object $target -Name "oid")
+                })
+            }
+
+            $pageInfo = Get-MemberValue -Object $connection -Name "pageInfo"
+            if (-not [bool](Get-MemberValue -Object $pageInfo -Name "hasNextPage")) {
+                break
+            }
+
+            $cursor = [string](Get-MemberValue -Object $pageInfo -Name "endCursor")
+            if ([string]::IsNullOrWhiteSpace($cursor)) {
+                $lastError = "GitHub branch-tip query reported another page without an end cursor."
+                break
+            }
+        }
+    } catch {
+        $lastError = $_.Exception.Message
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($lastError)) {
+        return [ordered]@{
+            succeeded = $false
+            fetchedAt = $null
+            error = $lastError
+            rows = @()
+        }
+    }
+
+    return [ordered]@{
+        succeeded = $true
+        fetchedAt = (Get-Date).ToUniversalTime().ToString("o")
+        error = $null
+        rows = $rows.ToArray()
+    }
+}
+
+function Set-BranchTipMetadata {
+    <#
+    .SYNOPSIS
+    Applies branch-tip provenance and warning state to repository metadata rows.
+    .PARAMETER Repos
+    Repository metadata rows to annotate.
+    .PARAMETER FetchResult
+    Result from Get-BranchTipRows or an equivalent hermetic fixture.
+    .PARAMETER StaleAfterHours
+    Age after which previously fetched branch-tip evidence becomes stale.
+    #>
+    [CmdletBinding()]
+    param(
+        [object[]]$Repos,
+        [object]$FetchResult,
+        [ValidateRange(1, 720)]
+        [int]$StaleAfterHours = $BranchTipStaleAfterHours
+    )
+
+    $rowsByName = @{}
+    foreach ($row in @($FetchResult.rows)) {
+        $name = [string](Get-MemberValue -Object $row -Name "name")
+        if (-not [string]::IsNullOrWhiteSpace($name)) {
+            $rowsByName[$name.ToLowerInvariant()] = $row
+        }
+    }
+
+    $fetchSucceeded = [bool](Get-MemberValue -Object $FetchResult -Name "succeeded")
+    $fetchAt = [string](Get-MemberValue -Object $FetchResult -Name "fetchedAt")
+    $fetchError = [string](Get-MemberValue -Object $FetchResult -Name "error")
+
+    foreach ($repo in @($Repos | Where-Object { $null -ne $_ })) {
+        $branchRef = Get-MemberValue -Object $repo -Name "defaultBranchRef"
+        $branch = [string](Get-MemberValue -Object $branchRef -Name "name")
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        $tipSha = $null
+        $tipFetchedAt = $null
+        $status = "missing"
+        $warning = $null
+        $row = if ($rowsByName.ContainsKey($repoName.ToLowerInvariant())) { $rowsByName[$repoName.ToLowerInvariant()] } else { $null }
+
+        if ([string]::IsNullOrWhiteSpace($branch)) {
+            $status = "missing"
+            $warning = "GitHub did not advertise a default branch for this repository."
+        } elseif ($fetchSucceeded -and $null -ne $row) {
+            $rowBranch = [string](Get-MemberValue -Object $row -Name "branch")
+            $candidateSha = [string](Get-MemberValue -Object $row -Name "sha")
+            if ($rowBranch -ne $branch) {
+                $status = "unreachable"
+                $warning = "Branch-tip response disagreed with the advertised default branch."
+            } elseif ($candidateSha -match '^[a-f0-9]{40}$') {
+                $tipSha = $candidateSha.ToLowerInvariant()
+                $tipFetchedAt = $fetchAt
+                $status = "fresh"
+            } else {
+                $status = "missing"
+                $warning = "GitHub returned the default branch without a commit OID."
+            }
+        } elseif (-not $fetchSucceeded) {
+            $existingSha = [string](Get-MemberValue -Object $repo -Name "branchTipSha")
+            $existingFetchedAt = [string](Get-MemberValue -Object $repo -Name "branchTipFetchedAt")
+            if ($existingSha -match '^[a-f0-9]{40}$' -and $existingFetchedAt -match '^\d{4}-\d{2}-\d{2}T') {
+                try {
+                    $ageHours = ([datetimeoffset]::Now.ToUniversalTime() - [datetimeoffset]::Parse($existingFetchedAt).ToUniversalTime()).TotalHours
+                    if ($ageHours -le $StaleAfterHours) {
+                        $tipSha = $existingSha.ToLowerInvariant()
+                        $tipFetchedAt = $existingFetchedAt
+                        $status = "stale"
+                        $warning = "Branch-tip refresh was unreachable; retaining evidence fetched $([math]::Round($ageHours, 1)) hour(s) ago."
+                    } else {
+                        $tipSha = $existingSha.ToLowerInvariant()
+                        $tipFetchedAt = $existingFetchedAt
+                        $status = "stale"
+                        $warning = "Branch-tip evidence is $([math]::Round($ageHours, 1)) hour(s) old and the refresh was unreachable."
+                    }
+                } catch {
+                    $status = "stale"
+                    $warning = "Branch-tip evidence has an invalid fetched-at timestamp and the refresh was unreachable."
+                }
+            } else {
+                $status = "unreachable"
+                $warning = if ([string]::IsNullOrWhiteSpace($fetchError)) { "Branch-tip lookup was unreachable." } else { "Branch-tip lookup was unreachable: $fetchError" }
+            }
+        } else {
+            $status = "unreachable"
+            $warning = "Branch-tip response did not include this public repository."
+        }
+
+        Set-MemberValue -Object $repo -Name "branchTipSha" -Value $tipSha
+        Set-MemberValue -Object $repo -Name "branchTipFetchedAt" -Value $tipFetchedAt
+        Set-MemberValue -Object $repo -Name "branchTipStatus" -Value $status
+        Set-MemberValue -Object $repo -Name "branchTipWarning" -Value $warning
+    }
+
+    return @($Repos)
+}
+
+function Add-BranchTipMetadata {
+    <#
+    .SYNOPSIS
+    Enriches live repository metadata with warning-only default-branch tip evidence.
+    .PARAMETER Repos
+    Repository metadata rows to enrich.
+    #>
+    [CmdletBinding()]
+    param([object[]]$Repos)
+
+    if ($Offline) {
+        return @($Repos)
+    }
+
+    $fetchResult = if (([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase)) {
+        [ordered]@{
+            succeeded = $false
+            fetchedAt = $null
+            error = "Repository metadata came from cache; branch-tip refresh was not attempted."
+            rows = @()
+        }
+    } else {
+        Get-BranchTipRows -Repos $Repos
+    }
+
+    return @(Set-BranchTipMetadata -Repos $Repos -FetchResult $fetchResult)
 }
 
 function ConvertFrom-RestReleaseMetadata {
@@ -942,6 +1182,7 @@ function Add-LiveRepositoryMetadata {
     }
 
     $enrichedRepos = @(Add-ReleaseAssetMetadata -Repos $enrichedRepos)
+    $enrichedRepos = @(Add-BranchTipMetadata -Repos $enrichedRepos)
     Write-ValidationCacheEntry -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -Value $enrichedRepos
     return @($enrichedRepos)
 }
@@ -2724,6 +2965,36 @@ function Get-InstallSnippet {
     return '$d="$env:TEMP\{0}"; if(Test-Path $d){{git -C $d pull -q}}else{{git clone -q --depth 1 -b {1} https://github.com/{2}/{0} $d}}; if(Test-Path "$d\requirements.txt"){{pip install -q -r "$d\requirements.txt"}}; {3}' -f $Entry.repo, $branch, $Owner, $runner
 }
 
+function Get-BranchTipActionEvidence {
+    [CmdletBinding()]
+    param(
+        [hashtable]$Entry,
+        [object]$Meta
+    )
+
+    $hasBranchBackedAction = -not [string]::IsNullOrWhiteSpace([string]$Entry.entrypoint)
+    if (-not $hasBranchBackedAction) {
+        return [ordered]@{
+            sha = $null
+            fetchedAt = $null
+            status = "not-applicable"
+            warning = $null
+        }
+    }
+
+    $branchTipSha = if ($Meta) { [string](Get-MemberValue -Object $Meta -Name "branchTipSha") } else { $null }
+    $branchTipFetchedAt = if ($Meta) { [string](Get-MemberValue -Object $Meta -Name "branchTipFetchedAt") } else { $null }
+    $branchTipStatus = if ($Meta) { [string](Get-MemberValue -Object $Meta -Name "branchTipStatus") } else { "unreachable" }
+    $branchTipWarning = if ($Meta) { [string](Get-MemberValue -Object $Meta -Name "branchTipWarning") } else { "Repository metadata did not include branch-tip evidence." }
+
+    return [ordered]@{
+        sha = if ($branchTipSha -match '^[a-f0-9]{40}$') { $branchTipSha.ToLowerInvariant() } else { $null }
+        fetchedAt = if ([string]::IsNullOrWhiteSpace($branchTipFetchedAt)) { $null } else { $branchTipFetchedAt }
+        status = if ($branchTipStatus -in @("fresh", "stale", "unreachable", "missing")) { $branchTipStatus } else { "unreachable" }
+        warning = if ([string]::IsNullOrWhiteSpace($branchTipWarning)) { $null } else { $branchTipWarning }
+    }
+}
+
 function New-CategoryLink {
     param([string]$Slug)
 
@@ -4373,6 +4644,9 @@ function New-ProjectsExportJson {
             $null
         }
 
+        $branch = Get-Branch $entry $meta
+        $branchTipEvidence = Get-BranchTipActionEvidence -Entry $entry -Meta $meta
+
         $row = [ordered]@{
             id = $entityId
             repo = [string]$entry.repo
@@ -4405,7 +4679,11 @@ function New-ProjectsExportJson {
             hasDownload = [bool]($primaryAction["kind"] -eq "release")
             hasLiveDemo = [bool]($primaryAction["kind"] -eq "live")
             hasDirectInstall = [bool]($primaryAction["kind"] -eq "install")
-            branch = Get-Branch $entry $meta
+            branch = $branch
+            branchTipSha = $branchTipEvidence.sha
+            branchTipFetchedAt = $branchTipEvidence.fetchedAt
+            branchTipStatus = $branchTipEvidence.status
+            branchTipWarning = $branchTipEvidence.warning
             entrypoint = if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) { $null } else { [string]$entry.entrypoint }
             installKind = if ([string]::IsNullOrWhiteSpace([string]$entry.installKind)) { $null } else { [string]$entry.installKind }
             language = $language
@@ -11239,6 +11517,94 @@ function Test-CatalogUrlSchemes {
     return $violations.ToArray()
 }
 
+function Test-BranchTipProvenance {
+    <#
+    .SYNOPSIS
+    Reports branch-tip freshness for catalog entries with clone/install actions.
+    .DESCRIPTION
+    The README continues to use the advertised branch so visitors receive the repository's
+    current install path. This report adds the observed tip SHA and warning-only freshness /
+    reachability evidence for consumers that need to verify what that branch pointed to.
+    .PARAMETER Entries
+    Normalized catalog entries.
+    .PARAMETER RepoLookup
+    Repository metadata keyed by repository name.
+    .PARAMETER Now
+    Clock value used to classify previously fetched evidence as stale.
+    .PARAMETER StaleAfterHours
+    Maximum age before branch-tip evidence is warning-only stale.
+    #>
+    [CmdletBinding()]
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup,
+        [datetimeoffset]$Now = [datetimeoffset]::Now,
+        [ValidateRange(1, 720)]
+        [int]$StaleAfterHours = $BranchTipStaleAfterHours
+    )
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $statusCounts = @{
+        fresh = 0
+        stale = 0
+        unreachable = 0
+        missing = 0
+    }
+
+    foreach ($entry in @($Entries | Sort-Object category, repo)) {
+        if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) {
+            continue
+        }
+
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $branch = Get-Branch $entry $meta
+        $evidence = Get-BranchTipActionEvidence -Entry $entry -Meta $meta
+        if ($evidence.status -eq "fresh" -and -not [string]::IsNullOrWhiteSpace([string]$evidence.fetchedAt)) {
+            try {
+                $ageHours = ($Now - [datetimeoffset]::Parse([string]$evidence.fetchedAt)).TotalHours
+                if ($ageHours -gt $StaleAfterHours) {
+                    $evidence.status = "stale"
+                    $evidence.warning = "Branch-tip evidence is $([math]::Round($ageHours, 1)) hour(s) old."
+                }
+            } catch {
+                $evidence.status = "stale"
+                $evidence.warning = "Branch-tip evidence has an invalid fetched-at timestamp."
+            }
+        }
+        $status = [string]$evidence.status
+        if ($status -eq "not-applicable") {
+            $status = "unreachable"
+        }
+        if (-not $statusCounts.ContainsKey($status)) {
+            $status = "unreachable"
+        }
+        $statusCounts[$status] = [int]$statusCounts[$status] + 1
+        $rows.Add([ordered]@{
+            repo = [string]$entry.repo
+            branch = $branch
+            branchTipSha = $evidence.sha
+            branchTipFetchedAt = $evidence.fetchedAt
+            status = $status
+            warning = $evidence.warning
+        })
+    }
+
+    $warningCount = @($rows | Where-Object { $_.status -ne "fresh" }).Count
+    return [ordered]@{
+        status = if ($warningCount -gt 0) { "warning" } else { "ok" }
+        checkedInstallActionCount = $rows.Count
+        staleAfterHours = [int]$StaleAfterHours
+        freshCount = [int]$statusCounts.fresh
+        staleCount = [int]$statusCounts.stale
+        unreachableCount = [int]$statusCounts.unreachable
+        missingCount = [int]$statusCounts.missing
+        warningCount = [int]$warningCount
+        statusCounts = @($statusCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ kind = [string]$_.Name; count = [int]$_.Value } })
+        rows = $rows.ToArray()
+        note = "Branch-current clone/install snippets remain the README default. Tip SHA and fetched-at fields are warning-only verification evidence; stale or unreachable branch metadata never rewrites a visitor-facing branch or blocks generation."
+    }
+}
+
 function Test-ProfileState {
     <#
     .SYNOPSIS
@@ -11484,6 +11850,7 @@ function Test-ProfileState {
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
     $staleProjectReview = Test-StaleProjectReview -Entries $entries -RepoLookup $repoLookup
     $releaseAssetDrift = Test-ReleaseAssetDrift -Entries $included -RepoLookup $repoLookup
+    $branchTipProvenance = Test-BranchTipProvenance -Entries $included -RepoLookup $repoLookup
     $releaseArtifactVerification = Test-ReleaseArtifactVerification `
         -Entries $included `
         -RepoLookup $repoLookup `
@@ -11569,6 +11936,7 @@ function Test-ProfileState {
         forkParentDrift = $forkParentDrift
         staleProjectReview = $staleProjectReview
         releaseAssetDrift = $releaseAssetDrift
+        branchTipProvenance = $branchTipProvenance
         releaseArtifactVerification = $releaseArtifactVerification
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting

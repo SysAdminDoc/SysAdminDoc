@@ -26,6 +26,7 @@
     "forkParentDrift",
     "staleProjectReview",
     "releaseAssetDrift",
+    "branchTipProvenance",
     "releaseArtifactVerification",
     "userscriptInstallTrust",
     "repositorySettings",
@@ -126,6 +127,9 @@
     },
     "releaseAssetDrift": {
       "$ref": "#/$defs/releaseAssetDrift"
+    },
+    "branchTipProvenance": {
+      "$ref": "#/$defs/branchTipProvenance"
     },
     "releaseArtifactVerification": {
       "$ref": "#/$defs/releaseArtifactVerification"
@@ -1771,6 +1775,100 @@
         },
         "note": {
           "type": "string"
+        }
+      }
+    },
+    "branchTipProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "checkedInstallActionCount",
+        "staleAfterHours",
+        "freshCount",
+        "staleCount",
+        "unreachableCount",
+        "missingCount",
+        "warningCount",
+        "statusCounts",
+        "rows",
+        "note"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["ok", "warning"]
+        },
+        "checkedInstallActionCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "staleAfterHours": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "freshCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "staleCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unreachableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "statusCounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/namedCount"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/branchTipProvenanceRow"
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "branchTipProvenanceRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo",
+        "branch",
+        "branchTipSha",
+        "branchTipFetchedAt",
+        "status",
+        "warning"
+      ],
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "branchTipSha": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "branchTipFetchedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["fresh", "stale", "unreachable", "missing"]
+        },
+        "warning": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
