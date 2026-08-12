@@ -132,7 +132,7 @@
       "branch": "main",
       "entrypoint": null,
       "installKind": null,
-      "downloadKind": "crx-xpi",
+      "downloadKind": "zip-xpi",
       "userscriptUrl": null,
       "liveUrl": null,
       "language": "JavaScript",
