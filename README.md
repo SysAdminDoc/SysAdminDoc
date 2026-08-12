@@ -102,6 +102,12 @@ Run the opt-in Pester 6 compatibility lane in an isolated module path:
 pwsh -NoProfile -File .\scripts\validate-local.ps1 -Pester6Compatibility
 ```
 
+Optionally probe the deployed portfolio feed and key routes (warning-only):
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -ProbePortfolio
+```
+
 Emit an optional redaction-safe Backstage catalog export:
 
 ```powershell
@@ -115,6 +121,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.0.1 into an isolated temporary module path and run the non-integration suite; the default Pester 5.8.0 lane is unchanged. |
+| Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |

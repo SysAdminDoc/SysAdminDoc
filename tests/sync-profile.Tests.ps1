@@ -188,6 +188,7 @@ Describe 'Function library loads via the dot-source test seam' {
             'Test-CatalogShape',
             'Test-JsonSchemaContract',
             'Test-FeedSchemaContracts',
+            'Test-PortfolioCrossSurfaceDrift',
             'Test-StableProjectEntityIds',
             'Test-FeedSchemaMigrationPolicy',
             'Test-ProfileReleaseConsistency',
@@ -3153,6 +3154,92 @@ Describe 'New-ProjectsExportJson feed' {
         $result.fatalCount | Should -Be 0
     }
 
+    It 'keeps the optional portfolio cross-surface probe compatible when deployed evidence matches' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $localPayload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $localPayload.generatedAt = '2026-08-12T12:00:00.0000000Z'
+        $localJson = $localPayload | ConvertTo-Json -Depth 50
+        $liveAppCount = @($localPayload.projects | Where-Object { $_.hasLiveDemo -or -not [string]::IsNullOrWhiteSpace([string]$_.liveUrl) }).Count
+        $featuredCount = @($localPayload.projects | Where-Object { $_.featured }).Count
+        $deployedPayload = [ordered]@{
+            schemaVersion = 1
+            generatedAt = '2026-08-12T12:05:00.000Z'
+            source = [ordered]@{ profileFeedGeneratedAt = $localPayload.generatedAt }
+            counts = [ordered]@{
+                projects = [int]$localPayload.projectCount
+                catalog = [int]$localPayload.projectCount
+                featured = [int]$featuredCount
+                liveApps = [int]$liveAppCount
+            }
+        }
+        $routes = @{}
+        foreach ($path in @('/', 'projects.json', 'catalog/', 'feed.json', 'releases/', 'resume/', 'search/')) {
+            $routes[$path] = @{ ok = $true; status = 200; error = $null }
+        }
+        $snapshot = @{
+            root = @{ succeeded = $true; statusCode = 200; content = '<html></html>'; error = $null }
+            feed = @{ succeeded = $true; statusCode = 200; content = ($deployedPayload | ConvertTo-Json -Depth 20); error = $null }
+            routes = $routes
+        }
+
+        $result = Test-PortfolioCrossSurfaceDrift -ProjectsJson $localJson -Enabled -PortfolioUrl 'https://portfolio.example/' -Snapshot $snapshot
+
+        $result.status | Should -Be 'compatible'
+        $result.warningCount | Should -Be 0
+        $result.feedFetchSucceeded | Should -BeTrue
+        $result.localFeedSchemaVersion | Should -Be 3
+        $result.deployedPortfolioSchemaVersion | Should -Be 1
+        $result.routeProbeCount | Should -Be 7
+        $result.routeProbePassedCount | Should -Be 7
+        $result.routeProbeFailedCount | Should -Be 0
+        $result.localRouteCounts.catalog | Should -Be $localPayload.projectCount
+        $result.deployedRouteCounts.liveApps | Should -Be $liveAppCount
+    }
+
+    It 'records portfolio drift and route outages as warnings only' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $localPayload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $localPayload.generatedAt = '2026-08-12T12:00:00.0000000Z'
+        $localJson = $localPayload | ConvertTo-Json -Depth 50
+        $deployedPayload = [ordered]@{
+            schemaVersion = 2
+            generatedAt = '2026-08-12T12:05:00.000Z'
+            source = [ordered]@{ profileFeedGeneratedAt = '2026-08-11T12:00:00.000Z' }
+            counts = [ordered]@{ projects = 1; catalog = 1; featured = 0; liveApps = 0 }
+        }
+        $routes = @{}
+        foreach ($path in @('/', 'projects.json', 'catalog/', 'feed.json', 'releases/', 'resume/', 'search/')) {
+            $routes[$path] = @{ ok = $true; status = 200; error = $null }
+        }
+        $routes['catalog/'] = @{ ok = $false; status = 404; error = 'HTTP 404' }
+        $snapshot = @{
+            root = @{ succeeded = $true; statusCode = 200; content = '<html></html>'; error = $null }
+            feed = @{ succeeded = $true; statusCode = 200; content = ($deployedPayload | ConvertTo-Json -Depth 20); error = $null }
+            routes = $routes
+        }
+
+        $result = Test-PortfolioCrossSurfaceDrift -ProjectsJson $localJson -Enabled -PortfolioUrl 'https://portfolio.example/' -Snapshot $snapshot
+
+        $result.status | Should -Be 'warning'
+        $result.warningCount | Should -BeGreaterThan 0
+        $result.routeProbeFailedCount | Should -Be 1
+        ($result.warnings -join ' ') | Should -Match 'schemaVersion|timestamp|counts[.]catalog|catalog/'
+        $script:SyncProfileScript | Should -Not -Match 'portfolioCrossSurfaceProbe = \[bool\]'
+    }
+
+    It 'does not probe the network when the portfolio probe is disabled' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @()
+
+        $result = Test-PortfolioCrossSurfaceDrift -ProjectsJson $json
+
+        $result.enabled | Should -BeFalse
+        $result.status | Should -Be 'disabled'
+        $result.routeProbeCount | Should -Be 0
+        $result.warningCount | Should -Be 0
+        $result.feedFetchSucceeded | Should -BeFalse
+    }
+
     It 'flags visible project rows missing downstream-required fields' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $payload = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
@@ -3618,6 +3705,20 @@ Describe 'Feed JSON Schema contracts' {
         $summaryScript | Should -Match 'Backstage components'
         $summaryScript | Should -Match 'Backstage suppressed rows omitted'
         $summaryScript | Should -Match 'Backstage private rows omitted'
+    }
+
+    It 'requires the warning-only portfolio cross-surface probe report contract' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        @($schema.required) | Should -Contain 'portfolioCrossSurfaceProbe'
+        $required = @($schema.'$defs'.portfolioCrossSurfaceProbe.required)
+        foreach ($field in @('enabled', 'status', 'portfolioUrl', 'feedUrl', 'localFeedGeneratedAt', 'deployedPortfolioGeneratedAt', 'deployedProfileFeedGeneratedAt', 'localFeedSchemaVersion', 'expectedPortfolioSchemaVersion', 'deployedPortfolioSchemaVersion', 'localRouteCounts', 'deployedRouteCounts', 'rootStatusCode', 'feedStatusCode', 'feedFetchSucceeded', 'routeProbeCount', 'routeProbePassedCount', 'routeProbeFailedCount', 'routeProbes', 'warningCount', 'warnings', 'note')) {
+            $required | Should -Contain $field
+        }
+        @($schema.'$defs'.portfolioCrossSurfaceRouteCounts.required) | Should -Be @('catalog', 'featured', 'liveApps')
+        @($schema.'$defs'.portfolioCrossSurfaceRouteProbe.required) | Should -Be @('path', 'url', 'ok', 'statusCode', 'error')
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        $summaryScript | Should -Match 'portfolioCrossSurfaceProbe'
+        $summaryScript | Should -Match 'warning-only portfolio cross-surface probe'
     }
 
     It 'validates the committed profile sync report contract' {

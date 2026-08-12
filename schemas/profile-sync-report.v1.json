@@ -19,6 +19,7 @@
     "catalogShape",
     "catalogFeedAccounting",
     "portfolioCompatibility",
+    "portfolioCrossSurfaceProbe",
     "stableEntityIds",
     "feedSchemaMigration",
     "metadataHygiene",
@@ -107,6 +108,9 @@
     },
     "portfolioCompatibility": {
       "$ref": "#/$defs/portfolioCompatibility"
+    },
+    "portfolioCrossSurfaceProbe": {
+      "$ref": "#/$defs/portfolioCrossSurfaceProbe"
     },
     "stableEntityIds": {
       "$ref": "#/$defs/stableEntityIds"
@@ -6533,6 +6537,158 @@
         },
         "note": {
           "type": "string"
+        }
+      }
+    },
+    "portfolioCrossSurfaceProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "status",
+        "portfolioUrl",
+        "feedUrl",
+        "localFeedGeneratedAt",
+        "deployedPortfolioGeneratedAt",
+        "deployedProfileFeedGeneratedAt",
+        "localFeedSchemaVersion",
+        "expectedPortfolioSchemaVersion",
+        "deployedPortfolioSchemaVersion",
+        "localRouteCounts",
+        "deployedRouteCounts",
+        "rootStatusCode",
+        "feedStatusCode",
+        "feedFetchSucceeded",
+        "routeProbeCount",
+        "routeProbePassedCount",
+        "routeProbeFailedCount",
+        "routeProbes",
+        "warningCount",
+        "warnings",
+        "note"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string"
+        },
+        "portfolioUrl": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "feedUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "localFeedGeneratedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "deployedPortfolioGeneratedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "deployedProfileFeedGeneratedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "localFeedSchemaVersion": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "expectedPortfolioSchemaVersion": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "deployedPortfolioSchemaVersion": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "localRouteCounts": {
+          "$ref": "#/$defs/portfolioCrossSurfaceRouteCounts"
+        },
+        "deployedRouteCounts": {
+          "$ref": "#/$defs/portfolioCrossSurfaceRouteCounts"
+        },
+        "rootStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "feedStatusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "feedFetchSucceeded": {
+          "type": "boolean"
+        },
+        "routeProbeCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "routeProbePassedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "routeProbeFailedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "routeProbes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/portfolioCrossSurfaceRouteProbe"
+          }
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "portfolioCrossSurfaceRouteCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog",
+        "featured",
+        "liveApps"
+      ],
+      "properties": {
+        "catalog": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "featured": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "liveApps": {
+          "$ref": "#/$defs/nullableInteger"
+        }
+      }
+    },
+    "portfolioCrossSurfaceRouteProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "url",
+        "ok",
+        "statusCode",
+        "error"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "statusCode": {
+          "$ref": "#/$defs/nullableInteger"
+        },
+        "error": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },

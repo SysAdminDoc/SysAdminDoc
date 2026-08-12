@@ -27,6 +27,8 @@ param(
     [ValidateRange(1024, 52428800)]
     [int]$ReleaseVerificationMaxBytes = 5MB,
     [string]$BackstageExportPath,
+    [switch]$ProbePortfolio,
+    [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
     [switch]$Offline
 )
 
@@ -80,6 +82,7 @@ $ReadmeImageTagSoftLimit = 10
 $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
 $ProjectsFeedSchemaVersion = 3
+$PortfolioFeedSchemaVersion = 1
 $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
@@ -3479,6 +3482,12 @@ Run the opt-in Pester 6 compatibility lane in an isolated module path:
 pwsh -NoProfile -File .\scripts\validate-local.ps1 -Pester6Compatibility
 ```
 
+Optionally probe the deployed portfolio feed and key routes (warning-only):
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -ProbePortfolio
+```
+
 Emit an optional redaction-safe Backstage catalog export:
 
 ```powershell
@@ -3492,6 +3501,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.8.0 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
 | Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.0.1 into an isolated temporary module path and run the non-integration suite; the default Pester 5.8.0 lane is unchanged. |
+| Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
@@ -5250,6 +5260,354 @@ function Test-PortfolioFeedCompatibility {
         errors = @($errors.ToArray())
         note = "Compatibility snapshot for the downstream portfolio feed importer; normal consumers should use payload.projects and ignore unknown additive fields."
     }
+}
+
+function Get-PortfolioProbeUrl {
+    param(
+        [string]$BaseUrl,
+        [string]$Path
+    )
+
+    try {
+        $baseUri = [Uri]$BaseUrl
+        $relativeUri = [Uri]::new($Path, [UriKind]::RelativeOrAbsolute)
+        return [Uri]::new($baseUri, $relativeUri).AbsoluteUri
+    } catch {
+        return $null
+    }
+}
+
+function Get-PortfolioHttpDocument {
+    param(
+        [string]$Url,
+        [int]$TimeoutSec = 15
+    )
+
+    $handler = [System.Net.Http.HttpClientHandler]::new()
+    $handler.AllowAutoRedirect = $true
+    $handler.MaxAutomaticRedirections = 5
+    $client = [System.Net.Http.HttpClient]::new($handler)
+    $client.Timeout = [TimeSpan]::FromSeconds([Math]::Max(1, $TimeoutSec))
+    $request = $null
+    $response = $null
+    try {
+        $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Get, $Url)
+        $request.Headers.UserAgent.ParseAdd("SysAdminDoc-portfolio-probe")
+        $request.Headers.Accept.ParseAdd("application/json, text/html;q=0.9, */*;q=0.1")
+        $response = $client.Send($request, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead)
+        $statusCode = [int]$response.StatusCode
+        $content = if ($response.Content) {
+            $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+        } else {
+            ""
+        }
+        $finalUrl = $Url
+        if ($response.RequestMessage -and $response.RequestMessage.RequestUri) {
+            $finalUrl = $response.RequestMessage.RequestUri.AbsoluteUri
+        }
+        return [ordered]@{
+            succeeded = [bool]($statusCode -ge 200 -and $statusCode -lt 400)
+            statusCode = $statusCode
+            content = [string]$content
+            error = if ($statusCode -ge 400) { "HTTP $statusCode" } else { $null }
+            finalUrl = $finalUrl
+        }
+    } catch {
+        return [ordered]@{
+            succeeded = $false
+            statusCode = $null
+            content = $null
+            error = $_.Exception.Message
+            finalUrl = $Url
+        }
+    } finally {
+        if ($response) { $response.Dispose() }
+        if ($request) { $request.Dispose() }
+        $client.Dispose()
+    }
+}
+
+function Get-PortfolioProbeDocument {
+    param(
+        [string]$Kind,
+        [string]$Url,
+        [object]$Snapshot
+    )
+
+    if ($null -ne $Snapshot) {
+        $snapshotDocument = Get-MemberValue -Object $Snapshot -Name $Kind
+        if ($null -ne $snapshotDocument) {
+            return $snapshotDocument
+        }
+    }
+
+    return Get-PortfolioHttpDocument -Url $Url
+}
+
+function Get-PortfolioRouteProbe {
+    param(
+        [string]$Path,
+        [string]$Url,
+        [object]$Snapshot
+    )
+
+    $snapshotRoutes = if ($null -ne $Snapshot) { Get-MemberValue -Object $Snapshot -Name "routes" } else { $null }
+    $snapshotRoute = $null
+    if ($snapshotRoutes -is [System.Collections.IDictionary] -and $snapshotRoutes.Contains($Path)) {
+        $snapshotRoute = $snapshotRoutes[$Path]
+    }
+
+    $probe = if ($null -ne $snapshotRoute) {
+        $snapshotRoute
+    } else {
+        Test-HttpUrl -Url $Url -TimeoutSec 15 -Retries 1
+    }
+    $statusCode = Get-MemberValue -Object $probe -Name "statusCode"
+    if ($null -eq $statusCode) {
+        $statusCode = Get-MemberValue -Object $probe -Name "status"
+    }
+    $okValue = Get-MemberValue -Object $probe -Name "ok"
+    if ($null -eq $okValue) {
+        $okValue = $null -ne $statusCode -and [int]$statusCode -ge 200 -and [int]$statusCode -lt 400
+    }
+    $probeError = Get-MemberValue -Object $probe -Name "error"
+    return [ordered]@{
+        path = $Path
+        url = $Url
+        ok = [bool]$okValue
+        statusCode = if ($null -eq $statusCode) { $null } else { [int]$statusCode }
+        error = if ([string]::IsNullOrWhiteSpace([string]$probeError)) { $null } else { [string]$probeError }
+    }
+}
+
+function Test-PortfolioCrossSurfaceDrift {
+    <#
+    .SYNOPSIS
+    Optionally compares the deployed portfolio feed and route surface with local feed evidence.
+    .DESCRIPTION
+    The probe is opt-in and warning-only. It records deployed portfolio schema/timestamps,
+    feed-derived catalog counts, and a small set of key route probes. External outages and
+    drift never enter the local profile-sync failure conditions.
+    .PARAMETER ProjectsJson
+    Locally generated projects.json content used as the expected feed snapshot.
+    .PARAMETER Enabled
+    Enables outbound requests to the configured portfolio URL.
+    .PARAMETER PortfolioUrl
+    HTTPS origin of the deployed portfolio.
+    .PARAMETER Snapshot
+    Optional deterministic root/feed/route evidence used by tests instead of network calls.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ProjectsJson,
+
+        [switch]$Enabled,
+
+        [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
+
+        [object]$Snapshot
+    )
+
+    $localPayload = $null
+    try {
+        $localPayload = ConvertFrom-JsonPreservingArrays -Json $ProjectsJson
+    } catch {
+        $localPayload = $null
+    }
+    $localProjects = if ($localPayload) {
+        @(Get-JsonArrayItems (Get-MemberValue -Object $localPayload -Name "projects"))
+    } else {
+        @()
+    }
+    $localFeedGeneratedAt = if ($localPayload) { [string](Get-MemberValue -Object $localPayload -Name "generatedAt") } else { $null }
+    $localProvenance = if ($localPayload) { Get-MemberValue -Object $localPayload -Name "provenance" } else { $null }
+    $localFeedSchemaVersion = if ($null -ne $localProvenance -and $null -ne (Get-MemberValue -Object $localProvenance -Name "feedSchemaVersion")) {
+        [int](Get-MemberValue -Object $localProvenance -Name "feedSchemaVersion")
+    } else {
+        $null
+    }
+    $localRouteCounts = [ordered]@{
+        catalog = [int]$localProjects.Count
+        featured = [int]@($localProjects | Where-Object { [bool](Get-MemberValue -Object $_ -Name "featured") }).Count
+        liveApps = [int]@($localProjects | Where-Object {
+                [bool](Get-MemberValue -Object $_ -Name "hasLiveDemo") -or
+                -not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $_ -Name "liveUrl"))
+            }).Count
+    }
+
+    $baseUri = $null
+    try {
+        $baseUri = [Uri]$PortfolioUrl
+    } catch {
+        $baseUri = $null
+    }
+    $validBaseUri = $null -ne $baseUri -and $baseUri.IsAbsoluteUri -and $baseUri.Scheme -eq "https"
+    $normalizedPortfolioUrl = if ($validBaseUri) { $baseUri.AbsoluteUri.TrimEnd('/') + '/' } else { [string]$PortfolioUrl }
+    $feedUrl = if ($validBaseUri) { Get-PortfolioProbeUrl -BaseUrl $normalizedPortfolioUrl -Path "projects.json" } else { $null }
+    $routeCountsEmpty = [ordered]@{
+        catalog = $null
+        featured = $null
+        liveApps = $null
+    }
+    $baseResult = [ordered]@{
+        enabled = [bool]$Enabled
+        status = if ($Enabled) { "unavailable" } else { "disabled" }
+        portfolioUrl = if ($validBaseUri) { $normalizedPortfolioUrl } else { [string]$PortfolioUrl }
+        feedUrl = $feedUrl
+        localFeedGeneratedAt = if ([string]::IsNullOrWhiteSpace($localFeedGeneratedAt)) { $null } else { $localFeedGeneratedAt }
+        deployedPortfolioGeneratedAt = $null
+        deployedProfileFeedGeneratedAt = $null
+        localFeedSchemaVersion = $localFeedSchemaVersion
+        expectedPortfolioSchemaVersion = [int]$PortfolioFeedSchemaVersion
+        deployedPortfolioSchemaVersion = $null
+        localRouteCounts = $localRouteCounts
+        deployedRouteCounts = $routeCountsEmpty
+        rootStatusCode = $null
+        feedStatusCode = $null
+        feedFetchSucceeded = $false
+        routeProbeCount = 0
+        routeProbePassedCount = 0
+        routeProbeFailedCount = 0
+        routeProbes = @()
+        warningCount = 0
+        warnings = @()
+        note = if ($Enabled) { "Opt-in warning-only probe; external portfolio availability or drift never fails local profile validation." } else { "Disabled by default; pass -ProbePortfolio to compare the deployed portfolio feed and key routes." }
+    }
+
+    if (-not $Enabled) {
+        return $baseResult
+    }
+
+    $warnings = New-Object System.Collections.Generic.List[string]
+    if (-not $validBaseUri) {
+        $warnings.Add("Portfolio probe requires an absolute HTTPS URL.")
+        $baseResult.status = "unavailable"
+        $baseResult.warningCount = $warnings.Count
+        $baseResult.warnings = @($warnings.ToArray())
+        return $baseResult
+    }
+
+    $rootUrl = Get-PortfolioProbeUrl -BaseUrl $normalizedPortfolioUrl -Path "/"
+    $rootDocument = Get-PortfolioProbeDocument -Kind "root" -Url $rootUrl -Snapshot $Snapshot
+    $feedDocument = Get-PortfolioProbeDocument -Kind "feed" -Url $feedUrl -Snapshot $Snapshot
+    $rootStatusCode = Get-MemberValue -Object $rootDocument -Name "statusCode"
+    $feedStatusCode = Get-MemberValue -Object $feedDocument -Name "statusCode"
+    $baseResult.rootStatusCode = if ($null -eq $rootStatusCode) { $null } else { [int]$rootStatusCode }
+    $baseResult.feedStatusCode = if ($null -eq $feedStatusCode) { $null } else { [int]$feedStatusCode }
+
+    $rootSucceeded = [bool](Get-MemberValue -Object $rootDocument -Name "succeeded")
+    if (-not $rootSucceeded -and $null -ne $rootStatusCode) {
+        $rootSucceeded = [int]$rootStatusCode -ge 200 -and [int]$rootStatusCode -lt 400
+    }
+    if (-not $rootSucceeded) {
+        $rootError = [string](Get-MemberValue -Object $rootDocument -Name "error")
+        $warnings.Add("Portfolio root route is unavailable: $(if ([string]::IsNullOrWhiteSpace($rootError)) { 'no response' } else { $rootError }).")
+    }
+
+    $feedSucceeded = [bool](Get-MemberValue -Object $feedDocument -Name "succeeded")
+    if (-not $feedSucceeded -and $null -ne $feedStatusCode) {
+        $feedSucceeded = [int]$feedStatusCode -ge 200 -and [int]$feedStatusCode -lt 400
+    }
+    $baseResult.feedFetchSucceeded = [bool]$feedSucceeded
+    if (-not $feedSucceeded) {
+        $feedError = [string](Get-MemberValue -Object $feedDocument -Name "error")
+        $warnings.Add("Portfolio projects.json feed is unavailable: $(if ([string]::IsNullOrWhiteSpace($feedError)) { 'no response' } else { $feedError }).")
+    }
+
+    $routePaths = @("/", "projects.json", "catalog/", "feed.json", "releases/", "resume/", "search/")
+    $routeRows = New-Object System.Collections.Generic.List[object]
+    foreach ($path in $routePaths) {
+        $routeUrl = Get-PortfolioProbeUrl -BaseUrl $normalizedPortfolioUrl -Path $path
+        $route = if ($path -eq "/") {
+            [ordered]@{
+                path = $path
+                url = $routeUrl
+                ok = [bool]$rootSucceeded
+                statusCode = if ($null -eq $rootStatusCode) { $null } else { [int]$rootStatusCode }
+                error = if ($rootSucceeded) { $null } else { [string](Get-MemberValue -Object $rootDocument -Name "error") }
+            }
+        } elseif ($path -eq "projects.json") {
+            [ordered]@{
+                path = $path
+                url = $routeUrl
+                ok = [bool]$feedSucceeded
+                statusCode = if ($null -eq $feedStatusCode) { $null } else { [int]$feedStatusCode }
+                error = if ($feedSucceeded) { $null } else { [string](Get-MemberValue -Object $feedDocument -Name "error") }
+            }
+        } else {
+            Get-PortfolioRouteProbe -Path $path -Url $routeUrl -Snapshot $Snapshot
+        }
+        $routeRows.Add($route)
+        if (-not $route.ok) {
+            $routeError = if ([string]::IsNullOrWhiteSpace([string]$route.error)) { "no response" } else { [string]$route.error }
+            $warnings.Add("Portfolio route '$path' is unavailable: $routeError.")
+        }
+    }
+    $routeArray = @($routeRows.ToArray())
+    $baseResult.routeProbeCount = [int]$routeArray.Count
+    $baseResult.routeProbePassedCount = [int]@($routeArray | Where-Object { $_.ok }).Count
+    $baseResult.routeProbeFailedCount = [int]@($routeArray | Where-Object { -not $_.ok }).Count
+    $baseResult.routeProbes = $routeArray
+
+    $deployedPayload = $null
+    if ($feedSucceeded) {
+        try {
+            $deployedPayload = ConvertFrom-JsonPreservingArrays -Json ([string](Get-MemberValue -Object $feedDocument -Name "content"))
+        } catch {
+            $warnings.Add("Portfolio projects.json feed could not be parsed: $($_.Exception.Message).")
+        }
+    }
+
+    if ($deployedPayload) {
+        $deployedSource = Get-MemberValue -Object $deployedPayload -Name "source"
+        $deployedCounts = Get-MemberValue -Object $deployedPayload -Name "counts"
+        $deployedPortfolioGeneratedAt = [string](Get-MemberValue -Object $deployedPayload -Name "generatedAt")
+        $deployedProfileFeedGeneratedAt = [string](Get-MemberValue -Object $deployedSource -Name "profileFeedGeneratedAt")
+        $deployedSchemaVersion = Get-MemberValue -Object $deployedPayload -Name "schemaVersion"
+        $deployedRouteCounts = [ordered]@{
+            catalog = if ($null -eq (Get-MemberValue -Object $deployedCounts -Name "catalog")) { $null } else { [int](Get-MemberValue -Object $deployedCounts -Name "catalog") }
+            featured = if ($null -eq (Get-MemberValue -Object $deployedCounts -Name "featured")) { $null } else { [int](Get-MemberValue -Object $deployedCounts -Name "featured") }
+            liveApps = if ($null -eq (Get-MemberValue -Object $deployedCounts -Name "liveApps")) { $null } else { [int](Get-MemberValue -Object $deployedCounts -Name "liveApps") }
+        }
+        $baseResult.deployedPortfolioGeneratedAt = if ([string]::IsNullOrWhiteSpace($deployedPortfolioGeneratedAt)) { $null } else { $deployedPortfolioGeneratedAt }
+        $baseResult.deployedProfileFeedGeneratedAt = if ([string]::IsNullOrWhiteSpace($deployedProfileFeedGeneratedAt)) { $null } else { $deployedProfileFeedGeneratedAt }
+        $baseResult.deployedPortfolioSchemaVersion = if ($null -eq $deployedSchemaVersion) { $null } else { [int]$deployedSchemaVersion }
+        $baseResult.deployedRouteCounts = $deployedRouteCounts
+
+        if ($null -eq $deployedSchemaVersion) {
+            $warnings.Add("Portfolio feed schemaVersion is missing.")
+        } elseif ([int]$deployedSchemaVersion -ne [int]$PortfolioFeedSchemaVersion) {
+            $warnings.Add("Portfolio feed schemaVersion $deployedSchemaVersion differs from expected version $PortfolioFeedSchemaVersion.")
+        }
+
+        if ([string]::IsNullOrWhiteSpace($deployedProfileFeedGeneratedAt)) {
+            $warnings.Add("Portfolio feed source.profileFeedGeneratedAt is missing.")
+        } else {
+            $localTimestamp = ConvertTo-DateTimeOffsetOrNull -Value $localFeedGeneratedAt
+            $deployedTimestamp = ConvertTo-DateTimeOffsetOrNull -Value $deployedProfileFeedGeneratedAt
+            if ($null -eq $localTimestamp -or $null -eq $deployedTimestamp) {
+                $warnings.Add("Portfolio feed timestamp comparison was unavailable because one timestamp is invalid.")
+            } elseif ($localTimestamp.ToUniversalTime().Ticks -ne $deployedTimestamp.ToUniversalTime().Ticks) {
+                $warnings.Add("Portfolio feed source timestamp differs from local projects.json generatedAt.")
+            }
+        }
+
+        foreach ($routeCountName in @("catalog", "featured", "liveApps")) {
+            $actualCount = $deployedRouteCounts[$routeCountName]
+            $expectedCount = $localRouteCounts[$routeCountName]
+            if ($null -eq $actualCount) {
+                $warnings.Add("Portfolio feed counts.$routeCountName is missing.")
+            } elseif ([int]$actualCount -ne [int]$expectedCount) {
+                $warnings.Add("Portfolio feed counts.$routeCountName $actualCount differs from local expected count $expectedCount.")
+            }
+        }
+    }
+
+    $baseResult.warningCount = [int]$warnings.Count
+    $baseResult.warnings = @($warnings.ToArray())
+    $baseResult.status = if ($null -eq $deployedPayload) { "unavailable" } elseif ($warnings.Count -gt 0) { "warning" } else { "compatible" }
+    return $baseResult
 }
 
 function Test-StableProjectEntityIds {
@@ -11937,6 +12295,12 @@ function Test-ProfileState {
     Optional in-memory Backstage export generated for an opt-in output path.
     .PARAMETER BackstageExportPath
     Optional output path used only as a public-safe filename in the sync report.
+    .PARAMETER ProbePortfolio
+    Enables the warning-only deployed portfolio feed and route probe.
+    .PARAMETER PortfolioUrl
+    HTTPS origin used by the optional deployed portfolio probe.
+    .PARAMETER PortfolioProbeSnapshot
+    Optional deterministic probe evidence used by tests instead of network calls.
     #>
     [CmdletBinding()]
     param(
@@ -11955,6 +12319,9 @@ function Test-ProfileState {
     [int]$ReleaseVerificationMaxBytes = $script:ReleaseVerificationMaxBytes,
     [object]$BackstageExport,
     [string]$BackstageExportPath,
+    [switch]$ProbePortfolio,
+    [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
+    [object]$PortfolioProbeSnapshot,
     [string]$SmokeReportPath = $script:SmokeReportPath
     )
 
@@ -12195,6 +12562,11 @@ function Test-ProfileState {
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
+    $portfolioCrossSurfaceProbe = Test-PortfolioCrossSurfaceDrift `
+        -ProjectsJson $ExpectedProjects `
+        -Enabled:$ProbePortfolio `
+        -PortfolioUrl $PortfolioUrl `
+        -Snapshot $PortfolioProbeSnapshot
     $stableEntityIds = Test-StableProjectEntityIds -ProjectsJson $ExpectedProjects
     $feedSchemaMigration = Test-FeedSchemaMigrationPolicy -ProjectsJson $ExpectedProjects
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
@@ -12277,6 +12649,7 @@ function Test-ProfileState {
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting
         portfolioCompatibility = $portfolioCompatibility
+        portfolioCrossSurfaceProbe = $portfolioCrossSurfaceProbe
         stableEntityIds = $stableEntityIds
         feedSchemaMigration = $feedSchemaMigration
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
@@ -12523,7 +12896,9 @@ if ($catalogForRun -and ($Write -or $Check)) {
             -ReleaseVerificationMaxAssets $ReleaseVerificationMaxAssets `
             -ReleaseVerificationMaxBytes $ReleaseVerificationMaxBytes `
             -BackstageExport $backstageExport `
-            -BackstageExportPath $BackstageExportPath
+            -BackstageExportPath $BackstageExportPath `
+            -ProbePortfolio:$ProbePortfolio `
+            -PortfolioUrl $PortfolioUrl
         $reportDir = Split-Path -Parent $ReportPath
         if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
             New-Item -ItemType Directory -Path $reportDir | Out-Null

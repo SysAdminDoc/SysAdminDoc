@@ -140,6 +140,7 @@ $runtimeSecurity = if ($report.PSObject.Properties.Name -contains 'runtimeSecuri
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
 $portfolioCompatibility = if ($report.PSObject.Properties.Name -contains 'portfolioCompatibility') { $report.portfolioCompatibility } else { $null }
+$portfolioCrossSurfaceProbe = if ($report.PSObject.Properties.Name -contains 'portfolioCrossSurfaceProbe') { $report.portfolioCrossSurfaceProbe } else { $null }
 $stableEntityIds = if ($report.PSObject.Properties.Name -contains 'stableEntityIds') { $report.stableEntityIds } else { $null }
 $feedSchemaMigration = if ($report.PSObject.Properties.Name -contains 'feedSchemaMigration') { $report.feedSchemaMigration } else { $null }
 $readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity') { $report.readmeDensity } else { $null }
@@ -359,6 +360,12 @@ $catalogAccountingFatalCount = if ($catalogFeedAccounting) { [int]$catalogFeedAc
 $portfolioCompatibilityStatus = if ($portfolioCompatibility) { [string]$portfolioCompatibility.status } else { "unknown" }
 $portfolioCompatibilityFatalCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.fatalCount } else { 0 }
 $portfolioCompatibilityWarningCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.warningCount } else { 0 }
+$portfolioCrossSurfaceProbeStatus = if ($portfolioCrossSurfaceProbe) { [string]$portfolioCrossSurfaceProbe.status } else { "unknown" }
+$portfolioCrossSurfaceProbeWarningCount = if ($portfolioCrossSurfaceProbe) { [int]$portfolioCrossSurfaceProbe.warningCount } else { 0 }
+$portfolioCrossSurfaceProbeRoutePassedCount = if ($portfolioCrossSurfaceProbe) { [int]$portfolioCrossSurfaceProbe.routeProbePassedCount } else { 0 }
+$portfolioCrossSurfaceProbeRouteCount = if ($portfolioCrossSurfaceProbe) { [int]$portfolioCrossSurfaceProbe.routeProbeCount } else { 0 }
+$portfolioCrossSurfaceProbeSchemaVersion = if ($portfolioCrossSurfaceProbe -and $null -ne $portfolioCrossSurfaceProbe.deployedPortfolioSchemaVersion) { [int]$portfolioCrossSurfaceProbe.deployedPortfolioSchemaVersion } else { "unknown" }
+$portfolioCrossSurfaceProbeFeedTimestamp = if ($portfolioCrossSurfaceProbe -and $portfolioCrossSurfaceProbe.deployedProfileFeedGeneratedAt) { [string]$portfolioCrossSurfaceProbe.deployedProfileFeedGeneratedAt } else { "unknown" }
 $releaseArtifactVerificationStatus = if ($releaseArtifactVerification) { [string]$releaseArtifactVerification.status } else { "unknown" }
 $releaseArtifactVerificationVerifiedCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.verifiedCount } else { 0 }
 $releaseArtifactVerificationSkippedCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.skippedCount } else { 0 }
@@ -510,6 +517,11 @@ $summary = @"
 | Portfolio compatibility | $portfolioCompatibilityStatus |
 | Portfolio compatibility fatal gaps | $portfolioCompatibilityFatalCount |
 | Portfolio compatibility warnings | $portfolioCompatibilityWarningCount |
+| Portfolio cross-surface probe | $portfolioCrossSurfaceProbeStatus |
+| Portfolio cross-surface warnings | $portfolioCrossSurfaceProbeWarningCount |
+| Portfolio key routes | $portfolioCrossSurfaceProbeRoutePassedCount/$portfolioCrossSurfaceProbeRouteCount |
+| Deployed portfolio schema | $portfolioCrossSurfaceProbeSchemaVersion |
+| Deployed profile-feed timestamp | $portfolioCrossSurfaceProbeFeedTimestamp |
 | Release artifact verification | $releaseArtifactVerificationStatus |
 | Release artifacts verified | $releaseArtifactVerificationVerifiedCount |
 | Release artifacts skipped | $releaseArtifactVerificationSkippedCount |
@@ -899,6 +911,10 @@ if ($portfolioCompatibilityFatalCount -gt 0) {
 
 if ($portfolioCompatibilityWarningCount -gt 0) {
     Write-Output "::warning::Profile sync report has $portfolioCompatibilityWarningCount portfolio compatibility warning(s)."
+}
+
+if ($portfolioCrossSurfaceProbeWarningCount -gt 0) {
+    Write-Output "::warning::Profile sync report has $portfolioCrossSurfaceProbeWarningCount warning-only portfolio cross-surface probe finding(s); external drift or outage does not fail local validation."
 }
 
 if ($releaseArtifactVerificationFailureCount -gt 0) {
