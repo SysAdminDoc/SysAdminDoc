@@ -137,6 +137,8 @@ $runtimeSecurity = if ($report.PSObject.Properties.Name -contains 'runtimeSecuri
 $userscriptInstallTrust = if ($report.PSObject.Properties.Name -contains 'userscriptInstallTrust') { $report.userscriptInstallTrust } else { $null }
 $catalogFeedAccounting = if ($report.PSObject.Properties.Name -contains 'catalogFeedAccounting') { $report.catalogFeedAccounting } else { $null }
 $portfolioCompatibility = if ($report.PSObject.Properties.Name -contains 'portfolioCompatibility') { $report.portfolioCompatibility } else { $null }
+$stableEntityIds = if ($report.PSObject.Properties.Name -contains 'stableEntityIds') { $report.stableEntityIds } else { $null }
+$feedSchemaMigration = if ($report.PSObject.Properties.Name -contains 'feedSchemaMigration') { $report.feedSchemaMigration } else { $null }
 $readmeDensity = if ($report.PSObject.Properties.Name -contains 'readmeDensity') { $report.readmeDensity } else { $null }
 $artifactBudgets = if ($report.PSObject.Properties.Name -contains 'artifactBudgets') { $report.artifactBudgets } else { $null }
 $renderedProfileSmoke = if ($report.PSObject.Properties.Name -contains 'renderedProfileSmoke') { $report.renderedProfileSmoke } else { $null }
@@ -346,6 +348,11 @@ $catalogAccountingFatalCount = if ($catalogFeedAccounting) { [int]$catalogFeedAc
 $portfolioCompatibilityStatus = if ($portfolioCompatibility) { [string]$portfolioCompatibility.status } else { "unknown" }
 $portfolioCompatibilityFatalCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.fatalCount } else { 0 }
 $portfolioCompatibilityWarningCount = if ($portfolioCompatibility) { [int]$portfolioCompatibility.warningCount } else { 0 }
+$stableEntityIdsStatus = if ($stableEntityIds) { [string]$stableEntityIds.status } else { "unknown" }
+$stableEntityIdsFatalCount = if ($stableEntityIds) { [int]$stableEntityIds.fatalCount } else { 0 }
+$feedSchemaMigrationStatus = if ($feedSchemaMigration) { [string]$feedSchemaMigration.status } else { "unknown" }
+$feedSchemaMigrationVersion = if ($feedSchemaMigration) { [int]$feedSchemaMigration.currentVersion } else { 0 }
+$feedSchemaMigrationRequired = if ($feedSchemaMigration) { [bool]$feedSchemaMigration.migrationRequired } else { $false }
 $readmeDensityWarningCount = if ($readmeDensity) { [int]$readmeDensity.warningCount } else { 0 }
 $readmeLargestCategory = if ($readmeDensity) { [string]$readmeDensity.largestCategory } else { "" }
 $readmeLargestCategoryCount = if ($readmeDensity) { [int]$readmeDensity.largestCategoryCount } else { 0 }
@@ -463,6 +470,11 @@ $summary = @"
 | Portfolio compatibility | $portfolioCompatibilityStatus |
 | Portfolio compatibility fatal gaps | $portfolioCompatibilityFatalCount |
 | Portfolio compatibility warnings | $portfolioCompatibilityWarningCount |
+| Stable feed entity IDs | $stableEntityIdsStatus |
+| Stable feed entity ID gaps | $stableEntityIdsFatalCount |
+| Feed schema migration policy | $feedSchemaMigrationStatus |
+| Feed schema version | $feedSchemaMigrationVersion |
+| Feed migration required | $feedSchemaMigrationRequired |
 | README density warnings | $readmeDensityWarningCount |
 | README largest category | $readmeLargestCategory ($readmeLargestCategoryCount) |
 | README repo-only rows | $readmeRepoOnlyProjectCount |

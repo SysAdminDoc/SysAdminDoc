@@ -19,6 +19,8 @@
     "catalogShape",
     "catalogFeedAccounting",
     "portfolioCompatibility",
+    "stableEntityIds",
+    "feedSchemaMigration",
     "metadataHygiene",
     "projectLicenseMetadata",
     "forkParentDrift",
@@ -102,6 +104,12 @@
     },
     "portfolioCompatibility": {
       "$ref": "#/$defs/portfolioCompatibility"
+    },
+    "stableEntityIds": {
+      "$ref": "#/$defs/stableEntityIds"
+    },
+    "feedSchemaMigration": {
+      "$ref": "#/$defs/feedSchemaMigration"
     },
     "metadataHygiene": {
       "$ref": "#/$defs/metadataHygiene"
@@ -5970,6 +5978,111 @@
         "note": {
           "type": "string"
         }
+      }
+    },
+    "stableEntityIds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "status",
+        "projectCount",
+        "missingIdCount",
+        "missingIds",
+        "invalidIdCount",
+        "invalidIds",
+        "duplicateIdCount",
+        "duplicateIds",
+        "missingCanonicalRepoCount",
+        "missingAliasMetadataCount",
+        "aliasRowCount",
+        "aliasCount",
+        "fatalCount",
+        "errors",
+        "note"
+      ],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["verified", "failed", "unavailable"] },
+        "projectCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "missingIdCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "missingIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stableEntityRow" }
+        },
+        "invalidIdCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "invalidIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stableEntityInvalidRow" }
+        },
+        "duplicateIdCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "duplicateIds": { "$ref": "#/$defs/stringArray" },
+        "missingCanonicalRepoCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "missingAliasMetadataCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "aliasRowCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "aliasCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "fatalCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "errors": { "$ref": "#/$defs/stringArray" },
+        "note": { "type": "string" }
+      }
+    },
+    "stableEntityRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "index"],
+      "properties": {
+        "repo": { "type": "string" },
+        "index": { "$ref": "#/$defs/positiveInteger" }
+      }
+    },
+    "stableEntityInvalidRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "id"],
+      "properties": {
+        "repo": { "type": "string" },
+        "id": { "type": "string" }
+      }
+    },
+    "feedSchemaMigration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "passed",
+        "status",
+        "currentVersion",
+        "supportedVersions",
+        "compatibility",
+        "changeKind",
+        "migrationRequired",
+        "migrationNotes",
+        "deprecatedVersions",
+        "deprecationNotes",
+        "fatalCount",
+        "errors",
+        "note"
+      ],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["documented", "invalid"] },
+        "currentVersion": { "$ref": "#/$defs/positiveInteger" },
+        "supportedVersions": { "$ref": "#/$defs/stringIntegerArray" },
+        "compatibility": { "type": "string" },
+        "changeKind": { "type": "string" },
+        "migrationRequired": { "type": "boolean" },
+        "migrationNotes": { "$ref": "#/$defs/stringArray" },
+        "deprecatedVersions": { "$ref": "#/$defs/stringIntegerArray" },
+        "deprecationNotes": { "$ref": "#/$defs/stringArray" },
+        "fatalCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "errors": { "$ref": "#/$defs/stringArray" },
+        "note": { "type": "string" }
+      }
+    },
+    "stringIntegerArray": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
       }
     },
     "portfolioCompatibility": {

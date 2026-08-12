@@ -1,0 +1,30 @@
+{
+  "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
+  "generatedAt": "2026-01-01T00:00:00.0000000Z",
+  "entries": [
+    {
+      "repo": "FixtureTool",
+      "title": "Fixture Tool",
+      "category": "web",
+      "includeInReadme": true,
+      "includeInPortfolio": true,
+      "order": 1,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "downloadKind": null,
+      "userscriptUrl": null,
+      "liveUrl": "https://fixture.example.test/",
+      "language": "TypeScript",
+      "descriptionOverride": "Owner-agnostic generator fixture.",
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "currentlyBuildingText": null,
+      "allowPublicMedical": false,
+      "aliasOf": null,
+      "suppressionReason": null,
+      "notes": null
+    }
+  ]
+}

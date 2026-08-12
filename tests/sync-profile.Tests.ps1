@@ -161,6 +161,10 @@ Describe 'Function library loads via the dot-source test seam' {
             'New-ContributionAssetSvg',
             'New-Readme',
             'New-ProjectsExportJson',
+            'Get-ProjectCanonicalRepo',
+            'Get-ProjectAliases',
+            'Get-StableProjectEntityId',
+            'New-ProjectsFeedSchemaPolicy',
             'New-RenderedProfileSmokeSummary',
             'Test-RoadmapHygiene',
             'Test-RootMarkdownHygiene',
@@ -168,6 +172,8 @@ Describe 'Function library loads via the dot-source test seam' {
             'Test-CatalogShape',
             'Test-JsonSchemaContract',
             'Test-FeedSchemaContracts',
+            'Test-StableProjectEntityIds',
+            'Test-FeedSchemaMigrationPolicy',
             'Test-ProfileReleaseConsistency',
             'Test-ProfileState'
         )
@@ -2660,7 +2666,7 @@ Describe 'New-ProjectsExportJson feed' {
         $provenanceJson = $json.provenance | ConvertTo-Json -Depth 20
 
         $json.provenance.version | Should -Be 1
-        $json.provenance.feedSchemaVersion | Should -Be 2
+        $json.provenance.feedSchemaVersion | Should -Be 3
         $json.provenance.sourceRepository | Should -Be 'SysAdminDoc/SysAdminDoc'
         if ($null -ne $json.provenance.sourceCommit) {
             $json.provenance.sourceCommit | Should -Match '^[a-f0-9]{40}$'
@@ -2674,6 +2680,103 @@ Describe 'New-ProjectsExportJson feed' {
         $json.provenance.repoEnumeration.returnedCount | Should -Be 0
         $json.provenance.repoEnumeration.truncated | Should -BeFalse
         $provenanceJson | Should -Not -Match 'C:\\|/Users/|repos\\\\|VaultBox|RadAtlas|improve-repo'
+    }
+
+    It 'exports stable IDs, canonical repository aliases, and locale/script hints' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $aliasEntry = New-TestEntry -Repo 'RenamedTool' -Category 'misc'
+        $aliasEntry.id = 'legacy-tool'
+        $aliasEntry.aliasOf = 'LegacyTool'
+        $aliasEntry.aliases = @('OlderTool')
+        $cat.entries += $aliasEntry
+
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+        $row = $json.projects | Where-Object { $_.repo -eq 'RenamedTool' }
+
+        $row.id | Should -Be 'legacy-tool'
+        $row.canonicalRepo | Should -Be 'SysAdminDoc/LegacyTool'
+        @($row.aliases) | Should -Contain 'OlderTool'
+        @($row.aliases) | Should -Contain 'RenamedTool'
+        @($row.localeHints) | Should -Contain 'en-US'
+        @($row.localeHints) | Should -Contain 'en'
+        @($row.scriptHints) | Should -Contain 'Latn'
+        $row.id | Should -Match '^[a-z0-9][a-z0-9-]{2,63}$'
+    }
+
+    It 'records and validates the feed schema migration policy' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $rawJson = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $json = $rawJson | ConvertFrom-Json
+
+        $json.schemaPolicy.currentVersion | Should -Be 3
+        @($json.schemaPolicy.supportedVersions) | Should -Contain 2
+        @($json.schemaPolicy.supportedVersions) | Should -Contain 3
+        $json.schemaPolicy.migrationRequired | Should -BeTrue
+        @($json.schemaPolicy.migrationNotes).Count | Should -BeGreaterThan 0
+
+        $result = Test-FeedSchemaMigrationPolicy -ProjectsJson $rawJson
+        $result.passed | Should -BeTrue
+        $result.changeKind | Should -Be 'required-field-addition'
+
+        $invalid = $json
+        $invalid.schemaPolicy.migrationNotes = @()
+        $invalidResult = Test-FeedSchemaMigrationPolicy -ProjectsJson ($invalid | ConvertTo-Json -Depth 30)
+        $invalidResult.passed | Should -BeFalse
+        $invalidResult.errors -join "`n" | Should -Match 'migration note'
+    }
+
+    It 'verifies stable IDs and catches duplicate feed identities' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $rawJson = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $result = Test-StableProjectEntityIds -ProjectsJson $rawJson
+
+        $result.passed | Should -BeTrue
+        $result.missingIdCount | Should -Be 0
+        $result.duplicateIdCount | Should -Be 0
+        $result.missingAliasMetadataCount | Should -Be 0
+        $result.projectCount | Should -Be 6
+
+        $invalid = $rawJson | ConvertFrom-Json
+        $invalid.projects[1].id = $invalid.projects[0].id
+        $invalidResult = Test-StableProjectEntityIds -ProjectsJson ($invalid | ConvertTo-Json -Depth 30)
+        $invalidResult.passed | Should -BeFalse
+        $invalidResult.duplicateIdCount | Should -Be 1
+    }
+
+    It 'keeps feed generation owner-agnostic through the catalog fixture' {
+        $previousOwner = $Owner
+        $previousSchemaBaseUrl = $SchemaBaseUrl
+        $previousCatalogSchemaUrl = $CatalogSchemaUrl
+        $previousProjectsSchemaUrl = $ProjectsSchemaUrl
+        $previousReportSchemaUrl = $ReportSchemaUrl
+        try {
+            $Owner = 'FixtureOwner'
+            $SchemaBaseUrl = 'https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/schemas'
+            $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
+            $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
+            $ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
+
+            $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
+            $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+
+            $json.source | Should -Be 'FixtureOwner/FixtureOwner data/profile-catalog.json'
+            $json.provenance.sourceRepository | Should -Be 'FixtureOwner/FixtureOwner'
+            $json.provenance.repoEnumeration.returnedCount | Should -Be 0
+            $json.projects[0].repoUrl | Should -Be 'https://github.com/FixtureOwner/FixtureTool'
+            $json.projects[0].canonicalRepo | Should -Be 'FixtureOwner/FixtureTool'
+            $json.schema | Should -Be 'https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/schemas/profile-projects.v1.json'
+
+            $readme = New-Readme -Catalog $cat -Repos @()
+            $readme | Should -Match 'https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/setup[.]ps1'
+            $readme | Should -Match 'https://github.com/FixtureOwner[?]tab=repositories'
+            $readme | Should -Match 'https://fixtureowner[.]github[.]io/'
+        } finally {
+            $Owner = $previousOwner
+            $SchemaBaseUrl = $previousSchemaBaseUrl
+            $CatalogSchemaUrl = $previousCatalogSchemaUrl
+            $ProjectsSchemaUrl = $previousProjectsSchemaUrl
+            $ReportSchemaUrl = $previousReportSchemaUrl
+        }
     }
 
     It 'documents the downstream feed schema version bump contract' {

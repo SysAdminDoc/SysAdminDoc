@@ -2,6 +2,9 @@
 
 ## 2026-07-15
 
+- Added stable public feed entity IDs, canonical repository/alias metadata, and default `en-US`/`en` plus `Latn` locale/script hints for visible project rows.
+- Added feed/report schema migration policy evidence with supported-version windows and required migration notes, plus report checks for duplicate or missing entity identities.
+- Added a non-SysAdminDoc catalog fixture covering owner-qualified feed URLs and schema provenance.
 - Replaced the generated profile header and footer image chrome with a minimal, text-only header (plain tagline, portfolio and category links) and footer, removing all rendered SVG/image chrome from the profile README while preserving Start Here routing and the full tool catalog.
 - Updated the generated-profile smoke renderer to detect the text-only header and footer, and aligned the profile header/experience contract tests to the minimal-header path.
 - Bumped the internal profile evidence version to `v4.9.160`.

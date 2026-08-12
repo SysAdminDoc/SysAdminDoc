@@ -70,7 +70,7 @@ $ReadmeDetailsSectionSoftLimit = 15
 $ReadmeImageTagSoftLimit = 10
 $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
-$ProjectsFeedSchemaVersion = 2
+$ProjectsFeedSchemaVersion = 3
 $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
@@ -958,6 +958,8 @@ function New-CatalogEntry {
 
     return [ordered]@{
         repo = $Repo
+        id = $null
+        aliases = @()
         title = $Repo
         category = $Category
         includeInReadme = $true
@@ -970,6 +972,8 @@ function New-CatalogEntry {
         userscriptUrl = $null
         liveUrl = $null
         language = $null
+        localeHints = @()
+        scriptHints = @()
         descriptionOverride = $Description
         featured = $false
         featuredRank = $null
@@ -1004,6 +1008,8 @@ function ConvertTo-EntryHashtable {
     $hash = $json | ConvertFrom-Json -AsHashtable
 
     Set-IfMissing $hash "title" $hash.repo
+    Set-IfMissing $hash "id" $null
+    Set-IfMissing $hash "aliases" @()
     Set-IfMissing $hash "includeInReadme" $true
     Set-IfMissing $hash "includeInPortfolio" $true
     Set-IfMissing $hash "order" 9999
@@ -1014,6 +1020,8 @@ function ConvertTo-EntryHashtable {
     Set-IfMissing $hash "userscriptUrl" $null
     Set-IfMissing $hash "liveUrl" $null
     Set-IfMissing $hash "language" $null
+    Set-IfMissing $hash "localeHints" @()
+    Set-IfMissing $hash "scriptHints" @()
     Set-IfMissing $hash "descriptionOverride" $null
     Set-IfMissing $hash "featured" $false
     Set-IfMissing $hash "featuredRank" $null
@@ -1026,6 +1034,10 @@ function ConvertTo-EntryHashtable {
     Set-IfMissing $hash "suppressionReason" $null
     Set-IfMissing $hash "readmeReviewNote" $null
     Set-IfMissing $hash "notes" $null
+
+    if ($null -eq $hash.aliases) { $hash.aliases = @() }
+    if ($null -eq $hash.localeHints) { $hash.localeHints = @() }
+    if ($null -eq $hash.scriptHints) { $hash.scriptHints = @() }
 
     return $hash
 }
@@ -1190,6 +1202,131 @@ function Get-RepoUrl {
 
     $repo = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
     return "https://github.com/$Owner/$repo"
+}
+
+function Get-ProjectCanonicalRepo {
+    <#
+    .SYNOPSIS
+    Returns the owner-qualified repository identity used by public feed rows.
+    .PARAMETER Entry
+    Normalized profile catalog entry.
+    #>
+    [CmdletBinding()]
+    param([hashtable]$Entry)
+
+    $repo = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
+    return "$Owner/$repo"
+}
+
+function Get-ProjectAliases {
+    <#
+    .SYNOPSIS
+    Normalizes legacy repository aliases without exposing suppressed rows.
+    .PARAMETER Entry
+    Normalized profile catalog entry.
+    #>
+    [CmdletBinding()]
+    param([hashtable]$Entry)
+
+    $canonicalName = if ($Entry.aliasOf) { [string]$Entry.aliasOf } else { [string]$Entry.repo }
+    $aliases = New-Object System.Collections.Generic.List[string]
+    foreach ($candidate in @($Entry.aliases)) {
+        $alias = [string]$candidate
+        if ([string]::IsNullOrWhiteSpace($alias) -or $alias -ieq $canonicalName -or $alias -ieq [string]$Entry.repo) {
+            continue
+        }
+        if (-not @($aliases | Where-Object { $_ -ieq $alias })) {
+            $aliases.Add($alias)
+        }
+    }
+    if ($Entry.aliasOf -and [string]$Entry.repo -ine $canonicalName -and -not @($aliases | Where-Object { $_ -ieq [string]$Entry.repo })) {
+        $aliases.Add([string]$Entry.repo)
+    }
+
+    return @($aliases.ToArray() | Sort-Object)
+}
+
+function Get-StableProjectEntityId {
+    <#
+    .SYNOPSIS
+    Returns an explicit catalog ID or a deterministic opaque ID for a project.
+    .PARAMETER Entry
+    Normalized profile catalog entry.
+    #>
+    [CmdletBinding()]
+    param([hashtable]$Entry)
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Entry.id)) {
+        return [string]$Entry.id
+    }
+
+    $identity = (Get-ProjectCanonicalRepo -Entry $Entry).ToLowerInvariant()
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($identity)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = (($sha256.ComputeHash($bytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+    } finally {
+        $sha256.Dispose()
+    }
+    return "project-$($hash.Substring(0, 24))"
+}
+
+function Get-ProjectHintArray {
+    param(
+        [hashtable]$Entry,
+        [string]$Field,
+        [string[]]$Default
+    )
+
+    $values = New-Object System.Collections.Generic.List[string]
+    foreach ($candidate in @($Entry[$Field])) {
+        $value = [string]$candidate
+        if ([string]::IsNullOrWhiteSpace($value)) { continue }
+        if (-not @($values | Where-Object { $_ -ieq $value })) {
+            $values.Add($value)
+        }
+    }
+    if ($values.Count -eq 0) {
+        foreach ($value in @($Default)) { $values.Add($value) }
+    }
+    return @($values.ToArray())
+}
+
+function Get-ProjectLocaleHints {
+    param([hashtable]$Entry)
+
+    return Get-ProjectHintArray -Entry $Entry -Field "localeHints" -Default @("en-US", "en")
+}
+
+function Get-ProjectScriptHints {
+    param([hashtable]$Entry)
+
+    return Get-ProjectHintArray -Entry $Entry -Field "scriptHints" -Default @("Latn")
+}
+
+function New-ProjectsFeedSchemaPolicy {
+    <#
+    .SYNOPSIS
+    Describes the public feed compatibility and migration contract.
+    #>
+    [CmdletBinding()]
+    param()
+
+    $previousVersion = [Math]::Max(1, [int]$ProjectsFeedSchemaVersion - 1)
+    return [ordered]@{
+        currentVersion = [int]$ProjectsFeedSchemaVersion
+        supportedVersions = @($previousVersion, [int]$ProjectsFeedSchemaVersion)
+        compatibility = "backward-compatible-for-field-selecting-consumers"
+        changeKind = "required-field-addition"
+        migrationRequired = $true
+        migrationNotes = @(
+            "Feed version 3 adds project identity, canonical repository, alias, locale, and script metadata fields.",
+            "Consumers that select known fields can continue reading the feed without changing their rendering path.",
+            "Strict schema validators must accept feed version 3 before requiring the new project fields."
+        )
+        deprecatedVersions = @()
+        deprecationNotes = @("No supported feed version is currently deprecated.")
+    }
 }
 
 function Get-ProjectLink {
@@ -1627,9 +1764,9 @@ function Get-ReadmeHeaderLinkValidationTargets {
     $seenUrls = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
     $criticalLinks = @(
-        [ordered]@{ type = "profile-portfolio"; url = "https://sysadmindoc.github.io/" },
-        [ordered]@{ type = "setup-raw"; url = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1" },
-        [ordered]@{ type = "setup-source"; url = "https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1" }
+        [ordered]@{ type = "profile-portfolio"; url = Get-ProfilePortfolioUrl },
+        [ordered]@{ type = "setup-raw"; url = Get-ProfileSetupRawUrl },
+        [ordered]@{ type = "setup-source"; url = Get-ProfileSetupSourceUrl }
     )
     foreach ($link in $criticalLinks) {
         if ($ExpectedReadme.Contains([string]$link.url)) {
@@ -2276,6 +2413,18 @@ function New-CategoryPreviewLine {
     return "Suggested starting points: $($links -join ', ')."
 }
 
+function Get-ProfilePortfolioUrl {
+    return "https://$($Owner.ToLowerInvariant()).github.io/"
+}
+
+function Get-ProfileSetupRawUrl {
+    return "https://raw.githubusercontent.com/$Owner/$Owner/main/setup.ps1"
+}
+
+function Get-ProfileSetupSourceUrl {
+    return "https://github.com/$Owner/$Owner/blob/main/setup.ps1"
+}
+
 function Get-ProfileRouteDefinitions {
     $powershellLink = New-CategoryLink "powershell"
     $pythonLink = New-CategoryLink "python"
@@ -2357,9 +2506,9 @@ function Get-ProfileRouteDefinitions {
         [ordered]@{
             Signal = "<kbd>ALL</kbd>"
             Want = "Search across everything"
-            Best = "[Full portfolio](https://sysadmindoc.github.io/) or $miscLink"
+            Best = "[Full portfolio]($(Get-ProfilePortfolioUrl)) or $miscLink"
             Find = "Filterable portfolio data from the generated `projects.json` feed."
-            Action = "[<kbd>Search &#8594;</kbd>](https://sysadmindoc.github.io/)"
+            Action = "[<kbd>Search &#8594;</kbd>]($(Get-ProfilePortfolioUrl))"
         }
     )
 }
@@ -2484,12 +2633,14 @@ function New-DiscoverySection {
     }
     $lines.Add("")
     $lines.Add("Quick platform map: $(New-CategoryLink 'powershell') &middot; $(New-CategoryLink 'python') &middot; $(New-CategoryLink 'web') &middot; $(New-CategoryLink 'extensions') &middot; $(New-CategoryLink 'android') &middot; $(New-CategoryLink 'desktop')")
+    $lines.Add("")
+    $lines.Add('Feed consumers: `projects.json` includes stable project IDs, canonical repository aliases, locale/script hints, and a `schemaPolicy` migration signal. Field-selecting consumers can keep their existing rendering path; strict validators should follow the declared supported version window.')
 
     return ($lines -join [Environment]::NewLine)
 }
 
 function New-FirstTimeSetupSection {
-    return @'
+    $content = @'
 <a id="first-time-setup"></a>
 
 <details>
@@ -2499,13 +2650,13 @@ function New-FirstTimeSetupSection {
 The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
 
 ```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
+irm https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/setup.ps1 | iex
 ```
 
 Inspect before installing:
 
 ```powershell
-$u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
+$u='https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
 ```
 
 | Step | Behavior |
@@ -2521,6 +2672,7 @@ Already have PowerShell 7, Python, pip, and Git? Skip this section and open the 
 
 </details>
 '@
+    return $content.Replace('__PROFILE_OWNER__', [string]$Owner)
 }
 
 function New-LocalValidationSection {
@@ -3219,7 +3371,7 @@ function New-ProfileChrome {
     $lines.Add('')
     $lines.Add('I help small and midsize businesses put AI to work through tool rollout, workflow automation, team training, and ongoing support. I bring 15 years of enterprise IT and healthcare systems experience.')
     $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://getparkerai.com/"><b>Explore Parker AI services</b></a> &middot; <a href="https://sysadmindoc.github.io/ai/"><b>AI service overview</b></a></p>')
+    $lines.Add('<p align="center"><a href="https://getparkerai.com/"><b>Explore Parker AI services</b></a> &middot; <a href="' + (Get-ProfilePortfolioUrl) + 'ai/"><b>AI service overview</b></a></p>')
     $lines.Add('')
     $lines.Add('<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
@@ -3277,7 +3429,7 @@ function New-ProfileFooter {
     return @(
         '---'
         ''
-        '<p align="center"><a href="https://sysadmindoc.github.io/"><b>View my full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>'
+        ('<p align="center"><a href="' + (Get-ProfilePortfolioUrl) + '"><b>View my full portfolio</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">Browse repositories</a></p>')
     ) -join [Environment]::NewLine
 }
 
@@ -3827,6 +3979,11 @@ function New-ProjectsExportJson {
     foreach ($entry in $entries) {
         $meta = Get-RepoMeta $entry $repoLookup
         $repoUrl = Get-RepoUrl $entry
+        $entityId = Get-StableProjectEntityId -Entry $entry
+        $canonicalRepo = Get-ProjectCanonicalRepo -Entry $entry
+        $aliases = Get-ProjectAliases -Entry $entry
+        $localeHints = Get-ProjectLocaleHints -Entry $entry
+        $scriptHints = Get-ProjectScriptHints -Entry $entry
         $downloadUrl = $null
         if ($meta -and $meta.latestRelease -and (([string]$entry.downloadKind).ToLowerInvariant() -ne "repo")) {
             $downloadUrl = Get-ReleaseUrl $entry
@@ -3864,7 +4021,10 @@ function New-ProjectsExportJson {
         }
 
         $row = [ordered]@{
+            id = $entityId
             repo = [string]$entry.repo
+            canonicalRepo = $canonicalRepo
+            aliases = @($aliases)
             title = [string]$entry.title
             category = [string]$entry.category
             includeInReadme = [bool]$entry.includeInReadme
@@ -3896,6 +4056,8 @@ function New-ProjectsExportJson {
             entrypoint = if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) { $null } else { [string]$entry.entrypoint }
             installKind = if ([string]::IsNullOrWhiteSpace([string]$entry.installKind)) { $null } else { [string]$entry.installKind }
             language = $language
+            localeHints = @($localeHints)
+            scriptHints = @($scriptHints)
             stars = if ($meta) { [int]$meta.stargazerCount } else { $null }
             latestReleaseTag = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.tagName } else { $null }
             latestReleaseUrl = if ($meta -and $meta.latestRelease) { [string]$meta.latestRelease.url } else { $null }
@@ -3922,8 +4084,9 @@ function New-ProjectsExportJson {
     $payload = [ordered]@{
         schema = $ProjectsSchemaUrl
         generatedAt = ConvertTo-IsoText $Catalog.generatedAt
-        source = "SysAdminDoc/SysAdminDoc data/profile-catalog.json"
+        source = "$Owner/$Owner data/profile-catalog.json"
         provenance = New-ProjectsProvenance -Repos $Repos
+        schemaPolicy = New-ProjectsFeedSchemaPolicy
         publicRepoCount = @($Repos | Where-Object { $null -ne $_ }).Count
         projectCount = $projects.Count
         suppressedCount = $suppressed.Count
@@ -4101,7 +4264,7 @@ function Test-PortfolioFeedCompatibility {
         return [ordered]@{
             status = "unavailable"
             consumerContract = "sysadmindoc.github.io profile-feed importer"
-            feedSourceUrl = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json"
+            feedSourceUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/projects.json"
             projectCount = 0
             suppressedCount = 0
             topLevelProjectCount = $null
@@ -4259,7 +4422,7 @@ function Test-PortfolioFeedCompatibility {
     return [ordered]@{
         status = if ($fatalCount -eq 0) { "compatible" } else { "incompatible" }
         consumerContract = "sysadmindoc.github.io profile-feed importer"
-        feedSourceUrl = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json"
+        feedSourceUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/projects.json"
         projectCount = [int]$projects.Count
         suppressedCount = [int]$suppressed.Count
         topLevelProjectCount = $topLevelProjectCount
@@ -4285,6 +4448,154 @@ function Test-PortfolioFeedCompatibility {
         fatalCount = $fatalCount
         errors = @($errors.ToArray())
         note = "Compatibility snapshot for the downstream portfolio feed importer; normal consumers should use payload.projects and ignore unknown additive fields."
+    }
+}
+
+function Test-StableProjectEntityIds {
+    <#
+    .SYNOPSIS
+    Verifies that every visible feed row has a unique stable identity and alias metadata.
+    .PARAMETER ProjectsJson
+    Generated projects.json text to inspect.
+    #>
+    [CmdletBinding()]
+    param([string]$ProjectsJson)
+
+    $payload = $null
+    $errors = New-Object System.Collections.Generic.List[string]
+    try {
+        $payload = ConvertFrom-JsonPreservingArrays -Json $ProjectsJson
+    } catch {
+        $errors.Add("projects.json could not be parsed for stable entity identity validation.")
+    }
+
+    $missingIds = New-Object System.Collections.Generic.List[object]
+    $invalidIds = New-Object System.Collections.Generic.List[object]
+    $duplicateIds = New-Object System.Collections.Generic.List[string]
+    $seenIds = @{}
+    $missingCanonicalRepoCount = 0
+    $missingAliasMetadataCount = 0
+    $aliasRowCount = 0
+    $aliasCount = 0
+    $projects = if ($payload) { @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name "projects")) } else { @() }
+
+    $projectIndex = 0
+    foreach ($project in $projects) {
+        $projectIndex++
+        $repo = [string](Get-MemberValue -Object $project -Name "repo")
+        $label = if ([string]::IsNullOrWhiteSpace($repo)) { "project-$projectIndex" } else { $repo }
+        $id = [string](Get-MemberValue -Object $project -Name "id")
+        if ([string]::IsNullOrWhiteSpace($id)) {
+            $missingIds.Add([ordered]@{ repo = $label; index = $projectIndex })
+        } elseif ($id -notmatch '^[a-z0-9][a-z0-9-]{2,63}$') {
+            $invalidIds.Add([ordered]@{ repo = $label; id = $id })
+        } else {
+            $idKey = $id.ToLowerInvariant()
+            if ($seenIds.ContainsKey($idKey)) {
+                $duplicateIds.Add($id)
+            } else {
+                $seenIds[$idKey] = $label
+            }
+        }
+
+        $canonicalRepo = [string](Get-MemberValue -Object $project -Name "canonicalRepo")
+        if ([string]::IsNullOrWhiteSpace($canonicalRepo)) {
+            $missingCanonicalRepoCount++
+        }
+        if (-not (Test-MemberExists -Object $project -Name "aliases")) {
+            $missingAliasMetadataCount++
+        } else {
+            $rowAliases = @(Get-JsonArrayItems (Get-MemberValue -Object $project -Name "aliases"))
+            if ($rowAliases.Count -gt 0) { $aliasRowCount++ }
+            $aliasCount += $rowAliases.Count
+        }
+    }
+
+    if ($null -eq $payload) {
+        $errors.Add("projects.json is unavailable to stable entity identity validation.")
+    }
+    $duplicateIdArray = @($duplicateIds.ToArray() | Sort-Object -Unique)
+    $missingIdArray = @($missingIds.ToArray())
+    $invalidIdArray = @($invalidIds.ToArray())
+    $fatalCount = $errors.Count + $missingIdArray.Count + $invalidIdArray.Count + $duplicateIdArray.Count + $missingCanonicalRepoCount + $missingAliasMetadataCount
+
+    return [ordered]@{
+        passed = [bool]($fatalCount -eq 0)
+        status = if ($fatalCount -eq 0) { "verified" } elseif ($null -eq $payload) { "unavailable" } else { "failed" }
+        projectCount = $projects.Count
+        missingIdCount = $missingIdArray.Count
+        missingIds = $missingIdArray
+        invalidIdCount = $invalidIdArray.Count
+        invalidIds = $invalidIdArray
+        duplicateIdCount = $duplicateIdArray.Count
+        duplicateIds = $duplicateIdArray
+        missingCanonicalRepoCount = $missingCanonicalRepoCount
+        missingAliasMetadataCount = $missingAliasMetadataCount
+        aliasRowCount = $aliasRowCount
+        aliasCount = $aliasCount
+        fatalCount = $fatalCount
+        errors = @($errors.ToArray())
+        note = "Every visible project row carries an explicit or deterministic ID, an owner-qualified canonical repository, and an aliases array."
+    }
+}
+
+function Test-FeedSchemaMigrationPolicy {
+    <#
+    .SYNOPSIS
+    Verifies that the generated feed records its compatibility and migration policy.
+    .PARAMETER ProjectsJson
+    Generated projects.json text to inspect.
+    #>
+    [CmdletBinding()]
+    param([string]$ProjectsJson)
+
+    $payload = $null
+    $errors = New-Object System.Collections.Generic.List[string]
+    try {
+        $payload = ConvertFrom-JsonPreservingArrays -Json $ProjectsJson
+    } catch {
+        $errors.Add("projects.json could not be parsed for schema migration policy validation.")
+    }
+
+    $policy = if ($payload) { Get-MemberValue -Object $payload -Name "schemaPolicy" } else { $null }
+    $currentVersion = if ($policy) { [int](Get-MemberValue -Object $policy -Name "currentVersion") } else { 0 }
+    $supportedVersions = if ($policy) { @(Get-JsonArrayItems (Get-MemberValue -Object $policy -Name "supportedVersions")) | ForEach-Object { [int]$_ } } else { @() }
+    $compatibility = if ($policy) { [string](Get-MemberValue -Object $policy -Name "compatibility") } else { "" }
+    $changeKind = if ($policy) { [string](Get-MemberValue -Object $policy -Name "changeKind") } else { "" }
+    $migrationRequiredValue = if ($policy) { Get-MemberValue -Object $policy -Name "migrationRequired" } else { $false }
+    $migrationRequired = [bool]$migrationRequiredValue
+    $migrationNotes = if ($policy) { @(Get-JsonArrayItems (Get-MemberValue -Object $policy -Name "migrationNotes")) | ForEach-Object { [string]$_ } } else { @() }
+    $deprecatedVersions = if ($policy) { @(Get-JsonArrayItems (Get-MemberValue -Object $policy -Name "deprecatedVersions")) | ForEach-Object { [int]$_ } } else { @() }
+    $deprecationNotes = if ($policy) { @(Get-JsonArrayItems (Get-MemberValue -Object $policy -Name "deprecationNotes")) | ForEach-Object { [string]$_ } } else { @() }
+
+    if ($null -eq $policy) { $errors.Add("Generated feed does not expose schemaPolicy.") }
+    if ($currentVersion -ne [int]$ProjectsFeedSchemaVersion) {
+        $errors.Add("Feed schema policy currentVersion does not match the generator version.")
+    }
+    if ($supportedVersions -notcontains $currentVersion) {
+        $errors.Add("Feed schema policy supportedVersions does not include currentVersion.")
+    }
+    if ($migrationRequired -and @($migrationNotes).Count -eq 0) {
+        $errors.Add("Required feed schema changes must include a migration note.")
+    }
+    if ($changeKind -eq "breaking" -and @($migrationNotes).Count -eq 0) {
+        $errors.Add("Breaking feed schema changes must include a migration note.")
+    }
+
+    return [ordered]@{
+        passed = [bool]($errors.Count -eq 0)
+        status = if ($errors.Count -eq 0) { "documented" } else { "invalid" }
+        currentVersion = $currentVersion
+        supportedVersions = @($supportedVersions)
+        compatibility = $compatibility
+        changeKind = $changeKind
+        migrationRequired = $migrationRequired
+        migrationNotes = @($migrationNotes)
+        deprecatedVersions = @($deprecatedVersions)
+        deprecationNotes = @($deprecationNotes)
+        fatalCount = $errors.Count
+        errors = @($errors.ToArray())
+        note = "The feed declares its supported version window and requires written migration notes for required or breaking contract changes."
     }
 }
 
@@ -6043,6 +6354,7 @@ function Test-CatalogShape {
     }
 
     $seenRepos = @{}
+    $seenIds = @{}
     foreach ($entry in @($Catalog.entries)) {
         $repo = [string]$entry.repo
         if ([string]::IsNullOrWhiteSpace($repo)) {
@@ -6057,6 +6369,38 @@ function Test-CatalogShape {
 
             if (-not (Test-SafeGitHubName -Name $repo)) {
                 $issues.Add([ordered]@{ repo = $repo; field = "repo"; value = $repo; reason = "repo name must match ^[A-Za-z0-9._-]+$" })
+            }
+        }
+
+        $entryId = [string]$entry.id
+        if (-not [string]::IsNullOrWhiteSpace($entryId)) {
+            if ($entryId -notmatch '^[a-z0-9][a-z0-9-]{2,63}$') {
+                $issues.Add([ordered]@{ repo = $repo; field = "id"; value = $entryId; reason = "id must match ^[a-z0-9][a-z0-9-]{2,63}$" })
+            } else {
+                $idKey = $entryId.ToLowerInvariant()
+                if ($seenIds.ContainsKey($idKey)) {
+                    $issues.Add([ordered]@{ repo = $repo; field = "id"; value = $entryId; reason = "duplicate id also appears on $($seenIds[$idKey])" })
+                } else {
+                    $seenIds[$idKey] = $repo
+                }
+            }
+        }
+
+        $seenAliases = @{}
+        foreach ($aliasCandidate in @($entry.aliases)) {
+            $alias = [string]$aliasCandidate
+            if ([string]::IsNullOrWhiteSpace($alias)) {
+                $issues.Add([ordered]@{ repo = $repo; field = "aliases"; value = $alias; reason = "aliases entries must be non-empty" })
+                continue
+            }
+            if (-not (Test-SafeGitHubName -Name $alias)) {
+                $issues.Add([ordered]@{ repo = $repo; field = "aliases"; value = $alias; reason = "aliases entries must be safe GitHub repository names" })
+            }
+            $aliasKey = $alias.ToLowerInvariant()
+            if ($seenAliases.ContainsKey($aliasKey)) {
+                $issues.Add([ordered]@{ repo = $repo; field = "aliases"; value = $alias; reason = "duplicate alias" })
+            } else {
+                $seenAliases[$aliasKey] = $true
             }
         }
 
@@ -10779,6 +11123,8 @@ function Test-ProfileState {
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
+    $stableEntityIds = Test-StableProjectEntityIds -ProjectsJson $ExpectedProjects
+    $feedSchemaMigration = Test-FeedSchemaMigrationPolicy -ProjectsJson $ExpectedProjects
     $feedSchemaValidation = Test-FeedSchemaContracts -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $repositoryCommunityBaseline = Get-RepositoryCommunityBaseline
     $schemaValidation = [ordered]@{
@@ -10856,6 +11202,8 @@ function Test-ProfileState {
         userscriptInstallTrust = $userscriptInstallTrust
         catalogFeedAccounting = $catalogFeedAccounting
         portfolioCompatibility = $portfolioCompatibility
+        stableEntityIds = $stableEntityIds
+        feedSchemaMigration = $feedSchemaMigration
         repositorySettings = $repositoryCommunityBaseline["repositorySettings"]
         communityHealth = $repositoryCommunityBaseline["communityHealth"]
         schemaValidation = $schemaValidation
@@ -10994,6 +11342,8 @@ function Test-ProfileState {
         communityHealth = [bool]($repositoryCommunityBaseline["communityHealth"]["fatalCount"] -gt 0)
         catalogFeedAccounting = [bool]($catalogFeedAccounting.fatalCount -gt 0)
         portfolioCompatibility = [bool]($portfolioCompatibility.fatalCount -gt 0)
+        stableEntityIds = [bool]($stableEntityIds.fatalCount -gt 0)
+        feedSchemaMigration = [bool]($feedSchemaMigration.fatalCount -gt 0)
         schemaValidation = [bool]($schemaValidation.passed -ne $true)
         docVersionConsistency = [bool]($docVersionConsistency.passed -ne $true)
         runtimeSecurity = [bool]($runtimeSecurity.status -eq "fail")

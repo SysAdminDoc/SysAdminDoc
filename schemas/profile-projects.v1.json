@@ -9,6 +9,7 @@
     "generatedAt",
     "source",
     "provenance",
+    "schemaPolicy",
     "publicRepoCount",
     "projectCount",
     "suppressedCount",
@@ -29,6 +30,9 @@
     },
     "provenance": {
       "$ref": "#/$defs/provenance"
+    },
+    "schemaPolicy": {
+      "$ref": "#/$defs/schemaPolicy"
     },
     "publicRepoCount": {
       "type": "integer",
@@ -105,6 +109,72 @@
         },
         "truncated": {
           "type": "boolean"
+        }
+      }
+    },
+    "schemaPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currentVersion",
+        "supportedVersions",
+        "compatibility",
+        "changeKind",
+        "migrationRequired",
+        "migrationNotes",
+        "deprecatedVersions",
+        "deprecationNotes"
+      ],
+      "properties": {
+        "currentVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "supportedVersions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "compatibility": {
+          "type": "string",
+          "minLength": 1
+        },
+        "changeKind": {
+          "type": "string",
+          "enum": [
+            "additive",
+            "required-field-addition",
+            "breaking"
+          ]
+        },
+        "migrationRequired": {
+          "type": "boolean"
+        },
+        "migrationNotes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "deprecatedVersions": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "deprecationNotes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -407,7 +477,10 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "id",
         "repo",
+        "canonicalRepo",
+        "aliases",
         "title",
         "category",
         "includeInReadme",
@@ -435,6 +508,8 @@
         "entrypoint",
         "installKind",
         "language",
+        "localeHints",
+        "scriptHints",
         "stars",
         "latestReleaseTag",
         "latestReleaseUrl",
@@ -450,9 +525,24 @@
         "notes"
       ],
       "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+        },
         "repo": {
           "type": "string",
           "pattern": "^[A-Za-z0-9._-]+$"
+        },
+        "canonicalRepo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]+$"
+          }
         },
         "title": {
           "type": "string",
@@ -572,6 +662,22 @@
         },
         "language": {
           "$ref": "#/$defs/nullableString"
+        },
+        "localeHints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "scriptHints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "stars": {
           "type": [

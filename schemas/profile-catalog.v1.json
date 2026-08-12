@@ -71,6 +71,20 @@
           "type": "string",
           "pattern": "^[A-Za-z0-9._-]+$"
         },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]+$"
+          }
+        },
         "title": {
           "type": "string",
           "minLength": 1
@@ -144,6 +158,20 @@
         },
         "language": {
           "$ref": "#/$defs/nullableString"
+        },
+        "localeHints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "scriptHints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "descriptionOverride": {
           "$ref": "#/$defs/nullableString"
