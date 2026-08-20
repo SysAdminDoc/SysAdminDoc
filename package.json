@@ -8,10 +8,10 @@
     "validate:local": "pwsh -NoProfile -File ./scripts/validate-local.ps1"
   },
   "devDependencies": {
-    "markdownlint-cli2": "0.23.0"
+    "markdownlint-cli2": "0.23.2"
   },
   "overrides": {
     "markdown-it": "14.3.0",
-    "js-yaml": "5.2.1"
+    "js-yaml": "5.2.2"
   }
 }

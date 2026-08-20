@@ -3,7 +3,7 @@
 param(
     [string]$RepoRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$NpmAuditJsonPath,
-    [string]$PinLatestCheckedAt = "2026-07-06",
+    [string]$PinLatestCheckedAt = "2026-08-20",
     [ValidateRange(1, 365)]
     [int]$PinFreshnessStaleAfterDays = 30,
     [switch]$SkipNpmAudit
@@ -12,14 +12,14 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $LatestKnownNpmVersions = [ordered]@{
-    "markdownlint-cli2" = "0.23.0"
+    "markdownlint-cli2" = "0.23.2"
     "markdown-it" = "14.3.0"
-    "js-yaml" = "5.2.1"
+    "js-yaml" = "5.2.2"
 }
 $LatestKnownPythonVersions = [ordered]@{
-    "zizmor" = "1.26.1"
+    "zizmor" = "1.29.0"
 }
-$Pester6CompatibilityVersion = "6.0.1"
+$Pester6CompatibilityVersion = "6.1.0"
 
 function Get-JsonHashtable {
     [CmdletBinding()]
@@ -474,7 +474,7 @@ $review = [ordered]@{
                 targetVersion = $Pester6CompatibilityVersion
                 command = "pwsh -NoProfile -File .\scripts\validate-local.ps1 -Pester6Compatibility"
                 isolation = "temporary PSModulePath"
-                note = "The default validation lane remains pinned to Pester 5.8.0."
+                note = "The default validation lane remains pinned to Pester 5.9.1."
             }
         }
     }

@@ -14,10 +14,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $requiredModules = @(
-    [pscustomobject]@{ Name = "Pester"; Version = "5.8.0" },
+    [pscustomobject]@{ Name = "Pester"; Version = "5.9.1" },
     [pscustomobject]@{ Name = "PSScriptAnalyzer"; Version = "1.25.0" }
 )
-$pester6CompatibilityVersion = [version]"6.0.1"
+$pester6CompatibilityVersion = [version]"6.1.0"
 $minimumPowerShellVersion = [version]"7.4.0"
 $preferredPowerShellVersion = [version]"7.6.0"
 $previousLtsAcceptedUntil = [datetimeoffset]::Parse("2026-11-10T23:59:59Z")
@@ -175,7 +175,7 @@ function Invoke-Pester6Compatibility {
     Installs Pester 6 into an isolated temporary module path and runs non-integration tests.
     .DESCRIPTION
     The compatibility lane runs in a child PowerShell with PSModulePath restricted to the
-    temporary Save-Module destination. It never changes the default Pester 5.8.0 module pin.
+    temporary Save-Module destination. It never changes the default Pester 5.9.1 module pin.
     .PARAMETER RepoRoot
     Repository root containing the tests directory.
     .PARAMETER Version
@@ -237,7 +237,7 @@ if ([int]`$pesterResult.FailedCount -gt 0) { exit 1 }
             skipped = [int]$childResult.skipped
             notRun = [int]$childResult.notRun
             isolation = "temporary PSModulePath"
-            note = if ($exitCode -eq 0) { "Pester 6 compatibility suite passed without changing the default Pester 5.8.0 validation lane." } else { "Pester 6 compatibility suite reported one or more failures." }
+            note = if ($exitCode -eq 0) { "Pester 6 compatibility suite passed without changing the default Pester 5.9.1 validation lane." } else { "Pester 6 compatibility suite reported one or more failures." }
         }
     } catch {
         $result = [ordered]@{

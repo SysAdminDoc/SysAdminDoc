@@ -2232,7 +2232,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'npm ci'
         $script:rendered | Should -Match 'PowerShell runtime'
         $script:rendered | Should -Match 'warns below PowerShell 7\.6 LTS'
-        $script:rendered | Should -Match 'Pester 5\.8\.0'
+        $script:rendered | Should -Match 'Pester 5\.9\.1'
         $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
         $script:rendered | Should -Match 'Invoke-Pester -Path tests -Output Detailed'
         $script:rendered | Should -Match ([regex]::Escape('sync-profile.ps1 -Check -GraphQlPageSize 300'))
@@ -4035,10 +4035,10 @@ Describe 'Markdownlint contract' {
     It 'pins markdownlint through npm and keeps local installs ignored' {
         $script:MarkdownlintPackage.scripts['lint:markdown'] | Should -Be 'markdownlint-cli2'
         $script:MarkdownlintPackage.scripts['validate:local'] | Should -Be 'pwsh -NoProfile -File ./scripts/validate-local.ps1'
-        $script:MarkdownlintPackage.devDependencies['markdownlint-cli2'] | Should -Be '0.23.0'
+        $script:MarkdownlintPackage.devDependencies['markdownlint-cli2'] | Should -Be '0.23.2'
         $script:MarkdownlintPackageLock.name | Should -Be 'sysadmindoc-profile'
-        $script:MarkdownlintPackageLock.packages[''].devDependencies['markdownlint-cli2'] | Should -Be '0.23.0'
-        $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].version | Should -Be '0.23.0'
+        $script:MarkdownlintPackageLock.packages[''].devDependencies['markdownlint-cli2'] | Should -Be '0.23.2'
+        $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].version | Should -Be '0.23.2'
         $script:MarkdownlintPackageLock.packages['node_modules/markdownlint-cli2'].integrity | Should -Match '^sha512-'
         $script:MarkdownlintGitIgnore | Should -Match '(?m)^node_modules/\s*$'
         $script:MarkdownlintCodeowners | Should -Match '(?m)^/[.]markdownlint-cli2[.]yaml\s+@SysAdminDoc\s*$'
@@ -6081,7 +6081,7 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match 'Invoke-DependencyReview -RepoRoot \$repoRoot'
         $validationScript | Should -Match 'Dependency review failed with exit code'
         $validationScript | Should -Match 'Dependency review: \{0\}; npm audit: \{1\}; pin freshness: \{2\}'
-        $validationScript | Should -Match 'Pester"; Version = "5\.8\.0"'
+        $validationScript | Should -Match 'Pester"; Version = "5\.9\.1"'
         $validationScript | Should -Match 'PSScriptAnalyzer"; Version = "1\.25\.0"'
         $validationScript | Should -Match 'Invoke-ScriptAnalyzer'
         $validationScript | Should -Match 'Invoke-Pester -Configuration'
@@ -6254,7 +6254,7 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             $report.policy | Should -Be 'manual-local-only'
             $report.commands.full | Should -Match 'review-local-dependencies[.]ps1'
             $report.pinFreshness.status | Should -Be 'fresh'
-            $report.pinFreshness.latestCheckedAt | Should -Be '2026-07-06'
+            $report.pinFreshness.latestCheckedAt | Should -Be '2026-08-20'
             $report.pinFreshness.warningCount | Should -Be 0
             $report.npm.audit.status | Should -Be 'clean'
             $report.npm.audit.severityCounts.total | Should -Be 0
@@ -6265,21 +6265,21 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             $report.npm.devDependencyPins.package | Should -Contain 'markdownlint-cli2'
             ($report.npm.devDependencyPins | Where-Object { $_.package -eq 'markdownlint-cli2' }).status | Should -Be 'aligned'
             $markdownlintFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'markdownlint-cli2' }
-            $markdownlintFreshness.currentVersion | Should -Be '0.23.0'
-            $markdownlintFreshness.latestKnownVersion | Should -Be '0.23.0'
+            $markdownlintFreshness.currentVersion | Should -Be '0.23.2'
+            $markdownlintFreshness.latestKnownVersion | Should -Be '0.23.2'
             $markdownlintFreshness.latestStatus | Should -Be 'current'
             $jsYamlFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'js-yaml' }
-            $jsYamlFreshness.latestKnownVersion | Should -Be '5.2.1'
+            $jsYamlFreshness.latestKnownVersion | Should -Be '5.2.2'
             $markdownItFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'markdown-it' }
             $markdownItFreshness.latestKnownVersion | Should -Be '14.3.0'
             $report.powershell.requiredModules.name | Should -Contain 'Pester'
             $report.powershell.requiredModules.name | Should -Contain 'PSScriptAnalyzer'
-            ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.8.0'
+            ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.9.1'
             $report.python.auditTools.name | Should -Contain 'zizmor'
             ($report.python.auditTools | Where-Object { $_.name -eq 'zizmor' }).hashPinned | Should -BeTrue
             $zizmorFreshness = $report.pinFreshness.python.rows | Where-Object { $_.name -eq 'zizmor' }
-            $zizmorFreshness.currentVersion | Should -Be '1.26.1'
-            $zizmorFreshness.latestKnownVersion | Should -Be '1.26.1'
+            $zizmorFreshness.currentVersion | Should -Be '1.29.0'
+            $zizmorFreshness.latestKnownVersion | Should -Be '1.29.0'
             $zizmorFreshness.latestStatus | Should -Be 'current'
         } finally {
             if (Test-Path -LiteralPath $auditPath) {
@@ -6402,7 +6402,7 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
   }
 }
 '@ | Set-Content -LiteralPath (Join-Path $root 'package-lock.json') -Encoding utf8
-        '$requiredModules = @([pscustomobject]@{ Name = "Pester"; Version = "5.8.0" })' |
+        '$requiredModules = @([pscustomobject]@{ Name = "Pester"; Version = "5.9.1" })' |
             Set-Content -LiteralPath (Join-Path $root 'scripts/validate-local.ps1') -Encoding utf8
 
         $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -RepoRoot $root -SkipNpmAudit *>&1
