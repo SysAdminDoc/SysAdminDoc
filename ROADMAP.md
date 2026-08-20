@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P0
 
-- [ ] P0 - Reconcile the catalog with live repository state
-  Why: 7 cataloged repos are no longer public yet still render as README links (privateVisibilityViolations), TsunamiSimulator was renamed to Cataclysm, 15 public repos are absent from the catalog, and winget-pkgs lacks forkOf attribution. This one drift drives the license-missing, stale-project, branch-tip, and fork-attribution warning sections simultaneously.
-  Evidence: reports/profile-sync-report.json privateVisibilityViolations, renamedRepoRedirects, missingPublicRepos, forkParentDrift (RESEARCH.md Security section).
-  Touches: data/profile-catalog.json (suppress or remove the private set, rename Cataclysm, triage the 15 missing repos into categories or suppression, add forkOf microsoft/winget-pkgs), then regenerate README.md and projects.json.
-  Acceptance: privateVisibilityViolations 0, renamedRepoRedirects 0, missingPublicRepos 0 (each triaged), forkParentDrift warningCount 0, and the knock-on license/stale/branch-tip warnings tied to vanished repos are gone.
-  Complexity: M
-
 - [ ] P0 - Root-cause the frozen feed timestamp, then republish the feed and release
   Why: projects.json generatedAt is copied from the catalog stamp at scripts/sync-profile.ps1:4897 and nothing refreshes it on -Write, so the published feed says 2026-06-01 and warns forever; the portfolio builds from that feed, and the latest GitHub release (v4.9.153) is 8 versions behind local v4.9.161.
   Evidence: RESEARCH.md Security section; raw projects.json fetch 2026-08-20; profileReleaseConsistency warnings.

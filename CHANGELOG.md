@@ -2,6 +2,8 @@
 
 ## 2026-08-20
 
+- Reconciled the profile catalog with live repository state. Five deleted repositories were dropped, two that went private are now suppressed so visitors never reach a 404, TsunamiSimulator was renamed to Cataclysm with an alias row preserving the redirect history, and seventeen public repositories that had never been cataloged were triaged into categories or suppressed as support and upstream-fork rows. `scripts/sync-profile.ps1 -Check` passes again: missing public repos, private-visibility violations, rename redirects, fork attribution, stale-project review, and license metadata all report zero.
+- Demoted two narrow Python utilities to portfolio-only so the Python category stays inside its README soft limit. Both still ship in `projects.json` for the portfolio.
 - Pointed the generated profile links at the canonical portfolio origin. The "AI service overview" link previously resolved to a GitHub Pages path that returns 404 since the portfolio moved, and the Start Here and footer portfolio links went through a redirect stub. `Get-ProfilePortfolioUrl` now resolves the configured `-PortfolioUrl` origin, so published links and the cross-surface drift probe can no longer disagree, and falls back to the owner's GitHub Pages origin when no portfolio origin is configured.
 
 ## 2026-08-12
