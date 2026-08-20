@@ -2,6 +2,7 @@
 
 ## 2026-08-20
 
+- Filled in the missing repository topics for every public project that lacked them, using the hints the sync report already generated. `data/topic-allowlist.json` now names the repositories that `-ApplyTopics` may touch, and the public topic and description gaps are both zero.
 - Made repository metadata fetching adapt to GitHub's per-query GraphQL resource limit instead of retrying the same oversized query three times and giving up. A resource-limit error now halves the requested page size (never below the REST pagination floor of 100) before retrying, which is the manual `-GraphQlPageSize` workaround made automatic. The sync report records the effective page size and whether it was reduced.
 - Rewrote 69 catalog descriptions that joined two clauses with a dash, so the generated README now reads as separate sentences and contains no em or en dashes.
 - Tightened the services header to a single call to action. The old copy ran a four-item list through one sentence and offered two competing links, one of which pointed at a page that no longer exists.

@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P2
 
-- [ ] P2 - Execute the blocked topic and description hygiene pass
-  Why: 15 public repos lack topics and 1 lacks a description; -ApplyTopics shipped with an empty allowlist and has never run. Topics are the GitHub-side discoverability lever and the report already generates topicHints.
-  Evidence: metadataHygiene (RESEARCH.md Security section); Roadmap_Blocked "Apply safe topic and description metadata hygiene fixes" row (this item unblocks it: the allowlist decision is the work).
-  Touches: data/topic-allowlist.json (populate from the 15 public rows), sync-profile.ps1 -ApplyTopics run, gh repo edit for the missing description, Roadmap_Blocked.md row removal.
-  Acceptance: publicMissingTopicCount 0, missingDescriptionCount 0, allowlist documents which repos may be mutated.
-  Complexity: S
-
 - [ ] P2 - Refresh stale local evidence artifacts
   Why: reports/profile-sync-summary.local.md still describes the deleted CI apparatus (Cycle 133, 2026-06-07), and testResults.xml (2026-06-11, 182 of the current 301 tests) and coverage.xml (2026-07-08) lag the suite; all mislead future sessions even though gitignored.
   Evidence: RESEARCH.md Architecture section.

@@ -1,1 +1,14 @@
-[]
+[
+  "AIUsageTracker",
+  "AstraDownloader",
+  "ForceBGTab",
+  "GuitarTuner",
+  "HostnameForensics",
+  "LogVerdict",
+  "OpenNetLimit",
+  "PartitionPilot",
+  "PatchDock",
+  "StormScope",
+  "SurfaceMedic",
+  "TerminalAI"
+]
