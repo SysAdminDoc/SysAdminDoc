@@ -8,22 +8,6 @@ Actionable work only. Historical and completed roadmap material is archived in C
 
 Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEARCH.md evidence.
 
-### P2
-
-- [ ] P2 - Refresh stale local evidence artifacts
-  Why: reports/profile-sync-summary.local.md still describes the deleted CI apparatus (Cycle 133, 2026-06-07), and testResults.xml (2026-06-11, 182 of the current 301 tests) and coverage.xml (2026-07-08) lag the suite; all mislead future sessions even though gitignored.
-  Evidence: RESEARCH.md Architecture section.
-  Touches: Re-run validate-local.ps1 and write-profile-sync-summary.ps1 under the local-only posture (after the dead-weight trim so the summary reflects current sections).
-  Acceptance: All three artifacts carry current dates and describe only surviving lanes.
-  Complexity: S
-
-- [ ] P2 - Schedule a weekly local freshness check
-  Why: The report and feed both went stale silently (report 8 days, feed 11 weeks) because nothing runs -Check between working sessions; hosted schedules are banned by policy but local scheduled tasks are the house pattern.
-  Evidence: RESEARCH.md Executive Summary; owner precedent (existing daily local scheduled tasks).
-  Touches: A small wrapper script plus a Windows scheduled task registering pwsh sync-profile.ps1 -Check with a visible drift summary (no auto-commit; -Write stays a session action).
-  Acceptance: Task runs weekly, writes the report, and surfaces warnings where the owner sees them; no unattended pushes.
-  Complexity: S
-
 ### P3
 
 - [ ] P3 - Generate distinct action-link labels for assistive tech
