@@ -24,34 +24,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
   Acceptance: All three artifacts carry current dates and describe only surviving lanes.
   Complexity: S
 
-- [ ] P2 - Tune the consultant header to 2026 conversion evidence
-  Why: Current header has two side-by-side service links, no concrete outcome metric, and a four-item list-in-a-sentence; 2026 consultant-profile guidance converges on one deliberate CTA, one real metric, 30-second scannability.
-  Evidence: devbio.me guide 2026-06-08; anti-badge editorial wave (RESEARCH.md Competitive Landscape).
-  Touches: README.md hand-authored header only (above the generated marker); keep the compact-header contract tests passing.
-  Acceptance: Header has a single primary CTA, one verifiable metric, and copy passing the owner's human-voice rules; readmeExperienceChecks still green.
-  Complexity: S
-
-- [ ] P2 - Human-voice retrofit of catalog descriptions
-  Why: Generated project rows carry em dashes and three inconsistent dash conventions from descriptionOverride and GitHub descriptions, violating the owner's public-writing rules across the profile's most-read surface.
-  Evidence: README editorial review 2026-08-20 (RESEARCH.md Architecture section); owner global human-voice rule.
-  Touches: data/profile-catalog.json descriptionOverride fields, optionally a warning-only dash-convention check in the metadata hygiene section, regeneration.
-  Acceptance: Generated README contains no em dashes in project descriptions; one dash convention throughout; optional hygiene check reports 0.
-  Complexity: M
-
-- [ ] P2 - Add userscript install prerequisites for the post-MV2 reality
-  Why: Chrome finished removing Manifest V2 in mid-2025; userscript installs now require Tampermonkey plus the developer-mode/userScripts toggle, and Violentmonkey remains broken on current Chrome. The Extensions section's Install links assume any manager works.
-  Evidence: RESEARCH.md cross-repo notes (Grokipedia userscript-manager state, chrome-stats).
-  Touches: Extensions category preamble in the New-Readme generator, docs/decisions/2026-06-07-userscript-install-posture.md addendum.
-  Acceptance: The Extensions section carries a one-line prerequisite note; userscriptInstallTrust unaffected.
-  Complexity: S
-
-- [ ] P2 - Update setup.ps1 to the current Python standard and inspect-path trust cue
-  Why: setup.ps1 installs Python.Python.3.12 while the owner standard is 3.13, and 2026 discourse treats bare irm-iex one-liners as a trust smell for exactly this profile's sysadmin audience.
-  Evidence: setup.ps1:165; RESEARCH.md cross-repo notes (irm-iex discourse hardening).
-  Touches: setup.ps1 winget id and README setup table, plus a short expected-behavior line reinforcing the existing inspect-first path.
-  Acceptance: Fresh-machine bootstrap installs Python 3.13; README setup table matches; Windows setup smoke passes on PowerShell 5.1.
-  Complexity: S
-
 - [ ] P2 - Schedule a weekly local freshness check
   Why: The report and feed both went stale silently (report 8 days, feed 11 weeks) because nothing runs -Check between working sessions; hosted schedules are banned by policy but local scheduled tasks are the house pattern.
   Evidence: RESEARCH.md Executive Summary; owner precedent (existing daily local scheduled tasks).

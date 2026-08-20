@@ -162,7 +162,7 @@ try {
     }
 
     Install-Pkg 'Microsoft.PowerShell' 'PowerShell 7' 'pwsh'
-    Install-Pkg 'Python.Python.3.12'   'Python 3.12'  'python'
+    Install-Pkg 'Python.Python.3.13'   'Python 3.13'  'python'
     Install-Pkg 'Git.Git'              'Git'          'git'
 
     Update-PathFromRegistry

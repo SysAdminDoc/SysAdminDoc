@@ -2,6 +2,10 @@
 
 ## 2026-08-20
 
+- Rewrote 69 catalog descriptions that joined two clauses with a dash, so the generated README now reads as separate sentences and contains no em or en dashes.
+- Tightened the services header to a single call to action. The old copy ran a four-item list through one sentence and offered two competing links, one of which pointed at a page that no longer exists.
+- Pointed `setup.ps1` at Python 3.13 and said so in the generated setup table. Verified with `-CheckOnly` under Windows PowerShell 5.1.
+- Noted the post-Manifest-V2 install prerequisite in the extensions section: userscripts need a manager such as Tampermonkey, and Chrome now requires Developer mode.
 - Rolled immutable releases out to all 91 release-bearing repositories in the catalog, so every future release is tamper-evident and its assets cannot be swapped after publication. Existing releases stay mutable, which is how the feature works.
 - Resolved a contradiction between repository policy and live settings by disabling Dependabot alerts and security updates, which policy bans in every form. The report no longer treats Dependabot as an active control and no longer recommends enabling it; advisory coverage is the local dependency review lane, which runs `npm audit` inside `validate-local.ps1` and fails the build on open advisories. That lane is what surfaced the js-yaml advisory fixed above.
 - Narrowed the Start Here routing table from five columns to three. The old "Best category" column duplicated the target of the Action link beside it, and five columns of prose forced horizontal scrolling on phone widths.

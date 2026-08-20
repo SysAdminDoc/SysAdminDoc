@@ -176,7 +176,7 @@ $CategoryDefinitions = @(
         Slug = "extensions"
         DisplayName = "Extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
-        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths.</i></summary>'
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths. Userscripts need a manager such as Tampermonkey, and Chrome now requires Developer mode on chrome://extensions.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
@@ -3501,7 +3501,7 @@ $u='https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/s
 |:-----|:---------|
 | Checks first | Reports PowerShell 7, Python, pip, and Git state before installing missing tools. |
 | Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
-| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.12](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
+| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.13](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
 | Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
@@ -4242,9 +4242,9 @@ function New-ProfileChrome {
     $lines.Add('')
     $lines.Add('## AI Implementation Services')
     $lines.Add('')
-    $lines.Add('I help small and midsize businesses put AI to work through tool rollout, workflow automation, team training, and ongoing support. I bring 15 years of enterprise IT and healthcare systems experience.')
+    $lines.Add('I help small and midsize businesses put AI to work: tool rollout, workflow automation, and the training that makes it stick. Fifteen years of enterprise IT and healthcare systems behind it, and every tool on this page is something I built and run.')
     $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://getparkerai.com/"><b>Explore Parker AI services</b></a> &middot; <a href="' + (Get-ProfilePortfolioUrl) + 'ai/"><b>AI service overview</b></a></p>')
+    $lines.Add('<p align="center"><a href="https://getparkerai.com/"><b>Work with me at Parker AI &#8594;</b></a></p>')
     $lines.Add('')
     $lines.Add('<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
