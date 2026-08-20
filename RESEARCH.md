@@ -1,100 +1,110 @@
 # Research - SysAdminDoc
-Date: 2026-07-07 - replaces all prior research.
+Date: 2026-08-20 - replaces all prior research.
 
 ## Executive Summary
-Verified: SysAdminDoc is a deterministic GitHub profile README, public project catalog, committed SVG asset, validation-report, and `projects.json` feed generator for the `SysAdminDoc` portfolio. Its strongest current shape is the local-only PowerShell validation pipeline around `scripts/sync-profile.ps1`, JSON Schema 2020-12 contracts, public-safe redaction, rendered GitHub profile smoke evidence, and metadata-only release trust reporting. The highest-value direction is to keep the new command-center UX while hardening the generated contract: bring `projects.json` back under budget, clear live release/license warnings, make sync drift failures self-diagnosing, add API/cache resilience, preserve rendered visual evidence, stabilize public feed entity IDs, and add low-risk integration exports without reintroducing hosted widgets or third-party render dependencies.
+Verified: SysAdminDoc is a deterministic GitHub profile README, public catalog, and `projects.json` feed generator with a local-only PowerShell validation pipeline (`scripts/sync-profile.ps1`, 12,981 lines, 295 functions, 82% line coverage). The 2026-07 research plan is fully drained: stable feed IDs, drift diagnostics, probe caching, opt-in release verification, Backstage export, branch-tip provenance, and support bundles all shipped. The repo's biggest problem today is not missing features, it is staleness of its own published surfaces: the public feed has a frozen 2026-06-01 timestamp, the latest GitHub release (v4.9.153) is 8 versions behind local v4.9.161, seven catalog repos went private and still render as dead README links, one repo was renamed, 15 newer public repos are missing from the catalog, and the README's "AI service overview" link returns a live 404. The highest-value direction: reconcile the catalog and links with live GitHub state, republish the feed and release so the downstream portfolio rebuilds with current data, patch the toolchain (PowerShell 7.6.5 fixes CVE-2026-50523), and retire the remaining CI-era dead weight that keeps the sync report over its own size budget.
 
-Top opportunities, in priority order:
-1. Fix the current `projects.json` soft-budget warning: `reports/profile-sync-report.json.artifactBudgets` shows 514281 bytes against a 512000-byte soft limit.
-2. Clear current trust drift: `Images` advertises an EXE download while the latest release only exposes ZIP, and `qBittorrent-Vanced` remains an unresolved `NOASSERTION` license row.
-3. Add first-mismatch diagnostics for `readmeInSync`, `projectsExportInSync`, and profile asset drift so `-Check` failures identify the exact section/file, not only a boolean.
-4. Add a bounded cache/conditional-request layer for GitHub metadata, release, and link probes to reduce rate-limit exposure across 206 repos, 206 release fetches, and 342 link targets.
-5. Persist rendered visual evidence for the first viewport after the UX revamp, including dark/light and mobile/desktop screenshot paths plus header/tool-catalog presence assertions.
-6. Add stable public feed IDs and alias/rename metadata so portfolio/search consumers do not depend only on mutable repo names.
-7. Add branch-tip provenance for branch-pinned clone/install snippets while preserving current-install behavior.
-8. Add an optional Backstage-compatible catalog export as an integration format, not a general plugin system.
+Top opportunities in priority order:
+1. Fix the dead `sysadmindoc.github.io/ai/` link (live 404) and route portfolio links to the canonical `portfolio.getparkerai.com` origin.
+2. Reconcile the catalog: 7 private-visibility violations, 1 rename (TsunamiSimulator is now Cataclysm), 15 missing public repos, 1 missing fork attribution (winget-pkgs).
+3. Root-cause the frozen feed `generatedAt` (copied from the catalog stamp at `scripts/sync-profile.ps1:4897`, which nothing refreshes), then regenerate and publish so the feed-backed portfolio stops building from 11-week-old data.
+4. Security patch lane: PowerShell 7.6.5 (CVE-2026-50523 affects the observed 7.6.3), gh CLI 2.97.0 (four advisories including an `attestation verify` matcher bypass), Node 24.18.1, zizmor 1.29.0 (skip 1.27.0, credential-logging defect).
+5. Immutable releases are GA and free for personal repos (verified 2026-08-20 via the live API); the prior "plan-gated" blocker is obsolete and the item can be unblocked.
+6. Pin `X-GitHub-Api-Version` and audit for the 2026-03-10 breaking REST calendar version (removes `rate`, `has_downloads`, `assignee`).
+7. Retire CI-relic scripts and report stubs; that alone clears the report's own over-budget warning.
+8. Root-fix the 20 mobile table overflows (5-column tables at 390px) so the blocked overflow gate can eventually promote to fatal.
 
 ## Product Map
-- Core workflows: generate `README.md`, `projects.json`, and `assets/profile/*.svg` from `data/profile-catalog.json`; validate with `scripts/validate-local.ps1`; run `scripts/sync-profile.ps1 -Check`; smoke the rendered profile with `scripts/render-profile-smoke.ps1`; review dependency/security posture with `scripts/review-local-dependencies.ps1`.
-- User personas: the profile owner/maintainer; public visitors routing to tools by platform and confidence signal; downstream portfolio/search consumers; issue reporters submitting profile corrections, broken links, or local validation failures; future coding agents maintaining the generator.
-- Platforms and distribution: GitHub profile README; raw GitHub JSON feed and schemas; Windows/PowerShell 7.4+ generator with Windows PowerShell 5.1 bootstrap support in `setup.ps1`; Node markdown linting; Pester/PSScriptAnalyzer local validation; hash-pinned Python `zizmor` local audit tooling.
-- Key integrations and data flows: GitHub CLI GraphQL/REST metadata; GitHub latest-release asset metadata and platform digests; GitHub raw userscript header probes; Security Scorecards API classification; JSON Schema validation via `Test-Json -SchemaFile`; downstream `sysadmindoc.github.io` portfolio import and Pagefind/static-search metadata.
+- Core workflows: generate `README.md`, `projects.json`, and profile assets from `data/profile-catalog.json`; validate with `scripts/validate-local.ps1` (Pester 5.8.0 lane, opt-in 6.0.1 lane, PSScriptAnalyzer, markdownlint, dependency review); check with `scripts/sync-profile.ps1 -Check` (plus `-ProbePortfolio`, `-BackstageExportPath`, opt-in release verification); smoke the rendered profile with `scripts/render-profile-smoke.ps1`.
+- User personas: the profile owner; public visitors routing to tools; the feed-backed portfolio at portfolio.getparkerai.com (Astro 7, builds from raw `projects.json`); prospective AI-consulting clients arriving through the header services block; future coding agents.
+- Platforms and distribution: GitHub profile README; raw JSON feed plus JSON Schema contracts; Windows PowerShell 7.4+ generator with a 5.1-only `setup.ps1` bootstrap; no hosted CI by policy (local-only posture since 2026-08-12).
+- Key integrations: GitHub CLI GraphQL/REST (repo list, latest releases with `immutable` and per-asset `digest` fields, contribution calendar), bounded link probes with a 24h cache under `.cache/profile-sync`, portfolio cross-surface probe (warning-only).
 
 ## Competitive Landscape
-- `rahuldkjain/github-profile-readme-generator`, `profileme-dev`, and `awesome-github-profile-readme`: strong onboarding, examples, social/icon sections, and profile-author discovery. Learn from low-friction section selection and public examples; avoid generic badge/icon bloat that weakens SysAdminDoc's current routing surface.
-- `anuraghazra/github-readme-stats`, `github-readme-streak-stats`, `github-profile-summary-cards`, `github-trends`, and `lowlighter/metrics`: strong generated visuals, themes, and metrics depth. Learn from clear cards, theme variants, and generated artifacts; avoid live third-party render hosts because open issues show public-card downtime and API-host reliability failures.
-- `waka-readme-stats`, `readme-scribe`, and `snk`: automate profile README updates from external data. Learn from deterministic generation and output artifacts; avoid hosted workflow dependence because this repo intentionally validates locally and has no live `.github/workflows` tree.
-- `developerFolio`, `GitProfile`, Portfolly, Devfol.io, and Linktree: strong portfolio/search/link-hub positioning, analytics, highlighting, and external audience routing. Learn from portfolio freshness, search/filter contracts, and highlighted links; keep analytics and monetization out of the GitHub README and let the separate portfolio handle UI/search.
-- Pagefind: useful static-search metadata and multilingual indexing model. Learn from language/script metadata for `projects.json`; avoid embedding a search UI in GitHub Markdown.
-- Backstage Software Catalog: mature entity envelope, metadata, tags, links, lifecycle, and owner fields. Learn from stable entity references and optional export shape; avoid importing Backstage's multi-user portal complexity into this repo.
-- GitHub REST/GraphQL docs, release asset digest metadata, OpenSSF Scorecard, WCAG 2.2, JSON Schema, Pester 6, PSScriptAnalyzer, PowerShell lifecycle, and `zizmor`: reinforce this repo's local evidence posture. Learn from API budget rules, release trust metadata, accessibility checks, and migration lanes; avoid treating external governance checks as local code defects when they are owner- or plan-gated.
+- anuraghazra/github-readme-stats: formally deprecated itself on 2026-06-30, pointing users at github-stats-extended. The largest third-party render host telling users to leave is direct external validation of this repo's committed-asset, no-render-host posture. Nothing to adopt.
+- stats-organization/github-stats-extended: the blessed successor, still a hosted/self-hosted dynamic-image model. Community members are spinning up personal Vercel mirrors of it (multiple "self-hosted mirror for my profile" repos created Jul-Aug 2026). Learn: the market is converging on "don't trust the shared host"; committed static output remains the endpoint of that trend. Avoid: runtime infrastructure of any kind.
+- lowlighter/metrics: semi-dormant (stable v3.34, beta unreleased). No longer a feature source.
+- Anti-badge editorial wave (ReadmeDesign 2026-07-12, dev.to and codeboards 2026 guides): senior-dev consensus is one screen, one deliberate CTA, 3-5 pinned repos, 30-second scannability, no badge walls. The current minimal text-first header matches; the 695-line catalog body is the tension point, and the existing portfolio-only demotion lever in `readmeDensity` is the correct relief valve.
+- Consultant-profile guidance (devbio.me 2026-06-08): one outbound CTA, a personal domain, one concrete outcome metric beats prose. The current header has two side-by-side service links and no metric; a small tune-up applies.
+- awesome lists (verified active 2026-08): awesome-foss/awesome-sysadmin now takes YAML PRs to awesome-foss/awesome-sysadmin-data and prunes inactive software; awesome-scripts/awesome-userscripts merged 4 PRs in the last 3 weeks; abhisheknaiidu/awesome-github-profile-readme batch-merges every few months. Submission remains owner-gated (third-party PRs) and stays in Roadmap_Blocked, with the new data-repo mechanics noted.
+- Backstage: no descriptor-format changes in 2026, and no adoption of catalog-info as an interchange format outside Backstage installs. The existing opt-in export is the right ceiling; do not invest further.
+- Pagefind v1.5.2 (2026-04): deterministic index filenames and ~45% smaller chunks. That benefit lands in the separate portfolio repo, not here.
+- llms.txt: 2026 state is broad publishing (GitHub Docs ships one), near-zero crawler consumption, real consumption only by IDE/agent tooling. A portfolio-side llms.txt referencing `projects.json` is cheap signaling; no README-side action.
 
 ## Security, Privacy, and Reliability
-- Verified current warning: `projects.json` is above the configured public feed byte soft limit (`reports/profile-sync-report.json.artifactBudgets`, `scripts/sync-profile.ps1` `Test-GeneratedArtifactBudgets`). The README remains under its line/byte/table budgets.
-- Verified current drift: `reports/profile-sync-report.json.releaseAssetDrift.releaseAssetKindMismatches` has one row for `Images` where `downloadKind` expects `exe` but the latest release asset is `Images-v0.2.15-win-x64.zip`.
-- Verified current license gap: `reports/profile-sync-report.json.projectLicenseMetadata.unresolvedUnknownCount` is 1 for `qBittorrent-Vanced`; two other `NOASSERTION` rows are intentional exceptions.
-- Verified current trust posture: `releaseAssetDrift.executableDownloadTrustShortlist` records metadata-only evidence, 77 executable download rows with no attestations, 75 without SBOM metadata, and 64 executable downloads missing sidecar checksum coverage. The existing roadmap already tracks an opt-in verifier, so do not duplicate it.
-- Verified reliability risk: `validationPerformance` currently uses GraphQL page size 500, one GraphQL metadata request, REST release fetch for 206 repos, and 342 link probes. GitHub documents primary/secondary GraphQL and REST rate limits; caching and conditional requests would reduce exposure without weakening live validation.
-- Verified privacy guardrails: issue forms and reports intentionally redact suppressed/private rows, and `metadataHygiene.handoff` excludes hidden repos. Preserve that pattern for every new report/export field.
-- Missing guardrail: `readmeInSync`, `projectsExportInSync`, and `profileAssetsInSync` are booleans in the report. A future mismatch should include first differing line/section, expected/current hashes, and affected asset names.
-- Missing recovery path: rendered smoke reports pass/fail and viewport metrics, but not visual screenshot artifact paths or first-viewport component presence assertions after the header/tool-catalog revamp.
+- Verified toolchain exposure: the machine runs pwsh 7.6.3; CVE-2026-50523 (command injection, high) affects 7.6.0-7.6.4 and is fixed in 7.6.5 (released 2026-08-14). CVE-2026-26143 concerns `Import-PowerShellDataFile -SkipLimitCheck`; the generator should be audited for that flag.
+- Verified gh CLI advisories fixed in 2.97.0: terminal escape injection, URL path escaping, `gh auth status` token disclosure, and GHSA-mm27-mwq9-fr5g (`gh attestation verify` regex-metacharacter bypass of signer matchers). The opt-in release verification lane and any future attestation checks should require gh >= 2.97.0.
+- Verified zizmor: 1.27.0 could log GitHub credentials (GHSA-f42p-wjw5-97qh); pinned 1.26.1 is unaffected; bump directly to 1.29.0. Node 24.18.1 is the July 2026 security release.
+- Verified live-surface breakage: `https://sysadmindoc.github.io/ai/` returns 404 (the old Pages site became a redirect stub without an /ai/ path), and the README's hand-authored header links to it. The "Full portfolio" link points at the redirect stub instead of the canonical `portfolio.getparkerai.com`.
+- Verified feed staleness: published `projects.json` `generatedAt` is 2026-06-01 because `New-ProjectsExportJson` copies `$Catalog.generatedAt` (`scripts/sync-profile.ps1:4897`) and only the lossy seed path restamps the catalog. The portfolio builds from this feed, so its metadata is frozen at June 1. This is the one drift class the drift-hardening work never fixed.
+- Verified report warnings (reports/profile-sync-report.json, itself generated 2026-08-12): report over its own byte budget (116,051 vs 114,688 soft limit); 20 mobile table overflows (both mobile themes, 5-column Tool Catalog tables, Start Here, and two others at 390px); 2 unreachable branch-tip rows; release consistency 2 warnings (published v4.9.153 vs local v4.9.161); 7 `privateVisibilityViolations` still cataloged and linked; `renamedRepoRedirects` TsunamiSimulator to Cataclysm; 15 `missingPublicRepos`; 8 license-missing rows that are all knock-ons of the private-visibility set; link validation ran with targetCount 0 (skipped), which is why the dead links went uncaught.
+- Verified policy contradiction: `repositorySettings.security.dependabotSecurityPosture.status` is "enabled" and the repo's working notes say to keep it enabled, while the owner's global rules require Dependabot alerts/updates disabled everywhere. Needs a deliberate resolution in one direction; the local dependency-review lane is the compensating control if disabled.
+- Verified platform shifts: immutable releases GA 2025-10-28 with per-asset Sigstore attestations, no plan gate, per-repo settings toggle (no user-account-wide toggle); REST calendar version 2026-03-10 removes `rate` from `/rate_limit`, `has_downloads`, `assignee`, and attestation `bundle` from list responses (2022-11-28 supported at least 24 months from 2026-03-12; unversioned requests keep old behavior); GraphQL per-query resource limits (2025-09-01) can partial-fail large queries; branch-protection-to-rulesets migration is now one click with per-rule exemptions and user bypass.
+- Privacy guardrails hold: suppressed rows stay redacted in feed and report; preserve that in every new field.
 
 ## Architecture Assessment
-- `scripts/sync-profile.ps1` is large but already has useful seams: GitHub CLI adapter, metadata fetch telemetry, release trust, link probes, README checks, artifact budgets, schema validation, and public-safe handoffs. Add report fields and tests near existing functions rather than rewriting the generator.
-- `schemas/profile-projects.v1.json` and `schemas/profile-sync-report.v1.json` are the right boundary for additive fields such as feed entity IDs, alias metadata, cache telemetry, and visual smoke evidence. Keep schema changes additive unless the existing roadmap's migration policy lands first.
-- `projects.json` is both a public portfolio contract and a generated feed. Size reduction should preserve `provenance`, `searchMetadata`, `primaryAction`, suppression redaction, and `releaseTrust.trustLevel`, while moving repeated or diagnostic-heavy fields out of the slim consumer path if needed.
-- `scripts/render-profile-smoke.ps1` should become the rendered UX evidence lane: it already proves GitHub profile rendering at desktop/mobile viewports, so screenshots and first-viewport assertions belong there instead of in the generator.
-- `tests/sync-profile.Tests.ps1` has coverage around GraphQL page-size telemetry, metadata hygiene handoffs, artifact budgets, rendered smoke summaries, release trust, project license metadata, portfolio compatibility, and runtime posture. Gaps are current warning remediation fixtures, cache/ETag behavior, visual smoke screenshot fields, feed stable IDs, and branch-tip provenance.
-- `ROADMAP.md` and `Roadmap_Blocked.md` remain split correctly: actionable local work goes in `ROADMAP.md`; branch protection, immutable releases, secret scanning plan-gated settings, and owner decisions stay in `Roadmap_Blocked.md`.
+- `scripts/sync-profile.ps1` remains a 12,981-line monolith with good seams (295 functions, ~40 `Test-*` report sections). Continue adding report fields near existing functions; a split is still not justified by defect data.
+- CI-era relics to retire: `Get-GeneratedPr*` and routine-PR-drill stubs (`scripts/sync-profile.ps1:12713` keeps a "minimal stub" for `generatedPrWriteEvidence`), `scripts/open-generated-profile-pr.ps1`, `scripts/set-generated-validation-status.ps1`, CI-summary paths in `scripts/write-profile-sync-summary.ps1` (93.7 KB), and `.github/zizmor.yml` (no workflows left to scan; evaluate whether the zizmor lane itself still earns its pin). Trimming relic report fields is also the root fix for the report byte-budget warning.
+- Stale local evidence misleads future sessions: `reports/profile-sync-summary.local.md` still describes "Cycle 133" and the deleted workflow apparatus (2026-06-07); `testResults.xml` (2026-06-11, 182 tests vs 301 current It blocks) and `coverage.xml` (2026-07-08) lag the suite. All are gitignored, so this is hygiene, not exposure.
+- Test suite: 64 Describes, 301 Its, 82.2% line coverage of the generator. Gaps: fixtures for the frozen-generatedAt case, link-validation-skipped case, REST 2026-03-10 field removals, and partial GraphQL responses.
+- `Roadmap_Blocked.md` needs reconciliation: five rows reference hosted workflows deleted on 2026-08-12 (scheduled-run evidence, profile-sync.yml, workflow_dispatch drills, CI-run-gated overflow promotion, Actions dependency locking), one cites an absent `TODO.md`, the "Future Platform State" heading is duplicated, and the immutable-releases blocker text is obsolete.
+- Docs drift: `setup.ps1` installs `Python.Python.3.12` while the owner standard is 3.13; the README validation table advertises 3.12 accordingly.
 
 ## Rejected Ideas
-- Reintroduce live third-party stats, streak, WakaTime, visitor counters, or metrics cards. Source: `github-readme-stats`, `github-readme-streak-stats`, `waka-readme-stats`, `lowlighter/metrics`, issue `anuraghazra/github-readme-stats#4867`. Reason: dynamic host/API failures contradict the committed-asset, local-smoke posture.
-- Restore GitHub Actions or Dependabot version-update automation. Source: live `.github/zizmor.yml`, `.gitignore`, `AGENTS.md`, and recent commits removing workflows/Dependabot. Reason: current policy is local validation and manual dependency updates, with Dependabot security posture monitored only.
-- Build a general plugin ecosystem. Source: `lowlighter/metrics`. Reason: high maintenance/trust boundary cost; a narrow Backstage export is enough.
-- Fold the `sysadmindoc.github.io` portfolio into this repo. Source: `developerFolio`, `GitProfile`, Portfolly, Devfol.io. Reason: this repo should remain the authoritative feed/profile generator while the portfolio owns search/UI.
-- Add visitor analytics, email capture, monetization, or link-in-bio growth tools. Source: Linktree pricing/features. Reason: poor fit for a public GitHub profile README and unnecessary privacy surface.
-- Translate the full README. Source: Pagefind multilingual docs. Reason: high maintenance for a personal profile; feed-level locale/script hints already cover downstream search needs and are already tracked.
-- Default-download and verify every release binary during `-Check`. Source: current `releaseTrust` metadata-only notes and 141 release-bearing rows. Reason: bandwidth/time/trust cost is too high; keep the existing opt-in verifier roadmap item.
-- Add a mobile app, desktop app, or multi-user auth layer for catalog maintenance. Source: current workflows and GitHub profile constraints. Reason: no verified demand beyond the existing Git/GitHub maintenance model.
+- Reintroduce hosted render hosts, stats cards, or a self-hosted stats mirror. Source: github-readme-stats deprecation notice 2026-06-30; github-stats-extended mirror wave. Reason: the ecosystem is proving the failure mode; committed assets already win.
+- Restore GitHub Actions for builds, attestation of `projects.json`, or scheduled refresh. Source: local-only posture decision 2026-08-12 and the owner's global no-CI rule. Reason: policy; local scheduled tasks cover freshness.
+- GitHub-Actions-based artifact attestations for tool releases. Source: docs.github.com artifact-attestations. Reason: requires hosted builds, which the local-build policy forbids; platform digests plus optional local signing cover the trust story.
+- Expand the Backstage export or emit catalog-info.yaml files per repo. Source: Northflank/Encore 2026 "Backstage alternatives" coverage showing no interchange adoption. Reason: no consumer exists.
+- README-side llms.txt or JSON-LD. Source: llms.txt adoption studies (Presenc, aeo.press 2026). Reason: those work at domain roots and HTML pages; they belong to the portfolio repo if anywhere.
+- Full-README translation, visitor analytics, email capture, monetization widgets. Source: prior research 2026-07-07, unchanged. Reason: unchanged.
+- Default-download binary verification for all releases. Source: existing opt-in verifier shipped 2026-07-15. Reason: the opt-in design already balances cost; nothing new argues for default-on.
+- ecosyste.ms metadata enrichment of the feed. Source: repos.ecosyste.ms API. Reason: adds an external dependency for dependents-count data no current consumer requests; revisit only if the portfolio wants it.
+
+Cross-repo opportunities recorded for other repos (not this roadmap): winget manifests for flagship EXE tools (microsoft/winget-pkgs, ~12,850 packages, `wingetcreate` automates submission); Azure Trusted Signing at $9.99/month for local EXE signing (EV no longer bypasses SmartScreen reputation); SHA256SUMS.txt plus digest lines in release notes (GitHub already auto-digests assets); portfolio-side llms.txt, JSON-LD SoftwareApplication on catalog pages, and Pagefind 1.5.2; Greasy Fork mirrors for userscripts with raw-GitHub @updateURL; Tampermonkey-plus-developer-mode install notes post-MV2; getparkerai.com "Selected work" link still routes through the sysadmindoc.github.io redirect stub.
 
 ## Sources
-Project and platform:
-- https://docs.github.com/en/account-and-profile/how-tos/profile-customization/managing-your-profile-readme
-- https://github.blog/developer-skills/github/how-to-make-your-images-in-markdown-on-github-adjust-for-dark-mode-and-light-mode/
-- https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api
+Platform and APIs:
+- https://github.blog/changelog/2025-10-28-immutable-releases-are-now-generally-available/
+- https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/establish-provenance-and-integrity/prevent-release-changes
+- https://github.blog/changelog/2026-03-12-rest-api-version-2026-03-10-is-now-available/
+- https://docs.github.com/en/rest/about-the-rest-api/breaking-changes?apiVersion=2026-03-10
 - https://github.blog/changelog/2025-09-01-graphql-api-resource-limits/
-- https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api
-- https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28
+- https://github.blog/changelog/2025-06-03-releases-now-expose-digests-for-release-assets/
+- https://github.blog/changelog/2026-08-11-automatically-migrate-branch-protection-rules-to-repository-rulesets/
+- https://github.blog/changelog/2026-04-21-deprecation-of-security-related-organization-api-fields/
 
-Profile README competitors:
-- https://github.com/rahuldkjain/github-profile-readme-generator
-- https://github.com/abhisheknaiidu/awesome-github-profile-readme
-- https://github.com/anuraghazra/github-readme-stats
-- https://github.com/anuraghazra/github-readme-stats/issues/4867
+Toolchain and advisories:
+- https://devblogs.microsoft.com/powershell/announcing-powershell-7-6/
+- https://github.com/PowerShell/Announcements/issues/82
+- https://docs.zizmor.sh/release-notes/
+- https://nodejs.org/en/blog/vulnerability/july-2026-security-releases
+- gh CLI 2.97.0 release notes (GHSA-3m3g-3wcr-px46, GHSA-4fjg-2h4q-fwg3, GHSA-cg6r-mpgc-h9mm, GHSA-mm27-mwq9-fr5g)
+- https://pester.dev/ (5.9.1, 6.1.0 releases 2026-08-11)
+- https://github.com/DavidAnson/markdownlint-cli2 (0.23.2)
+
+Ecosystem:
+- https://github.com/anuraghazra/github-readme-stats (deprecation commit 2026-06-30)
+- https://github.com/stats-organization/github-stats-extended
 - https://github.com/lowlighter/metrics
-- https://github.com/DenverCoder1/github-readme-streak-stats
-- https://github.com/vn7n24fzkq/github-profile-summary-cards
-- https://github.com/anmol098/waka-readme-stats
-- https://github.com/avgupta456/github-trends
-- https://github.com/Platane/snk
-- https://github.com/muesli/readme-scribe
+- https://readmedesign.com/blog/anti-badge-backlash-github-profile
+- https://devbio.me/blogs/github-profile-readme-guide
+- https://github.com/awesome-foss/awesome-sysadmin-data/blob/master/CONTRIBUTING.md
+- https://github.com/awesome-scripts/awesome-userscripts/blob/master/CONTRIBUTING.md
+- https://github.com/abhisheknaiidu/awesome-github-profile-readme
+- https://github.com/Pagefind/pagefind/releases
+- https://presenc.ai/research/state-of-llms-txt-2026
+- https://docs.github.com/llms.txt
 
-Portfolio, catalog, and search:
-- https://github.com/saadpasta/developerFolio
-- https://github.com/arifszn/gitprofile
-- https://portfolly.io/
-- https://linktr.ee/s/pricing/
-- https://pagefind.app/docs/
-- https://github.com/Pagefind/pagefind/blob/main/docs/content/docs/multilingual.md
-- https://backstage.io/docs/features/software-catalog/descriptor-format/
+Trust and distribution:
+- https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation
+- https://github.com/microsoft/winget-pkgs
+- https://github.com/microsoft/winget-create
+- https://greasyfork.org/en/help/code-rules
+- https://learn.microsoft.com/en-us/windows/package-manager/winget/
+- https://slsa.dev/blog/2025/11/slsa-v1.2-rc2
+- https://docs.sigstore.dev/about/bundle/
 
-Security, standards, and dependencies:
-- https://json-schema.org/specification
-- https://www.w3.org/TR/WCAG22/
-- https://scorecard.dev/
-- https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle?view=powershell-7.6
-- https://pester.dev/docs/migrations/v5-to-v6
-- https://github.com/zizmorcore/zizmor/releases
+Live surfaces (fetched 2026-08-20): github.com/SysAdminDoc, sysadmindoc.github.io (redirect stub), sysadmindoc.github.io/ai/ (404), getparkerai.com, portfolio.getparkerai.com, raw projects.json, SysAdminDoc/SysAdminDoc releases (latest v4.9.153).
 
 ## Open Questions
-None.
+None. The Dependabot-setting contradiction and the fleet-wide immutable-release rollout are decisions the roadmap items surface explicitly, but both have a default direction (global rules win; enable on this repo first) and do not block prioritization.
