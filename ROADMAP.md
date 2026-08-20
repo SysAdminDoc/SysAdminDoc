@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P2
 
-- [ ] P2 - Roll out immutable releases across release-bearing repositories
-  Why: The setting is now proven enabled on SysAdminDoc/SysAdminDoc via PUT repos/{owner}/{repo}/immutable-releases, but the other 135 release-bearing repos still publish mutable releases.
-  Evidence: reports/profile-sync-report.json releaseAssetDrift.releaseImmutability; RESEARCH.md Security section.
-  Touches: A small gh api loop over release-bearing repos from data/profile-catalog.json. Note it is per-repo only (no account-wide toggle for personal accounts) and covers releases published after enablement.
-  Acceptance: Every release-bearing repo reports immutable-releases enabled; releaseImmutability immutable counts rise as new releases ship.
-  Complexity: S
-
 - [ ] P2 - Execute the blocked topic and description hygiene pass
   Why: 15 public repos lack topics and 1 lacks a description; -ApplyTopics shipped with an empty allowlist and has never run. Topics are the GitHub-side discoverability lever and the report already generates topicHints.
   Evidence: metadataHygiene (RESEARCH.md Security section); Roadmap_Blocked "Apply safe topic and description metadata hygiene fixes" row (this item unblocks it: the allowlist decision is the work).
