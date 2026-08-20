@@ -5078,7 +5078,9 @@
             "resourceLimitFallbackReason",
             "repoCount",
             "truncated",
-            "fidelityDegraded"
+            "fidelityDegraded",
+            "pageSizeReduced",
+            "effectivePageSize"
           ],
           "properties": {
             "provider": {
@@ -5116,6 +5118,13 @@
             },
             "fidelityDegraded": {
               "type": "boolean"
+            },
+            "pageSizeReduced": {
+              "type": "boolean"
+            },
+            "effectivePageSize": {
+              "type": "integer",
+              "minimum": 0
             }
           }
         },

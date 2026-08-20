@@ -146,6 +146,7 @@ $script:MetadataFetchRequestCount = 0
 $script:MetadataFetchFallbackReason = $null
 $script:MetadataFetchResourceLimitFallback = $false
 $script:MetadataFetchResourceLimitReason = $null
+$script:MetadataFetchPageSizeReduced = $false
 $script:ValidationCacheState = $null
 
 $CategoryDefinitions = @(
@@ -608,6 +609,7 @@ function Reset-MetadataFetchTelemetry {
     $script:RepositoryEnumerationTruncated = $false
     $script:MetadataFetchAttemptCount = 0
     $script:MetadataFetchRequestCount = 0
+    $script:MetadataFetchPageSizeReduced = $false
     $script:MetadataFetchFallbackReason = $null
     $script:MetadataFetchResourceLimitFallback = $false
     $script:MetadataFetchResourceLimitReason = $null
@@ -644,16 +646,19 @@ function Get-GitHubRepos {
     }
 
     $repoLimit = [int]$script:GraphQlPageSize
-    $ghArgs = @(
-        "repo", "list", $Owner,
-        "--visibility", "public",
-        "--no-archived",
-        "--limit", [string]$repoLimit,
-        "--json", "name,description,stargazerCount,defaultBranchRef,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
-    )
     $lastOutput = $null
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
+        # GitHub's per-query GraphQL resource limit (announced 2025-09-01) is a function of
+        # how much the query asks for, so re-sending the same oversized page is futile.
+        # Halve the page instead, which turns a REST fallback into a smaller live query.
+        $ghArgs = @(
+            "repo", "list", $Owner,
+            "--visibility", "public",
+            "--no-archived",
+            "--limit", [string]$repoLimit,
+            "--json", "name,description,stargazerCount,defaultBranchRef,licenseInfo,isFork,parent,isPrivate,visibility,isArchived,repositoryTopics,pushedAt,url,primaryLanguage"
+        )
         $script:MetadataFetchAttemptCount = $attempt
         $script:MetadataFetchRequestCount = [int]$script:MetadataFetchRequestCount + 1
         $gh = Invoke-GhCli -Arguments $ghArgs
@@ -685,6 +690,15 @@ function Get-GitHubRepos {
         }
 
         if ($attempt -lt 3) {
+            if ((Test-GitHubMetadataResourceLimit -Output $lastOutput) -and $repoLimit -gt 100) {
+                $reducedLimit = [Math]::Max(100, [int][Math]::Floor($repoLimit / 2))
+                if ($reducedLimit -lt $repoLimit) {
+                    Write-Warning "GraphQL resource limit hit at page size $repoLimit; retrying with $reducedLimit."
+                    $repoLimit = $reducedLimit
+                    $script:RepositoryEnumerationRequestedLimit = $repoLimit
+                    $script:MetadataFetchPageSizeReduced = $true
+                }
+            }
             Start-Sleep -Seconds (2 * $attempt)
         }
     }
@@ -12758,6 +12772,8 @@ function Test-ProfileState {
             fallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchFallbackReason)) { $null } else { [string]$script:MetadataFetchFallbackReason }
             resourceLimitFallback = [bool]$script:MetadataFetchResourceLimitFallback
             resourceLimitFallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchResourceLimitReason)) { $null } else { [string]$script:MetadataFetchResourceLimitReason }
+            pageSizeReduced = [bool]$script:MetadataFetchPageSizeReduced
+            effectivePageSize = [int]$script:RepositoryEnumerationRequestedLimit
             repoCount = [int]$Repos.Count
             truncated = [bool]$script:RepositoryEnumerationTruncated
             fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))

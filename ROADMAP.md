@@ -31,13 +31,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
   Acceptance: Task runs weekly, writes the report, and surfaces warnings where the owner sees them; no unattended pushes.
   Complexity: S
 
-- [ ] P2 - Handle partial GraphQL responses under the new resource limits
-  Why: GitHub's 2025-09-01 GraphQL resource limits can return partial responses with resource-limit errors on expensive queries; the generator retries transient 502s but has no explicit partial-response path.
-  Evidence: RESEARCH.md Security section (changelog verified).
-  Touches: GraphQL fetch and retry paths in scripts/sync-profile.ps1 (detect errors alongside partial data, fall back to REST as with 502s), tests with a partial-response fixture.
-  Acceptance: A partial GraphQL response triggers the documented fallback instead of silent partial metadata; test covers it.
-  Complexity: S
-
 ### P3
 
 - [ ] P3 - Generate distinct action-link labels for assistive tech

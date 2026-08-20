@@ -953,6 +953,76 @@ Describe 'Repository settings and community-health baseline' {
     }
 }
 
+Describe 'GraphQL resource limit downshift' {
+    AfterEach {
+        Remove-Item Function:\Invoke-GhCli -ErrorAction SilentlyContinue
+        Remove-Variable -Name RequestedLimits -Scope Script -ErrorAction SilentlyContinue
+        Reset-MetadataFetchTelemetry
+        Reset-RestFallbackReleaseFetchState
+    }
+
+    It 'halves the requested page size instead of resending an over-limit query' {
+        $script:RequestedLimits = New-Object System.Collections.Generic.List[int]
+        function Invoke-GhCli {
+            param([string[]]$Arguments, [string]$StandardInput, [int]$TimeoutSeconds = 45)
+
+            $limitIndex = [array]::IndexOf($Arguments, '--limit')
+            $script:RequestedLimits.Add([int]$Arguments[$limitIndex + 1])
+            if ($script:RequestedLimits.Count -eq 1) {
+                return @{ output = 'x'; exitCode = 1; text = 'GraphQL resource limit exceeded for this query' }
+            }
+            $payload = @(
+                [ordered]@{ name = 'OnlyRepo'; description = 'd'; stargazerCount = 1; isFork = $false; isPrivate = $false; isArchived = $false; pushedAt = '2026-08-01T00:00:00Z'; url = 'https://github.com/SysAdminDoc/OnlyRepo' }
+            ) | ConvertTo-Json -Depth 6
+            return @{ output = $payload; exitCode = 0; text = $payload }
+        }
+
+        $oldPageSize = $script:GraphQlPageSize
+        $script:GraphQlPageSize = 500
+        try {
+            $repos = @(Get-GitHubRepos)
+
+            $repos.Count | Should -Be 1
+            $script:RequestedLimits.Count | Should -Be 2
+            $script:RequestedLimits[0] | Should -Be 500
+            # Retrying the identical oversized query would fail the same way every time.
+            $script:RequestedLimits[1] | Should -Be 250
+            $script:MetadataFetchPageSizeReduced | Should -BeTrue
+            $script:RepositoryMetadataProvider | Should -Be 'graphql'
+        } finally {
+            $script:GraphQlPageSize = $oldPageSize
+        }
+    }
+
+    It 'never reduces the page size below the REST pagination floor' {
+        $script:RequestedLimits = New-Object System.Collections.Generic.List[int]
+        function Invoke-GhCli {
+            param([string[]]$Arguments, [string]$StandardInput, [int]$TimeoutSeconds = 45)
+
+            # Only the repo-list query carries --limit; the REST fallback afterwards does not.
+            $limitIndex = [array]::IndexOf($Arguments, '--limit')
+            if ($limitIndex -ge 0) {
+                $script:RequestedLimits.Add([int]$Arguments[$limitIndex + 1])
+            }
+            return @{ output = 'x'; exitCode = 1; text = 'GraphQL resource limit exceeded for this query' }
+        }
+
+        $oldPageSize = $script:GraphQlPageSize
+        $script:GraphQlPageSize = 120
+        try {
+            # Every GraphQL attempt fails here, so the run ends in the REST fallback and
+            # throws. The assertion is about the page sizes tried on the way there.
+            try { $null = Get-GitHubRepos } catch { }
+            $script:RequestedLimits.Count | Should -BeGreaterThan 1
+            foreach ($limit in $script:RequestedLimits) {
+                $limit | Should -BeGreaterOrEqual 100
+            }
+        } finally {
+            $script:GraphQlPageSize = $oldPageSize
+        }
+    }
+}
+
 Describe 'REST fallback release request guard' {
     It 'parses slurped paginated repo arrays from gh api' {
         $json = @'
