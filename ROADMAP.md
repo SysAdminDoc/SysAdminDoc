@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P0
 
-- [ ] P0 - Fix dead and non-canonical portfolio links in the profile README
-  Why: The hand-authored header links "AI service overview" to sysadmindoc.github.io/ai/ which returns a live 404, and "Full portfolio" links route through the sysadmindoc.github.io redirect stub instead of the canonical portfolio.getparkerai.com origin.
-  Evidence: Live fetches 2026-08-20 (RESEARCH.md Security section); repo CLAUDE.md names portfolio.getparkerai.com as the deployed feed target while the README contains 0 links to it.
-  Touches: README.md hand-authored header (above the generated marker), the portfolio URL constants in scripts/sync-profile.ps1 (Start Here "Full portfolio" row, portfolioCompatibility consumerContract wording), tests/sync-profile.Tests.ps1. Keep per-project Launch links on sysadmindoc.github.io/<slug>/ since those are separate repos' live Pages.
-  Acceptance: No README link returns 404; the portfolio root links point at portfolio.getparkerai.com; sync-profile.ps1 -Check link validation passes with those targets probed.
-  Complexity: S
-
 - [ ] P0 - Reconcile the catalog with live repository state
   Why: 7 cataloged repos are no longer public yet still render as README links (privateVisibilityViolations), TsunamiSimulator was renamed to Cataclysm, 15 public repos are absent from the catalog, and winget-pkgs lacks forkOf attribution. This one drift drives the license-missing, stale-project, branch-tip, and fork-attribution warning sections simultaneously.
   Evidence: reports/profile-sync-report.json privateVisibilityViolations, renamedRepoRedirects, missingPublicRepos, forkParentDrift (RESEARCH.md Security section).

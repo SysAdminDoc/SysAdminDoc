@@ -3183,6 +3183,27 @@ function New-CategoryPreviewLine {
 }
 
 function Get-ProfilePortfolioUrl {
+    <#
+    .SYNOPSIS
+    Returns the canonical public portfolio origin used by generated profile links.
+    .DESCRIPTION
+    Defaults to the -PortfolioUrl parameter, which is also the cross-surface probe
+    target, so published links and drift probes can never disagree. Falls back to
+    the owner's GitHub Pages origin when no portfolio URL is configured; pass
+    -PortfolioUrl '' to force the owner-derived fallback for another account.
+    #>
+    # Script scope only: Test-ProfileState and Test-PortfolioCrossSurfaceDrift both
+    # declare a local $PortfolioUrl parameter, and an unqualified lookup would bind
+    # to the caller's local instead of the configured origin. Get-Variable keeps this
+    # StrictMode-safe when the script is dot-sourced without its param block running.
+    $configured = $null
+    $portfolioVariable = Get-Variable -Name "PortfolioUrl" -Scope Script -ErrorAction SilentlyContinue
+    if ($null -ne $portfolioVariable) { $configured = [string]$portfolioVariable.Value }
+    if (-not [string]::IsNullOrWhiteSpace($configured)) {
+        $url = $configured.Trim()
+        if (-not $url.EndsWith("/")) { $url += "/" }
+        return $url
+    }
     return "https://$($Owner.ToLowerInvariant()).github.io/"
 }
 
@@ -5074,7 +5095,7 @@ function Test-PortfolioFeedCompatibility {
         $errors.Add("projects.json could not be parsed for portfolio compatibility.")
         return [ordered]@{
             status = "unavailable"
-            consumerContract = "sysadmindoc.github.io profile-feed importer"
+            consumerContract = "portfolio.getparkerai.com profile-feed importer"
             feedSourceUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/projects.json"
             projectCount = 0
             suppressedCount = 0
@@ -5232,7 +5253,7 @@ function Test-PortfolioFeedCompatibility {
     $fatalCount = $errors.Count
     return [ordered]@{
         status = if ($fatalCount -eq 0) { "compatible" } else { "incompatible" }
-        consumerContract = "sysadmindoc.github.io profile-feed importer"
+        consumerContract = "portfolio.getparkerai.com profile-feed importer"
         feedSourceUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/projects.json"
         projectCount = [int]$projects.Count
         suppressedCount = [int]$suppressed.Count
@@ -6032,7 +6053,7 @@ function Test-ReadmeExperience {
     $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b>', [StringComparison]::Ordinal) -and
-        $ExpectedReadme.Contains('<a href="https://sysadmindoc.github.io/"><b>View my full portfolio') -and
+        $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>View my full portfolio') -and
         $ExpectedReadme.Contains('<a href="#powershell-system-utilities">PowerShell</a>') -and
         -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and
         -not $ExpectedReadme.Contains('assets/profile/header-light.svg')

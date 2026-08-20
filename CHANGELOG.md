@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-08-20
+
+- Pointed the generated profile links at the canonical portfolio origin. The "AI service overview" link previously resolved to a GitHub Pages path that returns 404 since the portfolio moved, and the Start Here and footer portfolio links went through a redirect stub. `Get-ProfilePortfolioUrl` now resolves the configured `-PortfolioUrl` origin, so published links and the cross-surface drift probe can no longer disagree, and falls back to the owner's GitHub Pages origin when no portfolio origin is configured.
+
 ## 2026-08-12
 
 - Bumped the internal profile evidence version to `v4.9.161` after draining the active roadmap.
