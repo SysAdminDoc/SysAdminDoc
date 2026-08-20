@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P1
 
-- [ ] P1 - Root-fix mobile table overflow
-  Why: Rendered smoke reports 20 overflow warnings (10 per mobile theme at 390px, root client width 308px): both 5-column Tool Catalog tables, the Start Here routing table, the local-validation table, and the Web Apps table. The blocked promote-to-fatal gate can never land while the baseline is 20.
-  Evidence: reports/rendered-profile-smoke.json (RESEARCH.md Security section); Roadmap_Blocked "rendered-smoke mobile viewport overflow regression gate" row (cross-referenced, not duplicated).
-  Touches: New-Readme table generators in scripts/sync-profile.ps1 (reduce column counts, shorten kbd labels, or restructure the Tool Catalog cards for narrow viewports), rendered smoke expectations, tests.
-  Acceptance: Rendered smoke reports 0 mobile overflow warnings across 3 consecutive runs, after which the blocked promotion row becomes actionable.
-  Complexity: M
-
 - [ ] P1 - Resolve the Dependabot repo-setting contradiction
   Why: repositorySettings.security.dependabotSecurityPosture is "enabled" and the repo notes say keep it enabled, while the owner's global rules require Dependabot alerts/updates disabled on sight. One direction must win and be recorded.
   Evidence: RESEARCH.md Security section (policy contradiction).

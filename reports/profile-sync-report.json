@@ -258,7 +258,7 @@
       {
         "repo": "AIUsageTracker",
         "language": "Python",
-        "pushedAt": "2026-08-10T16:42:24.0000000Z",
+        "pushedAt": "2026-08-10T16:42:24Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -269,7 +269,7 @@
       {
         "repo": "AstraDownloader",
         "language": "Python",
-        "pushedAt": "2026-08-14T22:26:07.0000000Z",
+        "pushedAt": "2026-08-14T22:26:07Z",
         "category": "python",
         "topicHints": [
           "python",
@@ -281,7 +281,7 @@
       {
         "repo": "ForceBGTab",
         "language": "JavaScript",
-        "pushedAt": "2026-08-12T04:36:26.0000000Z",
+        "pushedAt": "2026-08-12T04:36:26Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -292,7 +292,7 @@
       {
         "repo": "GuitarTuner",
         "language": "Kotlin",
-        "pushedAt": "2026-08-10T16:45:19.0000000Z",
+        "pushedAt": "2026-08-10T16:45:19Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -302,7 +302,7 @@
       {
         "repo": "HostnameForensics",
         "language": "PowerShell",
-        "pushedAt": "2026-07-31T15:47:17.0000000Z",
+        "pushedAt": "2026-07-31T15:47:17Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -314,7 +314,7 @@
       {
         "repo": "LogVerdict",
         "language": "PowerShell",
-        "pushedAt": "2026-08-10T16:23:54.0000000Z",
+        "pushedAt": "2026-08-10T16:23:54Z",
         "category": "powershell",
         "topicHints": [
           "powershell",
@@ -325,7 +325,7 @@
       {
         "repo": "OpenNetLimit",
         "language": "C#",
-        "pushedAt": "2026-08-10T16:55:33.0000000Z",
+        "pushedAt": "2026-08-10T16:55:33Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -337,7 +337,7 @@
       {
         "repo": "PartitionPilot",
         "language": "C#",
-        "pushedAt": "2026-08-12T14:14:03.0000000Z",
+        "pushedAt": "2026-08-12T14:14:03Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -348,7 +348,7 @@
       {
         "repo": "PatchDock",
         "language": "Kotlin",
-        "pushedAt": "2026-08-02T01:46:04.0000000Z",
+        "pushedAt": "2026-08-02T01:46:04Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -358,7 +358,7 @@
       {
         "repo": "StormScope",
         "language": "JavaScript",
-        "pushedAt": "2026-08-10T16:47:37.0000000Z",
+        "pushedAt": "2026-08-10T16:47:37Z",
         "category": "web",
         "topicHints": [
           "web-app",
@@ -370,7 +370,7 @@
       {
         "repo": "SurfaceMedic",
         "language": "C#",
-        "pushedAt": "2026-07-10T18:47:30.0000000Z",
+        "pushedAt": "2026-07-10T18:47:30Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -381,7 +381,7 @@
       {
         "repo": "TerminalAI",
         "language": "Rust",
-        "pushedAt": "2026-08-10T16:45:39.0000000Z",
+        "pushedAt": "2026-08-10T16:45:39Z",
         "category": "desktop",
         "topicHints": [
           "desktop-app",
@@ -2419,7 +2419,7 @@
         "maxScore": 10,
         "provider": "securityscorecards-api",
         "sourceUrl": "https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc",
-        "date": "2026-06-25T09:51:10.0000000Z",
+        "date": "2026-06-25T09:51:10Z",
         "analyzedRepo": "github.com/SysAdminDoc/SysAdminDoc",
         "analyzedCommit": "e4c68d2b12bd66d32c014dcb3a5640f189c8f8cd",
         "unavailableReason": null
@@ -2801,7 +2801,7 @@
     "expectedVersion": "v4.9.161",
     "latestReleaseTag": "v4.9.153",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.9.153",
-    "latestReleasePublishedAt": "2026-07-07T19:56:24.0000000Z",
+    "latestReleasePublishedAt": "2026-07-07T19:56:24Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
@@ -3348,10 +3348,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 129256,
+        "value": 129138,
         "softLimit": 114688,
         "overSoftLimit": true,
-        "warning": "reports/profile-sync-report.json bytes is 129256, above the 114688 soft limit.",
+        "warning": "reports/profile-sync-report.json bytes is 129138, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {
@@ -3378,7 +3378,7 @@
     "status": "passed",
     "source": "local-artifact",
     "sourcePath": "reports/rendered-profile-smoke.json",
-    "generatedAt": "2026-08-20T13:11:56.7564083-04:00",
+    "generatedAt": "2026-08-20T13:20:52.4580904-04:00",
     "url": "https://github.com/SysAdminDoc",
     "viewportCount": 4,
     "passedViewportCount": 4,
@@ -3399,12 +3399,12 @@
     "tableCount": 48,
     "tableOverflowCount": 18,
     "tableOverflowDisposition": "contained-table-scroll",
-    "linkCount": 1860,
-    "linkLabelCount": 1860,
-    "uniqueLinkLabelCount": 932,
-    "duplicateLinkLabelCount": 928,
-    "actionableLinkCount": 1860,
-    "uniqueActionableLinkLabelCount": 932,
+    "linkCount": 1808,
+    "linkLabelCount": 1808,
+    "uniqueLinkLabelCount": 924,
+    "duplicateLinkLabelCount": 884,
+    "actionableLinkCount": 1808,
+    "uniqueActionableLinkLabelCount": 924,
     "emptyLinkLabelCount": 0,
     "nonActionableLinkCount": 0,
     "linkLabelSanityPassed": true,
@@ -3437,7 +3437,7 @@
     "committedReportPresent": true,
     "committedReportGeneratedAt": "2026-08-20T13:08:45.0801056-04:00",
     "latestReportAffectingCommitSha": "a367c08f502060c9818f76133f2805758d1adee0",
-    "latestReportAffectingCommitDate": "2026-08-20T13:11:08.0000000-04:00",
+    "latestReportAffectingCommitDate": "2026-08-20T13:11:08-04:00",
     "reportAgeBehindCommit": true,
     "reportAgeBehindHours": 0.04,
     "generatedWithCommit": true,
