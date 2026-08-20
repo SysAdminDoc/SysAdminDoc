@@ -41,8 +41,8 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
   Complexity: S
 
 - [ ] P1 - Refresh local validation tool pins
-  Why: Pinned tools are behind security or maintenance releases: Pester 5.8.0 -> 5.9.1, opt-in 6.0.1 -> 6.1.0, markdownlint-cli2 0.23.0 -> 0.23.2 (js-yaml doc pin 5.2.1 -> 5.2.2), zizmor 1.26.1 -> 1.29.0 (must skip 1.27.0, credential-logging defect), gh >= 2.97.0 (four advisories, including the attestation-verify matcher bypass that affects the opt-in release verification lane), Node >= 24.18.1.
-  Evidence: RESEARCH.md Security section and Sources (verified via GitHub API 2026-08-20).
+  Why: The js-yaml 5.2.1 override is a live high-severity Dependabot alert (GHSA-pm4m-ph32-ghv5, parsing DoS, fixed in 5.2.2), and the other pins are behind security or maintenance releases: Pester 5.8.0 -> 5.9.1, opt-in 6.0.1 -> 6.1.0, markdownlint-cli2 0.23.0 -> 0.23.2, zizmor 1.26.1 -> 1.29.0 (must skip 1.27.0, credential-logging defect), gh >= 2.97.0 (four advisories, including the attestation-verify matcher bypass that affects the opt-in release verification lane), Node >= 24.18.1.
+  Evidence: RESEARCH.md Security section and Sources (verified via GitHub API 2026-08-20; live alert on this repo's default branch).
   Touches: scripts/validate-local.ps1, requirements-local-audit.txt (new hashes), package.json and package-lock.json, scripts/review-local-dependencies.ps1 latest-known values, README validation table, tests/sync-profile.Tests.ps1 pin guards.
   Acceptance: validate-local.ps1 passes end to end on the new pins; dependency review reports 0 pin drift; zizmor 1.27.0 explicitly absent.
   Complexity: M
