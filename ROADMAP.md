@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P1
 
-- [ ] P1 - Resolve the Dependabot repo-setting contradiction
-  Why: repositorySettings.security.dependabotSecurityPosture is "enabled" and the repo notes say keep it enabled, while the owner's global rules require Dependabot alerts/updates disabled on sight. One direction must win and be recorded.
-  Evidence: RESEARCH.md Security section (policy contradiction).
-  Touches: gh api repos/SysAdminDoc/SysAdminDoc/automated-security-fixes -X DELETE and vulnerability-alerts if the global rule wins (default), report expectation in scripts/sync-profile.ps1 plus tests, repo CLAUDE.md gotcha update. The local dependency review lane (npm run review:dependencies) is the compensating control.
-  Acceptance: Setting state matches the recorded decision; report expects that state without warning; no contradictory guidance remains in repo docs.
-  Complexity: S
-
 - [ ] P1 - Reconcile Roadmap_Blocked.md with the local-only posture
   Why: Five rows reference hosted workflows deleted on 2026-08-12 (scheduled-run evidence, profile-sync.yml/assets-refresh.yml confirmation, workflow_dispatch PR drills, CI-run-gated overflow promotion, Actions dependency locking), one cites an absent TODO.md, the Future Platform State heading is duplicated, and the immutable-releases blocker is obsolete.
   Evidence: RESEARCH.md Architecture section; Roadmap_Blocked.md line-level review 2026-08-20.

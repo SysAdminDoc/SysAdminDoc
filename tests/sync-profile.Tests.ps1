@@ -697,7 +697,7 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.secretScanningPushProtection | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityUpdates | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
-        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
+        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'disable-dependabot-per-repository-policy'
         $repoSettings.security.dependabotSecurityPosture.securityUpdatesEnabled | Should -BeTrue
         $repoSettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeFalse
         $repoSettings.security.dependabotSecurityPosture.localConfigPath | Should -Be '.github/dependabot.yml'
@@ -868,7 +868,7 @@ Describe 'Repository settings and community-health baseline' {
 
         $repoSettings.security.dependabotSecurityUpdates | Should -Be 'enabled'
         $repoSettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
-        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'monitor-dependabot-security-updates'
+        $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'disable-dependabot-per-repository-policy'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $repoSettings.security.codeScanning.hostedControls | Should -Contain 'dependabot-security-updates'
         $repoSettings.security.codeScanning.hostedControls | Should -Contain 'openssf-scorecard-sarif'
@@ -4168,11 +4168,13 @@ Describe 'Code scanning posture decision' {
         $codeScanning.localControls | Should -Contain 'markdownlint'
         $codeScanning.hostedControls | Should -Contain 'secret-scanning'
         $codeScanning.hostedControls | Should -Contain 'secret-scanning-push-protection'
-        $codeScanning.hostedControls | Should -Contain 'dependabot-security-updates'
+        # Repository policy bans Dependabot, so it must not appear as an active control.
+        # Advisory coverage is the local npm audit lane inside validate-local.ps1.
+        $codeScanning.hostedControls | Should -Not -Contain 'dependabot-security-updates'
         $codeScanning.hostedControls | Should -Not -Contain 'psscriptanalyzer'
         $codeScanning.hostedControls | Should -Not -Contain 'openssf-scorecard-sarif'
         $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
-        $codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
+        $codeScanning.activeControls | Should -Not -Contain 'dependabot-security-updates'
         $immutableReleases = $report.repositorySettings.security.immutableReleases
         $immutableReleases.status | Should -BeIn @('enabled', 'disabled', 'unavailable')
         $immutableReleases.appliesTo | Should -Not -BeNullOrEmpty
@@ -4180,7 +4182,11 @@ Describe 'Code scanning posture decision' {
             $immutableReleases.enabled | Should -BeTrue
             $immutableReleases.recommendation | Should -Be 'keep-immutable-releases-enabled'
         }
-        $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
+        $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'disabled'
+        $report.repositorySettings.security.dependabotSecurityPosture.recommendation |
+            Should -Be 'keep-dependabot-disabled-with-local-advisory-review'
+        $report.repositorySettings.security.dependabotSecurityPosture.evidence |
+            Should -Match 'review:dependencies'
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeFalse
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -BeNullOrEmpty
         $codeScanning.scorecardAlertPosture.available | Should -BeTrue

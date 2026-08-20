@@ -2,6 +2,7 @@
 
 ## 2026-08-20
 
+- Resolved a contradiction between repository policy and live settings by disabling Dependabot alerts and security updates, which policy bans in every form. The report no longer treats Dependabot as an active control and no longer recommends enabling it; advisory coverage is the local dependency review lane, which runs `npm audit` inside `validate-local.ps1` and fails the build on open advisories. That lane is what surfaced the js-yaml advisory fixed above.
 - Narrowed the Start Here routing table from five columns to three. The old "Best category" column duplicated the target of the Action link beside it, and five columns of prose forced horizontal scrolling on phone widths.
 - Scoped the rendered-smoke table-overflow warning to pages that actually break. Measurements show the profile page itself never overflows horizontally at 390px while individual wide tables do, which is how GitHub renders wide Markdown tables: each gets its own scroll container. The count is still reported, now alongside a `tableOverflowDisposition` of `contained-table-scroll` or `page-overflow`.
 - Enabled immutable releases on this repository and added the setting to the reported security posture. The feature reached general availability on 2025-10-28 and is available on personal repositories, so the previous "may require an organization or paid plan" blocker no longer applies. It is exposed through a dedicated endpoint rather than the repository object, and it only covers releases published after it was turned on.

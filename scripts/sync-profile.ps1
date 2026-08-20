@@ -8302,16 +8302,20 @@ function Get-DependabotSecurityPosture {
         "disabled"
     }
 
+    # Repository policy bans Dependabot in every form, so "disabled" is the intended state
+    # rather than a gap. Advisory coverage comes from the local dependency review lane
+    # (npm run review:dependencies), which runs npm audit inside validate-local.ps1 and
+    # exits nonzero on advisories, so a disabled setting is not an untriaged risk.
     $recommendation = if ($status -eq "enabled") {
-        "monitor-dependabot-security-updates"
+        "disable-dependabot-per-repository-policy"
     } elseif ($status -eq "disabled") {
-        "enable-dependabot-security-updates-or-document-manual-triage"
+        "keep-dependabot-disabled-with-local-advisory-review"
     } else {
         "verify-dependabot-security-update-setting"
     }
 
     $evidence = if ($status -eq "disabled") {
-        "Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s), but repository security_and_analysis.dependabot_security_updates.status is disabled."
+        "Dependabot security updates are disabled by repository policy; advisory triage runs locally through npm run review:dependencies, which fails validation on open advisories. Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s)."
     } elseif ($status -eq "enabled") {
         "Dependabot security updates are enabled, and local version-update config is present for $($ecosystems.Count) ecosystem(s)."
     } elseif (-not [string]::IsNullOrWhiteSpace($UnavailableReason)) {
