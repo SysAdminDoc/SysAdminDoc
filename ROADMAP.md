@@ -8,15 +8,6 @@ Actionable work only. Historical and completed roadmap material is archived in C
 
 Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEARCH.md evidence.
 
-### P1
-
-- [ ] P1 - Reconcile Roadmap_Blocked.md with the local-only posture
-  Why: Five rows reference hosted workflows deleted on 2026-08-12 (scheduled-run evidence, profile-sync.yml/assets-refresh.yml confirmation, workflow_dispatch PR drills, CI-run-gated overflow promotion, Actions dependency locking), one cites an absent TODO.md, the Future Platform State heading is duplicated, and the immutable-releases blocker is obsolete.
-  Evidence: RESEARCH.md Architecture section; Roadmap_Blocked.md line-level review 2026-08-20.
-  Touches: Roadmap_Blocked.md (delete dead rows, rewrite the overflow-gate row against local smoke runs, dedupe headings, fix the evidence citation), move the immutable-releases row out per its own roadmap item.
-  Acceptance: Every remaining blocked row names a blocker that exists today; no row references deleted workflow files.
-  Complexity: S
-
 ### P2
 
 - [ ] P2 - Roll out immutable releases across release-bearing repositories
