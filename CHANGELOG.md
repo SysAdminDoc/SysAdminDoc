@@ -2,6 +2,7 @@
 
 ## 2026-08-20
 
+- Enabled immutable releases on this repository and added the setting to the reported security posture. The feature reached general availability on 2025-10-28 and is available on personal repositories, so the previous "may require an organization or paid plan" blocker no longer applies. It is exposed through a dedicated endpoint rather than the repository object, and it only covers releases published after it was turned on.
 - Pinned REST calls to an explicit GitHub API calendar version (`2022-11-28`) in the shared `gh` adapter. GitHub shipped its first breaking calendar version on 2026-03-10, and unversioned requests inherit a default that is not guaranteed to stay put. An audit confirmed the generator reads none of the fields that version removes, so migrating later is a deliberate one-line change.
 - Made a skipped link-validation run distinguishable from a clean one. `linkValidationSummary` previously reported zero probed targets whether it had validated everything or been skipped entirely, so a skipped lane read as a pass; it now records `skipped` and `skipReason`. Running the lane immediately caught a dead userscript install URL, which is fixed: all 355 link targets now probe clean.
 - Retired the dormant hosted generated-PR helper scripts and corrected the review-policy evidence that outlived them. The posture text hard-coded a hosted PR-delivery proof, which contradicted the live branch-protection state once the workflows were removed; it is now derived from actual settings. `scripts/validate-local.ps1` passes end to end again.

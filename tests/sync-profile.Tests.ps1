@@ -4123,6 +4123,13 @@ Describe 'Code scanning posture decision' {
         $codeScanning.hostedControls | Should -Not -Contain 'openssf-scorecard-sarif'
         $codeScanning.activeControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
+        $immutableReleases = $report.repositorySettings.security.immutableReleases
+        $immutableReleases.status | Should -BeIn @('enabled', 'disabled', 'unavailable')
+        $immutableReleases.appliesTo | Should -Not -BeNullOrEmpty
+        if ($immutableReleases.status -eq 'enabled') {
+            $immutableReleases.enabled | Should -BeTrue
+            $immutableReleases.recommendation | Should -Be 'keep-immutable-releases-enabled'
+        }
         $report.repositorySettings.security.dependabotSecurityPosture.status | Should -Be 'enabled'
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigPresent | Should -BeFalse
         $report.repositorySettings.security.dependabotSecurityPosture.localConfigEcosystems | Should -BeNullOrEmpty

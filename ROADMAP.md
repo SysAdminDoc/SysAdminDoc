@@ -10,12 +10,12 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P1
 
-- [ ] P1 - Unblock and adopt immutable releases
-  Why: Immutable releases are GA (2025-10-28), free on personal repos, enabled per-repo in Settings, with per-asset Sigstore attestations; the Roadmap_Blocked row's "plan-gated / tag protection 404" blocker is obsolete. The report already consumes the immutable and digest fields (currently 136 of 136 release-bearing rows mutable).
-  Evidence: RESEARCH.md Security section; live API verification (cli/cli returns immutable: true).
-  Touches: Enable on SysAdminDoc/SysAdminDoc first, then roll out per-repo across release-bearing repos via gh api; update Roadmap_Blocked.md (remove the stale blocker), report wording in scripts/sync-profile.ps1, and releaseImmutability expectations in tests. Note: releases published after enablement cannot be edited or deleted, which is the point; existing releases stay mutable.
-  Acceptance: This repo's next release reports immutable: true; releaseAssetDrift.releaseImmutability shows a rising immutable count; stale blocker text gone.
-  Complexity: M
+- [ ] P2 - Roll out immutable releases across release-bearing repositories
+  Why: The setting is now proven enabled on SysAdminDoc/SysAdminDoc via PUT repos/{owner}/{repo}/immutable-releases, but the other 135 release-bearing repos still publish mutable releases.
+  Evidence: reports/profile-sync-report.json releaseAssetDrift.releaseImmutability; RESEARCH.md Security section.
+  Touches: A small gh api loop over release-bearing repos from data/profile-catalog.json. Note it is per-repo only (no account-wide toggle for personal accounts) and covers releases published after enablement.
+  Acceptance: Every release-bearing repo reports immutable-releases enabled; releaseImmutability immutable counts rise as new releases ship.
+  Complexity: S
 
 - [ ] P1 - Root-fix mobile table overflow
   Why: Rendered smoke reports 20 overflow warnings (10 per mobile theme at 390px, root client width 308px): both 5-column Tool Catalog tables, the Start Here routing table, the local-validation table, and the Web Apps table. The blocked promote-to-fatal gate can never land while the baseline is 20.

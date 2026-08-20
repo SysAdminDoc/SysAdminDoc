@@ -2795,7 +2795,8 @@
         "dependabotSecurityUpdates",
         "dependabotSecurityPosture",
         "scorecardScore",
-        "codeScanning"
+        "codeScanning",
+        "immutableReleases"
       ],
       "properties": {
         "secretScanning": {
@@ -2821,6 +2822,47 @@
         },
         "codeScanning": {
           "$ref": "#/$defs/codeScanningStatus"
+        },
+        "immutableReleases": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "enabled",
+            "enforcedByOwner",
+            "appliesTo",
+            "recommendation"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "enabled",
+                "disabled",
+                "unavailable"
+              ]
+            },
+            "enabled": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "enforcedByOwner": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "appliesTo": {
+              "type": "string",
+              "minLength": 1
+            },
+            "recommendation": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       }
     },

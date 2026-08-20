@@ -9149,6 +9149,7 @@ function Test-RepositoryCommunityBaseline {
         [object[]]$ScorecardAlerts,
         [object]$ScorecardScoreResult,
         [string]$DependabotSecurityUpdatesStatus,
+        [object]$ImmutableReleases,
         [string]$DependabotSecurityUpdatesUnavailableReason,
         [string]$RepositoryUnavailableReason,
         [string]$CommunityUnavailableReason,
@@ -9159,6 +9160,30 @@ function Test-RepositoryCommunityBaseline {
         [string]$ScorecardAlertsUnavailableReason,
         [string]$ScorecardScoreUnavailableReason
     )
+
+    # Immutable releases went GA on 2025-10-28 and are available on personal repositories.
+    # The setting lives on its own endpoint rather than the repository object, and it only
+    # applies to releases published after it is enabled, so existing releases stay mutable.
+    $immutableReleasesEnabled = Get-NullableBool (Get-MemberValue -Object $ImmutableReleases -Name "enabled")
+    $immutableReleasesPosture = [ordered]@{
+        status = if ($null -eq $immutableReleasesEnabled) {
+            "unavailable"
+        } elseif ($immutableReleasesEnabled) {
+            "enabled"
+        } else {
+            "disabled"
+        }
+        enabled = $immutableReleasesEnabled
+        enforcedByOwner = Get-NullableBool (Get-MemberValue -Object $ImmutableReleases -Name "enforced_by_owner")
+        appliesTo = "releases published after the setting was enabled"
+        recommendation = if ($immutableReleasesEnabled -eq $true) {
+            "keep-immutable-releases-enabled"
+        } elseif ($null -eq $immutableReleasesEnabled) {
+            "re-query-immutable-release-setting"
+        } else {
+            "enable-immutable-releases"
+        }
+    }
 
     $repoWarnings = New-Object System.Collections.Generic.List[string]
     $communityWarnings = New-Object System.Collections.Generic.List[string]
@@ -9426,6 +9451,7 @@ function Test-RepositoryCommunityBaseline {
             secretScanningValidityChecks = $secretScanningValidityChecks
             dependabotSecurityUpdates = $dependabotSecurityUpdates
             dependabotSecurityPosture = $dependabotSecurityPosture
+            immutableReleases = $immutableReleasesPosture
             scorecardScore = $scorecardScore
             codeScanning = [ordered]@{
                 status = $codeScanningStatus
@@ -9540,6 +9566,7 @@ function Get-RepositoryCommunityBaseline {
     $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
     $scorecardScoreResult = Invoke-RestJsonSafe -Uri (Get-ScorecardScoreApiUrl)
     $dependabotSecurityUpdatesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/automated-security-fixes"
+    $immutableReleasesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/immutable-releases"
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
@@ -9562,6 +9589,8 @@ function Get-RepositoryCommunityBaseline {
         $null
     }
 
+    $immutableReleasesValue = if ($immutableReleasesResult["ok"]) { $immutableReleasesResult["value"] } else { $null }
+
     return Test-RepositoryCommunityBaseline `
         -Repository $repositoryValue `
         -CommunityProfile $communityValue `
@@ -9573,6 +9602,7 @@ function Get-RepositoryCommunityBaseline {
         -ScorecardAlerts $scorecardAlertsValue `
         -ScorecardScoreResult $scorecardScoreValue `
         -DependabotSecurityUpdatesStatus $dependabotSecurityUpdatesValue `
+        -ImmutableReleases $immutableReleasesValue `
         -DependabotSecurityUpdatesUnavailableReason $(if ($dependabotSecurityUpdatesResult["ok"]) { $null } else { $dependabotSecurityUpdatesResult["error"] }) `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
