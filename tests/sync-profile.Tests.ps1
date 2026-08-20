@@ -2300,7 +2300,9 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match '### Featured Projects'
     }
     It 'adds decision guidance that routes visitors by install surface' {
-        $script:rendered | Should -Match ([regex]::Escape("| Signal | I want to... | Best category | What you'll find | Action |"))
+        $script:rendered | Should -Match ([regex]::Escape("| I want to... | What you'll find | Action |"))
+        # The retired five-column layout forced horizontal scrolling at phone widths.
+        $script:rendered | Should -Not -Match ([regex]::Escape("| Signal | I want to... | Best category |"))
         $script:rendered | Should -Match '<kbd>PS</kbd>'
         $script:rendered | Should -Match 'Branch-pinned commands, release downloads, and focused desktop utilities'
         $script:rendered | Should -Match 'CRX, XPI, userscript, source, and release-backed install paths'
@@ -2613,9 +2615,57 @@ Write-Host ok
         $summary.mobilePassedCount | Should -Be 0
         $summary.mobileFailedCount | Should -Be 1
         $summary.warningCount | Should -BeGreaterThan 0
-        ($summary.warnings -join ' ') | Should -Match 'table overflow'
+        # A table scrolling inside a page that does not overflow is how GitHub renders wide
+        # Markdown tables on phones, so it is recorded but not warned about.
+        $summary.tableOverflowDisposition | Should -Be 'contained-table-scroll'
+        ($summary.warnings -join ' ') | Should -Not -Match 'table overflow'
         ($summary.warnings -join ' ') | Should -Match 'accessible label'
         ($summary.warnings -join ' ') | Should -Match 'keyboard/focus sanity'
+    }
+
+    It 'warns about table overflow only when the page itself overflows horizontally' {
+        $makeViewport = {
+            param([bool]$PageOverflow)
+            [pscustomobject]@{
+                name = 'mobile'
+                passed = $true
+                rootOverflow = $PageOverflow
+                documentOverflow = $false
+                detailsCount = 1
+                detailsSummaryCount = 1
+                tableCount = 4
+                tableOverflowCount = 2
+                linkCount = 4
+                linkLabelCount = 4
+                uniqueLinkLabelCount = 4
+                duplicateLinkLabelCount = 0
+                actionableLinkCount = 4
+                uniqueActionableLinkLabelCount = 4
+                emptyLinkLabelCount = 0
+                nonActionableLinkCount = 0
+                linkLabelSanityPassed = $true
+            }
+        }
+
+        $contained = New-RenderedProfileSmokeSummary -SmokeReport ([pscustomobject]@{
+                generatedAt = '2026-08-20T00:00:00Z'
+                url = 'https://github.com/SysAdminDoc'
+                passed = $true
+                viewports = @((& $makeViewport $false))
+            })
+        $broken = New-RenderedProfileSmokeSummary -SmokeReport ([pscustomobject]@{
+                generatedAt = '2026-08-20T00:00:00Z'
+                url = 'https://github.com/SysAdminDoc'
+                passed = $true
+                viewports = @((& $makeViewport $true))
+            })
+
+        $contained.tableOverflowCount | Should -Be 2
+        $contained.tableOverflowDisposition | Should -Be 'contained-table-scroll'
+        ($contained.warnings -join ' ') | Should -Not -Match 'table overflow'
+
+        $broken.tableOverflowDisposition | Should -Be 'page-overflow'
+        ($broken.warnings -join ' ') | Should -Match 'table overflow'
     }
 
     It 'warns on rendered smoke overflow and narrow mobile root width' {

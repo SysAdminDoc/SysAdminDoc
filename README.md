@@ -16,18 +16,18 @@ I help small and midsize businesses put AI to work through tool rollout, workflo
 
 Use this table to route quickly by task, platform, install path, and confidence signal. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.
 
-| Signal | I want to... | Best category | What you'll find | Action |
-|:------:|:-------------|:--------------|:-----------------|:-------|
-| <kbd>PS</kbd> | Automate Windows administration | [PowerShell](#powershell-system-utilities) or [Desktop](#native-desktop-applications) | Branch-pinned commands, release downloads, and focused desktop utilities. | [<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) |
-| <kbd>PY</kbd> | Build or run Python utilities | [Python](#python-desktop-applications) | Local-first tools, media workflows, automation, and integration helpers. | [<kbd>Browse &#8594;</kbd>](#python-desktop-applications) |
-| <kbd>WEB</kbd> | Use a browser tool | [Web Apps](#web-applications) | No-install dashboards and self-hosted or live project surfaces. | [<kbd>Open &#8594;</kbd>](#web-applications) |
-| <kbd>EXT</kbd> | Add browser functionality | [Extensions](#browser-extensions--userscripts) | CRX, XPI, userscript, source, and release-backed install paths. | [<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) |
-| <kbd>APK</kbd> | Use tools on Android devices | [Android](#android-applications) | APK releases, Android source projects, and mobile utility workflows. | [<kbd>Download &#8594;</kbd>](#android-applications) |
-| <kbd>SEC</kbd> | Audit, validate, or secure systems | [Security](#security--networking) | Network checks, DNS control, defensive tooling, and operator notes. | [<kbd>Browse &#8594;</kbd>](#security--networking) |
-| <kbd>MED</kbd> | Capture, convert, or repair media | [Media](#media--conversion-tools) | Stream capture, video repair, compression, conversion, and cleanup tools. | [<kbd>Download &#8594;</kbd>](#media--conversion-tools) |
-| <kbd>DOC</kbd> | Learn a repeatable workflow | [Guides](#guides--resources) | Public references, checklists, companion guides, and setup material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
-| <kbd>OPS</kbd> | Set up or verify this profile repo | [First-time setup](#first-time-setup) or [Local validation](#local-validation) | Install checks, local linting, Pester, schema validation, and smoke evidence. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
-| <kbd>ALL</kbd> | Search across everything | [Full portfolio](https://portfolio.getparkerai.com/) or [Misc](#misc--forks) | Filterable portfolio data from the generated projects.json feed. | [<kbd>Search &#8594;</kbd>](https://portfolio.getparkerai.com/) |
+| I want to... | What you'll find | Action |
+|:-------------|:-----------------|:-------|
+| <kbd>PS</kbd> Automate Windows administration | Branch-pinned commands, release downloads, and focused desktop utilities. | [<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) |
+| <kbd>PY</kbd> Build or run Python utilities | Local-first tools, media workflows, automation, and integration helpers. | [<kbd>Browse &#8594;</kbd>](#python-desktop-applications) |
+| <kbd>WEB</kbd> Use a browser tool | No-install dashboards and self-hosted or live project surfaces. | [<kbd>Open &#8594;</kbd>](#web-applications) |
+| <kbd>EXT</kbd> Add browser functionality | CRX, XPI, userscript, source, and release-backed install paths. | [<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) |
+| <kbd>APK</kbd> Use tools on Android devices | APK releases, Android source projects, and mobile utility workflows. | [<kbd>Download &#8594;</kbd>](#android-applications) |
+| <kbd>SEC</kbd> Audit, validate, or secure systems | Network checks, DNS control, defensive tooling, and operator notes. | [<kbd>Browse &#8594;</kbd>](#security--networking) |
+| <kbd>MED</kbd> Capture, convert, or repair media | Stream capture, video repair, compression, conversion, and cleanup tools. | [<kbd>Download &#8594;</kbd>](#media--conversion-tools) |
+| <kbd>DOC</kbd> Learn a repeatable workflow | Public references, checklists, companion guides, and setup material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
+| <kbd>OPS</kbd> Set up or verify this profile repo | Install checks, local linting, Pester, schema validation, and smoke evidence. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
+| <kbd>ALL</kbd> Search across everything | Filterable portfolio data from the generated projects.json feed. | [<kbd>Search &#8594;</kbd>](https://portfolio.getparkerai.com/) |
 
 Quick platform map: [PowerShell](#powershell-system-utilities) &middot; [Python](#python-desktop-applications) &middot; [Web Apps](#web-applications) &middot; [Extensions](#browser-extensions--userscripts) &middot; [Android](#android-applications) &middot; [Desktop](#native-desktop-applications)
 

@@ -5826,7 +5826,8 @@
         "mobileRootClientWidth",
         "skipReason",
         "warningCount",
-        "warnings"
+        "warnings",
+        "tableOverflowDisposition"
       ],
       "properties": {
         "status": {
@@ -5993,6 +5994,14 @@
           "items": {
             "type": "string"
           }
+        },
+        "tableOverflowDisposition": {
+          "type": "string",
+          "enum": [
+            "none",
+            "page-overflow",
+            "contained-table-scroll"
+          ]
         }
       }
     },
