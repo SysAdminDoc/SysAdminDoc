@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P0
 
-- [ ] P0 - Root-cause the frozen feed timestamp, then republish the feed and release
-  Why: projects.json generatedAt is copied from the catalog stamp at scripts/sync-profile.ps1:4897 and nothing refreshes it on -Write, so the published feed says 2026-06-01 and warns forever; the portfolio builds from that feed, and the latest GitHub release (v4.9.153) is 8 versions behind local v4.9.161.
-  Evidence: RESEARCH.md Security section; raw projects.json fetch 2026-08-20; profileReleaseConsistency warnings.
-  Touches: scripts/sync-profile.ps1 (stamp the feed generatedAt at write time, or restamp the catalog on successful -Write; keep check-only volatile-field normalization intact), tests for the new stamping, then a full -Write / -Check run, commit, tag, and GitHub release so the raw feed is current.
-  Acceptance: Published projects.json generatedAt is within 7 days; metadataDriftSummary.generatedAt green; profileReleaseConsistency 0 warnings; portfolio rebuild picks up current data.
-  Complexity: M
-
 ### P1
 
 - [ ] P1 - Patch the PowerShell runtime and audit data-file parsing

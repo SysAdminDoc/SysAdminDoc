@@ -4915,7 +4915,12 @@ function New-ProjectsExportJson {
 
     $payload = [ordered]@{
         schema = $ProjectsSchemaUrl
-        generatedAt = ConvertTo-IsoText $Catalog.generatedAt
+        # Stamped when the feed is generated, not copied from the catalog. The catalog
+        # stamp is only refreshed by the lossy seed path, so copying it froze the
+        # published feed's generatedAt and made the staleness warning permanent.
+        # ConvertTo-ProjectsSyncComparableJson treats this as a volatile field so
+        # check-only runs still compare equal.
+        generatedAt = (Get-Date).ToString("o")
         source = "$Owner/$Owner data/profile-catalog.json"
         provenance = New-ProjectsProvenance -Repos $Repos
         schemaPolicy = New-ProjectsFeedSchemaPolicy
@@ -9586,13 +9591,10 @@ function ConvertTo-ProjectsSyncComparableJson {
 
     try {
         $payload = ConvertFrom-JsonPreservingArrays -Json $Json
-        $generatedAt = Get-MemberValue -Object $payload -Name "generatedAt"
-        if (-not [string]::IsNullOrWhiteSpace([string]$generatedAt)) {
-            $parsedGeneratedAt = [datetimeoffset]::MinValue
-            if ([datetimeoffset]::TryParse([string]$generatedAt, [ref]$parsedGeneratedAt)) {
-                Set-MemberValue -Object $payload -Name "generatedAt" -Value ($parsedGeneratedAt.ToString("o"))
-            }
-        }
+        # generatedAt is stamped per generation run, so it is volatile for equality just
+        # like sourceCommit, metadataSnapshotAt, and pushedAt. Feed freshness is reported
+        # separately by Test-MetadataDrift against the committed file.
+        Set-MemberValue -Object $payload -Name "generatedAt" -Value $null
         $provenance = Get-MemberValue -Object $payload -Name "provenance"
         if ($provenance) {
             Set-MemberValue -Object $provenance -Name "metadataSnapshotAt" -Value $null

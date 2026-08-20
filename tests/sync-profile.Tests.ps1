@@ -2901,6 +2901,27 @@ Describe 'New-ProjectsExportJson feed' {
         $json.schema | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json'
     }
 
+    It 'stamps feed generatedAt at generation time instead of copying the catalog stamp' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $cat.generatedAt = '2026-06-01T16:18:55.0998940-04:00'
+        $json = New-ProjectsExportJson -Catalog $cat -Repos @() | ConvertFrom-Json
+
+        $json.generatedAt | Should -Not -Be $cat.generatedAt
+        $parsed = [datetimeoffset]::MinValue
+        [datetimeoffset]::TryParse([string]$json.generatedAt, [ref]$parsed) | Should -BeTrue
+        ([datetimeoffset]::Now - $parsed).TotalMinutes | Should -BeLessThan 10
+    }
+
+    It 'treats feed generatedAt as volatile when comparing committed and generated feeds' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $current = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $stale = $current -replace '"generatedAt":\s*"[^"]+"', '"generatedAt": "2026-06-01T16:18:55.0998940-04:00"'
+
+        $stale | Should -Not -Be $current
+        (ConvertTo-ProjectsSyncComparableJson -Json $stale) |
+            Should -Be (ConvertTo-ProjectsSyncComparableJson -Json $current)
+    }
+
     It 'exports public-safe feed provenance fields' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $rawJson = New-ProjectsExportJson -Catalog $cat -Repos @()
