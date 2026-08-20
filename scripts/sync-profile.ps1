@@ -119,6 +119,16 @@ $ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
 $PowerShellMinimumGeneratorVersion = [version]"7.4.0"
 $PowerShellPreferredLtsVersion = [version]"7.6.0"
 $PowerShellPreviousLtsAcceptedUntil = "2026-11-10"
+# CVE-2026-50523 (command injection) affects 7.4.0-7.4.18, 7.5.0-7.5.9, and 7.6.0-7.6.4.
+# Patched builds are 7.4.19, 7.5.10, and 7.6.5, so an in-support runtime can still be
+# vulnerable and needs its own per-line minimum rather than only a floor check.
+$PowerShellSecurityAdvisoryId = "CVE-2026-50523"
+$PowerShellSecurityAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2026-50523"
+$PowerShellMinimumSecurePatchVersions = @(
+    [version]"7.4.19",
+    [version]"7.5.10",
+    [version]"7.6.5"
+)
 $WindowsPowerShellBootstrapVersion = "5.1"
 $WindowsPowerShellAdvisoryId = "CVE-2025-54100"
 $PowerShellLifecycleUrl = "https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle?view=powershell-7.6"
@@ -7921,6 +7931,17 @@ function Test-PowerShellRuntimeSecurity {
         }
     }
 
+    $securePatch = $null
+    if (-not $isWindowsPowerShell) {
+        $securePatch = $PowerShellMinimumSecurePatchVersions |
+            Where-Object { $_.Major -eq $versionValue.Major -and $_.Minor -eq $versionValue.Minor } |
+            Select-Object -First 1
+    }
+    $meetsSecurePatch = ($null -eq $securePatch) -or ($versionValue -ge $securePatch)
+    if (-not $meetsSecurePatch) {
+        $warnings.Add("PowerShell $versionValue is affected by $PowerShellSecurityAdvisoryId; update to $securePatch or newer on the $($versionValue.Major).$($versionValue.Minor) line.")
+    }
+
     if ($meetsFloor -and -not $nativeJsonSchema) {
         $warnings.Add("PowerShell $versionValue does not expose Test-Json -SchemaFile; native JSON Schema validation requires PowerShell 7.4 or newer.")
     }
@@ -7947,7 +7968,10 @@ function Test-PowerShellRuntimeSecurity {
             windowsPowerShellBootstrapVersion = $WindowsPowerShellBootstrapVersion
             windowsPowerShellBootstrapOnly = $true
             windowsPowerShellAdvisory = $WindowsPowerShellAdvisoryId
-            sources = @($PowerShellLifecycleUrl, $WindowsPowerShellAdvisoryUrl)
+            runtimeSecurityAdvisory = $PowerShellSecurityAdvisoryId
+            minimumSecurePatchVersions = @($PowerShellMinimumSecurePatchVersions | ForEach-Object { $_.ToString() })
+            meetsMinimumSecurePatch = [bool]$meetsSecurePatch
+            sources = @($PowerShellLifecycleUrl, $WindowsPowerShellAdvisoryUrl, $PowerShellSecurityAdvisoryUrl)
         }
         capabilities = [ordered]@{
             nativeJsonSchema = [bool]$nativeJsonSchema

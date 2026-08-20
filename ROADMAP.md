@@ -8,16 +8,7 @@ Actionable work only. Historical and completed roadmap material is archived in C
 
 Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEARCH.md evidence.
 
-### P0
-
 ### P1
-
-- [ ] P1 - Patch the PowerShell runtime and audit data-file parsing
-  Why: CVE-2026-50523 (command injection, high) affects pwsh 7.6.0-7.6.4 and the observed runtime is 7.6.3; CVE-2026-26143 concerns Import-PowerShellDataFile -SkipLimitCheck.
-  Evidence: RESEARCH.md Security section (fix released 2026-08-14 in 7.6.5).
-  Touches: winget upgrade Microsoft.PowerShell on this machine; runtimeSecurity policy floor in scripts/sync-profile.ps1 and its tests; grep scripts/ for -SkipLimitCheck usage.
-  Acceptance: reports runtimeSecurity records >= 7.6.5 with 0 warnings; no -SkipLimitCheck usage or each use justified inline.
-  Complexity: S
 
 - [ ] P1 - Refresh local validation tool pins
   Why: The js-yaml 5.2.1 override is a live high-severity Dependabot alert (GHSA-pm4m-ph32-ghv5, parsing DoS, fixed in 5.2.2), and the other pins are behind security or maintenance releases: Pester 5.8.0 -> 5.9.1, opt-in 6.0.1 -> 6.1.0, markdownlint-cli2 0.23.0 -> 0.23.2, zizmor 1.26.1 -> 1.29.0 (must skip 1.27.0, credential-logging defect), gh >= 2.97.0 (four advisories, including the attestation-verify matcher bypass that affects the opt-in release verification lane), Node >= 24.18.1.

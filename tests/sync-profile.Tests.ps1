@@ -5924,7 +5924,7 @@ Describe 'PowerShell version baseline' {
 
     It 'classifies current PowerShell LTS as preferred runtime' {
         $result = Test-PowerShellRuntimeSecurity `
-            -Version ([version]'7.6.3') `
+            -Version ([version]'7.6.5') `
             -Edition 'Core' `
             -NativeJsonSchemaAvailable $true `
             -Now ([datetimeoffset]::Parse('2026-07-06T00:00:00Z'))
@@ -5933,7 +5933,39 @@ Describe 'PowerShell version baseline' {
         $result.current.channel | Should -Be 'current-lts'
         $result.supported | Should -BeTrue
         $result.preferred | Should -BeTrue
+        $result.policy.meetsMinimumSecurePatch | Should -BeTrue
         $result.warningCount | Should -Be 0
+    }
+
+    It 'warns for an in-support runtime still affected by CVE-2026-50523' {
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.6.3') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-08-20T00:00:00Z'))
+
+        $result.status | Should -Be 'warning'
+        $result.supported | Should -BeTrue
+        $result.policy.meetsMinimumSecurePatch | Should -BeFalse
+        ($result.warnings -join ' ') | Should -Match 'CVE-2026-50523'
+        ($result.warnings -join ' ') | Should -Match '7\.6\.5'
+    }
+
+    It 'applies the CVE-2026-50523 patch floor per release line' {
+        $patched75 = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.5.10') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-08-20T00:00:00Z'))
+        $vulnerable75 = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.5.9') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-08-20T00:00:00Z'))
+
+        $patched75.policy.meetsMinimumSecurePatch | Should -BeTrue
+        $vulnerable75.policy.meetsMinimumSecurePatch | Should -BeFalse
+        ($vulnerable75.warnings -join ' ') | Should -Match '7\.5\.10'
     }
 
     It 'warns for PowerShell 7.4 during the transition window' {

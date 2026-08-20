@@ -1558,11 +1558,21 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["readinessLevel", "count"],
+            "required": [
+              "readinessLevel",
+              "count"
+            ],
             "properties": {
               "readinessLevel": {
                 "type": "string",
-                "enum": ["metadata-complete", "attestation-metadata", "sbom-metadata", "immutable-metadata", "digest-metadata", "no-metadata-evidence"]
+                "enum": [
+                  "metadata-complete",
+                  "attestation-metadata",
+                  "sbom-metadata",
+                  "immutable-metadata",
+                  "digest-metadata",
+                  "no-metadata-evidence"
+                ]
               },
               "count": {
                 "$ref": "#/$defs/nonNegativeInteger"
@@ -1627,7 +1637,11 @@
               },
               "checksumCoverage": {
                 "type": "string",
-                "enum": ["none", "partial", "full"]
+                "enum": [
+                  "none",
+                  "partial",
+                  "full"
+                ]
               },
               "hasPlatformDigest": {
                 "type": "boolean"
@@ -1640,7 +1654,14 @@
               },
               "readinessLevel": {
                 "type": "string",
-                "enum": ["metadata-complete", "attestation-metadata", "sbom-metadata", "immutable-metadata", "digest-metadata", "no-metadata-evidence"]
+                "enum": [
+                  "metadata-complete",
+                  "attestation-metadata",
+                  "sbom-metadata",
+                  "immutable-metadata",
+                  "digest-metadata",
+                  "no-metadata-evidence"
+                ]
               },
               "hasSbom": {
                 "type": "boolean"
@@ -1717,20 +1738,37 @@
         "releaseImmutability": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["immutableCount", "mutableCount", "unknownCount"],
+          "required": [
+            "immutableCount",
+            "mutableCount",
+            "unknownCount"
+          ],
           "properties": {
-            "immutableCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "mutableCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "unknownCount": { "$ref": "#/$defs/nonNegativeInteger" }
+            "immutableCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "mutableCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "unknownCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            }
           }
         },
         "platformDigestCoverage": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["withDigestCount", "withoutDigestCount"],
+          "required": [
+            "withDigestCount",
+            "withoutDigestCount"
+          ],
           "properties": {
-            "withDigestCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "withoutDigestCount": { "$ref": "#/$defs/nonNegativeInteger" }
+            "withDigestCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "withoutDigestCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            }
           }
         },
         "executableDownloadTrustShortlist": {
@@ -1805,7 +1843,10 @@
       "properties": {
         "status": {
           "type": "string",
-          "enum": ["ok", "warning"]
+          "enum": [
+            "ok",
+            "warning"
+          ]
         },
         "checkedInstallActionCount": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -1864,16 +1905,27 @@
           "type": "string"
         },
         "branchTipSha": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[a-f0-9]{40}$"
         },
         "branchTipFetchedAt": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "format": "date-time"
         },
         "status": {
           "type": "string",
-          "enum": ["fresh", "stale", "unreachable", "missing"]
+          "enum": [
+            "fresh",
+            "stale",
+            "unreachable",
+            "missing"
+          ]
         },
         "warning": {
           "$ref": "#/$defs/nullableString"
@@ -1901,7 +1953,10 @@
         },
         "status": {
           "type": "string",
-          "enum": ["disabled", "generated"]
+          "enum": [
+            "disabled",
+            "generated"
+          ]
         },
         "outputPath": {
           "$ref": "#/$defs/nullableString"
@@ -1950,23 +2005,59 @@
         "note"
       ],
       "properties": {
-        "enabled": { "type": "boolean" },
-        "status": { "type": "string", "enum": ["disabled", "verified", "skipped", "failed", "no-candidates"] },
-        "verificationMode": { "type": "string", "const": "opt-in" },
-        "maxAssets": { "$ref": "#/$defs/positiveInteger" },
-        "maxBytes": { "$ref": "#/$defs/positiveInteger" },
-        "targetCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "checkedAssetCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "verifiedCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "skippedCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "failureCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "downloadedBytes": { "$ref": "#/$defs/nonNegativeInteger" },
+        "enabled": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "disabled",
+            "verified",
+            "skipped",
+            "failed",
+            "no-candidates"
+          ]
+        },
+        "verificationMode": {
+          "type": "string",
+          "const": "opt-in"
+        },
+        "maxAssets": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "maxBytes": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "targetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "checkedAssetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "verifiedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "skippedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "failureCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "downloadedBytes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "rows": {
           "type": "array",
-          "items": { "$ref": "#/$defs/releaseArtifactVerificationRow" }
+          "items": {
+            "$ref": "#/$defs/releaseArtifactVerificationRow"
+          }
         },
-        "errors": { "$ref": "#/$defs/stringArray" },
-        "note": { "type": "string" }
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
     "releaseArtifactVerificationRow": {
@@ -1984,15 +2075,38 @@
         "assetBytes"
       ],
       "properties": {
-        "repo": { "type": "string" },
-        "asset": { "type": "string" },
-        "assetKind": { "type": "string" },
-        "checksumAsset": { "$ref": "#/$defs/nullableString" },
-        "status": { "type": "string", "enum": ["verified", "skipped", "failed"] },
-        "reason": { "$ref": "#/$defs/nullableString" },
-        "expectedSha256": { "$ref": "#/$defs/nullableSha256" },
-        "actualSha256": { "$ref": "#/$defs/nullableSha256" },
-        "assetBytes": { "$ref": "#/$defs/nonNegativeInteger" }
+        "repo": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "assetKind": {
+          "type": "string"
+        },
+        "checksumAsset": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "skipped",
+            "failed"
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "expectedSha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "actualSha256": {
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "assetBytes": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        }
       }
     },
     "userscriptInstallTrust": {
@@ -4823,7 +4937,10 @@
             "windowsPowerShellBootstrapVersion",
             "windowsPowerShellBootstrapOnly",
             "windowsPowerShellAdvisory",
-            "sources"
+            "sources",
+            "runtimeSecurityAdvisory",
+            "minimumSecurePatchVersions",
+            "meetsMinimumSecurePatch"
           ],
           "properties": {
             "generatorMinimumVersion": {
@@ -4847,6 +4964,20 @@
             },
             "sources": {
               "$ref": "#/$defs/stringArray"
+            },
+            "runtimeSecurityAdvisory": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minimumSecurePatchVersions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "meetsMinimumSecurePatch": {
+              "type": "boolean"
             }
           }
         },
@@ -4893,20 +5024,57 @@
         "metadataFetch": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["provider", "graphQlPageSize", "requestCount", "attemptCount", "retryCount", "fallbackUsed", "fallbackReason", "resourceLimitFallback", "resourceLimitFallbackReason", "repoCount", "truncated", "fidelityDegraded"],
+          "required": [
+            "provider",
+            "graphQlPageSize",
+            "requestCount",
+            "attemptCount",
+            "retryCount",
+            "fallbackUsed",
+            "fallbackReason",
+            "resourceLimitFallback",
+            "resourceLimitFallbackReason",
+            "repoCount",
+            "truncated",
+            "fidelityDegraded"
+          ],
           "properties": {
-            "provider": { "type": "string" },
-            "graphQlPageSize": { "$ref": "#/$defs/nonNegativeInteger" },
-            "requestCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "attemptCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "retryCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "fallbackUsed": { "type": "boolean" },
-            "fallbackReason": { "$ref": "#/$defs/nullableString" },
-            "resourceLimitFallback": { "type": "boolean" },
-            "resourceLimitFallbackReason": { "$ref": "#/$defs/nullableString" },
-            "repoCount": { "$ref": "#/$defs/nonNegativeInteger" },
-            "truncated": { "type": "boolean" },
-            "fidelityDegraded": { "type": "boolean" }
+            "provider": {
+              "type": "string"
+            },
+            "graphQlPageSize": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "requestCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "attemptCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "retryCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "fallbackUsed": {
+              "type": "boolean"
+            },
+            "fallbackReason": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "resourceLimitFallback": {
+              "type": "boolean"
+            },
+            "resourceLimitFallbackReason": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "repoCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "truncated": {
+              "type": "boolean"
+            },
+            "fidelityDegraded": {
+              "type": "boolean"
+            }
           }
         },
         "linkValidation": {
@@ -6327,46 +6495,97 @@
         "note"
       ],
       "properties": {
-        "passed": { "type": "boolean" },
-        "status": { "type": "string", "enum": ["verified", "failed", "unavailable"] },
-        "projectCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "missingIdCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "passed": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "failed",
+            "unavailable"
+          ]
+        },
+        "projectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingIdCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "missingIds": {
           "type": "array",
-          "items": { "$ref": "#/$defs/stableEntityRow" }
+          "items": {
+            "$ref": "#/$defs/stableEntityRow"
+          }
         },
-        "invalidIdCount": { "$ref": "#/$defs/nonNegativeInteger" },
+        "invalidIdCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "invalidIds": {
           "type": "array",
-          "items": { "$ref": "#/$defs/stableEntityInvalidRow" }
+          "items": {
+            "$ref": "#/$defs/stableEntityInvalidRow"
+          }
         },
-        "duplicateIdCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "duplicateIds": { "$ref": "#/$defs/stringArray" },
-        "missingCanonicalRepoCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "missingAliasMetadataCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "aliasRowCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "aliasCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "fatalCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "errors": { "$ref": "#/$defs/stringArray" },
-        "note": { "type": "string" }
+        "duplicateIdCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "duplicateIds": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "missingCanonicalRepoCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingAliasMetadataCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "aliasRowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "aliasCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
     "stableEntityRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repo", "index"],
+      "required": [
+        "repo",
+        "index"
+      ],
       "properties": {
-        "repo": { "type": "string" },
-        "index": { "$ref": "#/$defs/positiveInteger" }
+        "repo": {
+          "type": "string"
+        },
+        "index": {
+          "$ref": "#/$defs/positiveInteger"
+        }
       }
     },
     "stableEntityInvalidRow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repo", "id"],
+      "required": [
+        "repo",
+        "id"
+      ],
       "properties": {
-        "repo": { "type": "string" },
-        "id": { "type": "string" }
+        "repo": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
       }
     },
     "feedSchemaMigration": {
@@ -6388,19 +6607,49 @@
         "note"
       ],
       "properties": {
-        "passed": { "type": "boolean" },
-        "status": { "type": "string", "enum": ["documented", "invalid"] },
-        "currentVersion": { "$ref": "#/$defs/positiveInteger" },
-        "supportedVersions": { "$ref": "#/$defs/stringIntegerArray" },
-        "compatibility": { "type": "string" },
-        "changeKind": { "type": "string" },
-        "migrationRequired": { "type": "boolean" },
-        "migrationNotes": { "$ref": "#/$defs/stringArray" },
-        "deprecatedVersions": { "$ref": "#/$defs/stringIntegerArray" },
-        "deprecationNotes": { "$ref": "#/$defs/stringArray" },
-        "fatalCount": { "$ref": "#/$defs/nonNegativeInteger" },
-        "errors": { "$ref": "#/$defs/stringArray" },
-        "note": { "type": "string" }
+        "passed": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "documented",
+            "invalid"
+          ]
+        },
+        "currentVersion": {
+          "$ref": "#/$defs/positiveInteger"
+        },
+        "supportedVersions": {
+          "$ref": "#/$defs/stringIntegerArray"
+        },
+        "compatibility": {
+          "type": "string"
+        },
+        "changeKind": {
+          "type": "string"
+        },
+        "migrationRequired": {
+          "type": "boolean"
+        },
+        "migrationNotes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "deprecatedVersions": {
+          "$ref": "#/$defs/stringIntegerArray"
+        },
+        "deprecationNotes": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "errors": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
     "stringIntegerArray": {

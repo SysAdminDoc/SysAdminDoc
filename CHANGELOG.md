@@ -2,6 +2,7 @@
 
 ## 2026-08-20
 
+- Added a per-release-line security floor to the PowerShell runtime posture check. CVE-2026-50523 affects 7.4.0-7.4.18, 7.5.0-7.5.9, and 7.6.0-7.6.4, so an in-support runtime could sit on a vulnerable patch without any warning. `runtimeSecurity.policy` now records the advisory, the patched builds, and whether the active runtime clears them.
 - Fixed the frozen `projects.json` timestamp. The feed copied `generatedAt` from the catalog, which only the lossy seed path ever refreshes, so the published feed claimed 2026-06-01 for eleven weeks and the staleness warning could never clear. The feed is now stamped when it is generated, and check-only comparison treats the field as volatile alongside `sourceCommit`, `metadataSnapshotAt`, and `pushedAt`.
 - Reconciled the profile catalog with live repository state. Five deleted repositories were dropped, two that went private are now suppressed so visitors never reach a 404, TsunamiSimulator was renamed to Cataclysm with an alias row preserving the redirect history, and seventeen public repositories that had never been cataloged were triaged into categories or suppressed as support and upstream-fork rows. `scripts/sync-profile.ps1 -Check` passes again: missing public repos, private-visibility violations, rename redirects, fork attribution, stale-project review, and license metadata all report zero.
 - Demoted two narrow Python utilities to portfolio-only so the Python category stays inside its README soft limit. Both still ship in `projects.json` for the portfolio.
