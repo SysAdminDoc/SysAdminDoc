@@ -98,7 +98,6 @@ $ReportAffectingPaths = @(
     "scripts/sync-profile.ps1",
     "scripts/render-profile-smoke.ps1",
     "scripts/write-profile-sync-summary.ps1",
-    "scripts/open-generated-profile-pr.ps1",
     "data/profile-catalog.json",
     "data/profile-version.json",
     "schemas",
@@ -9058,7 +9057,14 @@ function Get-ReviewPolicyPosture {
     }
 
     $evidence = if ($status -eq "warning-only-single-maintainer") {
-        "Branch protection requires status checks and PR #16 proved required-check PR delivery, but branch protection does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model."
+        # Derived from live branch-protection state. This previously hard-coded a hosted
+        # PR-delivery proof, which contradicted the report once the workflows were removed.
+        $statusCheckText = if ($requiredStatusChecksEnabled) {
+            "Branch protection requires status checks"
+        } else {
+            "Branch protection does not require status checks, which matches the local-only validation posture"
+        }
+        "$statusCheckText, and it does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model."
     } elseif ($status -eq "enforced-pr-review") {
         "Branch protection requires pull request reviews but does not require code-owner reviews."
     } else {

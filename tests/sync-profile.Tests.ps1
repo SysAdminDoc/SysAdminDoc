@@ -4107,7 +4107,10 @@ Describe 'Code scanning posture decision' {
         if ($report.repositorySettings.reviewPolicyPosture.available) {
             $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'warning-only-single-maintainer'
             $report.repositorySettings.reviewPolicyPosture.recommendation | Should -Be 'keep-warning-only-until-reviewer-model'
-            $report.repositorySettings.reviewPolicyPosture.requiredCheckEnforcementProven | Should -BeTrue
+            # Local-only posture: there are no hosted workflows, so hosted required-check
+            # enforcement cannot be proven and the evidence must not claim otherwise.
+            $report.repositorySettings.reviewPolicyPosture.requiredCheckEnforcementProven | Should -BeFalse
+            $report.repositorySettings.reviewPolicyPosture.evidence | Should -Not -Match 'PR #\d+'
             $report.repositorySettings.reviewPolicyPosture.scorecardCodeReviewClassification | Should -Be 'external-gated-reviewer-model'
         } else {
             $report.repositorySettings.reviewPolicyPosture.status | Should -Be 'unavailable'
@@ -4489,39 +4492,22 @@ Describe 'Tracked profile version metadata' {
     }
 }
 
-Describe 'Generated profile PR validation handoff' -Tag 'Integration' {
-    BeforeAll {
-        $script:GeneratedPrHelper = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') -Raw
-        $script:GeneratedValidationStatusScriptPath = Join-Path $script:RepoRoot 'scripts/set-generated-validation-status.ps1'
-        $script:GeneratedValidationStatusScript = Get-Content -LiteralPath $script:GeneratedValidationStatusScriptPath -Raw
-    }
-
-    It 'keeps helper scripts dormant while hosted workflows are absent' {
+Describe 'Generated profile PR validation handoff' {
+    It 'retires the hosted generated-PR helper scripts under the local-only policy' {
+        # The helpers only orchestrated hosted workflows, which this checkout does not
+        # have and policy does not allow. They were removed rather than kept dormant.
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/profile-sync.yml') | Should -BeFalse
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/assets-refresh.yml') | Should -BeFalse
-        $script:GeneratedPrHelper | Should -Match '\[switch\]\$DryRun'
-        $script:GeneratedPrHelper | Should -Match 'Hosted generated pull-request creation is retired'
-        $script:GeneratedPrHelper | Should -Match 'no branch, commit, push, pull request, commit status, or hosted validation dispatch will be created'
-        $script:GeneratedPrHelper | Should -Not -Match 'gh pr create|gh workflow run|git push origin|git commit -m'
-        $script:GeneratedValidationStatusScript | Should -Match 'Hosted generated validation status publishing is retired'
-        $script:GeneratedValidationStatusScript | Should -Not -Match 'gh api -X POST|statuses/\$Sha'
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/open-generated-profile-pr.ps1') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/set-generated-validation-status.ps1') | Should -BeFalse
     }
 
-    It 'builds the generated validation status payload offline' {
-        $sha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-        $output = & pwsh -NoProfile -File $script:GeneratedValidationStatusScriptPath `
-            -State pending `
-            -Description 'Generated profile manual validation pending.' `
-            -Repository 'SysAdminDoc/SysAdminDoc' `
-            -Sha $sha `
-            -TargetUrl 'https://github.com/SysAdminDoc/SysAdminDoc#local-validation' `
-            -DryRun
-        $payload = ($output | Out-String) | ConvertFrom-Json
+    It 'keeps no generated-PR helper references in the validation lane' {
+        $validationScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
+        $syncScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
 
-        $payload.state | Should -Be 'pending'
-        $payload.context | Should -Be 'generated-profile/manual-validation'
-        $payload.description | Should -Be 'Generated profile manual validation pending.'
-        $payload.target_url | Should -Match '#local-validation'
+        $validationScript | Should -Not -Match 'open-generated-profile-pr|set-generated-validation-status'
+        $syncScript | Should -Not -Match 'open-generated-profile-pr|set-generated-validation-status'
     }
 }
 

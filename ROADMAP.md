@@ -38,13 +38,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
   Acceptance: Rendered smoke reports 0 mobile overflow warnings across 3 consecutive runs, after which the blocked promotion row becomes actionable.
   Complexity: M
 
-- [ ] P1 - Retire CI-era dead weight and bring the sync report under budget
-  Why: The report exceeds its own soft byte budget (116,051 vs 114,688) while carrying stub fields for deleted CI (generatedPrWriteEvidence stub at scripts/sync-profile.ps1:12713, prDeliveryTransition relics); relic scripts and configs remain (open-generated-profile-pr.ps1, set-generated-validation-status.ps1, CI paths in write-profile-sync-summary.ps1, .github/zizmor.yml with no workflows to scan).
-  Evidence: artifactBudgets warning; TODO/debt scan (RESEARCH.md Architecture section).
-  Touches: scripts/sync-profile.ps1 (drop stub report fields, update schema required lists in schemas/profile-sync-report.v1.json), delete the two relic scripts, trim write-profile-sync-summary.ps1 to local-summary paths, decide whether the zizmor lane stays (it audits workflows that no longer exist), tests.
-  Acceptance: artifactBudgets 0 warnings; relic scripts gone; schema validation passes; validate-local.ps1 green.
-  Complexity: M
-
 - [ ] P1 - Resolve the Dependabot repo-setting contradiction
   Why: repositorySettings.security.dependabotSecurityPosture is "enabled" and the repo notes say keep it enabled, while the owner's global rules require Dependabot alerts/updates disabled on sight. One direction must win and be recorded.
   Evidence: RESEARCH.md Security section (policy contradiction).
