@@ -229,11 +229,28 @@ Describe 'Invoke-GhCli adapter seam' {
         try {
             $result = Invoke-GhCli -Arguments @('api', 'user')
             $result.exitCode | Should -Be 0
-            $result.text | Should -Be 'api user'
+            $result.text | Should -Be 'api user -H X-GitHub-Api-Version: 2022-11-28'
             $result.output | Should -Not -BeNullOrEmpty
         } finally {
             Remove-Item Function:\gh -ErrorAction SilentlyContinue
         }
+    }
+
+    It 'pins REST calls to an explicit GitHub API calendar version' {
+        (Add-GitHubApiVersionArgument -Arguments @('api', 'repos/SysAdminDoc/SysAdminDoc')) -join ' ' |
+            Should -Be 'api repos/SysAdminDoc/SysAdminDoc -H X-GitHub-Api-Version: 2022-11-28'
+    }
+
+    It 'leaves GraphQL and non-api gh commands unpinned' {
+        (Add-GitHubApiVersionArgument -Arguments @('api', 'graphql', '-f', 'query=x')) -join ' ' |
+            Should -Be 'api graphql -f query=x'
+        (Add-GitHubApiVersionArgument -Arguments @('repo', 'list')) -join ' ' | Should -Be 'repo list'
+        (Add-GitHubApiVersionArgument -Arguments @()) | Should -BeNullOrEmpty
+    }
+
+    It 'lets an explicit caller-supplied API version win' {
+        (Add-GitHubApiVersionArgument -Arguments @('api', 'repos/x', '-H', 'X-GitHub-Api-Version: 2026-03-10')) -join ' ' |
+            Should -Be 'api repos/x -H X-GitHub-Api-Version: 2026-03-10'
     }
 
     It 'surfaces a non-zero gh exit code without throwing' {
@@ -1082,6 +1099,8 @@ Describe 'REST fallback release request guard' {
             param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
 
             $command = $Arguments -join ' '
+            # Transport-level API version pin is not part of what call sites assert.
+            $command = ($command -replace '\s*-H X-GitHub-Api-Version: [\d-]+', '')
             if ($command -like 'repo list *') {
                 $global:LASTEXITCODE = 1
                 return 'GraphQL resource limit exceeded for this query'
@@ -1340,6 +1359,8 @@ Describe 'Validation cache' {
             param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
 
             $command = $Arguments -join ' '
+            # Transport-level API version pin is not part of what call sites assert.
+            $command = ($command -replace '\s*-H X-GitHub-Api-Version: [\d-]+', '')
             if ($command -eq 'auth status -h github.com') {
                 $global:LASTEXITCODE = 0
                 return 'Logged in to github.com'
@@ -1413,6 +1434,8 @@ Describe 'Repository metadata enrichment' {
 
             $global:LASTEXITCODE = 0
             $command = $Arguments -join ' '
+            # Transport-level API version pin is not part of what call sites assert.
+            $command = ($command -replace '\s*-H X-GitHub-Api-Version: [\d-]+', '')
             if ($command -eq 'auth status -h github.com') {
                 return 'Logged in to github.com'
             }

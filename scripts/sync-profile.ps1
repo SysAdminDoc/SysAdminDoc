@@ -115,6 +115,9 @@ $ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
 $CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
 $ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
 $ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
+# Pinned REST calendar version. 2022-11-28 stays supported for at least 24 months from
+# the 2026-03-12 announcement; migrating to 2026-03-10 is a tracked, deliberate change.
+$GitHubRestApiVersion = "2022-11-28"
 $PowerShellMinimumGeneratorVersion = [version]"7.4.0"
 $PowerShellPreferredLtsVersion = [version]"7.6.0"
 $PowerShellPreviousLtsAcceptedUntil = "2026-11-10"
@@ -235,6 +238,39 @@ function ConvertTo-CategorySlug {
     return $null
 }
 
+function Add-GitHubApiVersionArgument {
+    <#
+    .SYNOPSIS
+    Pins REST calls to a known GitHub API calendar version.
+    .DESCRIPTION
+    GitHub shipped its first breaking REST calendar version (2026-03-10), which drops
+    `rate` from /rate_limit plus `has_downloads`, `assignee`, and attestation `bundle`
+    fields. Unversioned requests keep the older behavior today, but that default is not
+    guaranteed, so `gh api` calls send an explicit version instead of inheriting it.
+    Only REST (`gh api`) calls are pinned; GraphQL ignores the header. A caller that
+    already supplies the header wins, so a future migration can override per call.
+    .PARAMETER Arguments
+    The gh argument list to inspect.
+    #>
+    [CmdletBinding()]
+    param([string[]]$Arguments)
+
+    $argumentList = @($Arguments)
+    if ($argumentList.Count -eq 0 -or $argumentList[0] -ne "api") {
+        return $argumentList
+    }
+    if ($argumentList -contains "graphql") {
+        return $argumentList
+    }
+    foreach ($argument in $argumentList) {
+        if ([string]$argument -match '^X-GitHub-Api-Version:') {
+            return $argumentList
+        }
+    }
+
+    return @($argumentList + @("-H", "X-GitHub-Api-Version: $GitHubRestApiVersion"))
+}
+
 function Invoke-GhCli {
     <#
     .SYNOPSIS
@@ -264,6 +300,7 @@ function Invoke-GhCli {
         [int]$TimeoutSeconds = 45
     )
 
+    $Arguments = @(Add-GitHubApiVersionArgument -Arguments $Arguments)
     $command = Get-Command gh -ErrorAction Stop
     $hasStandardInput = $PSBoundParameters.ContainsKey("StandardInput")
     if ($command.CommandType -ne [System.Management.Automation.CommandTypes]::Application) {

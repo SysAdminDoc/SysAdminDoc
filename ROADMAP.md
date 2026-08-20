@@ -10,13 +10,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
 
 ### P1
 
-- [ ] P1 - Pin the REST API version and audit for the 2026-03-10 breaking calendar version
-  Why: GitHub's first breaking REST calendar version removes rate from /rate_limit, has_downloads, assignee, and attestation bundle from list responses; unversioned requests keep old behavior for now, but the generator should pin explicitly and migrate deliberately.
-  Evidence: RESEARCH.md Security section (changelog 2026-03-12; 2022-11-28 supported at least 24 months).
-  Touches: Invoke-GhCli / REST fetch paths in scripts/sync-profile.ps1 (add X-GitHub-Api-Version header), an audit for removed-field consumption, tests.
-  Acceptance: All REST calls send an explicit version header; an audit note in code confirms no removed-field reliance; -Check passes against the pinned version.
-  Complexity: S
-
 - [ ] P1 - Unblock and adopt immutable releases
   Why: Immutable releases are GA (2025-10-28), free on personal repos, enabled per-repo in Settings, with per-asset Sigstore attestations; the Roadmap_Blocked row's "plan-gated / tag protection 404" blocker is obsolete. The report already consumes the immutable and digest fields (currently 136 of 136 release-bearing rows mutable).
   Evidence: RESEARCH.md Security section; live API verification (cli/cli returns immutable: true).
