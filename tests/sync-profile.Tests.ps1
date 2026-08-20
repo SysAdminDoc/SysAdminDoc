@@ -3818,7 +3818,24 @@ Describe 'Feed JSON Schema contracts' {
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeInstallSnippetTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeDownloadLinkTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeUserscriptInstallTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'skipped'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'skipReason'
         $schema.'$defs'.releaseAssetDrift.required | Should -Contain 'executableDownloadTrustShortlist'
+    }
+
+    It 'records why link validation was skipped instead of reporting zero probed targets' {
+        $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
+        $summary = $report.linkValidationSummary
+
+        # A skipped run and a clean run both leave targetCount at 0 for the skipped case,
+        # so the skip must be explicit or a skipped lane reads as validated.
+        $summary.skipped | Should -Be $report.linkValidationSkipped
+        if ($summary.skipped) {
+            $summary.skipReason | Should -Not -BeNullOrEmpty
+        } else {
+            $summary.skipReason | Should -BeNullOrEmpty
+            $summary.targetCount | Should -BeGreaterThan 0
+        }
     }
 
     It 'warns when a schema uses keywords outside the project compatibility allowlist' {

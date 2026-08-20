@@ -7070,7 +7070,9 @@
         "readmeDownloadLinkTargetCount",
         "readmeUserscriptInstallTargetCount",
         "warningCountByHost",
-        "headerHostWarnings"
+        "headerHostWarnings",
+        "skipped",
+        "skipReason"
       ],
       "properties": {
         "targetCount": {
@@ -7105,6 +7107,15 @@
           "items": {
             "$ref": "#/$defs/hostWarningCount"
           }
+        },
+        "skipped": {
+          "type": "boolean"
+        },
+        "skipReason": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     },

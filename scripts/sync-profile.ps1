@@ -12516,7 +12516,18 @@ function Test-ProfileState {
 
     $linkFailures = @()
     $linkWarnings = @()
+    # A bare targetCount of 0 reads like "probed everything, found nothing wrong". Record the
+    # skip explicitly so a skipped run is never mistaken for a clean one.
+    $linkValidationSkipReason = if ($Offline) {
+        "offline mode"
+    } elseif ($SkipLinkValidation) {
+        "-SkipLinkValidation"
+    } else {
+        $null
+    }
     $linkValidationSummary = [ordered]@{
+        skipped = [bool]($Offline -or $SkipLinkValidation)
+        skipReason = $linkValidationSkipReason
         targetCount = 0
         throttleLimit = $LinkValidationThrottle
         elapsedMs = 0
@@ -12534,6 +12545,8 @@ function Test-ProfileState {
         $linkFailures = @($linkResult.failures)
         $linkWarnings = @($linkResult.warnings)
         $linkValidationSummary = [ordered]@{
+            skipped = $false
+            skipReason = $null
             targetCount = $linkResult.targetCount
             throttleLimit = $linkResult.throttleLimit
             elapsedMs = $linkResult.elapsedMs

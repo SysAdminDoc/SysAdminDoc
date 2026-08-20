@@ -24,13 +24,6 @@ Added 2026-08-20 from the RESEARCH.md refresh. Every item is traceable to RESEAR
   Acceptance: This repo's next release reports immutable: true; releaseAssetDrift.releaseImmutability shows a rising immutable count; stale blocker text gone.
   Complexity: M
 
-- [ ] P1 - Restore link validation in the default check lane
-  Why: The 2026-08-12 report ran with linkValidationSummary targetCount 0 (validation skipped) and userscriptInstallTrust skipped, which is exactly why 404 catalog links from the private-visibility set went uncaught.
-  Evidence: reports/profile-sync-report.json validationPerformance and linkValidationSummary (RESEARCH.md Security section).
-  Touches: scripts/sync-profile.ps1 link-validation gating (find why targetCount was 0: cache path, offline fallback, or a regression), a regression test asserting -Check probes a nonzero target count when online.
-  Acceptance: A fresh -Check reports targetCount > 0, userscriptInstallTrust populated, and a test fails if link validation silently skips while online.
-  Complexity: S
-
 - [ ] P1 - Root-fix mobile table overflow
   Why: Rendered smoke reports 20 overflow warnings (10 per mobile theme at 390px, root client width 308px): both 5-column Tool Catalog tables, the Start Here routing table, the local-validation table, and the Web Apps table. The blocked promote-to-fatal gate can never land while the baseline is 20.
   Evidence: reports/rendered-profile-smoke.json (RESEARCH.md Security section); Roadmap_Blocked "rendered-smoke mobile viewport overflow regression gate" row (cross-referenced, not duplicated).

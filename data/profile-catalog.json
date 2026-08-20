@@ -4993,7 +4993,7 @@
       "entrypoint": null,
       "installKind": null,
       "downloadKind": "zip",
-      "userscriptUrl": "https://raw.githubusercontent.com/SysAdminDoc/kick-focus/main/kick-focus.user.js",
+      "userscriptUrl": "https://raw.githubusercontent.com/SysAdminDoc/kick-focus/main/dist/kick-focus.user.js",
       "liveUrl": null,
       "language": "JavaScript",
       "descriptionOverride": "Desktop-first layout, accessibility, content filters, and ad defense for Kick.com",
