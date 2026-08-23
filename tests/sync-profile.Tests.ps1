@@ -168,6 +168,11 @@ Describe 'Function library loads via the dot-source test seam' {
             'Add-LiveRepositoryMetadata',
             'ConvertTo-Lookup',
             'Get-ContributionCalendar',
+            'New-CompleteGenerationSnapshot',
+            'Test-CompleteGenerationSnapshot',
+            'Write-CompleteGenerationSnapshot',
+            'Get-CompleteGenerationSnapshot',
+            'Set-GenerationStateFromSnapshot',
             'Get-Catalog',
             'New-ProfileAssetSvgs',
             'New-ContributionGraphSvg',
@@ -1427,6 +1432,124 @@ Describe 'Validation cache' {
 
         Get-ValidationCacheValue -Bucket metadata -Key $cacheKey | Should -BeNullOrEmpty
         (Get-ValidationCacheState).metadata.staleCount | Should -Be 1
+    }
+
+    It 'records complete owner-bound generation inputs and rejects incomplete snapshots' {
+        $oldMetadataSnapshotAt = $script:MetadataSnapshotAt
+        $oldProvider = $script:RepositoryMetadataProvider
+        $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
+        $oldTruncated = $script:RepositoryEnumerationTruncated
+        $calendar = [pscustomobject]@{
+            totalContributions = 3
+            weeks = @(
+                [pscustomobject]@{
+                    contributionDays = @(
+                        [pscustomobject]@{
+                            contributionCount = 3
+                            date = '2026-08-23'
+                            weekday = 0
+                        }
+                    )
+                }
+            )
+        }
+        $repo = New-TestRepoMeta -Name 'CachedCompleteRepo' -WithRelease -AssetNames @('CachedCompleteRepo.zip')
+
+        try {
+            $script:MetadataSnapshotAt = '2026-08-23T12:00:00.0000000Z'
+            $script:RepositoryMetadataProvider = 'graphql'
+            $script:RepositoryEnumerationRequestedLimit = 25
+            $script:RepositoryEnumerationTruncated = $false
+
+            Write-CompleteGenerationSnapshot -Repos @($repo) -ContributionCalendar $calendar -ReleaseMetadataComplete:$true | Should -BeTrue
+            $snapshot = Get-CompleteGenerationSnapshot
+            $cacheFile = Get-ValidationCacheFilePath -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey)
+            $cacheEnvelope = Read-ValidationCacheEntry -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey)
+
+            $snapshot.owner | Should -Be 'SysAdminDoc'
+            $snapshot.sourceComplete | Should -BeTrue
+            $snapshot.sourceCompleteness.repositoryEnumeration | Should -BeTrue
+            $snapshot.sourceCompleteness.releases | Should -BeTrue
+            $snapshot.sourceCompleteness.contributionData | Should -BeTrue
+            $snapshot.repositoryEnumeration.returnedCount | Should -Be 1
+            $snapshot.repositoryEnumeration.truncated | Should -BeFalse
+            $snapshot.repositories | Should -HaveCount 1
+            $snapshot.releases | Should -HaveCount 1
+            $snapshot.releases[0].latestRelease.tagName | Should -Be 'v1.0.0'
+            $snapshot.contributionData.totalContributions | Should -Be 3
+            $cacheEnvelope.fetchedAt | Should -Not -BeNullOrEmpty
+            $cacheEnvelope.value.fetchedAt | Should -Be '2026-08-23T12:00:00.0000000Z'
+
+            $snapshot.owner = 'DifferentOwner'
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.owner = 'SysAdminDoc'
+            $snapshot.sourceCompleteness.contributionData = $false
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+        } finally {
+            $script:MetadataSnapshotAt = $oldMetadataSnapshotAt
+            $script:RepositoryMetadataProvider = $oldProvider
+            $script:RepositoryEnumerationRequestedLimit = $oldRequestedLimit
+            $script:RepositoryEnumerationTruncated = $oldTruncated
+        }
+    }
+
+    It 'replays complete cached generation inputs byte-identically under a frozen clock' {
+        $oldMetadataSnapshotAt = $script:MetadataSnapshotAt
+        $oldProvider = $script:RepositoryMetadataProvider
+        $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
+        $oldTruncated = $script:RepositoryEnumerationTruncated
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip')),
+            (New-TestRepoMeta -Name 'PyTool' -Language 'Python')
+        )
+        $calendar = [pscustomobject]@{
+            totalContributions = 2
+            weeks = @(
+                [pscustomobject]@{
+                    contributionDays = @(
+                        [pscustomobject]@{
+                            contributionCount = 2
+                            date = '2026-08-23'
+                            weekday = 0
+                        }
+                    )
+                }
+            )
+        }
+
+        try {
+            Mock -CommandName Get-Date -MockWith { [datetime]'2026-08-23T12:00:00Z' }
+            $script:MetadataSnapshotAt = '2026-08-23T12:00:00.0000000Z'
+            $script:RepositoryMetadataProvider = 'graphql'
+            $script:RepositoryEnumerationRequestedLimit = 25
+            $script:RepositoryEnumerationTruncated = $false
+
+            $onlineReadme = New-Readme -Catalog $catalog -Repos $repos
+            $onlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $repos
+            $onlineAssets = New-ProfileAssetSvgs -Catalog $catalog -Repos $repos -ContributionCalendar $calendar
+            Write-CompleteGenerationSnapshot -Repos $repos -ContributionCalendar $calendar -ReleaseMetadataComplete:$true | Should -BeTrue
+
+            $snapshot = Get-CompleteGenerationSnapshot
+            Set-GenerationStateFromSnapshot -Snapshot $snapshot
+            $cachedRepos = @(Get-MemberValue -Object $snapshot -Name 'repositories')
+            $cachedCalendar = Get-MemberValue -Object $snapshot -Name 'contributionData'
+            $offlineReadme = New-Readme -Catalog $catalog -Repos $cachedRepos
+            $offlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $cachedRepos
+            $offlineAssets = New-ProfileAssetSvgs -Catalog $catalog -Repos $cachedRepos -ContributionCalendar $cachedCalendar
+
+            $offlineReadme | Should -BeExactly $onlineReadme
+            $offlineProjects | Should -BeExactly $onlineProjects
+            @($offlineAssets.Keys) | Should -Be @($onlineAssets.Keys)
+            foreach ($assetPath in @($onlineAssets.Keys)) {
+                $offlineAssets[$assetPath] | Should -BeExactly $onlineAssets[$assetPath]
+            }
+        } finally {
+            $script:MetadataSnapshotAt = $oldMetadataSnapshotAt
+            $script:RepositoryMetadataProvider = $oldProvider
+            $script:RepositoryEnumerationRequestedLimit = $oldRequestedLimit
+            $script:RepositoryEnumerationTruncated = $oldTruncated
+        }
     }
 
     It 'uses cached repository metadata for offline runs and records degraded fidelity' {
@@ -4472,23 +4595,100 @@ Describe 'Profile sync entrypoint' {
 }
 
 Describe 'Generation entrypoint modes' -Tag 'Integration' {
-    It 'writes README, feed, and assets under -Write -Offline without crashing' {
+    It 'rejects a cold-cache offline write before changing any canonical target' {
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
         $readmePath = Join-Path $TestDrive 'README.md'
         $projectsPath = Join-Path $TestDrive 'projects.json'
+        $reportPath = Join-Path $TestDrive 'profile-sync-report.json'
         $assetsPath = Join-Path $TestDrive 'assets'
+        $cachePath = Join-Path $TestDrive 'cold-cache'
         Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'projects.json') -Destination $projectsPath -Force
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Destination $reportPath -Force
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'assets/profile') -Destination $assetsPath -Recurse -Force
+        $targetPaths = @($readmePath, $projectsPath, $reportPath) + @(
+            Get-ChildItem -LiteralPath $assetsPath -File | Sort-Object FullName | ForEach-Object FullName
+        )
+        $beforeHashes = @{}
+        foreach ($path in $targetPaths) {
+            $beforeHashes[$path] = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+        }
 
         $output = & pwsh -NoProfile -File $scriptPath -Write -Offline `
             -CatalogPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') `
-            -ReadmePath $readmePath -ProjectsPath $projectsPath -AssetsPath $assetsPath *>&1
+            -ReadmePath $readmePath -ProjectsPath $projectsPath -ReportPath $reportPath `
+            -AssetsPath $assetsPath -CachePath $cachePath *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match 'Offline writes require a fresh, complete generation snapshot'
+        $targetPaths | Should -HaveCount 15
+        foreach ($path in $targetPaths) {
+            (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash | Should -Be $beforeHashes[$path]
+        }
+    }
+
+    It 'writes canonical artifacts offline from a complete owner-bound snapshot' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $readmePath = Join-Path $TestDrive 'cached-README.md'
+        $projectsPath = Join-Path $TestDrive 'cached-projects.json'
+        $assetsPath = Join-Path $TestDrive 'cached-assets'
+        $cachePath = Join-Path $TestDrive 'complete-cache'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+        $oldCachePath = $script:CachePath
+        $oldCacheEnabled = $script:CacheEnabled
+        $oldMetadataSnapshotAt = $script:MetadataSnapshotAt
+        $oldProvider = $script:RepositoryMetadataProvider
+        $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
+        $oldTruncated = $script:RepositoryEnumerationTruncated
+        $calendar = [pscustomobject]@{
+            totalContributions = 1
+            weeks = @(
+                [pscustomobject]@{
+                    contributionDays = @(
+                        [pscustomobject]@{
+                            contributionCount = 1
+                            date = '2026-08-23'
+                            weekday = 0
+                        }
+                    )
+                }
+            )
+        }
+
+        try {
+            $script:CachePath = $cachePath
+            $script:CacheEnabled = $true
+            $script:MetadataSnapshotAt = (Get-Date).ToUniversalTime().ToString('o')
+            $script:RepositoryMetadataProvider = 'graphql'
+            $script:RepositoryEnumerationRequestedLimit = 25
+            $script:RepositoryEnumerationTruncated = $false
+            Reset-ValidationCacheState
+            Write-CompleteGenerationSnapshot `
+                -Repos @((New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip'))) `
+                -ContributionCalendar $calendar `
+                -ReleaseMetadataComplete:$true | Should -BeTrue
+        } finally {
+            $script:CachePath = $oldCachePath
+            $script:CacheEnabled = $oldCacheEnabled
+            $script:MetadataSnapshotAt = $oldMetadataSnapshotAt
+            $script:RepositoryMetadataProvider = $oldProvider
+            $script:RepositoryEnumerationRequestedLimit = $oldRequestedLimit
+            $script:RepositoryEnumerationTruncated = $oldTruncated
+            Reset-ValidationCacheState
+        }
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline `
+            -CatalogPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') `
+            -ReadmePath $readmePath -ProjectsPath $projectsPath -AssetsPath $assetsPath `
+            -CachePath $cachePath *>&1
 
         $LASTEXITCODE | Should -Be 0
-        ($output | Out-String) | Should -Not -Match "property 'Count' cannot be found"
-        Test-Path -LiteralPath $readmePath | Should -BeTrue
-        Test-Path -LiteralPath $projectsPath | Should -BeTrue
+        ($output | Out-String) | Should -Match 'Wrote .*cached-README[.]md'
         $feed = Get-Content -LiteralPath $projectsPath -Raw | ConvertFrom-Json
-        $feed.publicRepoCount | Should -Be 0
+        $feed.publicRepoCount | Should -Be 1
+        $feed.provenance.metadataProvider | Should -Be 'graphql'
+        $feed.provenance.repoEnumeration.returnedCount | Should -Be 1
+        @(Get-ChildItem -LiteralPath $assetsPath -File) | Should -HaveCount 12
     }
 
     It 'rejects unsafe Owner values before generation or network work' {
@@ -4506,7 +4706,7 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
 
         $output = & pwsh -NoProfile -File $scriptPath -Check -Offline -SkipLinkValidation `
             -CatalogPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') `
-            -ReportPath $reportPath *>&1
+            -ReportPath $reportPath -CachePath (Join-Path $TestDrive 'cold-check-cache') *>&1
 
         # Offline check legitimately reports drift (exit 1); the point is that it does not throw.
         ($output | Out-String) | Should -Not -Match "property 'Count' cannot be found"
@@ -4517,6 +4717,9 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         $report.validationPerformance.metadataFetch.requestCount | Should -Be 0
         $report.validationPerformance.metadataFetch.retryCount | Should -Be 0
         $report.validationPerformance.metadataFetch.resourceLimitFallback | Should -BeFalse
+        $report.provenance.metadataProvider | Should -Be 'offline-empty'
+        $report.validationPerformance.metadataFetch.fallbackReason | Should -Be 'complete generation snapshot unavailable'
+        $report.validationPerformance.metadataFetch.fidelityDegraded | Should -BeTrue
     }
 
     It 'reaches the topic-apply block and exits cleanly on an empty allowlist' {

@@ -3595,6 +3595,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
+| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
 Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
@@ -4598,7 +4599,10 @@ function Read-ValidationCacheEntry {
     }
 
     try {
-        $entry = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+        $cacheJson = Get-Content -LiteralPath $path -Raw
+        $preservedJson = ConvertFrom-JsonPreservingArrays -Json $cacheJson
+        $entry = $null
+        ConvertTo-JsonSchemaValidationValue -Value $preservedJson -Result ([ref]$entry)
         $fetchedAtText = [string](Get-MemberValue -Object $entry -Name 'fetchedAt')
         $fetchedAt = if ([string]::IsNullOrWhiteSpace($fetchedAtText)) { [datetime]::MinValue } else { [datetime]::Parse($fetchedAtText, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind) }
         $ageHours = ((Get-Date).ToUniversalTime() - $fetchedAt.ToUniversalTime()).TotalHours
@@ -4685,6 +4689,214 @@ function Get-LinkProbeCacheKey {
     param([string]$Url)
 
     return "link-probe:$Url"
+}
+
+function Get-CompleteGenerationSnapshotCacheKey {
+    <#
+    .SYNOPSIS
+    Returns the owner-bound cache key for a complete generation snapshot.
+    #>
+    [CmdletBinding()]
+    param()
+
+    return "generation-snapshot:v1:$Owner"
+}
+
+function New-CompleteGenerationSnapshot {
+    <#
+    .SYNOPSIS
+    Packages complete, replayable generation inputs for safe offline writes.
+    .PARAMETER Repos
+    Fully enriched repository metadata from the current online run.
+    .PARAMETER ContributionCalendar
+    Contribution calendar data used to render the committed heatmap assets.
+    .PARAMETER ReleaseMetadataComplete
+    Confirms that release enrichment completed without a partial-result failure.
+    #>
+    [CmdletBinding()]
+    param(
+        [object[]]$Repos,
+        [AllowNull()]
+        [object]$ContributionCalendar,
+        [bool]$ReleaseMetadataComplete
+    )
+
+    $repoRows = @($Repos | Where-Object { $null -ne $_ })
+    $provider = [string]$script:RepositoryMetadataProvider
+    $repositoryEnumerationComplete = [bool](
+        $repoRows.Count -gt 0 -and
+        -not [bool]$script:RepositoryEnumerationTruncated -and
+        $provider -in @('graphql', 'rest-fallback')
+    )
+    $contributionDataComplete = $null -ne $ContributionCalendar
+    $releaseRows = @(
+        foreach ($repo in $repoRows) {
+            [ordered]@{
+                repo = [string](Get-MemberValue -Object $repo -Name 'name')
+                latestRelease = Get-MemberValue -Object $repo -Name 'latestRelease'
+            }
+        }
+    )
+    $releaseDataComplete = [bool]($ReleaseMetadataComplete -and $releaseRows.Count -eq $repoRows.Count)
+    $sourceComplete = [bool]($repositoryEnumerationComplete -and $releaseDataComplete -and $contributionDataComplete)
+
+    return [ordered]@{
+        schemaVersion = 1
+        owner = [string]$Owner
+        fetchedAt = [string]$script:MetadataSnapshotAt
+        sourceComplete = $sourceComplete
+        sourceCompleteness = [ordered]@{
+            repositoryEnumeration = $repositoryEnumerationComplete
+            releases = $releaseDataComplete
+            contributionData = $contributionDataComplete
+        }
+        repositoryEnumeration = [ordered]@{
+            provider = $provider
+            requestedLimit = [int]$script:RepositoryEnumerationRequestedLimit
+            returnedCount = [int]$repoRows.Count
+            truncated = [bool]$script:RepositoryEnumerationTruncated
+        }
+        repositories = $repoRows
+        releases = $releaseRows
+        contributionData = $ContributionCalendar
+        restFallbackReleaseFetch = Get-RestFallbackReleaseFetchState
+    }
+}
+
+function Test-CompleteGenerationSnapshot {
+    <#
+    .SYNOPSIS
+    Validates that a cached snapshot is complete and belongs to the requested owner.
+    .PARAMETER Snapshot
+    Snapshot value read from the validation cache.
+    #>
+    [CmdletBinding()]
+    param([AllowNull()][object]$Snapshot)
+
+    if ($null -eq $Snapshot -or [int](Get-MemberValue -Object $Snapshot -Name 'schemaVersion') -ne 1) {
+        return $false
+    }
+    $snapshotOwner = [string](Get-MemberValue -Object $Snapshot -Name 'owner')
+    if (-not $snapshotOwner.Equals([string]$Owner, [StringComparison]::OrdinalIgnoreCase)) {
+        return $false
+    }
+    if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $Snapshot -Name 'sourceComplete'))) {
+        return $false
+    }
+
+    $fetchedAt = [string](Get-MemberValue -Object $Snapshot -Name 'fetchedAt')
+    if ([string]::IsNullOrWhiteSpace($fetchedAt)) {
+        return $false
+    }
+    try {
+        [void][DateTimeOffset]::Parse($fetchedAt, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind)
+    } catch {
+        return $false
+    }
+
+    $completeness = Get-MemberValue -Object $Snapshot -Name 'sourceCompleteness'
+    foreach ($field in @('repositoryEnumeration', 'releases', 'contributionData')) {
+        if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $completeness -Name $field))) {
+            return $false
+        }
+    }
+
+    $enumeration = Get-MemberValue -Object $Snapshot -Name 'repositoryEnumeration'
+    $repositories = @(Get-MemberValue -Object $Snapshot -Name 'repositories')
+    $releases = @(Get-MemberValue -Object $Snapshot -Name 'releases')
+    if ($repositories.Count -eq 0 -or
+        [int](Get-MemberValue -Object $enumeration -Name 'returnedCount') -ne $repositories.Count -or
+        (ConvertTo-BooleanValue (Get-MemberValue -Object $enumeration -Name 'truncated')) -or
+        [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $enumeration -Name 'provider')) -or
+        $releases.Count -ne $repositories.Count -or
+        $null -eq (Get-MemberValue -Object $Snapshot -Name 'contributionData')) {
+        return $false
+    }
+
+    return $true
+}
+
+function Write-CompleteGenerationSnapshot {
+    <#
+    .SYNOPSIS
+    Writes a complete online generation snapshot when every required source is present.
+    .PARAMETER Repos
+    Fully enriched repository metadata from the current online run.
+    .PARAMETER ContributionCalendar
+    Contribution calendar data used to render the committed heatmap assets.
+    .PARAMETER ReleaseMetadataComplete
+    Confirms that release enrichment completed without a partial-result failure.
+    #>
+    [CmdletBinding()]
+    param(
+        [object[]]$Repos,
+        [AllowNull()]
+        [object]$ContributionCalendar,
+        [bool]$ReleaseMetadataComplete
+    )
+
+    $snapshot = New-CompleteGenerationSnapshot `
+        -Repos $Repos `
+        -ContributionCalendar $ContributionCalendar `
+        -ReleaseMetadataComplete:$ReleaseMetadataComplete
+    if (-not (Test-CompleteGenerationSnapshot -Snapshot $snapshot)) {
+        return $false
+    }
+
+    Write-ValidationCacheEntry -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey) -Value $snapshot
+    return $true
+}
+
+function Get-CompleteGenerationSnapshot {
+    <#
+    .SYNOPSIS
+    Reads a fresh, owner-bound complete generation snapshot from the cache.
+    #>
+    [CmdletBinding()]
+    param()
+
+    $snapshot = Get-ValidationCacheValue `
+        -Bucket metadata `
+        -Key (Get-CompleteGenerationSnapshotCacheKey) `
+        -FallbackReason 'offline complete generation snapshot'
+    if (-not (Test-CompleteGenerationSnapshot -Snapshot $snapshot)) {
+        return $null
+    }
+
+    return $snapshot
+}
+
+function Set-GenerationStateFromSnapshot {
+    <#
+    .SYNOPSIS
+    Restores generation provenance and fetch telemetry from a complete snapshot.
+    .PARAMETER Snapshot
+    Complete snapshot returned by Get-CompleteGenerationSnapshot.
+    #>
+    [CmdletBinding()]
+    param([object]$Snapshot)
+
+    if (-not (Test-CompleteGenerationSnapshot -Snapshot $Snapshot)) {
+        throw 'Cannot restore generation state from an incomplete snapshot.'
+    }
+
+    $enumeration = Get-MemberValue -Object $Snapshot -Name 'repositoryEnumeration'
+    $script:MetadataSnapshotAt = [string](Get-MemberValue -Object $Snapshot -Name 'fetchedAt')
+    $script:RepositoryMetadataProvider = [string](Get-MemberValue -Object $enumeration -Name 'provider')
+    $script:RepositoryEnumerationRequestedLimit = [int](Get-MemberValue -Object $enumeration -Name 'requestedLimit')
+    $script:RepositoryEnumerationTruncated = [bool](Get-MemberValue -Object $enumeration -Name 'truncated')
+    $script:MetadataFetchAttemptCount = 0
+    $script:MetadataFetchRequestCount = 0
+    $script:MetadataFetchPageSizeReduced = $false
+    $script:MetadataFetchFallbackReason = 'complete offline generation snapshot'
+    $script:MetadataFetchResourceLimitFallback = $false
+    $script:MetadataFetchResourceLimitReason = $null
+    $restFallbackState = Get-MemberValue -Object $Snapshot -Name 'restFallbackReleaseFetch'
+    if ($null -eq $restFallbackState) {
+        Reset-RestFallbackReleaseFetchState
+    } else {
+        $script:RestFallbackReleaseFetchState = $restFallbackState
+    }
 }
 
 function Get-CompactDiffSnippet {
@@ -12772,7 +12984,7 @@ function Test-ProfileState {
             requestCount = [int]$script:MetadataFetchRequestCount
             attemptCount = [int]$script:MetadataFetchAttemptCount
             retryCount = [Math]::Max(0, ([int]$script:MetadataFetchAttemptCount - 1))
-            fallbackUsed = [bool]($script:RepositoryMetadataProvider -eq "rest-fallback" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
+            fallbackUsed = [bool]($script:RepositoryMetadataProvider -eq "rest-fallback" -or $script:RepositoryMetadataProvider -eq "offline-empty" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
             fallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchFallbackReason)) { $null } else { [string]$script:MetadataFetchFallbackReason }
             resourceLimitFallback = [bool]$script:MetadataFetchResourceLimitFallback
             resourceLimitFallbackReason = if ([string]::IsNullOrWhiteSpace($script:MetadataFetchResourceLimitReason)) { $null } else { [string]$script:MetadataFetchResourceLimitReason }
@@ -12780,7 +12992,7 @@ function Test-ProfileState {
             effectivePageSize = [int]$script:RepositoryEnumerationRequestedLimit
             repoCount = [int]$Repos.Count
             truncated = [bool]$script:RepositoryEnumerationTruncated
-            fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
+            fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback" -or $script:RepositoryMetadataProvider -eq "offline-empty" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
         }
         linkValidation = [ordered]@{
             skipped = [bool]($Offline -or $SkipLinkValidation)
@@ -12995,7 +13207,37 @@ if ($SeedCatalog) {
     Write-Warning "LOSSY LEGACY SEED MODE: $($seedGuard.message -replace '^-SeedCatalog is a ', '')"
 }
 
-$repos = if ($Offline) { @() } else { Add-LiveRepositoryMetadata -Repos (Get-GitHubRepos) }
+$repos = @()
+$contributionCalendar = $null
+if ($Offline -and ($Write -or $Check)) {
+    $generationSnapshot = Get-CompleteGenerationSnapshot
+    if ($null -eq $generationSnapshot) {
+        if ($Write) {
+            Write-Error 'Offline writes require a fresh, complete generation snapshot. Run sync-profile.ps1 -Check online once to populate the cache, then retry before the cache TTL expires.'
+            exit 1
+        }
+        $script:RepositoryMetadataProvider = 'offline-empty'
+        $script:RepositoryEnumerationRequestedLimit = [int]$script:GraphQlPageSize
+        $script:RepositoryEnumerationTruncated = $false
+        $script:MetadataFetchFallbackReason = 'complete generation snapshot unavailable'
+    } else {
+        Set-GenerationStateFromSnapshot -Snapshot $generationSnapshot
+        $repos = @(Get-MemberValue -Object $generationSnapshot -Name 'repositories')
+        $contributionCalendar = Get-MemberValue -Object $generationSnapshot -Name 'contributionData'
+    }
+} elseif (-not $Offline) {
+    $repos = @(Add-LiveRepositoryMetadata -Repos (Get-GitHubRepos))
+    $contributionCalendar = Get-ContributionCalendar
+    if ($Write -or $Check) {
+        $snapshotWritten = Write-CompleteGenerationSnapshot `
+            -Repos $repos `
+            -ContributionCalendar $contributionCalendar `
+            -ReleaseMetadataComplete:$true
+        if (-not $snapshotWritten) {
+            Write-Warning 'Complete generation snapshot was not refreshed because one or more live sources were incomplete.'
+        }
+    }
+}
 
 if ($SeedCatalog) {
     $catalog = New-CatalogFromReadme -Repos $repos
@@ -13009,8 +13251,6 @@ if ($SeedCatalog) {
         exit 0
     }
 }
-
-$contributionCalendar = Get-ContributionCalendar
 
 $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
     Get-Catalog -Path $CatalogPath
