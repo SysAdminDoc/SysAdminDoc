@@ -674,7 +674,11 @@ function Get-GitHubRepos {
                     throw "gh repo list returned exactly 100 repos despite requested limit $repoLimit; falling back to REST pagination to avoid a partial default-page result."
                 }
                 if ($repos.Count -ge $repoLimit) {
-                    Write-Warning "gh repo list returned $($repos.Count) repos (limit $repoLimit); some public repos may be truncated."
+                    # A list that fills its own page is indistinguishable from a truncated
+                    # one, and a truncated enumeration makes every missing repo look like it
+                    # went private. REST pagination is complete, so fall back instead of
+                    # drawing visibility conclusions from a partial list.
+                    throw "gh repo list returned $($repos.Count) repos at limit $repoLimit; falling back to REST pagination to avoid a truncated enumeration."
                 }
                 $script:RepositoryMetadataProvider = "graphql"
                 $script:RepositoryEnumerationRequestedLimit = $repoLimit

@@ -1100,7 +1100,7 @@ Describe 'REST fallback release request guard' {
         Test-GitHubMetadataResourceLimit -Output 'gh: Not Found (HTTP 404)' | Should -BeFalse
     }
 
-    It 'uses the configured GraphQL page size and records successful metadata telemetry' {
+    It 'keeps a 24-row configured GraphQL page on GraphQL and records successful metadata telemetry' {
         $oldOffline = $script:Offline
         $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
         $pageSizeVariable = Get-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
@@ -1118,20 +1118,20 @@ Describe 'REST fallback release request guard' {
 
             $script:ghCommands += ($Arguments -join ' ')
             $global:LASTEXITCODE = 0
-            return @(
-                @{ name = 'RepoA' },
-                @{ name = 'RepoB' }
-            ) | ConvertTo-Json -Depth 5
+            return @(1..24 | ForEach-Object {
+                @{ name = "GraphRepo$($_.ToString('00'))" }
+            }) | ConvertTo-Json -Depth 5
         }
 
         try {
             $repos = @(Get-GitHubRepos)
 
-            $repos | Should -HaveCount 2
+            $repos | Should -HaveCount 24
             $script:ghCommands[0] | Should -Match '--limit 25'
             $script:MetadataFetchAttemptCount | Should -Be 1
             $script:MetadataFetchRequestCount | Should -Be 1
             $script:RepositoryEnumerationRequestedLimit | Should -Be 25
+            $script:RepositoryMetadataProvider | Should -Be 'graphql'
             $script:RepositoryEnumerationTruncated | Should -BeFalse
             $script:MetadataFetchResourceLimitFallback | Should -BeFalse
         } finally {
@@ -1147,6 +1147,84 @@ Describe 'REST fallback release request guard' {
                 Remove-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
             }
             Remove-Variable -Name ghCommands -Scope Script -ErrorAction SilentlyContinue
+            Remove-Item Function:\gh -ErrorAction SilentlyContinue
+            Reset-MetadataFetchTelemetry
+            Reset-RestFallbackReleaseFetchState
+        }
+    }
+
+    It 'falls back to complete REST enumeration when the configured GraphQL page is full' {
+        $oldOffline = $script:Offline
+        $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+        $pageSizeVariable = Get-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+        $hadOwner = ($null -ne $ownerVariable)
+        $hadPageSize = ($null -ne $pageSizeVariable)
+        $oldOwner = if ($hadOwner) { $ownerVariable.Value } else { $null }
+        $oldPageSize = if ($hadPageSize) { $pageSizeVariable.Value } else { $null }
+        $script:Offline = $false
+        $script:Owner = 'SysAdminDoc'
+        $script:GraphQlPageSize = 25
+
+        function gh {
+            param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+
+            $command = $Arguments -join ' '
+            $command = ($command -replace '\s*-H X-GitHub-Api-Version: [\d-]+', '')
+            if ($command -like 'repo list *') {
+                $global:LASTEXITCODE = 0
+                return @(1..25 | ForEach-Object {
+                    @{ name = "GraphRepo$($_.ToString('00'))" }
+                }) | ConvertTo-Json -Depth 5
+            }
+            if ($command -eq 'api --paginate --slurp users/SysAdminDoc/repos?per_page=100') {
+                $global:LASTEXITCODE = 0
+                $restRows = @(1..27 | ForEach-Object {
+                    [ordered]@{
+                        name = if ($_ -eq 27) { 'RestOnlyRepo' } else { "RestRepo$($_.ToString('00'))" }
+                        description = 'REST fallback fixture'
+                        stargazers_count = $_
+                        default_branch = 'main'
+                        fork = $false
+                        private = $false
+                        archived = $false
+                        topics = @('utility')
+                        pushed_at = '2026-08-23T00:00:00Z'
+                        html_url = "https://github.com/SysAdminDoc/RestRepo$($_.ToString('00'))"
+                    }
+                })
+                $pageJson = $restRows | ConvertTo-Json -Depth 5 -Compress
+                return "[$pageJson]"
+            }
+
+            throw "Unexpected gh invocation: $command"
+        }
+
+        try {
+            Mock -CommandName Start-Sleep -MockWith {}
+
+            $repos = @(Get-GitHubRepos)
+
+            $repos | Should -HaveCount 27
+            @($repos.name) | Should -Contain 'RestOnlyRepo'
+            @($repos.name) | Should -Not -Contain 'GraphRepo25'
+            $script:RepositoryMetadataProvider | Should -Be 'rest-fallback'
+            $script:MetadataFetchFallbackReason | Should -Match '25 repos at limit 25'
+            $script:MetadataFetchAttemptCount | Should -Be 3
+            $script:MetadataFetchRequestCount | Should -Be 4
+            $script:RepositoryEnumerationRequestedLimit | Should -Be 0
+            $script:RepositoryEnumerationTruncated | Should -BeFalse
+        } finally {
+            $script:Offline = $oldOffline
+            if ($hadOwner) {
+                $script:Owner = $oldOwner
+            } else {
+                Remove-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
+            }
+            if ($hadPageSize) {
+                $script:GraphQlPageSize = $oldPageSize
+            } else {
+                Remove-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
+            }
             Remove-Item Function:\gh -ErrorAction SilentlyContinue
             Reset-MetadataFetchTelemetry
             Reset-RestFallbackReleaseFetchState

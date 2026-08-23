@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-23
+
+- Prevented configured GraphQL page sizes from silently truncating the public repository inventory. A full page now falls back to complete REST pagination, while a page below the configured limit remains on GraphQL. Behavioral coverage proves both paths and confirms REST-only repositories stay in the inventory.
+- Reconciled the newly forked `apps.obtainium.imranr.dev` repository as an unchanged upstream reference, keeping it accounted for without presenting it as a SysAdminDoc project.
+
 ## 2026-08-20
 
 - Bumped the internal profile evidence version to `v4.10.0`.
