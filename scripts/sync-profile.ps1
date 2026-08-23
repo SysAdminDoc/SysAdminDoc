@@ -140,6 +140,7 @@ $script:RepositoryMetadataProvider = "graphql"
 $script:RepositoryEnumerationRequestedLimit = $script:GraphQlPageSize
 $script:RepositoryEnumerationTruncated = $false
 $script:MetadataSnapshotAt = (Get-Date).ToString("o")
+$script:GenerationArtifactTimestamp = $null
 $script:RestFallbackReleaseFetchState = $null
 $script:MetadataFetchAttemptCount = 0
 $script:MetadataFetchRequestCount = 0
@@ -647,6 +648,7 @@ function Get-GitHubRepos {
 
     $repoLimit = [int]$script:GraphQlPageSize
     $lastOutput = $null
+    $completeRestFallbackRequired = $false
 
     for ($attempt = 1; $attempt -le 3; $attempt++) {
         # GitHub's per-query GraphQL resource limit (announced 2025-09-01) is a function of
@@ -671,14 +673,18 @@ function Get-GitHubRepos {
                     throw "GitHub returned an empty repository list."
                 }
                 if ($repos.Count -eq 100 -and $repoLimit -gt 100) {
-                    throw "gh repo list returned exactly 100 repos despite requested limit $repoLimit; falling back to REST pagination to avoid a partial default-page result."
+                    $lastOutput = "gh repo list returned exactly 100 repos despite requested limit $repoLimit; falling back to REST pagination to avoid a partial default-page result."
+                    $completeRestFallbackRequired = $true
+                    break
                 }
                 if ($repos.Count -ge $repoLimit) {
                     # A list that fills its own page is indistinguishable from a truncated
                     # one, and a truncated enumeration makes every missing repo look like it
                     # went private. REST pagination is complete, so fall back instead of
                     # drawing visibility conclusions from a partial list.
-                    throw "gh repo list returned $($repos.Count) repos at limit $repoLimit; falling back to REST pagination to avoid a truncated enumeration."
+                    $lastOutput = "gh repo list returned $($repos.Count) repos at limit $repoLimit; falling back to REST pagination to avoid a truncated enumeration."
+                    $completeRestFallbackRequired = $true
+                    break
                 }
                 $script:RepositoryMetadataProvider = "graphql"
                 $script:RepositoryEnumerationRequestedLimit = $repoLimit
@@ -710,16 +716,19 @@ function Get-GitHubRepos {
     $script:MetadataFetchFallbackReason = $lastOutput
     $script:MetadataFetchResourceLimitFallback = Test-GitHubMetadataResourceLimit -Output $lastOutput
     $script:MetadataFetchResourceLimitReason = if ($script:MetadataFetchResourceLimitFallback) { $lastOutput } else { $null }
-    $cachedFallbackRepos = Get-ValidationCacheValue -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -FallbackReason $lastOutput
-    if ($null -ne $cachedFallbackRepos) {
-        Write-Warning "GraphQL repo metadata failed after 3 attempts; using cached metadata. Last gh output: $lastOutput"
-        $script:RepositoryMetadataProvider = "cache-fallback"
-        $script:RepositoryEnumerationRequestedLimit = [int]$script:GraphQlPageSize
-        $script:RepositoryEnumerationTruncated = $false
-        Reset-RestFallbackReleaseFetchState
-        return @($cachedFallbackRepos)
+    if (-not $completeRestFallbackRequired) {
+        $cachedFallbackRepos = Get-ValidationCacheValue -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -FallbackReason $lastOutput
+        if ($null -ne $cachedFallbackRepos) {
+            Write-Warning "GraphQL repo metadata failed after 3 attempts; using cached metadata. Last gh output: $lastOutput"
+            $script:RepositoryMetadataProvider = "cache-fallback"
+            $script:RepositoryEnumerationRequestedLimit = [int]$script:GraphQlPageSize
+            $script:RepositoryEnumerationTruncated = $false
+            Reset-RestFallbackReleaseFetchState
+            return @($cachedFallbackRepos)
+        }
     }
-    Write-Warning "GraphQL repo metadata failed after 3 attempts; using REST fallback. Last gh output: $lastOutput"
+    $attemptDescription = if ($completeRestFallbackRequired) { 'returned a full page' } else { 'failed after 3 attempts' }
+    Write-Warning "GraphQL repo metadata $attemptDescription; using REST fallback. Last gh output: $lastOutput"
     return Get-GitHubReposFromRest
 }
 
@@ -3596,6 +3605,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
 | Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
+| Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
 Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
@@ -4502,6 +4512,428 @@ function Get-StringSha256 {
     }
 }
 
+function Get-FileSha256Hex {
+    param([string]$Path)
+
+    if (-not [System.IO.File]::Exists($Path)) {
+        return $null
+    }
+
+    $stream = [System.IO.File]::OpenRead($Path)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($stream) | ForEach-Object { $_.ToString('x2') }) -join '')
+    } finally {
+        $sha256.Dispose()
+        $stream.Dispose()
+    }
+}
+
+function Get-Utf8TextSha256Hex {
+    param([AllowNull()][string]$Text)
+
+    $textValue = if ($null -eq $Text) { '' } else { $Text }
+    $contentBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($textValue)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($contentBytes) | ForEach-Object { $_.ToString('x2') }) -join '')
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
+function Write-AtomicUtf8TextFile {
+    <#
+    .SYNOPSIS
+    Publishes one UTF-8 text file with a same-directory atomic replacement.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [Parameter(Mandatory)]
+        [AllowEmptyString()]
+        [string]$Content
+    )
+
+    $fullPath = [System.IO.Path]::GetFullPath($Path)
+    $directory = Split-Path -Parent $fullPath
+    if ([string]::IsNullOrWhiteSpace($directory)) {
+        throw "Cannot determine the parent directory for atomic publication: $Path"
+    }
+    [System.IO.Directory]::CreateDirectory($directory) | Out-Null
+
+    $transactionId = [guid]::NewGuid().ToString('N')
+    $fileName = [System.IO.Path]::GetFileName($fullPath)
+    $stagedPath = Join-Path $directory ".$fileName.$transactionId.stage"
+    $backupPath = Join-Path $directory ".$fileName.$transactionId.backup"
+    $targetExisted = [System.IO.File]::Exists($fullPath)
+    $published = $false
+    try {
+        [System.IO.File]::WriteAllText($stagedPath, $Content, [System.Text.UTF8Encoding]::new($false))
+        $expectedHash = Get-Utf8TextSha256Hex -Text $Content
+        $stagedHash = Get-FileSha256Hex -Path $stagedPath
+        if ($stagedHash -ne $expectedHash) {
+            throw "Staged content hash mismatch for $fullPath."
+        }
+
+        if ([System.IO.File]::Exists($fullPath)) {
+            [System.IO.File]::Replace($stagedPath, $fullPath, $backupPath, $true)
+        } else {
+            [System.IO.File]::Move($stagedPath, $fullPath)
+        }
+
+        if ((Get-FileSha256Hex -Path $fullPath) -ne $expectedHash) {
+            throw "Published content hash mismatch for $fullPath."
+        }
+        $published = $true
+    } catch {
+        if ([System.IO.File]::Exists($backupPath)) {
+            if ([System.IO.File]::Exists($fullPath)) {
+                $discardPath = "$backupPath.discard"
+                [System.IO.File]::Delete($discardPath)
+                [System.IO.File]::Replace($backupPath, $fullPath, $discardPath, $true)
+                [System.IO.File]::Delete($discardPath)
+            } else {
+                [System.IO.File]::Move($backupPath, $fullPath)
+            }
+        } elseif (-not $targetExisted -and -not $published -and [System.IO.File]::Exists($fullPath)) {
+            [System.IO.File]::Delete($fullPath)
+        }
+        throw
+    } finally {
+        [System.IO.File]::Delete($stagedPath)
+        [System.IO.File]::Delete($backupPath)
+    }
+}
+
+function Get-ArtifactPublicationTransactionRoot {
+    $cacheRoot = Get-ValidationCacheRoot
+    if ([string]::IsNullOrWhiteSpace($cacheRoot)) {
+        $cacheRoot = Join-Path $RepoRoot '.cache/profile-sync'
+    }
+
+    return (Join-Path $cacheRoot 'transactions')
+}
+
+function Write-ArtifactPublicationJournal {
+    param([object]$Transaction)
+
+    $journalPath = [string](Get-MemberValue -Object $Transaction -Name 'journalPath')
+    if ([string]::IsNullOrWhiteSpace($journalPath)) {
+        throw 'Artifact publication transaction has no journal path.'
+    }
+
+    $journalJson = $Transaction | ConvertTo-Json -Depth 12
+    Write-AtomicUtf8TextFile -Path $journalPath -Content ($journalJson + [Environment]::NewLine)
+}
+
+function Add-ArtifactPublicationRows {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Transaction,
+
+        [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
+        [object[]]$Artifacts
+    )
+
+    $rows = $null
+    if ($Transaction -is [System.Collections.IDictionary]) {
+        $rows = $Transaction['artifacts']
+    } else {
+        $rows = $Transaction.PSObject.Properties['artifacts'].Value
+    }
+    if ($null -eq $rows) {
+        throw 'Artifact publication transaction has no artifact collection.'
+    }
+
+    foreach ($artifact in @($Artifacts)) {
+        $path = [string](Get-MemberValue -Object $artifact -Name 'path')
+        $content = [string](Get-MemberValue -Object $artifact -Name 'content')
+        $isReport = [bool](Get-MemberValue -Object $artifact -Name 'isReport')
+        if ([string]::IsNullOrWhiteSpace($path)) {
+            throw 'Artifact publication requires a non-empty target path.'
+        }
+
+        $targetPath = [System.IO.Path]::GetFullPath($path)
+        foreach ($existingRow in @($rows)) {
+            $existingTarget = [string](Get-MemberValue -Object $existingRow -Name 'targetPath')
+            if ([string]::Equals($existingTarget, $targetPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw "Artifact publication target is duplicated: $targetPath"
+            }
+        }
+
+        if ($isReport -and @($rows | Where-Object { [bool](Get-MemberValue -Object $_ -Name 'isReport') }).Count -gt 0) {
+            throw 'Artifact publication supports exactly one report target per transaction.'
+        }
+
+        $directory = Split-Path -Parent $targetPath
+        if ([string]::IsNullOrWhiteSpace($directory)) {
+            throw "Cannot determine the parent directory for artifact target: $targetPath"
+        }
+        [System.IO.Directory]::CreateDirectory($directory) | Out-Null
+
+        $transactionId = [string](Get-MemberValue -Object $Transaction -Name 'transactionId')
+        $fileName = [System.IO.Path]::GetFileName($targetPath)
+        $stagedPath = Join-Path $directory ".$fileName.$transactionId.stage"
+        $backupPath = Join-Path $directory ".$fileName.$transactionId.backup"
+        $existed = [System.IO.File]::Exists($targetPath)
+        $row = [ordered]@{
+            targetPath = $targetPath
+            stagedPath = $stagedPath
+            backupPath = $backupPath
+            existed = $existed
+            oldHash = if ($existed) { Get-FileSha256Hex -Path $targetPath } else { $null }
+            newHash = $null
+            isReport = $isReport
+            promoted = $false
+        }
+        $rows.Add($row) | Out-Null
+        Write-ArtifactPublicationJournal -Transaction $Transaction
+
+        [System.IO.File]::WriteAllText($stagedPath, $content, [System.Text.UTF8Encoding]::new($false))
+        $row.newHash = Get-Utf8TextSha256Hex -Text $content
+        $stagedHash = Get-FileSha256Hex -Path $stagedPath
+        if ($stagedHash -ne $row.newHash) {
+            throw "Staged artifact hash mismatch for $targetPath."
+        }
+        Write-ArtifactPublicationJournal -Transaction $Transaction
+    }
+}
+
+function New-ArtifactPublicationTransaction {
+    <#
+    .SYNOPSIS
+    Stages and journals a set of generated artifacts before any target changes.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [AllowEmptyCollection()]
+        [object[]]$Artifacts,
+
+        [string]$TransactionRoot = (Get-ArtifactPublicationTransactionRoot)
+    )
+
+    if (@($Artifacts).Count -eq 0) {
+        throw 'Artifact publication requires at least one target.'
+    }
+
+    $root = [System.IO.Path]::GetFullPath($TransactionRoot)
+    [System.IO.Directory]::CreateDirectory($root) | Out-Null
+    $transactionId = [guid]::NewGuid().ToString('N')
+    $transaction = [ordered]@{
+        schemaVersion = 1
+        transactionId = $transactionId
+        state = 'staging'
+        createdAt = (Get-Date).ToUniversalTime().ToString('o')
+        journalPath = (Join-Path $root "$transactionId.json")
+        artifacts = [System.Collections.Generic.List[object]]::new()
+    }
+
+    Write-ArtifactPublicationJournal -Transaction $transaction
+    try {
+        Add-ArtifactPublicationRows -Transaction $transaction -Artifacts $Artifacts
+        $transaction.state = 'ready'
+        Write-ArtifactPublicationJournal -Transaction $transaction
+        return $transaction
+    } catch {
+        try {
+            Repair-ArtifactPublicationTransactions -TransactionRoot $root | Out-Null
+        } catch {
+            Write-Warning "Artifact staging cleanup failed: $($_.Exception.Message)"
+        }
+        throw
+    }
+}
+
+function Publish-ArtifactPublicationTransaction {
+    <#
+    .SYNOPSIS
+    Promotes staged artifacts, with the report ordered after every other target.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [object]$Transaction,
+
+        [ValidateRange(0, 10000)]
+        [int]$FaultAfterPromotion = 0
+    )
+
+    $state = [string](Get-MemberValue -Object $Transaction -Name 'state')
+    if ($state -notin @('ready', 'publishing')) {
+        throw "Cannot publish transaction in state '$state'."
+    }
+
+    Set-MemberValue -Object $Transaction -Name 'state' -Value 'publishing'
+    Write-ArtifactPublicationJournal -Transaction $Transaction
+    $rows = @(Get-JsonArrayItems (Get-MemberValue -Object $Transaction -Name 'artifacts'))
+    $orderedRows = @($rows | Where-Object { -not [bool](Get-MemberValue -Object $_ -Name 'isReport') }) +
+        @($rows | Where-Object { [bool](Get-MemberValue -Object $_ -Name 'isReport') })
+    $promotionCount = @($rows | Where-Object { [bool](Get-MemberValue -Object $_ -Name 'promoted') }).Count
+
+    foreach ($row in $orderedRows) {
+        if ([bool](Get-MemberValue -Object $row -Name 'promoted')) {
+            continue
+        }
+
+        $targetPath = [string](Get-MemberValue -Object $row -Name 'targetPath')
+        $stagedPath = [string](Get-MemberValue -Object $row -Name 'stagedPath')
+        $backupPath = [string](Get-MemberValue -Object $row -Name 'backupPath')
+        $oldHash = [string](Get-MemberValue -Object $row -Name 'oldHash')
+        $newHash = [string](Get-MemberValue -Object $row -Name 'newHash')
+        $existed = [bool](Get-MemberValue -Object $row -Name 'existed')
+
+        if ((Get-FileSha256Hex -Path $stagedPath) -ne $newHash) {
+            throw "Staged artifact changed before promotion: $targetPath"
+        }
+        if ($existed) {
+            if ((Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
+                throw "Artifact target changed after staging: $targetPath"
+            }
+            [System.IO.File]::Replace($stagedPath, $targetPath, $backupPath, $true)
+        } else {
+            if ([System.IO.File]::Exists($targetPath)) {
+                throw "New artifact target appeared after staging: $targetPath"
+            }
+            [System.IO.File]::Move($stagedPath, $targetPath)
+        }
+
+        if ((Get-FileSha256Hex -Path $targetPath) -ne $newHash) {
+            throw "Published artifact hash mismatch for $targetPath."
+        }
+        Set-MemberValue -Object $row -Name 'promoted' -Value $true
+        $promotionCount++
+        Write-ArtifactPublicationJournal -Transaction $Transaction
+        if ($FaultAfterPromotion -gt 0 -and $promotionCount -eq $FaultAfterPromotion) {
+            throw "Injected artifact publication failure after promotion $promotionCount."
+        }
+    }
+}
+
+function Remove-ArtifactPublicationResidue {
+    param(
+        [object]$Transaction,
+        [switch]$RemoveJournal
+    )
+
+    foreach ($row in @(Get-JsonArrayItems (Get-MemberValue -Object $Transaction -Name 'artifacts'))) {
+        $stagedPath = [string](Get-MemberValue -Object $row -Name 'stagedPath')
+        $backupPath = [string](Get-MemberValue -Object $row -Name 'backupPath')
+        if (-not [string]::IsNullOrWhiteSpace($stagedPath)) {
+            [System.IO.File]::Delete($stagedPath)
+        }
+        if (-not [string]::IsNullOrWhiteSpace($backupPath)) {
+            [System.IO.File]::Delete($backupPath)
+        }
+    }
+    if ($RemoveJournal) {
+        [System.IO.File]::Delete([string](Get-MemberValue -Object $Transaction -Name 'journalPath'))
+    }
+}
+
+function Complete-ArtifactPublicationTransaction {
+    <#
+    .SYNOPSIS
+    Commits a fully promoted artifact set and removes transaction residue.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][object]$Transaction)
+
+    foreach ($row in @(Get-JsonArrayItems (Get-MemberValue -Object $Transaction -Name 'artifacts'))) {
+        $targetPath = [string](Get-MemberValue -Object $row -Name 'targetPath')
+        $newHash = [string](Get-MemberValue -Object $row -Name 'newHash')
+        if (-not [bool](Get-MemberValue -Object $row -Name 'promoted') -or (Get-FileSha256Hex -Path $targetPath) -ne $newHash) {
+            throw "Cannot commit an incomplete artifact publication transaction: $targetPath"
+        }
+    }
+
+    Set-MemberValue -Object $Transaction -Name 'state' -Value 'committed'
+    Write-ArtifactPublicationJournal -Transaction $Transaction
+    Remove-ArtifactPublicationResidue -Transaction $Transaction -RemoveJournal
+}
+
+function Repair-ArtifactPublicationTransactions {
+    <#
+    .SYNOPSIS
+    Recovers interrupted artifact publications to a complete old or new set.
+    #>
+    [CmdletBinding()]
+    param([string]$TransactionRoot = (Get-ArtifactPublicationTransactionRoot))
+
+    $root = [System.IO.Path]::GetFullPath($TransactionRoot)
+    if (-not [System.IO.Directory]::Exists($root)) {
+        return 0
+    }
+
+    $recovered = 0
+    foreach ($journalPath in @([System.IO.Directory]::GetFiles($root, '*.json') | Sort-Object)) {
+        $transaction = ConvertFrom-JsonPreservingArrays -Json ([System.IO.File]::ReadAllText($journalPath))
+        Set-MemberValue -Object $transaction -Name 'journalPath' -Value $journalPath
+        $rows = @(Get-JsonArrayItems (Get-MemberValue -Object $transaction -Name 'artifacts'))
+        $state = [string](Get-MemberValue -Object $transaction -Name 'state')
+        $keepNew = $state -eq 'committed'
+        if ($keepNew) {
+            foreach ($row in $rows) {
+                $targetPath = [string](Get-MemberValue -Object $row -Name 'targetPath')
+                $newHash = [string](Get-MemberValue -Object $row -Name 'newHash')
+                if ((Get-FileSha256Hex -Path $targetPath) -ne $newHash) {
+                    $keepNew = $false
+                    break
+                }
+            }
+        }
+
+        if (-not $keepNew) {
+            [array]::Reverse($rows)
+            foreach ($row in $rows) {
+                $targetPath = [string](Get-MemberValue -Object $row -Name 'targetPath')
+                $backupPath = [string](Get-MemberValue -Object $row -Name 'backupPath')
+                $oldHash = [string](Get-MemberValue -Object $row -Name 'oldHash')
+                $newHash = [string](Get-MemberValue -Object $row -Name 'newHash')
+                $existed = [bool](Get-MemberValue -Object $row -Name 'existed')
+                if ($existed) {
+                    if ([System.IO.File]::Exists($backupPath)) {
+                        if ([System.IO.File]::Exists($targetPath)) {
+                            $recoveryDiscardPath = "$backupPath.recovery-discard"
+                            [System.IO.File]::Delete($recoveryDiscardPath)
+                            [System.IO.File]::Replace($backupPath, $targetPath, $recoveryDiscardPath, $true)
+                            [System.IO.File]::Delete($recoveryDiscardPath)
+                        } else {
+                            [System.IO.File]::Move($backupPath, $targetPath)
+                        }
+                    } elseif ((Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
+                        throw "Cannot recover artifact because its original backup is unavailable: $targetPath"
+                    }
+                    if ((Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
+                        throw "Recovered artifact hash mismatch for $targetPath."
+                    }
+                } elseif ([System.IO.File]::Exists($targetPath)) {
+                    if ((Get-FileSha256Hex -Path $targetPath) -ne $newHash) {
+                        throw "Refusing to remove an unexpected file while recovering: $targetPath"
+                    }
+                    [System.IO.File]::Delete($targetPath)
+                }
+            }
+        }
+
+        Remove-ArtifactPublicationResidue -Transaction $transaction -RemoveJournal
+        $recovered++
+    }
+
+    foreach ($orphanPath in @([System.IO.Directory]::GetFiles($root))) {
+        $orphanName = [System.IO.Path]::GetFileName($orphanPath)
+        if ($orphanName -match '^[.].+[.](stage|backup)$') {
+            [System.IO.File]::Delete($orphanPath)
+        }
+    }
+
+    return $recovered
+}
+
 function New-ValidationCacheBucket {
     return [ordered]@{
         hitCount = 0
@@ -4651,7 +5083,22 @@ function Write-ValidationCacheEntry {
         value = $Value
     }
 
-    $entry | ConvertTo-Json -Depth 50 | Set-Content -LiteralPath $path -Encoding utf8
+    $entryJson = $entry | ConvertTo-Json -Depth 50
+    $cacheTransactionRoot = Get-ArtifactPublicationTransactionRoot
+    $cacheTransaction = New-ArtifactPublicationTransaction -TransactionRoot $cacheTransactionRoot -Artifacts @(
+        [ordered]@{ path = $path; content = ($entryJson + [Environment]::NewLine); isReport = $false }
+    )
+    try {
+        Publish-ArtifactPublicationTransaction -Transaction $cacheTransaction
+        Complete-ArtifactPublicationTransaction -Transaction $cacheTransaction
+    } catch {
+        try {
+            Repair-ArtifactPublicationTransactions -TransactionRoot $cacheTransactionRoot | Out-Null
+        } catch {
+            Write-Warning "Validation cache rollback failed: $($_.Exception.Message)"
+        }
+        throw
+    }
     Add-ValidationCacheCounter -Bucket $Bucket -Counter writeCount
 }
 
@@ -4699,7 +5146,7 @@ function Get-CompleteGenerationSnapshotCacheKey {
     [CmdletBinding()]
     param()
 
-    return "generation-snapshot:v1:$Owner"
+    return "generation-snapshot:v2:$Owner"
 }
 
 function New-CompleteGenerationSnapshot {
@@ -4712,13 +5159,16 @@ function New-CompleteGenerationSnapshot {
     Contribution calendar data used to render the committed heatmap assets.
     .PARAMETER ReleaseMetadataComplete
     Confirms that release enrichment completed without a partial-result failure.
+    .PARAMETER GenerationTimestamp
+    Stable timestamp shared by the snapshot and generated feed during online or offline replay.
     #>
     [CmdletBinding()]
     param(
         [object[]]$Repos,
         [AllowNull()]
         [object]$ContributionCalendar,
-        [bool]$ReleaseMetadataComplete
+        [bool]$ReleaseMetadataComplete,
+        [string]$GenerationTimestamp = (Get-Date).ToString('o')
     )
 
     $repoRows = @($Repos | Where-Object { $null -ne $_ })
@@ -4741,9 +5191,10 @@ function New-CompleteGenerationSnapshot {
     $sourceComplete = [bool]($repositoryEnumerationComplete -and $releaseDataComplete -and $contributionDataComplete)
 
     return [ordered]@{
-        schemaVersion = 1
+        schemaVersion = 2
         owner = [string]$Owner
         fetchedAt = [string]$script:MetadataSnapshotAt
+        generationTimestamp = $GenerationTimestamp
         sourceComplete = $sourceComplete
         sourceCompleteness = [ordered]@{
             repositoryEnumeration = $repositoryEnumerationComplete
@@ -4773,7 +5224,7 @@ function Test-CompleteGenerationSnapshot {
     [CmdletBinding()]
     param([AllowNull()][object]$Snapshot)
 
-    if ($null -eq $Snapshot -or [int](Get-MemberValue -Object $Snapshot -Name 'schemaVersion') -ne 1) {
+    if ($null -eq $Snapshot -or [int](Get-MemberValue -Object $Snapshot -Name 'schemaVersion') -ne 2) {
         return $false
     }
     $snapshotOwner = [string](Get-MemberValue -Object $Snapshot -Name 'owner')
@@ -4793,6 +5244,12 @@ function Test-CompleteGenerationSnapshot {
     } catch {
         return $false
     }
+    $generationTimestamp = [string](Get-MemberValue -Object $Snapshot -Name 'generationTimestamp')
+    try {
+        [void][DateTimeOffset]::Parse($generationTimestamp, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind)
+    } catch {
+        return $false
+    }
 
     $completeness = Get-MemberValue -Object $Snapshot -Name 'sourceCompleteness'
     foreach ($field in @('repositoryEnumeration', 'releases', 'contributionData')) {
@@ -4802,15 +5259,124 @@ function Test-CompleteGenerationSnapshot {
     }
 
     $enumeration = Get-MemberValue -Object $Snapshot -Name 'repositoryEnumeration'
-    $repositories = @(Get-MemberValue -Object $Snapshot -Name 'repositories')
-    $releases = @(Get-MemberValue -Object $Snapshot -Name 'releases')
+    $repositories = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $Snapshot -Name 'repositories'))
+    $releases = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $Snapshot -Name 'releases'))
+    $contributionData = Get-MemberValue -Object $Snapshot -Name 'contributionData'
+    $provider = [string](Get-MemberValue -Object $enumeration -Name 'provider')
     if ($repositories.Count -eq 0 -or
         [int](Get-MemberValue -Object $enumeration -Name 'returnedCount') -ne $repositories.Count -or
         (ConvertTo-BooleanValue (Get-MemberValue -Object $enumeration -Name 'truncated')) -or
-        [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $enumeration -Name 'provider')) -or
+        $provider -notin @('graphql', 'rest-fallback') -or
         $releases.Count -ne $repositories.Count -or
-        $null -eq (Get-MemberValue -Object $Snapshot -Name 'contributionData')) {
+        $null -eq $contributionData) {
         return $false
+    }
+
+    $repositoryNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $requiredRepositoryFields = @(
+        'name',
+        'description',
+        'stargazerCount',
+        'defaultBranchRef',
+        'branchTipSha',
+        'branchTipFetchedAt',
+        'branchTipStatus',
+        'branchTipWarning',
+        'latestRelease',
+        'licenseInfo',
+        'isFork',
+        'parent',
+        'isPrivate',
+        'visibility',
+        'isArchived',
+        'repositoryTopics',
+        'pushedAt',
+        'url',
+        'primaryLanguage'
+    )
+    foreach ($repository in $repositories) {
+        $repositoryName = [string](Get-MemberValue -Object $repository -Name 'name')
+        if (-not (Test-SafeGitHubName -Name $repositoryName) -or -not $repositoryNames.Add($repositoryName)) {
+            return $false
+        }
+        foreach ($field in $requiredRepositoryFields) {
+            if (-not (Test-MemberExists -Object $repository -Name $field)) {
+                return $false
+            }
+        }
+        $starsText = [string](Get-MemberValue -Object $repository -Name 'stargazerCount')
+        $stars = [int64]0
+        if ($starsText -notmatch '^\d+$' -or -not [int64]::TryParse($starsText, [ref]$stars) -or
+            (Get-MemberValue -Object $repository -Name 'isFork') -isnot [bool] -or
+            (Get-MemberValue -Object $repository -Name 'isPrivate') -isnot [bool] -or
+            (Get-MemberValue -Object $repository -Name 'isArchived') -isnot [bool] -or
+            (ConvertTo-BooleanValue (Get-MemberValue -Object $repository -Name 'isPrivate')) -or
+            [string](Get-MemberValue -Object $repository -Name 'visibility') -ne 'PUBLIC' -or
+            [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $repository -Name 'url')) -or
+            [string](Get-MemberValue -Object $repository -Name 'branchTipStatus') -notin @('fresh', 'stale', 'missing', 'unreachable')) {
+            return $false
+        }
+    }
+    $releaseNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $releaseLookup = [System.Collections.Generic.Dictionary[string, object]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($release in $releases) {
+        $releaseRepo = [string](Get-MemberValue -Object $release -Name 'repo')
+        if (-not (Test-SafeGitHubName -Name $releaseRepo) -or -not $releaseNames.Add($releaseRepo)) {
+            return $false
+        }
+        $releaseLookup[$releaseRepo] = $release
+    }
+    if (-not $repositoryNames.SetEquals($releaseNames)) {
+        return $false
+    }
+
+    foreach ($repository in $repositories) {
+        $repositoryName = [string](Get-MemberValue -Object $repository -Name 'name')
+        $release = $releaseLookup[$repositoryName]
+        if (-not (Test-MemberExists -Object $repository -Name 'latestRelease') -or
+            -not (Test-MemberExists -Object $release -Name 'latestRelease') -or
+            (ConvertTo-ComparableJson (Get-MemberValue -Object $repository -Name 'latestRelease')) -cne
+                (ConvertTo-ComparableJson (Get-MemberValue -Object $release -Name 'latestRelease'))) {
+            return $false
+        }
+    }
+
+    $totalContributionsText = [string](Get-MemberValue -Object $contributionData -Name 'totalContributions')
+    $totalContributions = [int64]0
+    if (-not (Test-MemberExists -Object $contributionData -Name 'totalContributions') -or
+        $totalContributionsText -notmatch '^\d+$' -or
+        -not [int64]::TryParse($totalContributionsText, [ref]$totalContributions)) {
+        return $false
+    }
+
+    $weeks = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $contributionData -Name 'weeks'))
+    if ($weeks.Count -eq 0) {
+        return $false
+    }
+    foreach ($week in $weeks) {
+        $days = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $week -Name 'contributionDays'))
+        if ($days.Count -eq 0) {
+            return $false
+        }
+        foreach ($day in $days) {
+            $countText = [string](Get-MemberValue -Object $day -Name 'contributionCount')
+            $weekdayText = [string](Get-MemberValue -Object $day -Name 'weekday')
+            $dateText = [string](Get-MemberValue -Object $day -Name 'date')
+            $contributionCount = [int64]0
+            $weekday = [int]0
+            $parsedDate = [datetime]::MinValue
+            if (-not (Test-MemberExists -Object $day -Name 'contributionCount') -or
+                -not (Test-MemberExists -Object $day -Name 'weekday') -or
+                -not (Test-MemberExists -Object $day -Name 'date') -or
+                $countText -notmatch '^\d+$' -or
+                -not [int64]::TryParse($countText, [ref]$contributionCount) -or
+                $weekdayText -notmatch '^\d+$' -or
+                -not [int]::TryParse($weekdayText, [ref]$weekday) -or
+                $weekday -lt 0 -or $weekday -gt 6 -or
+                -not [datetime]::TryParseExact($dateText, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::None, [ref]$parsedDate)) {
+                return $false
+            }
+        }
     }
 
     return $true
@@ -4826,19 +5392,23 @@ function Write-CompleteGenerationSnapshot {
     Contribution calendar data used to render the committed heatmap assets.
     .PARAMETER ReleaseMetadataComplete
     Confirms that release enrichment completed without a partial-result failure.
+    .PARAMETER GenerationTimestamp
+    Stable timestamp shared by the snapshot and generated feed during online or offline replay.
     #>
     [CmdletBinding()]
     param(
         [object[]]$Repos,
         [AllowNull()]
         [object]$ContributionCalendar,
-        [bool]$ReleaseMetadataComplete
+        [bool]$ReleaseMetadataComplete,
+        [string]$GenerationTimestamp = (Get-Date).ToString('o')
     )
 
     $snapshot = New-CompleteGenerationSnapshot `
         -Repos $Repos `
         -ContributionCalendar $ContributionCalendar `
-        -ReleaseMetadataComplete:$ReleaseMetadataComplete
+        -ReleaseMetadataComplete:$ReleaseMetadataComplete `
+        -GenerationTimestamp $GenerationTimestamp
     if (-not (Test-CompleteGenerationSnapshot -Snapshot $snapshot)) {
         return $false
     }
@@ -4882,6 +5452,7 @@ function Set-GenerationStateFromSnapshot {
 
     $enumeration = Get-MemberValue -Object $Snapshot -Name 'repositoryEnumeration'
     $script:MetadataSnapshotAt = [string](Get-MemberValue -Object $Snapshot -Name 'fetchedAt')
+    $script:GenerationArtifactTimestamp = [string](Get-MemberValue -Object $Snapshot -Name 'generationTimestamp')
     $script:RepositoryMetadataProvider = [string](Get-MemberValue -Object $enumeration -Name 'provider')
     $script:RepositoryEnumerationRequestedLimit = [int](Get-MemberValue -Object $enumeration -Name 'requestedLimit')
     $script:RepositoryEnumerationTruncated = [bool](Get-MemberValue -Object $enumeration -Name 'truncated')
@@ -5066,11 +5637,14 @@ function New-ProjectsExportJson {
     Normalized profile catalog returned by Get-Catalog.
     .PARAMETER Repos
     Repository metadata used to populate public-safe project feed fields.
+    .PARAMETER GeneratedAt
+    Optional stable generation timestamp used when replaying a complete snapshot.
     #>
     [CmdletBinding()]
     param(
         [hashtable]$Catalog,
-        [object[]]$Repos
+        [object[]]$Repos,
+        [string]$GeneratedAt
     )
 
     $repoLookup = ConvertTo-Lookup $Repos
@@ -5198,7 +5772,7 @@ function New-ProjectsExportJson {
         # published feed's generatedAt and made the staleness warning permanent.
         # ConvertTo-ProjectsSyncComparableJson treats this as a volatile field so
         # check-only runs still compare equal.
-        generatedAt = (Get-Date).ToString("o")
+        generatedAt = if ([string]::IsNullOrWhiteSpace($GeneratedAt)) { (Get-Date).ToString("o") } else { $GeneratedAt }
         source = "$Owner/$Owner data/profile-catalog.json"
         provenance = New-ProjectsProvenance -Repos $Repos
         schemaPolicy = New-ProjectsFeedSchemaPolicy
@@ -12646,6 +13220,8 @@ function Test-ProfileState {
     Optional current README content; defaults to reading README.md.
     .PARAMETER CurrentProjects
     Optional current projects.json content; defaults to reading projects.json.
+    .PARAMETER CurrentAssets
+    Optional current SVG content keyed by path; defaults to reading committed assets.
     .PARAMETER ExpectedAssets
     Expected generated profile SVG content keyed by relative path.
     .PARAMETER SkipLinkValidation
@@ -12677,6 +13253,7 @@ function Test-ProfileState {
         [string]$ExpectedProjects,
         [string]$CurrentReadme,
         [string]$CurrentProjects,
+        [hashtable]$CurrentAssets,
         [hashtable]$ExpectedAssets = @{},
     [switch]$SkipLinkValidation,
     [switch]$VerifyReleaseArtifacts,
@@ -12797,10 +13374,11 @@ function Test-ProfileState {
     $assetChecks = New-Object System.Collections.Generic.List[object]
     foreach ($assetPath in @($ExpectedAssets.Keys | Sort-Object)) {
         $fullPath = Join-Path $RepoRoot $assetPath
-        $exists = Test-Path -LiteralPath $fullPath
+        $usesCurrentAssets = $PSBoundParameters.ContainsKey('CurrentAssets')
+        $exists = if ($usesCurrentAssets) { $CurrentAssets.ContainsKey($assetPath) } else { Test-Path -LiteralPath $fullPath }
         $assetInSync = $false
         if ($exists) {
-            $currentAsset = Get-Content -LiteralPath $fullPath -Raw
+            $currentAsset = if ($usesCurrentAssets) { [string]$CurrentAssets[$assetPath] } else { Get-Content -LiteralPath $fullPath -Raw }
             $assetInSync = ((ConvertTo-NormalizedGeneratedText -Text $currentAsset) -eq (ConvertTo-NormalizedGeneratedText -Text ([string]$ExpectedAssets[$assetPath])))
         }
         $assetChecks.Add([ordered]@{
@@ -12897,7 +13475,21 @@ function Test-ProfileState {
     $scheduledWorkflowFreshness = Test-ScheduledWorkflowFreshness -Definitions $scheduledWorkflowDefinitions -RunLookup $scheduledWorkflowRunLookup -Now (Get-Date)
     $roadmapHygiene = Test-RoadmapHygiene
     $rootMarkdownHygiene = Test-RootMarkdownHygiene
-    $profileAssetsAccessibility = Test-ProfileAssetsAccessibility
+    $profileAssetContents = $null
+    if ($PSBoundParameters.ContainsKey('CurrentAssets')) {
+        $profileAssetContents = @{}
+        foreach ($assetPath in @($CurrentAssets.Keys)) {
+            $assetName = [System.IO.Path]::GetFileName([string]$assetPath)
+            if ($assetName.EndsWith('.svg', [StringComparison]::OrdinalIgnoreCase)) {
+                $profileAssetContents[$assetName] = [string]$CurrentAssets[$assetPath]
+            }
+        }
+    }
+    $profileAssetsAccessibility = if ($null -ne $profileAssetContents) {
+        Test-ProfileAssetsAccessibility -AssetContents $profileAssetContents
+    } else {
+        Test-ProfileAssetsAccessibility
+    }
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -13198,6 +13790,16 @@ if (-not (Test-SafeGitHubName -Name $Owner)) {
 
 Set-Location $RepoRoot
 
+try {
+    $recoveredPublicationCount = Repair-ArtifactPublicationTransactions
+    if ($recoveredPublicationCount -gt 0) {
+        Write-Warning "Recovered $recoveredPublicationCount interrupted artifact publication transaction(s) before generation."
+    }
+} catch {
+    Write-Error "Artifact publication recovery failed before generation: $($_.Exception.Message)"
+    exit 1
+}
+
 if ($SeedCatalog) {
     $seedGuard = Test-SeedCatalogGuard -SeedRequested ([bool]$SeedCatalog) -ForceRequested ([bool]$ForceSeedCatalog)
     if (-not $seedGuard.allowed) {
@@ -13229,10 +13831,12 @@ if ($Offline -and ($Write -or $Check)) {
     $repos = @(Add-LiveRepositoryMetadata -Repos (Get-GitHubRepos))
     $contributionCalendar = Get-ContributionCalendar
     if ($Write -or $Check) {
+        $script:GenerationArtifactTimestamp = (Get-Date).ToString('o')
         $snapshotWritten = Write-CompleteGenerationSnapshot `
             -Repos $repos `
             -ContributionCalendar $contributionCalendar `
-            -ReleaseMetadataComplete:$true
+            -ReleaseMetadataComplete:$true `
+            -GenerationTimestamp $script:GenerationArtifactTimestamp
         if (-not $snapshotWritten) {
             Write-Warning 'Complete generation snapshot was not refreshed because one or more live sources were incomplete.'
         }
@@ -13245,7 +13849,8 @@ if ($SeedCatalog) {
     if ($catalogDir -and -not (Test-Path -LiteralPath $catalogDir)) {
         New-Item -ItemType Directory -Path $catalogDir | Out-Null
     }
-    $catalog | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $CatalogPath -Encoding utf8
+    $catalogJson = $catalog | ConvertTo-Json -Depth 20
+    Write-AtomicUtf8TextFile -Path $CatalogPath -Content ($catalogJson + [Environment]::NewLine)
     Write-Host "Seeded $CatalogPath with $($catalog.entries.Count) entries."
     if (-not $Write -and -not $Check) {
         exit 0
@@ -13262,67 +13867,98 @@ $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
 
 if ($catalogForRun -and ($Write -or $Check)) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
-    $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos
+    $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos -GeneratedAt $script:GenerationArtifactTimestamp
     $expectedAssets = New-ProfileAssetSvgs -Catalog $catalogForRun -Repos $repos -ContributionCalendar $contributionCalendar
     $backstageExport = if ([string]::IsNullOrWhiteSpace($BackstageExportPath)) { $null } else { New-BackstageCatalogExport -Catalog $catalogForRun -Repos $repos }
 
-    if ($Write) {
-        $readmeFullPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
-        $projectsFullPath = if ([System.IO.Path]::IsPathRooted($ProjectsPath)) { $ProjectsPath } else { Join-Path $RepoRoot $ProjectsPath }
-        [System.IO.File]::WriteAllText($readmeFullPath, $expected, [System.Text.UTF8Encoding]::new($false))
-        [System.IO.File]::WriteAllText($projectsFullPath, $expectedProjects + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
-        foreach ($assetPath in @($expectedAssets.Keys)) {
-            $fullPath = if ([System.IO.Path]::IsPathRooted($assetPath)) { $assetPath } else { Join-Path $RepoRoot $assetPath }
-            $assetDir = Split-Path -Parent $fullPath
-            if ($assetDir -and -not (Test-Path -LiteralPath $assetDir)) {
-                New-Item -ItemType Directory -Path $assetDir | Out-Null
+    $publicationTransaction = $null
+    $publicationRoot = Get-ArtifactPublicationTransactionRoot
+    try {
+        $publicationArtifacts = [System.Collections.Generic.List[object]]::new()
+        if ($Write) {
+            $readmeFullPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
+            $projectsFullPath = if ([System.IO.Path]::IsPathRooted($ProjectsPath)) { $ProjectsPath } else { Join-Path $RepoRoot $ProjectsPath }
+            $publicationArtifacts.Add([ordered]@{ path = $readmeFullPath; content = $expected; isReport = $false }) | Out-Null
+            $publicationArtifacts.Add([ordered]@{ path = $projectsFullPath; content = ($expectedProjects + [Environment]::NewLine); isReport = $false }) | Out-Null
+            foreach ($assetPath in @($expectedAssets.Keys)) {
+                $fullPath = if ([System.IO.Path]::IsPathRooted($assetPath)) { $assetPath } else { Join-Path $RepoRoot $assetPath }
+                $publicationArtifacts.Add([ordered]@{ path = $fullPath; content = ([string]$expectedAssets[$assetPath] + [Environment]::NewLine); isReport = $false }) | Out-Null
             }
-            [System.IO.File]::WriteAllText($fullPath, [string]$expectedAssets[$assetPath] + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
         }
-        Write-Host "Wrote $ReadmePath from $CatalogPath."
-        Write-Host "Wrote $ProjectsPath from $CatalogPath."
-        Write-Host "Wrote profile assets to $AssetsPath."
-    }
-
-    if ($backstageExport) {
-        $backstageFullPath = if ([System.IO.Path]::IsPathRooted($BackstageExportPath)) { $BackstageExportPath } else { Join-Path $RepoRoot $BackstageExportPath }
-        $backstageDir = Split-Path -Parent $backstageFullPath
-        if ($backstageDir -and -not (Test-Path -LiteralPath $backstageDir)) {
-            New-Item -ItemType Directory -Path $backstageDir -Force | Out-Null
-        }
-        [System.IO.File]::WriteAllText($backstageFullPath, [string]$backstageExport.json + [Environment]::NewLine, [System.Text.UTF8Encoding]::new($false))
-        Write-Host "Wrote Backstage export to $BackstageExportPath."
-    }
-
-    if ($Check) {
-        $result = Test-ProfileState `
-            -Catalog $catalogForRun `
-            -Repos $repos `
-            -ExpectedReadme $expected `
-            -ExpectedProjects $expectedProjects `
-            -ExpectedAssets $expectedAssets `
-            -SkipLinkValidation:$SkipLinkValidation `
-            -VerifyReleaseArtifacts:$VerifyReleaseArtifacts `
-            -ReleaseVerificationMaxAssets $ReleaseVerificationMaxAssets `
-            -ReleaseVerificationMaxBytes $ReleaseVerificationMaxBytes `
-            -BackstageExport $backstageExport `
-            -BackstageExportPath $BackstageExportPath `
-            -ProbePortfolio:$ProbePortfolio `
-            -PortfolioUrl $PortfolioUrl
-        $reportDir = Split-Path -Parent $ReportPath
-        if ($reportDir -and -not (Test-Path -LiteralPath $reportDir)) {
-            New-Item -ItemType Directory -Path $reportDir | Out-Null
-        }
-        $result.Report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8
-
-        if ($result["Failed"] -eq $true) {
-            Write-Error "Profile sync check failed. See $ReportPath."
-            exit 1
+        if ($backstageExport) {
+            $backstageFullPath = if ([System.IO.Path]::IsPathRooted($BackstageExportPath)) { $BackstageExportPath } else { Join-Path $RepoRoot $BackstageExportPath }
+            $publicationArtifacts.Add([ordered]@{ path = $backstageFullPath; content = ([string]$backstageExport.json + [Environment]::NewLine); isReport = $false }) | Out-Null
         }
 
-        Write-Host "Profile sync check passed. Report: $ReportPath"
-        # Keep hosted shells from surfacing handled native-command failures.
-        exit 0
+        $result = $null
+        if ($Check) {
+            $profileStateParameters = [ordered]@{
+                Catalog = $catalogForRun
+                Repos = $repos
+                ExpectedReadme = $expected
+                ExpectedProjects = $expectedProjects
+                ExpectedAssets = $expectedAssets
+                SkipLinkValidation = [bool]$SkipLinkValidation
+                VerifyReleaseArtifacts = [bool]$VerifyReleaseArtifacts
+                ReleaseVerificationMaxAssets = $ReleaseVerificationMaxAssets
+                ReleaseVerificationMaxBytes = $ReleaseVerificationMaxBytes
+                BackstageExport = $backstageExport
+                BackstageExportPath = $BackstageExportPath
+                ProbePortfolio = [bool]$ProbePortfolio
+                PortfolioUrl = $PortfolioUrl
+            }
+            if ($Write) {
+                $profileStateParameters['CurrentReadme'] = $expected
+                $profileStateParameters['CurrentProjects'] = $expectedProjects
+                $profileStateParameters['CurrentAssets'] = $expectedAssets
+            }
+            $result = Test-ProfileState @profileStateParameters
+            $reportFullPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) { $ReportPath } else { Join-Path $RepoRoot $ReportPath }
+            $reportJson = $result.Report | ConvertTo-Json -Depth 20
+            if ($result['Failed'] -eq $true) {
+                $publicationTransaction = New-ArtifactPublicationTransaction -Artifacts @(
+                    [ordered]@{ path = $reportFullPath; content = ($reportJson + [Environment]::NewLine); isReport = $true }
+                ) -TransactionRoot $publicationRoot
+                Publish-ArtifactPublicationTransaction -Transaction $publicationTransaction
+                Complete-ArtifactPublicationTransaction -Transaction $publicationTransaction
+                $publicationTransaction = $null
+                Write-Error "Profile sync check failed. Generated targets were not changed; see $ReportPath." -ErrorAction Continue
+                exit 1
+            }
+            $publicationArtifacts.Add([ordered]@{ path = $reportFullPath; content = ($reportJson + [Environment]::NewLine); isReport = $true }) | Out-Null
+        }
+
+        if ($publicationArtifacts.Count -gt 0) {
+            $publicationTransaction = New-ArtifactPublicationTransaction -Artifacts $publicationArtifacts.ToArray() -TransactionRoot $publicationRoot
+            Publish-ArtifactPublicationTransaction -Transaction $publicationTransaction
+            Complete-ArtifactPublicationTransaction -Transaction $publicationTransaction
+            $publicationTransaction = $null
+        }
+
+        if ($Write) {
+            Write-Host "Wrote $ReadmePath from $CatalogPath."
+            Write-Host "Wrote $ProjectsPath from $CatalogPath."
+            Write-Host "Wrote profile assets to $AssetsPath."
+        }
+        if ($backstageExport) {
+            Write-Host "Wrote Backstage export to $BackstageExportPath."
+        }
+        if ($Check) {
+            Write-Host "Profile sync check passed. Report: $ReportPath"
+            # Keep hosted shells from surfacing handled native-command failures.
+            exit 0
+        }
+    } catch {
+        $publicationFailure = $_
+        if ($null -ne $publicationTransaction) {
+            try {
+                Repair-ArtifactPublicationTransactions -TransactionRoot $publicationRoot | Out-Null
+            } catch {
+                Write-Warning "Artifact publication rollback failed: $($_.Exception.Message)"
+            }
+        }
+        Write-Error "Artifact publication failed: $($publicationFailure.Exception.Message)"
+        exit 1
     }
 }
 

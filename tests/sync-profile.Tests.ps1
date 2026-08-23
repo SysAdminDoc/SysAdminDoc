@@ -109,6 +109,8 @@ BeforeAll {
             forkParentFetchError = $ForkParentFetchError
             visibility = 'PUBLIC'
             isPrivate = $false
+            isArchived = $false
+            url = "https://github.com/SysAdminDoc/$Name"
         }
     }
 
@@ -1160,6 +1162,8 @@ Describe 'REST fallback release request guard' {
 
     It 'falls back to complete REST enumeration when the configured GraphQL page is full' {
         $oldOffline = $script:Offline
+        $oldCachePath = $script:CachePath
+        $oldCacheEnabled = $script:CacheEnabled
         $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
         $pageSizeVariable = Get-Variable -Name GraphQlPageSize -Scope Script -ErrorAction SilentlyContinue
         $hadOwner = ($null -ne $ownerVariable)
@@ -1169,6 +1173,12 @@ Describe 'REST fallback release request guard' {
         $script:Offline = $false
         $script:Owner = 'SysAdminDoc'
         $script:GraphQlPageSize = 25
+        $script:CachePath = Join-Path $TestDrive 'full-page-cache'
+        $script:CacheEnabled = $true
+        Reset-ValidationCacheState
+        Write-ValidationCacheEntry -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -Value @(
+            (New-TestRepoMeta -Name 'StaleCachedRepo')
+        )
 
         function gh {
             param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
@@ -1212,14 +1222,18 @@ Describe 'REST fallback release request guard' {
             $repos | Should -HaveCount 27
             @($repos.name) | Should -Contain 'RestOnlyRepo'
             @($repos.name) | Should -Not -Contain 'GraphRepo25'
+            @($repos.name) | Should -Not -Contain 'StaleCachedRepo'
             $script:RepositoryMetadataProvider | Should -Be 'rest-fallback'
             $script:MetadataFetchFallbackReason | Should -Match '25 repos at limit 25'
-            $script:MetadataFetchAttemptCount | Should -Be 3
-            $script:MetadataFetchRequestCount | Should -Be 4
+            $script:MetadataFetchAttemptCount | Should -Be 1
+            $script:MetadataFetchRequestCount | Should -Be 2
             $script:RepositoryEnumerationRequestedLimit | Should -Be 0
             $script:RepositoryEnumerationTruncated | Should -BeFalse
         } finally {
             $script:Offline = $oldOffline
+            $script:CachePath = $oldCachePath
+            $script:CacheEnabled = $oldCacheEnabled
+            Reset-ValidationCacheState
             if ($hadOwner) {
                 $script:Owner = $oldOwner
             } else {
@@ -1427,6 +1441,7 @@ Describe 'Validation cache' {
 
         $cacheFile = Get-ValidationCacheFilePath -Bucket metadata -Key $cacheKey
         $entry = Get-Content -LiteralPath $cacheFile -Raw | ConvertFrom-Json
+        @(Get-ChildItem -LiteralPath (Split-Path -Parent $cacheFile) -File -Force | Where-Object { $_.Name -match '[.](stage|backup)([.]|$)' }) | Should -BeNullOrEmpty
         $entry.fetchedAt = (Get-Date).ToUniversalTime().AddHours(-48).ToString("o")
         $entry | ConvertTo-Json -Depth 50 | Set-Content -LiteralPath $cacheFile -Encoding utf8
 
@@ -1479,11 +1494,54 @@ Describe 'Validation cache' {
             $snapshot.contributionData.totalContributions | Should -Be 3
             $cacheEnvelope.fetchedAt | Should -Not -BeNullOrEmpty
             $cacheEnvelope.value.fetchedAt | Should -Be '2026-08-23T12:00:00.0000000Z'
+            $cacheEnvelope.value.generationTimestamp | Should -Not -BeNullOrEmpty
 
             $snapshot.owner = 'DifferentOwner'
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
             $snapshot.owner = 'SysAdminDoc'
             $snapshot.sourceCompleteness.contributionData = $false
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.sourceCompleteness.contributionData = $true
+            $snapshot.repositoryEnumeration.provider = 'cache-fallback'
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.repositoryEnumeration.provider = 'graphql'
+            $snapshot.releases[0].repo = 'DifferentRepo'
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.releases[0].repo = 'CachedCompleteRepo'
+
+            $missingRepositoryRelease = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+            $missingRepositoryRelease.repositories[0].PSObject.Properties.Remove('latestRelease')
+            Test-CompleteGenerationSnapshot -Snapshot $missingRepositoryRelease | Should -BeFalse
+
+            foreach ($requiredField in @(
+                'description', 'stargazerCount', 'defaultBranchRef', 'branchTipSha', 'branchTipFetchedAt',
+                'branchTipStatus', 'branchTipWarning', 'licenseInfo', 'isFork', 'parent', 'isPrivate',
+                'visibility', 'isArchived', 'repositoryTopics', 'pushedAt', 'url', 'primaryLanguage'
+            )) {
+                $partialRepository = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+                $partialRepository.repositories[0].PSObject.Properties.Remove($requiredField)
+                Test-CompleteGenerationSnapshot -Snapshot $partialRepository | Should -BeFalse
+            }
+
+            $mismatchedRelease = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+            $mismatchedRelease.releases[0].latestRelease.tagName = 'v9.9.9'
+            Test-CompleteGenerationSnapshot -Snapshot $mismatchedRelease | Should -BeFalse
+
+            $missingContributionTotal = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+            $missingContributionTotal.contributionData.PSObject.Properties.Remove('totalContributions')
+            Test-CompleteGenerationSnapshot -Snapshot $missingContributionTotal | Should -BeFalse
+
+            $emptyContributionWeeks = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+            $emptyContributionWeeks.contributionData.weeks = @()
+            Test-CompleteGenerationSnapshot -Snapshot $emptyContributionWeeks | Should -BeFalse
+
+            $emptyContributionDays = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
+            $emptyContributionDays.contributionData.weeks[0].contributionDays = @()
+            Test-CompleteGenerationSnapshot -Snapshot $emptyContributionDays | Should -BeFalse
+
+            $snapshot.repositories = @($snapshot.repositories[0], $snapshot.repositories[0])
+            $snapshot.releases = @($snapshot.releases[0], $snapshot.releases[0])
+            $snapshot.repositoryEnumeration.returnedCount = 2
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
         } finally {
             $script:MetadataSnapshotAt = $oldMetadataSnapshotAt
@@ -1493,11 +1551,12 @@ Describe 'Validation cache' {
         }
     }
 
-    It 'replays complete cached generation inputs byte-identically under a frozen clock' {
+    It 'replays complete cached generation inputs byte-identically across elapsed time' {
         $oldMetadataSnapshotAt = $script:MetadataSnapshotAt
         $oldProvider = $script:RepositoryMetadataProvider
         $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
         $oldTruncated = $script:RepositoryEnumerationTruncated
+        $oldGenerationArtifactTimestamp = $script:GenerationArtifactTimestamp
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $repos = @(
             (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip')),
@@ -1519,23 +1578,24 @@ Describe 'Validation cache' {
         }
 
         try {
-            Mock -CommandName Get-Date -MockWith { [datetime]'2026-08-23T12:00:00Z' }
             $script:MetadataSnapshotAt = '2026-08-23T12:00:00.0000000Z'
             $script:RepositoryMetadataProvider = 'graphql'
             $script:RepositoryEnumerationRequestedLimit = 25
             $script:RepositoryEnumerationTruncated = $false
+            $generationTimestamp = '2026-08-23T12:00:01.0000000Z'
 
             $onlineReadme = New-Readme -Catalog $catalog -Repos $repos
-            $onlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $repos
+            $onlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $repos -GeneratedAt $generationTimestamp
             $onlineAssets = New-ProfileAssetSvgs -Catalog $catalog -Repos $repos -ContributionCalendar $calendar
-            Write-CompleteGenerationSnapshot -Repos $repos -ContributionCalendar $calendar -ReleaseMetadataComplete:$true | Should -BeTrue
+            Write-CompleteGenerationSnapshot -Repos $repos -ContributionCalendar $calendar -ReleaseMetadataComplete:$true -GenerationTimestamp $generationTimestamp | Should -BeTrue
 
             $snapshot = Get-CompleteGenerationSnapshot
             Set-GenerationStateFromSnapshot -Snapshot $snapshot
             $cachedRepos = @(Get-MemberValue -Object $snapshot -Name 'repositories')
             $cachedCalendar = Get-MemberValue -Object $snapshot -Name 'contributionData'
             $offlineReadme = New-Readme -Catalog $catalog -Repos $cachedRepos
-            $offlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $cachedRepos
+            Start-Sleep -Milliseconds 25
+            $offlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $cachedRepos -GeneratedAt $script:GenerationArtifactTimestamp
             $offlineAssets = New-ProfileAssetSvgs -Catalog $catalog -Repos $cachedRepos -ContributionCalendar $cachedCalendar
 
             $offlineReadme | Should -BeExactly $onlineReadme
@@ -1549,6 +1609,7 @@ Describe 'Validation cache' {
             $script:RepositoryMetadataProvider = $oldProvider
             $script:RepositoryEnumerationRequestedLimit = $oldRequestedLimit
             $script:RepositoryEnumerationTruncated = $oldTruncated
+            $script:GenerationArtifactTimestamp = $oldGenerationArtifactTimestamp
         }
     }
 
@@ -1683,6 +1744,113 @@ Describe 'Validation cache' {
         $batch.results[0].fatal | Should -BeFalse
         $state.links.hitCount | Should -Be 1
         $state.links.writeCount | Should -Be 1
+    }
+}
+
+Describe 'Recoverable artifact publication' {
+    It 'rolls back every injected promotion failure after a simulated restart' {
+        $oldReadme = "old readme`n"
+        $oldProjects = "{`"generation`":`"old`"}`n"
+        $oldReport = "{`"report`":`"old`"}`n"
+        $newReadme = "new readme`n"
+        $newProjects = "{`"generation`":`"new`"}`n"
+        $newAsset = "<svg>new</svg>`n"
+        $newReport = "{`"report`":`"new`"}`n"
+
+        foreach ($faultAfter in 1..4) {
+            $caseRoot = Join-Path $TestDrive "fault-$faultAfter"
+            $transactionRoot = Join-Path $caseRoot 'transactions'
+            $readmePath = Join-Path $caseRoot 'README.md'
+            $projectsPath = Join-Path $caseRoot 'projects.json'
+            $assetPath = Join-Path $caseRoot 'asset.svg'
+            $reportPath = Join-Path $caseRoot 'profile-sync-report.json'
+            [System.IO.Directory]::CreateDirectory($caseRoot) | Out-Null
+            [System.IO.File]::WriteAllText($readmePath, $oldReadme, [System.Text.UTF8Encoding]::new($false))
+            [System.IO.File]::WriteAllText($projectsPath, $oldProjects, [System.Text.UTF8Encoding]::new($false))
+            [System.IO.File]::WriteAllText($reportPath, $oldReport, [System.Text.UTF8Encoding]::new($false))
+
+            $transaction = New-ArtifactPublicationTransaction -TransactionRoot $transactionRoot -Artifacts @(
+                [ordered]@{ path = $reportPath; content = $newReport; isReport = $true }
+                [ordered]@{ path = $readmePath; content = $newReadme; isReport = $false }
+                [ordered]@{ path = $projectsPath; content = $newProjects; isReport = $false }
+                [ordered]@{ path = $assetPath; content = $newAsset; isReport = $false }
+            )
+
+            $journal = Get-Content -LiteralPath $transaction.journalPath -Raw | ConvertFrom-Json
+            $journal.artifacts | Should -HaveCount 4
+            @($journal.artifacts | Where-Object { $_.oldHash }).Count | Should -Be 3
+            @($journal.artifacts | Where-Object { $_.newHash }).Count | Should -Be 4
+
+            { Publish-ArtifactPublicationTransaction -Transaction $transaction -FaultAfterPromotion $faultAfter } | Should -Throw
+            if ($faultAfter -lt 4) {
+                [System.IO.File]::ReadAllText($reportPath) | Should -BeExactly $oldReport
+            } else {
+                [System.IO.File]::ReadAllText($reportPath) | Should -BeExactly $newReport
+            }
+
+            Repair-ArtifactPublicationTransactions -TransactionRoot $transactionRoot | Should -Be 1
+            [System.IO.File]::ReadAllText($readmePath) | Should -BeExactly $oldReadme
+            [System.IO.File]::ReadAllText($projectsPath) | Should -BeExactly $oldProjects
+            [System.IO.File]::ReadAllText($reportPath) | Should -BeExactly $oldReport
+            Test-Path -LiteralPath $assetPath | Should -BeFalse
+            @(Get-ChildItem -LiteralPath $caseRoot -File -Force | Where-Object { $_.Name -match '[.](stage|backup)([.]|$)' }) | Should -BeNullOrEmpty
+            @(Get-ChildItem -LiteralPath $transactionRoot -File -Force) | Should -BeNullOrEmpty
+        }
+    }
+
+    It 'keeps a committed new set and removes all publication residue' {
+        $caseRoot = Join-Path $TestDrive 'committed'
+        $transactionRoot = Join-Path $caseRoot 'transactions'
+        $existingPath = Join-Path $caseRoot 'existing.txt'
+        $newPath = Join-Path $caseRoot 'new.txt'
+        $reportPath = Join-Path $caseRoot 'report.json'
+        [System.IO.Directory]::CreateDirectory($caseRoot) | Out-Null
+        [System.IO.File]::WriteAllText($existingPath, 'old', [System.Text.UTF8Encoding]::new($false))
+        [System.IO.File]::WriteAllText($reportPath, 'old report', [System.Text.UTF8Encoding]::new($false))
+
+        $transaction = New-ArtifactPublicationTransaction -TransactionRoot $transactionRoot -Artifacts @(
+            [ordered]@{ path = $reportPath; content = 'new report'; isReport = $true }
+            [ordered]@{ path = $existingPath; content = 'new'; isReport = $false }
+            [ordered]@{ path = $newPath; content = 'created'; isReport = $false }
+        )
+        Publish-ArtifactPublicationTransaction -Transaction $transaction
+
+        $existingRows = @($transaction.artifacts | Where-Object { $_.existed })
+        $newRows = @($transaction.artifacts | Where-Object { -not $_.existed })
+        $existingRows | Should -HaveCount 2
+        $newRows | Should -HaveCount 1
+        foreach ($row in $existingRows) {
+            Test-Path -LiteralPath $row.backupPath | Should -BeTrue
+        }
+        Test-Path -LiteralPath $newRows[0].backupPath | Should -BeFalse
+
+        Complete-ArtifactPublicationTransaction -Transaction $transaction
+
+        [System.IO.File]::ReadAllText($existingPath) | Should -BeExactly 'new'
+        [System.IO.File]::ReadAllText($newPath) | Should -BeExactly 'created'
+        [System.IO.File]::ReadAllText($reportPath) | Should -BeExactly 'new report'
+        @(Get-ChildItem -LiteralPath $caseRoot -File -Force | Where-Object { $_.Name -match '[.](stage|backup)([.]|$)' }) | Should -BeNullOrEmpty
+        @(Get-ChildItem -LiteralPath $transactionRoot -File -Force) | Should -BeNullOrEmpty
+    }
+
+    It 'finishes cleanup without rolling back a committed journal after restart' {
+        $caseRoot = Join-Path $TestDrive 'committed-restart'
+        $transactionRoot = Join-Path $caseRoot 'transactions'
+        $targetPath = Join-Path $caseRoot 'target.txt'
+        [System.IO.Directory]::CreateDirectory($caseRoot) | Out-Null
+        [System.IO.File]::WriteAllText($targetPath, 'old', [System.Text.UTF8Encoding]::new($false))
+
+        $transaction = New-ArtifactPublicationTransaction -TransactionRoot $transactionRoot -Artifacts @(
+            [ordered]@{ path = $targetPath; content = 'new'; isReport = $false }
+        )
+        Publish-ArtifactPublicationTransaction -Transaction $transaction
+        $transaction.state = 'committed'
+        Write-ArtifactPublicationJournal -Transaction $transaction
+
+        Repair-ArtifactPublicationTransactions -TransactionRoot $transactionRoot | Should -Be 1
+        [System.IO.File]::ReadAllText($targetPath) | Should -BeExactly 'new'
+        @(Get-ChildItem -LiteralPath $caseRoot -File -Force | Where-Object { $_.Name -match '[.](stage|backup)([.]|$)' }) | Should -BeNullOrEmpty
+        @(Get-ChildItem -LiteralPath $transactionRoot -File -Force) | Should -BeNullOrEmpty
     }
 }
 
@@ -4592,6 +4760,20 @@ Describe 'Profile sync entrypoint' {
     It 'exits explicitly after a successful check run' {
         $script:SyncProfileScript | Should -Match '(?s)Write-Host "Profile sync check passed[.] Report: \$ReportPath"\s+# Keep hosted shells from surfacing handled native-command failures[.]\s+exit 0'
     }
+
+    It 'validates the proposed write set before staging one report-last transaction' {
+        $mainBlock = $script:SyncProfileScript.Substring($script:SyncProfileScript.IndexOf('# Test seam:'))
+        $validationIndex = $mainBlock.IndexOf('$result = Test-ProfileState @profileStateParameters')
+        $publicationIndex = $mainBlock.IndexOf('$publicationTransaction = New-ArtifactPublicationTransaction -Artifacts $publicationArtifacts.ToArray()')
+
+        $validationIndex | Should -BeGreaterThan -1
+        $publicationIndex | Should -BeGreaterThan $validationIndex
+        $mainBlock | Should -Match 'profileStateParameters\[''CurrentReadme''\] = \$expected'
+        $mainBlock | Should -Match 'profileStateParameters\[''CurrentProjects''\] = \$expectedProjects'
+        $mainBlock | Should -Match 'profileStateParameters\[''CurrentAssets''\] = \$expectedAssets'
+        $mainBlock | Should -Match 'isReport = \$true'
+        $mainBlock | Should -Match 'Generated targets were not changed'
+    }
 }
 
 Describe 'Generation entrypoint modes' -Tag 'Integration' {
@@ -5478,6 +5660,24 @@ Describe 'Test-ProfileState projects sync gate' {
 }
 
 Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive' {
+    It 'checks prospective in-memory SVGs before publication' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $prospectiveAssets = @{
+            'assets/profile/prospective.svg' = '<svg><rect width="500" height="200" fill="#161b22"/><text fill="#2a2f37">barely visible</text></svg>'
+        }
+
+        $result = Test-ProfileState -Catalog $cat -Repos @() `
+            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+            -CurrentAssets $prospectiveAssets -ExpectedAssets $prospectiveAssets -SkipLinkValidation
+
+        $result.Report.profileAssetsAccessibility.assetCount | Should -Be 1
+        $result.Report.profileAssetsAccessibility.failingAssetCount | Should -Be 1
+        $result.Report.profileAssetsAccessibility.contrastRatios[0].asset | Should -Be 'prospective.svg'
+    }
+
     It 'does not fail the fatal asset gate when only the live contribution heatmaps drift' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $expectedReadme = New-Readme -Catalog $cat -Repos @()

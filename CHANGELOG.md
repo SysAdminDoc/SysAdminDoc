@@ -2,7 +2,8 @@
 
 ## 2026-08-23
 
-- Made offline profile writes fail closed. A write now requires a fresh, owner-bound cache snapshot containing the complete repository inventory, release metadata, enumeration provenance, and contribution calendar. Cold or partial caches stop before README, feed, report, or SVG files are opened, while offline checks still emit degraded diagnostics.
+- Made generated file publication recoverable. README, project feed, SVG, optional Backstage, validation cache, and report writes now stage beside their targets with old and new SHA-256 hashes in a durable journal. The proposed generated set is checked in memory before staging. Existing files use atomic replacement, new files use same-volume rename, and the report moves last. Startup repair restores the complete prior set after an interrupted run or keeps a fully committed new set, then removes transaction residue.
+- Made offline profile writes fail closed and repeatable. A write now requires a fresh, owner-bound cache snapshot with the complete repository inventory, matching release rows, enumeration provenance, and a nonempty contribution calendar. Snapshot replay preserves the original generation timestamp. Cold, partial, or internally inconsistent caches stop before README, feed, report, or SVG files are opened, while offline checks still emit degraded diagnostics.
 - Prevented configured GraphQL page sizes from silently truncating the public repository inventory. A full page now falls back to complete REST pagination, while a page below the configured limit remains on GraphQL. Behavioral coverage proves both paths and confirms REST-only repositories stay in the inventory.
 - Reconciled the newly forked `apps.obtainium.imranr.dev` repository as an unchanged upstream reference, keeping it accounted for without presenting it as a SysAdminDoc project.
 
