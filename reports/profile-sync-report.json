@@ -1,29 +1,63 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-08-23T07:58:30.6587258-04:00",
-  "readmeInSync": true,
+  "generatedAt": "2026-08-26T19:11:43.8045084-04:00",
+  "readmeInSync": false,
   "projectsExportInSync": true,
-  "profileAssetsInSync": true,
+  "profileAssetsInSync": false,
   "artifactDriftDiagnostics": {
     "remediationCommand": "pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write",
     "readme": {
       "artifact": "README.md",
-      "inSync": true,
+      "inSync": false,
       "currentSha256": "c8fbe7fdddefcf9be6ae47585142caab1d7869dbcf38b646c36955f0220b5343",
-      "expectedSha256": "c8fbe7fdddefcf9be6ae47585142caab1d7869dbcf38b646c36955f0220b5343",
-      "firstDiff": null
+      "expectedSha256": "f4aab40d7ac8a6ea1a3b2c31c43f43379cd275ca38f344e6bc65d74523e25f63",
+      "firstDiff": {
+        "line": 1,
+        "sectionMarker": null,
+        "current": "<p align=\"center\"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Ru...",
+        "expected": "<p align=\"center\"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Ru..."
+      }
     },
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "943d353fe92634d0b0c7bf7c3bc7a51a12446d6679149b850fdf358b64f5962b",
-      "expectedSha256": "943d353fe92634d0b0c7bf7c3bc7a51a12446d6679149b850fdf358b64f5962b",
+      "currentSha256": "6b28a5ada427633d9ea99b7eda063327f1bfcebe1e8798f9bf011893015fef90",
+      "expectedSha256": "f2213acf9b4c65b79822fd8d0cb1c0c3def75a96586ea55797cfee16057cbcb7",
       "firstDiff": null
     },
     "assets": {
-      "inSync": true,
-      "affectedAssetCount": 0,
-      "affectedAssets": []
+      "inSync": false,
+      "affectedAssetCount": 4,
+      "affectedAssets": [
+        {
+          "path": "assets/profile/contributions-dark.svg",
+          "exists": true,
+          "fatal": false,
+          "currentSha256": "2e80bccc9fbcf61f4109480d2b8a37757e44dec7c6bb5e2c934cd5b1d8888a98",
+          "expectedSha256": "f1c74488cf1ab1b1bb609cd634c21bbdcf7e3161aa997cd8df4037b9003d4019"
+        },
+        {
+          "path": "assets/profile/contributions-light.svg",
+          "exists": true,
+          "fatal": false,
+          "currentSha256": "958883f462ede861fae37f485ff487b304125e055337075d6b85323aa78cab73",
+          "expectedSha256": "d9e41aca08fdf5ea8e672e1bbb216ddb12b76734c5f9868035f01c479476cd88"
+        },
+        {
+          "path": "assets/profile/stats-dark.svg",
+          "exists": true,
+          "fatal": true,
+          "currentSha256": "71621f650f0269758514f1dec96cfd137d5d84ecc4c10cb380eeb57e8bb1d466",
+          "expectedSha256": "d8af50faf61736cc5443d1c727c867445325f24db9e937027ce06d8aecb6cb75"
+        },
+        {
+          "path": "assets/profile/stats-light.svg",
+          "exists": true,
+          "fatal": true,
+          "currentSha256": "2b4fb7f35cb8f3cb2a591ca8e5600ed565ef46b77b37a6b1cf1de1e648e64455",
+          "expectedSha256": "0018cff65aef56ce64f3a90721c3270aaef272e209be518aadd3f725b996b292"
+        }
+      ]
     }
   },
   "profileAssetChecks": [
@@ -40,12 +74,12 @@
     {
       "path": "assets/profile/contributions-dark.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/contributions-light.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/footer-dark.svg",
@@ -80,12 +114,12 @@
     {
       "path": "assets/profile/stats-dark.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     },
     {
       "path": "assets/profile/stats-light.svg",
       "exists": true,
-      "inSync": true
+      "inSync": false
     }
   ],
   "publicRepoCount": 217,
@@ -95,14 +129,14 @@
     "version": 1,
     "feedSchemaVersion": 3,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "7d46101dcff9dcdb2b31437400e4b12f31b7f704",
+    "sourceCommit": "72c2087b8b30f5790cb9bbbdef76998c22485e17",
     "catalogSha256": "33f3916a419b2ecc0fc954862c5f3972d2d190e1dca131009460a87f39be69f6",
-    "generatorSha256": "0dff33ad46f22ae440062d76d17965322f8c604e6fe5d87d8ee563794fbe0c81",
+    "generatorSha256": "70f4a9518a5acdc8ab64c1dd47b8762eff5c61639ac81cd5065620cc29262273",
     "projectSchemaSha256": "5eb3eb773f84ef0ad4447d1f2e0aa567e4a2631a40443f77ec1ed1b9b9d7603b",
-    "metadataSnapshotAt": "2026-08-23T07:56:01.1972601-04:00",
+    "metadataSnapshotAt": "2026-08-26T19:09:40.0254052-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
-      "requestedLimit": 250,
+      "requestedLimit": 300,
       "returnedCount": 217,
       "truncated": false
     }
@@ -384,7 +418,7 @@
       },
       {
         "kind": "other",
-        "count": 57
+        "count": 58
       },
       {
         "kind": "script",
@@ -392,7 +426,7 @@
       },
       {
         "kind": "source-archive",
-        "count": 35
+        "count": 34
       },
       {
         "kind": "userscript",
@@ -400,11 +434,11 @@
       },
       {
         "kind": "xpi",
-        "count": 4
+        "count": 3
       },
       {
         "kind": "zip",
-        "count": 52
+        "count": 54
       }
     ],
     "releaseTrustLevelCounts": [
@@ -422,13 +456,13 @@
       }
     ],
     "releaseImmutability": {
-      "immutableCount": 8,
-      "mutableCount": 138,
+      "immutableCount": 9,
+      "mutableCount": 137,
       "unknownCount": 0
     },
     "platformDigestCoverage": {
-      "withDigestCount": 111,
-      "withoutDigestCount": 35
+      "withDigestCount": 112,
+      "withoutDigestCount": 34
     },
     "executableDownloadTrustShortlist": {
       "evidenceSource": "release-metadata-only",
@@ -439,7 +473,7 @@
       "platformDigestCount": 86,
       "attestationGapCount": 86,
       "sbomGapCount": 77,
-      "immutableCount": 8,
+      "immutableCount": 9,
       "readinessCounts": [
         {
           "readinessLevel": "sbom-metadata",
@@ -447,11 +481,11 @@
         },
         {
           "readinessLevel": "immutable-metadata",
-          "count": 5
+          "count": 6
         },
         {
           "readinessLevel": "digest-metadata",
-          "count": 72
+          "count": 71
         }
       ],
       "shortlistSoftCap": 10,
@@ -460,7 +494,7 @@
         {
           "priorityRank": 1,
           "repo": "win11-nvme-driver-patcher",
-          "stars": 57,
+          "stars": 58,
           "latestReleaseTag": "v5.6.0",
           "executableAssetKinds": [
             "exe",
@@ -483,8 +517,8 @@
         {
           "priorityRank": 2,
           "repo": "OpenCut",
-          "stars": 40,
-          "latestReleaseTag": "v1.55.0",
+          "stars": 41,
+          "latestReleaseTag": "v1.55.1",
           "executableAssetKinds": [
             "exe",
             "zip"
@@ -505,7 +539,7 @@
         {
           "priorityRank": 3,
           "repo": "ClearCut",
-          "stars": 36,
+          "stars": 37,
           "latestReleaseTag": "v3.81.0",
           "executableAssetKinds": [
             "apk"
@@ -526,7 +560,7 @@
         {
           "priorityRank": 4,
           "repo": "Aura",
-          "stars": 23,
+          "stars": 24,
           "latestReleaseTag": "v6.45.0",
           "executableAssetKinds": [
             "apk"
@@ -568,7 +602,7 @@
         {
           "priorityRank": 6,
           "repo": "AlarmClockXtreme",
-          "stars": 14,
+          "stars": 15,
           "latestReleaseTag": "v1.15.32",
           "executableAssetKinds": [
             "apk"
@@ -589,8 +623,8 @@
         {
           "priorityRank": 7,
           "repo": "CallShield",
-          "stars": 12,
-          "latestReleaseTag": "v1.7.29",
+          "stars": 14,
+          "latestReleaseTag": "v1.7.37",
           "executableAssetKinds": [
             "apk"
           ],
@@ -602,16 +636,16 @@
           "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
-          "isImmutable": false,
-          "readinessLevel": "digest-metadata",
+          "isImmutable": true,
+          "readinessLevel": "immutable-metadata",
           "gapScore": 2,
           "nextAction": "publish-build-provenance-attestation"
         },
         {
           "priorityRank": 8,
-          "repo": "Droidsmith",
-          "stars": 12,
-          "latestReleaseTag": "v0.9.17",
+          "repo": "project-nomad-desktop",
+          "stars": 13,
+          "latestReleaseTag": "v7.32.0",
           "executableAssetKinds": [
             "exe"
           ],
@@ -630,9 +664,9 @@
         },
         {
           "priorityRank": 9,
-          "repo": "project-nomad-desktop",
+          "repo": "Droidsmith",
           "stars": 12,
-          "latestReleaseTag": "v7.32.0",
+          "latestReleaseTag": "v0.9.17",
           "executableAssetKinds": [
             "exe"
           ],
@@ -742,7 +776,7 @@
       },
       {
         "repo": "OpenTasker",
-        "latestReleaseTag": "v0.2.87",
+        "latestReleaseTag": "v0.2.90",
         "releaseAssetKinds": [
           "apk"
         ]
@@ -757,9 +791,11 @@
       },
       {
         "repo": "PartitionPilot",
-        "latestReleaseTag": "v0.9.5",
+        "latestReleaseTag": "v0.9.22",
         "releaseAssetKinds": [
-          "exe"
+          "exe",
+          "other",
+          "zip"
         ]
       },
       {
@@ -870,7 +906,7 @@
         "repo": "AlphaCut",
         "branch": "main",
         "branchTipSha": "14fbb0687880c8fba99e5ce5c9453c7943b5b101",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -878,7 +914,7 @@
         "repo": "MediaForge",
         "branch": "main",
         "branchTipSha": "be0c30d3c3bc6a09ed039451e20e6d285901d06a",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -886,7 +922,7 @@
         "repo": "StreamKeep",
         "branch": "main",
         "branchTipSha": "c043b538501dcd377f459aab6504c78b1d94d370",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -894,7 +930,7 @@
         "repo": "VideoCrush",
         "branch": "main",
         "branchTipSha": "6451457eed3f2b8f8b8f591f63c5dec431690319",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -902,7 +938,7 @@
         "repo": "VideoSubtitleRemover",
         "branch": "main",
         "branchTipSha": "4cbf4f3709c38310789ede6a7b9a7516d0c21127",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -910,7 +946,7 @@
         "repo": "yt_livestream_downloader",
         "branch": "main",
         "branchTipSha": "dcf265cf3df796e9e6b25c70e49f13ba8353077e",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -918,7 +954,7 @@
         "repo": "AdapterLock",
         "branch": "master",
         "branchTipSha": "884eb12c96c20d1d1cb68cf8c8afabc1372ca98c",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -926,7 +962,7 @@
         "repo": "Brave-Portable-Updater",
         "branch": "main",
         "branchTipSha": "0ece481b215cf5ec39c40be9fde98adef0a1bab8",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -934,7 +970,7 @@
         "repo": "Debloat-Win11",
         "branch": "main",
         "branchTipSha": "757df55b1930bb91cab5af555bd54b886fca116f",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -942,7 +978,7 @@
         "repo": "DefenderControl",
         "branch": "main",
         "branchTipSha": "90eeda209d6a8228b584d1bea58e20ce5175d4e9",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -950,7 +986,7 @@
         "repo": "DefenderShield",
         "branch": "main",
         "branchTipSha": "8328134a2f1b062217deea416c00b398a091ef62",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -958,7 +994,7 @@
         "repo": "Disable-AdobeTelemetry",
         "branch": "main",
         "branchTipSha": "02615c6276bd84db3c2178d1db87eac3dce8d643",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -966,7 +1002,7 @@
         "repo": "DisableDefender",
         "branch": "main",
         "branchTipSha": "72cfc9cbf0edd3bd0bfe507496e5020aa7fe129b",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -974,7 +1010,7 @@
         "repo": "EXTRACTORX",
         "branch": "main",
         "branchTipSha": "b766cafcc64a0e0798578985736c9213b428bf10",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -982,7 +1018,7 @@
         "repo": "FirewallForge",
         "branch": "main",
         "branchTipSha": "fe1dc78f036885e4809536a34616b384412fa0ef",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -990,7 +1026,7 @@
         "repo": "HostnameForensics",
         "branch": "main",
         "branchTipSha": "69534ee76d12df033a05d4a4dd6e368e1d2f72bd",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -998,7 +1034,7 @@
         "repo": "JDownloader-2-Ultimate-Manager",
         "branch": "main",
         "branchTipSha": "621dbc8518f5e9e064df3fb56d7c8e5e01619c89",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1006,7 +1042,7 @@
         "repo": "LibreSpot",
         "branch": "main",
         "branchTipSha": "33dd3b3edd44bfc0a0bca8941d0253b6c6a8bfb6",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1014,7 +1050,7 @@
         "repo": "MonitorControl",
         "branch": "main",
         "branchTipSha": "892988217ba929acdf16cc3718c82eec6fa58b45",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1022,7 +1058,7 @@
         "repo": "NetForge",
         "branch": "main",
         "branchTipSha": "76ff310c158f405b482fdb8f242a42e0994ed64a",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1030,7 +1066,7 @@
         "repo": "Network_Security_Auditor",
         "branch": "main",
         "branchTipSha": "6ac0efaeb108c7f748e8887e606e92bd735bb87c",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1038,7 +1074,7 @@
         "repo": "npp-sc-scanner",
         "branch": "main",
         "branchTipSha": "9a8e5f0e004e679f45f91c4281655377edc673a0",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1046,7 +1082,7 @@
         "repo": "NuclearDellRemover",
         "branch": "main",
         "branchTipSha": "af1305e7fb05db6fc8d8fb4808c22c603717611e",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1054,7 +1090,7 @@
         "repo": "PathForge",
         "branch": "main",
         "branchTipSha": "6f69014739a11e0aa3b64311051ccac6e30d9eab",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1062,7 +1098,7 @@
         "repo": "Restore-WindowsDefaults",
         "branch": "main",
         "branchTipSha": "6b4a9b789684a15c1e306fbcc0f12b6ed5e283f0",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1070,7 +1106,7 @@
         "repo": "Start-Menu-Organizer",
         "branch": "main",
         "branchTipSha": "c3810bd7db2b16f81a9dc0bed30a20299d211997",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1078,7 +1114,7 @@
         "repo": "SystemUpdatePro",
         "branch": "main",
         "branchTipSha": "3085ca1198512def3b9057d7b38aa94314489aab",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1086,7 +1122,7 @@
         "repo": "TelemetrySlayer",
         "branch": "main",
         "branchTipSha": "38749e7a11010d42101e6b4ae53d4a39b5de4412",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1094,7 +1130,7 @@
         "repo": "ThankYouJeffrey",
         "branch": "main",
         "branchTipSha": "840ffd0dbf0020a7e3a26382573f718c0f07d50c",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1102,7 +1138,7 @@
         "repo": "VoidTools-Everything-Settings-Manager",
         "branch": "main",
         "branchTipSha": "b79de212fa67c1e2d2df47361af0e3d85e0f9768",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1110,7 +1146,7 @@
         "repo": "WallBrand",
         "branch": "main",
         "branchTipSha": "32ca64578a7398f71d2c98640a7969d89e2abb41",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1118,7 +1154,7 @@
         "repo": "win11-nvme-driver-patcher",
         "branch": "main",
         "branchTipSha": "2f20e0893d08fd198419bfa083891dff7b42c9c3",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1126,7 +1162,7 @@
         "repo": "WinForge",
         "branch": "main",
         "branchTipSha": "8bc93d85e3c9542c17e9c5f8b34f75aa8e747635",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1134,7 +1170,7 @@
         "repo": "Wingetter",
         "branch": "main",
         "branchTipSha": "c012efbf03b3ed29bb1700242c0411fcdf050ccd",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1142,7 +1178,7 @@
         "repo": "WURepair",
         "branch": "main",
         "branchTipSha": "7bfe95482922b545606db1aa3e74dab3c04634b4",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1150,7 +1186,7 @@
         "repo": "AI-Model-Compass",
         "branch": "main",
         "branchTipSha": "f65817e61ea90a0bdacfda6d7bd2d9fc6b3befd3",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1158,7 +1194,7 @@
         "repo": "AppList",
         "branch": "main",
         "branchTipSha": "b221772dd9256df1d0632218e9a7be31ca4b838f",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1166,7 +1202,7 @@
         "repo": "Bookmark-Organizer-Pro",
         "branch": "main",
         "branchTipSha": "5ab50077dae52af1ea8d9ba5d876d451e1ba160c",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1174,7 +1210,7 @@
         "repo": "ExplorerTweaks",
         "branch": "main",
         "branchTipSha": "0c35cfeff47c7ee68d0e82923d179a7287d7a61d",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1182,7 +1218,7 @@
         "repo": "FaceSlim",
         "branch": "main",
         "branchTipSha": "58d35c34680f0ae056e9afaff6671bb23c975465",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1190,7 +1226,7 @@
         "repo": "FileOrganizer",
         "branch": "main",
         "branchTipSha": "64aa95e17ef51f3f7f4665f3fda19683efbe76e5",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1198,7 +1234,7 @@
         "repo": "FrameSnap",
         "branch": "main",
         "branchTipSha": "5edd34a71d8d0a905cb6418d0d0bcf018612f91d",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1206,7 +1242,7 @@
         "repo": "GitForge",
         "branch": "main",
         "branchTipSha": "d75a7dd700a7c6a33771affd096559bcbd5b95e8",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1214,7 +1250,7 @@
         "repo": "HostsFileGet",
         "branch": "main",
         "branchTipSha": "fd24ca3e463e201ae2f862ee4ec088797dfa03b4",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1222,7 +1258,7 @@
         "repo": "ImgConverter",
         "branch": "master",
         "branchTipSha": "8700c1907e2eaa8b27daa34bc46e71615f8daabf",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1230,7 +1266,7 @@
         "repo": "LlamaLink",
         "branch": "master",
         "branchTipSha": "71a9c023914c57332d9e6dfd681215ee1452dfcb",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1238,7 +1274,7 @@
         "repo": "Mattpad",
         "branch": "main",
         "branchTipSha": "667985643790c5001c7c84df63c42241ccb46fa1",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1246,15 +1282,15 @@
         "repo": "MSStoreHelper",
         "branch": "main",
         "branchTipSha": "509a4dcd5e4e76566fdc62d55524384fc1f56f79",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
       {
         "repo": "OpenCut",
         "branch": "main",
-        "branchTipSha": "a20d325257209783f87839c14a1a6dcf7f8f85b6",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipSha": "62b825cdb9bd08db0d8a062c3162ec980eb41bc6",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1262,7 +1298,7 @@
         "repo": "project-nomad-desktop",
         "branch": "master",
         "branchTipSha": "a5cde0d6ca6ea5f6c9ef57fca3cbd97e645bb76b",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1270,7 +1306,7 @@
         "repo": "PromptCompanion",
         "branch": "main",
         "branchTipSha": "2b0ad8a5fa04eb65781178ef3b71ea5fccc57bb6",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1278,7 +1314,7 @@
         "repo": "PyShop",
         "branch": "main",
         "branchTipSha": "719bee295d9079212fe620b3465b68936f9ed38b",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1286,7 +1322,7 @@
         "repo": "PyWall",
         "branch": "main",
         "branchTipSha": "5a8c9f25faef21cd362176b466fe98936f862efa",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1294,7 +1330,7 @@
         "repo": "QuickFind",
         "branch": "main",
         "branchTipSha": "8047aced548113ca754250f4d568ca5a24a311fc",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1302,7 +1338,7 @@
         "repo": "Qwen3-TTS-Studio",
         "branch": "main",
         "branchTipSha": "df1de112036d13f8c3ea2b6949fc8e7aeb92d2bf",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1310,7 +1346,7 @@
         "repo": "SlunderStudio",
         "branch": "main",
         "branchTipSha": "0ad824ddbc83fb3075a14b6b0ac9fc31c0fe72fa",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1318,7 +1354,7 @@
         "repo": "SunoJump",
         "branch": "main",
         "branchTipSha": "ade5ccf0b0db7f25e7522deafa1621b751ffffb8",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1326,7 +1362,7 @@
         "repo": "SwiftShot",
         "branch": "main",
         "branchTipSha": "a3e861f9ce3297ab5cedc0a18117662c599da30f",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1334,7 +1370,7 @@
         "repo": "uBlock-Stylus-Converter",
         "branch": "main",
         "branchTipSha": "ef2a087a1eca11c84dec36a9da61578d712ab84c",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1342,7 +1378,7 @@
         "repo": "UniFile",
         "branch": "master",
         "branchTipSha": "5da238b03a7493266270387f69ec55e02c573f8f",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       },
@@ -1350,7 +1386,7 @@
         "repo": "Vertigo",
         "branch": "main",
         "branchTipSha": "2f9ed2929ca37482ba49a503502f3676c36eda2b",
-        "branchTipFetchedAt": "2026-08-23T11:58:11.5056518Z",
+        "branchTipFetchedAt": "2026-08-26T23:11:23.9489262Z",
         "status": "fresh",
         "warning": null
       }
@@ -1375,7 +1411,7 @@
     "verificationMode": "opt-in",
     "maxAssets": 4,
     "maxBytes": 5242880,
-    "targetCount": 198,
+    "targetCount": 199,
     "checkedAssetCount": 0,
     "verifiedCount": 0,
     "skippedCount": 0,
@@ -1730,7 +1766,7 @@
         "metadataBlockPresent": true,
         "metadataBlockClosed": true,
         "name": "Kick Focus",
-        "version": "1.38.0",
+        "version": "1.43.0",
         "updateUrl": null,
         "downloadUrl": null,
         "updateUrlSourceRef": null,
@@ -2057,7 +2093,7 @@
     "status": "disabled",
     "portfolioUrl": "https://portfolio.getparkerai.com/",
     "feedUrl": "https://portfolio.getparkerai.com/projects.json",
-    "localFeedGeneratedAt": "2026-08-23T07:58:12.7463166-04:00",
+    "localFeedGeneratedAt": "2026-08-26T19:11:25.0065769-04:00",
     "deployedPortfolioGeneratedAt": null,
     "deployedProfileFeedGeneratedAt": null,
     "localFeedSchemaVersion": 3,
@@ -2215,7 +2251,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-08-23T07:56:01.1972601-04:00",
+          "queriedAt": "2026-08-26T19:09:40.0254052-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2580,13 +2616,13 @@
     "note": "Warning-only comparison of the planning-doc version against the profile repository's latest GitHub release and matching tag ref."
   },
   "runtimeSecurity": {
-    "status": "warning",
+    "status": "ok",
     "current": {
       "edition": "Core",
-      "version": "7.6.4",
+      "version": "7.6.5",
       "major": 7,
       "minor": 6,
-      "patch": 4,
+      "patch": 5,
       "channel": "current-lts",
       "executable": "pwsh"
     },
@@ -2603,7 +2639,7 @@
         "7.5.10",
         "7.6.5"
       ],
-      "meetsMinimumSecurePatch": false,
+      "meetsMinimumSecurePatch": true,
       "sources": [
         "https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle?view=powershell-7.6",
         "https://nvd.nist.gov/vuln/detail/CVE-2025-54100",
@@ -2616,24 +2652,22 @@
     },
     "supported": true,
     "preferred": true,
-    "warningCount": 1,
-    "warnings": [
-      "PowerShell 7.6.4 is affected by CVE-2026-50523; update to 7.6.5 or newer on the 7.6 line."
-    ]
+    "warningCount": 0,
+    "warnings": []
   },
   "validationPerformance": {
     "metadataFetch": {
       "provider": "graphql",
-      "graphQlPageSize": 500,
-      "requestCount": 2,
-      "attemptCount": 2,
-      "retryCount": 1,
+      "graphQlPageSize": 300,
+      "requestCount": 1,
+      "attemptCount": 1,
+      "retryCount": 0,
       "fallbackUsed": false,
       "fallbackReason": null,
       "resourceLimitFallback": false,
       "resourceLimitFallbackReason": null,
-      "pageSizeReduced": true,
-      "effectivePageSize": 250,
+      "pageSizeReduced": false,
+      "effectivePageSize": 300,
       "repoCount": 217,
       "truncated": false,
       "fidelityDegraded": false
@@ -2642,7 +2676,7 @@
       "skipped": false,
       "targetCount": 355,
       "throttleLimit": 16,
-      "elapsedMs": 596,
+      "elapsedMs": 1338,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2702,13 +2736,863 @@
   "urlSchemeViolations": [],
   "orphanedSuppressedEntries": [],
   "renamedRepoRedirects": [],
-  "metadataDrift": [],
+  "metadataDrift": [
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.repoEnumeration.requestedLimit",
+      "oldValue": 500,
+      "newValue": 300,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": null,
+      "category": null,
+      "field": "provenance.metadataSnapshotAt",
+      "oldValue": "2026-08-23T08:15:26.1897199-04:00",
+      "newValue": "2026-08-26T19:09:40.0254052-04:00",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "AlarmClockXtreme",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 14,
+      "newValue": 15,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "AlarmClockXtreme",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-22T19:35:25Z",
+      "newValue": "2026-08-25T02:20:50Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "ApocalypseWatch",
+      "category": "web",
+      "field": "pushedAt",
+      "oldValue": "2026-08-12T04:35:54Z",
+      "newValue": "2026-08-25T02:20:31Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "AppManagerNG",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 55,
+      "newValue": 60,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "AppManagerNG",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T11:46:14Z",
+      "newValue": "2026-08-25T04:05:27Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Astra-Deck",
+      "category": "extensions",
+      "field": "stars",
+      "oldValue": 12,
+      "newValue": 13,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Astra-Deck",
+      "category": "extensions",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T12:03:33Z",
+      "newValue": "2026-08-26T22:54:12Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Aura",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 23,
+      "newValue": 24,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Aura",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T10:36:11Z",
+      "newValue": "2026-08-25T04:04:13Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CallShield",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 12,
+      "newValue": 14,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CallShield",
+      "category": "android",
+      "field": "latestReleaseTag",
+      "oldValue": "v1.7.29",
+      "newValue": "v1.7.37",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CallShield",
+      "category": "android",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/CallShield/releases/tag/v1.7.29",
+      "newValue": "https://github.com/SysAdminDoc/CallShield/releases/tag/v1.7.37",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CallShield",
+      "category": "android",
+      "field": "releaseAssetNames",
+      "oldValue": [
+        "CallShield-v1.7.29.apk",
+        "CallShield-v1.7.29.apk.sha256"
+      ],
+      "newValue": [
+        "CallShield-v1.7.37.apk",
+        "CallShield-v1.7.37.apk.sha256"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CallShield",
+      "category": "android",
+      "field": "releaseTrust",
+      "oldValue": {
+        "checksumAssets": [
+          "CallShield-v1.7.29.apk.sha256"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 2,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "newValue": {
+        "checksumAssets": [
+          "CallShield-v1.7.37.apk.sha256"
+        ],
+        "checksumCoverage": "full",
+        "hasChecksumForEveryExecutable": true,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "apk"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 2,
+        "releaseImmutable": true,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CallShield",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-22T18:30:59Z",
+      "newValue": "2026-08-26T23:05:52Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "ClearCut",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 36,
+      "newValue": 37,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "stars",
+      "oldValue": 4,
+      "newValue": 5,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "latestReleaseTag",
+      "oldValue": "v1.0.0",
+      "newValue": "v2.4.0",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/CoolSites/releases/tag/v1.0.0",
+      "newValue": "https://github.com/SysAdminDoc/CoolSites/releases/tag/v2.4.0",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "releaseAssetKinds",
+      "oldValue": "source-archive",
+      "newValue": "zip",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "releaseAssetNames",
+      "oldValue": null,
+      "newValue": "CoolSites-v2.4.0.zip",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "releaseTrust",
+      "oldValue": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": true,
+        "executableAssetKinds": [],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 0,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "newValue": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "zip"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "CoolSites",
+      "category": "web",
+      "field": "pushedAt",
+      "oldValue": "2026-08-12T04:10:14Z",
+      "newValue": "2026-08-25T17:48:51Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "DeepPurge",
+      "category": "desktop",
+      "field": "stars",
+      "oldValue": 6,
+      "newValue": 8,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "DefenderControl",
+      "category": "powershell",
+      "field": "stars",
+      "oldValue": 10,
+      "newValue": 11,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Droidsmith",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-12T04:36:57Z",
+      "newValue": "2026-08-25T02:19:58Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "kick-focus",
+      "category": "extensions",
+      "field": "latestReleaseTag",
+      "oldValue": "v1.38.0",
+      "newValue": "v1.43.0",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "kick-focus",
+      "category": "extensions",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/kick-focus/releases/tag/v1.38.0",
+      "newValue": "https://github.com/SysAdminDoc/kick-focus/releases/tag/v1.43.0",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "kick-focus",
+      "category": "extensions",
+      "field": "releaseAssetNames",
+      "oldValue": [
+        "kick-focus-extension-v1.38.0.zip",
+        "kick-focus-firefox-v1.38.0.zip",
+        "kick-focus.user.js"
+      ],
+      "newValue": [
+        "kick-focus-extension-v1.43.0.zip",
+        "kick-focus-firefox-v1.43.0.zip",
+        "kick-focus.user.js"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "kick-focus",
+      "category": "extensions",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T11:55:01Z",
+      "newValue": "2026-08-25T22:44:50Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "MediaDL",
+      "category": "extensions",
+      "field": "stars",
+      "oldValue": 2,
+      "newValue": 3,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenCut",
+      "category": "python",
+      "field": "stars",
+      "oldValue": 40,
+      "newValue": 41,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenCut",
+      "category": "python",
+      "field": "latestReleaseTag",
+      "oldValue": "v1.55.0",
+      "newValue": "v1.55.1",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenCut",
+      "category": "python",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.55.0",
+      "newValue": "https://github.com/SysAdminDoc/OpenCut/releases/tag/v1.55.1",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenCut",
+      "category": "python",
+      "field": "releaseAssetNames",
+      "oldValue": [
+        "OpenCut-Setup-1.55.0.exe",
+        "payload.zip",
+        "release-digests.json"
+      ],
+      "newValue": [
+        "OpenCut-Setup-1.55.1.exe",
+        "payload.zip",
+        "release-digests.json"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenCut",
+      "category": "python",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T11:52:23Z",
+      "newValue": "2026-08-25T04:05:59Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Openshop",
+      "category": "web",
+      "field": "stars",
+      "oldValue": 11,
+      "newValue": 12,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Openshop",
+      "category": "web",
+      "field": "pushedAt",
+      "oldValue": "2026-08-10T16:51:34Z",
+      "newValue": "2026-08-25T02:20:05Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenTasker",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 39,
+      "newValue": 42,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenTasker",
+      "category": "android",
+      "field": "latestReleaseTag",
+      "oldValue": "v0.2.87",
+      "newValue": "v0.2.90",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenTasker",
+      "category": "android",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.87",
+      "newValue": "https://github.com/SysAdminDoc/OpenTasker/releases/tag/v0.2.90",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenTasker",
+      "category": "android",
+      "field": "releaseAssetNames",
+      "oldValue": "app-release.apk",
+      "newValue": "OpenTasker-v0.2.90.apk",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "OpenTasker",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-21T18:40:47Z",
+      "newValue": "2026-08-25T04:09:50Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "PartitionPilot",
+      "category": "desktop",
+      "field": "latestReleaseTag",
+      "oldValue": "v0.9.5",
+      "newValue": "v0.9.22",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "PartitionPilot",
+      "category": "desktop",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/PartitionPilot/releases/tag/v0.9.5",
+      "newValue": "https://github.com/SysAdminDoc/PartitionPilot/releases/tag/v0.9.22",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "PartitionPilot",
+      "category": "desktop",
+      "field": "releaseAssetKinds",
+      "oldValue": "exe",
+      "newValue": [
+        "exe",
+        "other",
+        "zip"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "PartitionPilot",
+      "category": "desktop",
+      "field": "releaseAssetNames",
+      "oldValue": "PartitionPilot-0.9.5-Setup.exe",
+      "newValue": [
+        "PartitionPilot-0.9.22-full.nupkg",
+        "PartitionPilot-0.9.22-Portable.zip",
+        "PartitionPilot-0.9.22-Setup.exe",
+        "RELEASES",
+        "releases.win.json"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "PartitionPilot",
+      "category": "desktop",
+      "field": "releaseTrust",
+      "oldValue": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 1,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "newValue": {
+        "checksumAssets": [],
+        "checksumCoverage": "none",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "exe",
+          "zip"
+        ],
+        "trustLevel": "metadata-only",
+        "platformDigestCount": 5,
+        "releaseImmutable": false,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "PartitionPilot",
+      "category": "desktop",
+      "field": "pushedAt",
+      "oldValue": "2026-08-12T14:14:03Z",
+      "newValue": "2026-08-25T03:55:32Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "project-nomad-desktop",
+      "category": "python",
+      "field": "stars",
+      "oldValue": 12,
+      "newValue": 13,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RcloneBrowserNG",
+      "category": "desktop",
+      "field": "stars",
+      "oldValue": 4,
+      "newValue": 5,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RcloneBrowserNG",
+      "category": "desktop",
+      "field": "pushedAt",
+      "oldValue": "2026-08-10T16:43:10Z",
+      "newValue": "2026-08-25T02:34:01Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "REDplusplus",
+      "category": "desktop",
+      "field": "pushedAt",
+      "oldValue": "2026-08-10T16:45:21Z",
+      "newValue": "2026-08-25T02:20:31Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RES-Slim",
+      "category": "extensions",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T11:53:56Z",
+      "newValue": "2026-08-25T17:04:44Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "stars",
+      "oldValue": 1,
+      "newValue": 2,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "latestReleaseTag",
+      "oldValue": "v3.53.0",
+      "newValue": "v3.56.0",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "latestReleaseUrl",
+      "oldValue": "https://github.com/SysAdminDoc/RumbleX/releases/tag/v3.53.0",
+      "newValue": "https://github.com/SysAdminDoc/RumbleX/releases/tag/v3.56.0",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "releaseAssetKinds",
+      "oldValue": [
+        "other",
+        "userscript",
+        "xpi",
+        "zip"
+      ],
+      "newValue": [
+        "other",
+        "userscript",
+        "zip"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "releaseAssetNames",
+      "oldValue": [
+        "RumbleX-chrome.zip",
+        "RumbleX-firefox.xpi",
+        "RumbleX-firefox.zip",
+        "RumbleX-source.zip",
+        "RumbleX.lite.user.js",
+        "RumbleX.user.js",
+        "SHA256SUMS.txt"
+      ],
+      "newValue": [
+        "RumbleX-chrome.zip",
+        "RumbleX-firefox-amo-unsigned.zip",
+        "RumbleX-source.zip",
+        "RumbleX.lite.user.js",
+        "RumbleX.user.js",
+        "SHA256SUMS.txt"
+      ],
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "releaseTrust",
+      "oldValue": {
+        "checksumAssets": [
+          "SHA256SUMS.txt"
+        ],
+        "checksumCoverage": "partial",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "userscript",
+          "xpi",
+          "zip"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 7,
+        "releaseImmutable": true,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "newValue": {
+        "checksumAssets": [
+          "SHA256SUMS.txt"
+        ],
+        "checksumCoverage": "partial",
+        "hasChecksumForEveryExecutable": false,
+        "signatureAssets": [],
+        "hasAuthenticodeSignature": null,
+        "apkSignatureVerified": null,
+        "sbomAssets": [],
+        "attestationAvailable": false,
+        "debugArtifactPresent": false,
+        "sourceOnlyRelease": false,
+        "executableAssetKinds": [
+          "userscript",
+          "zip"
+        ],
+        "trustLevel": "checksum-metadata",
+        "platformDigestCount": 6,
+        "releaseImmutable": true,
+        "notesPublic": "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified."
+      },
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "RumbleX",
+      "category": "extensions",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T12:11:52Z",
+      "newValue": "2026-08-25T22:56:28Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "SnapCrop",
+      "category": "android",
+      "field": "stars",
+      "oldValue": 3,
+      "newValue": 4,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "Snapture",
+      "category": "desktop",
+      "field": "pushedAt",
+      "oldValue": "2026-08-10T16:43:39Z",
+      "newValue": "2026-08-25T02:19:49Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "StormviewRadar",
+      "category": "web",
+      "field": "pushedAt",
+      "oldValue": "2026-08-12T16:18:10Z",
+      "newValue": "2026-08-25T02:27:49Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "SwiftFloris",
+      "category": "android",
+      "field": "pushedAt",
+      "oldValue": "2026-08-23T12:14:39Z",
+      "newValue": "2026-08-25T19:42:25Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "sysadmindoc.github.io",
+      "category": "guides",
+      "field": "pushedAt",
+      "oldValue": "2026-08-21T17:56:09Z",
+      "newValue": "2026-08-26T22:46:22Z",
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "VideoSubtitleRemover",
+      "category": "media",
+      "field": "stars",
+      "oldValue": 64,
+      "newValue": 63,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "win11-nvme-driver-patcher",
+      "category": "powershell",
+      "field": "stars",
+      "oldValue": 57,
+      "newValue": 58,
+      "severity": "info",
+      "failing": false
+    },
+    {
+      "repo": "YoutubeAdblock",
+      "category": "extensions",
+      "field": "stars",
+      "oldValue": 10,
+      "newValue": 11,
+      "severity": "info",
+      "failing": false
+    }
+  ],
   "metadataDriftSummary": {
     "fatalCount": 0,
-    "informationalCount": 0,
+    "informationalCount": 71,
     "generatedAt": {
-      "value": "2026-08-23T07:58:12.7463166-04:00",
-      "ageDays": 0.0,
+      "value": "2026-08-23T08:17:20.3301737-04:00",
+      "ageDays": 3.45,
       "staleAfterDays": 7,
       "stale": false,
       "warning": null
@@ -2720,7 +3604,7 @@
     "skipReason": null,
     "targetCount": 355,
     "throttleLimit": 16,
-    "elapsedMs": 596,
+    "elapsedMs": 1338,
     "readmeActionTargetCount": 162,
     "readmeInstallSnippetTargetCount": 61,
     "readmeDownloadLinkTargetCount": 89,
@@ -3023,7 +3907,7 @@
     "status": "warning",
     "warningCount": 1,
     "warnings": [
-      "reports/profile-sync-report.json bytes is 122224, above the 114688 soft limit."
+      "reports/profile-sync-report.json bytes is 147829, above the 114688 soft limit."
     ],
     "rows": [
       {
@@ -3083,7 +3967,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 433310,
+        "value": 433438,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3092,16 +3976,16 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 122224,
+        "value": 147829,
         "softLimit": 114688,
         "overSoftLimit": true,
-        "warning": "reports/profile-sync-report.json bytes is 122224, above the 114688 soft limit.",
+        "warning": "reports/profile-sync-report.json bytes is 147829, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {
         "artifact": "assets/profile",
         "metric": "bytes",
-        "value": 105542,
+        "value": 105974,
         "softLimit": 131072,
         "overSoftLimit": false,
         "warning": null,
@@ -3179,9 +4063,9 @@
   "evidenceFreshness": {
     "status": "fresh",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-08-23T07:52:23.4483459-04:00",
-    "latestReportAffectingCommitSha": "7d46101dcff9dcdb2b31437400e4b12f31b7f704",
-    "latestReportAffectingCommitDate": "2026-08-23T07:08:42.0000000-04:00",
+    "committedReportGeneratedAt": "2026-08-26T19:06:56.3479034-04:00",
+    "latestReportAffectingCommitSha": "72c2087b8b30f5790cb9bbbdef76998c22485e17",
+    "latestReportAffectingCommitDate": "2026-08-23T08:01:34.0000000-04:00",
     "reportAgeBehindCommit": false,
     "reportAgeBehindHours": null,
     "generatedWithCommit": false,
