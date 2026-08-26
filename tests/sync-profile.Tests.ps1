@@ -467,6 +467,8 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
 
     It 'uses the shared Test-HttpUrl implementation inside the parallel link probe' {
         $script:SyncProfileScript | Should -Not -Match 'function Test-ParallelHttpUrl'
+        $script:SyncProfileScript | Should -Match '\$\{function:Invoke-SafeOutboundHttpRequest\}\.ToString\(\)'
+        $script:SyncProfileScript | Should -Match '\$\{function:Invoke-SafeOutboundHttpRequest\} = \$using:invokeSafeOutboundHttpRequestDefinition'
         $script:SyncProfileScript | Should -Match '\$\{function:Test-HttpUrl\}\.ToString\(\)'
         $script:SyncProfileScript | Should -Match '\$\{function:Test-HttpUrl\} = \$using:testHttpUrlDefinition'
     }
@@ -476,16 +478,250 @@ Describe 'Test-HttpUrl result shape (no network calls)' {
         $parseErrors = $null
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($script:SyncProfileScript, [ref]$tokens, [ref]$parseErrors)
         $parseErrors | Should -BeNullOrEmpty
-        $functionAst = $ast.Find({
-            param($node)
-            $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Test-HttpUrl'
-        }, $true)
-        $functionAst | Should -Not -BeNullOrEmpty
-        $body = $functionAst.Extent.Text
+        $functionBodies = @{}
+        foreach ($functionAst in @($ast.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                    $node.Name -in @('Test-HttpUrl', 'Invoke-SafeOutboundHttpHop', 'Invoke-SafeOutboundHttpRequest')
+                }, $true))) {
+            $functionBodies[$functionAst.Name] = $functionAst.Extent.Text
+        }
 
-        $body | Should -Match 'ResponseHeadersRead'
-        $body | Should -Match 'HttpClient'
-        $body | Should -Not -Match 'Invoke-WebRequest'
+        $functionBodies['Test-HttpUrl'] | Should -Match 'Invoke-SafeOutboundHttpRequest'
+        $functionBodies['Invoke-SafeOutboundHttpHop'] | Should -Match 'ResponseHeadersRead'
+        $functionBodies['Invoke-SafeOutboundHttpHop'] | Should -Match 'HttpClient'
+        ($functionBodies.Values -join "`n") | Should -Not -Match 'Invoke-WebRequest'
+    }
+}
+
+Describe 'Safe outbound destination policy' {
+    BeforeEach {
+        $script:SafeOutboundSendCount = 0
+        $script:SafeOutboundSent = [System.Collections.Generic.List[object]]::new()
+    }
+
+    It 'rejects credentials, non-HTTPS schemes, localhost, and special-purpose IPv4 literals before sending' {
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{ statusCode = 200; location = $null; error = $null; bytes = @(); text = $null; bytesRead = 0 }
+        }
+        $blockedUrls = @(
+            'http://example.com/',
+            'https://user:password@example.com/',
+            'https://localhost/',
+            'https://service.localhost/',
+            'https://0.0.0.0/',
+            'https://10.1.2.3/',
+            'https://100.64.0.1/',
+            'https://127.0.0.1/',
+            'https://169.254.169.254/latest/meta-data/',
+            'https://172.16.0.1/',
+            'https://192.168.1.1/',
+            'https://224.0.0.1/',
+            'https://255.255.255.255/'
+        )
+
+        foreach ($url in $blockedUrls) {
+            $result = Invoke-SafeOutboundHttpRequest -Url $url -SendRequestScript $sender
+            $result.ok | Should -BeFalse -Because $url
+            $result.policyBlocked | Should -BeTrue -Because $url
+        }
+        $script:SafeOutboundSendCount | Should -Be 0
+    }
+
+    It 'rejects mixed and encoded loopback forms before sending' {
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{ statusCode = 200; location = $null; error = $null; bytes = @(); text = $null; bytesRead = 0 }
+        }
+        foreach ($url in @(
+                'https://2130706433/',
+                'https://127.1/',
+                'https://0177.0.0.1/',
+                'https://0x7f000001/',
+                'https://%31%32%37.0.0.1/')) {
+            $result = Invoke-SafeOutboundHttpRequest -Url $url -SendRequestScript $sender
+            $result.ok | Should -BeFalse -Because $url
+            $result.policyBlocked | Should -BeTrue -Because $url
+        }
+        $script:SafeOutboundSendCount | Should -Be 0
+    }
+
+    It 'rejects loopback, link-local, unique-local, unspecified, and mapped IPv6 literals before sending' {
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{ statusCode = 200; location = $null; error = $null; bytes = @(); text = $null; bytesRead = 0 }
+        }
+        foreach ($url in @(
+                'https://[::]/',
+                'https://[::1]/',
+                'https://[fe80::1]/',
+                'https://[fc00::1]/',
+                'https://[ff02::1]/',
+                'https://[::ffff:127.0.0.1]/',
+                'https://[2001:db8::1]/')) {
+            $result = Invoke-SafeOutboundHttpRequest -Url $url -SendRequestScript $sender
+            $result.ok | Should -BeFalse -Because $url
+            $result.policyBlocked | Should -BeTrue -Because $url
+        }
+        $script:SafeOutboundSendCount | Should -Be 0
+    }
+
+    It 'rejects a hostname when any A or AAAA result is non-public' {
+        $resolver = { param($HostName) @('93.184.216.34', '10.20.30.40', '2606:4700:4700::1111') }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{ statusCode = 200; location = $null; error = $null; bytes = @(); text = $null; bytesRead = 0 }
+        }
+
+        $result = Invoke-SafeOutboundHttpRequest `
+            -Url 'https://mixed.example/resource' `
+            -ResolveHostScript $resolver `
+            -SendRequestScript $sender
+
+        $result.ok | Should -BeFalse
+        $result.policyBlocked | Should -BeTrue
+        $result.error | Should -Match 'non-public address'
+        $script:SafeOutboundSendCount | Should -Be 0
+    }
+
+    It 'blocks a public redirect to a private DNS answer before the protected request' {
+        $resolver = {
+            param($HostName)
+            if ($HostName -eq 'public.example') { return @('93.184.216.34') }
+            return @('169.254.169.254')
+        }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{
+                statusCode = 302
+                location = 'https://metadata.example/latest/'
+                error = $null
+                bytes = @()
+                text = $null
+                bytesRead = 0
+            }
+        }
+
+        $result = Invoke-SafeOutboundHttpRequest `
+            -Url 'https://public.example/start' `
+            -ResolveHostScript $resolver `
+            -SendRequestScript $sender
+
+        $result.ok | Should -BeFalse
+        $result.policyBlocked | Should -BeTrue
+        $result.finalUrl | Should -Be 'https://metadata.example/latest/'
+        $script:SafeOutboundSendCount | Should -Be 1
+    }
+
+    It 'passes public HTTPS and pins the request to every validated address' {
+        $resolver = { param($HostName) @('93.184.216.34', '2606:4700:4700::1111') }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSent.Add([ordered]@{ uri = $Uri; addresses = @($Addresses | ForEach-Object { $_.ToString() }) })
+            return [ordered]@{ statusCode = 204; location = $null; error = $null; bytes = @(); text = $null; bytesRead = 0 }
+        }
+
+        $result = Invoke-SafeOutboundHttpRequest `
+            -Url 'https://public.example/resource' `
+            -ResolveHostScript $resolver `
+            -SendRequestScript $sender
+
+        $result.ok | Should -BeTrue
+        $result.statusCode | Should -Be 204
+        $script:SafeOutboundSent | Should -HaveCount 1
+        $script:SafeOutboundSent[0].uri | Should -Be 'https://public.example/resource'
+        @($script:SafeOutboundSent[0].addresses) | Should -Be @('93.184.216.34', '2606:4700:4700::1111')
+    }
+
+    It 'allows a modeled GitHub release redirect when every hop resolves publicly' {
+        $resolver = { param($HostName) @('140.82.112.3') }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSent.Add($Uri)
+            if ($Uri -like 'https://github.com/*') {
+                return [ordered]@{
+                    statusCode = 302
+                    location = 'https://objects.githubusercontent.com/github-production-release-asset/file.zip'
+                    error = $null
+                    bytes = @()
+                    text = $null
+                    bytesRead = 0
+                }
+            }
+            return [ordered]@{ statusCode = 200; location = $null; error = $null; bytes = @(1, 2); text = $null; bytesRead = 2 }
+        }
+
+        $result = Invoke-SafeOutboundHttpRequest `
+            -Url 'https://github.com/SysAdminDoc/Tool/releases/download/v1.0.0/file.zip' `
+            -ResolveHostScript $resolver `
+            -SendRequestScript $sender
+
+        $result.ok | Should -BeTrue
+        $result.redirectCount | Should -Be 1
+        $result.finalUrl | Should -Be 'https://objects.githubusercontent.com/github-production-release-asset/file.zip'
+        $script:SafeOutboundSent | Should -HaveCount 2
+    }
+
+    It 'stops after five redirects without sending a seventh request' {
+        $resolver = { param($HostName) @('93.184.216.34') }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{
+                statusCode = 302
+                location = "/hop/$script:SafeOutboundSendCount"
+                error = $null
+                bytes = @()
+                text = $null
+                bytesRead = 0
+            }
+        }
+
+        $result = Invoke-SafeOutboundHttpRequest `
+            -Url 'https://public.example/start' `
+            -MaxRedirects 5 `
+            -ResolveHostScript $resolver `
+            -SendRequestScript $sender
+
+        $result.ok | Should -BeFalse
+        $result.policyBlocked | Should -BeTrue
+        $result.error | Should -Match 'redirect limit of 5 exceeded'
+        $script:SafeOutboundSendCount | Should -Be 6
+    }
+
+    It 'pins sockets and routes every public raw HTTP path through the shared policy' {
+        $script:SyncProfileScript | Should -Match 'ConnectCallback'
+        $script:SyncProfileScript | Should -Match 'UseProxy = false'
+        $script:SyncProfileScript | Should -Match 'AllowAutoRedirect = false'
+        $script:SyncProfileScript | Should -Not -Match 'Invoke-WebRequest'
+        $script:SyncProfileScript | Should -Not -Match 'Invoke-RestMethod'
+
+        $tokens = $null
+        $parseErrors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($script:SyncProfileScript, [ref]$tokens, [ref]$parseErrors)
+        $parseErrors | Should -BeNullOrEmpty
+        $functionBodies = @{}
+        foreach ($functionAst in @($ast.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.FunctionDefinitionAst]
+                }, $true))) {
+            $functionBodies[$functionAst.Name] = $functionAst.Extent.Text
+        }
+
+        foreach ($functionName in @(
+                'Test-HttpUrl',
+                'Get-ReleaseArtifactDownload',
+                'Get-PortfolioHttpDocument',
+                'Invoke-RestJsonSafe',
+                'Get-UserscriptContent')) {
+            $functionBodies[$functionName] | Should -Match 'Invoke-SafeOutboundHttpRequest' -Because $functionName
+        }
     }
 }
 
