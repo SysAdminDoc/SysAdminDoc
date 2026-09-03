@@ -11755,7 +11755,6 @@ function Test-MetadataDrift {
             "provenance.catalogSha256",
             "provenance.generatorSha256",
             "provenance.projectSchemaSha256",
-            "provenance.metadataProvider",
             "provenance.repoEnumeration.returnedCount",
             "provenance.repoEnumeration.truncated"
         )
@@ -11765,6 +11764,26 @@ function Test-MetadataDrift {
             if ((ConvertTo-ComparableJson $oldValue) -ne (ConvertTo-ComparableJson $newValue)) {
                 $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field $field -OldValue $oldValue -NewValue $newValue -Severity "fatal"))
             }
+        }
+
+        # Which transport enumerated the repos is a fetch-path detail, not catalog
+        # content. This script drops from GraphQL to REST on its own whenever
+        # GitHub throttles the query, so a run that wrote "graphql" and a later
+        # check that fell back to "rest-fallback" describe the same inventory.
+        # Treating that as fatal failed the nightly freshness check on GitHub's
+        # mood rather than on any real drift. Same test the requestedLimit
+        # comparison below already uses: identical inventory, neither truncated.
+        $currentProvider = Get-NestedMemberValue -Object $current -Path "provenance.metadataProvider"
+        $expectedProvider = Get-NestedMemberValue -Object $expected -Path "provenance.metadataProvider"
+        if ((ConvertTo-ComparableJson $currentProvider) -ne (ConvertTo-ComparableJson $expectedProvider)) {
+            $providerCurrentCount = Get-NestedMemberValue -Object $current -Path "provenance.repoEnumeration.returnedCount"
+            $providerExpectedCount = Get-NestedMemberValue -Object $expected -Path "provenance.repoEnumeration.returnedCount"
+            $providerCurrentTruncated = ConvertTo-BooleanValue (Get-NestedMemberValue -Object $current -Path "provenance.repoEnumeration.truncated")
+            $providerExpectedTruncated = ConvertTo-BooleanValue (Get-NestedMemberValue -Object $expected -Path "provenance.repoEnumeration.truncated")
+            $providerInventorySame = (ConvertTo-ComparableJson $providerCurrentCount) -eq (ConvertTo-ComparableJson $providerExpectedCount)
+            $providerNotTruncated = ($providerCurrentTruncated -eq $false -and $providerExpectedTruncated -eq $false)
+            $providerSeverity = if ($providerInventorySame -and $providerNotTruncated) { "info" } else { "fatal" }
+            $drift.Add((New-MetadataDriftRecord -Repo $null -Category $null -Field "provenance.metadataProvider" -OldValue $currentProvider -NewValue $expectedProvider -Severity $providerSeverity))
         }
 
         $currentRequestedLimit = Get-NestedMemberValue -Object $current -Path "provenance.repoEnumeration.requestedLimit"

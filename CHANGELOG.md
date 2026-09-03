@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-03
+
+- Cataloged five public repos the profile had never seen: WeightTrack, NoNo, IRL Streamer, BillMinder for PC and OpenRadar. Their absence is what had been failing the daily freshness check since 8/31.
+- Stopped a transient GitHub throttle from failing that check. The generator drops from GraphQL to REST pagination on its own when a query gets resource-limited, so a run that recorded `graphql` and a later check that fell back to `rest-fallback` can describe exactly the same 222 repos. That difference now reports as info when the inventory matches and neither side was truncated, which is the same test the `requestedLimit` comparison beside it already used. A provider change with a different repo count still fails.
+
 ## 2026-08-23
 
 - Routed every public HTTP fetch in the profile generator through one safe-outbound policy. Requests now require HTTPS with no embedded credentials, reject local and special-purpose IPv4 and IPv6 destinations, fail closed when any DNS result is non-public, disable automatic redirects, and validate each of at most five redirects. The transport pins sockets to the addresses that passed validation, preventing a second DNS answer from changing the destination after policy checks. Link probes remain header-only, while portfolio documents, userscripts, JSON APIs, and capped release downloads share the same guard.
