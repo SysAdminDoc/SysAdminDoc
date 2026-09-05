@@ -6,14 +6,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
 
 ### P1
 
-- [ ] P1: Verify PowerShell Gallery package bytes and signer expectations before import
-  Why: Exact module versions do not detect a changed same-version Gallery package, and the Pester package is unsigned.
-  Evidence: `scripts/validate-local.ps1:93`, `scripts/validate-local.ps1:172`, [Save-PSResource](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.psresourceget/save-psresource?view=powershellget-3.x), [Pester 6.1.0 Gallery record](https://www.powershellgallery.com/packages/Pester/6.1.0), `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: `scripts/validate-local.ps1`, `scripts/review-local-dependencies.ps1`, a version-controlled PowerShell module lock, module cache, `tests/sync-profile.Tests.ps1`.
-  Acceptance: The lock records module, version, Gallery package URL, nupkg SHA-256, and expected signer evidence when present. Both default and Pester 6 lanes download as nupkg, verify the hash before extraction, require the expected Authenticode signer for signed packages, and allow unsigned Pester only by its reviewed hash. Fixtures prove changed same-version bytes and signer mismatch fail before import; a verified cached nupkg supports an explicit offline lane.
-  Complexity: M
-  Note (2026-09-04 research): the premise is wrong on one point. Pester Gallery packages ARE Authenticode-signed, issuer `CN=Jakub Jares, O=Jakub Jares, L=Praha, C=CZ`, for every version except 3.4.0 (https://github.com/pester/Pester/issues/2617; the cert root rolled at 5.6.0, which is where the `-SkipPublisherCheck` folklore comes from). Drop the unsigned-Pester carve-out and require the expected signer for Pester too. Also prefer `Save-PSResource -AuthenticodeCheck`: PSResourceGet 1.2.0 ships with PowerShell 7.6, so no bootstrap install is needed.
-
 - [ ] P1: Use status-aware link caches and conditional revalidation
   Why: One 24-hour TTL currently preserves corrected 404s and transient timeouts, 429s, and 5xx responses for as long as successful checks while stored validators are never reused.
   Evidence: `scripts/sync-profile.ps1:4504`, `scripts/sync-profile.ps1:4605`, `Invoke-LinkProbeBatch`, [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111.html), [GitHub REST best practices](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api), `RESEARCH.md` Security, Privacy, and Reliability.

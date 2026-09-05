@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/powershell-module-lock.v1.json",
+  "note": "Reviewed PowerShell Gallery package bytes and expected Authenticode signers. Exact versions alone do not detect a changed same-version package, so validate-local.ps1 verifies the nupkg SHA-256 before extraction and the module signer before import. Refresh with the documented command in README.md after reviewing the new package.",
+  "reviewedAt": "2026-09-05",
+  "packageSource": "https://www.powershellgallery.com/api/v2/package",
+  "modules": [
+    {
+      "name": "Pester",
+      "version": "5.9.1",
+      "packageUrl": "https://www.powershellgallery.com/api/v2/package/Pester/5.9.1",
+      "nupkgSha256": "8dd4060fc3bc895f05bd655e4ab82abe346de54a4e6415dfb727cc8378672b69",
+      "signed": true,
+      "expectedSigner": "CN=Jakub Jareš, O=Jakub Jareš, L=Praha, C=CZ",
+      "lane": "default"
+    },
+    {
+      "name": "PSScriptAnalyzer",
+      "version": "1.25.0",
+      "packageUrl": "https://www.powershellgallery.com/api/v2/package/PSScriptAnalyzer/1.25.0",
+      "nupkgSha256": "14e634c828eb98efb9f40b2918ba90f139ed5eccdf663a2a747736d996995d60",
+      "signed": true,
+      "expectedSigner": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US",
+      "lane": "default"
+    },
+    {
+      "name": "Pester",
+      "version": "6.1.0",
+      "packageUrl": "https://www.powershellgallery.com/api/v2/package/Pester/6.1.0",
+      "nupkgSha256": "0207a75ea09f81b27c1ded44898b2bb3c845bafa02045bd64a39e26a53ca41b4",
+      "signed": true,
+      "expectedSigner": "CN=Jakub Jareš, O=Jakub Jareš, L=Praha, C=CZ",
+      "lane": "pester6-compatibility"
+    }
+  ]
+}

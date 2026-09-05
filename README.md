@@ -119,7 +119,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
 | Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock/hash pins, and reports latest-known npm/Python audit-tool freshness without failing solely on stale evidence. |
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
-| PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
+| PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. Packages are downloaded as nupkg and their SHA-256 checked against `data/powershell-module-lock.json` before anything is extracted, then every signed file must carry the signer that lock names. A module with no reviewed record is refused rather than installed. Verified packages are cached under `.cache/powershell-modules` so an offline run reuses bytes that already passed. |
 | Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.1.0 into an isolated temporary module path and run the non-integration suite; the default Pester 5.9.1 lane is unchanged. |
 | Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
@@ -541,7 +541,7 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;69 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;70 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;48 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
 | [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;38 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3 | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;27 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
@@ -549,9 +549,9 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;22 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;20 | Spam call and text blocker. GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;17 | AMOLED-dark hosts-based ad blocker. Inspired by AdAway | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
-| [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;14 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
+| [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;15 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
+| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;13 | Open-source CF.Lumen successor. Root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) &#11088;12 | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
-| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;12 | Open-source CF.Lumen successor. Root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;8 | Personal Android-app catalog sourced from GitHub Releases. Android sibling of LocalChromeStore | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest) |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;8 | Premium dark weather app. No API keys required | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;6 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |

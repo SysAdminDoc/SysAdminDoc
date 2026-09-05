@@ -4187,7 +4187,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
 | Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock/hash pins, and reports latest-known npm/Python audit-tool freshness without failing solely on stale evidence. |
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
-| PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. |
+| PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. Packages are downloaded as nupkg and their SHA-256 checked against `data/powershell-module-lock.json` before anything is extracted, then every signed file must carry the signer that lock names. A module with no reviewed record is refused rather than installed. Verified packages are cached under `.cache/powershell-modules` so an offline run reuses bytes that already passed. |
 | Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.1.0 into an isolated temporary module path and run the non-integration suite; the default Pester 5.9.1 lane is unchanged. |
 | Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |

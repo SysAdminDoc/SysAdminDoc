@@ -7292,6 +7292,128 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'PowerShell module packages are verified before import' {
+    BeforeAll {
+        $script:ModuleLockPath = Join-Path $script:RepoRoot 'data/powershell-module-lock.json'
+        $script:ModuleLock = Get-Content -LiteralPath $script:ModuleLockPath -Raw | ConvertFrom-Json
+        # Load the verification helpers without executing the validation lane.
+        $validationText = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
+        $script:ValidateLocalText = $validationText
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($validationText, [ref]$null, [ref]$null)
+        foreach ($name in @('Get-ModuleLockEntry', 'Assert-ModuleAuthenticodeSigner')) {
+            $definition = $ast.FindAll(
+                {
+                    param($node)
+                    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
+                }, $true) | Select-Object -First 1
+            $definition | Should -Not -BeNullOrEmpty -Because "$name must exist in validate-local.ps1"
+            . ([scriptblock]::Create($definition.Extent.Text))
+        }
+    }
+
+    It 'locks every module the validation lane imports' {
+        # A pin the lane installs but the lock does not describe would be installed
+        # unverified, which is the whole gap this closes.
+        $pinned = @([regex]::Matches($script:ValidateLocalText, 'Name\s*=\s*"(?<name>[^"]+)";\s*Version\s*=\s*"(?<version>[^"]+)"') |
+            ForEach-Object { [pscustomobject]@{ Name = $_.Groups['name'].Value; Version = $_.Groups['version'].Value } })
+        $pinned | Should -Not -BeNullOrEmpty
+
+        foreach ($module in $pinned) {
+            $entry = @($script:ModuleLock.modules | Where-Object { $_.name -ceq $module.Name -and $_.version -ceq $module.Version })
+            $entry | Should -HaveCount 1 -Because "$($module.Name) $($module.Version) must have a reviewed lock record"
+        }
+        # The opt-in Pester 6 lane is pinned separately and must also be locked.
+        @($script:ModuleLock.modules | Where-Object { $_.name -ceq 'Pester' -and $_.version -ceq '6.1.0' }) | Should -HaveCount 1
+    }
+
+    It 'records package bytes and a signer for every locked module' {
+        foreach ($entry in @($script:ModuleLock.modules)) {
+            $entry.packageUrl | Should -Match '^https://www\.powershellgallery\.com/api/v2/package/'
+            $entry.nupkgSha256 | Should -Match '^[a-f0-9]{64}$'
+            $entry.signed | Should -BeOfType [bool]
+            if ($entry.signed) {
+                $entry.expectedSigner | Should -Not -BeNullOrEmpty
+            }
+        }
+    }
+
+    It 'refuses a module version with no reviewed record' {
+        { Get-ModuleLockEntry -RepoRoot $script:RepoRoot -Name 'Pester' -Version '9.9.9' } |
+            Should -Throw -ExpectedMessage '*No reviewed lock record*'
+        { Get-ModuleLockEntry -RepoRoot $script:RepoRoot -Name 'NotAModule' -Version '1.0.0' } |
+            Should -Throw -ExpectedMessage '*No reviewed lock record*'
+    }
+
+    It 'refuses a lock record that claims signing without naming a signer' {
+        $lockPath = Join-Path $TestDrive 'bad-lock.json'
+        ([ordered]@{
+            modules = @([ordered]@{
+                name = 'Pester'; version = '5.9.1'
+                packageUrl = 'https://www.powershellgallery.com/api/v2/package/Pester/5.9.1'
+                nupkgSha256 = ('a' * 64)
+                signed = $true
+                expectedSigner = ''
+            })
+        } | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $lockPath -Encoding utf8
+
+        { Get-ModuleLockEntry -RepoRoot $TestDrive -Name 'Pester' -Version '5.9.1' -LockPath $lockPath } |
+            Should -Throw -ExpectedMessage '*names no expected signer*'
+    }
+
+    It 'accepts the real installed module against its locked signer' {
+        $entry = @($script:ModuleLock.modules | Where-Object { $_.name -ceq 'Pester' -and $_.version -ceq '5.9.1' })[0]
+        $installed = Get-Module -ListAvailable -Name Pester | Where-Object { $_.Version -eq [version]'5.9.1' } | Select-Object -First 1
+        if (-not $installed) {
+            Set-ItResult -Skipped -Because 'Pester 5.9.1 is not installed on this machine'
+            return
+        }
+
+        $verified = Assert-ModuleAuthenticodeSigner -ModuleRoot (Split-Path -Parent $installed.Path) `
+            -Name 'Pester' -Version '5.9.1' -ExpectedSigner ([string]$entry.expectedSigner)
+
+        $verified | Should -BeGreaterThan 0
+    }
+
+    It 'refuses a signer that does not match the lock exactly' {
+        $installed = Get-Module -ListAvailable -Name Pester | Where-Object { $_.Version -eq [version]'5.9.1' } | Select-Object -First 1
+        if (-not $installed) {
+            Set-ItResult -Skipped -Because 'Pester 5.9.1 is not installed on this machine'
+            return
+        }
+        $root = Split-Path -Parent $installed.Path
+
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Pester' -Version '5.9.1' -ExpectedSigner 'CN=Someone Else, O=Evil, C=XX' } |
+            Should -Throw -ExpectedMessage '*but the lock expects*'
+        # The real subject carries non-ASCII characters; an ASCII-mangled copy of it must
+        # not pass, because a transliterated signer is a different signer.
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Pester' -Version '5.9.1' -ExpectedSigner 'CN=Jakub Jares, O=Jakub Jares, L=Praha, C=CZ' } |
+            Should -Throw -ExpectedMessage '*but the lock expects*'
+    }
+
+    It 'refuses a tree with no signature when the lock says signed' {
+        $root = Join-Path $TestDrive 'unsigned-module'
+        New-Item -ItemType Directory -Path $root -Force | Out-Null
+        '@{ ModuleVersion = "1.0" }' | Set-Content -LiteralPath (Join-Path $root 'Fake.psd1') -Encoding utf8
+
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Fake' -Version '1.0' -ExpectedSigner 'CN=Anyone' } |
+            Should -Throw -ExpectedMessage '*no extracted file carries a signature*'
+    }
+
+    It 'verifies package bytes before extracting and both lanes use the lock' {
+        # Order matters: hashing after extraction would already have written attacker
+        # controlled files to the module path.
+        $script:ValidateLocalText | Should -Match 'refusing to extract'
+        $script:ValidateLocalText | Should -Match 'Expand-Archive'
+        $hashIndex = $script:ValidateLocalText.IndexOf('refusing to extract')
+        $expandIndex = $script:ValidateLocalText.IndexOf('Expand-Archive')
+        $hashIndex | Should -BeLessThan $expandIndex
+
+        # The opt-in Pester 6 lane must not fall back to an unverified Save-Module.
+        $script:ValidateLocalText | Should -Not -Match 'Get-Command Save-Module'
+        @([regex]::Matches($script:ValidateLocalText, 'Get-ModuleLockEntry -RepoRoot')).Count | Should -BeGreaterOrEqual 2
+    }
+}
+
 Describe 'Uncataloged public repos get a reviewable stub' {
     BeforeAll {
         function script:New-StubRepo {

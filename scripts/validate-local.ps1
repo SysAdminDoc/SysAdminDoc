@@ -180,39 +180,193 @@ function Get-ValidationPowerShellRuntimePosture {
     }
 }
 
+function Get-ModuleLockEntry {
+    <#
+    .SYNOPSIS
+    Returns the reviewed lock record for one module version.
+    .DESCRIPTION
+    An exact version pin does not detect a changed same-version Gallery package, so the
+    lock carries the reviewed nupkg SHA-256 and the expected Authenticode signer. A
+    module with no lock record is refused rather than installed unverified.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot,
+
+        [Parameter(Mandatory)]
+        [string]$Name,
+
+        [Parameter(Mandatory)]
+        [string]$Version,
+
+        [string]$LockPath = "data/powershell-module-lock.json"
+    )
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($LockPath)) { $LockPath } else { Join-Path $RepoRoot $LockPath }
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        throw "PowerShell module lock not found at $LockPath; cannot verify $Name $Version before import."
+    }
+
+    $lock = Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+    $entry = @($lock.modules | Where-Object { $_.name -ceq $Name -and $_.version -ceq $Version }) | Select-Object -First 1
+    if (-not $entry) {
+        throw "No reviewed lock record for $Name $Version in $LockPath; add one with its nupkg SHA-256 and expected signer before importing it."
+    }
+    foreach ($field in @("packageUrl", "nupkgSha256")) {
+        if ([string]::IsNullOrWhiteSpace([string]$entry.$field)) {
+            throw "Lock record for $Name $Version is missing $field."
+        }
+    }
+    if ($entry.signed -eq $true -and [string]::IsNullOrWhiteSpace([string]$entry.expectedSigner)) {
+        throw "Lock record for $Name $Version claims the package is signed but names no expected signer."
+    }
+
+    return $entry
+}
+
+function Assert-ModuleAuthenticodeSigner {
+    <#
+    .SYNOPSIS
+    Requires every signed file in an extracted module to carry the expected signer.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ModuleRoot,
+
+        [Parameter(Mandatory)]
+        [string]$Name,
+
+        [Parameter(Mandatory)]
+        [string]$Version,
+
+        [Parameter(Mandatory)]
+        [string]$ExpectedSigner
+    )
+
+    $signable = @(Get-ChildItem -LiteralPath $ModuleRoot -Recurse -File -Include '*.psd1', '*.psm1', '*.ps1', '*.dll' -ErrorAction SilentlyContinue)
+    if ($signable.Count -eq 0) {
+        throw "Extracted $Name $Version contains no signable files to verify."
+    }
+
+    $signedCount = 0
+    foreach ($file in $signable) {
+        $signature = Get-AuthenticodeSignature -FilePath $file.FullName
+        if ($signature.Status -eq "NotSigned") {
+            continue
+        }
+        if ($signature.Status -ne "Valid") {
+            throw "$Name $Version file '$($file.Name)' has Authenticode status $($signature.Status); refusing to import."
+        }
+        $subject = [string]$signature.SignerCertificate.Subject
+        if ($subject -cne $ExpectedSigner) {
+            throw "$Name $Version file '$($file.Name)' is signed by '$subject' but the lock expects '$ExpectedSigner'; refusing to import."
+        }
+        $signedCount++
+    }
+
+    if ($signedCount -eq 0) {
+        throw "$Name $Version is recorded as signed in the lock but no extracted file carries a signature; refusing to import."
+    }
+
+    return $signedCount
+}
+
 function Install-RequiredModule {
+    <#
+    .SYNOPSIS
+    Installs a pinned module only after its package bytes and signer match the lock.
+    .DESCRIPTION
+    Downloads the Gallery nupkg, verifies its SHA-256 against the reviewed lock BEFORE
+    extracting anything, expands it into the user module path, then requires the
+    expected Authenticode signer on every signed file. A verified nupkg cached under
+    the repo supports an offline lane.
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [string]$Name,
 
         [Parameter(Mandatory)]
-        [string]$Version
+        [string]$Version,
+
+        [Parameter(Mandatory)]
+        [string]$RepoRoot,
+
+        [string]$CacheRoot,
+
+        [string]$DestinationRoot
     )
+
+    $entry = Get-ModuleLockEntry -RepoRoot $RepoRoot -Name $Name -Version $Version
 
     $available = Get-Module -ListAvailable -Name $Name |
         Where-Object { $_.Version -eq [version]$Version } |
         Select-Object -First 1
-
-    if ($available) {
+    if ($available -and [string]::IsNullOrWhiteSpace($DestinationRoot)) {
+        # Already present from a previous verified install. Re-check the signer, which is
+        # cheap, rather than trusting that whatever is on disk arrived through this path.
+        if ($entry.signed -eq $true) {
+            $null = Assert-ModuleAuthenticodeSigner -ModuleRoot (Split-Path -Parent $available.Path) `
+                -Name $Name -Version $Version -ExpectedSigner ([string]$entry.expectedSigner)
+        }
         return
     }
 
-    $installModule = Get-Command Install-Module -ErrorAction Stop
-    $parameters = @{
-        Name = $Name
-        RequiredVersion = $Version
-        Scope = "CurrentUser"
-        Repository = "PSGallery"
-        Force = $true
-        AllowClobber = $true
-        ErrorAction = "Stop"
+    if ([string]::IsNullOrWhiteSpace($CacheRoot)) {
+        $CacheRoot = Join-Path $RepoRoot ".cache/powershell-modules"
     }
-    if ($installModule.Parameters.ContainsKey("AcceptLicense")) {
-        $parameters["AcceptLicense"] = $true
+    New-Item -ItemType Directory -Path $CacheRoot -Force | Out-Null
+    $nupkgPath = Join-Path $CacheRoot "$Name.$Version.nupkg"
+
+    if (-not (Test-Path -LiteralPath $nupkgPath)) {
+        Write-Host "Downloading $Name $Version from $($entry.packageUrl)"
+        Invoke-WebRequest -Uri ([string]$entry.packageUrl) -OutFile $nupkgPath -MaximumRedirection 5 -UseBasicParsing -ErrorAction Stop
+    } else {
+        Write-Host "Using cached package $nupkgPath"
     }
 
-    Install-Module @parameters
+    $actualHash = (Get-FileHash -LiteralPath $nupkgPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    $expectedHash = ([string]$entry.nupkgSha256).ToLowerInvariant()
+    if ($actualHash -cne $expectedHash) {
+        # Remove the bad bytes so a retry cannot pick them back up from the cache.
+        Remove-Item -LiteralPath $nupkgPath -Force -ErrorAction SilentlyContinue
+        throw "$Name $Version package hash $actualHash does not match the reviewed $expectedHash; refusing to extract."
+    }
+
+    # Explicit destination so a caller (and a test) can install somewhere other than the
+    # real CurrentUser tree. Defaults to the CurrentUser scope Install-Module would use.
+    $userModuleRoot = $DestinationRoot
+    if ([string]::IsNullOrWhiteSpace($userModuleRoot)) {
+        $userModuleRoot = ($env:PSModulePath -split [System.IO.Path]::PathSeparator |
+            Where-Object { $_ -like "$([Environment]::GetFolderPath('MyDocuments'))*" } |
+            Select-Object -First 1)
+    }
+    if ([string]::IsNullOrWhiteSpace($userModuleRoot)) {
+        $userModuleRoot = ($env:PSModulePath -split [System.IO.Path]::PathSeparator | Select-Object -First 1)
+    }
+    $destination = Join-Path (Join-Path $userModuleRoot $Name) $Version
+    if (Test-Path -LiteralPath $destination) {
+        Remove-Item -LiteralPath $destination -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $destination -Force | Out-Null
+    Expand-Archive -LiteralPath $nupkgPath -DestinationPath $destination -Force
+
+    # Package plumbing, not module content; leaving it behind confuses module discovery.
+    foreach ($residue in @('_rels', 'package', '[Content_Types].xml', "$Name.nuspec")) {
+        $residuePath = Join-Path $destination $residue
+        if (Test-Path -LiteralPath $residuePath) {
+            Remove-Item -LiteralPath $residuePath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    if ($entry.signed -eq $true) {
+        $verified = Assert-ModuleAuthenticodeSigner -ModuleRoot $destination -Name $Name -Version $Version -ExpectedSigner ([string]$entry.expectedSigner)
+        Write-Host "Verified ${Name} ${Version}: package hash matches the lock and $verified signed file(s) carry the expected signer."
+    } else {
+        Write-Host "Verified $Name $Version by reviewed package hash; the lock records this package as unsigned."
+    }
 }
 
 function Import-RequiredModule {
@@ -282,8 +436,29 @@ function Invoke-Pester6Compatibility {
     $result = $null
     try {
         New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
-        $saveModule = Get-Command Save-Module -ErrorAction Stop
-        & $saveModule.Name -Name Pester -RequiredVersion $Version.ToString() -Path $moduleRoot -Repository PSGallery -Force -ErrorAction Stop
+        # Same verification as the default lane: reviewed package bytes before extraction,
+        # expected signer before import. Save-Module would take whatever the Gallery
+        # served for that version.
+        $entry = Get-ModuleLockEntry -RepoRoot $RepoRoot -Name 'Pester' -Version $Version.ToString()
+        $nupkgPath = Join-Path $moduleRoot "Pester.$($Version).nupkg"
+        Invoke-WebRequest -Uri ([string]$entry.packageUrl) -OutFile $nupkgPath -MaximumRedirection 5 -UseBasicParsing -ErrorAction Stop
+        $actualHash = (Get-FileHash -LiteralPath $nupkgPath -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualHash -cne ([string]$entry.nupkgSha256).ToLowerInvariant()) {
+            throw "Pester $Version package hash $actualHash does not match the reviewed $($entry.nupkgSha256); refusing to extract."
+        }
+        $destination = Join-Path (Join-Path $moduleRoot 'Pester') $Version.ToString()
+        New-Item -ItemType Directory -Path $destination -Force | Out-Null
+        Expand-Archive -LiteralPath $nupkgPath -DestinationPath $destination -Force
+        Remove-Item -LiteralPath $nupkgPath -Force -ErrorAction SilentlyContinue
+        foreach ($residue in @('_rels', 'package', '[Content_Types].xml', 'Pester.nuspec')) {
+            $residuePath = Join-Path $destination $residue
+            if (Test-Path -LiteralPath $residuePath) {
+                Remove-Item -LiteralPath $residuePath -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+        if ($entry.signed -eq $true) {
+            $null = Assert-ModuleAuthenticodeSigner -ModuleRoot $destination -Name 'Pester' -Version $Version.ToString() -ExpectedSigner ([string]$entry.expectedSigner)
+        }
 
         $pwsh = Get-Command pwsh -CommandType Application -ErrorAction Stop | Select-Object -First 1
         $repoTests = Join-Path $RepoRoot "tests"
@@ -526,7 +701,7 @@ try {
     if (-not $SkipBootstrap) {
         Invoke-NativeCommand -FilePath $npm.Source -ArgumentList @("ci")
         foreach ($module in $requiredModules) {
-            Install-RequiredModule -Name $module.Name -Version $module.Version
+            Install-RequiredModule -Name $module.Name -Version $module.Version -RepoRoot $repoRoot
         }
     }
 
