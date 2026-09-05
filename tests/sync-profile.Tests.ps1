@@ -7201,6 +7201,81 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Hand-authored header links and anchors are validated' {
+    BeforeAll {
+        $script:LiveReadme = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Raw
+    }
+
+    It 'probes the hand-authored call to action, not just three known URLs' {
+        # A dead services link shipped because the collector recognized only the
+        # portfolio and setup URLs.
+        $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $script:LiveReadme)
+        $cta = $targets | Where-Object { $_.url -eq 'https://getparkerai.com/' }
+
+        $cta | Should -Not -BeNullOrEmpty
+        $cta.fatalOnFailure | Should -BeTrue
+    }
+
+    It 'fails on an unknown dead call to action in the header' {
+        $planted = '<p align="center"><a href="https://example.invalid/dead-cta"><b>Dead</b></a></p>' + "`n" + $script:LiveReadme
+
+        $target = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $planted) |
+            Where-Object { $_.url -eq 'https://example.invalid/dead-cta' }
+
+        $target | Should -Not -BeNullOrEmpty
+        $target.type | Should -Be 'header-link'
+        $target.fatalOnFailure | Should -BeTrue
+    }
+
+    It 'resolves every local fragment in the committed README' {
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $script:LiveReadme) | Should -HaveCount 0
+    }
+
+    It 'fails a missing local anchor without any network access' {
+        $planted = $script:LiveReadme.Replace('<a href="#start-here">Start Here</a>', '<a href="#totally-absent-section">Start Here</a>')
+
+        $missing = @(Test-ReadmeHeaderAnchor -ExpectedReadme $planted)
+
+        $missing | Should -HaveCount 1
+        $missing[0].fragment | Should -Be 'totally-absent-section'
+        $missing[0].reason | Should -Match 'No heading or explicit anchor'
+    }
+
+    It 'stops at the generated-catalog notice' {
+        # Everything below the notice is generated and covered by the action-link lane;
+        # scanning it here would double-probe hundreds of targets.
+        @(Get-ReadmeHeaderLinkReference -ExpectedReadme $script:LiveReadme) |
+            Where-Object { $_.value -like '*win11-nvme*' } |
+            Should -HaveCount 0
+    }
+
+    It 'splits srcset candidates and keeps images warning-only' {
+        $fixture = '<p><img srcset="https://a.example/x.png 1x, https://b.example/y.png 2x" src="https://c.example/z.png"></p>' + "`n" + $GeneratedCatalogNotice
+
+        $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $fixture)
+
+        @($targets).Count | Should -Be 3
+        foreach ($target in $targets) {
+            $target.type | Should -Be 'header-image'
+            $target.fatalOnFailure | Should -BeFalse
+        }
+        ($targets | ForEach-Object { $_.url }) | Should -Contain 'https://b.example/y.png'
+    }
+
+    It 'slugs headings the way GitHub does' {
+        ConvertTo-GitHubHeadingAnchor -Text 'Browser Extensions & Userscripts' | Should -Be 'browser-extensions--userscripts'
+        ConvertTo-GitHubHeadingAnchor -Text 'Media & Conversion Tools' | Should -Be 'media--conversion-tools'
+        ConvertTo-GitHubHeadingAnchor -Text '**Start Here**' | Should -Be 'start-here'
+        ConvertTo-GitHubHeadingAnchor -Text '<b>AI</b> Implementation Services' | Should -Be 'ai-implementation-services'
+    }
+
+    It 'deduplicates a repeated external target' {
+        $fixture = '<p><a href="https://dup.example/a">one</a> <a href="https://dup.example/a">two</a></p>' + "`n" + $GeneratedCatalogNotice
+
+        @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $fixture) | Should -HaveCount 1
+    }
+}
+
 Describe 'Release trust shortlist recommends only achievable actions' {
     BeforeAll {
         $script:TrustShortlist = (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw |

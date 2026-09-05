@@ -2834,32 +2834,181 @@ function Add-LinkValidationTarget {
     }
 }
 
+function Get-ReadmeHeaderRegion {
+    <#
+    .SYNOPSIS
+    Returns the hand-authored part of the README, above the generated-catalog notice.
+    #>
+    param([string]$ExpectedReadme)
+
+    if ([string]::IsNullOrEmpty($ExpectedReadme)) {
+        return ""
+    }
+    $boundary = $ExpectedReadme.IndexOf($GeneratedCatalogNotice, [StringComparison]::Ordinal)
+    if ($boundary -lt 0) {
+        return $ExpectedReadme
+    }
+    return $ExpectedReadme.Substring(0, $boundary)
+}
+
+function Get-ReadmeHeaderLinkReference {
+    <#
+    .SYNOPSIS
+    Enumerates every hand-authored link reference above the generated-catalog notice.
+    .DESCRIPTION
+    Recognizing three known URLs meant an arbitrary hand-written call to action could
+    die without failing the link check, which is how a dead services link shipped.
+    Collects Markdown links and images, HTML href/src/srcset, and local fragments.
+    #>
+    param([string]$ExpectedReadme)
+
+    $header = Get-ReadmeHeaderRegion -ExpectedReadme $ExpectedReadme
+    $references = New-Object System.Collections.Generic.List[object]
+    if ([string]::IsNullOrWhiteSpace($header)) {
+        return $references.ToArray()
+    }
+
+    $add = {
+        param([string]$Kind, [string]$Value)
+        $trimmed = ([string]$Value).Trim()
+        if ([string]::IsNullOrWhiteSpace($trimmed)) { return }
+        $references.Add([ordered]@{ kind = $Kind; value = $trimmed })
+    }
+
+    # Markdown images first so the link pattern does not claim them.
+    foreach ($match in [regex]::Matches($header, '!\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
+        & $add "image" $match.Groups['url'].Value
+    }
+    foreach ($match in [regex]::Matches($header, '(?<![!])\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
+        & $add "link" $match.Groups['url'].Value
+    }
+    foreach ($match in [regex]::Matches($header, '(?i)\bhref\s*=\s*"(?<url>[^"]*)"')) {
+        & $add "link" $match.Groups['url'].Value
+    }
+    foreach ($match in [regex]::Matches($header, '(?i)\bsrc\s*=\s*"(?<url>[^"]*)"')) {
+        & $add "image" $match.Groups['url'].Value
+    }
+    # srcset is a comma-separated candidate list, each optionally followed by a descriptor.
+    foreach ($match in [regex]::Matches($header, '(?i)\bsrcset\s*=\s*"(?<set>[^"]*)"')) {
+        foreach ($candidate in @($match.Groups['set'].Value -split ',')) {
+            & $add "image" (@($candidate.Trim() -split '\s+')[0])
+        }
+    }
+
+    return $references.ToArray()
+}
+
 function Get-ReadmeHeaderLinkValidationTargets {
     param([string]$ExpectedReadme)
 
     $targets = New-Object System.Collections.Generic.List[object]
     $seenUrls = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
+    # These three carry the profile's call to action and install path, so a failure is
+    # fatal rather than a warning even though every header link is now probed.
+    $criticalUrls = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     $criticalLinks = @(
         [ordered]@{ type = "profile-portfolio"; url = Get-ProfilePortfolioUrl },
         [ordered]@{ type = "setup-raw"; url = Get-ProfileSetupRawUrl },
         [ordered]@{ type = "setup-source"; url = Get-ProfileSetupSourceUrl }
     )
     foreach ($link in $criticalLinks) {
+        $null = $criticalUrls.Add([string]$link.url)
         if ($ExpectedReadme.Contains([string]$link.url)) {
             Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type ([string]$link.type) -Url ([string]$link.url) -FatalOnFailure $true
         }
     }
 
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\b(?:src|srcset)="(?<url>https://[^"]+)"')) {
-        Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type "header-image" -Url $match.Groups['url'].Value -FatalOnFailure $false
-    }
-
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)!\[[^\]]*\]\((?<url>https://[^\s)]+)[^)]*\)')) {
-        Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type "header-image" -Url $match.Groups['url'].Value -FatalOnFailure $false
+    foreach ($reference in @(Get-ReadmeHeaderLinkReference -ExpectedReadme $ExpectedReadme)) {
+        $url = [string]$reference.value
+        if (-not $url.StartsWith("https://", [StringComparison]::OrdinalIgnoreCase)) {
+            continue
+        }
+        if ($criticalUrls.Contains($url)) {
+            continue
+        }
+        # A hand-authored destination that no longer resolves is a broken promise to a
+        # visitor, so it fails the run. Images stay warning-only: a slow badge host is
+        # not a broken profile.
+        $type = if ($reference.kind -eq "image") { "header-image" } else { "header-link" }
+        Add-LinkValidationTarget -Targets $targets -SeenUrls $seenUrls -Type $type -Url $url -FatalOnFailure ($reference.kind -ne "image")
     }
 
     return $targets.ToArray()
+}
+
+function Test-ReadmeHeaderAnchor {
+    <#
+    .SYNOPSIS
+    Verifies every hand-authored local fragment resolves inside the generated README.
+    .DESCRIPTION
+    Runs without network access. GitHub derives heading anchors by lowercasing, dropping
+    punctuation and joining words with hyphens; the generator also emits explicit
+    <a id="..."> anchors, which are matched directly.
+    #>
+    param([string]$ExpectedReadme)
+
+    $missing = New-Object System.Collections.Generic.List[object]
+    if ([string]::IsNullOrWhiteSpace($ExpectedReadme)) {
+        return $missing.ToArray()
+    }
+
+    $anchors = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)<a\s+id="(?<id>[^"]+)"')) {
+        $null = $anchors.Add($match.Groups['id'].Value)
+    }
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\bname\s*=\s*"(?<id>[^"]+)"')) {
+        $null = $anchors.Add($match.Groups['id'].Value)
+    }
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?m)^\s{0,3}#{1,6}\s+(?<text>.+?)\s*$')) {
+        $slug = ConvertTo-GitHubHeadingAnchor -Text $match.Groups['text'].Value
+        if (-not [string]::IsNullOrWhiteSpace($slug)) {
+            $null = $anchors.Add($slug)
+        }
+    }
+
+    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($reference in @(Get-ReadmeHeaderLinkReference -ExpectedReadme $ExpectedReadme)) {
+        $value = [string]$reference.value
+        if (-not $value.StartsWith("#", [StringComparison]::Ordinal)) {
+            continue
+        }
+        $fragment = $value.Substring(1)
+        if ([string]::IsNullOrWhiteSpace($fragment) -or -not $seen.Add($fragment)) {
+            continue
+        }
+        if (-not $anchors.Contains($fragment)) {
+            $missing.Add([ordered]@{
+                fragment = $fragment
+                kind = [string]$reference.kind
+                reason = "No heading or explicit anchor in the generated README matches #$fragment."
+            })
+        }
+    }
+
+    return $missing.ToArray()
+}
+
+function ConvertTo-GitHubHeadingAnchor {
+    <#
+    .SYNOPSIS
+    Reproduces GitHub's heading-to-anchor slug rules for local fragment checks.
+    #>
+    param([string]$Text)
+
+    $value = [string]$Text
+    # Strip inline HTML and Markdown emphasis/link syntax before slugging, matching how
+    # GitHub slugs the rendered heading text rather than the raw source.
+    $value = [regex]::Replace($value, '<[^>]+>', '')
+    $value = [regex]::Replace($value, '!?\[(?<text>[^\]]*)\]\([^)]*\)', '${text}')
+    $value = [regex]::Replace($value, '[`*_~]', '')
+    $value = $value.Trim().ToLowerInvariant()
+    $value = [regex]::Replace($value, '[^\p{L}\p{Nd}\s-]', '')
+    # Each whitespace character becomes its own hyphen. GitHub does not collapse runs,
+    # which is why a heading containing "&" yields a double hyphen once the "&" is
+    # dropped and both surrounding spaces survive.
+    $value = [regex]::Replace($value, '\s', '-')
+    return $value
 }
 
 function Get-ReadmeActionRepoFromUrl {
@@ -14010,6 +14159,22 @@ function Test-ProfileState {
 
     $linkFailures = @()
     $linkWarnings = @()
+    # Local fragments need no network, so they are checked even when link probing is
+    # skipped or offline: a call to action pointing at a section that no longer exists
+    # is broken for every visitor regardless of connectivity.
+    $missingHeaderAnchors = @(Test-ReadmeHeaderAnchor -ExpectedReadme $ExpectedReadme)
+    foreach ($anchor in $missingHeaderAnchors) {
+        $linkFailures += [ordered]@{
+            repo = $Owner
+            type = "readme-header-anchor"
+            url = "#$($anchor.fragment)"
+            group = "readme-header"
+            status = $null
+            error = [string]$anchor.reason
+            host = $null
+            fatal = $true
+        }
+    }
     # A bare targetCount of 0 reads like "probed everything, found nothing wrong". Record the
     # skip explicitly so a skipped run is never mistaken for a clean one.
     $linkValidationSkipReason = if ($Offline) {
@@ -14036,7 +14201,7 @@ function Test-ProfileState {
         $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
         $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme)
         $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets @($readmeHeaderTargets + $readmeActionTargets)
-        $linkFailures = @($linkResult.failures)
+        $linkFailures = @($linkFailures + @($linkResult.failures))
         $linkWarnings = @($linkResult.warnings)
         $linkValidationSummary = [ordered]@{
             skipped = $false

@@ -14,13 +14,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Complexity: M
   Note (2026-09-04 research): the premise is wrong on one point. Pester Gallery packages ARE Authenticode-signed, issuer `CN=Jakub Jares, O=Jakub Jares, L=Praha, C=CZ`, for every version except 3.4.0 (https://github.com/pester/Pester/issues/2617; the cert root rolled at 5.6.0, which is where the `-SkipPublisherCheck` folklore comes from). Drop the unsigned-Pester carve-out and require the expected signer for Pester too. Also prefer `Save-PSResource -AuthenticodeCheck`: PSResourceGet 1.2.0 ships with PowerShell 7.6, so no bootstrap install is needed.
 
-- [ ] P1: Validate every hand-authored profile link and local anchor
-  Why: `Get-ReadmeHeaderLinkValidationTargets` recognizes three known URLs and images, so an arbitrary Markdown or HTML call to action can die without failing the full link check.
-  Evidence: `scripts/sync-profile.ps1:2408`, `CHANGELOG.md:9`, `reports/profile-sync-report.json.linkValidationSummary`, `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: `Get-ReadmeHeaderLinkValidationTargets`, generated-notice boundary parsing, anchor discovery, link report groups, `tests/sync-profile.Tests.ps1`.
-  Acceptance: Parse every Markdown link, HTML `href`, image `src`, and `srcset` value before `$GeneratedCatalogNotice`; deduplicate normalized external targets; route HTTPS targets through the safe-outbound policy; and verify every local fragment exists in the complete generated README. A fixture with an unknown dead CTA fails, a missing local anchor fails without network access, and the current header produces a stable enumerated target set.
-  Complexity: S
-
 - [ ] P1: Use status-aware link caches and conditional revalidation
   Why: One 24-hour TTL currently preserves corrected 404s and transient timeouts, 429s, and 5xx responses for as long as successful checks while stored validators are never reused.
   Evidence: `scripts/sync-profile.ps1:4504`, `scripts/sync-profile.ps1:4605`, `Invoke-LinkProbeBatch`, [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111.html), [GitHub REST best practices](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api), `RESEARCH.md` Security, Privacy, and Reliability.
