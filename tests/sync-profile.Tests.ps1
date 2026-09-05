@@ -2656,13 +2656,17 @@ Describe 'Report schema depth helpers' {
         $shortlist.checksumGapCount | Should -Be 1
         $shortlist.attestationGapCount | Should -Be 2
         $shortlist.sbomGapCount | Should -Be 2
-        # Highest evidence gap (MismatchRelease, gapScore 3) is ranked first.
+        # Highest evidence gap is ranked first. A missing checksum weighs 2 because it is
+        # the cheapest real integrity win; a mutable release and a missing SBOM weigh 1
+        # each. Attestation is excluded from scoring entirely: it needs a GitHub Actions
+        # OIDC token, which this repository will never have.
         $shortlist.rows[0].repo | Should -Be 'MismatchRelease'
         $shortlist.rows[0].priorityRank | Should -Be 1
-        $shortlist.rows[0].gapScore | Should -Be 3
-        $shortlist.rows[0].nextAction | Should -Be 'publish-sha256sums'
+        $shortlist.rows[0].gapScore | Should -Be 4
+        $shortlist.rows[0].nextAction | Should -Be 'publish-sha256-checksums'
         ($shortlist.rows | Where-Object { $_.repo -eq 'GoodRelease' }).hasChecksum | Should -BeTrue
-        ($shortlist.rows | Where-Object { $_.repo -eq 'GoodRelease' }).nextAction | Should -Be 'publish-build-provenance-attestation'
+        ($shortlist.rows | Where-Object { $_.repo -eq 'GoodRelease' }).nextAction | Should -Be 'enable-immutable-releases'
+        $shortlist.attestationAchievable | Should -BeFalse
 
         # Field parity against the report schema so live schema validation stays green.
         $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
@@ -7194,6 +7198,65 @@ Describe 'Pester local validation command' {
         $script:SyncProfileScript | Should -Match 'validate-local[.]ps1 -Pester6Compatibility'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+    }
+}
+
+Describe 'Release trust shortlist recommends only achievable actions' {
+    BeforeAll {
+        $script:TrustShortlist = (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw |
+            ConvertFrom-Json).releaseAssetDrift.executableDownloadTrustShortlist
+    }
+
+    It 'never recommends build-provenance attestation' {
+        # Attestation generation needs a GitHub Actions OIDC token and AGENTS.md bans
+        # workflows, so recommending it asked for something impossible on every row.
+        ($script:TrustShortlist | ConvertTo-Json -Depth 8) | Should -Not -Match 'publish-build-provenance-attestation'
+        $script:SyncProfileScript | Should -Not -Match 'publish-build-provenance-attestation'
+    }
+
+    It 'records once, at section level, that attestation is unreachable' {
+        $script:TrustShortlist.attestationAchievable | Should -BeFalse
+        $script:TrustShortlist.attestationUnachievableReason | Should -Match 'OIDC'
+        $script:TrustShortlist.attestationUnachievableReason | Should -Match '(?i)no workflows'
+    }
+
+    It 'limits nextAction to actions the maintainer can perform' {
+        $allowed = @('publish-sha256-checksums', 'enable-immutable-releases', 'publish-sbom', 'no-action-needed')
+        foreach ($row in @($script:TrustShortlist.rows)) {
+            $allowed | Should -Contain $row.nextAction
+        }
+    }
+
+    It 'ranks missing checksums above mutable releases' {
+        # Checksums are the cheapest real integrity win; immutability is a repo setting.
+        $rows = @($script:TrustShortlist.rows)
+        $rows.Count | Should -BeGreaterThan 0
+        $firstWithChecksum = $rows | Where-Object { $_.hasChecksum } | Select-Object -First 1
+        $lastWithout = $rows | Where-Object { -not $_.hasChecksum } | Select-Object -Last 1
+        if ($null -ne $firstWithChecksum -and $null -ne $lastWithout) {
+            [int]$lastWithout.priorityRank | Should -BeLessThan ([int]$firstWithChecksum.priorityRank)
+        }
+        foreach ($row in @($rows | Where-Object { -not $_.hasChecksum })) {
+            $row.nextAction | Should -Be 'publish-sha256-checksums'
+        }
+    }
+
+    It 'drops the unreachable tier from the readiness ladder' {
+        foreach ($bucket in @($script:TrustShortlist.readinessCounts)) {
+            $bucket.readinessLevel | Should -Not -Be 'attestation-metadata'
+        }
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $ladder = $schema.'$defs'.executableDownloadTrustShortlist.properties.readinessCounts.items.properties.readinessLevel.enum
+        $ladder | Should -Not -Contain 'attestation-metadata'
+        $ladder | Should -Contain 'metadata-complete'
+    }
+
+    It 'calls a fully covered immutable release complete' {
+        $complete = @($script:TrustShortlist.rows | Where-Object { $_.hasChecksum -and $_.isImmutable -and $_.hasSbom })
+        foreach ($row in $complete) {
+            $row.readinessLevel | Should -Be 'metadata-complete'
+            $row.nextAction | Should -Be 'no-action-needed'
+        }
     }
 }
 

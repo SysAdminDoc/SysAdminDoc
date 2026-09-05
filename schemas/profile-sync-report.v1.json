@@ -1525,6 +1525,8 @@
         "metadataEvidenceGapCount",
         "platformDigestCount",
         "attestationGapCount",
+        "attestationAchievable",
+        "attestationUnachievableReason",
         "sbomGapCount",
         "immutableCount",
         "readinessCounts",
@@ -1555,6 +1557,12 @@
         "attestationGapCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "attestationAchievable": {
+          "type": "boolean"
+        },
+        "attestationUnachievableReason": {
+          "$ref": "#/$defs/nullableString"
+        },
         "sbomGapCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
@@ -1575,7 +1583,7 @@
                 "type": "string",
                 "enum": [
                   "metadata-complete",
-                  "attestation-metadata",
+
                   "sbom-metadata",
                   "immutable-metadata",
                   "digest-metadata",
@@ -1664,7 +1672,7 @@
                 "type": "string",
                 "enum": [
                   "metadata-complete",
-                  "attestation-metadata",
+
                   "sbom-metadata",
                   "immutable-metadata",
                   "digest-metadata",

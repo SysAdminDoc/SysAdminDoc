@@ -12969,26 +12969,27 @@ function Test-ReleaseAssetDrift {
                 $hasSbom = @($releaseTrust.sbomAssets).Count -gt 0
                 $hasAttestation = [bool]$releaseTrust.attestationAvailable
                 $hasMetadataEvidence = $hasChecksum -or $hasPlatformDigest
+                $isImmutable = [bool]($releaseTrust.releaseImmutable -eq $true)
+                # Build-provenance attestation needs a GitHub Actions OIDC token and this
+                # repository bans Actions, so it can never be earned here. Scoring and
+                # ranking on it made every row permanently incomplete and put an
+                # impossible instruction at the top of the list. Rank on what the
+                # maintainer can actually do: checksums first, then immutability, then SBOM.
                 $gapScore = 0
-                if (-not $hasMetadataEvidence) { $gapScore++ }
+                if (-not $hasChecksum) { $gapScore += 2 }
+                if (-not $isImmutable) { $gapScore++ }
                 if (-not $hasSbom) { $gapScore++ }
-                if (-not $hasAttestation) { $gapScore++ }
-                $nextAction = if (-not $hasMetadataEvidence -and $checksumCoverage -eq "partial") {
-                    "complete-missing-sha256sums"
-                } elseif (-not $hasMetadataEvidence) {
-                    "publish-sha256sums"
-                } elseif (-not $hasAttestation) {
-                    "publish-build-provenance-attestation"
+                $nextAction = if (-not $hasChecksum) {
+                    "publish-sha256-checksums"
+                } elseif (-not $isImmutable) {
+                    "enable-immutable-releases"
                 } elseif (-not $hasSbom) {
                     "publish-sbom"
                 } else {
-                    "metadata-complete"
+                    "no-action-needed"
                 }
-                $isImmutable = [bool]($releaseTrust.releaseImmutable -eq $true)
-                $readinessLevel = if ($hasMetadataEvidence -and $hasAttestation -and $hasSbom -and $isImmutable) {
+                $readinessLevel = if ($hasChecksum -and $isImmutable -and $hasSbom) {
                     "metadata-complete"
-                } elseif ($hasAttestation) {
-                    "attestation-metadata"
                 } elseif ($hasSbom) {
                     "sbom-metadata"
                 } elseif ($isImmutable) {
@@ -13132,13 +13133,15 @@ function Test-ReleaseAssetDrift {
         metadataEvidenceGapCount = [int]$metadataEvidenceGapCount
         platformDigestCount = [int]$platformDigestCount
         attestationGapCount = [int]$attestationGapCount
+        attestationAchievable = $false
+        attestationUnachievableReason = "Build-provenance attestation requires a GitHub Actions OIDC token to mint the signing certificate, and this repository ships no workflows by policy. SHA-256 sidecars and immutable releases are the achievable ceiling."
         sbomGapCount = [int]$sbomGapCount
         immutableCount = [int]$immutableCount
         readinessCounts = @($readinessCounts)
         shortlistSoftCap = [int]$shortlistSoftCap
         truncatedCount = [int]$shortlistTruncatedCount
         rows = @($shortlistRows.ToArray())
-        note = "Metadata evidence records filename-derived sidecar checksums, SBOM or attestation filenames, and GitHub platform asset digests; no binaries were downloaded or locally verified."
+        note = "Metadata evidence records filename-derived sidecar checksums, SBOM filenames, and GitHub platform asset digests; no binaries were downloaded or locally verified. attestationGapCount is reported for completeness only; see attestationUnachievableReason."
     }
 
     return [ordered]@{
