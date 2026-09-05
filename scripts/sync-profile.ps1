@@ -135,6 +135,9 @@ $SmokeAffectingPaths = @(
     "data/profile-catalog.json",
     "scripts/render-profile-smoke.ps1"
 )
+# How long a local dependency-advisory review stays credible as the compensating
+# control for the banned Dependabot lane.
+$LocalAdvisoryReviewStaleDays = 7
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
@@ -9505,10 +9508,70 @@ function Get-CodeScanningLocalEvidence {
     }
 }
 
+function Get-LocalAdvisoryReviewPosture {
+    <#
+    .SYNOPSIS
+    Reports the state of the local dependency-advisory lane that stands in for Dependabot.
+    .DESCRIPTION
+    Repository policy bans Dependabot, so "disabled" is intended rather than a gap, but
+    only if the compensating control actually ran. validate-local.ps1 writes this
+    artifact on every run; a missing, stale or failing one means there is no advisory
+    coverage right now, which is the thing worth warning about.
+    #>
+    param([string]$ReviewPath = "reports/dependency-review.json")
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($ReviewPath)) { $ReviewPath } else { Join-Path $RepoRoot $ReviewPath }
+    $present = Test-Path -LiteralPath $fullPath
+    $status = $null
+    $generatedAtText = $null
+    $ageDays = $null
+    $stale = $false
+    $reason = $null
+
+    if (-not $present) {
+        $reason = "No local dependency review artifact at $ReviewPath; run npm run review:dependencies (validate-local.ps1 writes it)."
+    } else {
+        try {
+            $review = Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
+            $status = [string](Get-MemberValue -Object $review -Name "status")
+            $generatedAtText = ConvertTo-IsoText (Get-MemberValue -Object $review -Name "generatedAt")
+        } catch {
+            $reason = "Local dependency review artifact at $ReviewPath could not be parsed."
+        }
+        if ($null -eq $reason) {
+            $generatedAt = ConvertTo-DateTimeOffsetOrNull $generatedAtText
+            if ($null -eq $generatedAt) {
+                $reason = "Local dependency review artifact at $ReviewPath has no usable generatedAt."
+            } else {
+                $ageDays = [math]::Round(([datetimeoffset]::Now.ToUniversalTime() - $generatedAt.ToUniversalTime()).TotalDays, 2)
+                if ($ageDays -gt $LocalAdvisoryReviewStaleDays) {
+                    $stale = $true
+                    $reason = "Local dependency review is $ageDays days old, past the $LocalAdvisoryReviewStaleDays day window; run npm run review:dependencies."
+                } elseif ($status -ne "ok") {
+                    # review-local-dependencies.ps1 emits ok / review-needed / not-run.
+                    $reason = "Local dependency review reports status '$status'; resolve it before treating advisory coverage as current."
+                }
+            }
+        }
+    }
+
+    return [ordered]@{
+        present = [bool]$present
+        status = if ([string]::IsNullOrWhiteSpace($status)) { $null } else { $status }
+        generatedAt = if ([string]::IsNullOrWhiteSpace($generatedAtText)) { $null } else { $generatedAtText }
+        ageDays = $ageDays
+        stale = [bool]$stale
+        staleAfterDays = [int]$LocalAdvisoryReviewStaleDays
+        covering = [bool]($null -eq $reason)
+        gapReason = $reason
+    }
+}
+
 function Get-DependabotSecurityPosture {
     param(
         [object]$DependabotSecurityUpdates,
-        [string]$UnavailableReason
+        [string]$UnavailableReason,
+        [object]$LocalAdvisoryReview
     )
 
     $configPath = ".github/dependabot.yml"
@@ -9545,8 +9608,13 @@ function Get-DependabotSecurityPosture {
         "verify-dependabot-security-update-setting"
     }
 
-    $evidence = if ($status -eq "disabled") {
-        "Dependabot security updates are disabled by repository policy; advisory triage runs locally through npm run review:dependencies, which fails validation on open advisories. Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s)."
+    $advisoryCovering = [bool](Get-MemberValue -Object $LocalAdvisoryReview -Name "covering")
+    $advisoryGapReason = [string](Get-MemberValue -Object $LocalAdvisoryReview -Name "gapReason")
+
+    $evidence = if ($status -eq "disabled" -and $advisoryCovering) {
+        "Dependabot security updates are disabled by repository policy; advisory triage runs locally through npm run review:dependencies, which fails validation on open advisories. The local review is current. Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s)."
+    } elseif ($status -eq "disabled") {
+        "Dependabot security updates are disabled by repository policy, but the compensating local advisory review is not currently covering: $advisoryGapReason"
     } elseif ($status -eq "enabled") {
         "Dependabot security updates are enabled, and local version-update config is present for $($ecosystems.Count) ecosystem(s)."
     } elseif (-not [string]::IsNullOrWhiteSpace($UnavailableReason)) {
@@ -9555,10 +9623,14 @@ function Get-DependabotSecurityPosture {
         "Dependabot security update setting was unavailable from repository metadata and automated-security-fixes endpoint."
     }
 
-    $nextAction = if ($status -eq "disabled") {
-        "Enable Dependabot security updates in repository settings, or record why manual security triage is sufficient for this profile repository."
+    # Never recommend enabling Dependabot or adding its config: AGENTS.md bans both. The
+    # only actionable gap is the compensating local lane not being current.
+    $nextAction = if ($status -eq "disabled" -and $advisoryCovering) {
+        "Keep Dependabot disabled and the local advisory review current."
+    } elseif ($status -eq "disabled") {
+        "Run npm run review:dependencies so the local advisory lane covers the disabled Dependabot setting."
     } elseif ($status -eq "enabled") {
-        "Keep monitoring Dependabot alert volume and grouped version-update PRs."
+        "Disable Dependabot security updates to match repository policy; advisory triage belongs to the local review lane."
     } else {
         "Re-query repository security_and_analysis metadata or the automated-security-fixes endpoint before changing Dependabot policy."
     }
@@ -9572,7 +9644,9 @@ function Get-DependabotSecurityPosture {
         localConfigPresent = [bool]$configPresent
         localConfigPath = $configPath
         localConfigEcosystems = @($ecosystems)
-        warningDisposition = if ($status -eq "disabled") { "repository-setting-warning" } else { "none" }
+        warningDisposition = if ($status -eq "disabled" -and -not $advisoryCovering) { "compensating-control-warning" } elseif ($status -eq "disabled") { "none" } else { "none" }
+        localAdvisoryReviewCovering = [bool]$advisoryCovering
+        localAdvisoryReviewGapReason = if ([string]::IsNullOrWhiteSpace($advisoryGapReason)) { $null } else { $advisoryGapReason }
         documentationPath = "decision:dependabot-security-posture"
         evidence = $evidence
         nextAction = $nextAction
@@ -10473,9 +10547,11 @@ function Test-RepositoryCommunityBaseline {
     } else {
         $DependabotSecurityUpdatesStatus
     }
+    $localAdvisoryReview = Get-LocalAdvisoryReviewPosture
     $dependabotSecurityPosture = Get-DependabotSecurityPosture `
         -DependabotSecurityUpdates $dependabotSecurityUpdates `
-        -UnavailableReason $DependabotSecurityUpdatesUnavailableReason
+        -UnavailableReason $DependabotSecurityUpdatesUnavailableReason `
+        -LocalAdvisoryReview $localAdvisoryReview
 
     if ($repoAvailable) {
         if ([string]::IsNullOrWhiteSpace([string]$secretScanning)) {
@@ -10488,8 +10564,12 @@ function Test-RepositoryCommunityBaseline {
         } elseif ($secretScanningPushProtection -ne "enabled") {
             $repoWarnings.Add("Secret scanning push protection is not enabled.")
         }
+        # Dependabot disabled is the policy, so the warning is about the compensating
+        # local advisory lane, not about the setting.
         if ((Get-MemberValue -Object $dependabotSecurityPosture -Name "status") -eq "disabled") {
-            $repoWarnings.Add("Dependabot security updates are not enabled.")
+            if (-not (Get-MemberValue -Object $dependabotSecurityPosture -Name "localAdvisoryReviewCovering")) {
+                $repoWarnings.Add("Dependabot is disabled by policy and the compensating local advisory review is not current: $(Get-MemberValue -Object $dependabotSecurityPosture -Name 'localAdvisoryReviewGapReason')")
+            }
         } elseif ((Get-MemberValue -Object $dependabotSecurityPosture -Name "status") -eq "unavailable") {
             $repoWarnings.Add("Dependabot security update status is unavailable.")
         }

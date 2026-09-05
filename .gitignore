@@ -14,6 +14,7 @@ CODEX_CHANGELOG.md
 RESEARCH_FEATURE_PLAN.md
 TODO.md
 reports/rendered-profile-smoke*.json
+reports/dependency-review.json
 reports/rendered-profile-smoke*.png
 testResults.xml
 coverage.xml

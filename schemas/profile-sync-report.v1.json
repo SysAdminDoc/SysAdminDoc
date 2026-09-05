@@ -2938,6 +2938,8 @@
         "localConfigPath",
         "localConfigEcosystems",
         "warningDisposition",
+        "localAdvisoryReviewCovering",
+        "localAdvisoryReviewGapReason",
         "documentationPath",
         "evidence",
         "nextAction"
@@ -2951,6 +2953,12 @@
         },
         "recommendation": {
           "type": "string"
+        },
+        "localAdvisoryReviewCovering": {
+          "type": "boolean"
+        },
+        "localAdvisoryReviewGapReason": {
+          "$ref": "#/$defs/nullableString"
         },
         "dependabotSecurityUpdatesStatus": {
           "$ref": "#/$defs/nullableString"

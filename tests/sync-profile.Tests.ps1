@@ -7197,6 +7197,84 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Dependabot posture defers to the local advisory lane' {
+    BeforeAll {
+        function script:New-ReviewArtifact {
+            param([string]$Path, [string]$Status, [double]$AgeDays)
+            $payload = [ordered]@{
+                status = $Status
+                generatedAt = ([datetimeoffset]::Now.AddDays(-$AgeDays)).ToUniversalTime().ToString('o')
+            }
+            ($payload | ConvertTo-Json) | Set-Content -LiteralPath $Path -Encoding utf8
+            $Path
+        }
+    }
+
+    It 'raises no warning when Dependabot is disabled and the local review is current' {
+        $path = script:New-ReviewArtifact -Path (Join-Path $TestDrive 'fresh.json') -Status 'ok' -AgeDays 0
+        $review = Get-LocalAdvisoryReviewPosture -ReviewPath $path
+
+        $review.covering | Should -BeTrue
+        $posture = Get-DependabotSecurityPosture -DependabotSecurityUpdates 'disabled' -LocalAdvisoryReview $review
+
+        $posture.warningDisposition | Should -Be 'none'
+        $posture.recommendation | Should -Be 'keep-dependabot-disabled-with-local-advisory-review'
+        $posture.localAdvisoryReviewCovering | Should -BeTrue
+        $posture.localAdvisoryReviewGapReason | Should -BeNullOrEmpty
+    }
+
+    It 'raises one compensating-control warning when the local review cannot cover' -ForEach @(
+        @{ Case = 'stale'; Status = 'ok'; AgeDays = 9; Match = 'past the 7 day window' }
+        @{ Case = 'review-needed'; Status = 'review-needed'; AgeDays = 0; Match = "status 'review-needed'" }
+        @{ Case = 'not-run'; Status = 'not-run'; AgeDays = 0; Match = "status 'not-run'" }
+    ) {
+        $path = script:New-ReviewArtifact -Path (Join-Path $TestDrive "$Case.json") -Status $Status -AgeDays $AgeDays
+        $review = Get-LocalAdvisoryReviewPosture -ReviewPath $path
+
+        $review.covering | Should -BeFalse
+        $review.gapReason | Should -Match $Match
+
+        $posture = Get-DependabotSecurityPosture -DependabotSecurityUpdates 'disabled' -LocalAdvisoryReview $review
+        $posture.warningDisposition | Should -Be 'compensating-control-warning'
+        $posture.localAdvisoryReviewCovering | Should -BeFalse
+        $posture.nextAction | Should -Match 'npm run review:dependencies'
+    }
+
+    It 'treats a missing or unparseable review artifact as no coverage' {
+        $missing = Get-LocalAdvisoryReviewPosture -ReviewPath (Join-Path $TestDrive 'absent.json')
+        $missing.present | Should -BeFalse
+        $missing.covering | Should -BeFalse
+        $missing.gapReason | Should -Match 'No local dependency review artifact'
+
+        $badPath = Join-Path $TestDrive 'bad.json'
+        'not json' | Set-Content -LiteralPath $badPath -Encoding utf8
+        $bad = Get-LocalAdvisoryReviewPosture -ReviewPath $badPath
+        $bad.covering | Should -BeFalse
+        $bad.gapReason | Should -Match 'could not be parsed'
+    }
+
+    It 'never tells the maintainer to enable Dependabot or add its config' {
+        $review = Get-LocalAdvisoryReviewPosture -ReviewPath (script:New-ReviewArtifact -Path (Join-Path $TestDrive 'policy.json') -Status 'ok' -AgeDays 0)
+        foreach ($state in @('disabled', 'enabled', '')) {
+            $posture = Get-DependabotSecurityPosture -DependabotSecurityUpdates $state -LocalAdvisoryReview $review
+            $text = ($posture.evidence + ' ' + $posture.nextAction + ' ' + $posture.recommendation)
+            $text | Should -Not -Match '(?i)enable dependabot'
+            $text | Should -Not -Match '(?i)create .*dependabot'
+        }
+        # Enabled contradicts policy, so the action is to turn it off.
+        (Get-DependabotSecurityPosture -DependabotSecurityUpdates 'enabled' -LocalAdvisoryReview $review).recommendation |
+            Should -Be 'disable-dependabot-per-repository-policy'
+    }
+
+    It 'persists the review artifact from the validation lane' {
+        # The generator treats this file as the compensating-control evidence, so the
+        # lane has to write it on every run, not only when a support bundle is requested.
+        $validation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
+        $validation | Should -Match 'reports/dependency-review\.json'
+        (Get-Content -LiteralPath (Join-Path $script:RepoRoot '.gitignore') -Raw) | Should -Match 'reports/dependency-review\.json'
+    }
+}
+
 Describe 'Topic apply capability reporting' {
     It 'reports the committed allowlist as an available apply mode' {
         $result = Get-TopicApplyCapability

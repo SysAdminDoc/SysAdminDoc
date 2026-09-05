@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-09-05T03:32:10.4823592-04:00",
+  "generatedAt": "2026-09-05T03:42:17.0303404-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -16,8 +16,8 @@
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "8a1172ff2340ddb6ce4c96aab9e7c45926d61ad70eb29bc7448d489b5008707c",
-      "expectedSha256": "8a1172ff2340ddb6ce4c96aab9e7c45926d61ad70eb29bc7448d489b5008707c",
+      "currentSha256": "c06333803a19a8cf19c4d0bb15209a61a1bb480e439e8661706040e2465b641b",
+      "expectedSha256": "c06333803a19a8cf19c4d0bb15209a61a1bb480e439e8661706040e2465b641b",
       "firstDiff": null
     },
     "assets": {
@@ -95,11 +95,11 @@
     "version": 1,
     "feedSchemaVersion": 3,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "c26ba6b86b9bc247f0f797ffdc94da62516b3f9a",
+    "sourceCommit": "cb8d4fd88ab6256f6222d207a9f3b222a0d97aef",
     "catalogSha256": "60dd2a786a4e6b8f5ded3b228d48ce9f2a566afa80833f453168980c252ac75a",
-    "generatorSha256": "53f5e2a8121efc74d82808130fe6eb630ca17afaa976c5db204a60eff7661403",
+    "generatorSha256": "dad85d05ee6f6b2ba017ee8f9ba6c8725efa56cc1af4f627ba4ca662b82ae7f4",
     "projectSchemaSha256": "5eb3eb773f84ef0ad4447d1f2e0aa567e4a2631a40443f77ec1ed1b9b9d7603b",
-    "metadataSnapshotAt": "2026-09-05T03:29:19.0522154-04:00",
+    "metadataSnapshotAt": "2026-09-05T03:39:54.8003215-04:00",
     "metadataProvider": "graphql",
     "repoEnumeration": {
       "requestedLimit": 300,
@@ -994,7 +994,7 @@
         "repo": "AlphaCut",
         "branch": "main",
         "branchTipSha": "14fbb0687880c8fba99e5ce5c9453c7943b5b101",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1002,7 +1002,7 @@
         "repo": "MediaForge",
         "branch": "main",
         "branchTipSha": "be0c30d3c3bc6a09ed039451e20e6d285901d06a",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1010,7 +1010,7 @@
         "repo": "StreamKeep",
         "branch": "main",
         "branchTipSha": "c043b538501dcd377f459aab6504c78b1d94d370",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1018,15 +1018,15 @@
         "repo": "VideoCrush",
         "branch": "main",
         "branchTipSha": "6451457eed3f2b8f8b8f591f63c5dec431690319",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
       {
         "repo": "VideoSubtitleRemover",
         "branch": "main",
-        "branchTipSha": "5c7bcbfddfaec3ca6ddbcede5471ea3353f68cac",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipSha": "e94372e173714d1d8d5cfa5438e7f8c62ed12e8a",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1034,7 +1034,7 @@
         "repo": "yt_livestream_downloader",
         "branch": "main",
         "branchTipSha": "dcf265cf3df796e9e6b25c70e49f13ba8353077e",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1042,7 +1042,7 @@
         "repo": "AdapterLock",
         "branch": "master",
         "branchTipSha": "884eb12c96c20d1d1cb68cf8c8afabc1372ca98c",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1050,7 +1050,7 @@
         "repo": "Brave-Portable-Updater",
         "branch": "main",
         "branchTipSha": "0ece481b215cf5ec39c40be9fde98adef0a1bab8",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1058,7 +1058,7 @@
         "repo": "Debloat-Win11",
         "branch": "main",
         "branchTipSha": "757df55b1930bb91cab5af555bd54b886fca116f",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1066,7 +1066,7 @@
         "repo": "DefenderControl",
         "branch": "main",
         "branchTipSha": "90eeda209d6a8228b584d1bea58e20ce5175d4e9",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1074,7 +1074,7 @@
         "repo": "DefenderShield",
         "branch": "main",
         "branchTipSha": "8328134a2f1b062217deea416c00b398a091ef62",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1082,7 +1082,7 @@
         "repo": "Disable-AdobeTelemetry",
         "branch": "main",
         "branchTipSha": "02615c6276bd84db3c2178d1db87eac3dce8d643",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1090,7 +1090,7 @@
         "repo": "DisableDefender",
         "branch": "main",
         "branchTipSha": "72cfc9cbf0edd3bd0bfe507496e5020aa7fe129b",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1098,7 +1098,7 @@
         "repo": "EXTRACTORX",
         "branch": "main",
         "branchTipSha": "b766cafcc64a0e0798578985736c9213b428bf10",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1106,7 +1106,7 @@
         "repo": "FirewallForge",
         "branch": "main",
         "branchTipSha": "fe1dc78f036885e4809536a34616b384412fa0ef",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1114,7 +1114,7 @@
         "repo": "HostnameForensics",
         "branch": "main",
         "branchTipSha": "69534ee76d12df033a05d4a4dd6e368e1d2f72bd",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1122,7 +1122,7 @@
         "repo": "JDownloader-2-Ultimate-Manager",
         "branch": "main",
         "branchTipSha": "621dbc8518f5e9e064df3fb56d7c8e5e01619c89",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1130,7 +1130,7 @@
         "repo": "LibreSpot",
         "branch": "main",
         "branchTipSha": "ca93683157f36ab51e4c78e416d0a83d4d035f0f",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1138,7 +1138,7 @@
         "repo": "MonitorControl",
         "branch": "main",
         "branchTipSha": "892988217ba929acdf16cc3718c82eec6fa58b45",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1146,7 +1146,7 @@
         "repo": "NetForge",
         "branch": "main",
         "branchTipSha": "76ff310c158f405b482fdb8f242a42e0994ed64a",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1154,7 +1154,7 @@
         "repo": "Network_Security_Auditor",
         "branch": "main",
         "branchTipSha": "6ac0efaeb108c7f748e8887e606e92bd735bb87c",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1162,7 +1162,7 @@
         "repo": "npp-sc-scanner",
         "branch": "main",
         "branchTipSha": "9a8e5f0e004e679f45f91c4281655377edc673a0",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1170,7 +1170,7 @@
         "repo": "NuclearDellRemover",
         "branch": "main",
         "branchTipSha": "af1305e7fb05db6fc8d8fb4808c22c603717611e",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1178,7 +1178,7 @@
         "repo": "PathForge",
         "branch": "main",
         "branchTipSha": "6f69014739a11e0aa3b64311051ccac6e30d9eab",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1186,7 +1186,7 @@
         "repo": "Restore-WindowsDefaults",
         "branch": "main",
         "branchTipSha": "6b4a9b789684a15c1e306fbcc0f12b6ed5e283f0",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1194,7 +1194,7 @@
         "repo": "Start-Menu-Organizer",
         "branch": "main",
         "branchTipSha": "c3810bd7db2b16f81a9dc0bed30a20299d211997",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1202,7 +1202,7 @@
         "repo": "SystemUpdatePro",
         "branch": "main",
         "branchTipSha": "3085ca1198512def3b9057d7b38aa94314489aab",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1210,7 +1210,7 @@
         "repo": "TelemetrySlayer",
         "branch": "main",
         "branchTipSha": "38749e7a11010d42101e6b4ae53d4a39b5de4412",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1218,7 +1218,7 @@
         "repo": "ThankYouJeffrey",
         "branch": "main",
         "branchTipSha": "840ffd0dbf0020a7e3a26382573f718c0f07d50c",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1226,7 +1226,7 @@
         "repo": "VoidTools-Everything-Settings-Manager",
         "branch": "main",
         "branchTipSha": "b79de212fa67c1e2d2df47361af0e3d85e0f9768",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1234,7 +1234,7 @@
         "repo": "WallBrand",
         "branch": "main",
         "branchTipSha": "32ca64578a7398f71d2c98640a7969d89e2abb41",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1242,7 +1242,7 @@
         "repo": "win11-nvme-driver-patcher",
         "branch": "main",
         "branchTipSha": "2f20e0893d08fd198419bfa083891dff7b42c9c3",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1250,7 +1250,7 @@
         "repo": "WinForge",
         "branch": "main",
         "branchTipSha": "8bc93d85e3c9542c17e9c5f8b34f75aa8e747635",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1258,7 +1258,7 @@
         "repo": "Wingetter",
         "branch": "main",
         "branchTipSha": "c012efbf03b3ed29bb1700242c0411fcdf050ccd",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1266,7 +1266,7 @@
         "repo": "WURepair",
         "branch": "main",
         "branchTipSha": "7bfe95482922b545606db1aa3e74dab3c04634b4",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1274,7 +1274,7 @@
         "repo": "AI-Model-Compass",
         "branch": "main",
         "branchTipSha": "f65817e61ea90a0bdacfda6d7bd2d9fc6b3befd3",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1282,15 +1282,15 @@
         "repo": "AppList",
         "branch": "main",
         "branchTipSha": "b221772dd9256df1d0632218e9a7be31ca4b838f",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
       {
         "repo": "Bookmark-Organizer-Pro",
         "branch": "main",
-        "branchTipSha": "f90c079a9249f82df86620173bfcd6ba1d9e18cb",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipSha": "d29bc13c32bc4bee87f695059d473834e3b88ca3",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1298,7 +1298,7 @@
         "repo": "ExplorerTweaks",
         "branch": "main",
         "branchTipSha": "0c35cfeff47c7ee68d0e82923d179a7287d7a61d",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1306,7 +1306,7 @@
         "repo": "FaceSlim",
         "branch": "main",
         "branchTipSha": "58d35c34680f0ae056e9afaff6671bb23c975465",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1314,7 +1314,7 @@
         "repo": "FileOrganizer",
         "branch": "main",
         "branchTipSha": "64aa95e17ef51f3f7f4665f3fda19683efbe76e5",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1322,7 +1322,7 @@
         "repo": "FrameSnap",
         "branch": "main",
         "branchTipSha": "5edd34a71d8d0a905cb6418d0d0bcf018612f91d",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1330,7 +1330,7 @@
         "repo": "GitForge",
         "branch": "main",
         "branchTipSha": "d75a7dd700a7c6a33771affd096559bcbd5b95e8",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1338,7 +1338,7 @@
         "repo": "HostsFileGet",
         "branch": "main",
         "branchTipSha": "fd24ca3e463e201ae2f862ee4ec088797dfa03b4",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1346,7 +1346,7 @@
         "repo": "ImgConverter",
         "branch": "master",
         "branchTipSha": "8700c1907e2eaa8b27daa34bc46e71615f8daabf",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1354,7 +1354,7 @@
         "repo": "LlamaLink",
         "branch": "master",
         "branchTipSha": "71a9c023914c57332d9e6dfd681215ee1452dfcb",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1362,7 +1362,7 @@
         "repo": "Mattpad",
         "branch": "main",
         "branchTipSha": "667985643790c5001c7c84df63c42241ccb46fa1",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1370,7 +1370,7 @@
         "repo": "MSStoreHelper",
         "branch": "main",
         "branchTipSha": "509a4dcd5e4e76566fdc62d55524384fc1f56f79",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1378,7 +1378,7 @@
         "repo": "OpenCut",
         "branch": "main",
         "branchTipSha": "7b16555f056b8f2fb0d99fea282a21dfc29182e7",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1386,7 +1386,7 @@
         "repo": "project-nomad-desktop",
         "branch": "master",
         "branchTipSha": "a5cde0d6ca6ea5f6c9ef57fca3cbd97e645bb76b",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1394,7 +1394,7 @@
         "repo": "PromptCompanion",
         "branch": "main",
         "branchTipSha": "2b0ad8a5fa04eb65781178ef3b71ea5fccc57bb6",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1402,7 +1402,7 @@
         "repo": "PyShop",
         "branch": "main",
         "branchTipSha": "719bee295d9079212fe620b3465b68936f9ed38b",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1410,7 +1410,7 @@
         "repo": "PyWall",
         "branch": "main",
         "branchTipSha": "5a8c9f25faef21cd362176b466fe98936f862efa",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1418,7 +1418,7 @@
         "repo": "QuickFind",
         "branch": "main",
         "branchTipSha": "8047aced548113ca754250f4d568ca5a24a311fc",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1426,7 +1426,7 @@
         "repo": "Qwen3-TTS-Studio",
         "branch": "main",
         "branchTipSha": "df1de112036d13f8c3ea2b6949fc8e7aeb92d2bf",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1434,7 +1434,7 @@
         "repo": "SlunderStudio",
         "branch": "main",
         "branchTipSha": "0ad824ddbc83fb3075a14b6b0ac9fc31c0fe72fa",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1442,7 +1442,7 @@
         "repo": "SunoJump",
         "branch": "main",
         "branchTipSha": "ade5ccf0b0db7f25e7522deafa1621b751ffffb8",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1450,7 +1450,7 @@
         "repo": "SwiftShot",
         "branch": "main",
         "branchTipSha": "a3e861f9ce3297ab5cedc0a18117662c599da30f",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1458,7 +1458,7 @@
         "repo": "uBlock-Stylus-Converter",
         "branch": "main",
         "branchTipSha": "ef2a087a1eca11c84dec36a9da61578d712ab84c",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1466,7 +1466,7 @@
         "repo": "UniFile",
         "branch": "master",
         "branchTipSha": "5da238b03a7493266270387f69ec55e02c573f8f",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       },
@@ -1474,7 +1474,7 @@
         "repo": "Vertigo",
         "branch": "main",
         "branchTipSha": "2f9ed2929ca37482ba49a503502f3676c36eda2b",
-        "branchTipFetchedAt": "2026-09-05T07:31:34.5427100Z",
+        "branchTipFetchedAt": "2026-09-05T07:41:52.5270646Z",
         "status": "fresh",
         "warning": null
       }
@@ -2224,7 +2224,7 @@
     "status": "disabled",
     "portfolioUrl": "https://portfolio.getparkerai.com/",
     "feedUrl": "https://portfolio.getparkerai.com/projects.json",
-    "localFeedGeneratedAt": "2026-09-05T03:31:35.9426680-04:00",
+    "localFeedGeneratedAt": "2026-09-05T03:41:53.7222194-04:00",
     "deployedPortfolioGeneratedAt": null,
     "deployedProfileFeedGeneratedAt": null,
     "localFeedSchemaVersion": 3,
@@ -2322,10 +2322,12 @@
         "localConfigPresent": false,
         "localConfigPath": ".github/dependabot.yml",
         "localConfigEcosystems": [],
-        "warningDisposition": "repository-setting-warning",
+        "warningDisposition": "none",
+        "localAdvisoryReviewCovering": true,
+        "localAdvisoryReviewGapReason": null,
         "documentationPath": "decision:dependabot-security-posture",
-        "evidence": "Dependabot security updates are disabled by repository policy; advisory triage runs locally through npm run review:dependencies, which fails validation on open advisories. Local Dependabot version-update config is present for 0 ecosystem(s).",
-        "nextAction": "Enable Dependabot security updates in repository settings, or record why manual security triage is sufficient for this profile repository."
+        "evidence": "Dependabot security updates are disabled by repository policy; advisory triage runs locally through npm run review:dependencies, which fails validation on open advisories. The local review is current. Local Dependabot version-update config is present for 0 ecosystem(s).",
+        "nextAction": "Keep Dependabot disabled and the local advisory review current."
       },
       "immutableReleases": {
         "status": "enabled",
@@ -2382,7 +2384,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-09-05T03:29:19.0522154-04:00",
+          "queriedAt": "2026-09-05T03:39:54.8003215-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2575,9 +2577,8 @@
       "evidence": "Branch protection does not require status checks, which matches the local-only validation posture, and it does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model.",
       "nextAction": "Define an independent reviewer or team model before requiring pull request reviews or code-owner reviews."
     },
-    "warningCount": 4,
+    "warningCount": 3,
     "warnings": [
-      "Dependabot security updates are not enabled.",
       "Branch protection does not require status checks.",
       "Branch protection does not require pull request reviews.",
       "Branch protection does not require code owner reviews."
@@ -2807,7 +2808,7 @@
       "skipped": false,
       "targetCount": 370,
       "throttleLimit": 16,
-      "elapsedMs": 1822,
+      "elapsedMs": 2429,
       "failureCount": 0,
       "warningCount": 0,
       "warningHostCount": 0,
@@ -2872,7 +2873,7 @@
     "fatalCount": 0,
     "informationalCount": 0,
     "generatedAt": {
-      "value": "2026-09-05T03:31:35.9426680-04:00",
+      "value": "2026-09-05T03:41:53.7222194-04:00",
       "ageDays": 0.0,
       "staleAfterDays": 7,
       "stale": false,
@@ -2885,7 +2886,7 @@
     "skipReason": null,
     "targetCount": 370,
     "throttleLimit": 16,
-    "elapsedMs": 1822,
+    "elapsedMs": 2429,
     "readmeActionTargetCount": 169,
     "readmeInstallSnippetTargetCount": 61,
     "readmeDownloadLinkTargetCount": 95,
@@ -3188,7 +3189,7 @@
     "status": "warning",
     "warningCount": 1,
     "warnings": [
-      "reports/profile-sync-report.json bytes is 128225, above the 114688 soft limit."
+      "reports/profile-sync-report.json bytes is 128195, above the 114688 soft limit."
     ],
     "rows": [
       {
@@ -3257,10 +3258,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 128225,
+        "value": 128195,
         "softLimit": 114688,
         "overSoftLimit": true,
-        "warning": "reports/profile-sync-report.json bytes is 128225, above the 114688 soft limit.",
+        "warning": "reports/profile-sync-report.json bytes is 128195, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {
@@ -3344,17 +3345,17 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-09-05T03:10:42.4881065-04:00",
-    "latestReportAffectingCommitSha": "c26ba6b86b9bc247f0f797ffdc94da62516b3f9a",
-    "latestReportAffectingCommitDate": "2026-09-05T03:19:04.0000000-04:00",
+    "committedReportGeneratedAt": "2026-09-05T03:32:10.4823592-04:00",
+    "latestReportAffectingCommitSha": "cb8d4fd88ab6256f6222d207a9f3b222a0d97aef",
+    "latestReportAffectingCommitDate": "2026-09-05T03:35:37.0000000-04:00",
     "reportAgeBehindCommit": true,
-    "reportAgeBehindHours": 0.14,
+    "reportAgeBehindHours": 0.06,
     "generatedWithCommit": true,
     "sameCommitThresholdMinutes": 10,
     "smokeStatus": "passed",
     "smokeEvidenceStale": true,
     "smokeEvidenceGeneratedAt": "2026-08-20T13:20:52.4580904-04:00",
-    "smokeEvidenceAgeHours": 374.18,
+    "smokeEvidenceAgeHours": 374.35,
     "smokeEvidenceBehindReadme": true,
     "smokeAffectingPaths": [
       "README.md",

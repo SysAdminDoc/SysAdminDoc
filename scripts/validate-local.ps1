@@ -391,6 +391,17 @@ function Invoke-DependencyReview {
     $exitCode = $LASTEXITCODE
     $text = ($output | Out-String).Trim()
 
+    # Persist the result where the generator can read it. The Dependabot posture treats
+    # this lane as the compensating control for the banned Dependabot setting, and a
+    # control nobody can see the result of is not evidence. Gitignored, local-only.
+    $reviewArtifactPath = Join-Path $RepoRoot "reports/dependency-review.json"
+    try {
+        New-Item -ItemType Directory -Path (Split-Path -Parent $reviewArtifactPath) -Force | Out-Null
+        [System.IO.File]::WriteAllText($reviewArtifactPath, $text, [System.Text.UTF8Encoding]::new($false))
+    } catch {
+        Write-Warning "Could not record the dependency review artifact: $($_.Exception.Message)"
+    }
+
     if (-not [string]::IsNullOrWhiteSpace($OutputPath)) {
         $outputParent = Split-Path -Parent $OutputPath
         if (-not [string]::IsNullOrWhiteSpace($outputParent)) {

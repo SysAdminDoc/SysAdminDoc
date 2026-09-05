@@ -28,13 +28,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Acceptance: Cache successful checks for 24 hours, 404/410 for one hour, and do not reuse timeout, 429, or 5xx results beyond the current run. Preserve stale ETag and Last-Modified values, send conditional headers, refresh only after 304 or a new response, honor `Retry-After` up to a 60-second local cap, and report a future retry time instead of sleeping longer. Tests freeze time and cover each status, 304, validator changes, and retry timing.
   Complexity: M
 
-- [ ] P1: Align Dependabot evidence with the local advisory-review policy
-  Why: The report recommends keeping Dependabot disabled but still emits warnings and next actions that tell the maintainer to enable it.
-  Evidence: `scripts/sync-profile.ps1:8340`, `scripts/sync-profile.ps1:9278`, `scripts/review-local-dependencies.ps1`, `AGENTS.md`, `RESEARCH.md` Architecture Assessment.
-  Touches: `Get-DependabotSecurityPosture`, `Get-RepositoryCommunityBaseline`, report summary, repository-setting fixtures and tests.
-  Acceptance: Dependabot disabled with a present, current, passing local dependency review produces no enablement warning and a `keep-dependabot-disabled-with-local-advisory-review` next action. Missing, stale, skipped, or failing local review produces one compensating-control warning. No generated text recommends creating Dependabot configuration.
-  Complexity: S
-
 - [ ] P1: Replace hand-maintained dependency freshness claims with registry evidence
   Why: `PinLatestCheckedAt` is green while curated transitive overrides already have newer registry releases that `npm outdated` does not report.
   Evidence: `scripts/review-local-dependencies.ps1:4`, `scripts/review-local-dependencies.ps1:13`, [markdown-it 15.0.0 registry metadata](https://registry.npmjs.org/markdown-it/15.0.0), [js-yaml 5.3.0 registry metadata](https://registry.npmjs.org/js-yaml/5.3.0), `RESEARCH.md` Architecture Assessment.
