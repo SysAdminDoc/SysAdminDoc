@@ -7107,6 +7107,76 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Local validation runs the profile check' {
+    BeforeAll {
+        $script:ValidateLocalPath = Join-Path $script:RepoRoot 'scripts/validate-local.ps1'
+        $script:ValidateLocalText = Get-Content -LiteralPath $script:ValidateLocalPath -Raw
+        # Load the reporting helper without executing the script body, which would run
+        # the whole validation lane.
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($script:ValidateLocalText, [ref]$null, [ref]$null)
+        $definition = $ast.FindAll(
+            {
+                param($node)
+                $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and
+                $node.Name -eq 'Get-FailedProfileConditionName'
+            }, $true) | Select-Object -First 1
+        $definition | Should -Not -BeNullOrEmpty
+        . ([scriptblock]::Create($definition.Extent.Text))
+    }
+
+    It 'invokes the generator state check on the default path' {
+        # The Pester suite only ever validates the generator against fixtures, so
+        # without this call the documented pre-push command validates no catalog,
+        # privacy, link, or artifact-sync evidence at all.
+        $script:ValidateLocalText | Should -Match 'function Invoke-ProfileCheck'
+        $script:ValidateLocalText | Should -Match 'Invoke-ProfileCheck -RepoRoot \$repoRoot'
+        $script:ValidateLocalText | Should -Match '"-File", \$scriptPath, "-Check"'
+        # Reachable unless explicitly skipped; anything else would put the check
+        # behind a flag nobody passes.
+        $script:ValidateLocalText | Should -Match 'if \(\$SkipProfileCheck\) \{'
+    }
+
+    It 'exposes skip switches and announces a reduced run' {
+        $script:ValidateLocalText | Should -Match '\[switch\]\$SkipProfileCheck'
+        $script:ValidateLocalText | Should -Match '\[switch\]\$SkipLinkValidation'
+        $script:ValidateLocalText | Should -Match 'Skipped lane: profile check'
+        $script:ValidateLocalText | Should -Match 'Reduced lane: profile check'
+    }
+
+    It 'fails the lane when the child check exits non-zero' {
+        # Invoke-ProfileCheck routes through Invoke-NativeCommand, which throws on a
+        # non-zero exit code, so a failing generator check stops the whole lane.
+        $script:ValidateLocalText | Should -Match 'Invoke-NativeCommand -FilePath \(Get-Command pwsh -ErrorAction Stop\)\.Source -ArgumentList \$arguments'
+        $script:ValidateLocalText | Should -Match 'failed with exit code \$LASTEXITCODE'
+    }
+
+    It 'names the failing report conditions' {
+        $reportPath = Join-Path $TestDrive 'seeded-report.json'
+        $report = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
+        $report.projectsExportInSync = $false
+        $report.medicalPrivacyViolations = @([pscustomobject]@{ repo = 'Seeded'; reason = 'seeded' })
+        $report | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath $reportPath -Encoding utf8
+
+        $failed = @(Get-FailedProfileConditionName -ReportPath $reportPath)
+
+        $failed | Should -Contain 'projectsExportInSync'
+        $failed | Should -Contain 'medicalPrivacyViolations'
+        $failed | Should -Not -Contain 'readmeInSync'
+    }
+
+    It 'reports nothing for the committed healthy report' {
+        @(Get-FailedProfileConditionName -ReportPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json')) | Should -HaveCount 0
+    }
+
+    It 'stays quiet instead of throwing when the report is missing or unreadable' {
+        @(Get-FailedProfileConditionName -ReportPath (Join-Path $TestDrive 'absent-report.json')) | Should -HaveCount 0
+
+        $badPath = Join-Path $TestDrive 'unparseable-report.json'
+        'not json at all' | Set-Content -LiteralPath $badPath -Encoding utf8
+        @(Get-FailedProfileConditionName -ReportPath $badPath) | Should -HaveCount 0
+    }
+}
+
 Describe 'Redacted local support bundles' -Tag 'Integration' {
     BeforeAll {
         $script:SupportBundleScriptPath = Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1'

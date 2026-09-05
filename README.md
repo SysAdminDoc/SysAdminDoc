@@ -125,6 +125,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
+| Profile check | Runs `sync-profile.ps1 -Check` against the working tree after the tests and fails the run on a non-zero exit, naming the failing report conditions. The Pester suite only exercises the generator against fixtures, so this is the lane that validates the committed README, feed, assets, privacy suppression, and links. Add `-SkipProfileCheck` or `-SkipLinkValidation` for a faster loop; both announce that the run was reduced. |
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
@@ -155,7 +156,7 @@ Categories with suggested starting points and quick actions before the full gene
 
 Suggested starting points: [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher), [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot), [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor).
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;63 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;66 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 ```powershell
 $d="$env:TEMP\win11-nvme-driver-patcher"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/win11-nvme-driver-patcher $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NVMe_Driver_Patcher.ps1"
 ```
@@ -462,7 +463,7 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 |:--------|:------------|:----:|
 | [**Openshop**](https://github.com/SysAdminDoc/Openshop) &#11088;14 | Free browser-based image editor. Layers, smart effects, PSD import | [Launch](https://sysadmindoc.github.io/Openshop/) |
 | [**CoolSites**](https://github.com/SysAdminDoc/CoolSites) &#11088;10 | Curated directory of 470+ free tools and open source projects | [Launch](https://sysadmindoc.github.io/CoolSites/) |
-| [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) &#11088;4 | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
+| [**UserScriptHunt**](https://github.com/SysAdminDoc/UserScriptHunt) &#11088;5 | Unified search engine for userscripts | [Launch](https://sysadmindoc.github.io/UserScriptHunt/) |
 | [**BetterTTS**](https://github.com/SysAdminDoc/BetterTTS) &#11088;3 | Client-side text-to-speech studio running entirely in the browser, with WAV and MP3 export | [Launch](https://sysadmindoc.github.io/BetterTTS/) |
 | [**ClipForge**](https://github.com/SysAdminDoc/ClipForge) &#11088;3 | Browser-based video editor powered by FFmpeg.wasm | [Launch](https://sysadmindoc.github.io/ClipForge/) |
 | [**ImageXpert**](https://github.com/SysAdminDoc/ImageXpert) &#11088;2 | Multi-engine reverse image search. Google Lens, Yandex, Bing, TinEye | [Launch](https://sysadmindoc.github.io/ImageXpert/) |
@@ -493,7 +494,7 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 
 <a id="browser-extensions--userscripts"></a>
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 26 repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths. Userscripts need a manager such as Tampermonkey, and Chrome now requires Developer mode on chrome://extensions.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 28 repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths. Userscripts need a manager such as Tampermonkey, and Chrome now requires Developer mode on chrome://extensions.</i></summary>
 <br/>
 
 Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault), [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced).
@@ -522,6 +523,8 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 | [**DarkModer**](https://github.com/SysAdminDoc/DarkModer) | Dark Reader as a userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/DarkModer/main/DarkModer.user.js) |
 | [**Doordash-Enhanced**](https://github.com/SysAdminDoc/Doordash-Enhanced) | DoorDash dark mode and feature enhancements | [Install](https://raw.githubusercontent.com/SysAdminDoc/Doordash-Enhanced/main/DoorDashEnhanced.user.js) |
 | [**ForceBGTab**](https://github.com/SysAdminDoc/ForceBGTab) | Forces link-opened tabs into the background so they never steal focus | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/ForceBGTab/releases/latest) |
+| [**GLP-Ultra**](https://github.com/SysAdminDoc/GLP-Ultra) | Dark themes, thread cleanup, filtering, and exports for Godlike Productions | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/GLP-Ultra/releases/latest) |
+| [**HubSpot-Ticket-Refined**](https://github.com/SysAdminDoc/HubSpot-Ticket-Refined) | Compact userscript theme for HubSpot ticket lists and records | [Install](https://raw.githubusercontent.com/SysAdminDoc/HubSpot-Ticket-Refined/main/src/HubSpot-Ticket-Refined.user.js) |
 | [**Kick Focus**](https://github.com/SysAdminDoc/kick-focus) | Desktop-first layout, accessibility, content filters, and ad defense for Kick.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/kick-focus/main/dist/kick-focus.user.js) |
 | [**Reddit-Enhancement-Continued**](https://github.com/SysAdminDoc/Reddit-Enhancement-Continued) | Enhancement suite for old.reddit.com | [Install](https://raw.githubusercontent.com/SysAdminDoc/Reddit-Enhancement-Continued/main/RedditEnhancementContinued.user.js) |
 | [**RES-Slim**](https://github.com/SysAdminDoc/RES-Slim) | Stripped-down Reddit Enhancement Suite fork for old.reddit.com comment tweaks and media expandos<br/><sub>Upstream: [honestbleeps/Reddit-Enhancement-Suite](https://github.com/honestbleeps/Reddit-Enhancement-Suite); License: GPL-3.0</sub> | [Repo](https://github.com/SysAdminDoc/RES-Slim) |
@@ -544,11 +547,11 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;27 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;23 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;22 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
-| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;21 | Spam call and text blocker. GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
+| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;20 | Spam call and text blocker. GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;17 | AMOLED-dark hosts-based ad blocker. Inspired by AdAway | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;14 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) &#11088;12 | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
-| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;11 | Open-source CF.Lumen successor. Root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
+| [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;12 | Open-source CF.Lumen successor. Root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;8 | Personal Android-app catalog sourced from GitHub Releases. Android sibling of LocalChromeStore | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest) |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;8 | Premium dark weather app. No API keys required | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ZeusWatch/releases/latest) |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;6 | Lightweight launcher with 5 built-in dark themes | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest) |
@@ -678,7 +681,7 @@ Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Re
 
 <a id="misc--forks"></a>
 <details>
-<summary><b>&#128256; Misc & Forks</b> -- 6 repos -- <i>Forks, continuations, and supporting utilities with upstream context preserved.</i></summary>
+<summary><b>&#128256; Misc & Forks</b> -- 7 repos -- <i>Forks, continuations, and supporting utilities with upstream context preserved.</i></summary>
 <br/>
 
 Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory), [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore), [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser).
@@ -687,6 +690,7 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 |:--------|:------------|
 | [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore) &#11088;1 | Add Windows Store to Win11 24H2 LTSC<br/><sub>Upstream: [minihub/LTSC-Add-MicrosoftStore](https://github.com/minihub/LTSC-Add-MicrosoftStore); License: Other</sub> |
 | [**codex-terminal**](https://github.com/SysAdminDoc/codex-terminal) | Opens an AI CLI in a real PowerShell tab from VS Code, with a native terminal profile |
+| [**ColumnKit**](https://github.com/SysAdminDoc/ColumnKit) | VS Code status bar buttons that snap editor columns to even widths |
 | [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory) | Recipe-driven autonomous coding pipeline. Multi-agent build/audit/release |
 | [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser) | Cross-platform GUI for rclone<br/><sub>Upstream: [kapitainsky/RcloneBrowser](https://github.com/kapitainsky/RcloneBrowser); License: MIT</sub> |
 | [**TabExplorer**](https://github.com/SysAdminDoc/TabExplorer) | Tabbed file manager for Windows<br/><sub>Upstream: [derceg/explorerplusplus](https://github.com/derceg/explorerplusplus); License: GPL-3.0</sub> |

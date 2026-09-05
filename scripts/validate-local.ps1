@@ -5,6 +5,10 @@ param(
 
     [switch]$Pester6Compatibility,
 
+    [switch]$SkipProfileCheck,
+
+    [switch]$SkipLinkValidation,
+
     [string]$SupportBundlePath,
 
     [string[]]$SupportBundleRedactValue = @()
@@ -35,6 +39,90 @@ function Invoke-NativeCommand {
     if ($LASTEXITCODE -ne 0) {
         throw "$FilePath $($ArgumentList -join ' ') failed with exit code $LASTEXITCODE."
     }
+}
+
+function Invoke-ProfileCheck {
+    <#
+    .SYNOPSIS
+    Runs the generator's own state check against the working tree.
+    .DESCRIPTION
+    The Pester suite validates the generator against fixtures; it never reads the
+    committed README.md or projects.json. Without this lane the documented pre-push
+    command could pass while the published profile was out of sync, leaked a
+    suppressed repository, or carried a dead link. Runs in a child process because
+    the generator and Pester can collide on already-loaded assemblies.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepoRoot,
+
+        [switch]$SkipLinkValidation
+    )
+
+    $scriptPath = Join-Path $RepoRoot "scripts/sync-profile.ps1"
+    $arguments = @("-NoProfile", "-File", $scriptPath, "-Check")
+    if ($SkipLinkValidation) {
+        $arguments += "-SkipLinkValidation"
+    }
+
+    Write-Host "Profile check: pwsh $($arguments -join ' ')"
+    try {
+        Invoke-NativeCommand -FilePath (Get-Command pwsh -ErrorAction Stop).Source -ArgumentList $arguments
+    } catch {
+        $reportPath = Join-Path $RepoRoot "reports/profile-sync-report.json"
+        foreach ($name in @(Get-FailedProfileConditionName -ReportPath $reportPath)) {
+            Write-Warning "Profile check failing condition: $name"
+        }
+        throw
+    }
+}
+
+function Get-FailedProfileConditionName {
+    <#
+    .SYNOPSIS
+    Names the report sections that failed, so the lane says what broke rather than
+    only that something did.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ReportPath
+    )
+
+    if (-not (Test-Path -LiteralPath $ReportPath)) {
+        return @()
+    }
+
+    try {
+        $report = Get-Content -LiteralPath $ReportPath -Raw | ConvertFrom-Json
+    } catch {
+        return @()
+    }
+
+    $failed = New-Object System.Collections.Generic.List[string]
+    # Mirrors the fatal signals the generator itself exits on. Kept to the small,
+    # stable set so a schema addition cannot make this reporting path throw.
+    foreach ($name in @("readmeInSync", "projectsExportInSync", "profileAssetsInSync")) {
+        $property = $report.PSObject.Properties[$name]
+        if ($property -and $property.Value -ne $true) {
+            $failed.Add($name)
+        }
+    }
+    foreach ($name in @(
+            "missingPublicRepos",
+            "privateVisibilityViolations",
+            "medicalPrivacyViolations",
+            "urlSchemeViolations",
+            "orphanedSuppressedEntries",
+            "linkValidationFailures")) {
+        $property = $report.PSObject.Properties[$name]
+        if ($property -and @($property.Value | Where-Object { $null -ne $_ }).Count -gt 0) {
+            $failed.Add($name)
+        }
+    }
+
+    return $failed.ToArray()
 }
 
 function Get-PowerShellRuntimeChannel {
@@ -464,6 +552,15 @@ try {
         $covered = [int]$coverage.CommandsExecutedCount
         $total = [int]$coverage.CommandsAnalyzedCount
         Write-Host "Code coverage: $percent% ($covered/$total commands) -> $coveragePath (JaCoCo)"
+    }
+
+    if ($SkipProfileCheck) {
+        Write-Warning "Skipped lane: profile check (-SkipProfileCheck). Catalog, privacy, link, and artifact-sync evidence was not validated."
+    } else {
+        if ($SkipLinkValidation) {
+            Write-Warning "Reduced lane: profile check running with -SkipLinkValidation; outbound link targets were not probed."
+        }
+        Invoke-ProfileCheck -RepoRoot $repoRoot -SkipLinkValidation:$SkipLinkValidation
     }
 } catch {
     $validationStatus = 'failed'

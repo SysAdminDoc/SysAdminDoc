@@ -2,6 +2,8 @@
 
 ## 2026-09-04
 
+- `validate-local.ps1` now runs the generator's own state check against the working tree and fails on a non-zero exit, naming the report conditions that broke. The documented pre-push command previously ran lint, static analysis, dependency review and Pester, and the test suite only ever exercises the generator against fixtures, so nothing in that lane read the committed README, feed, or assets. A catalog edit that desynced the profile, leaked a suppressed repository or broke a link passed it cleanly. `-SkipProfileCheck` and `-SkipLinkValidation` are available for a faster loop and both announce that the run was reduced.
+- Cataloged three public repositories the profile had never seen: GLP-Ultra, HubSpot-Ticket-Refined and ColumnKit. The new lane is what surfaced them.
 - Closed a hole that let the project feed publish out of sync. The check that decides whether `projects.json` matches what the catalog produces was a correct comparison ORed with a much weaker one: if the drift model found nothing fatal, the feed was called in sync no matter what had changed. That model only inspects an enumerated list of fields, so anything outside it was exempt. A project's stable ID, canonical repository, aliases, fork and license fields, locale and script hints, and the entire `schemaPolicy` block could all change silently. Tolerance for live upstream churn now lives in one named list of volatile fields that both the equality mask and the drift severity model read, and the comparison alone decides the verdict.
 
 ## 2026-09-03

@@ -113,13 +113,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
 
 ### P1
 
-- [ ] P1: Run the profile check inside the documented local validation lane
-  Why: `validate-local.ps1` is presented as the pre-push gate for profile, catalog and asset changes but never invokes `sync-profile.ps1`, so none of the 22 blocking conditions run locally and no test reads the committed `README.md` or `projects.json`.
-  Evidence: `scripts/validate-local.ps1:426` onward runs only `npm ci`, `npm run lint:markdown`, `Assert-ScriptAnalyzerClean`, `Invoke-DependencyReview` and Pester; the failure conditions live at `scripts/sync-profile.ps1:14132`; every sync assertion in `tests/sync-profile.Tests.ps1` runs against `tests/fixtures/catalog.json`; `README.md` Local validation section presents the script as the pre-push gate. See `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: `scripts/validate-local.ps1` main body, a new `-SkipProfileCheck` switch, `README.md` Local validation section, the validation-command contract Describe (`tests/sync-profile.Tests.ps1:6945`).
-  Acceptance: A default `validate-local.ps1` run executes `sync-profile.ps1 -Check` against the real tree after Pester and fails the lane on a non-zero exit, printing the failing condition names from the report. `-SkipProfileCheck` and a `-SkipLinkValidation` pass-through exist for the fast loop, and any reduced run prints which lanes it skipped so a partial run is never mistaken for a full one. A test asserts the default lane reaches the profile check, and that a seeded catalog drift makes the lane exit non-zero.
-  Complexity: S
-
 - [ ] P1: Age the rendered-smoke evidence and refuse stale evidence
   Why: `smokeEvidenceStale` fires only when the status is `not-run` with a blank source, so embedded smoke evidence can be arbitrarily old while the report carrying it looks fresh.
   Evidence: `Test-ReportEvidenceFreshness` (`scripts/sync-profile.ps1:8207`), staleness branch at `scripts/sync-profile.ps1:8256`. `renderedProfileSmoke.generatedAt` is `2026-08-20T13:20:52` against a README regenerated 2026-09-03, and the section still reports `smokeEvidenceStale: false`, `status: generated-with-commit`, `warningCount: 0`. `reports/rendered-profile-smoke.json` was last written 2026-08-20. See `RESEARCH.md` Security, Privacy, and Reliability.

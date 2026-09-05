@@ -4025,6 +4025,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
 | Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
+| Profile check | Runs `sync-profile.ps1 -Check` against the working tree after the tests and fails the run on a non-zero exit, naming the failing report conditions. The Pester suite only exercises the generator against fixtures, so this is the lane that validates the committed README, feed, assets, privacy suppression, and links. Add `-SkipProfileCheck` or `-SkipLinkValidation` for a faster loop; both announce that the run was reduced. |
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
