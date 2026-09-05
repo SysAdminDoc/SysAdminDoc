@@ -7274,7 +7274,9 @@
       "required": [
         "repo",
         "description",
-        "language"
+        "language",
+        "catalogEntryStub",
+        "unresolvedFields"
       ],
       "properties": {
         "repo": {
@@ -7285,6 +7287,12 @@
         },
         "language": {
           "$ref": "#/$defs/nullableString"
+        },
+        "catalogEntryStub": {
+          "type": "object"
+        },
+        "unresolvedFields": {
+          "$ref": "#/$defs/stringArray"
         }
       }
     },

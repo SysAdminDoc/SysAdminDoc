@@ -29,6 +29,7 @@ param(
     [string]$BackstageExportPath,
     [switch]$ProbePortfolio,
     [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
+    [switch]$DraftMissingCatalogEntries,
     [switch]$Offline
 )
 
@@ -12539,6 +12540,178 @@ function Get-TopicApplyCapability {
     }
 }
 
+function Get-InferredCatalogCategory {
+    <#
+    .SYNOPSIS
+    Guesses a catalog category from live repository metadata, or returns $null.
+    .DESCRIPTION
+    Only returns a category when the signal is unambiguous. A wrong guess that looks
+    confident is worse than a null the reviewer has to fill in, so anything uncertain
+    is left for the owner and reported in unresolvedFields.
+    #>
+    param([object]$Repo)
+
+    $language = ([string](Get-MemberValue -Object (Get-MemberValue -Object $Repo -Name "primaryLanguage") -Name "name")).ToLowerInvariant()
+    $topics = @(Get-MemberValue -Object $Repo -Name "repositoryTopics" | ForEach-Object {
+            $name = Get-MemberValue -Object $_ -Name "name"
+            if ($null -eq $name) { $name = Get-MemberValue -Object (Get-MemberValue -Object $_ -Name "topic") -Name "name" }
+            ([string]$name).ToLowerInvariant()
+        } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+
+    foreach ($topic in $topics) {
+        switch -Regex ($topic) {
+            '^(userscript|browser-extension|chrome-extension|firefox-addon)$' { return "extensions" }
+            '^(android|android-app)$' { return "android" }
+            '^(security|networking|dns)$' { return "security" }
+            '^(ffmpeg|video|media)$' { return "media" }
+        }
+    }
+
+    switch ($language) {
+        "powershell" { return "powershell" }
+        "python" { return "python" }
+        "kotlin" { return "android" }
+        default { return $null }
+    }
+}
+
+function New-CatalogEntryStub {
+    <#
+    .SYNOPSIS
+    Builds a paste-ready catalog fragment for an uncataloged public repository.
+    .DESCRIPTION
+    missingPublicRepos is a fail-closed gate whose only remediation was hand-authoring
+    a 22-field row, which turned every new public repository into a multi-day check
+    outage. Fields that cannot be observed from metadata are emitted as null and named
+    in unresolvedFields rather than guessed.
+    #>
+    param([object]$Repo)
+
+    $name = [string](Get-MemberValue -Object $Repo -Name "name")
+    $language = Get-MemberValue -Object (Get-MemberValue -Object $Repo -Name "primaryLanguage") -Name "name"
+    $branch = Get-MemberValue -Object (Get-MemberValue -Object $Repo -Name "defaultBranchRef") -Name "name"
+    if ([string]::IsNullOrWhiteSpace([string]$branch)) { $branch = "main" }
+    $category = Get-InferredCatalogCategory -Repo $Repo
+    $description = Get-MemberValue -Object $Repo -Name "description"
+
+    $entry = [ordered]@{
+        repo = $name
+        title = $name
+        category = $category
+        includeInReadme = $true
+        includeInPortfolio = $true
+        order = $null
+        branch = [string]$branch
+        entrypoint = $null
+        installKind = $null
+        downloadKind = $null
+        userscriptUrl = $null
+        liveUrl = $null
+        language = if ([string]::IsNullOrWhiteSpace([string]$language)) { $null } else { [string]$language }
+        descriptionOverride = if ([string]::IsNullOrWhiteSpace([string]$description)) { $null } else { [string]$description }
+        featured = $false
+        featuredRank = $null
+        currentlyBuilding = $false
+        currentlyBuildingText = $null
+        allowPublicMedical = $false
+        aliasOf = $null
+        suppressionReason = $null
+        notes = $null
+    }
+
+    $unresolved = New-Object System.Collections.Generic.List[string]
+    foreach ($field in @("category", "order", "downloadKind")) {
+        if ($null -eq $entry[$field]) { $unresolved.Add($field) }
+    }
+    if ($null -eq $entry.language) { $unresolved.Add("language") }
+    if ($null -eq $entry.descriptionOverride) { $unresolved.Add("descriptionOverride") }
+
+    return [ordered]@{
+        entry = $entry
+        unresolvedFields = $unresolved.ToArray()
+    }
+}
+
+function Write-CatalogEntryDraft {
+    <#
+    .SYNOPSIS
+    Appends suppressed draft rows for uncataloged public repositories.
+    .DESCRIPTION
+    Opt-in behind -DraftMissingCatalogEntries plus -Write. Every drafted row is created
+    suppressed so nothing reaches the public README or feed before the owner has
+    reviewed and completed it; the run still fails, because a draft is not a catalog
+    decision.
+    #>
+    param(
+        [object[]]$MissingPublicRepos,
+        [string]$CatalogPath
+    )
+
+    $rows = @($MissingPublicRepos | Where-Object { $null -ne $_ })
+    if ($rows.Count -eq 0) {
+        return
+    }
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($CatalogPath)) { $CatalogPath } else { Join-Path $RepoRoot $CatalogPath }
+    $catalog = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $fullPath -Raw)
+    $existing = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($entry in @(Get-JsonArrayItems (Get-MemberValue -Object $catalog -Name "entries"))) {
+        $null = $existing.Add([string](Get-MemberValue -Object $entry -Name "repo"))
+    }
+
+    $drafted = New-Object System.Collections.Generic.List[string]
+    $additions = New-Object System.Collections.Generic.List[object]
+    foreach ($row in $rows) {
+        $stub = Get-MemberValue -Object $row -Name "catalogEntryStub"
+        if ($null -eq $stub) { continue }
+        $repoName = [string](Get-MemberValue -Object $stub -Name "repo")
+        if ([string]::IsNullOrWhiteSpace($repoName) -or $existing.Contains($repoName)) { continue }
+        $draft = [ordered]@{}
+        foreach ($property in $stub.PSObject.Properties) {
+            $draft[$property.Name] = $property.Value
+        }
+        # The stub reports nulls so a reader can see what could not be observed, but the
+        # catalog schema requires a category from its enum and a non-negative order.
+        # Fill only those two, name them in the reason, and leave everything else null.
+        $unresolved = @(Get-MemberValue -Object $row -Name "unresolvedFields")
+        if ([string]::IsNullOrWhiteSpace([string]$draft["category"])) {
+            $draft["category"] = "misc"
+        }
+        if ($null -eq $draft["order"]) {
+            $category = [string]$draft["category"]
+            $maxOrder = 0
+            foreach ($entry in @(Get-JsonArrayItems (Get-MemberValue -Object $catalog -Name "entries"))) {
+                if ([string](Get-MemberValue -Object $entry -Name "category") -eq $category) {
+                    $candidate = [int](Get-MemberValue -Object $entry -Name "order")
+                    if ($candidate -gt $maxOrder) { $maxOrder = $candidate }
+                }
+            }
+            $draft["order"] = $maxOrder + 1
+        }
+        # Suppressed by default: a draft must not publish itself.
+        $draft["includeInReadme"] = $false
+        $draft["includeInPortfolio"] = $false
+        $reason = "Draft catalog row awaiting owner review; complete it and clear this reason before publishing."
+        if (@($unresolved).Count -gt 0) {
+            $reason += " Unresolved: $(@($unresolved) -join ', ')."
+        }
+        $draft["suppressionReason"] = $reason
+        $additions.Add([pscustomobject]$draft)
+        $drafted.Add($repoName)
+        $null = $existing.Add($repoName)
+    }
+
+    if ($additions.Count -eq 0) {
+        return
+    }
+
+    $entries = @(Get-JsonArrayItems (Get-MemberValue -Object $catalog -Name "entries")) + $additions.ToArray()
+    Set-MemberValue -Object $catalog -Name "entries" -Value $entries
+    $json = ($catalog | ConvertTo-Json -Depth 20) -replace "`r`n", "`n"
+    Write-AtomicUtf8TextFile -Path $fullPath -Content ($json.TrimEnd() + "`n")
+    Write-Host "Drafted $($drafted.Count) suppressed catalog row(s) in $($CatalogPath): $($drafted -join ', '). Review and complete them before publishing."
+}
+
 function Test-MetadataHygiene {
     param(
         [object[]]$Repos,
@@ -14040,10 +14213,15 @@ function Test-ProfileState {
             continue
         }
         if (-not $handledNames.ContainsKey($repo.name.ToLowerInvariant())) {
+            $stub = New-CatalogEntryStub -Repo $repo
             $missingPublic += [ordered]@{
                 repo = $repo.name
                 description = $repo.description
                 language = if ($repo.primaryLanguage) { $repo.primaryLanguage.name } else { $null }
+                # Paste-ready fragment so cataloging a new public repo is a review, not
+                # a 22-field transcription from the API.
+                catalogEntryStub = $stub.entry
+                unresolvedFields = @($stub.unresolvedFields)
             }
         }
     }
@@ -14690,6 +14868,9 @@ if ($catalogForRun -and ($Write -or $Check)) {
                 Publish-ArtifactPublicationTransaction -Transaction $publicationTransaction
                 Complete-ArtifactPublicationTransaction -Transaction $publicationTransaction
                 $publicationTransaction = $null
+                if ($DraftMissingCatalogEntries -and $Write) {
+                    Write-CatalogEntryDraft -MissingPublicRepos @($result.Report.missingPublicRepos) -CatalogPath $CatalogPath
+                }
                 Write-Error "Profile sync check failed. Generated targets were not changed; see $ReportPath." -ErrorAction Continue
                 exit 1
             }

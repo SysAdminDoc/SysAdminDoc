@@ -100,13 +100,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Complexity: M
   Note (measured 2026-09-05): this is L, not M. One `Test-ProfileState` call costs 16-31s against live GitHub metadata (`Get-RepositoryCommunityBaseline` alone is 8s), so 22 isolated plants add roughly 4.5 minutes and 22 more API round trips to a suite that already hits `HTTP 403` rate limits mid-run. Doing this without making the default lane slow and flaky needs test seams for the network-backed evidence sources, mirroring the existing `-PortfolioProbeSnapshot` parameter, or the plants must carry the `Integration` tag. Decide which before starting; `communityHealth` and `runtimeSecurity` additionally depend on live system state and may not be plantable through `Test-ProfileState` inputs at all.
 
-- [ ] P1: Generate a reviewable catalog stub for every uncataloged public repository
-  Why: `missingPublic` is fail-closed with hand-authored remediation, so a single new public repo stops the weekly check until a full catalog row is written by hand.
-  Evidence: `missingPublic` in `$failureConditions` (`scripts/sync-profile.ps1:14132`). `CHANGELOG.md` entry 2026-09-03 records the check failing from 2026-08-31 over five uncataloged repos (WeightTrack, NoNo, IRL Streamer, BillMinder for PC, OpenRadar). The blank-and-log pattern from https://github.com/DSACMS/automated-codejson-generator is the precedent. See `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: a new `New-CatalogEntryStub` beside `New-CatalogEntry` (`scripts/sync-profile.ps1:1288`), a `-DraftMissingCatalogEntries` switch, the `missingPublicRepos` report rows, `tests/sync-profile.Tests.ps1`.
-  Acceptance: When `-Check` finds uncataloged public repos it writes a ready-to-paste JSON fragment per repo into the `missingPublicRepos` rows, populated from live metadata for `repo`, `title`, `language`, `branch`, `descriptionOverride` and an inferred `category`, with every unobservable field emitted as null and listed in a per-row `unresolvedFields` array. It never writes to `data/profile-catalog.json` unless `-DraftMissingCatalogEntries` is passed with `-Write`, and in that mode every drafted row is created suppressed with a review-required `suppressionReason` so nothing reaches the public feed before the owner edits it. The gate still fails either way. A test with two synthetic uncataloged repos asserts the stub contents, the `unresolvedFields` list, the suppressed default and the unchanged failure condition.
-  Complexity: M
-
 ### P2
 
 - [ ] P2: Instrument the remaining scripts for code coverage

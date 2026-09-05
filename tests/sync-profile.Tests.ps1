@@ -7201,6 +7201,103 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Uncataloged public repos get a reviewable stub' {
+    BeforeAll {
+        function script:New-StubRepo {
+            param([string]$Name, [string]$Language, [string]$Branch = 'main', [string[]]$Topics = @(), [string]$Description)
+            [pscustomobject]@{
+                name = $Name
+                description = $Description
+                primaryLanguage = if ([string]::IsNullOrWhiteSpace($Language)) { $null } else { [pscustomobject]@{ name = $Language } }
+                defaultBranchRef = [pscustomobject]@{ name = $Branch }
+                repositoryTopics = @($Topics | ForEach-Object { [pscustomobject]@{ name = $_ } })
+            }
+        }
+    }
+
+    It 'fills what live metadata can prove' {
+        $stub = New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'StormScope' -Language 'PowerShell' -Description 'Desktop weather radar')
+
+        $stub.entry.repo | Should -Be 'StormScope'
+        $stub.entry.title | Should -Be 'StormScope'
+        $stub.entry.branch | Should -Be 'main'
+        $stub.entry.language | Should -Be 'PowerShell'
+        $stub.entry.descriptionOverride | Should -Be 'Desktop weather radar'
+        $stub.entry.category | Should -Be 'powershell'
+        # Booleans are strict in the catalog schema and must never be null-filled.
+        $stub.entry.featured | Should -BeFalse
+        $stub.entry.currentlyBuilding | Should -BeFalse
+        $stub.entry.allowPublicMedical | Should -BeFalse
+    }
+
+    It 'leaves unobservable fields null and names them' {
+        $stub = New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'Mystery' -Language $null -Branch 'master' -Description $null)
+
+        $stub.entry.branch | Should -Be 'master'
+        $stub.entry.category | Should -BeNullOrEmpty
+        $stub.entry.language | Should -BeNullOrEmpty
+        $stub.entry.descriptionOverride | Should -BeNullOrEmpty
+        $stub.unresolvedFields | Should -Contain 'category'
+        $stub.unresolvedFields | Should -Contain 'downloadKind'
+        $stub.unresolvedFields | Should -Contain 'language'
+        $stub.unresolvedFields | Should -Contain 'descriptionOverride'
+    }
+
+    It 'infers a category from an unambiguous topic before falling back to language' {
+        (New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'Scripty' -Language 'JavaScript' -Topics @('userscript'))).entry.category |
+            Should -Be 'extensions'
+        # JavaScript alone is not a category signal, so it stays unresolved.
+        (New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'Plain' -Language 'JavaScript')).entry.category |
+            Should -BeNullOrEmpty
+    }
+
+    It 'writes suppressed, schema-valid drafts and skips repos already cataloged' {
+        $catalogPath = Join-Path $TestDrive 'catalog.json'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') -Destination $catalogPath
+        $before = @(Get-JsonArrayItems (ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $catalogPath -Raw)).entries).Count
+
+        $mystery = New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'MysteryOne' -Language $null -Branch 'master')
+        $rows = @(
+            [ordered]@{ repo = 'MysteryOne'; catalogEntryStub = [pscustomobject]$mystery.entry; unresolvedFields = @($mystery.unresolvedFields) }
+            # Already in the committed catalog, so it must not be drafted again.
+            [ordered]@{ repo = 'ColumnKit'; catalogEntryStub = [pscustomobject](New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'ColumnKit' -Language 'TypeScript')).entry; unresolvedFields = @() }
+        )
+
+        Write-CatalogEntryDraft -MissingPublicRepos $rows -CatalogPath $catalogPath
+
+        $after = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $catalogPath -Raw)
+        @(Get-JsonArrayItems $after.entries).Count | Should -Be ($before + 1)
+
+        $drafted = @(Get-JsonArrayItems $after.entries | Where-Object { [string](Get-MemberValue -Object $_ -Name 'repo') -eq 'MysteryOne' })
+        $drafted | Should -HaveCount 1
+        (Get-MemberValue -Object $drafted[0] -Name 'includeInReadme') | Should -BeFalse
+        (Get-MemberValue -Object $drafted[0] -Name 'includeInPortfolio') | Should -BeFalse
+        (Get-MemberValue -Object $drafted[0] -Name 'suppressionReason') | Should -Match 'awaiting owner review'
+        (Get-MemberValue -Object $drafted[0] -Name 'suppressionReason') | Should -Match 'Unresolved:'
+        # The catalog schema requires an enum category and a non-negative order, so a
+        # draft that keeps them null would make the catalog unparseable.
+        (Get-MemberValue -Object $drafted[0] -Name 'category') | Should -Be 'misc'
+        [int](Get-MemberValue -Object $drafted[0] -Name 'order') | Should -BeGreaterThan 0
+
+        (Test-JsonSchemaContract -Value $after -SchemaPath 'schemas/profile-catalog.v1.json').valid | Should -BeTrue
+    }
+
+    It 'writes nothing when there is nothing to draft' {
+        $catalogPath = Join-Path $TestDrive 'untouched.json'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'data/profile-catalog.json') -Destination $catalogPath
+        $before = (Get-FileHash -LiteralPath $catalogPath -Algorithm SHA256).Hash
+
+        Write-CatalogEntryDraft -MissingPublicRepos @() -CatalogPath $catalogPath
+
+        (Get-FileHash -LiteralPath $catalogPath -Algorithm SHA256).Hash | Should -Be $before
+    }
+
+    It 'keeps drafting behind an explicit switch alongside -Write' {
+        $script:SyncProfileScript | Should -Match '\[switch\]\$DraftMissingCatalogEntries'
+        $script:SyncProfileScript | Should -Match 'if \(\$DraftMissingCatalogEntries -and \$Write\)'
+    }
+}
+
 Describe 'Hand-authored header links and anchors are validated' {
     BeforeAll {
         $script:LiveReadme = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Raw
