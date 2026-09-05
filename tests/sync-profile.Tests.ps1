@@ -5998,6 +5998,33 @@ Describe 'Test-ProfileState projects sync gate' {
         $result.Report.projectsExportInSync | Should -BeTrue
     }
 
+    It 'treats a case-only difference as out of sync' {
+        # PowerShell -eq on strings is case-insensitive. With the -or fallback gone this
+        # comparison is the entire verdict, so -eq let a renamed repo, a rewritten title
+        # or a changed URL path segment through whenever it differed only in case.
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repos = @((New-TestRepoMeta -Name 'WinTool' -Language 'PowerShell'))
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos $repos
+
+        foreach ($field in @('title', 'id', 'repoUrl')) {
+            $payload = $expectedProjects | ConvertFrom-Json
+            $original = [string]$payload.projects[0].$field
+            $swapped = if ($original -ceq $original.ToUpperInvariant()) { $original.ToLowerInvariant() } else { $original.ToUpperInvariant() }
+            $swapped | Should -Not -BeExactly $original -Because "$field must contain letters for this case test to mean anything"
+            $payload.projects[0].$field = $swapped
+            $current = $payload | ConvertTo-Json -Depth 20
+
+            $comparable = (ConvertTo-ProjectsSyncComparableJson -Json $current) -ceq (ConvertTo-ProjectsSyncComparableJson -Json $expectedProjects)
+            $comparable | Should -BeFalse -Because "a case-only change to $field is a real difference"
+        }
+    }
+
+    It 'compares generated artifacts case-sensitively' {
+        $script:SyncProfileScript | Should -Match '\$readmeInSync = .+-ceq'
+        $script:SyncProfileScript | Should -Match '\$projectsComparableInSync = .+-ceq'
+        $script:SyncProfileScript | Should -Match '\$assetInSync = .+-ceq'
+    }
+
     It 'keeps the equality mask and the drift severity model on one list' {
         # A field tolerated by the mask but treated as fatal by the drift model (or the
         # reverse) is how the two diverged before; assert they read the same source.
@@ -6068,6 +6095,36 @@ Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive
         $result.Report.profileAssetsInSync | Should -BeTrue
         $contribRow = $result.Report.profileAssetChecks | Where-Object { $_.path -eq 'assets/profile/contributions-dark.svg' }
         $contribRow.inSync | Should -BeFalse
+    }
+
+    It 'does not fail the fatal asset gate when only the live activity panel drifts' {
+        # activity-*.svg renders release-inspection counters that move as repositories
+        # publish, not with the catalog. Treating it as deterministic made -Check go red
+        # on an unmodified checkout within hours of the commit that generated it.
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $expectedAssets = @{
+            'assets/profile/activity-dark.svg'  = '<svg>drifted counters</svg>'
+            'assets/profile/activity-light.svg' = '<svg>drifted counters</svg>'
+        }
+
+        $result = Test-ProfileState -Catalog $cat -Repos @() `
+            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+            -ExpectedAssets $expectedAssets -SkipLinkValidation
+
+        $result.Report.profileAssetsInSync | Should -BeTrue
+        $activityRow = $result.Report.profileAssetChecks | Where-Object { $_.path -eq 'assets/profile/activity-dark.svg' }
+        $activityRow.inSync | Should -BeFalse
+    }
+
+    It 'keeps one pattern for every live-derived asset exclusion' {
+        # Two call sites decided this independently before; a divergence is how the
+        # activity panel ended up fatal while the heatmap was not.
+        $script:SyncProfileScript | Should -Match '\$LiveDerivedProfileAssetPattern = '
+        @([regex]::Matches($script:SyncProfileScript, '-notmatch \$LiveDerivedProfileAssetPattern')).Count | Should -Be 2
+        $script:SyncProfileScript | Should -Not -Match "-notmatch 'contributions-\(dark"
     }
 
     It 'still fails the fatal asset gate when a deterministic (non-contribution) asset drifts' {
@@ -6525,6 +6582,29 @@ Describe 'Report evidence freshness gate' {
         $result.warningCount | Should -Be 0
     }
 
+    It 'refuses future-dated or unparseable smoke evidence' -ForEach @(
+        @{ Case = 'future'; Stamp = '2027-01-01T00:00:00-04:00'; Match = 'dated in the future' }
+        @{ Case = 'unparseable'; Stamp = 'not-a-date'; Match = 'unparseable generatedAt' }
+    ) {
+        # A future stamp made age negative and cleared every staleness signal; an
+        # unparseable one was treated as absent while still being published in the report.
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-09-05T10:00:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{ status = 'passed'; source = 'local-artifact'; generatedAt = $Stamp }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-09-05T09:00:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567' `
+            -SmokeAffectingCommitDate ([datetimeoffset]::Parse('2026-09-05T08:00:00-04:00')) `
+            -Now ([datetimeoffset]::Parse('2026-09-05T10:00:00-04:00'))
+
+        $result.smokeEvidenceStale | Should -BeTrue
+        $result.status | Should -Be 'stale'
+        ($result.warnings -join ' ') | Should -Match $Match
+    }
+
     It 'names the paths that invalidate smoke evidence' {
         $result = Test-ReportEvidenceFreshness `
             -CommittedReport ([pscustomobject]@{ generatedAt = '2026-09-03T14:34:00-04:00'; renderedProfileSmoke = [pscustomobject]@{ status = 'passed' } }) `
@@ -6534,6 +6614,17 @@ Describe 'Report evidence freshness gate' {
         $result.smokeAffectingPaths | Should -Contain 'README.md'
         $result.smokeAffectingPaths | Should -Contain 'data/profile-catalog.json'
         $result.smokeAffectingPaths | Should -Contain 'scripts/render-profile-smoke.ps1'
+    }
+
+    It 'renders a report generated before the smoke-age fields existed' {
+        # StrictMode makes a bare property reference on a missing member throw, so the
+        # "unknown" fallbacks were unreachable for exactly the archived and rolled-back
+        # reports they were written for.
+        $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
+        foreach ($field in @('smokeEvidenceGeneratedAt', 'smokeEvidenceAgeHours', 'smokeEvidenceBehindReadme')) {
+            $summaryScript | Should -Match "Get-ObjectPropertyOrDefault -Object \`$evidenceFreshness -Name `"$field`""
+            $summaryScript | Should -Not -Match "\`$evidenceFreshness\.$field"
+        }
     }
 
     It 'exposes an evidenceFreshness contract in the summary script and report schema' {
@@ -7539,6 +7630,17 @@ Describe 'Topic apply capability reporting' {
         @{ Case = 'object'; Content = '{"a":1}'; Match = 'must be a JSON array' }
         @{ Case = 'bare-string'; Content = '"AlphaTool"'; Match = 'must be a JSON array' }
         @{ Case = 'unsafe'; Content = '["../evil"]'; Match = 'unsafe repository name' }
+        # A nested object stringifies to its .NET type name, a bool to "True" and a
+        # number to "1", all of which satisfy the safe-name pattern and were counted
+        # as real repositories.
+        @{ Case = 'object-element'; Content = '[{"name":"a"}]'; Match = 'only repository name strings' }
+        @{ Case = 'bool-element'; Content = '[true]'; Match = 'only repository name strings' }
+        @{ Case = 'number-element'; Content = '[1,2,3]'; Match = 'only repository name strings' }
+        @{ Case = 'null-element'; Content = '["a",null]'; Match = 'only repository name strings' }
+        # The apply path matches with -notin, so a duplicate inflates the count without
+        # adding a repository it would touch.
+        @{ Case = 'duplicate'; Content = '["Repo","Repo"]'; Match = 'duplicate repository names' }
+        @{ Case = 'blank-element'; Content = '["Alpha","  "]'; Match = 'blank repository name' }
     ) {
         $path = Join-Path $TestDrive "allowlist-$Case.json"
         if ($null -ne $Content) {

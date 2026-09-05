@@ -470,9 +470,14 @@ $evidenceReportBehindCommit = if ($evidenceFreshness) { [bool]$evidenceFreshness
 $evidenceReportAgeBehindHours = if ($evidenceFreshness -and $null -ne $evidenceFreshness.reportAgeBehindHours) { [string]$evidenceFreshness.reportAgeBehindHours } else { "" }
 $evidenceSmokeStatus = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeStatus) { [string]$evidenceFreshness.smokeStatus } else { "unknown" }
 $evidenceSmokeStale = if ($evidenceFreshness) { [bool]$evidenceFreshness.smokeEvidenceStale } else { $false }
-$evidenceSmokeGeneratedAt = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeEvidenceGeneratedAt) { ConvertTo-CompactSummaryValue $evidenceFreshness.smokeEvidenceGeneratedAt } else { "unknown" }
-$evidenceSmokeAgeHours = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeEvidenceAgeHours) { ConvertTo-CompactSummaryValue $evidenceFreshness.smokeEvidenceAgeHours } else { "unknown" }
-$evidenceSmokeBehindReadme = if ($evidenceFreshness) { [bool]$evidenceFreshness.smokeEvidenceBehindReadme } else { $false }
+# Reports generated before these fields existed still have to render. Under StrictMode
+# a bare property reference on a missing member throws, so the "unknown" fallbacks below
+# were unreachable for exactly the archived and rolled-back reports they were written for.
+$evidenceSmokeGeneratedAtRaw = Get-ObjectPropertyOrDefault -Object $evidenceFreshness -Name "smokeEvidenceGeneratedAt" -Default $null
+$evidenceSmokeAgeHoursRaw = Get-ObjectPropertyOrDefault -Object $evidenceFreshness -Name "smokeEvidenceAgeHours" -Default $null
+$evidenceSmokeGeneratedAt = if ($null -ne $evidenceSmokeGeneratedAtRaw) { ConvertTo-CompactSummaryValue $evidenceSmokeGeneratedAtRaw } else { "unknown" }
+$evidenceSmokeAgeHours = if ($null -ne $evidenceSmokeAgeHoursRaw) { ConvertTo-CompactSummaryValue $evidenceSmokeAgeHoursRaw } else { "unknown" }
+$evidenceSmokeBehindReadme = [bool](Get-ObjectPropertyOrDefault -Object $evidenceFreshness -Name "smokeEvidenceBehindReadme" -Default $false)
 $scheduledWorkflowStatus = if ($scheduledWorkflowFreshness) { [string]$scheduledWorkflowFreshness.status } else { "unknown" }
 $scheduledWorkflowCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.scheduledWorkflowCount } else { 0 }
 $scheduledWorkflowWarningCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.warningCount } else { 0 }

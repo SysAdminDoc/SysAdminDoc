@@ -136,6 +136,13 @@ $SmokeAffectingPaths = @(
     "data/profile-catalog.json",
     "scripts/render-profile-smoke.ps1"
 )
+# Generated SVGs whose contents track live upstream state rather than the catalog, so
+# committed-vs-fresh drift is expected between a -Write and any later -Check. The
+# contribution heatmap moves with account activity; the activity panel renders release
+# inspection counters that move as repositories publish. Both stay visible per-asset in
+# profileAssetChecks but are excluded from the fatal sync gate. One pattern, read by
+# every caller, so the exclusion cannot drift apart again.
+$LiveDerivedProfileAssetPattern = '(contributions|activity)-(dark|light)\.svg$'
 # How long a local dependency-advisory review stays credible as the compensating
 # control for the banned Dependabot lane.
 $LocalAdvisoryReviewStaleDays = 7
@@ -6162,7 +6169,7 @@ function New-GeneratedArtifactDriftDiagnostics {
         $affectedAssets.Add([ordered]@{
             path = $path
             exists = [bool]$assetCheck.exists
-            fatal = [bool]($assetCheck.exists -ne $true -or $path -notmatch 'contributions-(dark|light)\.svg$')
+            fatal = [bool]($assetCheck.exists -ne $true -or $path -notmatch $LiveDerivedProfileAssetPattern)
             currentSha256 = if ([bool]$assetCheck.exists) { Get-StringSha256 -Text $currentText } else { $null }
             expectedSha256 = Get-StringSha256 -Text $expectedText
         })
@@ -8459,6 +8466,17 @@ function Test-ReportEvidenceFreshness {
     $smokeEvidenceAgeHours = $null
     if ($null -ne $smokeGeneratedAt) {
         $smokeEvidenceAgeHours = [math]::Round(($Now.ToUniversalTime() - $smokeGeneratedAt.ToUniversalTime()).TotalHours, 2)
+        # A future timestamp is clock skew or a fabricated artifact. Either way it clears
+        # every staleness signal, so treat it as unusable rather than as very fresh.
+        if ($smokeEvidenceAgeHours -lt 0) {
+            $smokeEvidenceStale = $true
+            $warnings.Add("Committed rendered-smoke evidence is dated in the future ($smokeGeneratedAtText); the artifact or the clock that produced it cannot be trusted, so run scripts/render-profile-smoke.ps1 locally and regenerate reports/profile-sync-report.json.")
+        }
+    } elseif (-not [string]::IsNullOrWhiteSpace($smokeGeneratedAtText)) {
+        # Present but unparseable is different from absent: the report is publishing a
+        # timestamp nothing can read, which the absent case never does.
+        $smokeEvidenceStale = $true
+        $warnings.Add("Committed rendered-smoke evidence has an unparseable generatedAt ('$smokeGeneratedAtText'); run scripts/render-profile-smoke.ps1 locally and regenerate reports/profile-sync-report.json.")
     }
     $smokeAffectingCommitDateOffset = ConvertTo-DateTimeOffsetOrNull $SmokeAffectingCommitDate
     $smokeEvidenceBehindReadme = $false
@@ -12520,8 +12538,22 @@ function Get-TopicApplyCapability {
             if (-not (Test-JsonArrayWrapper -Value $parsed)) {
                 $reason = "Topic allowlist at $AllowlistPath must be a JSON array of repository names."
             } else {
-                $names = @(Get-JsonArrayItems $parsed | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
-                if ($names.Count -eq 0) {
+                # Every element must be a string. A nested object stringifies to
+                # "System.Collections.Specialized.OrderedDictionary", a bool to "True"
+                # and a number to "1", all of which satisfy the safe-name pattern and
+                # would be counted as repositories.
+                $items = @(Get-JsonArrayItems $parsed)
+                $nonString = @($items | Where-Object { $_ -isnot [string] })
+                $names = @($items | Where-Object { $_ -is [string] -and -not [string]::IsNullOrWhiteSpace($_) })
+                if ($nonString.Count -gt 0) {
+                    $reason = "Topic allowlist at $AllowlistPath must contain only repository name strings."
+                } elseif ($names.Count -ne $items.Count) {
+                    $reason = "Topic allowlist at $AllowlistPath contains a blank repository name."
+                } elseif (@($names | Group-Object -CaseSensitive | Where-Object { $_.Count -gt 1 }).Count -gt 0) {
+                    # The apply path matches with -notin, so a duplicate inflates the
+                    # reported count without adding a repository it would touch.
+                    $reason = "Topic allowlist at $AllowlistPath contains duplicate repository names."
+                } elseif ($names.Count -eq 0) {
                     $reason = "Topic allowlist at $AllowlistPath is empty; no repository is eligible for topic apply."
                 } elseif (@($names | Where-Object { -not (Test-SafeGitHubName -Name ([string]$_)) }).Count -gt 0) {
                     $reason = "Topic allowlist at $AllowlistPath contains an unsafe repository name."
@@ -14292,8 +14324,12 @@ function Test-ProfileState {
     } else {
         ""
     }
-    $readmeInSync = (ConvertTo-NormalizedGeneratedText -Text $currentReadme) -eq (ConvertTo-NormalizedGeneratedText -Text $ExpectedReadme)
-    $projectsComparableInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -eq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
+    # -ceq, not -eq: PowerShell string comparison is case-insensitive by default, and
+    # these three comparisons are the whole verdict for their artifacts. With -eq a
+    # renamed repo, a rewritten title or a changed URL path segment that differed only
+    # in letter case reported as in sync.
+    $readmeInSync = (ConvertTo-NormalizedGeneratedText -Text $currentReadme) -ceq (ConvertTo-NormalizedGeneratedText -Text $ExpectedReadme)
+    $projectsComparableInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -ceq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
     $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
     # The canonical comparison is the whole verdict. Tolerance for live upstream churn
     # lives inside ConvertTo-ProjectsSyncComparableJson as an explicit mask; it must not
@@ -14308,7 +14344,7 @@ function Test-ProfileState {
         $assetInSync = $false
         if ($exists) {
             $currentAsset = if ($usesCurrentAssets) { [string]$CurrentAssets[$assetPath] } else { Get-Content -LiteralPath $fullPath -Raw }
-            $assetInSync = ((ConvertTo-NormalizedGeneratedText -Text $currentAsset) -eq (ConvertTo-NormalizedGeneratedText -Text ([string]$ExpectedAssets[$assetPath])))
+            $assetInSync = ((ConvertTo-NormalizedGeneratedText -Text $currentAsset) -ceq (ConvertTo-NormalizedGeneratedText -Text ([string]$ExpectedAssets[$assetPath])))
         }
         $assetChecks.Add([ordered]@{
             path = [string]$assetPath
@@ -14322,7 +14358,7 @@ function Test-ProfileState {
     # from the fatal sync gate; the deterministic catalog-driven assets remain fatal. Missing
     # (non-existent) contribution files still fail the gate.
     $assetsInSync = @($assetChecks | Where-Object {
-        $_.inSync -ne $true -and ($_.exists -ne $true -or [string]$_.path -notmatch 'contributions-(dark|light)\.svg$')
+        $_.inSync -ne $true -and ($_.exists -ne $true -or [string]$_.path -notmatch $LiveDerivedProfileAssetPattern)
     }).Count -eq 0
     $artifactDriftDiagnostics = New-GeneratedArtifactDriftDiagnostics `
         -CurrentReadme $currentReadme `
