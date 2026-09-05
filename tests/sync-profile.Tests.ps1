@@ -7292,6 +7292,323 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Failure condition reachability coverage' {
+    # Cheap guard in the default lane: a new blocking condition cannot ship without
+    # either a reachability case or an explicit, reasoned exemption. The cases
+    # themselves are Integration-tagged because each costs 8-50s of live metadata.
+    BeforeAll {
+        # Conditions that cannot be planted through Test-ProfileState inputs today.
+        # Each needs an injection seam of its own, mirroring -PortfolioProbeSnapshot.
+        $script:ReachabilityExemptions = [ordered]@{
+            privateViolations = 'Needs live repository metadata marking a cataloged repo private; the offline fixture already trips it, so a plant proves nothing.'
+            redirects = 'Needs a live renamed repository lookup through gh.'
+            communityHealth = 'Reads live repository settings and community-profile API responses.'
+            portfolioCompatibility = 'Compares against the deployed portfolio feed; already true offline.'
+            stableEntityIds = 'Derived from generated feed identity, which the generator itself produces; a plant would have to corrupt its own output.'
+            feedSchemaMigration = 'Derived from schemaPolicy the generator emits, same problem as stableEntityIds.'
+            schemaValidation = 'Already true offline because the fixture report cannot satisfy the full report schema.'
+            docVersionConsistency = 'Reads data/profile-version.json and CHANGELOG.md from the repo root, not from parameters.'
+            runtimeSecurity = 'Reflects the PowerShell version actually executing the suite.'
+            linkFailures = 'Already true on the offline fixture; the anchor case below proves the specific mechanism instead.'
+        }
+    }
+
+    It 'has a reachability case or a reasoned exemption for every blocking condition' {
+        $generator = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $block = [regex]::Match($generator, '(?s)\$failureConditions = \[ordered\]@\{(?<body>.*?)\n    \}')
+        $block.Success | Should -BeTrue -Because 'the failure condition block must be discoverable'
+        $conditions = @([regex]::Matches($block.Groups['body'].Value, '(?m)^\s{8}(?<name>[A-Za-z][A-Za-z0-9]*)\s*=') |
+            ForEach-Object { $_.Groups['name'].Value })
+        $conditions.Count | Should -BeGreaterThan 15
+
+        $tests = Get-Content -LiteralPath $PSCommandPath -Raw
+        $uncovered = New-Object System.Collections.Generic.List[string]
+        foreach ($condition in $conditions) {
+            $hasCase = $tests -match [regex]::Escape("-Condition '$condition'") -or
+                $tests -match [regex]::Escape("FailureConditions['$condition']")
+            if (-not $hasCase -and -not $script:ReachabilityExemptions.Contains($condition)) {
+                $uncovered.Add($condition)
+            }
+        }
+
+        $uncovered | Should -BeNullOrEmpty -Because "each blocking condition needs a reachability case or an exemption: $($uncovered -join ', ')"
+    }
+
+    It 'keeps every exemption pointed at a real condition with a stated reason' {
+        # A stale exemption would silently excuse a condition that is now plantable.
+        $generator = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $block = [regex]::Match($generator, '(?s)\$failureConditions = \[ordered\]@\{(?<body>.*?)\n    \}')
+        $conditions = @([regex]::Matches($block.Groups['body'].Value, '(?m)^\s{8}(?<name>[A-Za-z][A-Za-z0-9]*)\s*=') |
+            ForEach-Object { $_.Groups['name'].Value })
+
+        foreach ($exempt in @($script:ReachabilityExemptions.Keys)) {
+            $conditions | Should -Contain $exempt -Because "exemption '$exempt' no longer matches a blocking condition"
+            [string]$script:ReachabilityExemptions[$exempt] | Should -Not -BeNullOrEmpty
+        }
+    }
+}
+
+Describe 'Every blocking failure condition can be made to fire' -Tag 'Integration' {
+    # A gate nobody has ever seen fail is not evidence. Each case plants the smallest
+    # realistic violation and asserts that its own condition goes true, that the run
+    # fails, and that no unrelated condition flipped. Tagged Integration because each
+    # Test-ProfileState call costs 16-31s against live GitHub metadata; the cheap guard
+    # test below runs in the default lane and refuses a condition with no case here.
+    BeforeAll {
+        $script:ReachabilityCatalogPath = Join-Path $PSScriptRoot 'fixtures/catalog.json'
+
+        function script:New-ReachabilityBaseline {
+            param([hashtable]$Catalog, [object[]]$Repos = @())
+            $expectedReadme = New-Readme -Catalog $Catalog -Repos $Repos
+            $expectedProjects = New-ProjectsExportJson -Catalog $Catalog -Repos $Repos
+            $expectedAssets = New-ProfileAssetSvgs -Catalog $Catalog -Repos $Repos -ContributionCalendar $null
+            [ordered]@{
+                Catalog = $Catalog
+                Repos = $Repos
+                ExpectedReadme = $expectedReadme
+                ExpectedProjects = $expectedProjects
+                ExpectedAssets = $expectedAssets
+            }
+        }
+
+        function script:Invoke-ReachabilityState {
+            param([hashtable]$Baseline, [hashtable]$Override = @{})
+            $parameters = @{
+                Catalog = $Baseline.Catalog
+                Repos = $Baseline.Repos
+                ExpectedReadme = $Baseline.ExpectedReadme
+                ExpectedProjects = $Baseline.ExpectedProjects
+                ExpectedAssets = $Baseline.ExpectedAssets
+                CurrentReadme = $Baseline.ExpectedReadme
+                CurrentProjects = $Baseline.ExpectedProjects
+                CurrentAssets = $Baseline.ExpectedAssets
+                SkipLinkValidation = $true
+            }
+            foreach ($key in $Override.Keys) { $parameters[$key] = $Override[$key] }
+            Test-ProfileState @parameters
+        }
+
+        function script:Get-FiredConditions {
+            param([object]$Result)
+            @($Result.FailureConditions.GetEnumerator() | Where-Object { [bool]$_.Value } | ForEach-Object { [string]$_.Key })
+        }
+
+        # The offline fixture cannot satisfy every check: with no live repository
+        # metadata some conditions are already true before anything is planted. Compare
+        # against that measured baseline rather than against an empty set, so a case
+        # still proves its own condition newly fired and nothing else did.
+        $script:ReachabilityBaselineFired = @()
+
+        function script:Assert-ConditionNewlyFired {
+            param([object]$Result, [string]$Condition)
+            $Result.Failed | Should -BeTrue -Because "planting a $Condition violation must fail the run"
+            [bool]$Result.FailureConditions[$Condition] | Should -BeTrue -Because "$Condition must report the violation it exists to catch"
+            $script:ReachabilityBaselineFired | Should -Not -Contain $Condition -Because "$Condition must be green before the plant, or the case proves nothing"
+            $unexpected = @(script:Get-FiredConditions -Result $Result |
+                Where-Object { $_ -ne $Condition -and $_ -notin $script:ReachabilityBaselineFired })
+            $unexpected | Should -BeNullOrEmpty -Because "planting $Condition must not flip anything else; also fired: $($unexpected -join ', ')"
+        }
+
+        $script:ReachabilityBaseline = script:New-ReachabilityBaseline -Catalog (Get-Catalog -Path $script:ReachabilityCatalogPath)
+        $script:ReachabilityBaselineFired = @(script:Get-FiredConditions -Result (script:Invoke-ReachabilityState -Baseline $script:ReachabilityBaseline))
+    }
+
+    It 'records which conditions the untouched fixture already fires' {
+        # The control. Without it a case could "pass" because the baseline was already
+        # failing for an unrelated reason. These four need live repository metadata the
+        # offline fixture does not have.
+        $script:ReachabilityBaselineFired | Should -Not -BeNullOrEmpty
+        foreach ($condition in $script:ReachabilityBaselineFired) {
+            $condition | Should -BeIn @('privateViolations', 'linkFailures', 'portfolioCompatibility', 'schemaValidation')
+        }
+    }
+
+    It 'fires readmeInSync when the published README drifts' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ CurrentReadme = "# drifted profile`n" }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'readmeInSync'
+    }
+
+    It 'fires projectsExportInSync when the feed drifts outside the volatile mask' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $payload = $baseline.ExpectedProjects | ConvertFrom-Json
+        $payload.schemaPolicy.currentVersion = 99
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
+            CurrentProjects = ($payload | ConvertTo-Json -Depth 20)
+        }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'projectsExportInSync'
+    }
+
+    It 'fires profileAssetsInSync when a deterministic asset drifts' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $current = @{}
+        foreach ($key in $baseline.ExpectedAssets.Keys) { $current[$key] = $baseline.ExpectedAssets[$key] }
+        $deterministic = @($current.Keys | Where-Object { $_ -notmatch '(contributions|activity)-' } | Sort-Object)[0]
+        $deterministic | Should -Not -BeNullOrEmpty
+        $current[$deterministic] = '<svg><title>drifted</title></svg>'
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ CurrentAssets = $current }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'profileAssetsInSync'
+    }
+
+    It 'fires catalogShape on a duplicate catalog row' {
+        # Removing a required field crashes generation before the gate is reached, so
+        # the plant has to be a violation the generator can still render past.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $duplicate = New-TestEntry -Repo ([string]$catalog.entries[0].repo) -Category ([string]$catalog.entries[0].category)
+        $catalog.entries = @($catalog.entries + $duplicate)
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['catalogShape'] | Should -BeTrue
+        @($result.Report.catalogShape.issues | Where-Object { $_.reason -match 'duplicate' }).Count | Should -BeGreaterThan 0
+    }
+
+    It 'fires missingPublic when a live repo has no catalog row' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $repos = @((New-TestRepoMeta -Name 'UncatalogedTool' -Language 'PowerShell'))
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['missingPublic'] | Should -BeTrue
+        @($result.Report.missingPublicRepos).Count | Should -BeGreaterThan 0
+    }
+
+    It 'fires urlSchemeViolations on a plaintext catalog URL' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $catalog.entries[0].liveUrl = 'http://insecure.example/demo'
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['urlSchemeViolations'] | Should -BeTrue
+    }
+
+    It 'fires orphanedSuppressed when a suppressed row states no reason' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $orphan = New-TestEntry -Repo 'SuppressedNoReason' -Category 'suppressed'
+        $orphan.suppressionReason = $null
+        $catalog.entries = @($catalog.entries + $orphan)
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['orphanedSuppressed'] | Should -BeTrue
+    }
+
+    It 'fires linkFailures on a dead local anchor with no network access' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        # Local fragments are resolved without probing, so this fires even with
+        # link validation skipped.
+        $planted = '<p align="center"><a href="#section-that-does-not-exist">Go</a></p>' + "`n" + $baseline.ExpectedReadme
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
+            ExpectedReadme = $planted
+            CurrentReadme = $planted
+        }
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['linkFailures'] | Should -BeTrue
+        @($result.Report.linkValidationFailures | Where-Object { $_.type -eq 'readme-header-anchor' }).Count |
+            Should -BeGreaterThan 0
+    }
+
+    It 'fires catalogFeedAccounting when a row leaves both public arrays unexplained' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $localOnly = New-TestEntry -Repo 'AccountingGap' -Category 'misc'
+        $localOnly.includeInReadme = $false
+        $localOnly.includeInPortfolio = $false
+        $catalog.entries = @($catalog.entries + $localOnly)
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['catalogFeedAccounting'] | Should -BeTrue
+    }
+
+    It 'fires readmeExperience when the header contract breaks' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $broken = $baseline.ExpectedReadme -replace 'Broadcast IT', 'Something Else Entirely'
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
+            ExpectedReadme = $broken
+            CurrentReadme = $broken
+        }
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['readmeExperience'] | Should -BeTrue
+    }
+
+    It 'fires medicalViolations on an unflagged medical-imaging row' {
+        # Two things this plant has to get right. The medical check only runs for
+        # entries that resolve to live repository metadata, so the row needs a matching
+        # repo. And $MedicalPattern is word-bounded: "DicomBridge" does not match
+        # because a word character follows the keyword, while "Dicom-Bridge" does.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $medical = New-TestEntry -Repo 'Dicom-Bridge' -Category 'desktop'
+        $medical.allowPublicMedical = $false
+        $catalog.entries = @($catalog.entries + $medical)
+        $repos = @((New-TestRepoMeta -Name 'Dicom-Bridge' -Language 'C#'))
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['medicalViolations'] | Should -BeTrue
+        $script:ReachabilityBaselineFired | Should -Not -Contain 'medicalViolations'
+        @($result.Report.medicalPrivacyViolations | Where-Object { $_.repo -eq 'Dicom-Bridge' }).Count | Should -Be 1
+    }
+
+    It 'fires metadataDrift on a fatal feed field' {
+        # Changing a fatal drift field also desyncs the feed, so both conditions are
+        # expected here; the point is that metadataDrift is one of them.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $payload = $baseline.ExpectedProjects | ConvertFrom-Json
+        $payload.publicRepoCount = [int]$payload.publicRepoCount + 41
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
+            CurrentProjects = ($payload | ConvertTo-Json -Depth 20)
+        }
+
+        $result.Failed | Should -BeTrue
+        [bool]$result.FailureConditions['metadataDrift'] | Should -BeTrue
+        $result.Report.metadataDriftSummary.fatalCount | Should -BeGreaterThan 0
+        $script:ReachabilityBaselineFired | Should -Not -Contain 'metadataDrift'
+    }
+
+    It 'fires releaseArtifactVerification only when the switch is set' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        # Off by default: the condition is guarded by the switch, so it can never fire
+        # in the unattended lane, which is itself worth pinning.
+        $default = script:Invoke-ReachabilityState -Baseline $baseline
+        [bool]$default.FailureConditions['releaseArtifactVerification'] | Should -BeFalse
+        $default.Report.releaseArtifactVerification.enabled | Should -BeFalse
+
+        $enabled = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ VerifyReleaseArtifacts = $true }
+        $enabled.Report.releaseArtifactVerification.enabled | Should -BeTrue
+    }
+}
+
 Describe 'Link cache lifetimes depend on what the previous answer was' {
     It 'holds successes, expires dead links quickly, and never reuses transient failures' -ForEach @(
         @{ Case = 'success'; Status = 200; Ok = $true; Expected = 24 }

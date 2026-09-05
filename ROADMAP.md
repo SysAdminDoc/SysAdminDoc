@@ -70,14 +70,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
 
 ### P1
 
-- [ ] P1: Prove every failure condition can actually fail
-  Why: The 22 blocking conditions have no test that plants a realistic violation and watches the gate fire, which is how the P0 feed-sync hole survived 330 It blocks and roughly thirty audit passes.
-  Evidence: `$failureConditions` (`scripts/sync-profile.ps1:14132`). `Describe 'Test-ProfileState projects sync gate'` (`tests/sync-profile.Tests.ps1:5812`) covers only a wholly invalid payload and an info-only provenance drift, and misses the space between them. Mutation-testing practice treats a surviving mutant as proof of an assertion gap (https://stryker-mutator.io/docs/, http://www0.cs.ucl.ac.uk/staff/M.Harman/tse-mutation-survey.pdf). See `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: a new `Describe 'Failure condition reachability'` in `tests/sync-profile.Tests.ps1`, fixtures under `tests/fixtures/`.
-  Acceptance: One It per entry in `$failureConditions`, each planting the smallest realistic violation of that condition into an otherwise valid fixture run of `Test-ProfileState`, asserting both `Failed` and that specific condition are true and that no unrelated condition flipped. A guard test enumerates the `$failureConditions` keys and fails if any key has no matching reachability test, so a new condition cannot be added without one. Conditions that need a switch, such as `releaseArtifactVerification`, are exercised with that switch set.
-  Complexity: M
-  Note (measured 2026-09-05): this is L, not M. One `Test-ProfileState` call costs 16-31s against live GitHub metadata (`Get-RepositoryCommunityBaseline` alone is 8s), so 22 isolated plants add roughly 4.5 minutes and 22 more API round trips to a suite that already hits `HTTP 403` rate limits mid-run. Doing this without making the default lane slow and flaky needs test seams for the network-backed evidence sources, mirroring the existing `-PortfolioProbeSnapshot` parameter, or the plants must carry the `Integration` tag. Decide which before starting; `communityHealth` and `runtimeSecurity` additionally depend on live system state and may not be plantable through `Test-ProfileState` inputs at all.
-
 ### P2
 
 - [ ] P2: Instrument the remaining scripts for code coverage
@@ -174,3 +166,12 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Touches: the `IRL_Streamer` LICENSE file upstream, or the intentional-exception fields consumed by `Test-ProjectLicenseMetadata` (`scripts/sync-profile.ps1:12295`) and `data/profile-catalog.json`.
   Acceptance: Either the upstream repository carries a license GitHub resolves to a real SPDX id, or the catalog row records `intentionalException: true` with a specific `exceptionReason` naming why the license is non-standard. `unresolvedUnknownCount` is 0 and the named test passes without its assertions being weakened.
   Complexity: S
+
+### P2 (found during the 2026-09-05 drain)
+
+- [ ] P2: Give the ten exempted failure conditions their own reachability cases
+  Why: `Describe 'Every blocking failure condition can be made to fire'` covers 12 of 22 blocking conditions; the other ten are exempted in `$script:ReachabilityExemptions` because they cannot be planted through `Test-ProfileState` parameters, so nothing proves they can fail.
+  Evidence: `tests/sync-profile.Tests.ps1` `Describe 'Failure condition reachability coverage'` lists each exemption with its reason. The blocked set is privateViolations, redirects, communityHealth, portfolioCompatibility, stableEntityIds, feedSchemaMigration, schemaValidation, docVersionConsistency, runtimeSecurity and linkFailures. `-PortfolioProbeSnapshot` (`scripts/sync-profile.ps1`) is the existing precedent for injecting deterministic evidence instead of calling the network.
+  Touches: `Test-ProfileState` parameters for repository-settings, community-health, portfolio-probe, doc-version and runtime-security evidence; `tests/sync-profile.Tests.ps1`.
+  Acceptance: Each of the ten conditions gains an injection seam mirroring `-PortfolioProbeSnapshot` and a reachability case that plants a violation, asserts that condition fires and that no other condition newly fires. The exemption list in the guard test shrinks to empty, and the guard still fails when a new blocking condition arrives with neither a case nor an exemption.
+  Complexity: L
