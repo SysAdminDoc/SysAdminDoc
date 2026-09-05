@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-04
+
+- Closed a hole that let the project feed publish out of sync. The check that decides whether `projects.json` matches what the catalog produces was a correct comparison ORed with a much weaker one: if the drift model found nothing fatal, the feed was called in sync no matter what had changed. That model only inspects an enumerated list of fields, so anything outside it was exempt. A project's stable ID, canonical repository, aliases, fork and license fields, locale and script hints, and the entire `schemaPolicy` block could all change silently. Tolerance for live upstream churn now lives in one named list of volatile fields that both the equality mask and the drift severity model read, and the comparison alone decides the verdict.
+
 ## 2026-09-03
 
 - Cataloged five public repos the profile had never seen: WeightTrack, NoNo, IRL Streamer, BillMinder for PC and OpenRadar. Their absence is what had been failing the daily freshness check since 8/31.

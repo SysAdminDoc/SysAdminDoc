@@ -83,6 +83,30 @@ $ReadmeCodeBlockSoftLimit = 100
 $ProjectsJsonSoftLimitBytes = 500KB
 $ProjectsFeedSchemaVersion = 3
 $PortfolioFeedSchemaVersion = 1
+# Feed fields that legitimately differ between a -Write and a later -Check because they
+# track live upstream state or the generation run itself. This is the single source of
+# tolerance: ConvertTo-ProjectsSyncComparableJson masks exactly these before comparing,
+# and Test-MetadataDrift downgrades the same per-project fields to informational. Keeping
+# both readers on one list stops the equality check and the severity model drifting apart.
+# Anything absent from this list is a real difference and fails the sync gate.
+$script:ProjectsFeedVolatileTopLevelFields = @("generatedAt")
+$script:ProjectsFeedVolatileProvenanceFields = @("sourceCommit", "metadataSnapshotAt", "metadataProvider")
+$script:ProjectsFeedVolatileEnumerationFields = @("requestedLimit")
+$script:ProjectsFeedVolatileProjectFields = @(
+    "pushedAt",
+    "stars",
+    "latestReleaseTag",
+    "latestReleaseUrl",
+    "releaseAssetKinds",
+    "releaseAssetNames",
+    "releaseAssetInspected",
+    "releaseTrust",
+    "topics",
+    "branchTipSha",
+    "branchTipFetchedAt",
+    "branchTipStatus",
+    "branchTipWarning"
+)
 $ReportJsonSoftLimitBytes = 112KB
 $ProfileAssetsSoftLimitBytes = 128KB
 $ProfileAssetsCountSoftLimit = 16
@@ -10877,18 +10901,35 @@ function ConvertTo-ProjectsSyncComparableJson {
 
     try {
         $payload = ConvertFrom-JsonPreservingArrays -Json $Json
-        # generatedAt is stamped per generation run, so it is volatile for equality just
-        # like sourceCommit, metadataSnapshotAt, and pushedAt. Feed freshness is reported
-        # separately by Test-MetadataDrift against the committed file.
-        Set-MemberValue -Object $payload -Name "generatedAt" -Value $null
+        # Mask every volatile field so equality answers "is this the feed the catalog
+        # produces", not "did anything upstream move since the last write". Feed freshness
+        # and per-field drift are reported separately by Test-MetadataDrift. The masked set
+        # is deliberately closed: a field that is not listed here is a real difference.
+        foreach ($field in $script:ProjectsFeedVolatileTopLevelFields) {
+            Set-MemberValue -Object $payload -Name $field -Value $null
+        }
         $provenance = Get-MemberValue -Object $payload -Name "provenance"
         if ($provenance) {
-            Set-MemberValue -Object $provenance -Name "metadataSnapshotAt" -Value $null
-            Set-MemberValue -Object $provenance -Name "sourceCommit" -Value $null
+            foreach ($field in $script:ProjectsFeedVolatileProvenanceFields) {
+                Set-MemberValue -Object $provenance -Name $field -Value $null
+            }
+            # returnedCount and truncated stay compared: a genuine inventory change must
+            # fail the gate even though the transport that produced it may vary.
+            $enumeration = Get-MemberValue -Object $provenance -Name "repoEnumeration"
+            if ($enumeration) {
+                foreach ($field in $script:ProjectsFeedVolatileEnumerationFields) {
+                    Set-MemberValue -Object $enumeration -Name $field -Value $null
+                }
+            }
         }
-        $projects = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name "projects"))
-        foreach ($project in $projects) {
-            Set-MemberValue -Object $project -Name "pushedAt" -Value $null
+        foreach ($collection in @("projects", "suppressed")) {
+            foreach ($row in @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name $collection))) {
+                foreach ($field in $script:ProjectsFeedVolatileProjectFields) {
+                    if (Test-MemberExists -Object $row -Name $field) {
+                        Set-MemberValue -Object $row -Name $field -Value $null
+                    }
+                }
+            }
         }
         return ConvertTo-ComparableJson $payload
     } catch {
@@ -11810,17 +11851,9 @@ function Test-MetadataDrift {
         $currentRows = New-MetadataRowIndex -ProjectsPayload $current
         $expectedRows = New-MetadataRowIndex -ProjectsPayload $expected
         $rowKeys = @(@($currentRows.Keys) + @($expectedRows.Keys) | Sort-Object -Unique)
-        $infoFields = @(
-            "stars",
-            "latestReleaseTag",
-            "latestReleaseUrl",
-            "releaseAssetKinds",
-            "releaseAssetNames",
-            "releaseAssetInspected",
-            "releaseTrust",
-            "pushedAt",
-            "topics"
-        )
+        # Same list the sync-equality mask uses, so a field cannot be tolerated by one
+        # and treated as a real difference by the other.
+        $infoFields = @($script:ProjectsFeedVolatileProjectFields)
         $rowFields = @(
             "suppressedId",
             "title",
@@ -13752,7 +13785,11 @@ function Test-ProfileState {
     $readmeInSync = (ConvertTo-NormalizedGeneratedText -Text $currentReadme) -eq (ConvertTo-NormalizedGeneratedText -Text $ExpectedReadme)
     $projectsComparableInSync = (ConvertTo-ProjectsSyncComparableJson -Json $currentProjects) -eq (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects)
     $metadataDriftResult = Test-MetadataDrift -CurrentProjectsJson $currentProjects -ExpectedProjectsJson $ExpectedProjects
-    $projectsInSync = $projectsComparableInSync -or ([int](Get-MemberValue -Object $metadataDriftResult -Name "fatalCount") -eq 0)
+    # The canonical comparison is the whole verdict. Tolerance for live upstream churn
+    # lives inside ConvertTo-ProjectsSyncComparableJson as an explicit mask; it must not
+    # be reintroduced here as a second, weaker predicate. An -or against the drift model
+    # made the gate pass for every field that model does not enumerate.
+    $projectsInSync = $projectsComparableInSync
     $assetChecks = New-Object System.Collections.Generic.List[object]
     foreach ($assetPath in @($ExpectedAssets.Keys | Sort-Object)) {
         $fullPath = Join-Path $RepoRoot $assetPath

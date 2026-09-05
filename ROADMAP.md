@@ -108,16 +108,8 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Touches: A `New-JsonFeedExport` builder beside the Backstage exporter, opt-in path parameter, validation fixtures, generated documentation.
   Acceptance: Record the named consumer and its update semantics first. The opt-in document uses the exact 1.1 version URL, title, stable string item IDs, at least one of `content_text` or `content_html` per item, canonical URLs, `home_page_url`, and `feed_url`; it validates against an independent JSON Feed fixture, remains at most 256,000 bytes or paginates with `next_url`, and is served as `application/feed+json` by the named consumer. Default artifacts are byte-identical when the option is absent.
   Complexity: S
+
 ## Research-Driven Additions (2026-09-04)
-
-### P0
-
-- [ ] P0: Fail the projects feed sync gate on any drift outside an explicit volatile allowlist
-  Why: `projectsExportInSync` reports true for every feed difference `Test-MetadataDrift` does not model, so a changed stable ID, canonical repo, alias, license field, locale hint or schema policy publishes silently.
-  Evidence: `scripts/sync-profile.ps1:13755` reads `$projectsInSync = $projectsComparableInSync -or ([int]$metadataDriftResult.fatalCount -eq 0)`. `Test-MetadataDrift` (`scripts/sync-profile.ps1:11689`) compares a fixed `$rowFields` list plus five top-level and eight provenance fields; `id`, `canonicalRepo`, `aliases`, `forkOf`, `forkOfUrl`, `upstreamLicense`, `licenseKey`, `licenseName`, `licenseSpdxId`, `localeHints`, `scriptHints` and the whole `schemaPolicy` object are absent from it. Reproduced by dot-sourcing the generator and mutating the live feed: seven planted changes each gave `comparableInSync=False, fatalCount=0, projectsExportInSync=True`; controls on `description` and `repoUrl` gave `fatalCount=1` and a correct failure. The committed report shows the symptom already, with `artifactDriftDiagnostics.projects.currentSha256` of `9f824f1e...` against `expectedSha256` `66fd45d7...` while `inSync` is true. See `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: `Test-ProfileState` sync determination (`scripts/sync-profile.ps1:13755`), `ConvertTo-ProjectsSyncComparableJson` (`scripts/sync-profile.ps1:10871`), `Test-MetadataDrift` field lists, `Describe 'Test-ProfileState projects sync gate'` (`tests/sync-profile.Tests.ps1:5812`).
-  Acceptance: `$projectsInSync` is `$projectsComparableInSync` alone. Volatility tolerance moves entirely into `ConvertTo-ProjectsSyncComparableJson`, which masks exactly the fields that legitimately change between a `-Write` and a later `-Check`: `generatedAt`, `provenance.sourceCommit`, `provenance.metadataSnapshotAt`, `provenance.metadataProvider`, `provenance.repoEnumeration.requestedLimit`, and per-project `pushedAt`, `stars`, `latestReleaseTag`, `latestReleaseUrl`, the `releaseAsset*` fields, `releaseTrust`, `topics`, `branchTipSha` and `branchTipFetchedAt`. Every other difference fails. The mask is one named list that `Test-MetadataDrift`'s `$infoFields` also consumes, so the two cannot diverge again. A test mutates each of the eleven previously unmodelled project fields plus both `schemaPolicy` fields and asserts `projectsExportInSync` is false for each; a second test asserts a run differing only in masked fields still passes.
-  Complexity: M
 
 ### P1
 
@@ -242,4 +234,13 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Evidence: `gh api repos/SysAdminDoc/SysAdminDoc` returns `homepage: null` with topics `github-profile`, `portfolio`, `readme`. `README.md:3-7` carries the positioning line and the single CTA and no numbers. Verified for-hire profiles lead with client, project and geography counts and group skills as service categories (https://github.com/prashant-software-developer, https://github.com/RupeshDev18); the minimal end of the range does the same in prose (https://github.com/tiangolo). See `RESEARCH.md` Competitive Landscape.
   Touches: repository settings via `gh api repos/{owner}/{repo} -X PATCH`, the hand-authored header above the generated-catalog notice in `README.md`, `Get-RepositoryCommunityBaseline` if homepage presence becomes reported evidence.
   Acceptance: The repository `homepage` is set to the canonical portfolio origin and the report records it as present. The services header carries at least two verifiable quantities the owner is willing to stand behind, drawn where possible from data the repo already computes, such as the public project count and the number of shipping releases. No claim is added that the catalog cannot substantiate. The generated-catalog boundary is untouched and `readmeExperience` still passes.
+  Complexity: S
+
+### P2 (found during the 2026-09-04 drain)
+
+- [ ] P2: Resolve or record the IRL_Streamer unknown-license row
+  Why: `Feed JSON Schema contracts.keeps committed release and license trust drift resolved` has been red at HEAD since before this drain, so the suite carries a permanent baseline failure that masks new license regressions.
+  Evidence: `tests/sync-profile.Tests.ps1:4509` asserts `projectLicenseMetadata.unresolvedUnknownCount` is 0; the committed report and the regenerated one both report 1, for `{"repo":"IRL_Streamer","licenseKey":"other","licenseName":"Other","licenseSpdxId":"NOASSERTION","reason":"GitHub reported an unrecognized or non-standard license","intentionalException":false}`. Reproduced 2026-09-04 against both the working tree and `git show HEAD:reports/profile-sync-report.json`.
+  Touches: the `IRL_Streamer` LICENSE file upstream, or the intentional-exception fields consumed by `Test-ProjectLicenseMetadata` (`scripts/sync-profile.ps1:12295`) and `data/profile-catalog.json`.
+  Acceptance: Either the upstream repository carries a license GitHub resolves to a real SPDX id, or the catalog row records `intentionalException: true` with a specific `exceptionReason` naming why the license is non-standard. `unresolvedUnknownCount` is 0 and the named test passes without its assertions being weakened.
   Complexity: S

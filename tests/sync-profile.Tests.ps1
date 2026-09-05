@@ -5870,6 +5870,134 @@ Describe 'Test-ProfileState projects sync gate' {
         $limitDrift[0].severity | Should -Be 'info'
     }
 
+    It 'treats a difference in a field the drift model does not enumerate as out of sync' {
+        # projectsExportInSync is now exactly this comparison, so a per-field sweep here
+        # is a per-field sweep of the gate. One full Test-ProfileState run below proves
+        # the wiring; running it thirteen more times only re-tests live GitHub metadata.
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -Language 'PowerShell'),
+            (New-TestRepoMeta -Name 'PyTool' -Language 'Python'),
+            (New-TestRepoMeta -Name 'WebTool' -Language 'JavaScript')
+        )
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos $repos
+        $unmodelled = @(
+            @{ Path = 'projects.0.id'; Value = 'tampered-entity-id' }
+            @{ Path = 'projects.0.canonicalRepo'; Value = 'SomeoneElse/Repo' }
+            @{ Path = 'projects.0.aliases'; Value = @('bogus-alias') }
+            @{ Path = 'projects.0.forkOf'; Value = 'someone/upstream' }
+            @{ Path = 'projects.0.forkOfUrl'; Value = 'https://github.com/someone/upstream' }
+            @{ Path = 'projects.0.upstreamLicense'; Value = 'GPL-3.0' }
+            @{ Path = 'projects.0.licenseKey'; Value = 'proprietary' }
+            @{ Path = 'projects.0.licenseName'; Value = 'Proprietary' }
+            @{ Path = 'projects.0.licenseSpdxId'; Value = 'Proprietary' }
+            @{ Path = 'projects.0.localeHints'; Value = @('zz-ZZ') }
+            @{ Path = 'projects.0.scriptHints'; Value = @('Zzzz') }
+            @{ Path = 'schemaPolicy.currentVersion'; Value = 9 }
+            @{ Path = 'schemaPolicy.supportedVersions'; Value = @() }
+        )
+
+        foreach ($case in $unmodelled) {
+            $payload = $expectedProjects | ConvertFrom-Json
+            $segments = @($case.Path -split '\.')
+            $target = $payload
+            for ($i = 0; $i -lt $segments.Count - 1; $i++) {
+                $segment = $segments[$i]
+                $target = if ($segment -match '^\d+$') { $target[[int]$segment] } else { $target.$segment }
+            }
+            $leaf = $segments[-1]
+            # The path must already exist, or the case is asserting against a field this
+            # generator never emits and would pass for the wrong reason.
+            $target.PSObject.Properties.Name | Should -Contain $leaf -Because "$($case.Path) must exist in the generated feed"
+            $target.$leaf = $case.Value
+            $current = $payload | ConvertTo-Json -Depth 20
+
+            $comparable = (ConvertTo-ProjectsSyncComparableJson -Json $current) -eq (ConvertTo-ProjectsSyncComparableJson -Json $expectedProjects)
+            $comparable | Should -BeFalse -Because "$($case.Path) is not a volatile field and must fail the sync gate"
+
+            # The drift model alone would have passed every one of these, which is what
+            # the removed -or fallback deferred to.
+            $drift = Test-MetadataDrift -CurrentProjectsJson $current -ExpectedProjectsJson $expectedProjects
+            [int]$drift.fatalCount | Should -Be 0 -Because "$($case.Path) is outside the drift model, so fatalCount cannot carry this gate"
+        }
+    }
+
+    It 'fails the whole run when the feed differs outside the volatile mask' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -Language 'PowerShell'),
+            (New-TestRepoMeta -Name 'PyTool' -Language 'Python'),
+            (New-TestRepoMeta -Name 'WebTool' -Language 'JavaScript')
+        )
+        $expectedReadme = New-Readme -Catalog $cat -Repos $repos
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos $repos
+
+        $payload = $expectedProjects | ConvertFrom-Json
+        $payload.projects[0].id = 'tampered-entity-id'
+        $payload.schemaPolicy.currentVersion = 9
+        $currentProjects = $payload | ConvertTo-Json -Depth 20
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos $repos `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme `
+            -CurrentProjects $currentProjects `
+            -SkipLinkValidation
+
+        $result.Report.projectsExportInSync | Should -BeFalse
+        $result.Failed | Should -BeTrue
+        # Nothing in the drift model saw it, so the sync gate is the only thing standing.
+        $result.Report.metadataDriftSummary.fatalCount | Should -Be 0
+    }
+
+    It 'tolerates every masked volatile field in one run' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $repos = @(
+            (New-TestRepoMeta -Name 'WinTool' -Language 'PowerShell'),
+            (New-TestRepoMeta -Name 'PyTool' -Language 'Python'),
+            (New-TestRepoMeta -Name 'WebTool' -Language 'JavaScript')
+        )
+        $expectedReadme = New-Readme -Catalog $cat -Repos $repos
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos $repos
+
+        $payload = $expectedProjects | ConvertFrom-Json
+        $payload.generatedAt = '2020-01-01T00:00:00Z'
+        $payload.provenance.sourceCommit = '0000000000000000000000000000000000000000'
+        $payload.provenance.metadataSnapshotAt = '2020-01-01T00:00:00Z'
+        $payload.provenance.metadataProvider = 'rest-fallback'
+        $payload.provenance.repoEnumeration.requestedLimit = 300
+        foreach ($project in $payload.projects) {
+            foreach ($field in $script:ProjectsFeedVolatileProjectFields) {
+                if ($project.PSObject.Properties.Name -contains $field) {
+                    $project.$field = $null
+                }
+            }
+        }
+        $currentProjects = $payload | ConvertTo-Json -Depth 20
+
+        $result = Test-ProfileState `
+            -Catalog $cat `
+            -Repos $repos `
+            -ExpectedReadme $expectedReadme `
+            -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme `
+            -CurrentProjects $currentProjects `
+            -SkipLinkValidation
+
+        $result.Report.projectsExportInSync | Should -BeTrue
+    }
+
+    It 'keeps the equality mask and the drift severity model on one list' {
+        # A field tolerated by the mask but treated as fatal by the drift model (or the
+        # reverse) is how the two diverged before; assert they read the same source.
+        $script:ProjectsFeedVolatileProjectFields | Should -Not -BeNullOrEmpty
+        $generator = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $generator | Should -Match '\$infoFields = @\(\$script:ProjectsFeedVolatileProjectFields\)'
+        $generator | Should -Not -Match '\$projectsComparableInSync -or'
+    }
+
     It 'fails when a catalog row is excluded from both public feed arrays without a reason' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $localOnly = New-TestEntry -Repo 'LocalOnly' -Category 'misc'
