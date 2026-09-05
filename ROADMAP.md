@@ -28,13 +28,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Acceptance: Cache successful checks for 24 hours, 404/410 for one hour, and do not reuse timeout, 429, or 5xx results beyond the current run. Preserve stale ETag and Last-Modified values, send conditional headers, refresh only after 304 or a new response, honor `Retry-After` up to a 60-second local cap, and report a future retry time instead of sleeping longer. Tests freeze time and cover each status, 304, validator changes, and retry timing.
   Complexity: M
 
-- [ ] P1: Report topic mutation capability truthfully
-  Why: The report hard-codes `applyModeAvailable = false` although `-ApplyTopics` is implemented and the allowlist currently names 12 repositories.
-  Evidence: `scripts/sync-profile.ps1:11112`, `scripts/sync-profile.ps1:13089`, `data/topic-allowlist.json`, `RESEARCH.md` Architecture Assessment.
-  Touches: Metadata hygiene builder, `schemas/profile-sync-report.v1.json` if an allowlisted-count field is added, summary output, `tests/sync-profile.Tests.ps1`.
-  Acceptance: With the current tree, the report states `applyModeAvailable = true`, `requiresExplicitAllowlist = true`, and `allowlistedRepositoryCount = 12`; a missing or invalid allowlist produces false plus an actionable reason. `-Check` never mutates topics, and tests prove the capability fields for present, empty, missing, and invalid allowlists.
-  Complexity: S
-
 - [ ] P1: Align Dependabot evidence with the local advisory-review policy
   Why: The report recommends keeping Dependabot disabled but still emits warnings and next actions that tell the maintainer to enable it.
   Evidence: `scripts/sync-profile.ps1:8340`, `scripts/sync-profile.ps1:9278`, `scripts/review-local-dependencies.ps1`, `AGENTS.md`, `RESEARCH.md` Architecture Assessment.
@@ -119,6 +112,7 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Touches: a new `Describe 'Failure condition reachability'` in `tests/sync-profile.Tests.ps1`, fixtures under `tests/fixtures/`.
   Acceptance: One It per entry in `$failureConditions`, each planting the smallest realistic violation of that condition into an otherwise valid fixture run of `Test-ProfileState`, asserting both `Failed` and that specific condition are true and that no unrelated condition flipped. A guard test enumerates the `$failureConditions` keys and fails if any key has no matching reachability test, so a new condition cannot be added without one. Conditions that need a switch, such as `releaseArtifactVerification`, are exercised with that switch set.
   Complexity: M
+  Note (measured 2026-09-05): this is L, not M. One `Test-ProfileState` call costs 16-31s against live GitHub metadata (`Get-RepositoryCommunityBaseline` alone is 8s), so 22 isolated plants add roughly 4.5 minutes and 22 more API round trips to a suite that already hits `HTTP 403` rate limits mid-run. Doing this without making the default lane slow and flaky needs test seams for the network-backed evidence sources, mirroring the existing `-PortfolioProbeSnapshot` parameter, or the plants must carry the `Integration` tag. Decide which before starting; `communityHealth` and `runtimeSecurity` additionally depend on live system state and may not be plantable through `Test-ProfileState` inputs at all.
 
 - [ ] P1: Replace the unreachable attestation next action with an achievable checksum action
   Why: The release-trust shortlist tells the maintainer to publish build-provenance attestations on all 91 executable downloads, but attestation generation requires a GitHub Actions OIDC token and the repository forbids Actions, so the report's headline remediation can never be performed.

@@ -2436,6 +2436,11 @@ Describe 'Report schema depth helpers' {
         $result.missingTopics[0].topicHints | Should -Contain 'windows'
         $result.topicHintPolicy.requiresExplicitAllowlist | Should -BeTrue
         $result.topicHintPolicy.mutatesRepositories | Should -BeFalse
+        # -ApplyTopics is implemented and the committed allowlist is populated, so the
+        # report must not claim the capability is unavailable.
+        $result.topicHintPolicy.applyModeAvailable | Should -BeTrue
+        $result.topicHintPolicy.allowlistedRepositoryCount | Should -Be 12
+        $result.topicHintPolicy.applyModeUnavailableReason | Should -BeNullOrEmpty
         $result.missingDescriptionCount | Should -Be 3
         $result.publicMissingDescriptionCount | Should -Be 1
         $result.redactedDescriptionCount | Should -Be 2
@@ -7189,6 +7194,57 @@ Describe 'Pester local validation command' {
         $script:SyncProfileScript | Should -Match 'validate-local[.]ps1 -Pester6Compatibility'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+    }
+}
+
+Describe 'Topic apply capability reporting' {
+    It 'reports the committed allowlist as an available apply mode' {
+        $result = Get-TopicApplyCapability
+
+        $result.available | Should -BeTrue
+        $result.allowlistedRepositoryCount | Should -Be 12
+        $result.unavailableReason | Should -BeNullOrEmpty
+    }
+
+    It 'counts a single-entry allowlist as one repository' {
+        # ConvertFrom-Json unwraps a one-element array to a bare string, which would
+        # misreport a valid single-repository allowlist as malformed.
+        $path = Join-Path $TestDrive 'single.json'
+        '["AlphaTool"]' | Set-Content -LiteralPath $path -Encoding utf8
+
+        $result = Get-TopicApplyCapability -AllowlistPath $path
+
+        $result.available | Should -BeTrue
+        $result.allowlistedRepositoryCount | Should -Be 1
+        $result.unavailableReason | Should -BeNullOrEmpty
+    }
+
+    It 'reports an actionable reason instead of a bare false' -ForEach @(
+        @{ Case = 'absent'; Content = $null; Match = 'not found' }
+        @{ Case = 'empty'; Content = '[]'; Match = 'is empty' }
+        @{ Case = 'malformed'; Content = 'nope{'; Match = 'not valid JSON' }
+        @{ Case = 'object'; Content = '{"a":1}'; Match = 'must be a JSON array' }
+        @{ Case = 'bare-string'; Content = '"AlphaTool"'; Match = 'must be a JSON array' }
+        @{ Case = 'unsafe'; Content = '["../evil"]'; Match = 'unsafe repository name' }
+    ) {
+        $path = Join-Path $TestDrive "allowlist-$Case.json"
+        if ($null -ne $Content) {
+            $Content | Set-Content -LiteralPath $path -Encoding utf8
+        }
+
+        $result = Get-TopicApplyCapability -AllowlistPath $path
+
+        $result.available | Should -BeFalse
+        $result.allowlistedRepositoryCount | Should -Be 0
+        $result.unavailableReason | Should -Match $Match
+    }
+
+    It 'keeps the reported capability aligned with what the apply path reads' {
+        # Both read data/topic-allowlist.json; a divergence is how the report started
+        # describing a capability the tree did not have.
+        $script:SyncProfileScript | Should -Match 'applyModeAvailable = \$topicApplyCapability\.available'
+        $script:SyncProfileScript | Should -Match 'Get-TopicApplyCapability -AllowlistPath \$TopicAllowlist'
+        $script:SyncProfileScript | Should -Not -Match 'applyModeAvailable = \$false'
     }
 }
 

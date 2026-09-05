@@ -1226,7 +1226,9 @@
       "required": [
         "mutatesRepositories",
         "applyModeAvailable",
-        "requiresExplicitAllowlist"
+        "requiresExplicitAllowlist",
+        "allowlistedRepositoryCount",
+        "applyModeUnavailableReason"
       ],
       "properties": {
         "mutatesRepositories": {
@@ -1237,6 +1239,12 @@
         },
         "requiresExplicitAllowlist": {
           "type": "boolean"
+        },
+        "allowlistedRepositoryCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "applyModeUnavailableReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },

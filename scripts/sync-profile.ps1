@@ -12250,11 +12250,72 @@ function New-MetadataHygieneHandoff {
     }
 }
 
+function Get-TopicApplyCapability {
+    <#
+    .SYNOPSIS
+    Reports whether -ApplyTopics could actually run, rather than asserting it cannot.
+    .DESCRIPTION
+    -ApplyTopics is implemented and gated on data/topic-allowlist.json. Hard-coding
+    applyModeAvailable to false made the report describe a capability the tree does
+    not have. Reads the same allowlist the apply path reads so the two agree.
+    #>
+    param([string]$AllowlistPath = $TopicAllowlistPath)
+
+    $available = $false
+    $count = 0
+    $reason = $null
+    $fullPath = if ([string]::IsNullOrWhiteSpace($AllowlistPath)) {
+        $null
+    } elseif ([System.IO.Path]::IsPathRooted($AllowlistPath)) {
+        $AllowlistPath
+    } else {
+        Join-Path $RepoRoot $AllowlistPath
+    }
+
+    if ([string]::IsNullOrWhiteSpace($fullPath)) {
+        $reason = "No topic allowlist path is configured."
+    } elseif (-not (Test-Path -LiteralPath $fullPath)) {
+        $reason = "Topic allowlist not found at $AllowlistPath; create a JSON array of repository names."
+    } else {
+        try {
+            # ConvertFrom-Json unwraps a single-element array to a bare value, which would
+            # misreport a one-repository allowlist as malformed. The token-preserving
+            # reader keeps the array wrapper.
+            $parsed = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $fullPath -Raw)
+        } catch {
+            $parsed = $null
+            $reason = "Topic allowlist at $AllowlistPath is not valid JSON."
+        }
+        if ($null -eq $reason) {
+            if (-not (Test-JsonArrayWrapper -Value $parsed)) {
+                $reason = "Topic allowlist at $AllowlistPath must be a JSON array of repository names."
+            } else {
+                $names = @(Get-JsonArrayItems $parsed | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+                if ($names.Count -eq 0) {
+                    $reason = "Topic allowlist at $AllowlistPath is empty; no repository is eligible for topic apply."
+                } elseif (@($names | Where-Object { -not (Test-SafeGitHubName -Name ([string]$_)) }).Count -gt 0) {
+                    $reason = "Topic allowlist at $AllowlistPath contains an unsafe repository name."
+                } else {
+                    $available = $true
+                    $count = $names.Count
+                }
+            }
+        }
+    }
+
+    return [ordered]@{
+        available = [bool]$available
+        allowlistedRepositoryCount = [int]$count
+        unavailableReason = $reason
+    }
+}
+
 function Test-MetadataHygiene {
     param(
         [object[]]$Repos,
         [hashtable[]]$CatalogEntries = @(),
-        [string]$OwnerName = $Owner
+        [string]$OwnerName = $Owner,
+        [string]$TopicAllowlist = $TopicAllowlistPath
     )
 
     $missingTopics = New-Object System.Collections.Generic.List[object]
@@ -12329,6 +12390,7 @@ function Test-MetadataHygiene {
             }
         }
     }
+    $topicApplyCapability = Get-TopicApplyCapability -AllowlistPath $TopicAllowlist
     $handoff = New-MetadataHygieneHandoff `
         -MissingTopics $missingTopics.ToArray() `
         -MissingDescriptions $missingDescriptions.ToArray() `
@@ -12350,9 +12412,12 @@ function Test-MetadataHygiene {
         unsafeOrPrivateTopicCount = $unsafeOrPrivateTopicCount
         unsafeOrPrivateDescriptionCount = $unsafeOrPrivateDescriptionCount
         topicHintPolicy = [ordered]@{
+            # -Check only reports hints; only the separate -ApplyTopics mode writes.
             mutatesRepositories = $false
-            applyModeAvailable = $false
+            applyModeAvailable = $topicApplyCapability.available
             requiresExplicitAllowlist = $true
+            allowlistedRepositoryCount = $topicApplyCapability.allowlistedRepositoryCount
+            applyModeUnavailableReason = $topicApplyCapability.unavailableReason
         }
         handoff = $handoff
         missingTopics = $missingTopics.ToArray()
