@@ -127,6 +127,14 @@ $ReportAffectingPaths = @(
     "schemas",
     "README.md"
 )
+# Paths whose changes invalidate the rendered-smoke evidence specifically. The smoke
+# run screenshots the published profile, so a regenerated README or a changed capture
+# script means the committed evidence describes a page that no longer exists.
+$SmokeAffectingPaths = @(
+    "README.md",
+    "data/profile-catalog.json",
+    "scripts/render-profile-smoke.ps1"
+)
 $StaleProjectPushedAtReviewDays = 365
 $StaleProjectReleaseReviewDays = 540
 $ArchiveProjectPushedAtReviewDays = 730
@@ -8234,7 +8242,10 @@ function Test-ReportEvidenceFreshness {
         [AllowNull()][object]$CommittedReport,
         [AllowNull()][object]$LatestCommitDate,
         [AllowNull()][string]$LatestCommitSha,
-        [string[]]$ReportAffectingPathList = $ReportAffectingPaths
+        [string[]]$ReportAffectingPathList = $ReportAffectingPaths,
+        [AllowNull()][object]$SmokeAffectingCommitDate,
+        [string[]]$SmokeAffectingPathList = $SmokeAffectingPaths,
+        [datetimeoffset]$Now = [datetimeoffset]::Now
     )
 
     $warnings = New-Object System.Collections.Generic.List[string]
@@ -8246,6 +8257,7 @@ function Test-ReportEvidenceFreshness {
 
     $smokeStatus = "unavailable"
     $smokeSource = $null
+    $smokeGeneratedAtText = $null
     if ($committedPresent) {
         $smoke = Get-MemberValue -Object $CommittedReport -Name "renderedProfileSmoke"
         if ($null -ne $smoke) {
@@ -8257,8 +8269,10 @@ function Test-ReportEvidenceFreshness {
             if (-not [string]::IsNullOrWhiteSpace([string]$sourceValue)) {
                 $smokeSource = [string]$sourceValue
             }
+            $smokeGeneratedAtText = ConvertTo-IsoText (Get-MemberValue -Object $smoke -Name "generatedAt")
         }
     }
+    $smokeGeneratedAt = ConvertTo-DateTimeOffsetOrNull $smokeGeneratedAtText
 
     $reportBehindCommit = $false
     $reportAgeBehindHours = $null
@@ -8286,6 +8300,22 @@ function Test-ReportEvidenceFreshness {
         $warnings.Add("Committed rendered-smoke status is not-run without local source metadata; run scripts/render-profile-smoke.ps1 locally and regenerate reports/profile-sync-report.json.")
     }
 
+    # The report restamps its own generatedAt every run while folding in whatever smoke
+    # artifact is on disk, so a fresh-looking report can carry arbitrarily old evidence.
+    # Age the evidence against its own timestamp, not the wrapper's.
+    $smokeEvidenceAgeHours = $null
+    if ($null -ne $smokeGeneratedAt) {
+        $smokeEvidenceAgeHours = [math]::Round(($Now.ToUniversalTime() - $smokeGeneratedAt.ToUniversalTime()).TotalHours, 2)
+    }
+    $smokeAffectingCommitDateOffset = ConvertTo-DateTimeOffsetOrNull $SmokeAffectingCommitDate
+    $smokeEvidenceBehindReadme = $false
+    if ($null -ne $smokeGeneratedAt -and $null -ne $smokeAffectingCommitDateOffset -and
+        $smokeGeneratedAt -lt $smokeAffectingCommitDateOffset) {
+        $smokeEvidenceBehindReadme = $true
+        $smokeEvidenceStale = $true
+        $warnings.Add("Committed rendered-smoke evidence ($smokeGeneratedAtText) predates the latest smoke-affecting commit ($($smokeAffectingCommitDateOffset.ToString('o'))); run scripts/render-profile-smoke.ps1 locally and regenerate reports/profile-sync-report.json.")
+    }
+
     $status = if ($warnings.Count -eq 0) {
         if ($generatedWithCommit) { "generated-with-commit" } else { "fresh" }
     } else { "stale" }
@@ -8302,6 +8332,10 @@ function Test-ReportEvidenceFreshness {
         sameCommitThresholdMinutes = [int]$sameCommitThresholdMinutes
         smokeStatus = $smokeStatus
         smokeEvidenceStale = [bool]$smokeEvidenceStale
+        smokeEvidenceGeneratedAt = if ([string]::IsNullOrWhiteSpace($smokeGeneratedAtText)) { $null } else { $smokeGeneratedAtText }
+        smokeEvidenceAgeHours = $smokeEvidenceAgeHours
+        smokeEvidenceBehindReadme = [bool]$smokeEvidenceBehindReadme
+        smokeAffectingPaths = @($SmokeAffectingPathList)
         reportAffectingPaths = @($ReportAffectingPathList)
         warnings = @($warnings.ToArray())
         warningCount = [int]$warnings.Count
@@ -13889,7 +13923,8 @@ function Test-ProfileState {
         }
     }
     $latestReportCommit = Get-LatestReportAffectingCommit
-    $evidenceFreshness = Test-ReportEvidenceFreshness -CommittedReport $committedReportForFreshness -LatestCommitDate $latestReportCommit.date -LatestCommitSha $latestReportCommit.sha
+    $latestSmokeCommit = Get-LatestReportAffectingCommit -Paths $SmokeAffectingPaths
+    $evidenceFreshness = Test-ReportEvidenceFreshness -CommittedReport $committedReportForFreshness -LatestCommitDate $latestReportCommit.date -LatestCommitSha $latestReportCommit.sha -SmokeAffectingCommitDate $latestSmokeCommit.date
     $scheduledWorkflowDefinitions = Get-ScheduledWorkflowDefinitions
     $scheduledWorkflowRunLookup = Get-ScheduledWorkflowRunLookup -Definitions $scheduledWorkflowDefinitions
     $scheduledWorkflowFreshness = Test-ScheduledWorkflowFreshness -Definitions $scheduledWorkflowDefinitions -RunLookup $scheduledWorkflowRunLookup -Now (Get-Date)

@@ -470,6 +470,9 @@ $evidenceReportBehindCommit = if ($evidenceFreshness) { [bool]$evidenceFreshness
 $evidenceReportAgeBehindHours = if ($evidenceFreshness -and $null -ne $evidenceFreshness.reportAgeBehindHours) { [string]$evidenceFreshness.reportAgeBehindHours } else { "" }
 $evidenceSmokeStatus = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeStatus) { [string]$evidenceFreshness.smokeStatus } else { "unknown" }
 $evidenceSmokeStale = if ($evidenceFreshness) { [bool]$evidenceFreshness.smokeEvidenceStale } else { $false }
+$evidenceSmokeGeneratedAt = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeEvidenceGeneratedAt) { ConvertTo-CompactSummaryValue $evidenceFreshness.smokeEvidenceGeneratedAt } else { "unknown" }
+$evidenceSmokeAgeHours = if ($evidenceFreshness -and $null -ne $evidenceFreshness.smokeEvidenceAgeHours) { ConvertTo-CompactSummaryValue $evidenceFreshness.smokeEvidenceAgeHours } else { "unknown" }
+$evidenceSmokeBehindReadme = if ($evidenceFreshness) { [bool]$evidenceFreshness.smokeEvidenceBehindReadme } else { $false }
 $scheduledWorkflowStatus = if ($scheduledWorkflowFreshness) { [string]$scheduledWorkflowFreshness.status } else { "unknown" }
 $scheduledWorkflowCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.scheduledWorkflowCount } else { 0 }
 $scheduledWorkflowWarningCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.warningCount } else { 0 }
@@ -589,6 +592,9 @@ $summary = @"
 | Committed report age behind (hours) | $evidenceReportAgeBehindHours |
 | Committed smoke status | $evidenceSmokeStatus |
 | Committed smoke evidence stale | $evidenceSmokeStale |
+| Committed smoke evidence generated at | $evidenceSmokeGeneratedAt |
+| Committed smoke evidence age (hours) | $evidenceSmokeAgeHours |
+| Committed smoke evidence behind README | $evidenceSmokeBehindReadme |
 | Scheduled workflow freshness | $scheduledWorkflowStatus |
 | Scheduled workflows tracked | $scheduledWorkflowCount |
 | Scheduled workflow warnings | $scheduledWorkflowWarningCount |

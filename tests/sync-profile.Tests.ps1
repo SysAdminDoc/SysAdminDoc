@@ -6442,6 +6442,91 @@ Describe 'Report evidence freshness gate' {
         ($result.warnings -join ' ') | Should -Match 'was not found'
     }
 
+    It 'flags smoke evidence generated before the latest smoke-affecting commit' {
+        # The report restamps its own generatedAt every run while folding in whatever
+        # smoke artifact is on disk, so the wrapper always looks fresh. Age the evidence
+        # against its own timestamp instead.
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-09-03T14:34:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{
+                status = 'passed'
+                source = 'local-artifact'
+                generatedAt = '2026-08-20T13:20:52-04:00'
+            }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-09-03T14:33:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567' `
+            -SmokeAffectingCommitDate ([datetimeoffset]::Parse('2026-09-03T14:12:14-04:00')) `
+            -Now ([datetimeoffset]::Parse('2026-09-03T14:34:00-04:00'))
+
+        $result.smokeEvidenceBehindReadme | Should -BeTrue
+        $result.smokeEvidenceStale | Should -BeTrue
+        $result.status | Should -Be 'stale'
+        $result.smokeEvidenceGeneratedAt | Should -Match '^2026-08-20'
+        $result.smokeEvidenceAgeHours | Should -BeGreaterThan 300
+        ($result.warnings -join ' ') | Should -Match 'predates the latest smoke-affecting commit'
+        ($result.warnings -join ' ') | Should -Match 'render-profile-smoke\.ps1'
+    }
+
+    It 'accepts smoke evidence generated after the latest smoke-affecting commit' {
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-09-03T14:34:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{
+                status = 'passed'
+                source = 'local-artifact'
+                generatedAt = '2026-09-03T14:20:00-04:00'
+            }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-09-03T14:33:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567' `
+            -SmokeAffectingCommitDate ([datetimeoffset]::Parse('2026-09-03T14:12:14-04:00')) `
+            -Now ([datetimeoffset]::Parse('2026-09-03T14:34:00-04:00'))
+
+        $result.smokeEvidenceBehindReadme | Should -BeFalse
+        $result.smokeEvidenceStale | Should -BeFalse
+        $result.smokeEvidenceAgeHours | Should -Be 0.23
+        ($result.warnings -join ' ') | Should -Not -Match 'predates the latest smoke-affecting commit'
+    }
+
+    It 'cannot age smoke evidence that carries no timestamp' {
+        # Legacy reports have no smoke generatedAt; reporting a false age would be worse
+        # than reporting none, and the not-run rule still covers the missing-evidence case.
+        $committed = [pscustomobject]@{
+            generatedAt = '2026-09-03T14:34:00-04:00'
+            renderedProfileSmoke = [pscustomobject]@{ status = 'passed' }
+        }
+
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport $committed `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-09-03T14:33:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567' `
+            -SmokeAffectingCommitDate ([datetimeoffset]::Parse('2026-09-03T14:12:14-04:00')) `
+            -Now ([datetimeoffset]::Parse('2026-09-03T14:34:00-04:00'))
+
+        $result.smokeEvidenceGeneratedAt | Should -BeNullOrEmpty
+        $result.smokeEvidenceAgeHours | Should -BeNullOrEmpty
+        $result.smokeEvidenceBehindReadme | Should -BeFalse
+        $result.smokeEvidenceStale | Should -BeFalse
+        $result.warningCount | Should -Be 0
+    }
+
+    It 'names the paths that invalidate smoke evidence' {
+        $result = Test-ReportEvidenceFreshness `
+            -CommittedReport ([pscustomobject]@{ generatedAt = '2026-09-03T14:34:00-04:00'; renderedProfileSmoke = [pscustomobject]@{ status = 'passed' } }) `
+            -LatestCommitDate ([datetimeoffset]::Parse('2026-09-03T14:33:00-04:00')) `
+            -LatestCommitSha '0123456789abcdef0123456789abcdef01234567'
+
+        $result.smokeAffectingPaths | Should -Contain 'README.md'
+        $result.smokeAffectingPaths | Should -Contain 'data/profile-catalog.json'
+        $result.smokeAffectingPaths | Should -Contain 'scripts/render-profile-smoke.ps1'
+    }
+
     It 'exposes an evidenceFreshness contract in the summary script and report schema' {
         $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
         $summaryScript | Should -Match 'evidenceFreshness'

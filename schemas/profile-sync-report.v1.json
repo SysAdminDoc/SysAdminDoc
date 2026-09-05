@@ -6029,6 +6029,10 @@
         "sameCommitThresholdMinutes",
         "smokeStatus",
         "smokeEvidenceStale",
+        "smokeEvidenceGeneratedAt",
+        "smokeEvidenceAgeHours",
+        "smokeEvidenceBehindReadme",
+        "smokeAffectingPaths",
         "reportAffectingPaths",
         "warnings",
         "warningCount"
@@ -6071,6 +6075,18 @@
         },
         "smokeEvidenceStale": {
           "type": "boolean"
+        },
+        "smokeEvidenceGeneratedAt": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "smokeEvidenceAgeHours": {
+          "$ref": "#/$defs/nullableNumber"
+        },
+        "smokeEvidenceBehindReadme": {
+          "type": "boolean"
+        },
+        "smokeAffectingPaths": {
+          "$ref": "#/$defs/stringArray"
         },
         "reportAffectingPaths": {
           "$ref": "#/$defs/stringArray"

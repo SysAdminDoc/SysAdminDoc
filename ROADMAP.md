@@ -113,13 +113,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
 
 ### P1
 
-- [ ] P1: Age the rendered-smoke evidence and refuse stale evidence
-  Why: `smokeEvidenceStale` fires only when the status is `not-run` with a blank source, so embedded smoke evidence can be arbitrarily old while the report carrying it looks fresh.
-  Evidence: `Test-ReportEvidenceFreshness` (`scripts/sync-profile.ps1:8207`), staleness branch at `scripts/sync-profile.ps1:8256`. `renderedProfileSmoke.generatedAt` is `2026-08-20T13:20:52` against a README regenerated 2026-09-03, and the section still reports `smokeEvidenceStale: false`, `status: generated-with-commit`, `warningCount: 0`. `reports/rendered-profile-smoke.json` was last written 2026-08-20. See `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: `Test-ReportEvidenceFreshness`, `Read-RenderedProfileSmokeReport` (`scripts/sync-profile.ps1:8160`), the `evidenceFreshness` block in `schemas/profile-sync-report.v1.json`, `Describe 'Report evidence freshness'` (`tests/sync-profile.Tests.ps1:6210`).
-  Acceptance: The section reports `smokeEvidenceAgeHours` and `smokeEvidenceBehindReadme`, computed from the smoke artifact's own `generatedAt` against both the current time and the newest commit touching `README.md`, `data/profile-catalog.json` or `scripts/render-profile-smoke.ps1`. Evidence older than that commit sets `smokeEvidenceStale` true with a warning naming `scripts/render-profile-smoke.ps1`. A test freezes time, supplies smoke evidence dated before a synthetic README commit and asserts the warning fires; a second test with evidence dated after it asserts silence.
-  Complexity: S
-
 - [ ] P1: Prove every failure condition can actually fail
   Why: The 22 blocking conditions have no test that plants a realistic violation and watches the gate fire, which is how the P0 feed-sync hole survived 330 It blocks and roughly thirty audit passes.
   Evidence: `$failureConditions` (`scripts/sync-profile.ps1:14132`). `Describe 'Test-ProfileState projects sync gate'` (`tests/sync-profile.Tests.ps1:5812`) covers only a wholly invalid payload and an info-only provenance drift, and misses the space between them. Mutation-testing practice treats a surviving mutant as proof of an assertion gap (https://stryker-mutator.io/docs/, http://www0.cs.ucl.ac.uk/staff/M.Harman/tse-mutation-survey.pdf). See `RESEARCH.md` Security, Privacy, and Reliability.
