@@ -13,13 +13,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Acceptance: Cache successful checks for 24 hours, 404/410 for one hour, and do not reuse timeout, 429, or 5xx results beyond the current run. Preserve stale ETag and Last-Modified values, send conditional headers, refresh only after 304 or a new response, honor `Retry-After` up to a 60-second local cap, and report a future retry time instead of sleeping longer. Tests freeze time and cover each status, 304, validator changes, and retry timing.
   Complexity: M
 
-- [ ] P1: Replace hand-maintained dependency freshness claims with registry evidence
-  Why: `PinLatestCheckedAt` is green while curated transitive overrides already have newer registry releases that `npm outdated` does not report.
-  Evidence: `scripts/review-local-dependencies.ps1:4`, `scripts/review-local-dependencies.ps1:13`, [markdown-it 15.0.0 registry metadata](https://registry.npmjs.org/markdown-it/15.0.0), [js-yaml 5.3.0 registry metadata](https://registry.npmjs.org/js-yaml/5.3.0), `RESEARCH.md` Architecture Assessment.
-  Touches: `scripts/review-local-dependencies.ps1`, registry adapters and cache, dependency-review report shape, fixtures in `tests/sync-profile.Tests.ps1`, generated validation documentation.
-  Acceptance: Online full review queries authoritative npm and PyPI metadata for direct pins, overrides, and audit tools and caches the response date. Each row separates `declaredByParent`, `currentCompatible`, `registryLatest`, `latestCheckedAt`, and compatibility status. New majors create review-needed evidence without forcing an upgrade; offline review reports cache age and becomes stale after 30 days. Fixtures report markdown-it 15.0.0 and js-yaml 5.3.0 while retaining 14.3.0 and 5.2.2 as compatible until regression tests approve changes.
-  Complexity: M
-
 ### P2
 
 - [ ] P2: Encode public text by output context and reject deceptive controls

@@ -7292,6 +7292,110 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Dependency freshness comes from the registry, not a hand-edited map' {
+    BeforeAll {
+        $script:ReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
+        $script:ReviewScriptText = Get-Content -LiteralPath $script:ReviewScriptPath -Raw
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($script:ReviewScriptText, [ref]$null, [ref]$null)
+        foreach ($name in @('Get-RegistryVersionCache', 'Test-CompatibleWithLatest', 'New-PinFreshnessRow')) {
+            $definition = $ast.FindAll(
+                {
+                    param($node)
+                    $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
+                }, $true) | Select-Object -First 1
+            $definition | Should -Not -BeNullOrEmpty -Because "$name must exist in review-local-dependencies.ps1"
+            . ([scriptblock]::Create($definition.Extent.Text))
+        }
+    }
+
+    It 'no longer carries a hand-maintained latest-known version map' {
+        # The map reported pins as current long after the registries moved on, which is
+        # what made the freshness section green while it was wrong.
+        $script:ReviewScriptText | Should -Not -Match 'LatestKnownNpmVersions'
+        $script:ReviewScriptText | Should -Not -Match 'LatestKnownPythonVersions'
+        $script:ReviewScriptText | Should -Not -Match 'PinLatestCheckedAt'
+        $script:ReviewScriptText | Should -Match 'registry\.npmjs\.org'
+        $script:ReviewScriptText | Should -Match 'pypi\.org/pypi'
+    }
+
+    It 'separates the parent declaration, the resolved pin and the registry latest' {
+        $row = New-PinFreshnessRow -Name 'markdown-it' -Kind 'npm-override' -CurrentVersion '14.3.0' `
+            -RegistryLatest '15.0.1' -LatestCheckedAt ([datetimeoffset]::Now.ToString('o')) `
+            -Now ([datetimeoffset]::Now) -StaleAfterDays 30 -DeclaredByParent '14.3.0'
+
+        $row.declaredByParent | Should -Be '14.3.0'
+        $row.currentCompatible | Should -Be '14.3.0'
+        $row.registryLatest | Should -Be '15.0.1'
+        $row.latestCheckedAt | Should -Not -BeNullOrEmpty
+        $row.freshnessStatus | Should -Be 'fresh'
+    }
+
+    It 'treats a new major as review-needed rather than a failure' -ForEach @(
+        @{ Current = '14.3.0'; Latest = '15.0.1'; Expected = 'major-upgrade-available' }
+        @{ Current = '5.2.2'; Latest = '5.4.1'; Expected = 'behind-registry-latest' }
+        @{ Current = '0.23.2'; Latest = '0.23.2'; Expected = 'current' }
+        @{ Current = '2.0.0'; Latest = '1.9.0'; Expected = 'ahead-of-registry-latest' }
+        @{ Current = '1.0.0'; Latest = ''; Expected = 'unknown' }
+        @{ Current = ''; Latest = '1.0.0'; Expected = 'unknown' }
+    ) {
+        Test-CompatibleWithLatest -CurrentVersion $Current -RegistryLatest $Latest | Should -Be $Expected
+    }
+
+    It 'warns on missing or stale registry evidence, not on being behind' {
+        $fresh = New-PinFreshnessRow -Name 'js-yaml' -Kind 'npm-override' -CurrentVersion '5.2.2' `
+            -RegistryLatest '5.4.1' -LatestCheckedAt ([datetimeoffset]::Now.ToString('o')) `
+            -Now ([datetimeoffset]::Now) -StaleAfterDays 30 -DeclaredByParent '5.2.2'
+        # Deliberately held back but safe: being behind must not raise a warning.
+        $fresh.compatibilityStatus | Should -Be 'behind-registry-latest'
+        $fresh.warning | Should -BeNullOrEmpty
+
+        $stale = New-PinFreshnessRow -Name 'js-yaml' -Kind 'npm-override' -CurrentVersion '5.2.2' `
+            -RegistryLatest '5.4.1' -LatestCheckedAt ([datetimeoffset]::Now.AddDays(-45).ToString('o')) `
+            -Now ([datetimeoffset]::Now) -StaleAfterDays 30 -DeclaredByParent '5.2.2'
+        $stale.freshnessStatus | Should -Be 'stale'
+        $stale.warning | Should -Match 'past the 30 day window'
+
+        $none = New-PinFreshnessRow -Name 'js-yaml' -Kind 'npm-override' -CurrentVersion '5.2.2' `
+            -RegistryLatest '5.4.1' -LatestCheckedAt '' `
+            -Now ([datetimeoffset]::Now) -StaleAfterDays 30 -DeclaredByParent '5.2.2'
+        $none.freshnessStatus | Should -Be 'unavailable'
+        $none.warning | Should -Match 'run the review online'
+    }
+
+    It 'round-trips the cache timestamp instead of culture-formatting it' {
+        # ConvertFrom-Json turns an ISO string into a DateTime; casting that back to
+        # string uses the current culture and produces a value the next run cannot parse.
+        $cachePath = Join-Path $TestDrive 'registry-cache.json'
+        $stamp = '2026-09-05T11:31:44.1116113+00:00'
+        ([ordered]@{ fetchedAt = $stamp; packages = [ordered]@{ 'npm/js-yaml' = '5.4.1' } } | ConvertTo-Json -Depth 5) |
+            Set-Content -LiteralPath $cachePath -Encoding utf8
+
+        $cache = Get-RegistryVersionCache -Path $cachePath
+
+        $parsed = [datetimeoffset]::MinValue
+        [datetimeoffset]::TryParse($cache.fetchedAt, [ref]$parsed) | Should -BeTrue
+        $parsed.ToUniversalTime() | Should -Be ([datetimeoffset]::Parse($stamp).ToUniversalTime())
+        $cache.packages['npm/js-yaml'] | Should -Be '5.4.1'
+    }
+
+    It 'returns an empty cache rather than throwing on a missing or corrupt file' {
+        $missing = Get-RegistryVersionCache -Path (Join-Path $TestDrive 'absent-cache.json')
+        $missing.fetchedAt | Should -BeNullOrEmpty
+        @($missing.packages.Keys) | Should -HaveCount 0
+
+        $bad = Join-Path $TestDrive 'corrupt-cache.json'
+        'not json' | Set-Content -LiteralPath $bad -Encoding utf8
+        $corrupt = Get-RegistryVersionCache -Path $bad
+        $corrupt.fetchedAt | Should -BeNullOrEmpty
+        @($corrupt.packages.Keys) | Should -HaveCount 0
+    }
+
+    It 'offers an offline lane that reports its cache source' {
+        $script:ReviewScriptText | Should -Match '\[switch\]\$OfflineRegistry'
+        $script:ReviewScriptText | Should -Match "source = if \(\`$null -eq \`$cache\.fetchedAt\) \{ 'unavailable' \} else \{ 'cache' \}"
+    }
+}
+
 Describe 'PowerShell module packages are verified before import' {
     BeforeAll {
         $script:ModuleLockPath = Join-Path $script:RepoRoot 'data/powershell-module-lock.json'

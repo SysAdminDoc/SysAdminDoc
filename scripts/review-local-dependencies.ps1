@@ -3,22 +3,20 @@
 param(
     [string]$RepoRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$NpmAuditJsonPath,
-    [string]$PinLatestCheckedAt = "2026-08-20",
     [ValidateRange(1, 365)]
     [int]$PinFreshnessStaleAfterDays = 30,
+    [string]$RegistryCachePath,
+    [switch]$OfflineRegistry,
     [switch]$SkipNpmAudit
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-$LatestKnownNpmVersions = [ordered]@{
-    "markdownlint-cli2" = "0.23.2"
-    "markdown-it" = "14.3.0"
-    "js-yaml" = "5.2.2"
-}
-$LatestKnownPythonVersions = [ordered]@{
-    "zizmor" = "1.29.0"
-}
+# Registry endpoints. Fixed hosts, never built from untrusted input; package names are
+# validated against $SafePackageNamePattern before interpolation.
+$NpmRegistryBase = "https://registry.npmjs.org"
+$PyPiRegistryBase = "https://pypi.org/pypi"
+$SafePackageNamePattern = '^(@[A-Za-z0-9][A-Za-z0-9._-]*/)?[A-Za-z0-9][A-Za-z0-9._-]*$'
 $Pester6CompatibilityVersion = "6.1.0"
 
 function Get-JsonHashtable {
@@ -301,6 +299,180 @@ function Get-PythonAuditToolPins {
     )
 }
 
+function Get-RegistryVersionCache {
+    <#
+    .SYNOPSIS
+    Loads the cached registry answers and their fetch date.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return [ordered]@{ fetchedAt = $null; packages = @{} }
+    }
+    try {
+        $raw = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+    } catch {
+        return [ordered]@{ fetchedAt = $null; packages = @{} }
+    }
+    $packages = @{}
+    if ($raw.PSObject.Properties.Name -contains 'packages' -and $null -ne $raw.packages) {
+        foreach ($property in $raw.packages.PSObject.Properties) {
+            $packages[$property.Name] = [string]$property.Value
+        }
+    }
+    # ConvertFrom-Json turns an ISO timestamp into a DateTime, and casting that back to
+    # string uses the current culture, which turns a round-trippable value into
+    # "09/05/2026 07:29:42" and breaks the next parse. Re-emit round-trip format.
+    $fetchedAt = $null
+    if ($raw.PSObject.Properties.Name -contains 'fetchedAt' -and $null -ne $raw.fetchedAt) {
+        $fetchedAt = if ($raw.fetchedAt -is [datetime]) {
+            ([datetimeoffset]$raw.fetchedAt).ToUniversalTime().ToString('o')
+        } elseif ($raw.fetchedAt -is [datetimeoffset]) {
+            $raw.fetchedAt.ToUniversalTime().ToString('o')
+        } else {
+            [string]$raw.fetchedAt
+        }
+    }
+    return [ordered]@{ fetchedAt = $fetchedAt; packages = $packages }
+}
+
+function Get-RegistryLatestVersion {
+    <#
+    .SYNOPSIS
+    Returns the registry's current latest version for one package, or $null offline.
+    .DESCRIPTION
+    Replaces a hand-edited "latest known" map, which reported a pin as current long
+    after the registry had moved. npm answers from dist-tags.latest, PyPI from
+    info.version.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][ValidateSet('npm', 'python')][string]$Kind,
+        [int]$TimeoutSec = 15
+    )
+
+    if ($Name -notmatch $SafePackageNamePattern) {
+        return $null
+    }
+
+    $uri = if ($Kind -eq 'npm') {
+        "$NpmRegistryBase/$([uri]::EscapeDataString($Name))"
+    } else {
+        "$PyPiRegistryBase/$([uri]::EscapeDataString($Name))/json"
+    }
+
+    try {
+        $response = Invoke-RestMethod -Uri $uri -TimeoutSec $TimeoutSec -MaximumRedirection 3 -ErrorAction Stop
+    } catch {
+        return $null
+    }
+
+    if ($Kind -eq 'npm') {
+        if ($response.PSObject.Properties.Name -notcontains 'dist-tags') { return $null }
+        $tags = $response.'dist-tags'
+        if ($null -eq $tags -or $tags.PSObject.Properties.Name -notcontains 'latest') { return $null }
+        return [string]$tags.latest
+    }
+
+    if ($response.PSObject.Properties.Name -notcontains 'info' -or $null -eq $response.info) { return $null }
+    if ($response.info.PSObject.Properties.Name -notcontains 'version') { return $null }
+    return [string]$response.info.version
+}
+
+function Get-RegistryLatestVersionMap {
+    <#
+    .SYNOPSIS
+    Resolves latest versions for a set of packages, falling back to the cache offline.
+    #>
+    [CmdletBinding()]
+    param(
+        [object[]]$Packages = @(),
+        [Parameter(Mandatory)][string]$CachePath,
+        [switch]$Offline
+    )
+
+    $cache = Get-RegistryVersionCache -Path $CachePath
+    $resolved = @{}
+    $source = 'registry'
+    $queried = 0
+    $failed = 0
+
+    foreach ($package in @($Packages | Where-Object { $null -ne $_ })) {
+        $name = [string]$package.name
+        $kind = [string]$package.kind
+        $key = "$kind/$name"
+        if ($Offline) {
+            if ($cache.packages.ContainsKey($key)) { $resolved[$key] = $cache.packages[$key] }
+            continue
+        }
+        $queried++
+        $latest = Get-RegistryLatestVersion -Name $name -Kind $kind
+        if ([string]::IsNullOrWhiteSpace($latest)) {
+            $failed++
+            # Fall back to the cached answer rather than claiming the version is unknown.
+            if ($cache.packages.ContainsKey($key)) { $resolved[$key] = $cache.packages[$key] }
+        } else {
+            $resolved[$key] = $latest
+        }
+    }
+
+    $fetchedAt = $cache.fetchedAt
+    if (-not $Offline -and $queried -gt 0 -and $failed -lt $queried) {
+        $fetchedAt = ([datetimeoffset]::Now).ToUniversalTime().ToString('o')
+        try {
+            $parent = Split-Path -Parent $CachePath
+            if (-not [string]::IsNullOrWhiteSpace($parent)) { New-Item -ItemType Directory -Path $parent -Force | Out-Null }
+            $payload = [ordered]@{ fetchedAt = $fetchedAt; packages = [ordered]@{} }
+            foreach ($key in @($resolved.Keys | Sort-Object)) { $payload.packages[$key] = $resolved[$key] }
+            ($payload | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $CachePath -Encoding utf8
+        } catch {
+            Write-Warning "Could not write the registry version cache: $($_.Exception.Message)"
+        }
+    } elseif ($Offline -or $failed -eq $queried) {
+        $source = if ($null -eq $cache.fetchedAt) { 'unavailable' } else { 'cache' }
+    }
+
+    return [ordered]@{
+        source = $source
+        fetchedAt = $fetchedAt
+        queriedCount = [int]$queried
+        failedCount = [int]$failed
+        versions = $resolved
+    }
+}
+
+function Test-CompatibleWithLatest {
+    <#
+    .SYNOPSIS
+    Classifies a pin against the registry latest without forcing an upgrade.
+    .DESCRIPTION
+    A new major is review-needed, not a failure: the repo deliberately holds
+    markdown-it at 14.x while 15.x exists, because the major is breaking and the
+    markdownlint regression suite has not approved it.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][AllowEmptyString()][string]$CurrentVersion,
+        [AllowNull()][AllowEmptyString()][string]$RegistryLatest
+    )
+
+    if ([string]::IsNullOrWhiteSpace($RegistryLatest)) { return 'unknown' }
+    if ([string]::IsNullOrWhiteSpace($CurrentVersion)) { return 'unknown' }
+    if ($CurrentVersion -ceq $RegistryLatest) { return 'current' }
+
+    $currentParsed = $null
+    $latestParsed = $null
+    if (-not [version]::TryParse((($CurrentVersion -split '-')[0]), [ref]$currentParsed) -or
+        -not [version]::TryParse((($RegistryLatest -split '-')[0]), [ref]$latestParsed)) {
+        return 'behind-registry-latest'
+    }
+    if ($currentParsed -gt $latestParsed) { return 'ahead-of-registry-latest' }
+    if ($currentParsed.Major -lt $latestParsed.Major) { return 'major-upgrade-available' }
+    return 'behind-registry-latest'
+}
+
 function New-PinFreshnessRow {
     [CmdletBinding()]
     param(
@@ -313,41 +485,59 @@ function New-PinFreshnessRow {
         [Parameter(Mandatory)]
         [string]$CurrentVersion,
 
-        [System.Collections.IDictionary]$LatestKnownVersions = @{},
+        [AllowNull()][AllowEmptyString()]
+        [string]$RegistryLatest,
 
-        [Parameter(Mandatory)]
+        [AllowNull()][AllowEmptyString()]
         [string]$LatestCheckedAt,
 
         [Parameter(Mandatory)]
         [datetimeoffset]$Now,
 
         [Parameter(Mandatory)]
-        [int]$StaleAfterDays
+        [int]$StaleAfterDays,
+
+        [AllowNull()][AllowEmptyString()]
+        [string]$DeclaredByParent
     )
 
-    $latestKnownVersion = if ($LatestKnownVersions.Contains($Name)) { [string]$LatestKnownVersions[$Name] } else { $null }
-    $checkedAt = [datetimeoffset]::Parse($LatestCheckedAt)
-    $ageDays = [math]::Max(0, [math]::Round(($Now.ToUniversalTime() - $checkedAt.ToUniversalTime()).TotalDays, 2))
-    $freshnessStatus = if ($ageDays -gt $StaleAfterDays) { "stale" } else { "fresh" }
-    $latestStatus = if ([string]::IsNullOrWhiteSpace($latestKnownVersion)) {
-        "unknown"
-    } elseif ($CurrentVersion -eq $latestKnownVersion) {
-        "current"
+    # Takes the resolved version directly. An earlier version rebuilt the lookup key from
+    # $Kind, which is the display kind (npm-override, python-audit-tool) and never matched
+    # the registry kind (npm, python), so every row silently reported "unknown".
+    $registryLatest = if ([string]::IsNullOrWhiteSpace($RegistryLatest)) { $null } else { $RegistryLatest }
+    $compatibility = Test-CompatibleWithLatest -CurrentVersion $CurrentVersion -RegistryLatest $registryLatest
+
+    # Freshness is now a property of the registry evidence, not of a hand-edited date.
+    $ageDays = $null
+    $freshnessStatus = "unavailable"
+    if (-not [string]::IsNullOrWhiteSpace($LatestCheckedAt)) {
+        $checkedAt = [datetimeoffset]::MinValue
+        if ([datetimeoffset]::TryParse($LatestCheckedAt, [ref]$checkedAt)) {
+            $ageDays = [math]::Max(0, [math]::Round(($Now.ToUniversalTime() - $checkedAt.ToUniversalTime()).TotalDays, 2))
+            $freshnessStatus = if ($ageDays -gt $StaleAfterDays) { "stale" } else { "fresh" }
+        }
+    }
+
+    $warning = if ($freshnessStatus -eq "stale") {
+        "Registry version evidence for $Kind '$Name' is $ageDays day(s) old, past the $StaleAfterDays day window; run the review online to refresh it."
+    } elseif ($freshnessStatus -eq "unavailable") {
+        "No registry version evidence for $Kind '$Name'; run the review online at least once."
     } else {
-        "behind-latest-known"
+        $null
     }
 
     [ordered]@{
         name = $Name
         kind = $Kind
-        currentVersion = $CurrentVersion
-        latestKnownVersion = $latestKnownVersion
-        latestStatus = $latestStatus
-        latestCheckedAt = $LatestCheckedAt
-        checkAgeDays = [double]$ageDays
+        declaredByParent = if ([string]::IsNullOrWhiteSpace($DeclaredByParent)) { $null } else { $DeclaredByParent }
+        currentCompatible = $CurrentVersion
+        registryLatest = $registryLatest
+        compatibilityStatus = $compatibility
+        latestCheckedAt = if ([string]::IsNullOrWhiteSpace($LatestCheckedAt)) { $null } else { $LatestCheckedAt }
+        checkAgeDays = $ageDays
         staleAfterDays = [int]$StaleAfterDays
         freshnessStatus = $freshnessStatus
-        warning = if ($freshnessStatus -eq "stale") { "Latest-known version evidence for $Kind '$Name' is $ageDays day(s) old; refresh the manual pin review." } else { $null }
+        warning = $warning
     }
 }
 
@@ -358,10 +548,20 @@ function Get-DependencyPinFreshness {
         [object[]]$NpmDevDependencyRows = @(),
         [object[]]$PythonAuditRows = @(),
         [Parameter(Mandatory)]
-        [string]$LatestCheckedAt,
+        [string]$CachePath,
         [int]$StaleAfterDays = 30,
-        [datetimeoffset]$Now = [datetimeoffset]::Now
+        [datetimeoffset]$Now = [datetimeoffset]::Now,
+        [switch]$Offline
     )
+
+    # Resolve every pin against its registry in one pass, then build rows from the answer.
+    $packages = @(
+        foreach ($row in @($NpmOverrideRows)) { [ordered]@{ name = [string]$row.package; kind = 'npm' } }
+        foreach ($row in @($NpmDevDependencyRows)) { [ordered]@{ name = [string]$row.package; kind = 'npm' } }
+        foreach ($row in @($PythonAuditRows)) { [ordered]@{ name = [string]$row.name; kind = 'python' } }
+    )
+    $registry = Get-RegistryLatestVersionMap -Packages $packages -CachePath $CachePath -Offline:$Offline
+    $latestCheckedAt = [string]$registry.fetchedAt
 
     $npmRows = @(
         foreach ($row in @($NpmOverrideRows)) {
@@ -369,20 +569,22 @@ function Get-DependencyPinFreshness {
                 -Name ([string]$row.package) `
                 -Kind "npm-override" `
                 -CurrentVersion ([string]$row.lockedVersion) `
-                -LatestKnownVersions $LatestKnownNpmVersions `
-                -LatestCheckedAt $LatestCheckedAt `
+                -RegistryLatest ([string]$registry.versions["npm/$([string]$row.package)"]) `
+                -LatestCheckedAt $latestCheckedAt `
                 -Now $Now `
-                -StaleAfterDays $StaleAfterDays
+                -StaleAfterDays $StaleAfterDays `
+                -DeclaredByParent ([string]$row.overrideVersion)
         }
         foreach ($row in @($NpmDevDependencyRows)) {
             New-PinFreshnessRow `
                 -Name ([string]$row.package) `
                 -Kind "npm-devDependency" `
                 -CurrentVersion ([string]$row.lockedVersion) `
-                -LatestKnownVersions $LatestKnownNpmVersions `
-                -LatestCheckedAt $LatestCheckedAt `
+                -RegistryLatest ([string]$registry.versions["npm/$([string]$row.package)"]) `
+                -LatestCheckedAt $latestCheckedAt `
                 -Now $Now `
-                -StaleAfterDays $StaleAfterDays
+                -StaleAfterDays $StaleAfterDays `
+                -DeclaredByParent ([string]$row.manifestVersion)
         }
     )
     $pythonRows = @(
@@ -391,18 +593,27 @@ function Get-DependencyPinFreshness {
                 -Name ([string]$row.name) `
                 -Kind "python-audit-tool" `
                 -CurrentVersion ([string]$row.requiredVersion) `
-                -LatestKnownVersions $LatestKnownPythonVersions `
-                -LatestCheckedAt $LatestCheckedAt `
+                -RegistryLatest ([string]$registry.versions["python/$([string]$row.name)"]) `
+                -LatestCheckedAt $latestCheckedAt `
                 -Now $Now `
-                -StaleAfterDays $StaleAfterDays
+                -StaleAfterDays $StaleAfterDays `
+                -DeclaredByParent $null
         }
     )
     $rows = @($npmRows + $pythonRows)
-    $warnings = @($rows | Where-Object { $_.freshnessStatus -eq "stale" } | ForEach-Object { [string]$_.warning })
+    # A new major is review-needed evidence, not a failure: the repo holds markdown-it
+    # at 14.x on purpose. Only missing or stale evidence warns.
+    $warnings = @($rows | Where-Object { $_.freshnessStatus -in @("stale", "unavailable") } | ForEach-Object { [string]$_.warning })
+    $reviewNeeded = @($rows | Where-Object { $_.compatibilityStatus -eq "major-upgrade-available" })
 
     [ordered]@{
         status = if ($warnings.Count -gt 0) { "stale" } else { "fresh" }
-        latestCheckedAt = $LatestCheckedAt
+        evidenceSource = [string]$registry.source
+        latestCheckedAt = if ([string]::IsNullOrWhiteSpace($latestCheckedAt)) { $null } else { $latestCheckedAt }
+        registryQueryCount = [int]$registry.queriedCount
+        registryFailureCount = [int]$registry.failedCount
+        reviewNeededCount = [int]$reviewNeeded.Count
+        reviewNeeded = @($reviewNeeded | ForEach-Object { "$($_.kind) '$($_.name)' is at $($_.currentCompatible); registry latest is $($_.registryLatest)" })
         staleAfterDays = [int]$StaleAfterDays
         warningCount = [int]$warnings.Count
         warnings = @($warnings)
@@ -434,8 +645,9 @@ $pinFreshness = Get-DependencyPinFreshness `
     -NpmOverrideRows @($overrideReview.rows) `
     -NpmDevDependencyRows $npmToolPins `
     -PythonAuditRows $pythonToolPins `
-    -LatestCheckedAt $PinLatestCheckedAt `
-    -StaleAfterDays $PinFreshnessStaleAfterDays
+    -CachePath $(if ([string]::IsNullOrWhiteSpace($RegistryCachePath)) { Join-Path $RepoRoot ".cache/registry-versions.json" } else { $RegistryCachePath }) `
+    -StaleAfterDays $PinFreshnessStaleAfterDays `
+    -Offline:$OfflineRegistry
 $missingPins = (
     @($npmToolPins | Where-Object { $_.status -ne "aligned" }) +
     @($powerShellPins | Where-Object { $_.status -ne "pinned" }) +
