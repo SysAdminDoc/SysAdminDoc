@@ -2713,8 +2713,80 @@ function ConvertTo-RawGitHubUrl {
     return "https://raw.githubusercontent.com/$RepositoryOwner/$Repo/$Branch/$encodedPath"
 }
 
+function Get-LinkCacheTtlHours {
+    <#
+    .SYNOPSIS
+    How long a link result of a given status may be reused.
+    .DESCRIPTION
+    One flat TTL treated a corrected 404 and a transient 429 exactly like a healthy
+    200, so a fixed link stayed broken for a day and a rate-limited host stayed
+    "failed" without ever being retried. Successes hold for the configured window,
+    definitive dead links for an hour, and transient failures are never reused across
+    runs because the next run is exactly when they should be retried.
+    #>
+    param(
+        [AllowNull()][object]$Status,
+        [bool]$Ok,
+        [int]$SuccessTtlHours = $script:CacheTtlHours,
+        [int]$DeadLinkTtlHours = 1
+    )
+
+    if ($Ok) { return [int]$SuccessTtlHours }
+    $statusCode = 0
+    if ($null -ne $Status -and [int]::TryParse([string]$Status, [ref]$statusCode)) {
+        if ($statusCode -eq 404 -or $statusCode -eq 410) { return [int]$DeadLinkTtlHours }
+    }
+    return 0
+}
+
+function Get-RetryAfterSeconds {
+    <#
+    .SYNOPSIS
+    Parses a Retry-After header, capping how long this run will defer a target.
+    .DESCRIPTION
+    RFC 9110 section 10.2.3 allows delta-seconds or an HTTP-date. A server can name
+    hours; a local validation run must not sleep that long, so the wait is capped and
+    the real retry time is reported instead.
+    #>
+    param(
+        [AllowNull()][object]$RetryAfter,
+        [int]$CapSeconds = 60,
+        [datetimeoffset]$Now = [datetimeoffset]::Now
+    )
+
+    if ($null -eq $RetryAfter) { return $null }
+    $text = ([string]$RetryAfter).Trim()
+    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
+
+    $seconds = $null
+    $delta = 0
+    if ([int]::TryParse($text, [ref]$delta)) {
+        $seconds = $delta
+    } else {
+        $when = [datetimeoffset]::MinValue
+        if ([datetimeoffset]::TryParse($text, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal, [ref]$when)) {
+            $seconds = [int][math]::Ceiling(($when.ToUniversalTime() - $Now.ToUniversalTime()).TotalSeconds)
+        }
+    }
+    if ($null -eq $seconds) { return $null }
+    if ($seconds -lt 0) { $seconds = 0 }
+
+    return [ordered]@{
+        requestedSeconds = [int]$seconds
+        waitSeconds = [int][math]::Min($seconds, $CapSeconds)
+        retryAfterUtc = $Now.ToUniversalTime().AddSeconds($seconds).ToString('o')
+        capped = [bool]($seconds -gt $CapSeconds)
+    }
+}
+
 function Test-HttpUrl {
-    param([string]$Url, [int]$TimeoutSec = 12, [int]$Retries = 2)
+    param(
+        [string]$Url,
+        [int]$TimeoutSec = 12,
+        [int]$Retries = 2,
+        [AllowNull()][string]$IfNoneMatch,
+        [AllowNull()][string]$IfModifiedSince
+    )
 
     # Returns ok/status/error plus a `fatal` flag. Only a definitive dead-link
     # response (404/410) is fatal; transient blocks (403/429/5xx/timeout) are
@@ -2723,6 +2795,15 @@ function Test-HttpUrl {
     # proves reachability without downloading release assets or raw file bodies.
     $status = $null
     $err = $null
+    $etag = $null
+    $lastModified = $null
+    $retry = $null
+
+    # Stored validators turn a stale entry into a cheap revalidation instead of a
+    # full re-probe: a 304 means the previous answer still stands.
+    $conditionalHeaders = @{}
+    if (-not [string]::IsNullOrWhiteSpace($IfNoneMatch)) { $conditionalHeaders['If-None-Match'] = $IfNoneMatch }
+    if (-not [string]::IsNullOrWhiteSpace($IfModifiedSince)) { $conditionalHeaders['If-Modified-Since'] = $IfModifiedSince }
 
     for ($attempt = 1; $attempt -le $Retries; $attempt++) {
         foreach ($methodName in @('Head', 'Get')) {
@@ -2732,20 +2813,34 @@ function Test-HttpUrl {
                 -TimeoutSec $TimeoutSec `
                 -MaxRedirects 5 `
                 -UserAgent 'SysAdminDoc-profile-link-validator' `
-                -Accept '*/*'
+                -Accept '*/*' `
+                -Headers $conditionalHeaders
             $status = $result.statusCode
             $err = $result.error
+            $etag = Get-MemberValue -Object $result -Name 'etag'
+            $lastModified = Get-MemberValue -Object $result -Name 'lastModified'
+            $retry = Get-RetryAfterSeconds -RetryAfter (Get-MemberValue -Object $result -Name 'retryAfter')
+            if ($status -eq 304) {
+                # Not modified: the cached answer is still current.
+                return [ordered]@{ ok = $true; status = 304; error = $null; fatal = $false; notModified = $true; etag = $etag; lastModified = $lastModified; retryAfter = $null }
+            }
             if ($result.ok) {
-                return [ordered]@{ ok = $true; status = $status; error = $null; fatal = $false }
+                return [ordered]@{ ok = $true; status = $status; error = $null; fatal = $false; notModified = $false; etag = $etag; lastModified = $lastModified; retryAfter = $null }
             }
             if ($result.policyBlocked -or $status -eq 404 -or $status -eq 410) {
-                return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true }
+                return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $true; notModified = $false; etag = $etag; lastModified = $lastModified; retryAfter = $null }
             }
         }
-        if ($attempt -lt $Retries) { Start-Sleep -Seconds $attempt }
+        if ($attempt -lt $Retries) {
+            # Honour a server-directed wait, but never sleep longer than the local cap;
+            # the real retry time is reported instead.
+            $waitSeconds = $attempt
+            if ($null -ne $retry) { $waitSeconds = [int]$retry.waitSeconds }
+            if ($waitSeconds -gt 0) { Start-Sleep -Seconds $waitSeconds }
+        }
     }
 
-    return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false }
+    return [ordered]@{ ok = $false; status = $status; error = $err; fatal = $false; notModified = $false; etag = $etag; lastModified = $lastModified; retryAfter = $retry }
 }
 
 function Get-LinkHost {
@@ -3137,8 +3232,31 @@ function Invoke-LinkProbeBatch {
         $cachedRows = New-Object System.Collections.Generic.List[object]
         $uncachedTargets = New-Object System.Collections.Generic.List[object]
         foreach ($target in $targetList) {
-            $cachedProbe = Get-ValidationCacheValue -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string]$target.url))
-            if ($null -eq $cachedProbe) {
+            $cacheEntry = Read-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string]$target.url)) -IncludeStale -NoCounters
+            $cachedProbe = if ($null -ne $cacheEntry) { Get-MemberValue -Object $cacheEntry -Name 'value' } else { $null }
+            $reusable = $false
+            if ($null -ne $cachedProbe) {
+                # Freshness depends on what the previous answer was, not on one flat TTL.
+                $allowedTtl = Get-LinkCacheTtlHours -Status (Get-MemberValue -Object $cachedProbe -Name 'status') -Ok ([bool](Get-MemberValue -Object $cachedProbe -Name 'ok'))
+                $entryAge = [double](Get-MemberValue -Object $cacheEntry -Name 'ageHours')
+                $reusable = ($allowedTtl -gt 0 -and $entryAge -le $allowedTtl)
+            }
+            # Count the decision, not the raw TTL: a 404 or 429 that gets re-probed is
+            # not a cache hit, however recently it was written.
+            if ($reusable) {
+                Add-ValidationCacheCounter -Bucket links -Counter hitCount
+            } elseif ($null -ne $cacheEntry) {
+                Add-ValidationCacheCounter -Bucket links -Counter staleCount
+            } else {
+                Add-ValidationCacheCounter -Bucket links -Counter missCount
+            }
+            if (-not $reusable) {
+                if ($null -ne $cacheEntry) {
+                    # Carry stored validators into the probe so a 304 can settle it cheaply.
+                    Set-MemberValue -Object $target -Name 'ifNoneMatch' -Value (Get-MemberValue -Object $cacheEntry -Name 'etag')
+                    Set-MemberValue -Object $target -Name 'ifModifiedSince' -Value (Get-MemberValue -Object $cacheEntry -Name 'lastModified')
+                    Set-MemberValue -Object $target -Name 'cachedProbe' -Value $cachedProbe
+                }
                 $uncachedTargets.Add($target)
                 continue
             }
@@ -3173,6 +3291,7 @@ function Invoke-LinkProbeBatch {
         $invokeSafeOutboundHttpRequestDefinition = ${function:Invoke-SafeOutboundHttpRequest}.ToString()
         $getMemberValueDefinition = ${function:Get-MemberValue}.ToString()
         $testHttpUrlDefinition = ${function:Test-HttpUrl}.ToString()
+        $getRetryAfterSecondsDefinition = ${function:Get-RetryAfterSeconds}.ToString()
         $freshRows = @($uncachedTargets.ToArray() | ForEach-Object -Parallel {
             ${function:Test-PublicIPAddress} = $using:testPublicIpAddressDefinition
             ${function:Resolve-SafeOutboundDestination} = $using:resolveSafeOutboundDestinationDefinition
@@ -3181,8 +3300,25 @@ function Invoke-LinkProbeBatch {
             ${function:Invoke-SafeOutboundHttpRequest} = $using:invokeSafeOutboundHttpRequestDefinition
             ${function:Get-MemberValue} = $using:getMemberValueDefinition
             ${function:Test-HttpUrl} = $using:testHttpUrlDefinition
+            ${function:Get-RetryAfterSeconds} = $using:getRetryAfterSecondsDefinition
             $target = $_
-            $result = Test-HttpUrl -Url $target.url
+            $ifNoneMatch = if ($target.PSObject.Properties.Name -contains 'ifNoneMatch') { [string]$target.ifNoneMatch } else { $null }
+            $ifModifiedSince = if ($target.PSObject.Properties.Name -contains 'ifModifiedSince') { [string]$target.ifModifiedSince } else { $null }
+            $result = Test-HttpUrl -Url $target.url -IfNoneMatch $ifNoneMatch -IfModifiedSince $ifModifiedSince
+            $cachedProbe = if ($target.PSObject.Properties.Name -contains 'cachedProbe') { $target.cachedProbe } else { $null }
+            if ($result.status -eq 304 -and $null -ne $cachedProbe) {
+                # 304 means the stored answer still holds; keep it and refresh its age.
+                $result = [ordered]@{
+                    ok = [bool]$cachedProbe.ok
+                    status = $cachedProbe.status
+                    error = $cachedProbe.error
+                    fatal = [bool]$cachedProbe.fatal
+                    notModified = $true
+                    etag = $result.etag
+                    lastModified = $result.lastModified
+                    retryAfter = $null
+                }
+            }
             $targetFatalOnFailure = if ($target -is [System.Collections.IDictionary] -and $target.Contains('fatalOnFailure')) {
                 [bool]$target['fatalOnFailure']
             } elseif ($target.PSObject.Properties.Name -contains 'fatalOnFailure') {
@@ -3200,16 +3336,25 @@ function Invoke-LinkProbeBatch {
                 error = $result.error
                 probeFatal = [bool]$result.fatal
                 fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
+                notModified = [bool]($result.PSObject.Properties.Name -contains 'notModified' ? $result.notModified : $false)
+                etag = if ($result.PSObject.Properties.Name -contains 'etag') { $result.etag } else { $null }
+                lastModified = if ($result.PSObject.Properties.Name -contains 'lastModified') { $result.lastModified } else { $null }
+                retryAfterUtc = if ($result.PSObject.Properties.Name -contains 'retryAfter' -and $null -ne $result.retryAfter) { [string]$result.retryAfter.retryAfterUtc } else { $null }
             }
         } -ThrottleLimit $throttle)
 
         foreach ($row in @($freshRows)) {
+            # Transient failures get a zero TTL, so writing them still records the
+            # validators without letting the next run reuse the verdict.
             Write-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string]$row.url)) -Value ([ordered]@{
                     ok = [bool]$row.ok
                     status = $row.status
                     error = $row.error
                     fatal = [bool]$row.probeFatal
-                })
+                }) -Headers @{
+                    'ETag' = [string]$row.etag
+                    'Last-Modified' = [string]$row.lastModified
+                }
         }
 
         $probeRows = @($cachedRows.ToArray() + $freshRows)
@@ -5609,17 +5754,24 @@ function Read-ValidationCacheEntry {
     param(
         [ValidateSet('metadata', 'releases', 'links')]
         [string]$Bucket,
-        [string]$Key
+        [string]$Key,
+        # Returns the entry even when past its TTL so the caller can reuse stored
+        # ETag / Last-Modified validators for a conditional revalidation.
+        [switch]$IncludeStale,
+        # The link bucket decides reuse per status, not on the flat TTL, so it counts
+        # its own hits and misses. Counting here too reported a re-probed 404 or 429 as
+        # a cache hit.
+        [switch]$NoCounters
     )
 
     if (-not [bool]$script:CacheEnabled) {
-        Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount
+        if (-not $NoCounters) { Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount }
         return $null
     }
 
     $path = Get-ValidationCacheFilePath -Bucket $Bucket -Key $Key
     if ([string]::IsNullOrWhiteSpace($path) -or -not (Test-Path -LiteralPath $path)) {
-        Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount
+        if (-not $NoCounters) { Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount }
         return $null
     }
 
@@ -5631,15 +5783,21 @@ function Read-ValidationCacheEntry {
         $fetchedAtText = [string](Get-MemberValue -Object $entry -Name 'fetchedAt')
         $fetchedAt = if ([string]::IsNullOrWhiteSpace($fetchedAtText)) { [datetime]::MinValue } else { [datetime]::Parse($fetchedAtText, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::RoundtripKind) }
         $ageHours = ((Get-Date).ToUniversalTime() - $fetchedAt.ToUniversalTime()).TotalHours
+        Set-MemberValue -Object $entry -Name 'ageHours' -Value ([math]::Round($ageHours, 4))
         if ($ageHours -gt [int]$script:CacheTtlHours) {
-            Add-ValidationCacheCounter -Bucket $Bucket -Counter staleCount
-            return $null
+            if (-not $NoCounters) { Add-ValidationCacheCounter -Bucket $Bucket -Counter staleCount }
+            if (-not $IncludeStale) {
+                return $null
+            }
+            Set-MemberValue -Object $entry -Name 'stale' -Value $true
+            return $entry
         }
 
-        Add-ValidationCacheCounter -Bucket $Bucket -Counter hitCount
+        Set-MemberValue -Object $entry -Name 'stale' -Value $false
+        if (-not $NoCounters) { Add-ValidationCacheCounter -Bucket $Bucket -Counter hitCount }
         return $entry
     } catch {
-        Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount
+        if (-not $NoCounters) { Add-ValidationCacheCounter -Bucket $Bucket -Counter missCount }
         return $null
     }
 }

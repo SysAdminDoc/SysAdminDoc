@@ -6,13 +6,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
 
 ### P1
 
-- [ ] P1: Use status-aware link caches and conditional revalidation
-  Why: One 24-hour TTL currently preserves corrected 404s and transient timeouts, 429s, and 5xx responses for as long as successful checks while stored validators are never reused.
-  Evidence: `scripts/sync-profile.ps1:4504`, `scripts/sync-profile.ps1:4605`, `Invoke-LinkProbeBatch`, [RFC 9111](https://www.rfc-editor.org/rfc/rfc9111.html), [GitHub REST best practices](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api), `RESEARCH.md` Security, Privacy, and Reliability.
-  Touches: Validation cache schema and state, `Test-HttpUrl`, `Invoke-LinkProbeBatch`, retry telemetry, report schema and summary, cache tests.
-  Acceptance: Cache successful checks for 24 hours, 404/410 for one hour, and do not reuse timeout, 429, or 5xx results beyond the current run. Preserve stale ETag and Last-Modified values, send conditional headers, refresh only after 304 or a new response, honor `Retry-After` up to a 60-second local cap, and report a future retry time instead of sleeping longer. Tests freeze time and cover each status, 304, validator changes, and retry timing.
-  Complexity: M
-
 ### P2
 
 - [ ] P2: Encode public text by output context and reject deceptive controls

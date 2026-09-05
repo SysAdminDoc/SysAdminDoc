@@ -7292,6 +7292,140 @@ Describe 'Pester local validation command' {
     }
 }
 
+Describe 'Link cache lifetimes depend on what the previous answer was' {
+    It 'holds successes, expires dead links quickly, and never reuses transient failures' -ForEach @(
+        @{ Case = 'success'; Status = 200; Ok = $true; Expected = 24 }
+        @{ Case = 'not-found'; Status = 404; Ok = $false; Expected = 1 }
+        @{ Case = 'gone'; Status = 410; Ok = $false; Expected = 1 }
+        @{ Case = 'throttled'; Status = 429; Ok = $false; Expected = 0 }
+        @{ Case = 'server-error'; Status = 500; Ok = $false; Expected = 0 }
+        @{ Case = 'forbidden'; Status = 403; Ok = $false; Expected = 0 }
+        @{ Case = 'timeout'; Status = $null; Ok = $false; Expected = 0 }
+    ) {
+        # One flat TTL kept a corrected 404 broken for a day and kept a rate-limited
+        # host "failed" without ever retrying it.
+        Get-LinkCacheTtlHours -Status $Status -Ok $Ok -SuccessTtlHours 24 -DeadLinkTtlHours 1 | Should -Be $Expected
+    }
+
+    It 'parses both Retry-After forms and caps how long a run will wait' -ForEach @(
+        @{ Case = 'delta-seconds'; Value = '30'; Requested = 30; Wait = 30; Capped = $false }
+        @{ Case = 'delta-over-cap'; Value = '600'; Requested = 600; Wait = 60; Capped = $true }
+        @{ Case = 'http-date'; Value = 'Sat, 05 Sep 2026 12:10:00 GMT'; Requested = 600; Wait = 60; Capped = $true }
+    ) {
+        # RFC 9110 section 10.2.3 allows delta-seconds or an HTTP-date. A server may name
+        # hours; a local run must report the real retry time rather than sleep for it.
+        $now = [datetimeoffset]::Parse('2026-09-05T12:00:00Z')
+        $retry = Get-RetryAfterSeconds -RetryAfter $Value -CapSeconds 60 -Now $now
+
+        $retry | Should -Not -BeNullOrEmpty
+        $retry.requestedSeconds | Should -Be $Requested
+        $retry.waitSeconds | Should -Be $Wait
+        $retry.capped | Should -Be $Capped
+        ([datetimeoffset]::Parse($retry.retryAfterUtc)) | Should -Be $now.AddSeconds($Requested)
+    }
+
+    It 'returns nothing for an absent or unparseable Retry-After' -ForEach @(
+        @{ Value = $null }
+        @{ Value = '' }
+        @{ Value = 'not-a-date' }
+    ) {
+        Get-RetryAfterSeconds -RetryAfter $Value -Now ([datetimeoffset]::Parse('2026-09-05T12:00:00Z')) |
+            Should -BeNullOrEmpty
+    }
+
+    It 'clamps a Retry-After that has already passed to zero' {
+        $now = [datetimeoffset]::Parse('2026-09-05T12:00:00Z')
+        $retry = Get-RetryAfterSeconds -RetryAfter 'Sat, 05 Sep 2026 11:00:00 GMT' -Now $now
+        $retry.requestedSeconds | Should -Be 0
+        $retry.waitSeconds | Should -Be 0
+    }
+
+    It 'keeps stale validators readable so a re-probe can revalidate' {
+        $cacheRoot = Join-Path $TestDrive 'link-cache'
+        $oldEnabled = $script:CacheEnabled
+        $oldPath = $script:CachePath
+        try {
+            $script:CacheEnabled = $true
+            $script:CachePath = $cacheRoot
+            $key = Get-LinkProbeCacheKey -Url 'https://example.invalid/stale'
+            $entryPath = Get-ValidationCacheFilePath -Bucket links -Key $key
+            New-Item -ItemType Directory -Path (Split-Path -Parent $entryPath) -Force | Out-Null
+            ([ordered]@{
+                key = $key
+                fetchedAt = ([datetimeoffset]::Now.AddHours(-100)).ToUniversalTime().ToString('o')
+                etag = 'W/"abc123"'
+                lastModified = 'Fri, 01 Aug 2026 10:00:00 GMT'
+                value = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            } | ConvertTo-Json -Depth 10) | Set-Content -LiteralPath $entryPath -Encoding utf8
+
+            # Without -IncludeStale the entry is dropped and its validators with it.
+            Read-ValidationCacheEntry -Bucket links -Key $key -NoCounters | Should -BeNullOrEmpty
+
+            $stale = Read-ValidationCacheEntry -Bucket links -Key $key -IncludeStale -NoCounters
+            $stale | Should -Not -BeNullOrEmpty
+            (Get-MemberValue -Object $stale -Name 'stale') | Should -BeTrue
+            (Get-MemberValue -Object $stale -Name 'etag') | Should -Be 'W/"abc123"'
+            (Get-MemberValue -Object $stale -Name 'lastModified') | Should -Be 'Fri, 01 Aug 2026 10:00:00 GMT'
+            [double](Get-MemberValue -Object $stale -Name 'ageHours') | Should -BeGreaterThan 24
+        } finally {
+            $script:CacheEnabled = $oldEnabled
+            $script:CachePath = $oldPath
+        }
+    }
+
+    It 'counts the reuse decision rather than the flat TTL' {
+        # A 404 written three hours ago is inside the 24h TTL but outside its own
+        # one-hour lifetime, so reporting it as a cache hit overstated coverage.
+        $cacheRoot = Join-Path $TestDrive 'decision-cache'
+        $oldEnabled = $script:CacheEnabled
+        $oldPath = $script:CachePath
+        try {
+            $script:CacheEnabled = $true
+            $script:CachePath = $cacheRoot
+            Reset-ValidationCacheState
+
+            foreach ($seed in @(
+                @{ Url = 'https://example.invalid/ok-fresh'; Status = 200; Ok = $true; Age = 2 }
+                @{ Url = 'https://example.invalid/404-old'; Status = 404; Ok = $false; Age = 3 }
+                @{ Url = 'https://example.invalid/throttled'; Status = 429; Ok = $false; Age = 0.1 }
+                @{ Url = 'https://example.invalid/ok-stale'; Status = 200; Ok = $true; Age = 30 }
+            )) {
+                $key = Get-LinkProbeCacheKey -Url $seed.Url
+                $entryPath = Get-ValidationCacheFilePath -Bucket links -Key $key
+                New-Item -ItemType Directory -Path (Split-Path -Parent $entryPath) -Force | Out-Null
+                ([ordered]@{
+                    key = $key
+                    fetchedAt = ([datetimeoffset]::Now.AddHours(-$seed.Age)).ToUniversalTime().ToString('o')
+                    etag = 'W/"seed"'
+                    lastModified = $null
+                    value = [ordered]@{ ok = $seed.Ok; status = $seed.Status; error = $null; fatal = $false }
+                } | ConvertTo-Json -Depth 10) | Set-Content -LiteralPath $entryPath -Encoding utf8
+            }
+
+            $targets = @('ok-fresh', '404-old', 'throttled', 'ok-stale', 'never-seen' | ForEach-Object {
+                [pscustomobject]@{ repo = 'x'; type = 't'; url = "https://example.invalid/$_"; host = 'example.invalid'; fatalOnFailure = $false }
+            })
+            $null = Invoke-LinkProbeBatch -Targets $targets
+            $state = Get-ValidationCacheState
+
+            $state.links.hitCount | Should -Be 1
+            $state.links.staleCount | Should -Be 3
+            $state.links.missCount | Should -Be 1
+        } finally {
+            $script:CacheEnabled = $oldEnabled
+            $script:CachePath = $oldPath
+        }
+    }
+
+    It 'sends stored validators as conditional headers' {
+        $script:SyncProfileScript | Should -Match "'If-None-Match'"
+        $script:SyncProfileScript | Should -Match "'If-Modified-Since'"
+        # A 304 must keep the previous verdict rather than being read as a fresh answer.
+        $script:SyncProfileScript | Should -Match 'if \(\$status -eq 304\)'
+        $script:SyncProfileScript | Should -Match 'notModified = \$true'
+    }
+}
+
 Describe 'Dependency freshness comes from the registry, not a hand-edited map' {
     BeforeAll {
         $script:ReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
