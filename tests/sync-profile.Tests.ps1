@@ -7734,12 +7734,111 @@ Describe 'Link cache lifetimes depend on what the previous answer was' {
         }
     }
 
-    It 'sends stored validators as conditional headers' {
-        $script:SyncProfileScript | Should -Match "'If-None-Match'"
-        $script:SyncProfileScript | Should -Match "'If-Modified-Since'"
-        # A 304 must keep the previous verdict rather than being read as a fresh answer.
-        $script:SyncProfileScript | Should -Match 'if \(\$status -eq 304\)'
-        $script:SyncProfileScript | Should -Match 'notModified = \$true'
+    It 'sends stored validators and lets a 304 restore the previous verdict' {
+        # Built through New-LinkValidationTarget, which returns an [ordered] dictionary.
+        # An earlier version of this test used [pscustomobject], a shape the generator
+        # never produces, and so passed while conditional headers were never sent:
+        # $target.PSObject.Properties.Name on a dictionary lists Count/Keys/Values, not
+        # the entries.
+        $oldEnabled = $script:CacheEnabled
+        $oldPath = $script:CachePath
+        $oldProbe = ${function:Test-HttpUrl}
+        try {
+            $script:CacheEnabled = $true
+            $script:CachePath = Join-Path $TestDrive 'conditional-cache'
+            Reset-ValidationCacheState
+
+            $url = 'https://example.invalid/conditional'
+            $key = Get-LinkProbeCacheKey -Url $url
+            $entryPath = Get-ValidationCacheFilePath -Bucket links -Key $key
+            New-Item -ItemType Directory -Path (Split-Path -Parent $entryPath) -Force | Out-Null
+            ([ordered]@{
+                key = $key
+                fetchedAt = ([datetimeoffset]::Now.AddHours(-100)).ToUniversalTime().ToString('o')
+                etag = 'W/"stored-etag"'
+                lastModified = 'Fri, 01 Aug 2026 10:00:00 GMT'
+                value = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            } | ConvertTo-Json -Depth 10) | Set-Content -LiteralPath $entryPath -Encoding utf8
+
+            $target = New-LinkValidationTarget -Repo 'x' -Type 't' -Url $url -FatalOnFailure $false -Group 'g'
+            $target | Should -BeOfType [System.Collections.Specialized.OrderedDictionary]
+
+            # The stale entry's validators must be attached to the target by the cache
+            # read loop. Reading them off the dictionary is the assertion: a PSObject
+            # guard here silently found nothing and no header was ever sent.
+            $seen = [ordered]@{}
+            $probe = {
+                param($t)
+                $seen['ifNoneMatch'] = Get-MemberValue -Object $t -Name 'ifNoneMatch'
+                $seen['ifModifiedSince'] = Get-MemberValue -Object $t -Name 'ifModifiedSince'
+                [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false; notModified = $true
+                    etag = Get-MemberValue -Object $t -Name 'ifNoneMatch'
+                    lastModified = Get-MemberValue -Object $t -Name 'ifModifiedSince'
+                    retryAfter = $null }
+            }
+            $row = (Invoke-LinkProbeBatch -Targets @($target) -ProbeScript $probe).results[0]
+
+            $seen['ifNoneMatch'] | Should -Be 'W/"stored-etag"' -Because 'the stale entry carries a validator the probe must receive'
+            $seen['ifModifiedSince'] | Should -Be 'Fri, 01 Aug 2026 10:00:00 GMT'
+            $row.notModified | Should -BeTrue
+            $row.etag | Should -Be 'W/"stored-etag"'
+            $row.lastModified | Should -Be 'Fri, 01 Aug 2026 10:00:00 GMT'
+        } finally {
+            $script:CacheEnabled = $oldEnabled
+            $script:CachePath = $oldPath
+        }
+    }
+
+    It 'restores the cached verdict on a 304 rather than reporting 304' {
+        # Test-HttpUrl itself builds the conditional headers and classifies the answer.
+        $captured = $null
+        $result = & {
+            function Invoke-SafeOutboundHttpRequest {
+                param([string]$Url, [string]$Method, [int]$TimeoutSec, [int]$MaxRedirects, [int64]$MaxBytes,
+                    [switch]$ReadBody, [string]$UserAgent, [string]$Accept, [hashtable]$Headers = @{},
+                    [scriptblock]$ResolveHostScript, [scriptblock]$SendRequestScript)
+                $script:CapturedHeaders = $Headers
+                [ordered]@{ ok = $false; statusCode = 304; error = $null; policyBlocked = $false
+                    etag = 'W/"stored-etag"'; lastModified = $null; retryAfter = $null }
+            }
+            Test-HttpUrl -Url 'https://example.invalid/x' -IfNoneMatch 'W/"stored-etag"' -IfModifiedSince 'Fri, 01 Aug 2026 10:00:00 GMT'
+        }
+
+        $result.status | Should -Be 304
+        $result.notModified | Should -BeTrue
+        $result.ok | Should -BeTrue -Because 'not-modified means the previous answer still stands'
+        $script:CapturedHeaders['If-None-Match'] | Should -Be 'W/"stored-etag"'
+        $script:CapturedHeaders['If-Modified-Since'] | Should -Be 'Fri, 01 Aug 2026 10:00:00 GMT'
+    }
+
+    It 'reports a future retry time instead of sleeping through it' {
+        $oldEnabled = $script:CacheEnabled
+        try {
+            $script:CacheEnabled = $false
+            $throttled = {
+                param($t)
+                [ordered]@{
+                    ok = $false; status = 429; error = 'HTTP 429'; fatal = $false; notModified = $false
+                    etag = $null; lastModified = $null
+                    retryAfter = (Get-RetryAfterSeconds -RetryAfter '600' -CapSeconds 60 -Now ([datetimeoffset]::Parse('2026-09-05T12:00:00Z')))
+                }
+            }
+            $target = New-LinkValidationTarget -Repo 'x' -Type 't' -Url 'https://throttled.invalid/a' -FatalOnFailure $false -Group 'g'
+
+            $deferred = @((Invoke-LinkProbeBatch -Targets @($target) -ProbeScript $throttled).deferredRetries)
+
+            $deferred | Should -HaveCount 1
+            $deferred[0].url | Should -Be 'https://throttled.invalid/a'
+            $deferred[0].status | Should -Be 429
+            # The server asked for 600s; the run waits at most 60 but still reports the
+            # real time the target may be probed again.
+            ([datetimeoffset]::Parse($deferred[0].retryAfterUtc)) | Should -Be ([datetimeoffset]::Parse('2026-09-05T12:10:00Z'))
+
+            $reported = @((Test-LinkTargets -Included @() -RepoLookup @{} -ExtraTargets @($target) -ProbeScript $throttled).deferredRetries)
+            $reported | Should -HaveCount 1 -Because 'the retry time must reach the report, not stop at the probe batch'
+        } finally {
+            $script:CacheEnabled = $oldEnabled
+        }
     }
 }
 
@@ -7855,7 +7954,7 @@ Describe 'PowerShell module packages are verified before import' {
         $validationText = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
         $script:ValidateLocalText = $validationText
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($validationText, [ref]$null, [ref]$null)
-        foreach ($name in @('Get-ModuleLockEntry', 'Assert-ModuleAuthenticodeSigner')) {
+        foreach ($name in @('Get-ModuleLockEntry', 'Assert-ModuleAuthenticodeSigner', 'Install-RequiredModule')) {
             $definition = $ast.FindAll(
                 {
                     param($node)
@@ -7887,7 +7986,7 @@ Describe 'PowerShell module packages are verified before import' {
             $entry.nupkgSha256 | Should -Match '^[a-f0-9]{64}$'
             $entry.signed | Should -BeOfType [bool]
             if ($entry.signed) {
-                $entry.expectedSigner | Should -Not -BeNullOrEmpty
+                @($entry.expectedSigners) | Should -Not -BeNullOrEmpty
             }
         }
     }
@@ -7907,7 +8006,7 @@ Describe 'PowerShell module packages are verified before import' {
                 packageUrl = 'https://www.powershellgallery.com/api/v2/package/Pester/5.9.1'
                 nupkgSha256 = ('a' * 64)
                 signed = $true
-                expectedSigner = ''
+                expectedSigners = @()
             })
         } | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $lockPath -Encoding utf8
 
@@ -7915,18 +8014,56 @@ Describe 'PowerShell module packages are verified before import' {
             Should -Throw -ExpectedMessage '*names no expected signer*'
     }
 
-    It 'accepts the real installed module against its locked signer' {
-        $entry = @($script:ModuleLock.modules | Where-Object { $_.name -ceq 'Pester' -and $_.version -ceq '5.9.1' })[0]
+    It 'accepts every module the default lane installs' -ForEach @(
+        @{ Module = 'Pester'; Version = '5.9.1' }
+        # PSScriptAnalyzer bundles third-party signed assemblies, so it ships three
+        # distinct signers. A single expected subject could never be satisfied and made
+        # the whole bootstrap throw; only Pester was covered before.
+        @{ Module = 'PSScriptAnalyzer'; Version = '1.25.0' }
+    ) {
+        $entry = @($script:ModuleLock.modules | Where-Object { $_.name -ceq $Module -and $_.version -ceq $Version })[0]
+        $entry | Should -Not -BeNullOrEmpty
+        $installed = Get-Module -ListAvailable -Name $Module | Where-Object { $_.Version -eq [version]$Version } | Select-Object -First 1
+        if (-not $installed) {
+            Set-ItResult -Skipped -Because "$Module $Version is not installed on this machine"
+            return
+        }
+
+        $verified = Assert-ModuleAuthenticodeSigner -ModuleRoot (Split-Path -Parent $installed.Path) `
+            -Name $Module -Version $Version -ExpectedSigners (@($entry.expectedSigners))
+
+        $verified | Should -BeGreaterThan 0
+    }
+
+    It 'refuses an unsigned file inside a package the lock records as signed' {
+        # Stripping a signature block is how a tampered file slips past a check that
+        # only inspects files which still carry one.
         $installed = Get-Module -ListAvailable -Name Pester | Where-Object { $_.Version -eq [version]'5.9.1' } | Select-Object -First 1
         if (-not $installed) {
             Set-ItResult -Skipped -Because 'Pester 5.9.1 is not installed on this machine'
             return
         }
+        $entry = @($script:ModuleLock.modules | Where-Object { $_.name -ceq 'Pester' -and $_.version -ceq '5.9.1' })[0]
+        $copy = Join-Path $TestDrive 'tampered-module'
+        Copy-Item -LiteralPath (Split-Path -Parent $installed.Path) -Destination $copy -Recurse
+        '# unsigned addition' | Set-Content -LiteralPath (Join-Path $copy 'Injected.psm1') -Encoding utf8
 
-        $verified = Assert-ModuleAuthenticodeSigner -ModuleRoot (Split-Path -Parent $installed.Path) `
-            -Name 'Pester' -Version '5.9.1' -ExpectedSigner ([string]$entry.expectedSigner)
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $copy -Name 'Pester' -Version '5.9.1' -ExpectedSigners (@($entry.expectedSigners)) } |
+            Should -Throw -ExpectedMessage '*carry no signature*'
+    }
 
-        $verified | Should -BeGreaterThan 0
+    It 'refuses package bytes that do not match the lock, and clears them' {
+        $entry = @($script:ModuleLock.modules | Where-Object { $_.name -ceq 'Pester' -and $_.version -ceq '6.1.0' })[0]
+        $cache = Join-Path $TestDrive 'bad-package-cache'
+        New-Item -ItemType Directory -Path $cache -Force | Out-Null
+        $nupkg = Join-Path $cache 'Pester.6.1.0.nupkg'
+        [System.IO.File]::WriteAllBytes($nupkg, [byte[]](1..64))
+
+        { Install-RequiredModule -Name 'Pester' -Version '6.1.0' -RepoRoot $script:RepoRoot -CacheRoot $cache -DestinationRoot (Join-Path $TestDrive 'dest') } |
+            Should -Throw -ExpectedMessage '*refusing to extract*'
+        # A retry must not pick the rejected bytes back up.
+        Test-Path -LiteralPath $nupkg | Should -BeFalse
+        $entry.nupkgSha256 | Should -Match '^[a-f0-9]{64}$'
     }
 
     It 'refuses a signer that does not match the lock exactly' {
@@ -7937,12 +8074,12 @@ Describe 'PowerShell module packages are verified before import' {
         }
         $root = Split-Path -Parent $installed.Path
 
-        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Pester' -Version '5.9.1' -ExpectedSigner 'CN=Someone Else, O=Evil, C=XX' } |
-            Should -Throw -ExpectedMessage '*but the lock expects*'
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Pester' -Version '5.9.1' -ExpectedSigners @('CN=Someone Else, O=Evil, C=XX') } |
+            Should -Throw -ExpectedMessage '*which the lock does not list*'
         # The real subject carries non-ASCII characters; an ASCII-mangled copy of it must
         # not pass, because a transliterated signer is a different signer.
-        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Pester' -Version '5.9.1' -ExpectedSigner 'CN=Jakub Jares, O=Jakub Jares, L=Praha, C=CZ' } |
-            Should -Throw -ExpectedMessage '*but the lock expects*'
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Pester' -Version '5.9.1' -ExpectedSigners @('CN=Jakub Jares, O=Jakub Jares, L=Praha, C=CZ') } |
+            Should -Throw -ExpectedMessage '*which the lock does not list*'
     }
 
     It 'refuses a tree with no signature when the lock says signed' {
@@ -7950,8 +8087,8 @@ Describe 'PowerShell module packages are verified before import' {
         New-Item -ItemType Directory -Path $root -Force | Out-Null
         '@{ ModuleVersion = "1.0" }' | Set-Content -LiteralPath (Join-Path $root 'Fake.psd1') -Encoding utf8
 
-        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Fake' -Version '1.0' -ExpectedSigner 'CN=Anyone' } |
-            Should -Throw -ExpectedMessage '*no extracted file carries a signature*'
+        { Assert-ModuleAuthenticodeSigner -ModuleRoot $root -Name 'Fake' -Version '1.0' -ExpectedSigners @('CN=Anyone') } |
+            Should -Throw -ExpectedMessage '*carry no signature*'
     }
 
     It 'verifies package bytes before extracting and both lanes use the lock' {

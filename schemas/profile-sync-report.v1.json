@@ -7171,6 +7171,7 @@
         "readmeUserscriptInstallTargetCount",
         "warningCountByHost",
         "headerHostWarnings",
+        "deferredRetries",
         "skipped",
         "skipReason"
       ],
@@ -7200,6 +7201,20 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/hostWarningCount"
+          }
+        },
+        "deferredRetries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["url", "host", "status", "retryAfterUtc"],
+            "properties": {
+              "url": { "type": "string" },
+              "host": { "$ref": "#/$defs/nullableString" },
+              "status": { "$ref": "#/$defs/nullableInteger" },
+              "retryAfterUtc": { "type": "string" }
+            }
           }
         },
         "headerHostWarnings": {

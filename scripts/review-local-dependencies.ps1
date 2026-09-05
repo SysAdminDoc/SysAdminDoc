@@ -504,8 +504,11 @@ function New-PinFreshnessRow {
     # Takes the resolved version directly. An earlier version rebuilt the lookup key from
     # $Kind, which is the display kind (npm-override, python-audit-tool) and never matched
     # the registry kind (npm, python), so every row silently reported "unknown".
-    $registryLatest = if ([string]::IsNullOrWhiteSpace($RegistryLatest)) { $null } else { $RegistryLatest }
-    $compatibility = Test-CompatibleWithLatest -CurrentVersion $CurrentVersion -RegistryLatest $registryLatest
+    # Named distinctly from the $RegistryLatest parameter: PowerShell resolves variable
+    # names case-insensitively, so assigning $null to $registryLatest wrote through the
+    # [string]-typed parameter and came back as "" instead of null.
+    $resolvedLatest = if ([string]::IsNullOrWhiteSpace($RegistryLatest)) { $null } else { [string]$RegistryLatest }
+    $compatibility = Test-CompatibleWithLatest -CurrentVersion $CurrentVersion -RegistryLatest $resolvedLatest
 
     # Freshness is now a property of the registry evidence, not of a hand-edited date.
     $ageDays = $null
@@ -531,7 +534,7 @@ function New-PinFreshnessRow {
         kind = $Kind
         declaredByParent = if ([string]::IsNullOrWhiteSpace($DeclaredByParent)) { $null } else { $DeclaredByParent }
         currentCompatible = $CurrentVersion
-        registryLatest = $registryLatest
+        registryLatest = $resolvedLatest
         compatibilityStatus = $compatibility
         latestCheckedAt = if ([string]::IsNullOrWhiteSpace($LatestCheckedAt)) { $null } else { $LatestCheckedAt }
         checkAgeDays = $ageDays

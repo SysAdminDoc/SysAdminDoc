@@ -3185,6 +3185,34 @@ function Get-ReadmeActionLinkValidationTargets {
     return $targets.ToArray()
 }
 
+function Set-LinkProbeCacheContext {
+    <#
+    .SYNOPSIS
+    Attaches any cached probe and its validators to a target, and says whether the
+    cached verdict may be reused as-is.
+    .DESCRIPTION
+    Shared by the live and injected probe paths so both make the same reuse decision
+    and both carry stored ETag / Last-Modified values into the request. Returns $true
+    when the cached answer is still within the lifetime its own status earns.
+    #>
+    param([object]$Target)
+
+    $cacheEntry = Read-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string](Get-MemberValue -Object $Target -Name 'url'))) -IncludeStale -NoCounters
+    $cachedProbe = if ($null -ne $cacheEntry) { Get-MemberValue -Object $cacheEntry -Name 'value' } else { $null }
+    $reusable = $false
+    if ($null -ne $cachedProbe) {
+        $allowedTtl = Get-LinkCacheTtlHours -Status (Get-MemberValue -Object $cachedProbe -Name 'status') -Ok ([bool](Get-MemberValue -Object $cachedProbe -Name 'ok'))
+        $entryAge = [double](Get-MemberValue -Object $cacheEntry -Name 'ageHours')
+        $reusable = ($allowedTtl -gt 0 -and $entryAge -le $allowedTtl)
+    }
+    if ($null -ne $cacheEntry) {
+        Set-MemberValue -Object $Target -Name 'ifNoneMatch' -Value (Get-MemberValue -Object $cacheEntry -Name 'etag')
+        Set-MemberValue -Object $Target -Name 'ifModifiedSince' -Value (Get-MemberValue -Object $cacheEntry -Name 'lastModified')
+        Set-MemberValue -Object $Target -Name 'cachedProbe' -Value $cachedProbe
+    }
+    return [bool]$reusable
+}
+
 function Invoke-LinkProbeBatch {
     param(
         [object[]]$Targets,
@@ -3195,11 +3223,13 @@ function Invoke-LinkProbeBatch {
     $targetList = @($Targets)
     $throttle = [Math]::Max(1, $ThrottleLimit)
     $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    $deferred = New-Object System.Collections.Generic.List[object]
 
     if ($targetList.Count -eq 0) {
         $stopwatch.Stop()
         return [ordered]@{
             results = @()
+            deferredRetries = @()
             targetCount = 0
             throttleLimit = $throttle
             elapsedMs = $stopwatch.ElapsedMilliseconds
@@ -3207,7 +3237,14 @@ function Invoke-LinkProbeBatch {
     }
 
     if ($ProbeScript) {
-        $probeRows = foreach ($target in $targetList) {
+        # Runs the same cache read and reuse decision as the live path, so an injected
+        # probe exercises validator attachment rather than a shortcut around it.
+        $probeTargets = New-Object System.Collections.Generic.List[object]
+        foreach ($target in $targetList) {
+            $null = Set-LinkProbeCacheContext -Target $target
+            $probeTargets.Add($target)
+        }
+        $probeRows = foreach ($target in $probeTargets) {
             $result = & $ProbeScript $target
             $targetFatalOnFailure = if ($target -is [System.Collections.IDictionary] -and $target.Contains('fatalOnFailure')) {
                 [bool]$target['fatalOnFailure']
@@ -3226,21 +3263,21 @@ function Invoke-LinkProbeBatch {
                 error = $result.error
                 probeFatal = [bool]$result.fatal
                 fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
+                # Same row shape as the live branch below. A test lane that produces
+                # different fields tests a different code path than production.
+                notModified = [bool](Get-MemberValue -Object $result -Name 'notModified')
+                etag = Get-MemberValue -Object $result -Name 'etag'
+                lastModified = Get-MemberValue -Object $result -Name 'lastModified'
+                retryAfterUtc = [string](Get-MemberValue -Object (Get-MemberValue -Object $result -Name 'retryAfter') -Name 'retryAfterUtc')
             }
         }
     } else {
         $cachedRows = New-Object System.Collections.Generic.List[object]
         $uncachedTargets = New-Object System.Collections.Generic.List[object]
         foreach ($target in $targetList) {
-            $cacheEntry = Read-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string]$target.url)) -IncludeStale -NoCounters
-            $cachedProbe = if ($null -ne $cacheEntry) { Get-MemberValue -Object $cacheEntry -Name 'value' } else { $null }
-            $reusable = $false
-            if ($null -ne $cachedProbe) {
-                # Freshness depends on what the previous answer was, not on one flat TTL.
-                $allowedTtl = Get-LinkCacheTtlHours -Status (Get-MemberValue -Object $cachedProbe -Name 'status') -Ok ([bool](Get-MemberValue -Object $cachedProbe -Name 'ok'))
-                $entryAge = [double](Get-MemberValue -Object $cacheEntry -Name 'ageHours')
-                $reusable = ($allowedTtl -gt 0 -and $entryAge -le $allowedTtl)
-            }
+            $reusable = Set-LinkProbeCacheContext -Target $target
+            $cachedProbe = Get-MemberValue -Object $target -Name 'cachedProbe'
+            $cacheEntry = if ($null -ne $cachedProbe) { $cachedProbe } else { $null }
             # Count the decision, not the raw TTL: a 404 or 429 that gets re-probed is
             # not a cache hit, however recently it was written.
             if ($reusable) {
@@ -3251,12 +3288,7 @@ function Invoke-LinkProbeBatch {
                 Add-ValidationCacheCounter -Bucket links -Counter missCount
             }
             if (-not $reusable) {
-                if ($null -ne $cacheEntry) {
-                    # Carry stored validators into the probe so a 304 can settle it cheaply.
-                    Set-MemberValue -Object $target -Name 'ifNoneMatch' -Value (Get-MemberValue -Object $cacheEntry -Name 'etag')
-                    Set-MemberValue -Object $target -Name 'ifModifiedSince' -Value (Get-MemberValue -Object $cacheEntry -Name 'lastModified')
-                    Set-MemberValue -Object $target -Name 'cachedProbe' -Value $cachedProbe
-                }
+                # Validators are already attached by Set-LinkProbeCacheContext.
                 $uncachedTargets.Add($target)
                 continue
             }
@@ -3302,10 +3334,13 @@ function Invoke-LinkProbeBatch {
             ${function:Test-HttpUrl} = $using:testHttpUrlDefinition
             ${function:Get-RetryAfterSeconds} = $using:getRetryAfterSecondsDefinition
             $target = $_
-            $ifNoneMatch = if ($target.PSObject.Properties.Name -contains 'ifNoneMatch') { [string]$target.ifNoneMatch } else { $null }
-            $ifModifiedSince = if ($target.PSObject.Properties.Name -contains 'ifModifiedSince') { [string]$target.ifModifiedSince } else { $null }
+            # Targets are [ordered] dictionaries, whose PSObject.Properties lists Count,
+            # Keys and Values rather than the entries, so a PSObject guard here silently
+            # never found the validators and no conditional header was ever sent.
+            $ifNoneMatch = [string](Get-MemberValue -Object $target -Name 'ifNoneMatch')
+            $ifModifiedSince = [string](Get-MemberValue -Object $target -Name 'ifModifiedSince')
             $result = Test-HttpUrl -Url $target.url -IfNoneMatch $ifNoneMatch -IfModifiedSince $ifModifiedSince
-            $cachedProbe = if ($target.PSObject.Properties.Name -contains 'cachedProbe') { $target.cachedProbe } else { $null }
+            $cachedProbe = Get-MemberValue -Object $target -Name 'cachedProbe'
             if ($result.status -eq 304 -and $null -ne $cachedProbe) {
                 # 304 means the stored answer still holds; keep it and refresh its age.
                 $result = [ordered]@{
@@ -3336,10 +3371,12 @@ function Invoke-LinkProbeBatch {
                 error = $result.error
                 probeFatal = [bool]$result.fatal
                 fatal = [bool]($targetFatalOnFailure -and [bool]$result.fatal)
-                notModified = [bool]($result.PSObject.Properties.Name -contains 'notModified' ? $result.notModified : $false)
-                etag = if ($result.PSObject.Properties.Name -contains 'etag') { $result.etag } else { $null }
-                lastModified = if ($result.PSObject.Properties.Name -contains 'lastModified') { $result.lastModified } else { $null }
-                retryAfterUtc = if ($result.PSObject.Properties.Name -contains 'retryAfter' -and $null -ne $result.retryAfter) { [string]$result.retryAfter.retryAfterUtc } else { $null }
+                # Test-HttpUrl also returns an [ordered] dictionary, so the same guard
+                # discarded every validator and the cache was written with empty ones.
+                notModified = [bool](Get-MemberValue -Object $result -Name 'notModified')
+                etag = Get-MemberValue -Object $result -Name 'etag'
+                lastModified = Get-MemberValue -Object $result -Name 'lastModified'
+                retryAfterUtc = [string](Get-MemberValue -Object (Get-MemberValue -Object $result -Name 'retryAfter') -Name 'retryAfterUtc')
             }
         } -ThrottleLimit $throttle)
 
@@ -3357,12 +3394,26 @@ function Invoke-LinkProbeBatch {
                 }
         }
 
+
         $probeRows = @($cachedRows.ToArray() + $freshRows)
+    }
+
+    # A server-directed retry longer than the local cap is reported rather than slept
+    # through, so the run says when each deferred target may be probed again. Collected
+    # from the rows themselves so both the live and the injected probe path report it.
+    foreach ($row in @($probeRows | Where-Object { -not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $_ -Name 'retryAfterUtc')) })) {
+        $deferred.Add([ordered]@{
+            url = [string](Get-MemberValue -Object $row -Name 'url')
+            host = Get-MemberValue -Object $row -Name 'host'
+            status = Get-MemberValue -Object $row -Name 'status'
+            retryAfterUtc = [string](Get-MemberValue -Object $row -Name 'retryAfterUtc')
+        })
     }
 
     $stopwatch.Stop()
     return [ordered]@{
         results = @($probeRows)
+        deferredRetries = @($deferred.ToArray())
         targetCount = $targetList.Count
         throttleLimit = $throttle
         elapsedMs = $stopwatch.ElapsedMilliseconds
@@ -3427,6 +3478,7 @@ function Test-LinkTargets {
         targetCount = $probeBatch.targetCount
         throttleLimit = $probeBatch.throttleLimit
         elapsedMs = $probeBatch.elapsedMs
+        deferredRetries = @(Get-MemberValue -Object $probeBatch -Name 'deferredRetries')
     }
 }
 
@@ -14568,6 +14620,7 @@ function Test-ProfileState {
         readmeUserscriptInstallTargetCount = 0
         warningCountByHost = @()
         headerHostWarnings = @()
+        deferredRetries = @()
     }
     if (-not $Offline -and -not $SkipLinkValidation) {
         $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
@@ -14587,6 +14640,7 @@ function Test-ProfileState {
             readmeUserscriptInstallTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-userscript-install" }).Count
             warningCountByHost = @($linkResult.warningCountByHost)
             headerHostWarnings = @($linkResult.headerHostWarnings)
+            deferredRetries = @($linkResult.deferredRetries)
         }
     }
 

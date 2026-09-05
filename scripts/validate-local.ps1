@@ -218,7 +218,7 @@ function Get-ModuleLockEntry {
             throw "Lock record for $Name $Version is missing $field."
         }
     }
-    if ($entry.signed -eq $true -and [string]::IsNullOrWhiteSpace([string]$entry.expectedSigner)) {
+    if ($entry.signed -eq $true -and @($entry.expectedSigners | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }).Count -eq 0) {
         throw "Lock record for $Name $Version claims the package is signed but names no expected signer."
     }
 
@@ -242,7 +242,7 @@ function Assert-ModuleAuthenticodeSigner {
         [string]$Version,
 
         [Parameter(Mandatory)]
-        [string]$ExpectedSigner
+        [string[]]$ExpectedSigners
     )
 
     $signable = @(Get-ChildItem -LiteralPath $ModuleRoot -Recurse -File -Include '*.psd1', '*.psm1', '*.ps1', '*.dll' -ErrorAction SilentlyContinue)
@@ -250,22 +250,38 @@ function Assert-ModuleAuthenticodeSigner {
         throw "Extracted $Name $Version contains no signable files to verify."
     }
 
+    $allowed = @($ExpectedSigners | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | ForEach-Object { [string]$_ })
+    if ($allowed.Count -eq 0) {
+        throw "No expected signer was supplied for $Name $Version; refusing to import."
+    }
+
     $signedCount = 0
+    $unsigned = New-Object System.Collections.Generic.List[string]
     foreach ($file in $signable) {
         $signature = Get-AuthenticodeSignature -FilePath $file.FullName
         if ($signature.Status -eq "NotSigned") {
+            # A package the lock records as signed should not contain unsigned
+            # executable content: stripping a signature block is how a tampered file
+            # slips past a check that only looks at files which still carry one.
+            $unsigned.Add([string]$file.Name)
             continue
         }
         if ($signature.Status -ne "Valid") {
             throw "$Name $Version file '$($file.Name)' has Authenticode status $($signature.Status); refusing to import."
         }
         $subject = [string]$signature.SignerCertificate.Subject
-        if ($subject -cne $ExpectedSigner) {
-            throw "$Name $Version file '$($file.Name)' is signed by '$subject' but the lock expects '$ExpectedSigner'; refusing to import."
+        # A module may legitimately bundle third-party signed assemblies, so the lock
+        # names the full set of signers it is allowed to ship. Comparison is
+        # case-sensitive: a transliterated subject is a different signer.
+        if (@($allowed | Where-Object { $_ -ceq $subject }).Count -eq 0) {
+            throw "$Name $Version file '$($file.Name)' is signed by '$subject', which the lock does not list for this module; refusing to import."
         }
         $signedCount++
     }
 
+    if ($unsigned.Count -gt 0) {
+        throw "$Name $Version is recorded as signed but $($unsigned.Count) extracted file(s) carry no signature ($($unsigned -join ', ')); refusing to import."
+    }
     if ($signedCount -eq 0) {
         throw "$Name $Version is recorded as signed in the lock but no extracted file carries a signature; refusing to import."
     }
@@ -309,7 +325,7 @@ function Install-RequiredModule {
         # cheap, rather than trusting that whatever is on disk arrived through this path.
         if ($entry.signed -eq $true) {
             $null = Assert-ModuleAuthenticodeSigner -ModuleRoot (Split-Path -Parent $available.Path) `
-                -Name $Name -Version $Version -ExpectedSigner ([string]$entry.expectedSigner)
+                -Name $Name -Version $Version -ExpectedSigners (@($entry.expectedSigners))
         }
         return
     }
@@ -362,7 +378,7 @@ function Install-RequiredModule {
     }
 
     if ($entry.signed -eq $true) {
-        $verified = Assert-ModuleAuthenticodeSigner -ModuleRoot $destination -Name $Name -Version $Version -ExpectedSigner ([string]$entry.expectedSigner)
+        $verified = Assert-ModuleAuthenticodeSigner -ModuleRoot $destination -Name $Name -Version $Version -ExpectedSigners (@($entry.expectedSigners))
         Write-Host "Verified ${Name} ${Version}: package hash matches the lock and $verified signed file(s) carry the expected signer."
     } else {
         Write-Host "Verified $Name $Version by reviewed package hash; the lock records this package as unsigned."
@@ -457,7 +473,7 @@ function Invoke-Pester6Compatibility {
             }
         }
         if ($entry.signed -eq $true) {
-            $null = Assert-ModuleAuthenticodeSigner -ModuleRoot $destination -Name 'Pester' -Version $Version.ToString() -ExpectedSigner ([string]$entry.expectedSigner)
+            $null = Assert-ModuleAuthenticodeSigner -ModuleRoot $destination -Name 'Pester' -Version $Version.ToString() -ExpectedSigners (@($entry.expectedSigners))
         }
 
         $pwsh = Get-Command pwsh -CommandType Application -ErrorAction Stop | Select-Object -First 1
