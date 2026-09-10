@@ -12,6 +12,7 @@
   },
   "overrides": {
     "markdown-it": "14.3.0",
-    "js-yaml": "5.2.2"
+    "js-yaml": "5.2.2",
+    "smol-toml": "1.7.2"
   }
 }
