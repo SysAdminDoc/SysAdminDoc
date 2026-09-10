@@ -29,20 +29,6 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Acceptance: Delete retired hosted generated-PR and review-delivery fields and handling; aggregate success-only userscript, branch-tip, repository-setting, and release rows while retaining every warning and failure row with its current diagnostic fields. The regenerated pretty-printed report is at most 114,688 bytes, schema validation passes, summary output remains below 65,536 bytes, and tests compare warning/failure row identities before and after compaction.
   Complexity: M
 
-- [ ] P2: Add an opt-in normalized release-artifact export
-  Why: Current aggregate release trust discards exact tagged asset URLs, content types, sizes, and per-asset digests that owned portfolio and store consumers can use without scraping release pages.
-  Evidence: `New-ReleaseTrustSummary` and `New-ProjectsExportJson` in `scripts/sync-profile.ps1`, [GitHub release API](https://docs.github.com/en/rest/releases/releases?apiVersion=latest), `RESEARCH.md` Competitive Landscape and Architecture Assessment.
-  Touches: `Add-ReleaseAssetMetadata`, a `-ProjectArtifactsExportPath` option, `New-ProjectArtifactsExport`, a versioned JSON schema, public-suppression rules, fixtures and downstream compatibility tests.
-  Acceptance: Before implementation, record one owned consumer and its required contract. The opt-in export contains stable project ID, release tag and URL, and deterministically sorted uploaded assets with exact `browser_download_url`, name, kind, content type, size, GitHub digest, nullable platform, nullable architecture, and role (`installable`, `checksum`, `signature`, `sbom`, or `attestation`). Exclude drafts, suppressed projects, and volatile download counts; never infer platform or architecture at low confidence. Fixtures cover APK, CRX/ZIP, EXE/MSI, wheel, multi-architecture, no-digest, and source-only releases. Default artifacts remain byte-identical when the option is absent.
-  Complexity: M
-
-- [ ] P2: Add public-safe relationships between catalog projects
-  Why: Product families are currently inferred from names, while software catalogs use explicit relations for companion, extension, suite, and replacement navigation.
-  Evidence: `data/profile-catalog.json`, stable IDs and aliases in `schemas/profile-projects.v1.json`, [Backstage descriptor relations](https://backstage.io/docs/next/features/software-catalog/descriptor-format/), [Awesome Selfhosted related software](https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/software/ntfy.yml), `RESEARCH.md` Competitive Landscape.
-  Touches: Catalog and feed schemas, alias resolution, `New-ProjectsExportJson`, optional Backstage export, fixtures and privacy tests.
-  Acceptance: Before implementation, record one owned consumer and the first real project family it will render. Canonical entries accept an enum of `companion`, `extensionOf`, `supersedes`, and `suiteMember` with `targetRepo`; generation resolves aliases to stable IDs, rejects unknown targets and self-links, generates inverse `supersedes` information deterministically, and fails any public relation whose target is suppressed. Advance `schemaPolicy.currentVersion` from 3 to 4, retain version 3 in `supportedVersions`, and prove the existing field-selecting v3 compatibility fixture still passes. README output remains unchanged until a separate render decision is recorded.
-  Complexity: M
-
 ### P3
 
 - [ ] P3: Add a culture and input-order determinism oracle
@@ -90,7 +76,7 @@ Actionable incomplete work only. Completed work belongs in `CHANGELOG.md`; exter
   Why: There is no `.npmrc`, dependency lifecycle scripts run on install under the npm version this machine has, and the dependency review runs `npm audit` but never `npm audit signatures`, which verifies registry signatures and provenance with no CI.
   Evidence: no `.npmrc` exists in the repo. `scripts/review-local-dependencies.ps1:76` runs `npm audit --json` only. `npm audit signatures` works against a local `node_modules` tree (https://docs.npmjs.com/cli/audit/, https://docs.npmjs.com/viewing-package-provenance/). The Shai-Hulud family moved to `preinstall`, which runs even when the install fails (https://www.microsoft.com/en-us/security/blog/2025/12/09/shai-hulud-2-0-guidance-for-detecting-investigating-and-defending-against-the-supply-chain-attack/). `min-release-age` is opt-in in every npm version to date. See `RESEARCH.md` Security, Privacy, and Reliability.
   Touches: a new `.npmrc`, `scripts/review-local-dependencies.ps1`, the bootstrap in `scripts/validate-local.ps1`, the dependency-review block in `schemas/profile-sync-report.v1.json`, `Describe 'Local dependency advisory review'` (`tests/sync-profile.Tests.ps1:7077`).
-  Acceptance: A committed `.npmrc` sets `ignore-scripts=true`, `audit-level=high` and `min-release-age=1440`. `validate-local.ps1` runs `npm ci` under those settings, and the dependency review then runs `npm audit signatures`, recording verified, unverified and missing-signature counts plus provenance presence per direct dependency, and failing on any signature mismatch. A fixture with a tampered signature result fails the review; a clean fixture passes and records the counts.
+  Acceptance: A committed `.npmrc` sets `ignore-scripts=true`, `audit-level=high` and `min-release-age=1`. `validate-local.ps1` runs `npm ci` under those settings, and the dependency review then runs `npm audit signatures`, recording verified, unverified and missing-signature counts plus provenance presence per direct dependency, and failing on any signature mismatch. A fixture with a tampered signature result fails the review; a clean fixture passes and records the counts.
   Complexity: S
 
 - [ ] P2: Run OpenSSF Scorecard locally instead of reading a hosted score

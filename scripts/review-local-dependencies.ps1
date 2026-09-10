@@ -3,11 +3,13 @@
 param(
     [string]$RepoRoot = (Split-Path -Parent $PSScriptRoot),
     [string]$NpmAuditJsonPath,
+    [string]$NpmSignatureTextPath,
     [ValidateRange(1, 365)]
     [int]$PinFreshnessStaleAfterDays = 30,
     [string]$RegistryCachePath,
     [switch]$OfflineRegistry,
-    [switch]$SkipNpmAudit
+    [switch]$SkipNpmAudit,
+    [switch]$SkipNpmSignatures
 )
 
 Set-StrictMode -Version Latest
@@ -178,6 +180,258 @@ function Invoke-NpmAuditReview {
     }
 
     return ConvertTo-NpmAuditReview -RawJson ($auditOutput -join "`n") -ExitCode $auditExitCode -Source "local"
+}
+
+$NpmSignatureFailureStatuses = @("signature-mismatch", "signatures-missing")
+
+function Get-NpmSignatureCount {
+    <#
+    .SYNOPSIS
+    Reads one "N packages have <subject>" tally out of the npm summary text.
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$Body,
+        [Parameter(Mandatory)][string]$Subject
+    )
+
+    $pattern = '(?im)^\s*(?<n>\d+)\s+packages?\s+(?:have|has)\s+(?:an?\s+)?' + $Subject
+    $match = [regex]::Match([string]$Body, $pattern)
+    if ($match.Success) { return [int]$match.Groups['n'].Value }
+    return 0
+}
+
+function ConvertTo-NpmSignatureReview {
+    <#
+    .SYNOPSIS
+    Turns the output of `npm audit signatures` into a reviewable record.
+    .DESCRIPTION
+    npm prints this check as prose rather than JSON, and the --json form reports only
+    the failures, so the counts have to be read from the text. Kept separate from the
+    process launch so a tampered result can be replayed from a fixture through exactly
+    the same parser the live run uses.
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$RawText,
+        [object]$ExitCode,
+        [Parameter(Mandatory)]
+        [string]$Source
+    )
+
+    $command = "npm audit signatures"
+    $text = if ($null -eq $RawText) { "" } else { [string]$RawText }
+
+    $verified = Get-NpmSignatureCount -Body $text -Subject 'verified registry signatures?'
+    $attested = Get-NpmSignatureCount -Body $text -Subject 'verified attestations?'
+    $invalid = Get-NpmSignatureCount -Body $text -Subject 'invalid registry signatures?'
+    $missing = Get-NpmSignatureCount -Body $text -Subject 'missing registry signatures?'
+
+    # npm lists each offending package on its own line as name@version (registry-url).
+    $offenders = @(
+        foreach ($line in ($text -split "`r?`n")) {
+            $match = [regex]::Match($line, '^\s*(?<pkg>(?:@[^/\s]+/)?[^@\s]+@[^\s(]+)\s+\(')
+            if ($match.Success) { $match.Groups['pkg'].Value }
+        }
+    ) | Sort-Object -Unique
+
+    $status = if ($invalid -gt 0) {
+        "signature-mismatch"
+    } elseif ($missing -gt 0) {
+        "signatures-missing"
+    } elseif ([string]::IsNullOrWhiteSpace($text)) {
+        "unavailable"
+    } elseif ($null -ne $ExitCode -and [int]$ExitCode -ne 0) {
+        # A non-zero exit with no parsed failure means npm could not complete the check.
+        "unavailable"
+    } elseif ($verified -gt 0) {
+        "verified"
+    } else {
+        "unavailable"
+    }
+
+    $note = switch ($status) {
+        "verified" { "Registry signatures verified for $verified package(s); $attested carry a build provenance attestation." }
+        "signature-mismatch" { "npm reported $invalid invalid registry signature(s). Do not install until this is resolved." }
+        "signatures-missing" { "npm reported $missing package(s) without a registry signature while the registry was publishing keys." }
+        default { "npm audit signatures produced no verifiable result." }
+    }
+
+    return [ordered]@{
+        status = $status
+        source = $Source
+        command = $command
+        exitCode = $ExitCode
+        verifiedCount = [int]$verified
+        attestationCount = [int]$attested
+        invalidCount = [int]$invalid
+        missingCount = [int]$missing
+        offendingPackages = @($offenders)
+        note = $note
+    }
+}
+
+function Invoke-NpmSignatureReview {
+    <#
+    .SYNOPSIS
+    Verifies installed packages against the registry's published signatures.
+    .DESCRIPTION
+    `npm audit signatures` checks the registry's ECDSA signature over every installed
+    package, plus any build provenance attestation. It needs no hosted CI, which makes
+    it the one supply-chain check this repository can actually run. It proves registry
+    integrity, not that the content is benign, so it complements ignore-scripts rather
+    than replacing it.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RootPath,
+        [string]$SignatureTextPath,
+        [switch]$Skip
+    )
+
+    if ($SignatureTextPath) {
+        $rawText = Get-Content -LiteralPath $SignatureTextPath -Raw
+        return ConvertTo-NpmSignatureReview -RawText $rawText -ExitCode $null -Source "file"
+    }
+
+    if ($Skip) {
+        $review = ConvertTo-NpmSignatureReview -RawText "" -ExitCode $null -Source "not-run"
+        $review.status = "skipped"
+        $review.note = "Skipped by caller. Run without -SkipNpmAudit to verify registry signatures."
+        return $review
+    }
+
+    $npm = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $npm) {
+        $review = ConvertTo-NpmSignatureReview -RawText "" -ExitCode $null -Source "local"
+        $review.note = "npm was not found on PATH."
+        return $review
+    }
+
+    Push-Location -LiteralPath $RootPath
+    try {
+        $output = & $npm.Source audit signatures 2>&1
+        $exitCode = $LASTEXITCODE
+    } finally {
+        Pop-Location
+    }
+
+    return ConvertTo-NpmSignatureReview -RawText ($output | Out-String) -ExitCode $exitCode -Source "local"
+}
+
+function ConvertTo-NpmProvenanceRow {
+    <#
+    .SYNOPSIS
+    Records whether one direct dependency ships a registry signature and an attestation.
+    .DESCRIPTION
+    `npm audit signatures` reports totals, never which package carries provenance. The
+    per-version answer lives in the registry packument under dist.signatures and
+    dist.attestations, so the row is built from that rather than inferred from a count.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][ValidateSet('devDependency', 'override')][string]$Source,
+        [string]$RequestedVersion,
+        [string]$InstalledVersion,
+        [object]$Dist
+    )
+
+    $signature = "unknown"
+    $attestation = "unknown"
+    if ($null -ne $Dist) {
+        $signatures = Get-MemberOrProperty -InputObject $Dist -Name "signatures"
+        $attestations = Get-MemberOrProperty -InputObject $Dist -Name "attestations"
+        $signature = if ($null -ne $signatures -and @($signatures).Count -gt 0) { "present" } else { "absent" }
+        $attestation = if ($null -ne $attestations) { "present" } else { "absent" }
+    }
+
+    $status = if ($signature -eq "unknown") {
+        "unknown"
+    } elseif ($signature -eq "present") {
+        "signed"
+    } else {
+        "unsigned"
+    }
+
+    return [ordered]@{
+        name = $Name
+        source = $Source
+        requestedVersion = $RequestedVersion
+        installedVersion = $InstalledVersion
+        registrySignature = $signature
+        provenanceAttestation = $attestation
+        status = $status
+    }
+}
+
+function Get-MemberOrProperty {
+    [CmdletBinding()]
+    param(
+        [object]$InputObject,
+        [Parameter(Mandatory)][string]$Name
+    )
+
+    if ($null -eq $InputObject) { return $null }
+    if ($InputObject -is [System.Collections.IDictionary]) {
+        if ($InputObject.Contains($Name)) { return $InputObject[$Name] }
+        return $null
+    }
+    $property = $InputObject.PSObject.Properties[$Name]
+    if ($null -eq $property) { return $null }
+    return $property.Value
+}
+
+function Get-NpmDirectDependencyProvenance {
+    <#
+    .SYNOPSIS
+    Reports registry signature and provenance presence for every direct dependency.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][System.Collections.IDictionary]$PackageJson,
+        [Parameter(Mandatory)][System.Collections.IDictionary]$PackageLock,
+        [switch]$Offline,
+        [int]$TimeoutSec = 15
+    )
+
+    $packages = Get-MapValue -Map $PackageLock -Key "packages" -Default @{}
+    $direct = [ordered]@{}
+    foreach ($entry in (Get-MapValue -Map $PackageJson -Key "devDependencies" -Default @{}).GetEnumerator()) {
+        $direct[[string]$entry.Key] = [ordered]@{ source = "devDependency"; requested = [string]$entry.Value }
+    }
+    foreach ($entry in (Get-MapValue -Map $PackageJson -Key "overrides" -Default @{}).GetEnumerator()) {
+        $direct[[string]$entry.Key] = [ordered]@{ source = "override"; requested = [string]$entry.Value }
+    }
+
+    $rows = @(
+        foreach ($name in @($direct.Keys | Sort-Object)) {
+            $lockEntry = Get-MapValue -Map $packages -Key "node_modules/$name" -Default $null
+            $installed = if ($lockEntry) { [string](Get-MapValue -Map $lockEntry -Key "version" -Default "") } else { "" }
+            $dist = $null
+            if (-not $Offline -and -not [string]::IsNullOrWhiteSpace($installed) -and $name -match $SafePackageNamePattern) {
+                try {
+                    $packument = Invoke-RestMethod -Uri "$NpmRegistryBase/$([uri]::EscapeDataString($name))" -TimeoutSec $TimeoutSec -MaximumRedirection 3 -ErrorAction Stop
+                    $versions = Get-MemberOrProperty -InputObject $packument -Name "versions"
+                    $version = Get-MemberOrProperty -InputObject $versions -Name $installed
+                    $dist = Get-MemberOrProperty -InputObject $version -Name "dist"
+                } catch {
+                    $dist = $null
+                }
+            }
+            ConvertTo-NpmProvenanceRow -Name $name -Source $direct[$name].source -RequestedVersion $direct[$name].requested -InstalledVersion $installed -Dist $dist
+        }
+    )
+
+    return [ordered]@{
+        count = [int]$rows.Count
+        signedCount = @($rows | Where-Object { $_.status -eq "signed" }).Count
+        unsignedCount = @($rows | Where-Object { $_.status -eq "unsigned" }).Count
+        unknownCount = @($rows | Where-Object { $_.status -eq "unknown" }).Count
+        attestedCount = @($rows | Where-Object { $_.provenanceAttestation -eq "present" }).Count
+        rows = $rows
+    }
 }
 
 function Get-PackageOverrideReview {
@@ -640,6 +894,7 @@ $validationScriptPath = Join-Path $resolvedRoot "scripts/validate-local.ps1"
 $packageJson = Get-JsonHashtable -Path $packageJsonPath
 $packageLock = Get-JsonHashtable -Path $packageLockPath
 $npmAudit = Invoke-NpmAuditReview -RootPath $resolvedRoot -AuditJsonPath $NpmAuditJsonPath -Skip:$SkipNpmAudit
+$npmSignatures = Invoke-NpmSignatureReview -RootPath $resolvedRoot -SignatureTextPath $NpmSignatureTextPath -Skip:$SkipNpmSignatures
 $overrideReview = Get-PackageOverrideReview -PackageJson $packageJson -PackageLock $packageLock
 $npmToolPins = @(Get-NpmToolPins -PackageJson $packageJson -PackageLock $packageLock)
 $powerShellPins = @(Get-PowerShellModulePins -ValidationScriptPath $validationScriptPath)
@@ -656,8 +911,14 @@ $missingPins = (
     @($powerShellPins | Where-Object { $_.status -ne "pinned" }) +
     @($pythonToolPins | Where-Object { $_.status -ne "hash-pinned" })
 ).Count
+$npmProvenance = Get-NpmDirectDependencyProvenance -PackageJson $packageJson -PackageLock $packageLock -Offline:$OfflineRegistry
 $localPinReviewNeeded = [bool]($overrideReview.driftCount -ne 0 -or $missingPins -ne 0)
-$status = if ($localPinReviewNeeded) {
+# A signature failure is not a pin-freshness opinion, it is a tampering signal, so it
+# outranks every other reason this review might otherwise come back clean.
+$signatureFailed = [bool]($NpmSignatureFailureStatuses -ccontains [string]$npmSignatures.status)
+$status = if ($signatureFailed) {
+    "review-needed"
+} elseif ($localPinReviewNeeded) {
     "review-needed"
 } elseif ($npmAudit.status -eq "clean") {
     "ok"
@@ -674,10 +935,13 @@ $review = [ordered]@{
     commands = [ordered]@{
         full = "pwsh -NoProfile -File .\scripts\review-local-dependencies.ps1"
         npmAudit = "npm audit --json"
+        npmSignatures = "npm audit signatures"
     }
     pinFreshness = $pinFreshness
     npm = [ordered]@{
         audit = $npmAudit
+        signatures = $npmSignatures
+        provenance = $npmProvenance
         overrides = $overrideReview
         devDependencyPins = $npmToolPins
     }

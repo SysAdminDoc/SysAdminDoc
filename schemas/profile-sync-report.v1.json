@@ -2948,6 +2948,8 @@
         "warningDisposition",
         "localAdvisoryReviewCovering",
         "localAdvisoryReviewGapReason",
+        "registrySignatureStatus",
+        "registrySignatureSummary",
         "documentationPath",
         "evidence",
         "nextAction"
@@ -2966,6 +2968,12 @@
           "type": "boolean"
         },
         "localAdvisoryReviewGapReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "registrySignatureStatus": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "registrySignatureSummary": {
           "$ref": "#/$defs/nullableString"
         },
         "dependabotSecurityUpdatesStatus": {

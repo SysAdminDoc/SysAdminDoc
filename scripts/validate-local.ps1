@@ -567,6 +567,113 @@ function Assert-ScriptAnalyzerClean {
     }
 }
 
+function Get-NpmSupplyChainPosture {
+    <#
+    .SYNOPSIS
+    Reports whether npm is actually running with the committed supply-chain settings.
+    .DESCRIPTION
+    A committed .npmrc is a claim, not a control. npm resolves config from four files
+    plus the environment, so a user-level or environment override can quietly turn
+    ignore-scripts back on for the very install this lane is meant to protect. This asks
+    npm what it resolved rather than trusting the file. min-release-age only exists from
+    npm 11.5.0, so on older npm it is reported as unsupported instead of failing a clone
+    that cannot honour it.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$NpmPath,
+
+        [Parameter(Mandatory)]
+        [string]$RepoRoot
+    )
+
+    $expected = [ordered]@{
+        "ignore-scripts" = "true"
+        "audit-level" = "high"
+        "min-release-age" = "1"
+    }
+    $minReleaseAgeFloor = [version]"11.5.0"
+
+    Push-Location -LiteralPath $RepoRoot
+    try {
+        $resolvedVersion = (& $NpmPath --version 2>&1 | Out-String).Trim()
+        $resolved = [ordered]@{}
+        foreach ($key in $expected.Keys) {
+            $resolved[$key] = (& $NpmPath config get $key 2>&1 | Out-String).Trim()
+        }
+    } finally {
+        Pop-Location
+    }
+
+    $parsedVersion = $null
+    $supportsMinReleaseAge = $true
+    if ([version]::TryParse((($resolvedVersion -split '-')[0]), [ref]$parsedVersion)) {
+        $supportsMinReleaseAge = $parsedVersion -ge $minReleaseAgeFloor
+    }
+
+    $settings = @()
+    $violations = @()
+    $warnings = @()
+    foreach ($key in $expected.Keys) {
+        $actual = [string]$resolved[$key]
+        $required = -not ($key -eq "min-release-age" -and -not $supportsMinReleaseAge)
+        $status = if ($actual -ceq $expected[$key]) {
+            "enforced"
+        } elseif (-not $required) {
+            "unsupported"
+        } else {
+            "overridden"
+        }
+
+        $settings += [ordered]@{
+            key = $key
+            expected = $expected[$key]
+            actual = $actual
+            status = $status
+        }
+
+        if ($status -eq "overridden") {
+            $violations += "npm resolved $key to '$actual'; the committed .npmrc requires '$($expected[$key])'."
+        } elseif ($status -eq "unsupported") {
+            $warnings += "npm $resolvedVersion predates min-release-age support (npm $minReleaseAgeFloor); the setting is committed but not enforced here."
+        }
+    }
+
+    return [ordered]@{
+        npmVersion = $resolvedVersion
+        supportsMinReleaseAge = [bool]$supportsMinReleaseAge
+        settings = $settings
+        violations = @($violations)
+        warnings = @($warnings)
+        status = if (@($violations).Count -gt 0) { "overridden" } else { "enforced" }
+    }
+}
+
+function Assert-NpmSupplyChainDefaults {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$NpmPath,
+
+        [Parameter(Mandatory)]
+        [string]$RepoRoot
+    )
+
+    $posture = Get-NpmSupplyChainPosture -NpmPath $NpmPath -RepoRoot $RepoRoot
+    foreach ($warning in @($posture.warnings)) {
+        Write-Warning $warning
+    }
+    if ($posture.status -ne "enforced") {
+        foreach ($violation in @($posture.violations)) {
+            Write-Warning $violation
+        }
+        throw "npm is not running with the committed supply-chain settings. Remove the overriding config before installing dependencies."
+    }
+
+    Write-Host ("npm supply chain: {0} (npm {1}); {2}" -f $posture.status, $posture.npmVersion, (@($posture.settings | ForEach-Object { "$($_.key)=$($_.actual)" }) -join ", "))
+}
+
 function Invoke-DependencyReview {
     [CmdletBinding()]
     param(
@@ -610,7 +717,7 @@ function Invoke-DependencyReview {
 
     try {
         $review = $text | ConvertFrom-Json
-        Write-Host ("Dependency review: {0}; npm audit: {1}; pin freshness: {2}" -f $review.status, $review.npm.audit.status, $review.pinFreshness.status)
+        Write-Host ("Dependency review: {0}; npm audit: {1}; signatures: {2}; pin freshness: {3}" -f $review.status, $review.npm.audit.status, $review.npm.signatures.status, $review.pinFreshness.status)
     } catch {
         Write-Host "Dependency review passed, but the JSON summary could not be parsed: $($_.Exception.Message)"
     }
@@ -713,6 +820,7 @@ try {
     }
 
     $npm = Get-Command npm -ErrorAction Stop
+    Assert-NpmSupplyChainDefaults -NpmPath $npm.Source -RepoRoot $repoRoot
 
     if (-not $SkipBootstrap) {
         Invoke-NativeCommand -FilePath $npm.Source -ArgumentList @("ci")

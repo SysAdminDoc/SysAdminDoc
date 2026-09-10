@@ -7270,7 +7270,7 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match 'function Invoke-DependencyReview'
         $validationScript | Should -Match 'Invoke-DependencyReview -RepoRoot \$repoRoot'
         $validationScript | Should -Match 'Dependency review failed with exit code'
-        $validationScript | Should -Match 'Dependency review: \{0\}; npm audit: \{1\}; pin freshness: \{2\}'
+        $validationScript | Should -Match 'Dependency review: \{0\}; npm audit: \{1\}; signatures: \{2\}; pin freshness: \{3\}'
         $validationScript | Should -Match 'Pester"; Version = "5\.9\.1"'
         $validationScript | Should -Match 'PSScriptAnalyzer"; Version = "1\.25\.0"'
         $validationScript | Should -Match 'Invoke-ScriptAnalyzer'
@@ -8656,7 +8656,11 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
         $script:DependencyReviewReadme | Should -Match 'npm run review:dependencies'
         $script:DependencyReviewReadme | Should -Match 'manual dependency and advisory review'
         $script:DependencyReviewReadme | Should -Match 'package override drift'
-        $script:DependencyReviewReadme | Should -Match 'latest-known npm/Python audit-tool freshness'
+        # Wording follows the registry-backed freshness model that replaced the
+        # hand-edited latest-known map; the old phrase described evidence that is gone.
+        $script:DependencyReviewReadme | Should -Match 'resolves every pin against the npm and PyPI registries'
+        $script:DependencyReviewReadme | Should -Match 'npm audit signatures'
+        $script:DependencyReviewReadme | Should -Match 'ignore-scripts=true'
         $script:DependencyReviewScript | Should -Match 'compatibilityLanes'
         $script:DependencyReviewScript | Should -Match 'Pester6CompatibilityVersion'
         $script:DependencyReviewReadme | Should -Match 'Pester 6 compatibility lane'
@@ -8691,15 +8695,13 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
 '@
             [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
 
-            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -SkipNpmSignatures
             $LASTEXITCODE | Should -Be 0
             $report = ($output -join "`n") | ConvertFrom-Json
 
             $report.status | Should -Be 'ok'
             $report.policy | Should -Be 'manual-local-only'
             $report.commands.full | Should -Match 'review-local-dependencies[.]ps1'
-            $report.pinFreshness.status | Should -Be 'fresh'
-            $report.pinFreshness.latestCheckedAt | Should -Be '2026-08-20'
             $report.pinFreshness.warningCount | Should -Be 0
             $report.npm.audit.status | Should -Be 'clean'
             $report.npm.audit.severityCounts.total | Should -Be 0
@@ -8709,23 +8711,27 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
             ($report.npm.overrides.rows | Where-Object { $_.package -eq 'js-yaml' }).status | Should -Be 'aligned'
             $report.npm.devDependencyPins.package | Should -Contain 'markdownlint-cli2'
             ($report.npm.devDependencyPins | Where-Object { $_.package -eq 'markdownlint-cli2' }).status | Should -Be 'aligned'
+            # currentCompatible is the version actually resolved; registryLatest is what
+            # the registry serves today. The old assertions read a hand-edited map that
+            # reported every pin as current long after npm had moved on.
             $markdownlintFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'markdownlint-cli2' }
-            $markdownlintFreshness.currentVersion | Should -Be '0.23.2'
-            $markdownlintFreshness.latestKnownVersion | Should -Be '0.23.2'
-            $markdownlintFreshness.latestStatus | Should -Be 'current'
+            $markdownlintFreshness.currentCompatible | Should -Be '0.23.2'
+            $markdownlintFreshness.declaredByParent | Should -Be '0.23.2'
+            $markdownlintFreshness.compatibilityStatus | Should -BeIn @('current', 'behind-registry-latest', 'major-upgrade-available')
             $jsYamlFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'js-yaml' }
-            $jsYamlFreshness.latestKnownVersion | Should -Be '5.2.2'
+            $jsYamlFreshness.currentCompatible | Should -Be '5.2.2'
+            $jsYamlFreshness.registryLatest | Should -Not -BeNullOrEmpty
             $markdownItFreshness = $report.pinFreshness.npm.rows | Where-Object { $_.name -eq 'markdown-it' }
-            $markdownItFreshness.latestKnownVersion | Should -Be '14.3.0'
+            $markdownItFreshness.currentCompatible | Should -Be '14.3.0'
+            $markdownItFreshness.registryLatest | Should -Not -BeNullOrEmpty
             $report.powershell.requiredModules.name | Should -Contain 'Pester'
             $report.powershell.requiredModules.name | Should -Contain 'PSScriptAnalyzer'
             ($report.powershell.requiredModules | Where-Object { $_.name -eq 'Pester' }).requiredVersion | Should -Be '5.9.1'
             $report.python.auditTools.name | Should -Contain 'zizmor'
             ($report.python.auditTools | Where-Object { $_.name -eq 'zizmor' }).hashPinned | Should -BeTrue
             $zizmorFreshness = $report.pinFreshness.python.rows | Where-Object { $_.name -eq 'zizmor' }
-            $zizmorFreshness.currentVersion | Should -Be '1.29.0'
-            $zizmorFreshness.latestKnownVersion | Should -Be '1.29.0'
-            $zizmorFreshness.latestStatus | Should -Be 'current'
+            $zizmorFreshness.currentCompatible | Should -Be '1.29.0'
+            $zizmorFreshness.registryLatest | Should -Not -BeNullOrEmpty
         } finally {
             if (Test-Path -LiteralPath $auditPath) {
                 Remove-Item -LiteralPath $auditPath -Force
@@ -8733,7 +8739,7 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
         }
     }
 
-    It 'warns but does not fail when latest-known pin evidence is stale' {
+    It 'warns but does not fail when the cached registry evidence is stale' {
         $auditPath = Join-Path ([System.IO.Path]::GetTempPath()) ('SysAdminDoc-npm-audit-' + [guid]::NewGuid().ToString('N') + '.json')
         try {
             $auditJson = @'
@@ -8760,14 +8766,29 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
 '@
             [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
 
-            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -PinLatestCheckedAt '2026-05-01'
+            # Staleness is no longer a hand-entered date. It is the age of the cached
+            # registry answer, so the fixture is an aged cache read under -OfflineRegistry.
+            $cachePath = Join-Path $TestDrive 'aged-registry-cache.json'
+            ([ordered]@{
+                fetchedAt = ([datetimeoffset]::Now.AddDays(-120)).ToString('o')
+                packages = [ordered]@{
+                    'npm/markdownlint-cli2' = '0.23.2'
+                    'npm/js-yaml' = '5.2.2'
+                    'npm/markdown-it' = '14.3.0'
+                    'python/zizmor' = '1.29.0'
+                }
+            } | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $cachePath -Encoding utf8
+
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath `
+                -SkipNpmSignatures -OfflineRegistry -RegistryCachePath $cachePath
             $LASTEXITCODE | Should -Be 0
             $report = ($output -join "`n") | ConvertFrom-Json
 
             $report.status | Should -Be 'ok'
             $report.pinFreshness.status | Should -Be 'stale'
+            $report.pinFreshness.evidenceSource | Should -Be 'cache'
             $report.pinFreshness.warningCount | Should -BeGreaterThan 0
-            $report.pinFreshness.warnings[0] | Should -Match 'refresh the manual pin review'
+            $report.pinFreshness.warnings[0] | Should -Match 'past the 30 day window'
         } finally {
             if (Test-Path -LiteralPath $auditPath) {
                 Remove-Item -LiteralPath $auditPath -Force
@@ -8802,7 +8823,7 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
 '@
             [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
 
-            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath *>&1
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -SkipNpmSignatures *>&1
             $LASTEXITCODE | Should -Be 1
             $report = ($output -join "`n") | ConvertFrom-Json
 
@@ -8850,12 +8871,258 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
         '$requiredModules = @([pscustomobject]@{ Name = "Pester"; Version = "5.9.1" })' |
             Set-Content -LiteralPath (Join-Path $root 'scripts/validate-local.ps1') -Encoding utf8
 
-        $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -RepoRoot $root -SkipNpmAudit *>&1
+        $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -RepoRoot $root -SkipNpmAudit -SkipNpmSignatures *>&1
         $LASTEXITCODE | Should -Be 1
         $report = ($output -join "`n") | ConvertFrom-Json
 
         $report.status | Should -Be 'review-needed'
         $report.npm.audit.status | Should -Be 'skipped'
         $report.npm.overrides.driftCount | Should -Be 1
+    }
+}
+
+Describe 'npm supply-chain defaults are committed and enforced' {
+    BeforeAll {
+        $script:ReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
+        $script:ValidationScriptPath = Join-Path $script:RepoRoot 'scripts/validate-local.ps1'
+        $script:NpmrcPath = Join-Path $script:RepoRoot '.npmrc'
+
+        # Dot-sourced here rather than through a helper: a helper would define the
+        # functions in its own scope and the tests would never see them.
+        $wanted = @(
+            @{ Path = $script:ReviewScriptPath; Names = @('Get-NpmSignatureCount', 'ConvertTo-NpmSignatureReview', 'ConvertTo-NpmProvenanceRow', 'Get-MemberOrProperty') }
+            @{ Path = $script:ValidationScriptPath; Names = @('Get-NpmSupplyChainPosture', 'Assert-NpmSupplyChainDefaults') }
+        )
+        foreach ($source in $wanted) {
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput((Get-Content -LiteralPath $source.Path -Raw), [ref]$null, [ref]$null)
+            foreach ($name in $source.Names) {
+                $definition = $ast.FindAll(
+                    {
+                        param($node)
+                        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
+                    }, $true) | Select-Object -First 1
+                $definition | Should -Not -BeNullOrEmpty -Because "$name must exist in $($source.Path)"
+                . ([scriptblock]::Create($definition.Extent.Text))
+            }
+        }
+
+        # Verbatim npm 11.17.0 output. Held as fixtures so the parser is exercised against
+        # the wording npm actually prints, singular forms included.
+        $script:CleanSignatureText = @'
+audited 86 packages in 0s
+
+86 packages have verified registry signatures
+
+2 packages have verified attestations
+(use --json --include-attestations to view attestation details)
+'@
+        $script:TamperedSignatureText = @'
+audited 86 packages in 1s
+
+85 packages have verified registry signatures
+
+1 package has an invalid registry signature:
+
+markdown-it@14.3.0 (https://registry.npmjs.org)
+
+Someone might have tampered with this package since it was published on the registry!
+'@
+        $script:MissingSignatureText = @'
+audited 86 packages in 1s
+
+84 packages have verified registry signatures
+
+2 packages have missing registry signatures but the registry is providing signing keys:
+
+js-yaml@5.2.2 (https://registry.npmjs.org)
+markdown-it@14.3.0 (https://registry.npmjs.org)
+'@
+    }
+
+    It 'commits the three supply-chain settings rather than relying on npm defaults' {
+        Test-Path -LiteralPath $script:NpmrcPath | Should -BeTrue -Because 'a clone must inherit the settings, not the operator memory of them'
+        $npmrc = Get-Content -LiteralPath $script:NpmrcPath -Raw
+        $npmrc | Should -Match '(?m)^ignore-scripts=true$'
+        $npmrc | Should -Match '(?m)^audit-level=high$'
+        $npmrc | Should -Match '(?m)^min-release-age=1$'
+    }
+
+    It 'records the counts from a clean signature run' {
+        $review = ConvertTo-NpmSignatureReview -RawText $script:CleanSignatureText -ExitCode 0 -Source 'file'
+
+        $review.status | Should -Be 'verified'
+        $review.verifiedCount | Should -Be 86
+        $review.attestationCount | Should -Be 2
+        $review.invalidCount | Should -Be 0
+        $review.missingCount | Should -Be 0
+        @($review.offendingPackages) | Should -HaveCount 0
+    }
+
+    It 'fails on a tampered signature and names the package' {
+        $review = ConvertTo-NpmSignatureReview -RawText $script:TamperedSignatureText -ExitCode 1 -Source 'file'
+
+        $review.status | Should -Be 'signature-mismatch'
+        $review.invalidCount | Should -Be 1
+        $review.verifiedCount | Should -Be 85
+        @($review.offendingPackages) | Should -Contain 'markdown-it@14.3.0'
+    }
+
+    It 'separates a missing signature from a mismatched one' {
+        # A package the registry never signed is a gap; a package whose signature does not
+        # verify is a tampering signal. Both stop the review, and the report says which.
+        $review = ConvertTo-NpmSignatureReview -RawText $script:MissingSignatureText -ExitCode 1 -Source 'file'
+
+        $review.status | Should -Be 'signatures-missing'
+        $review.missingCount | Should -Be 2
+        $review.invalidCount | Should -Be 0
+        @($review.offendingPackages) | Should -HaveCount 2
+    }
+
+    It 'reports an empty or failed run as unavailable rather than clean' {
+        (ConvertTo-NpmSignatureReview -RawText '' -ExitCode $null -Source 'file').status | Should -Be 'unavailable'
+        (ConvertTo-NpmSignatureReview -RawText 'npm error code ENOTFOUND' -ExitCode 1 -Source 'local').status | Should -Be 'unavailable'
+    }
+
+    It 'reads the singular wording npm uses for a single package' {
+        Get-NpmSignatureCount -Body '1 package has an invalid registry signature:' -Subject 'invalid registry signatures?' |
+            Should -Be 1
+        Get-NpmSignatureCount -Body '1 package has a missing registry signature but the registry is providing signing keys:' -Subject 'missing registry signatures?' |
+            Should -Be 1
+    }
+
+    It 'fails the whole dependency review when a signature does not verify' {
+        # The end-to-end proof: the parser verdict has to reach the exit code, or the
+        # review stays green while npm is telling us a package was tampered with.
+        $fixture = Join-Path $TestDrive 'tampered-signatures.txt'
+        Set-Content -LiteralPath $fixture -Value $script:TamperedSignatureText -Encoding utf8
+
+        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath `
+            -NpmSignatureTextPath $fixture -SkipNpmAudit -OfflineRegistry 2>&1
+        $exitCode = $LASTEXITCODE
+        $review = ($output | Out-String) | ConvertFrom-Json
+
+        $exitCode | Should -Be 1
+        $review.status | Should -Be 'review-needed'
+        $review.npm.signatures.status | Should -Be 'signature-mismatch'
+    }
+
+    It 'passes the review and records the counts on a clean signature fixture' {
+        $fixture = Join-Path $TestDrive 'clean-signatures.txt'
+        Set-Content -LiteralPath $fixture -Value $script:CleanSignatureText -Encoding utf8
+
+        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath `
+            -NpmSignatureTextPath $fixture -SkipNpmAudit -OfflineRegistry 2>&1
+        $exitCode = $LASTEXITCODE
+        $review = ($output | Out-String) | ConvertFrom-Json
+
+        $exitCode | Should -Be 0
+        $review.status | Should -Not -Be 'review-needed'
+        $review.npm.signatures.status | Should -Be 'verified'
+        $review.npm.signatures.verifiedCount | Should -Be 86
+        $review.npm.signatures.attestationCount | Should -Be 2
+    }
+
+    It 'enumerates every direct dependency at its locked version' {
+        # Offline, so the row set and the version resolution are proved without depending
+        # on the registry being reachable; the live signature answer is an Integration test.
+        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath -SkipNpmAudit -SkipNpmSignatures -OfflineRegistry 2>&1
+        $review = ($output | Out-String) | ConvertFrom-Json
+        $rows = @($review.npm.provenance.rows)
+
+        @($rows | ForEach-Object { $_.name }) | Should -Be @('js-yaml', 'markdown-it', 'markdownlint-cli2', 'smol-toml')
+        @($rows | Where-Object { $_.source -eq 'devDependency' }).name | Should -Be 'markdownlint-cli2'
+        foreach ($row in $rows) {
+            $row.installedVersion | Should -Not -BeNullOrEmpty
+            $row.registrySignature | Should -Be 'unknown'
+            $row.status | Should -Be 'unknown'
+        }
+        $review.npm.provenance.unknownCount | Should -Be $rows.Count
+    }
+
+    It 'distinguishes an attested package from a merely signed one' {
+        $attested = ConvertTo-NpmProvenanceRow -Name 'sigstore' -Source 'devDependency' -RequestedVersion '1.0.0' `
+            -InstalledVersion '1.0.0' -Dist ([pscustomobject]@{ signatures = @(@{ keyid = 'abc' }); attestations = @{ url = 'https://registry.npmjs.org/-/npm/v1/attestations/sigstore@1.0.0' } })
+        $attested.registrySignature | Should -Be 'present'
+        $attested.provenanceAttestation | Should -Be 'present'
+        $attested.status | Should -Be 'signed'
+
+        $signedOnly = ConvertTo-NpmProvenanceRow -Name 'js-yaml' -Source 'override' -RequestedVersion '5.2.2' `
+            -InstalledVersion '5.2.2' -Dist ([pscustomobject]@{ signatures = @(@{ keyid = 'abc' }) })
+        $signedOnly.provenanceAttestation | Should -Be 'absent'
+        $signedOnly.status | Should -Be 'signed'
+
+        $unsigned = ConvertTo-NpmProvenanceRow -Name 'legacy' -Source 'override' -RequestedVersion '1.0.0' `
+            -InstalledVersion '1.0.0' -Dist ([pscustomobject]@{ shasum = 'deadbeef' })
+        $unsigned.registrySignature | Should -Be 'absent'
+        $unsigned.status | Should -Be 'unsigned'
+
+        $offline = ConvertTo-NpmProvenanceRow -Name 'legacy' -Source 'override' -RequestedVersion '1.0.0' `
+            -InstalledVersion '1.0.0' -Dist $null
+        $offline.status | Should -Be 'unknown' -Because 'no registry answer is not the same as no signature'
+    }
+
+    It 'asks npm what it resolved instead of trusting the committed file' {
+        $npm = Get-Command npm -ErrorAction Stop
+        $posture = Get-NpmSupplyChainPosture -NpmPath $npm.Source -RepoRoot $script:RepoRoot
+
+        $posture.status | Should -Be 'enforced'
+        @($posture.settings | Where-Object { $_.key -eq 'ignore-scripts' }).actual | Should -Be 'true'
+        @($posture.settings | Where-Object { $_.key -eq 'audit-level' }).actual | Should -Be 'high'
+    }
+
+    It 'stops the install when an environment override turns ignore-scripts back off' {
+        # Planting the violation the committed file cannot see: npm merges env config over
+        # .npmrc, so a green lane here would mean lifecycle scripts ran anyway.
+        $npm = Get-Command npm -ErrorAction Stop
+        $previous = $env:npm_config_ignore_scripts
+        try {
+            $env:npm_config_ignore_scripts = 'false'
+            $posture = Get-NpmSupplyChainPosture -NpmPath $npm.Source -RepoRoot $script:RepoRoot
+
+            $posture.status | Should -Be 'overridden'
+            @($posture.violations) | Should -Not -BeNullOrEmpty
+            { Assert-NpmSupplyChainDefaults -NpmPath $npm.Source -RepoRoot $script:RepoRoot 3>$null } |
+                Should -Throw -ExpectedMessage '*not running with the committed supply-chain settings*'
+        } finally {
+            if ($null -eq $previous) {
+                Remove-Item Env:npm_config_ignore_scripts -ErrorAction SilentlyContinue
+            } else {
+                $env:npm_config_ignore_scripts = $previous
+            }
+        }
+    }
+
+    It 'runs the settings check before npm ci, not after' {
+        $validation = Get-Content -LiteralPath $script:ValidationScriptPath -Raw
+        $gateIndex = $validation.IndexOf('Assert-NpmSupplyChainDefaults -NpmPath')
+        $installIndex = $validation.IndexOf('-ArgumentList @("ci")')
+
+        $gateIndex | Should -BeGreaterThan 0
+        $installIndex | Should -BeGreaterThan 0
+        $gateIndex | Should -BeLessThan $installIndex -Because 'checking after the install has already run the scripts is not a control'
+    }
+}
+
+Describe 'Registry signatures verified against the live registry' -Tag 'Integration' {
+    BeforeAll {
+        $script:ReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
+    }
+
+    It 'confirms npm verifies every installed package and that direct dependencies are signed' {
+        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath -SkipNpmAudit 2>&1
+        $review = ($output | Out-String) | ConvertFrom-Json
+
+        $review.npm.signatures.status | Should -Be 'verified'
+        $review.npm.signatures.invalidCount | Should -Be 0
+        $review.npm.signatures.missingCount | Should -Be 0
+        $review.npm.signatures.verifiedCount | Should -BeGreaterThan 0
+
+        $rows = @($review.npm.provenance.rows)
+        $rows.Count | Should -Be 4
+        foreach ($row in $rows) {
+            $row.registrySignature | Should -Be 'present' -Because "$($row.name)@$($row.installedVersion) must carry a registry signature"
+            $row.provenanceAttestation | Should -BeIn @('present', 'absent')
+        }
+        $review.npm.provenance.unknownCount | Should -Be 0
     }
 }

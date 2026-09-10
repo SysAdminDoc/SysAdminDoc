@@ -4381,8 +4381,8 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 
 | Check | Behavior |
 |:------|:---------|
-| Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. |
-| Dependency review | Runs `npm audit --json`, checks package override drift, verifies npm lock/hash pins, and resolves every pin against the npm and PyPI registries. Each row separates what the parent declares, the resolved pin, and the registry latest. A new major is recorded as review-needed rather than forced, so a deliberate hold stays green. Answers are cached under `.cache/registry-versions.json`; `-OfflineRegistry` reads that cache and reports its age, which goes stale after 30 days. |
+| Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. The committed `.npmrc` sets `ignore-scripts=true`, `audit-level=high` and `min-release-age=1`, and the lane asks npm what it actually resolved before installing, so an environment override cannot quietly re-enable install scripts. |
+| Dependency review | Runs `npm audit --json` and `npm audit signatures`, checks package override drift, verifies npm lock/hash pins, and resolves every pin against the npm and PyPI registries. Each row separates what the parent declares, the resolved pin, and the registry latest. A new major is recorded as review-needed rather than forced, so a deliberate hold stays green. Answers are cached under `.cache/registry-versions.json`; `-OfflineRegistry` reads that cache and reports its age, which goes stale after 30 days. Registry signature verification records verified, invalid and missing counts, names each offending package, and reports per direct dependency whether the installed version carries a registry signature and a build provenance attestation. An invalid or missing signature fails the review. |
 | PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
 | PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. Packages are downloaded as nupkg and their SHA-256 checked against `data/powershell-module-lock.json` before anything is extracted, then every signed file must carry the signer that lock names. A module with no reviewed record is refused rather than installed. Verified packages are cached under `.cache/powershell-modules` so an offline run reuses bytes that already passed. |
 | Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.1.0 into an isolated temporary module path and run the non-integration suite; the default Pester 5.9.1 lane is unchanged. |
@@ -9905,6 +9905,8 @@ function Get-LocalAdvisoryReviewPosture {
     $ageDays = $null
     $stale = $false
     $reason = $null
+    $signatureStatus = $null
+    $signatureSummary = $null
 
     if (-not $present) {
         $reason = "No local dependency review artifact at $ReviewPath; run npm run review:dependencies (validate-local.ps1 writes it)."
@@ -9913,6 +9915,11 @@ function Get-LocalAdvisoryReviewPosture {
             $review = Get-Content -LiteralPath $fullPath -Raw | ConvertFrom-Json
             $status = [string](Get-MemberValue -Object $review -Name "status")
             $generatedAtText = ConvertTo-IsoText (Get-MemberValue -Object $review -Name "generatedAt")
+            $signatures = Get-MemberValue -Object (Get-MemberValue -Object $review -Name "npm") -Name "signatures"
+            $signatureStatus = [string](Get-MemberValue -Object $signatures -Name "status")
+            if (-not [string]::IsNullOrWhiteSpace($signatureStatus)) {
+                $signatureSummary = "npm audit signatures: $signatureStatus ($([int](Get-MemberValue -Object $signatures -Name 'verifiedCount')) verified, $([int](Get-MemberValue -Object $signatures -Name 'invalidCount')) invalid, $([int](Get-MemberValue -Object $signatures -Name 'missingCount')) missing)."
+            }
         } catch {
             $reason = "Local dependency review artifact at $ReviewPath could not be parsed."
         }
@@ -9942,6 +9949,8 @@ function Get-LocalAdvisoryReviewPosture {
         staleAfterDays = [int]$LocalAdvisoryReviewStaleDays
         covering = [bool]($null -eq $reason)
         gapReason = $reason
+        registrySignatureStatus = if ([string]::IsNullOrWhiteSpace($signatureStatus)) { $null } else { $signatureStatus }
+        registrySignatureSummary = if ([string]::IsNullOrWhiteSpace($signatureSummary)) { $null } else { $signatureSummary }
     }
 }
 
@@ -9988,6 +9997,8 @@ function Get-DependabotSecurityPosture {
 
     $advisoryCovering = [bool](Get-MemberValue -Object $LocalAdvisoryReview -Name "covering")
     $advisoryGapReason = [string](Get-MemberValue -Object $LocalAdvisoryReview -Name "gapReason")
+    $advisorySignatureStatus = [string](Get-MemberValue -Object $LocalAdvisoryReview -Name "registrySignatureStatus")
+    $advisorySignatureSummary = [string](Get-MemberValue -Object $LocalAdvisoryReview -Name "registrySignatureSummary")
 
     $evidence = if ($status -eq "disabled" -and $advisoryCovering) {
         "Dependabot security updates are disabled by repository policy; advisory triage runs locally through npm run review:dependencies, which fails validation on open advisories. The local review is current. Local Dependabot version-update config is present for $($ecosystems.Count) ecosystem(s)."
@@ -10025,6 +10036,8 @@ function Get-DependabotSecurityPosture {
         warningDisposition = if ($status -eq "disabled" -and -not $advisoryCovering) { "compensating-control-warning" } elseif ($status -eq "disabled") { "none" } else { "none" }
         localAdvisoryReviewCovering = [bool]$advisoryCovering
         localAdvisoryReviewGapReason = if ([string]::IsNullOrWhiteSpace($advisoryGapReason)) { $null } else { $advisoryGapReason }
+        registrySignatureStatus = if ([string]::IsNullOrWhiteSpace($advisorySignatureStatus)) { $null } else { $advisorySignatureStatus }
+        registrySignatureSummary = if ([string]::IsNullOrWhiteSpace($advisorySignatureSummary)) { $null } else { $advisorySignatureSummary }
         documentationPath = "decision:dependabot-security-posture"
         evidence = $evidence
         nextAction = $nextAction
