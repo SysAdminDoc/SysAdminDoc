@@ -5054,16 +5054,16 @@ function New-ProfileAssetSvgs {
 function New-ProfileChrome {
     # Minimal, text-only header: no SVG/image chrome. Satisfies the minimal
     # profile-header contract in Test-GeneratedProfileContract (README must start
-    # with the plain-text tagline paragraph, carry the AI services and portfolio
+    # with the plain-text tagline paragraph, carry the support-lead intro and portfolio
     # links, and expose plain category nav anchors with no header image).
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>')
     $lines.Add('')
-    $lines.Add('## AI Implementation Services')
+    $lines.Add('## Healthcare IT and Technical Support')
     $lines.Add('')
-    $lines.Add('I help small and midsize businesses put AI to work: tool rollout, workflow automation, and the training that makes it stick. Fifteen years of enterprise IT and healthcare systems behind it, and every tool on this page is something I built and run.')
+    $lines.Add('I lead technical support for a medical imaging integrator: Tier 3 escalation for PACS, DICOM and clinical imaging workflows, root cause on the incidents that repeat, and the runbooks and provisioning standards that stop them. Sixteen years of enterprise IT before and alongside that, most of it as a systems administrator. Every tool on this page is something I built for that work or for my own machines, and still run.')
     $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://getparkerai.com/"><b>Work with me at Parker AI &#8594;</b></a></p>')
+    $lines.Add('<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>Healthcare IT and support work &#8594;</b></a></p>')
     $lines.Add('')
     $lines.Add('<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')

@@ -2961,10 +2961,10 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
         $script:rendered | Should -Not -Match '<img '
         $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
-        $script:rendered | Should -Match '## AI Implementation Services'
-        $script:rendered | Should -Match 'I help small and midsize businesses put AI to work'
+        $script:rendered | Should -Match '## Healthcare IT and Technical Support'
+        $script:rendered | Should -Match 'I lead technical support for a medical imaging integrator'
         # One deliberate outbound call to action, not a pair of competing links.
-        $script:rendered | Should -Match '<a href="https://getparkerai\.com/"><b>Work with me at Parker AI'
+        $script:rendered | Should -Match '<a href="https://portfolio\.getparkerai\.com/healthcare-it/"><b>Healthcare IT and support work'
         $script:rendered | Should -Not -Match 'AI service overview'
         $script:rendered | Should -Not -Match 'Proof:|186\+ shipped'
         $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
@@ -3580,7 +3580,7 @@ Describe 'Update-Header idempotency' {
 
         $result | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $result | Should -Not -Match '<img '
-        $result | Should -Match 'Work with me at Parker AI'
+        $result | Should -Match 'Healthcare IT and support work'
         $result | Should -Not -Match 'AI service overview'
         $result | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
         $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
@@ -8212,7 +8212,7 @@ Describe 'Hand-authored header links and anchors are validated' {
         # A dead services link shipped because the collector recognized only the
         # portfolio and setup URLs.
         $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $script:LiveReadme)
-        $cta = $targets | Where-Object { $_.url -eq 'https://getparkerai.com/' }
+        $cta = $targets | Where-Object { $_.url -eq 'https://portfolio.getparkerai.com/healthcare-it/' }
 
         $cta | Should -Not -BeNullOrEmpty
         $cta.fatalOnFailure | Should -BeTrue
