@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <sub><em>If this project helps you, a coffee helps me keep working on it.</em></sub>
+  <sub><em>If anything I provide helps you, please consider a coffee. It's nice to see that others appreciate my work, makes me happy.</em></sub>
 </p>
 
 ## Healthcare IT and Technical Support
