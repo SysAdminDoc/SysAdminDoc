@@ -1,6 +1,5 @@
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
-<<<<<<< HEAD
 <p align="center">
   <a href="https://ko-fi.com/X8K126YVER">
     <img height="42" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />
@@ -11,10 +10,7 @@
   <sub><em>If this project helps you, a coffee helps me keep working on it.</em></sub>
 </p>
 
-## AI Implementation Services
-=======
 ## Healthcare IT and Technical Support
->>>>>>> f0b517a (profile: lead the README with healthcare IT and technical support instead of the consulting pitch)
 
 I lead technical support for a medical imaging integrator: Tier 3 escalation for PACS, DICOM and clinical imaging workflows, root cause on the incidents that repeat, and the runbooks and provisioning standards that stop them. Sixteen years of enterprise IT before and alongside that, most of it as a systems administrator. Every tool on this page is something I built for that work or for my own machines, and still run.
 
