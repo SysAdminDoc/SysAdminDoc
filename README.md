@@ -1,5 +1,15 @@
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
+<p align="center">
+  <a href="https://ko-fi.com/X8K126YVER">
+    <img height="42" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />
+  </a>
+</p>
+
+<p align="center">
+  <sub><em>If this project helps you, a coffee helps me keep working on it.</em></sub>
+</p>
+
 ## AI Implementation Services
 
 I help small and midsize businesses put AI to work: tool rollout, workflow automation, and the training that makes it stick. Fifteen years of enterprise IT and healthcare systems behind it, and every tool on this page is something I built and run.
