@@ -4580,6 +4580,10 @@ Describe 'Feed JSON Schema contracts' {
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeInstallSnippetTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeDownloadLinkTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeUserscriptInstallTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'liveProbedCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'cacheServedCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'oldestCacheEntryAgeHours'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'allResultsFromCache'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'skipped'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'skipReason'
         $schema.'$defs'.releaseAssetDrift.required | Should -Contain 'executableDownloadTrustShortlist'
@@ -7623,6 +7627,63 @@ Describe 'Link cache lifetimes depend on what the previous answer was' {
             $state.links.hitCount | Should -Be 1
             $state.links.staleCount | Should -Be 3
             $state.links.missCount | Should -Be 1
+        } finally {
+            $script:CacheEnabled = $oldEnabled
+            $script:CachePath = $oldPath
+        }
+    }
+
+    It 'reports live-probed and cache-served counts in the batch result' {
+        $cacheRoot = Join-Path $TestDrive 'coverage-cache'
+        $oldEnabled = $script:CacheEnabled
+        $oldPath = $script:CachePath
+        try {
+            $script:CacheEnabled = $true
+            $script:CachePath = $cacheRoot
+            Reset-ValidationCacheState
+
+            $targets = @(
+                (New-LinkValidationTarget -Repo 'a' -Type 't' -Url 'https://example.invalid/live-a' -FatalOnFailure $false -Group 'g'),
+                (New-LinkValidationTarget -Repo 'b' -Type 't' -Url 'https://example.invalid/live-b' -FatalOnFailure $false -Group 'g')
+            )
+            $probe = { param($t) [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false; notModified = $false; etag = $null; lastModified = $null; retryAfter = $null } }
+            $batch = Invoke-LinkProbeBatch -Targets $targets -ProbeScript $probe
+
+            $batch.liveProbedCount | Should -Be 2
+            $batch.cacheServedCount | Should -Be 0
+            $batch.allResultsFromCache | Should -BeFalse
+        } finally {
+            $script:CacheEnabled = $oldEnabled
+            $script:CachePath = $oldPath
+        }
+    }
+
+    It 'reports allResultsFromCache when every target is cached' {
+        $cacheRoot = Join-Path $TestDrive 'all-cached'
+        $oldEnabled = $script:CacheEnabled
+        $oldPath = $script:CachePath
+        try {
+            $script:CacheEnabled = $true
+            $script:CachePath = $cacheRoot
+            Reset-ValidationCacheState
+
+            $key = Get-LinkProbeCacheKey -Url 'https://example.invalid/only-cached'
+            $entryPath = Get-ValidationCacheFilePath -Bucket links -Key $key
+            New-Item -ItemType Directory -Path (Split-Path -Parent $entryPath) -Force | Out-Null
+            ([ordered]@{
+                key = $key
+                fetchedAt = ([datetimeoffset]::Now.AddMinutes(-30)).ToUniversalTime().ToString('o')
+                value = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            } | ConvertTo-Json -Depth 10) | Set-Content -LiteralPath $entryPath -Encoding utf8
+
+            $targets = @(
+                (New-LinkValidationTarget -Repo 'a' -Type 't' -Url 'https://example.invalid/only-cached' -FatalOnFailure $false -Group 'g')
+            )
+            $batch = Invoke-LinkProbeBatch -Targets $targets
+
+            $batch.cacheServedCount | Should -Be 1
+            $batch.liveProbedCount | Should -Be 0
+            $batch.allResultsFromCache | Should -BeTrue
         } finally {
             $script:CacheEnabled = $oldEnabled
             $script:CachePath = $oldPath

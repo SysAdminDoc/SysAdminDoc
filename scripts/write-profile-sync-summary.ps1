@@ -648,6 +648,9 @@ $summary = @"
 | Userscript release-channel ready | $userscriptReleaseReadyCount |
 | Userscript release-channel blocked | $userscriptReleaseBlockedCount |
 | Link targets checked | $($linkSummary.targetCount) |
+| Link targets live-probed | $(if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'liveProbedCount') { [int]$linkSummary.liveProbedCount } else { 'unknown' }) |
+| Link targets cache-served | $(if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'cacheServedCount') { [int]$linkSummary.cacheServedCount } else { 'unknown' }) |
+| All link results from cache | $(if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'allResultsFromCache') { $linkSummary.allResultsFromCache } else { 'unknown' }) |
 | README action link targets | $readmeActionTargetCount |
 | README install snippet targets | $readmeInstallSnippetTargetCount |
 | README download link targets | $readmeDownloadLinkTargetCount |

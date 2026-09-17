@@ -3267,6 +3267,8 @@ function Invoke-LinkProbeBatch {
                 retryAfterUtc = [string](Get-MemberValue -Object (Get-MemberValue -Object $result -Name 'retryAfter') -Name 'retryAfterUtc')
             }
         }
+        $liveProbedCount = @($probeRows).Count
+        $cacheServedCount = 0
     } else {
         $cachedRows = New-Object System.Collections.Generic.List[object]
         $uncachedTargets = New-Object System.Collections.Generic.List[object]
@@ -3392,6 +3394,21 @@ function Invoke-LinkProbeBatch {
 
 
         $probeRows = @($cachedRows.ToArray() + $freshRows)
+        $liveProbedCount = @($freshRows).Count
+        $cacheServedCount = $cachedRows.Count
+    }
+
+    $oldestCacheAgeHours = $null
+    foreach ($target in $targetList) {
+        $cachedProbe = Get-MemberValue -Object $target -Name 'cachedProbe'
+        if ($null -eq $cachedProbe) { continue }
+        $entry = Read-ValidationCacheEntry -Bucket links -Key (Get-LinkProbeCacheKey -Url ([string](Get-MemberValue -Object $target -Name 'url'))) -IncludeStale -NoCounters
+        if ($null -ne $entry) {
+            $age = [double](Get-MemberValue -Object $entry -Name 'ageHours')
+            if ($null -eq $oldestCacheAgeHours -or $age -gt $oldestCacheAgeHours) {
+                $oldestCacheAgeHours = $age
+            }
+        }
     }
 
     # A server-directed retry longer than the local cap is reported rather than slept
@@ -3411,6 +3428,10 @@ function Invoke-LinkProbeBatch {
         results = @($probeRows)
         deferredRetries = @($deferred.ToArray())
         targetCount = $targetList.Count
+        liveProbedCount = [int]$liveProbedCount
+        cacheServedCount = [int]$cacheServedCount
+        oldestCacheEntryAgeHours = if ($null -ne $oldestCacheAgeHours) { [math]::Round($oldestCacheAgeHours, 2) } else { $null }
+        allResultsFromCache = [bool]($targetList.Count -gt 0 -and [int]$liveProbedCount -eq 0)
         throttleLimit = $throttle
         elapsedMs = $stopwatch.ElapsedMilliseconds
     }
@@ -14354,6 +14375,10 @@ function Test-ProfileState {
         skipped = [bool]($Offline -or $SkipLinkValidation)
         skipReason = $linkValidationSkipReason
         targetCount = 0
+        liveProbedCount = 0
+        cacheServedCount = 0
+        oldestCacheEntryAgeHours = $null
+        allResultsFromCache = $false
         throttleLimit = $LinkValidationThrottle
         elapsedMs = 0
         readmeActionTargetCount = 0
@@ -14374,6 +14399,10 @@ function Test-ProfileState {
             skipped = $false
             skipReason = $null
             targetCount = $linkResult.targetCount
+            liveProbedCount = [int]$linkResult.liveProbedCount
+            cacheServedCount = [int]$linkResult.cacheServedCount
+            oldestCacheEntryAgeHours = $linkResult.oldestCacheEntryAgeHours
+            allResultsFromCache = [bool]$linkResult.allResultsFromCache
             throttleLimit = $linkResult.throttleLimit
             elapsedMs = $linkResult.elapsedMs
             readmeActionTargetCount = @($readmeActionTargets).Count

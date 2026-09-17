@@ -7039,6 +7039,10 @@
       "additionalProperties": false,
       "required": [
         "targetCount",
+        "liveProbedCount",
+        "cacheServedCount",
+        "oldestCacheEntryAgeHours",
+        "allResultsFromCache",
         "throttleLimit",
         "elapsedMs",
         "readmeActionTargetCount",
@@ -7054,6 +7058,18 @@
       "properties": {
         "targetCount": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "liveProbedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "cacheServedCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "oldestCacheEntryAgeHours": {
+          "type": ["number", "null"]
+        },
+        "allResultsFromCache": {
+          "type": "boolean"
         },
         "throttleLimit": {
           "$ref": "#/$defs/nonNegativeInteger"

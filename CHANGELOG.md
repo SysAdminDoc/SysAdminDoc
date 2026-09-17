@@ -16,6 +16,7 @@
 - Added regression tests for quoted-path redaction with spaces and multi-byte UTF-8 truncation in the support bundle.
 - Regenerated README, feed, assets, and sync report against the current catalog and live metadata.
 - Deleted the scheduled-workflow freshness lane and its orphaned zizmor scanner config. The lane had six functions, a schema section, summary rendering, and seven tests for evaluating GitHub Actions workflows that repository policy forbids creating. `.github/zizmor.yml` configured a scanner for a repo with no workflows or runner. The hosted-automation removal contract test now guards against any of these reappearing.
+- Link validation now distinguishes live-probed from cache-served results. `linkValidationSummary` reports `liveProbedCount`, `cacheServedCount`, `oldestCacheEntryAgeHours`, and `allResultsFromCache`, so a fully cached check reads as such rather than appearing identical to a live pass. The summary writer notes when the check was entirely cache-served.
 
 ## 2026-09-05
 
