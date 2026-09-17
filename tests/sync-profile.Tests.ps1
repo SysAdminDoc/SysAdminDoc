@@ -2959,7 +2959,9 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered.TrimStart() | Should -Match '^<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools\.</b>'
         $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
-        $script:rendered | Should -Not -Match '<img '
+        $script:rendered | Should -Not -Match '<img[^>]*assets/profile/'
+        $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf('### Start Here'))
+        [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected in the header'
         $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
         $script:rendered | Should -Match '## Healthcare IT and Technical Support'
         $script:rendered | Should -Match 'I lead technical support for a medical imaging integrator'
@@ -3579,7 +3581,9 @@ Describe 'Update-Header idempotency' {
         $result = Update-Header
 
         $result | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
-        $result | Should -Not -Match '<img '
+        $result | Should -Not -Match '<img[^>]*assets/profile/'
+        [regex]::Matches($result, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected'
+        $result | Should -Match 'storage\.ko-fi\.com'
         $result | Should -Match 'Healthcare IT and support work'
         $result | Should -Not -Match 'AI service overview'
         $result | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
@@ -8639,6 +8643,46 @@ setup saw PrivateRepo at C:\Users\Alice\PrivateRepo
         $bundle.redaction.applied | Should -BeTrue
         ($bundle.evidence | Where-Object name -eq 'validation-output.txt').content | Should -Not -Match 'ghp_json_secret'
         ($bundle.evidence | Where-Object name -eq 'validation-output.txt').content | Should -Match '<REDACTED_'
+    }
+
+    It 'redacts quoted user paths that contain spaces' {
+        $inputPath = Join-Path $TestDrive 'space-path-validation.log'
+        @'
+Found config at "C:\Users\John Smith\AppData\Local\secret.conf"
+Also at 'C:\Users\Jane Doe\Desktop\data.txt'
+'@ | Set-Content -LiteralPath $inputPath -Encoding utf8
+        $outputPath = Join-Path $TestDrive 'SysAdminDoc-space-path.json'
+
+        & pwsh -NoProfile -File $script:SupportBundleScriptPath `
+            -OutputPath $outputPath `
+            -RepoRoot $script:RepoRoot `
+            -ValidationOutputPath $inputPath `
+            -RedactValue 'secret' | Out-Null
+
+        $LASTEXITCODE | Should -Be 0
+        $bundle = Get-Content -LiteralPath $outputPath -Raw | ConvertFrom-Json
+        $content = ($bundle.evidence | Where-Object name -eq 'validation-output.txt').content
+        $content | Should -Not -Match 'John Smith'
+        $content | Should -Not -Match 'Jane Doe'
+        $content | Should -Match '<REDACTED_USER_PATH>'
+    }
+
+    It 'does not produce a replacement character when truncating multi-byte UTF-8' {
+        $inputPath = Join-Path $TestDrive 'multibyte-validation.log'
+        $multibyte = ('x' * 90) + [char]0x00E9 + ('y' * 10)
+        $multibyte | Set-Content -LiteralPath $inputPath -Encoding utf8
+        $outputPath = Join-Path $TestDrive 'SysAdminDoc-multibyte.json'
+
+        & pwsh -NoProfile -File $script:SupportBundleScriptPath `
+            -OutputPath $outputPath `
+            -RepoRoot $script:RepoRoot `
+            -ValidationOutputPath $inputPath `
+            -Format Json | Out-Null
+
+        $LASTEXITCODE | Should -Be 0
+        $bundle = Get-Content -LiteralPath $outputPath -Raw | ConvertFrom-Json
+        $content = ($bundle.evidence | Where-Object name -eq 'validation-output.txt').content
+        $content | Should -Not -Match ([char]0xFFFD)
     }
 }
 

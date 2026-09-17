@@ -5682,6 +5682,30 @@
       "aliasOf": null,
       "suppressionReason": null,
       "notes": null
+    },
+    {
+      "repo": "MavenBranding",
+      "title": "MavenBranding",
+      "category": "suppressed",
+      "includeInReadme": false,
+      "includeInPortfolio": false,
+      "order": 9999,
+      "branch": "main",
+      "entrypoint": null,
+      "installKind": null,
+      "downloadKind": null,
+      "userscriptUrl": null,
+      "liveUrl": null,
+      "language": null,
+      "descriptionOverride": "Maven Imaging desktop branding assets, fetched by the provisioning script",
+      "featured": false,
+      "featuredRank": null,
+      "currentlyBuilding": false,
+      "currentlyBuildingText": null,
+      "allowPublicMedical": false,
+      "aliasOf": null,
+      "suppressionReason": "Internal branding assets for provisioning; not a visitor-facing project.",
+      "notes": null
     }
   ]
 }

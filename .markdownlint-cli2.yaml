@@ -9,6 +9,7 @@ config:
       - br
       - code
       - details
+      - em
       - i
       - img
       - kbd

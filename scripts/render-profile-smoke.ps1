@@ -570,7 +570,7 @@ try {
         viewports = @()
     }
     $reportPath = Write-RenderedSmokeArtifact -Report $skipReport
-    Write-Error "Rendered profile smoke could not run. See $reportPath. Reason: $skipReason"
+    throw "Rendered profile smoke could not run. See $reportPath. Reason: $skipReason"
 }
 
 $results = $null

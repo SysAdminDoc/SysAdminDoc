@@ -9,13 +9,13 @@ The public `README.md` is generated from two sources:
 1. **`data/profile-catalog.json`** -- the canonical list of projects, categories, descriptions, actions, and suppression rules.
 2. **`scripts/sync-profile.ps1`** -- reads the catalog plus live GitHub metadata, then renders the full README, `projects.json` feed, validation report, and profile SVG assets.
 
-The hand-authored header (above the `<!-- GENERATED PROFILE CATALOG -->` marker) is preserved across regenerations. Everything below it is generated and should not be edited directly.
+The header and everything below the `<!-- GENERATED PROFILE CATALOG -->` marker are generated and should not be edited directly.
 
 ## Making changes
 
 - **Project metadata** (description, category, action label, order): edit `data/profile-catalog.json`.
 - **Generation logic** (section layout, install snippet format, feed schema): edit `scripts/sync-profile.ps1`.
-- **Profile header** (tagline, portfolio link, category nav): edit the top of `README.md` directly.
+- **Profile header** (tagline, portfolio link, category nav): edit `New-ProfileChrome` in `scripts/sync-profile.ps1`.
 - **Validation rules**: edit `tests/sync-profile.Tests.ps1`.
 
 ## Before submitting

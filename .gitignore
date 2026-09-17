@@ -19,9 +19,10 @@ reports/rendered-profile-smoke*.png
 testResults.xml
 coverage.xml
 
-# Markdown files local-only (except README)
+# Markdown files local-only (except README, CHANGELOG, SECURITY)
 *.md
 !README.md
+!CHANGELOG.md
 !SECURITY.md
 !.github/pull_request_template.md
 !.github/CONTRIBUTING.md

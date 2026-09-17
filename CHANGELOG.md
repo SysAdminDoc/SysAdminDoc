@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-17
+
+- Cataloged the MavenBranding public repository as a suppressed internal-branding entry, fixing a `missingPublicRepos` gate failure.
+- Added Ko-fi support link to the generated profile header so the README stays in sync after regeneration instead of drifting on every `-Write`.
+- Fixed the markdown lint configuration to allow `<em>` elements, which the Ko-fi subtitle uses.
+- Added `!CHANGELOG.md` to the `.gitignore` whitelist so it remains trackable after a fresh clone or removal.
+- Fixed user-path redaction in `new-support-bundle.ps1` to match quoted paths containing spaces (e.g. `"C:\Users\John Smith\..."`). The unquoted regex stopped at the first space, leaking the rest of the path.
+- Fixed UTF-8 truncation in `Limit-SupportText` to walk back to a valid sequence boundary before decoding, preventing a U+FFFD replacement character at the cut point.
+- Changed `render-profile-smoke.ps1` from `Write-Error` to `throw` on Chrome-not-found, so the abort is unconditional regardless of the caller's ErrorActionPreference.
+- Corrected the CONTRIBUTING.md claim that the hand-authored header is preserved across regenerations; the header is generated from `New-ProfileChrome`.
+- Narrowed the two "no image chrome" test assertions from a blanket `<img` ban to `<img.*assets/profile/`, since the Ko-fi support image is not profile chrome.
+- Removed em dashes from two CHANGELOG entries outside the roadmap archive code block.
+- Tightened the "no image chrome" test assertions to count exactly one `<img>` tag (the Ko-fi support image) rather than broadly allowing any non-asset image.
+- Added regression tests for quoted-path redaction with spaces and multi-byte UTF-8 truncation in the support bundle.
+- Regenerated README, feed, assets, and sync report against the current catalog and live metadata.
+
 ## 2026-09-05
 
 - Fixed six defects an adversarial review found in the day's own changes, three of them severe. The module lock demanded one Authenticode signer per package, but PSScriptAnalyzer legitimately ships three (Microsoft, a Microsoft third-party component certificate, and Json.NET), so `validate-local.ps1` would have thrown on every machine during bootstrap; the lock now records a signer set, and an unsigned file inside a package the lock calls signed is refused instead of skipped. Two guards used `PSObject.Properties` against `[ordered]` dictionaries, whose properties are `Count`, `Keys` and `Values` rather than the entries, so conditional headers were never sent and `ETag`/`Last-Modified` were never persisted, with each write erasing the previous run's validators. The retry time was computed and then dropped; it now reaches the report as `deferredRetries`. The injected-probe path used by tests also bypassed the cache entirely and produced different row fields than production, which is why the tests passed while the real path was broken, so both paths now share one cache decision and one row shape. And `registryLatest` came back as an empty string instead of null because a local variable collided case-insensitively with a `[string]`-typed parameter.
@@ -131,7 +147,7 @@
 - `setup.ps1` now selects the winget install scope by elevation (`Test-Admin`): a non-elevated novice running `irm | iex` installs user-scope directly instead of triggering a noisy machine-scope failure dump before the fallback. Verified on Windows PowerShell 5.1.
 - `render-profile-smoke.ps1`: kill the Chrome process tree on Windows (`taskkill /T`) instead of only the launcher PID, so failed runs no longer leak the locked temp `--user-data-dir`; restrict Chrome discovery to `-CommandType Application` so a same-named alias/function can't resolve to a broken path; guard the `artifactBudgets` lookup so a report missing that section still gets its rendered-smoke summary written.
 - `write-profile-sync-summary.ps1`: encode the `file=`/`title=` annotation properties (adds `:`/`,` escaping) so a workflow filename or status can't corrupt the GitHub annotation property list.
-- README profile nav now links all rendered category sections (added Security and Forks — previously 8 of 10 were navigable).
+- README profile nav now links all rendered category sections (added Security and Forks, previously 8 of 10 were navigable).
 - markdownlint now covers `.github/CONTRIBUTING.md` and `.github/CODE_OF_CONDUCT.md` (previously unlinted, so rule violations there passed silently).
 
 ## 2026-07-01
@@ -146,7 +162,7 @@
 - Fixed `Get-PythonAuditToolPins` to count `--hash=` directives per package (slicing between consecutive package declarations) instead of stamping the file-global total on every package.
 - Fixed a StrictMode "property 'Count' cannot be found" crash on `sync-profile.ps1 -Write -Offline`: repo-count accesses in `New-Readme`, `New-ProjectsExportJson`, and `New-ProfileAssetSvgs` now null-filter the repo set so an empty/offline repo binding yields 0 instead of throwing.
 - Constrained the seven `prDeliveryTransition` evidence fields in `profile-sync-report.v1.json` to `["object", "null"]` so they no longer accept arbitrary JSON scalar/array values.
-- `New-CategorySection` now skips categories with zero visible entries instead of rendering an empty `<details>` shell; `Test-ReadmeExperience` only requires anchors for categories that have entries. (No effect on current output — all catalog categories are populated.)
+- `New-CategorySection` now skips categories with zero visible entries instead of rendering an empty `<details>` shell; `Test-ReadmeExperience` only requires anchors for categories that have entries. (No effect on current output; all catalog categories are populated.)
 - Promoted `$Owner` from a hard-coded value to a script parameter (default `SysAdminDoc`) so the generator can target another account without code edits.
 - Resolved absolute `$ProjectsPath`/`$AssetsPath`/`$TopicAllowlistPath` correctly in the `-Write` and `-ApplyTopics` paths (previously only `$ReadmePath` honored absolute paths).
 - Test suite: tagged the four child-process Describes `Integration` (run `Invoke-Pester -ExcludeTag Integration` for a fast in-process loop), and added coverage for the full profile-SVG asset set, empty/offline repo generation, and a real `-Write -Offline` entrypoint run.
@@ -183,7 +199,7 @@
 - Split repository security posture reporting into local and hosted controls so removed workflow-only controls no longer blur local validation evidence.
 - Added a local validation bootstrap command that installs pinned validation tools before running markdownlint, PSScriptAnalyzer, and Pester.
 
-## Roadmap archive — 2026-08-10 — ROADMAP.md
+## Roadmap archive, 2026-08-10, ROADMAP.md
 
 <details>
 <summary>Original roadmap snapshot</summary>

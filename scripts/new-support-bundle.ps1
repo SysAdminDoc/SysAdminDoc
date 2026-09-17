@@ -113,6 +113,8 @@ function ConvertTo-RedactedSupportText {
         }
     }
 
+    $quotedUserPathPattern = '(?i)(?:"(?:[A-Z]:\\Users\\|/Users/|/home/)[^"\r\n]*"|''(?:[A-Z]:\\Users\\|/Users/|/home/)[^''\r\n]*'')'
+    $result = [regex]::Replace($result, $quotedUserPathPattern, '<REDACTED_USER_PATH>')
     $userPathPattern = '(?i)(?:[A-Z]:\\Users\\|/Users/|/home/)[^ \t\r\n"''<>]+'
     $result = [regex]::Replace($result, $userPathPattern, '<REDACTED_USER_PATH>')
 
@@ -148,7 +150,11 @@ function Limit-SupportText {
         return $Text
     }
 
-    $prefix = $encoding.GetString($bytes, 0, $MaxBytes)
+    $safeEnd = $MaxBytes
+    while ($safeEnd -gt 0 -and ($bytes[$safeEnd] -band 0xC0) -eq 0x80) {
+        $safeEnd--
+    }
+    $prefix = $encoding.GetString($bytes, 0, $safeEnd)
     return $prefix + "`n[Support bundle input truncated at $MaxBytes bytes.]"
 }
 
