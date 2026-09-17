@@ -648,6 +648,7 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
             if ($IsWindows) {
                 & taskkill.exe /PID $process.Id /T /F *> $null
             } else {
+                try { & pkill -P $process.Id 2>$null } catch {}
                 Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
             }
             Wait-Process -Id $process.Id -Timeout 5 -ErrorAction SilentlyContinue

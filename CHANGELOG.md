@@ -20,6 +20,10 @@
 - Extracted the profile tagline into `$ProfileTagline` and `$ProfileTaglineHtml` constants beside `$CategoryDefinitions`, so changing the tagline requires editing one string instead of four. All generator, experience-gate, and test assertions reference the constant. The smoke renderer already uses structural selectors for hero detection.
 - Fixed `Test-LinkTargets` not passing through the four new cache-vs-live fields from `Invoke-LinkProbeBatch`, which would have left non-skipped runs always reporting zero for all metrics. Added the missing fields to the passthrough and to the early-return path.
 - Added guard test assertions for the three remaining deleted scheduled-workflow functions (`Get-CronWeekMinuteOffsets`, `Get-ScheduledWorkflowDefinitions`, `Get-ScheduledWorkflowRunLookup`).
+- Fixed the Chrome child process tree kill on non-Windows: `pkill -P` now kills child processes before the parent, so renderer and GPU children no longer hold file locks on the temp profile directory.
+- Set the repository `homepage` to the canonical portfolio origin (`https://portfolio.getparkerai.com/`).
+- Removed the sync report size reduction item from the roadmap; the scheduled-workflow deletion brought the report to 104 KB, below the 114,688-byte soft limit.
+- Bumped to v4.10.2.
 
 ## 2026-09-05
 
