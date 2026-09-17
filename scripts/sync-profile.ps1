@@ -1118,7 +1118,13 @@ function Add-ReleaseAssetMetadata {
             continue
         }
 
-        $releaseData = $releaseOutput | ConvertFrom-Json
+        $releaseData = $null
+        try {
+            $releaseData = $releaseOutput | ConvertFrom-Json
+        } catch {
+            Write-Warning "REST latest-release metadata for $repoName returned unparseable JSON; skipping."
+            continue
+        }
         $releaseMetadata = ConvertFrom-RestReleaseMetadata -Release $releaseData
         Write-ValidationCacheEntry -Bucket releases -Key $releaseCacheKey -Value $releaseMetadata
         $script:RestFallbackReleaseFetchState["successfulReleaseFetches"] = [int]$script:RestFallbackReleaseFetchState["successfulReleaseFetches"] + 1
@@ -4313,10 +4319,6 @@ function New-DiscoverySection {
     foreach ($route in $routes) {
         $lines.Add("| $($route.Signal) $($route.Want) | $($route.Find) | $($route.Action) |")
     }
-    $lines.Add("")
-    $lines.Add("Quick platform map: $(New-CategoryLink 'powershell') &middot; $(New-CategoryLink 'python') &middot; $(New-CategoryLink 'web') &middot; $(New-CategoryLink 'extensions') &middot; $(New-CategoryLink 'android') &middot; $(New-CategoryLink 'desktop')")
-    $lines.Add("")
-    $lines.Add('Feed consumers: `projects.json` includes stable project IDs, canonical repository aliases, locale/script hints, and a `schemaPolicy` migration signal. Field-selecting consumers can keep their existing rendering path; strict validators should follow the declared supported version window.')
 
     return ($lines -join [Environment]::NewLine)
 }
@@ -4536,28 +4538,6 @@ function New-CategorySection {
     }
 
     $lines.Add("</details>")
-    return ($lines -join [Environment]::NewLine)
-}
-
-function New-FeaturedSection {
-    param(
-        [hashtable[]]$Entries,
-        [hashtable]$RepoLookup
-    )
-
-    $featured = @($Entries | Where-Object { $_.featured -eq $true } | Sort-Object @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { 9999 } } }, repo)
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("### Featured Projects")
-    $lines.Add("")
-    $lines.Add("Representative ready-to-run projects. Each item keeps one direct action line so visitors can download, launch, install, or open the repo without scanning the full catalog.")
-    $lines.Add("")
-    foreach ($entry in $featured) {
-        $meta = Get-RepoMeta $entry $RepoLookup
-        $stars = if ($meta) { [int]$meta.stargazerCount } else { 0 }
-        $category = Get-CategoryDisplayName $entry.category
-        $action = Get-ActionLink $entry $meta $entry.category
-        $lines.Add("- [**$($entry.title)**]($(Get-RepoUrl $entry)) -- $category, &#11088;$stars<br/>$(Get-DisplayDescription $entry $meta)<br/>Action: $action")
-    }
     return ($lines -join [Environment]::NewLine)
 }
 
@@ -5081,22 +5061,12 @@ function New-ProfileAssetSvgs {
 }
 
 function New-ProfileChrome {
-    # Minimal header with a Ko-fi support image but no SVG/image chrome. Satisfies the
-    # minimal profile-header contract in Test-ReadmeExperience (README must start with the
-    # tagline paragraph, carry the support-lead intro and portfolio links, and expose
-    # plain category nav anchors with no profile-asset header image).
+    # Minimal header with a Ko-fi support image at the bottom. Satisfies the minimal
+    # profile-header contract in Test-ReadmeExperience (README must start with the tagline
+    # paragraph, carry the support-lead intro and portfolio links, and expose plain
+    # category nav anchors with no profile-asset header image).
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add($ProfileTaglineHtml)
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add('  <a href="https://ko-fi.com/X8K126YVER">')
-    $lines.Add('    <img height="42" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />')
-    $lines.Add('  </a>')
-    $lines.Add('</p>')
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add('  <sub><em>If this project helps you, a coffee helps me keep working on it.</em></sub>')
-    $lines.Add('</p>')
     $lines.Add('')
     $lines.Add('## Healthcare IT and Technical Support')
     $lines.Add('')
@@ -5114,44 +5084,12 @@ function New-ProfileChrome {
     })
     $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
     $lines.Add('')
-    return ($lines -join [Environment]::NewLine)
-}
-
-function New-ProfileStatsChrome {
-    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-    $skillsDark = "https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=dark&perline=13"
-    $skillsLight = "https://skillicons.dev/icons?i=powershell,python,js,kotlin,cs,cpp,html,css,dotnet,qt,androidstudio,git,github&theme=light&perline=13"
-    $statsImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/stats-dark.svg" -LightUrl "$assetPathPrefix/stats-light.svg" -Alt 'Generated SysAdminDoc public catalog statistics' -Attributes 'width="48%"'
-    $languagesImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/languages-dark.svg" -LightUrl "$assetPathPrefix/languages-light.svg" -Alt 'Generated SysAdminDoc public project language mix' -Attributes 'width="48%"'
-    $activityImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/activity-dark.svg" -LightUrl "$assetPathPrefix/activity-light.svg" -Alt 'Generated SysAdminDoc release asset validation summary' -Attributes 'width="98%"'
-    $contributionsImage = New-ThemeAwareImage -DarkUrl "$assetPathPrefix/contributions-dark.svg" -LightUrl "$assetPathPrefix/contributions-light.svg" -Alt 'GitHub contribution activity heatmap for SysAdminDoc' -Attributes 'width="98%"'
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add('---')
-    $lines.Add('')
     $lines.Add('<p align="center">')
-    $lines.Add('  <a href="https://skillicons.dev">')
-    $lines.Add("    $(New-ThemeAwareImage -DarkUrl $skillsDark -LightUrl $skillsLight -Alt 'PowerShell, Python, JavaScript, Kotlin, C#, C++, HTML, CSS, .NET, Qt, Android Studio, Git, and GitHub')")
+    $lines.Add('  <a href="https://ko-fi.com/X8K126YVER">')
+    $lines.Add('    <img height="36" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />')
     $lines.Add('  </a>')
     $lines.Add('</p>')
     $lines.Add('')
-    $lines.Add('---')
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add("  $statsImage")
-    $lines.Add("  $languagesImage")
-    $lines.Add('</p>')
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add("  $activityImage")
-    $lines.Add('</p>')
-    $lines.Add('')
-    $lines.Add('<p align="center">')
-    $lines.Add("  $contributionsImage")
-    $lines.Add('</p>')
-    $lines.Add('')
-    $lines.Add('---')
-
     return ($lines -join [Environment]::NewLine)
 }
 
@@ -6552,19 +6490,19 @@ function New-ProjectsExportJson {
             includeInReadme = [bool]$entry.includeInReadme
             includeInPortfolio = [bool]$entry.includeInPortfolio
             suppressed = $isSuppressed
-            suppressionReason = if ([string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)) { $null } else { [string]$entry.suppressionReason }
+            suppressionReason = Get-NullableString $entry.suppressionReason
             description = Get-Description $entry $meta
-            forkOf = if ([string]::IsNullOrWhiteSpace([string]$entry.forkOf)) { $null } else { [string]$entry.forkOf }
+            forkOf = Get-NullableString $entry.forkOf
             forkOfUrl = Get-UpstreamUrl -ForkOf ([string]$entry.forkOf)
-            upstreamLicense = if ([string]::IsNullOrWhiteSpace([string]$entry.upstreamLicense)) { $null } else { [string]$entry.upstreamLicense }
+            upstreamLicense = Get-NullableString $entry.upstreamLicense
             licenseKey = $licenseMetadata["licenseKey"]
             licenseName = $licenseMetadata["licenseName"]
             licenseSpdxId = $licenseMetadata["licenseSpdxId"]
             repoUrl = $repoUrl
-            liveUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.liveUrl)) { $null } else { [string]$entry.liveUrl }
-            installUrl = if ([string]::IsNullOrWhiteSpace([string]$entry.userscriptUrl)) { $null } else { [string]$entry.userscriptUrl }
+            liveUrl = Get-NullableString $entry.liveUrl
+            installUrl = Get-NullableString $entry.userscriptUrl
             downloadUrl = $downloadUrl
-            downloadKind = if ([string]::IsNullOrWhiteSpace([string]$entry.downloadKind)) { $null } else { [string]$entry.downloadKind }
+            downloadKind = Get-NullableString $entry.downloadKind
             primaryAction = [ordered]@{
                 kind = [string]$primaryAction["kind"]
                 label = [string]$primaryAction["label"]
@@ -6579,8 +6517,8 @@ function New-ProjectsExportJson {
             branchTipFetchedAt = $branchTipEvidence.fetchedAt
             branchTipStatus = $branchTipEvidence.status
             branchTipWarning = $branchTipEvidence.warning
-            entrypoint = if ([string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) { $null } else { [string]$entry.entrypoint }
-            installKind = if ([string]::IsNullOrWhiteSpace([string]$entry.installKind)) { $null } else { [string]$entry.installKind }
+            entrypoint = Get-NullableString $entry.entrypoint
+            installKind = Get-NullableString $entry.installKind
             language = $language
             localeHints = @($localeHints)
             scriptHints = @($scriptHints)
@@ -6596,7 +6534,7 @@ function New-ProjectsExportJson {
             featured = [bool]$entry.featured
             featuredRank = if ($entry.featuredRank) { [int]$entry.featuredRank } else { $null }
             currentlyBuilding = [bool]$entry.currentlyBuilding
-            notes = if ([string]::IsNullOrWhiteSpace([string]$entry.notes)) { $null } else { [string]$entry.notes }
+            notes = Get-NullableString $entry.notes
         }
 
         if ($row.suppressed) {
@@ -9182,6 +9120,13 @@ function Test-CatalogShape {
     }
 }
 
+function Get-NullableString {
+    param([AllowNull()][object]$Value)
+    $text = [string]$Value
+    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
+    return $text
+}
+
 function Get-MemberValue {
     param(
         [object]$Object,
@@ -11521,37 +11466,6 @@ function Read-DocConsistencyFile {
     }
 }
 
-function Add-DocConsistencyRecord {
-    param(
-        [System.Collections.Generic.List[object]]$Records,
-        [System.Collections.Generic.List[string]]$Errors,
-        [hashtable]$Document,
-        [string]$Field,
-        [string]$Pattern,
-        [string]$MissingMessage
-    )
-
-    $value = $null
-    if (-not [string]::IsNullOrWhiteSpace([string]$Document.text)) {
-        $match = [regex]::Match([string]$Document.text, $Pattern, [System.Text.RegularExpressions.RegexOptions]::Multiline)
-        if ($match.Success) {
-            $value = $match.Groups[1].Value
-        }
-    }
-
-    if ([string]::IsNullOrWhiteSpace([string]$value)) {
-        $Errors.Add("$($Document.path) missing $MissingMessage")
-    }
-
-    $Records.Add([ordered]@{
-            path = $Document.path
-            field = $Field
-            value = if ([string]::IsNullOrWhiteSpace([string]$value)) { $null } else { [string]$value }
-        })
-
-    return $value
-}
-
 function Test-IsoDateText {
     param([string]$Value)
 
@@ -11563,49 +11477,6 @@ function Test-IsoDateText {
         [System.Globalization.DateTimeStyles]::None,
         [ref]$parsedDate
     )
-}
-
-function Test-ChangelogReleaseHeadings {
-    param([object]$Document)
-
-    $malformedHeadings = New-Object System.Collections.Generic.List[object]
-    $headingCount = 0
-    $headingPattern = '^## \[v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\] - (\d{4}-\d{2}-\d{2})\s*$'
-
-    if (-not [string]::IsNullOrWhiteSpace([string]$Document.text)) {
-        $lines = ([string]$Document.text) -split "\r?\n"
-        for ($index = 0; $index -lt $lines.Count; $index++) {
-            $line = [string]$lines[$index]
-            if ($line -notmatch '^## \[') {
-                continue
-            }
-
-            $headingCount++
-            $reason = $null
-            $match = [regex]::Match($line, $headingPattern)
-            if (-not $match.Success) {
-                $reason = "heading must match '## [vMAJOR.MINOR.PATCH] - YYYY-MM-DD'"
-            } elseif (-not (Test-IsoDateText -Value $match.Groups[4].Value)) {
-                $reason = "release date is not a valid yyyy-MM-dd date"
-            }
-
-            if (-not [string]::IsNullOrWhiteSpace([string]$reason)) {
-                $malformedHeadings.Add([ordered]@{
-                        path = $Document.path
-                        lineNumber = [int]($index + 1)
-                        text = $line
-                        reason = $reason
-                    })
-            }
-        }
-    }
-
-    return [ordered]@{
-        passed = [bool]($malformedHeadings.Count -eq 0)
-        headingCount = [int]$headingCount
-        malformedCount = [int]$malformedHeadings.Count
-        malformedHeadings = $malformedHeadings.ToArray()
-    }
 }
 
 function Test-DocVersionConsistency {

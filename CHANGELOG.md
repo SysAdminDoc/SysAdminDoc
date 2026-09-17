@@ -24,6 +24,12 @@
 - Set the repository `homepage` to the canonical portfolio origin (`https://portfolio.getparkerai.com/`).
 - Removed the sync report size reduction item from the roadmap; the scheduled-workflow deletion brought the report to 104 KB, below the 114,688-byte soft limit.
 - Bumped to v4.10.2.
+- Moved the Ko-fi support link from lines 3 through 11 (before any content) to after the category nav bar, so the tagline and Healthcare IT intro come first.
+- Removed the "Feed consumers" developer-only paragraph and the redundant "Quick platform map" nav row from the generated README. The Start Here table and the category nav bar already cover the same routing.
+- Deleted four dead functions from the generator: `New-FeaturedSection`, `New-ProfileStatsChrome`, `Add-DocConsistencyRecord`, and `Test-ChangelogReleaseHeadings`.
+- Added a `Get-NullableString` helper and replaced 9 inline `IsNullOrWhiteSpace` coercion patterns in `New-ProjectsExportJson`.
+- Guarded the `ConvertFrom-Json` call in `Add-ReleaseAssetMetadata` with try/catch so a partial API response no longer throws an unhandled terminating error.
+- Added 22 new improvement items to ROADMAP.md covering architecture (god-file split, dead SVG cleanup), visitor experience (screenshots, contact info, star threshold, install shortening), testing (coverage, determinism, reachability), and security (encoding, Scorecard, advisory declarations).
 
 ## 2026-09-05
 

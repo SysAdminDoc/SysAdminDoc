@@ -1,15 +1,5 @@
 <p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
-<p align="center">
-  <a href="https://ko-fi.com/X8K126YVER">
-    <img height="42" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />
-  </a>
-</p>
-
-<p align="center">
-  <sub><em>If this project helps you, a coffee helps me keep working on it.</em></sub>
-</p>
-
 ## Healthcare IT and Technical Support
 
 I lead technical support for a medical imaging integrator: Tier 3 escalation for PACS, DICOM and clinical imaging workflows, root cause on the incidents that repeat, and the runbooks and provisioning standards that stop them. Sixteen years of enterprise IT before and alongside that, most of it as a systems administrator. Every tool on this page is something I built for that work or for my own machines, and still run.
@@ -19,6 +9,12 @@ I lead technical support for a medical imaging integrator: Tier 3 escalation for
 <p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
 <p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>
+
+<p align="center">
+  <a href="https://ko-fi.com/X8K126YVER">
+    <img height="36" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />
+  </a>
+</p>
 
 <!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
 
@@ -38,10 +34,6 @@ Use this table to route quickly by task, platform, install path, and confidence 
 | <kbd>DOC</kbd> Learn a repeatable workflow | Public references, checklists, companion guides, and setup material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
 | <kbd>OPS</kbd> Set up or verify this profile repo | Install checks, local linting, Pester, schema validation, and smoke evidence. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
 | <kbd>ALL</kbd> Search across everything | Filterable portfolio data from the generated projects.json feed. | [<kbd>Search &#8594;</kbd>](https://portfolio.getparkerai.com/) |
-
-Quick platform map: [PowerShell](#powershell-system-utilities) &middot; [Python](#python-desktop-applications) &middot; [Web Apps](#web-applications) &middot; [Extensions](#browser-extensions--userscripts) &middot; [Android](#android-applications) &middot; [Desktop](#native-desktop-applications)
-
-Feed consumers: `projects.json` includes stable project IDs, canonical repository aliases, locale/script hints, and a `schemaPolicy` migration signal. Field-selecting consumers can keep their existing rendering path; strict validators should follow the declared supported version window.
 
 ---
 
