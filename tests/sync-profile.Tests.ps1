@@ -2929,7 +2929,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
     It 'renders local validation bootstrap guidance' {
-        $script:rendered | Should -Match 'Set up or verify this profile repo'
+        $script:rendered | Should -Match 'Contribute to this repo'
         $script:rendered | Should -Match '<a id="local-validation"></a>'
         $script:rendered | Should -Match 'Regenerate, lint, analyze, test, and smoke-check the profile feed locally'
         $script:rendered | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
@@ -2963,10 +2963,10 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf('### Start Here'))
         [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected in the header'
         $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
-        $script:rendered | Should -Match '## Healthcare IT and Technical Support'
-        $script:rendered | Should -Match 'I lead technical support for a medical imaging integrator'
+        $script:rendered | Should -Match "## Hey, I'm Matt"
+        $script:rendered | Should -Match 'medical imaging'
         # One deliberate outbound call to action, not a pair of competing links.
-        $script:rendered | Should -Match '<a href="https://portfolio\.getparkerai\.com/healthcare-it/"><b>Healthcare IT and support work'
+        $script:rendered | Should -Match '<a href="https://portfolio\.getparkerai\.com/healthcare-it/"><b>More about what I do'
         $script:rendered | Should -Not -Match 'AI service overview'
         $script:rendered | Should -Not -Match 'Proof:|186\+ shipped'
         $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
@@ -2991,8 +2991,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         # The retired five-column layout forced horizontal scrolling at phone widths.
         $script:rendered | Should -Not -Match ([regex]::Escape("| Signal | I want to... | Best category |"))
         $script:rendered | Should -Match '<kbd>PS</kbd>'
-        $script:rendered | Should -Match 'Branch-pinned commands, release downloads, and focused desktop utilities'
-        $script:rendered | Should -Match 'CRX, XPI, userscript, source, and release-backed install paths'
+        $script:rendered | Should -Match 'PowerShell scripts you can paste and run'
+        $script:rendered | Should -Match 'Browser extensions and userscripts you can install in one click'
         $script:rendered | Should -Not -Match 'Quick platform map'
         $script:rendered | Should -Not -Match 'Feed consumers'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
@@ -3585,7 +3585,7 @@ Describe 'Update-Header idempotency' {
         $result | Should -Not -Match '<img[^>]*assets/profile/'
         [regex]::Matches($result, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected'
         $result | Should -Match 'storage\.ko-fi\.com'
-        $result | Should -Match 'Healthcare IT and support work'
+        $result | Should -Match 'More about what I do'
         $result | Should -Not -Match 'AI service overview'
         $result | Should -Match ([regex]::Escape($ProfileTagline))
         $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
@@ -7448,7 +7448,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
     It 'fires readmeExperience when the header contract breaks' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
-        $broken = $baseline.ExpectedReadme -replace 'Broadcast IT', 'Something Else Entirely'
+        $broken = $baseline.ExpectedReadme -replace [regex]::Escape($ProfileTagline), 'Something Else Entirely.'
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
             ExpectedReadme = $broken

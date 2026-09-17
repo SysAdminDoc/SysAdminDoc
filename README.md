@@ -1,10 +1,10 @@
-<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
+<p align="center"><b>Sysadmin by day, tool-builder by habit. Everything here is something I actually use.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>
 
-## Healthcare IT and Technical Support
+## Hey, I'm Matt
 
-I lead technical support for a medical imaging integrator: Tier 3 escalation for PACS, DICOM and clinical imaging workflows, root cause on the incidents that repeat, and the runbooks and provisioning standards that stop them. Sixteen years of enterprise IT before and alongside that, most of it as a systems administrator. Every tool on this page is something I built for that work or for my own machines, and still run.
+I run technical support for a medical imaging company. PACS, DICOM, X-ray workflows, the whole stack. Sixteen years of IT before and alongside that. When something breaks at 2 AM or a process takes ten clicks that should take one, I tend to write a tool for it. That's what most of this page is: things I built because I needed them, cleaned up enough to share.
 
-<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>Healthcare IT and support work &#8594;</b></a></p>
+<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>More about what I do &#8594;</b></a></p>
 
 <p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
@@ -20,20 +20,20 @@ I lead technical support for a medical imaging integrator: Tier 3 escalation for
 
 ### Start Here
 
-Use this table to route quickly by task, platform, install path, and confidence signal. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.
+Pick what you're looking for. Each section has install commands, download links, or a live demo you can try right now.
 
 | I want to... | What you'll find | Action |
 |:-------------|:-----------------|:-------|
-| <kbd>PS</kbd> Automate Windows administration | Branch-pinned commands, release downloads, and focused desktop utilities. | [<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) |
-| <kbd>PY</kbd> Build or run Python utilities | Local-first tools, media workflows, automation, and integration helpers. | [<kbd>Browse &#8594;</kbd>](#python-desktop-applications) |
-| <kbd>WEB</kbd> Use a browser tool | No-install dashboards and self-hosted or live project surfaces. | [<kbd>Open &#8594;</kbd>](#web-applications) |
-| <kbd>EXT</kbd> Add browser functionality | CRX, XPI, userscript, source, and release-backed install paths. | [<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) |
-| <kbd>APK</kbd> Use tools on Android devices | APK releases, Android source projects, and mobile utility workflows. | [<kbd>Download &#8594;</kbd>](#android-applications) |
-| <kbd>SEC</kbd> Audit, validate, or secure systems | Network checks, DNS control, defensive tooling, and operator notes. | [<kbd>Browse &#8594;</kbd>](#security--networking) |
-| <kbd>MED</kbd> Capture, convert, or repair media | Stream capture, video repair, compression, conversion, and cleanup tools. | [<kbd>Download &#8594;</kbd>](#media--conversion-tools) |
-| <kbd>DOC</kbd> Learn a repeatable workflow | Public references, checklists, companion guides, and setup material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
-| <kbd>OPS</kbd> Set up or verify this profile repo | Install checks, local linting, Pester, schema validation, and smoke evidence. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
-| <kbd>ALL</kbd> Search across everything | Filterable portfolio data from the generated projects.json feed. | [<kbd>Search &#8594;</kbd>](https://portfolio.getparkerai.com/) |
+| <kbd>PS</kbd> Automate something on Windows | PowerShell scripts you can paste and run, plus downloadable desktop tools. | [<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) |
+| <kbd>PY</kbd> Run a Python tool | Desktop apps, media tools, automation scripts, and utilities. | [<kbd>Browse &#8594;</kbd>](#python-desktop-applications) |
+| <kbd>WEB</kbd> Open something in a browser | Live web apps and self-hosted dashboards. No install needed. | [<kbd>Open &#8594;</kbd>](#web-applications) |
+| <kbd>EXT</kbd> Add something to Chrome or Firefox | Browser extensions and userscripts you can install in one click. | [<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) |
+| <kbd>APK</kbd> Get an Android app | APKs you can sideload, plus Android source projects. | [<kbd>Download &#8594;</kbd>](#android-applications) |
+| <kbd>SEC</kbd> Check or lock down a network | Security auditing, DNS tools, and hardening scripts. | [<kbd>Browse &#8594;</kbd>](#security--networking) |
+| <kbd>MED</kbd> Fix, convert, or capture media | Video repair, stream capture, compression, and format conversion. | [<kbd>Download &#8594;</kbd>](#media--conversion-tools) |
+| <kbd>DOC</kbd> Read a how-to guide | Step-by-step guides, checklists, and reference material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
+| <kbd>OPS</kbd> Contribute to this repo | Dev setup, linting, testing, and validation for contributors. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
+| <kbd>ALL</kbd> Search everything | The full catalog with filters, search, and download links. | [<kbd>Search &#8594;</kbd>](https://portfolio.getparkerai.com/) |
 
 ---
 
@@ -705,4 +705,4 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 
 ---
 
-<p align="center"><a href="https://portfolio.getparkerai.com/"><b>View my full portfolio</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">Browse repositories</a></p>
+<p align="center"><a href="https://portfolio.getparkerai.com/"><b>See everything</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">All repos</a></p>

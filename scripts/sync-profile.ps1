@@ -189,7 +189,7 @@ $script:MetadataFetchResourceLimitReason = $null
 $script:MetadataFetchPageSizeReduced = $false
 $script:ValidationCacheState = $null
 
-$ProfileTagline = 'Broadcast IT, Healthcare IT, and practical public tools.'
+$ProfileTagline = 'Sysadmin by day, tool-builder by habit. Everything here is something I actually use.'
 $ProfileTaglineHtml = '<p align="center"><b>{0}</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>' -f $ProfileTagline
 
 $CategoryDefinitions = @(
@@ -4128,72 +4128,72 @@ function Get-ProfileRouteDefinitions {
     return @(
         [ordered]@{
             Signal = "<kbd>PS</kbd>"
-            Want = "Automate Windows administration"
+            Want = "Automate something on Windows"
             Best = "$powershellLink or $desktopLink"
-            Find = "Branch-pinned commands, release downloads, and focused desktop utilities."
+            Find = "PowerShell scripts you can paste and run, plus downloadable desktop tools."
             Action = "[<kbd>Browse &#8594;</kbd>](#powershell-system-utilities)"
         },
         [ordered]@{
             Signal = "<kbd>PY</kbd>"
-            Want = "Build or run Python utilities"
+            Want = "Run a Python tool"
             Best = $pythonLink
-            Find = "Local-first tools, media workflows, automation, and integration helpers."
+            Find = "Desktop apps, media tools, automation scripts, and utilities."
             Action = "[<kbd>Browse &#8594;</kbd>](#python-desktop-applications)"
         },
         [ordered]@{
             Signal = "<kbd>WEB</kbd>"
-            Want = "Use a browser tool"
+            Want = "Open something in a browser"
             Best = $webLink
-            Find = "No-install dashboards and self-hosted or live project surfaces."
+            Find = "Live web apps and self-hosted dashboards. No install needed."
             Action = "[<kbd>Open &#8594;</kbd>](#web-applications)"
         },
         [ordered]@{
             Signal = "<kbd>EXT</kbd>"
-            Want = "Add browser functionality"
+            Want = "Add something to Chrome or Firefox"
             Best = $extensionsLink
-            Find = "CRX, XPI, userscript, source, and release-backed install paths."
+            Find = "Browser extensions and userscripts you can install in one click."
             Action = "[<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts)"
         },
         [ordered]@{
             Signal = "<kbd>APK</kbd>"
-            Want = "Use tools on Android devices"
+            Want = "Get an Android app"
             Best = $androidLink
-            Find = "APK releases, Android source projects, and mobile utility workflows."
+            Find = "APKs you can sideload, plus Android source projects."
             Action = "[<kbd>Download &#8594;</kbd>](#android-applications)"
         },
         [ordered]@{
             Signal = "<kbd>SEC</kbd>"
-            Want = "Audit, validate, or secure systems"
+            Want = "Check or lock down a network"
             Best = $securityLink
-            Find = "Network checks, DNS control, defensive tooling, and operator notes."
+            Find = "Security auditing, DNS tools, and hardening scripts."
             Action = "[<kbd>Browse &#8594;</kbd>](#security--networking)"
         },
         [ordered]@{
             Signal = "<kbd>MED</kbd>"
-            Want = "Capture, convert, or repair media"
+            Want = "Fix, convert, or capture media"
             Best = $mediaLink
-            Find = "Stream capture, video repair, compression, conversion, and cleanup tools."
+            Find = "Video repair, stream capture, compression, and format conversion."
             Action = "[<kbd>Download &#8594;</kbd>](#media--conversion-tools)"
         },
         [ordered]@{
             Signal = "<kbd>DOC</kbd>"
-            Want = "Learn a repeatable workflow"
+            Want = "Read a how-to guide"
             Best = $guidesLink
-            Find = "Public references, checklists, companion guides, and setup material."
+            Find = "Step-by-step guides, checklists, and reference material."
             Action = "[<kbd>Read &#8594;</kbd>](#guides--resources)"
         },
         [ordered]@{
             Signal = "<kbd>OPS</kbd>"
-            Want = "Set up or verify this profile repo"
+            Want = "Contribute to this repo"
             Best = "$setupLink or $validationLink"
-            Find = "Install checks, local linting, Pester, schema validation, and smoke evidence."
+            Find = "Dev setup, linting, testing, and validation for contributors."
             Action = "[<kbd>Verify &#8594;</kbd>](#local-validation)"
         },
         [ordered]@{
             Signal = "<kbd>ALL</kbd>"
-            Want = "Search across everything"
+            Want = "Search everything"
             Best = "[Full portfolio]($(Get-ProfilePortfolioUrl)) or $miscLink"
-            Find = "Filterable portfolio data from the generated `projects.json` feed."
+            Find = "The full catalog with filters, search, and download links."
             Action = "[<kbd>Search &#8594;</kbd>]($(Get-ProfilePortfolioUrl))"
         }
     )
@@ -4310,7 +4310,7 @@ function New-DiscoverySection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### Start Here")
     $lines.Add("")
-    $lines.Add("Use this table to route quickly by task, platform, install path, and confidence signal. The full portfolio is better for search and filters; this README is optimized for fast routing and install confidence.")
+    $lines.Add("Pick what you're looking for. Each section has install commands, download links, or a live demo you can try right now.")
     $lines.Add("")
     # Three columns instead of five. The old "Best category" column duplicated the target of
     # the Action link, and five prose columns forced horizontal scrolling on phone widths.
@@ -5068,11 +5068,11 @@ function New-ProfileChrome {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add($ProfileTaglineHtml)
     $lines.Add('')
-    $lines.Add('## Healthcare IT and Technical Support')
+    $lines.Add('## Hey, I''m Matt')
     $lines.Add('')
-    $lines.Add('I lead technical support for a medical imaging integrator: Tier 3 escalation for PACS, DICOM and clinical imaging workflows, root cause on the incidents that repeat, and the runbooks and provisioning standards that stop them. Sixteen years of enterprise IT before and alongside that, most of it as a systems administrator. Every tool on this page is something I built for that work or for my own machines, and still run.')
+    $lines.Add('I run technical support for a medical imaging company. PACS, DICOM, X-ray workflows, the whole stack. Sixteen years of IT before and alongside that. When something breaks at 2 AM or a process takes ten clicks that should take one, I tend to write a tool for it. That''s what most of this page is: things I built because I needed them, cleaned up enough to share.')
     $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>Healthcare IT and support work &#8594;</b></a></p>')
+    $lines.Add('<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>More about what I do &#8594;</b></a></p>')
     $lines.Add('')
     $lines.Add('<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
@@ -5098,7 +5098,7 @@ function New-ProfileFooter {
     return @(
         '---'
         ''
-        ('<p align="center"><a href="' + (Get-ProfilePortfolioUrl) + '"><b>View my full portfolio</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">Browse repositories</a></p>')
+        ('<p align="center"><a href="' + (Get-ProfilePortfolioUrl) + '"><b>See everything</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">All repos</a></p>')
     ) -join [Environment]::NewLine
 }
 
@@ -7665,7 +7665,7 @@ function Test-ReadmeExperience {
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
     $taglinePrefix = '<p align="center"><b>' + $ProfileTagline + '</b>'
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglinePrefix, [StringComparison]::Ordinal) -and
-        $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>View my full portfolio') -and
+        $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>See everything') -and
         $ExpectedReadme.Contains('<a href="#powershell-system-utilities">PowerShell</a>') -and
         -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and
         -not $ExpectedReadme.Contains('assets/profile/header-light.svg')

@@ -118,7 +118,7 @@
   <path d="M886 98 L874 108 L886 118 M904 98 L916 108 L904 118" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="500" y="192" fill="#f0f6fc" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="54" font-weight="700">SysAdminDoc</text>
   <line x1="456" y1="210" x2="544" y2="210" stroke="#58a6ff" stroke-width="2"/>
-  <text x="500" y="238" fill="#c9d1d9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Broadcast IT, Healthcare IT, and practical public tools</text>
+  <text x="500" y="238" fill="#c9d1d9" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="600">Sysadmin by day, tool-builder by habit. Everything here is something I actually use</text>
   <rect x="412" y="252" width="176" height="32" rx="8" fill="#0f1720" stroke="#58a6ff"/>
   <text x="500" y="273" fill="#58a6ff" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">View full portfolio -&gt;</text>
 </svg>

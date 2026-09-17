@@ -30,6 +30,7 @@
 - Added a `Get-NullableString` helper and replaced 9 inline `IsNullOrWhiteSpace` coercion patterns in `New-ProjectsExportJson`.
 - Guarded the `ConvertFrom-Json` call in `Add-ReleaseAssetMetadata` with try/catch so a partial API response no longer throws an unhandled terminating error.
 - Added 22 new improvement items to ROADMAP.md covering architecture (god-file split, dead SVG cleanup), visitor experience (screenshots, contact info, star threshold, install shortening), testing (coverage, determinism, reachability), and security (encoding, Scorecard, advisory declarations).
+- Rewrote all visitor-facing copy to sound like a person, not a resume. The tagline, intro paragraph, Start Here table descriptions, route labels, and footer text now read as conversational and direct instead of corporate or API-documentation style. Test assertions reference the `$ProfileTagline` constant instead of hardcoded copy.
 
 ## 2026-09-05
 

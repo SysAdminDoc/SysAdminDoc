@@ -220,7 +220,7 @@ function Invoke-RenderedSmoke {
   const startHereNodes = textMatch("h1,h2,h3", "Start Here");
   const toolCatalogNodes = textMatch("h1,h2,h3", "Tool Catalog");
   const footerImageNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
-  const footerTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Browse repositories"]));
+  const footerTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["All repos"]));
   const footerNodes = footerImageNodes.length > 0 ? footerImageNodes : footerTextNodes;
   const countVisible = (nodes) => nodes.filter(isVisible).length;
   const firstViewportComponentPresence = {
@@ -390,7 +390,7 @@ function Invoke-RenderedSmoke {
     nonActionableLinkCount: linkRows.filter((row) => !row.actionable).length,
     linkLabelSanityPassed: linkRows.every((row) => row.label && row.actionable),
     linkLabelIssues,
-    portfolioLinkText: text.includes("View full portfolio") || text.includes("View my full portfolio"),
+    portfolioLinkText: text.includes("See everything") || text.includes("View full portfolio") || text.includes("View my full portfolio"),
     sections: sectionResults,
     componentPresence,
     firstViewportComponentPresence,
