@@ -148,7 +148,6 @@ $artifactBudgets = if ($report.PSObject.Properties.Name -contains 'artifactBudge
 $renderedProfileSmoke = if ($report.PSObject.Properties.Name -contains 'renderedProfileSmoke') { $report.renderedProfileSmoke } else { $null }
 $restFallbackReleaseFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'restFallbackReleaseFetch') { $performance.restFallbackReleaseFetch } else { $null }
 $evidenceFreshness = if ($report.PSObject.Properties.Name -contains 'evidenceFreshness') { $report.evidenceFreshness } else { $null }
-$scheduledWorkflowFreshness = if ($report.PSObject.Properties.Name -contains 'scheduledWorkflowFreshness') { $report.scheduledWorkflowFreshness } else { $null }
 $roadmapHygiene = if ($report.PSObject.Properties.Name -contains 'roadmapHygiene') { $report.roadmapHygiene } else { $null }
 $rootMarkdownHygiene = if ($report.PSObject.Properties.Name -contains 'rootMarkdownHygiene') { $report.rootMarkdownHygiene } else { $null }
 $profileAssetsAccessibility = if ($report.PSObject.Properties.Name -contains 'profileAssetsAccessibility') { $report.profileAssetsAccessibility } else { $null }
@@ -478,14 +477,6 @@ $evidenceSmokeAgeHoursRaw = Get-ObjectPropertyOrDefault -Object $evidenceFreshne
 $evidenceSmokeGeneratedAt = if ($null -ne $evidenceSmokeGeneratedAtRaw) { ConvertTo-CompactSummaryValue $evidenceSmokeGeneratedAtRaw } else { "unknown" }
 $evidenceSmokeAgeHours = if ($null -ne $evidenceSmokeAgeHoursRaw) { ConvertTo-CompactSummaryValue $evidenceSmokeAgeHoursRaw } else { "unknown" }
 $evidenceSmokeBehindReadme = [bool](Get-ObjectPropertyOrDefault -Object $evidenceFreshness -Name "smokeEvidenceBehindReadme" -Default $false)
-$scheduledWorkflowStatus = if ($scheduledWorkflowFreshness) { [string]$scheduledWorkflowFreshness.status } else { "unknown" }
-$scheduledWorkflowCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.scheduledWorkflowCount } else { 0 }
-$scheduledWorkflowWarningCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.warningCount } else { 0 }
-$scheduledWorkflowStaleCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.staleCount } else { 0 }
-$scheduledWorkflowFailingCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.failingCount } else { 0 }
-$scheduledWorkflowUnavailableCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.unavailableCount } else { 0 }
-$scheduledWorkflowDisabledCount = if ($scheduledWorkflowFreshness) { [int]$scheduledWorkflowFreshness.disabledCount } else { 0 }
-$scheduledWorkflowRows = if ($scheduledWorkflowFreshness -and $scheduledWorkflowFreshness.PSObject.Properties.Name -contains 'rows') { @($scheduledWorkflowFreshness.rows) } else { @() }
 $roadmapHygieneStatus = if ($roadmapHygiene) { [string]$roadmapHygiene.status } else { "unknown" }
 $roadmapHygieneWarningCount = if ($roadmapHygiene) { [int]$roadmapHygiene.warningCount } else { 0 }
 $roadmapHygieneRows = if ($roadmapHygiene -and $roadmapHygiene.PSObject.Properties.Name -contains 'rows') { @($roadmapHygiene.rows) } else { @() }
@@ -600,13 +591,6 @@ $summary = @"
 | Committed smoke evidence generated at | $evidenceSmokeGeneratedAt |
 | Committed smoke evidence age (hours) | $evidenceSmokeAgeHours |
 | Committed smoke evidence behind README | $evidenceSmokeBehindReadme |
-| Scheduled workflow freshness | $scheduledWorkflowStatus |
-| Scheduled workflows tracked | $scheduledWorkflowCount |
-| Scheduled workflow warnings | $scheduledWorkflowWarningCount |
-| Scheduled workflows stale | $scheduledWorkflowStaleCount |
-| Scheduled workflows failing | $scheduledWorkflowFailingCount |
-| Scheduled workflows unavailable | $scheduledWorkflowUnavailableCount |
-| Scheduled workflows disabled | $scheduledWorkflowDisabledCount |
 | Roadmap hygiene | $roadmapHygieneStatus |
 | Roadmap shipped-entry warnings | $roadmapHygieneWarningCount |
 | README image alt-text complete | $imageAltTextComplete |
@@ -954,24 +938,6 @@ if ($evidenceReportBehindCommit) {
 
 if ($evidenceSmokeStale) {
     Write-Output "::warning::Committed rendered-smoke status is $evidenceSmokeStatus without local source metadata; run scripts/render-profile-smoke.ps1 locally and regenerate the report."
-}
-
-if ($scheduledWorkflowFailingCount -gt 0 -or $scheduledWorkflowStaleCount -gt 0) {
-    foreach ($row in $scheduledWorkflowRows) {
-        $rowStatus = [string](Get-ObjectPropertyOrDefault -Object $row -Name "status")
-        if ($rowStatus -eq "failing" -or $rowStatus -eq "stale" -or $rowStatus -eq "disabled") {
-            $rowWarning = [string](Get-ObjectPropertyOrDefault -Object $row -Name "warning")
-            $workflowFile = [string](Get-ObjectPropertyOrDefault -Object $row -Name "workflowFile" -Default "")
-            $annotation = if ([string]::IsNullOrWhiteSpace($rowWarning)) { "Scheduled workflow $workflowFile is $rowStatus." } else { $rowWarning }
-            $annotationFile = ConvertTo-GitHubAnnotationProperty $workflowFile
-            $annotationTitle = ConvertTo-GitHubAnnotationProperty "Scheduled workflow $rowStatus"
-            Write-Output "::warning file=$annotationFile,title=$annotationTitle::$(ConvertTo-GitHubAnnotationValue $annotation)"
-        }
-    }
-}
-
-if ($scheduledWorkflowUnavailableCount -gt 0) {
-    Write-Output "::notice::Profile sync report could not evaluate $scheduledWorkflowUnavailableCount scheduled workflow(s) (run evidence unavailable, e.g. offline or unauthenticated)."
 }
 
 if ($executableChecksumGapCount -gt 0) {

@@ -15,6 +15,7 @@
 - Tightened the "no image chrome" test assertions to count exactly one `<img>` tag (the Ko-fi support image) rather than broadly allowing any non-asset image.
 - Added regression tests for quoted-path redaction with spaces and multi-byte UTF-8 truncation in the support bundle.
 - Regenerated README, feed, assets, and sync report against the current catalog and live metadata.
+- Deleted the scheduled-workflow freshness lane and its orphaned zizmor scanner config. The lane had six functions, a schema section, summary rendering, and seven tests for evaluating GitHub Actions workflows that repository policy forbids creating. `.github/zizmor.yml` configured a scanner for a repo with no workflows or runner. The hosted-automation removal contract test now guards against any of these reappearing.
 
 ## 2026-09-05
 
