@@ -192,7 +192,7 @@ function Invoke-RenderedSmoke {
   const text = document.body.innerText || "";
   const article = document.querySelector("article.markdown-body") || document.querySelector(".markdown-body");
   const root = article || document.body;
-  const sections = ["Start Here", "First-time setup", "PowerShell System Utilities", "Python Desktop Applications", "Browser Extensions & Userscripts"];
+  const sections = ["What's here", "First-time setup", "PowerShell System Utilities", "Python Desktop Applications", "Browser Extensions & Userscripts"];
   const sectionResults = Object.fromEntries(sections.map((name) => [name, text.includes(name)]));
   const rootOverflow = root.scrollWidth > root.clientWidth + 2;
   const documentOverflow = document.documentElement.scrollWidth > window.innerWidth + 2;
@@ -215,10 +215,10 @@ function Invoke-RenderedSmoke {
   };
   const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i]'));
   const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Broadcast IT", "practical public tools"]));
-  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Start Here", "Local validation"]));
+  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["PowerShell", "Extensions"]));
   const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
-  const startHereNodes = textMatch("h1,h2,h3", "Start Here");
-  const toolCatalogNodes = textMatch("h1,h2,h3", "Tool Catalog");
+  const startHereNodes = textMatch("h1,h2,h3", "What");
+  const toolCatalogNodes = textMatch("h1,h2,h3", "What");
   const footerImageNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
   const footerTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["All repos"]));
   const footerNodes = footerImageNodes.length > 0 ? footerImageNodes : footerTextNodes;

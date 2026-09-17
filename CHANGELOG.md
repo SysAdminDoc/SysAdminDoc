@@ -30,7 +30,9 @@
 - Added a `Get-NullableString` helper and replaced 9 inline `IsNullOrWhiteSpace` coercion patterns in `New-ProjectsExportJson`.
 - Guarded the `ConvertFrom-Json` call in `Add-ReleaseAssetMetadata` with try/catch so a partial API response no longer throws an unhandled terminating error.
 - Added 22 new improvement items to ROADMAP.md covering architecture (god-file split, dead SVG cleanup), visitor experience (screenshots, contact info, star threshold, install shortening), testing (coverage, determinism, reachability), and security (encoding, Scorecard, advisory declarations).
-- Rewrote all visitor-facing copy to sound like a person, not a resume. The tagline, intro paragraph, Start Here table descriptions, route labels, and footer text now read as conversational and direct instead of corporate or API-documentation style. Test assertions reference the `$ProfileTagline` constant instead of hardcoded copy.
+- Rewrote all visitor-facing copy to sound like a person, not a resume. The tagline, intro paragraph, route labels, category descriptions, and footer text now read as conversational and direct instead of corporate or API-documentation style. Test assertions reference the `$ProfileTagline` constant instead of hardcoded copy.
+- Redesigned the page layout for faster navigation. Removed the Start Here routing table (redundant with the Tool Catalog grid). The "What's here" category grid is now the first thing visitors see after the intro. Moved First-time setup and Local validation sections to the bottom of the page since they're contributor content, not visitor content. Removed the "First-time setup" and "Local validation" links from the header nav.
+- Updated the intro to acknowledge hobby and personal projects alongside work tools. The old copy said everything was built for work; the new copy says "Some of these are tools I wrote to fix problems at work. Others are side projects, personal apps, or just things I wanted to exist."
 
 ## 2026-09-05
 

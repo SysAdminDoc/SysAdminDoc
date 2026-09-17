@@ -197,7 +197,7 @@ $CategoryDefinitions = @(
         Slug = "powershell"
         DisplayName = "PowerShell"
         Title = "&#9889; PowerShell System Utilities"
-        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Clipboard-ready Windows administration tools with branch-pinned run commands.</i></summary>'
+        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Paste-and-run scripts for Windows admin work.</i></summary>'
         Render = "code"
         DefaultInstallKind = "powershell"
     },
@@ -205,7 +205,7 @@ $CategoryDefinitions = @(
         Slug = "python"
         DisplayName = "Python"
         Title = "&#128013; Python Desktop Applications"
-        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Local-first desktop utilities, media workflows, and automation built on Python 3.</i></summary>'
+        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Desktop apps, creative tools, and automation scripts.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
@@ -213,21 +213,21 @@ $CategoryDefinitions = @(
         Slug = "web"
         DisplayName = "Web Apps"
         Title = "&#127760; Web Applications"
-        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Launchable browser tools, dashboards, and project surfaces with no local install.</i></summary>'
+        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Live web apps and dashboards you can open right now.</i></summary>'
         Render = "web-table"
     },
     [ordered]@{
         Slug = "extensions"
         DisplayName = "Extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
-        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths. Userscripts need a manager such as Tampermonkey, and Chrome now requires Developer mode on chrome://extensions.</i></summary>'
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>One-click installs for Chrome and Firefox. Userscripts need Tampermonkey or similar.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
         Slug = "android"
         DisplayName = "Android"
         Title = "&#128241; Android Applications"
-        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>AMOLED-friendly APKs, Android source projects, and device-focused utilities.</i></summary>'
+        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>APKs you can sideload and Android source projects.</i></summary>'
         Render = "download-table"
         DefaultDownloadKind = "apk"
     },
@@ -235,14 +235,14 @@ $CategoryDefinitions = @(
         Slug = "security"
         DisplayName = "Security"
         Title = "&#128274; Security & Networking"
-        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network auditing, DNS control, and defensive tooling with practical operator notes.</i></summary>'
+        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network audits, DNS control, and hardening scripts.</i></summary>'
         Render = "download-table"
     },
     [ordered]@{
         Slug = "media"
         DisplayName = "Media"
         Title = "&#127916; Media & Conversion Tools"
-        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video repair, compression, conversion, subtitle removal, and stream-capture workflows.</i></summary>'
+        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video, audio, and stream tools.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
@@ -250,21 +250,21 @@ $CategoryDefinitions = @(
         Slug = "desktop"
         DisplayName = "Desktop"
         Title = "&#128421;&#65039; Native Desktop Applications"
-        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Installable Windows and cross-platform apps across C#, C++, Rust, and TypeScript.</i></summary>'
+        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Windows and cross-platform desktop apps.</i></summary>'
         Render = "desktop-table"
     },
     [ordered]@{
         Slug = "guides"
         DisplayName = "Guides"
         Title = "&#128218; Guides & Resources"
-        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>Public references, checklists, and companion guides for repeatable workflows.</i></summary>'
+        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>How-to guides, checklists, and references.</i></summary>'
         Render = "simple-table"
     },
     [ordered]@{
         Slug = "misc"
         DisplayName = "Misc"
         Title = "&#128256; Misc & Forks"
-        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, continuations, and supporting utilities with upstream context preserved.</i></summary>'
+        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, side projects, and things that didn''t fit elsewhere.</i></summary>'
         Render = "simple-table"
     }
 )
@@ -4203,17 +4203,17 @@ function Get-ToolCatalogDescription {
     param([string]$Slug)
 
     switch ($Slug) {
-        "powershell" { return "Windows automation and administration." }
-        "python" { return "Utilities, libraries, and integration tools." }
-        "web" { return "Self-hosted and online tools for IT." }
-        "extensions" { return "Browser installs for productivity and security." }
-        "android" { return "Utilities and assistants for mobile workflows." }
-        "security" { return "Audit, validate, and secure systems." }
-        "desktop" { return "Focused Windows and cross-platform apps." }
-        "media" { return "Capture, conversion, and media repair tools." }
-        "guides" { return "Step-by-step guides and reference material." }
-        "misc" { return "Forks, continuations, and supporting utilities." }
-        default { return "Public projects and supporting utilities." }
+        "powershell" { return "Scripts and tools for Windows." }
+        "python" { return "Desktop apps, utilities, and creative tools." }
+        "web" { return "Browser-based tools and dashboards." }
+        "extensions" { return "Chrome/Firefox add-ons and userscripts." }
+        "android" { return "Apps for your phone." }
+        "security" { return "Network auditing and hardening." }
+        "desktop" { return "Windows and cross-platform apps." }
+        "media" { return "Video, audio, and stream tools." }
+        "guides" { return "How-to guides and reference docs." }
+        "misc" { return "Forks and side projects." }
+        default { return "Public projects." }
     }
 }
 
@@ -4287,9 +4287,9 @@ function New-ToolCatalogSection {
     )
 
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("### Tool Catalog")
+    $lines.Add("### What's here")
     $lines.Add("")
-    $lines.Add("Categories with suggested starting points and quick actions before the full generated catalog below.")
+    $lines.Add("Pick a category to jump in. Each one has a few suggestions to start with.")
     $lines.Add("")
 
     foreach ($row in $rows) {
@@ -5070,11 +5070,9 @@ function New-ProfileChrome {
     $lines.Add('')
     $lines.Add('## Hey, I''m Matt')
     $lines.Add('')
-    $lines.Add('I run technical support for a medical imaging company. PACS, DICOM, X-ray workflows, the whole stack. Sixteen years of IT before and alongside that. When something breaks at 2 AM or a process takes ten clicks that should take one, I tend to write a tool for it. That''s what most of this page is: things I built because I needed them, cleaned up enough to share.')
+    $lines.Add('I do technical support for a medical imaging company during the day, and I build things at night. Some of these are tools I wrote to fix problems at work. Others are side projects, personal apps, or just things I wanted to exist. All of it is stuff I actually use or actively maintain.')
     $lines.Add('')
     $lines.Add('<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>More about what I do &#8594;</b></a></p>')
-    $lines.Add('')
-    $lines.Add('<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>')
     $lines.Add('')
     $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
     $categoryLinks = @($navSlugs | ForEach-Object {
@@ -5151,16 +5149,6 @@ function New-Readme {
         $blocks.Add($GeneratedCatalogNotice)
         $blocks.Add("")
     }
-    if ($includeDiscoverySection) {
-        $blocks.Add((New-DiscoverySection))
-        $blocks.Add("")
-        $blocks.Add("---")
-        $blocks.Add("")
-    }
-    $blocks.Add((New-FirstTimeSetupSection))
-    $blocks.Add("")
-    $blocks.Add((New-LocalValidationSection))
-    $blocks.Add("")
     $blocks.Add((New-ToolCatalogSection -Entries $entries -RepoLookup $repoLookup))
     $blocks.Add("")
 
@@ -5173,6 +5161,10 @@ function New-Readme {
         $blocks.Add("")
     }
 
+    $blocks.Add((New-FirstTimeSetupSection))
+    $blocks.Add("")
+    $blocks.Add((New-LocalValidationSection))
+    $blocks.Add("")
     $blocks.Add($footer)
     $blocks.Add("")
     return ($blocks -join [Environment]::NewLine)
@@ -7675,7 +7667,7 @@ function Test-ReadmeExperience {
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
         (-not $ExpectedReadme.Contains("**Currently Building**")) -or
         $ExpectedReadme.Contains("| Project | Focus | Action |")
-    $hasDiscoveryContract = ($hasStartHere -and -not $hasSnapshot -and $hasGeneratedNotice) -or
+    $hasDiscoveryContract = ($hasMinimalProfileHeader -and -not $hasSnapshot -and $hasGeneratedNotice) -or
         ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
     $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 0) -or
         ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)

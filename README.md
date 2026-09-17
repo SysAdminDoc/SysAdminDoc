@@ -2,11 +2,9 @@
 
 ## Hey, I'm Matt
 
-I run technical support for a medical imaging company. PACS, DICOM, X-ray workflows, the whole stack. Sixteen years of IT before and alongside that. When something breaks at 2 AM or a process takes ten clicks that should take one, I tend to write a tool for it. That's what most of this page is: things I built because I needed them, cleaned up enough to share.
+I do technical support for a medical imaging company during the day, and I build things at night. Some of these are tools I wrote to fix problems at work. Others are side projects, personal apps, or just things I wanted to exist. All of it is stuff I actually use or actively maintain.
 
 <p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>More about what I do &#8594;</b></a></p>
-
-<p align="center"><a href="#start-here">Start Here</a> &middot; <a href="#first-time-setup">First-time setup</a> &middot; <a href="#local-validation">Local validation</a></p>
 
 <p align="center"><a href="#powershell-system-utilities">PowerShell</a> &middot; <a href="#python-desktop-applications">Python</a> &middot; <a href="#web-applications">Web Apps</a> &middot; <a href="#browser-extensions--userscripts">Extensions</a> &middot; <a href="#android-applications">Android</a> &middot; <a href="#security--networking">Security</a> &middot; <a href="#native-desktop-applications">Desktop</a> &middot; <a href="#media--conversion-tools">Media</a> &middot; <a href="#guides--resources">Guides</a> &middot; <a href="#misc--forks">Forks</a></p>
 
@@ -18,142 +16,21 @@ I run technical support for a medical imaging company. PACS, DICOM, X-ray workfl
 
 <!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->
 
-### Start Here
+### What's here
 
-Pick what you're looking for. Each section has install commands, download links, or a live demo you can try right now.
-
-| I want to... | What you'll find | Action |
-|:-------------|:-----------------|:-------|
-| <kbd>PS</kbd> Automate something on Windows | PowerShell scripts you can paste and run, plus downloadable desktop tools. | [<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) |
-| <kbd>PY</kbd> Run a Python tool | Desktop apps, media tools, automation scripts, and utilities. | [<kbd>Browse &#8594;</kbd>](#python-desktop-applications) |
-| <kbd>WEB</kbd> Open something in a browser | Live web apps and self-hosted dashboards. No install needed. | [<kbd>Open &#8594;</kbd>](#web-applications) |
-| <kbd>EXT</kbd> Add something to Chrome or Firefox | Browser extensions and userscripts you can install in one click. | [<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) |
-| <kbd>APK</kbd> Get an Android app | APKs you can sideload, plus Android source projects. | [<kbd>Download &#8594;</kbd>](#android-applications) |
-| <kbd>SEC</kbd> Check or lock down a network | Security auditing, DNS tools, and hardening scripts. | [<kbd>Browse &#8594;</kbd>](#security--networking) |
-| <kbd>MED</kbd> Fix, convert, or capture media | Video repair, stream capture, compression, and format conversion. | [<kbd>Download &#8594;</kbd>](#media--conversion-tools) |
-| <kbd>DOC</kbd> Read a how-to guide | Step-by-step guides, checklists, and reference material. | [<kbd>Read &#8594;</kbd>](#guides--resources) |
-| <kbd>OPS</kbd> Contribute to this repo | Dev setup, linting, testing, and validation for contributors. | [<kbd>Verify &#8594;</kbd>](#local-validation) |
-| <kbd>ALL</kbd> Search everything | The full catalog with filters, search, and download links. | [<kbd>Search &#8594;</kbd>](https://portfolio.getparkerai.com/) |
-
----
-
-<a id="first-time-setup"></a>
-
-<details>
-<summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
-<br/>
-
-The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
-
-```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
-```
-
-Inspect before installing:
-
-```powershell
-$u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
-```
-
-| Step | Behavior |
-|:-----|:---------|
-| Checks first | Reports PowerShell 7, Python, pip, and Git state before installing missing tools. |
-| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
-| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.13](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
-| Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
-| Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
-| Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
-
-Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
-
-</details>
-
-<a id="local-validation"></a>
-
-<details>
-<summary><b>&#9989; Local validation</b> -- <i>Regenerate, lint, analyze, test, and smoke-check the profile feed locally.</i></summary>
-<br/>
-
-Use this from the repo root before pushing profile, catalog, asset, or validation changes:
-
-```powershell
-pwsh -NoProfile -File .\scripts\validate-local.ps1
-```
-
-Create a redacted support bundle when local validation or setup needs troubleshooting:
-
-```powershell
-pwsh -NoProfile -File .\scripts\validate-local.ps1 -SupportBundlePath .\SysAdminDoc-support.zip -SupportBundleRedactValue 'PrivateRepoName'
-```
-
-The bundle contains tool versions, validation output, the profile sync report, and dependency-review evidence. User paths, common tokens/secrets, query credentials, and values supplied through `-SupportBundleRedactValue` are redacted. A setup transcript can be added directly when needed:
-
-```powershell
-pwsh -NoProfile -File .\scripts\new-support-bundle.ps1 -OutputPath .\SysAdminDoc-setup-support.zip -ProfileReportPath .\reports\profile-sync-report.json -SetupTranscriptPath (Get-ChildItem "$env:TEMP\SysAdminDoc-setup-*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
-```
-
-Run the manual dependency and advisory review:
-
-```powershell
-npm run review:dependencies
-```
-
-Run the opt-in Pester 6 compatibility lane in an isolated module path:
-
-```powershell
-pwsh -NoProfile -File .\scripts\validate-local.ps1 -Pester6Compatibility
-```
-
-Optionally probe the deployed portfolio feed and key routes (warning-only):
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -ProbePortfolio
-```
-
-Emit an optional redaction-safe Backstage catalog export:
-
-```powershell
-pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\reports\backstage-catalog.json
-```
-
-| Check | Behavior |
-|:------|:---------|
-| Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. The committed `.npmrc` sets `ignore-scripts=true`, `audit-level=high` and `min-release-age=1`, and the lane asks npm what it actually resolved before installing, so an environment override cannot quietly re-enable install scripts. |
-| Dependency review | Runs `npm audit --json` and `npm audit signatures`, checks package override drift, verifies npm lock/hash pins, and resolves every pin against the npm and PyPI registries. Each row separates what the parent declares, the resolved pin, and the registry latest. A new major is recorded as review-needed rather than forced, so a deliberate hold stays green. Answers are cached under `.cache/registry-versions.json`; `-OfflineRegistry` reads that cache and reports its age, which goes stale after 30 days. Registry signature verification records verified, invalid and missing counts, names each offending package, and reports per direct dependency whether the installed version carries a registry signature and a build provenance attestation. An invalid or missing signature fails the review. |
-| PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
-| PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. Packages are downloaded as nupkg and their SHA-256 checked against `data/powershell-module-lock.json` before anything is extracted, then every signed file must carry the signer that lock names. A module with no reviewed record is refused rather than installed. Verified packages are cached under `.cache/powershell-modules` so an offline run reuses bytes that already passed. |
-| Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.1.0 into an isolated temporary module path and run the non-integration suite; the default Pester 5.9.1 lane is unchanged. |
-| Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
-| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
-| Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
-| Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
-| Profile check | Runs `sync-profile.ps1 -Check` against the working tree after the tests and fails the run on a non-zero exit, naming the failing report conditions. The Pester suite only exercises the generator against fixtures, so this is the lane that validates the committed README, feed, assets, privacy suppression, and links. Add `-SkipProfileCheck` or `-SkipLinkValidation` for a faster loop; both announce that the run was reduced. |
-| Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
-| Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
-| Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
-| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
-| Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. |
-| Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
-
-Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
-
-</details>
-
-### Tool Catalog
-
-Categories with suggested starting points and quick actions before the full generated catalog below.
+Pick a category to jump in. Each one has a few suggestions to start with.
 
 | PowerShell | Python | Web Apps | Extensions | Android |
 |:---|:---|:---|:---|:---|
-| &#9889; **PowerShell**<br/>Windows automation and administration.<br/><sub>[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher)<br/>[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot)<br/>[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor)</sub><br/>[<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) | &#128013; **Python**<br/>Utilities, libraries, and integration tools.<br/><sub>[**OpenCut**](https://github.com/SysAdminDoc/OpenCut)<br/>[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop)<br/>[**Vertigo**](https://github.com/SysAdminDoc/Vertigo)</sub><br/>[<kbd>Browse &#8594;</kbd>](#python-desktop-applications) | &#127760; **Web Apps**<br/>Self-hosted and online tools for IT.<br/><sub>[**Openshop**](https://github.com/SysAdminDoc/Openshop)<br/>[**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar)<br/>[**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack)</sub><br/>[<kbd>Open &#8594;</kbd>](#web-applications) | &#129513; **Extensions**<br/>Browser installs for productivity and security.<br/><sub>[**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck)<br/>[**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault)<br/>[**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced)</sub><br/>[<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) | &#128241; **Android**<br/>Utilities and assistants for mobile workflows.<br/><sub>[**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch)<br/>[**ClearCut**](https://github.com/SysAdminDoc/ClearCut)<br/>[**HostShield**](https://github.com/SysAdminDoc/HostShield)</sub><br/>[<kbd>Download &#8594;</kbd>](#android-applications) |
+| &#9889; **PowerShell**<br/>Scripts and tools for Windows.<br/><sub>[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher)<br/>[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot)<br/>[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor)</sub><br/>[<kbd>Browse &#8594;</kbd>](#powershell-system-utilities) | &#128013; **Python**<br/>Desktop apps, utilities, and creative tools.<br/><sub>[**OpenCut**](https://github.com/SysAdminDoc/OpenCut)<br/>[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop)<br/>[**Vertigo**](https://github.com/SysAdminDoc/Vertigo)</sub><br/>[<kbd>Browse &#8594;</kbd>](#python-desktop-applications) | &#127760; **Web Apps**<br/>Browser-based tools and dashboards.<br/><sub>[**Openshop**](https://github.com/SysAdminDoc/Openshop)<br/>[**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar)<br/>[**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack)</sub><br/>[<kbd>Open &#8594;</kbd>](#web-applications) | &#129513; **Extensions**<br/>Chrome/Firefox add-ons and userscripts.<br/><sub>[**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck)<br/>[**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault)<br/>[**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced)</sub><br/>[<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts) | &#128241; **Android**<br/>Apps for your phone.<br/><sub>[**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch)<br/>[**ClearCut**](https://github.com/SysAdminDoc/ClearCut)<br/>[**HostShield**](https://github.com/SysAdminDoc/HostShield)</sub><br/>[<kbd>Download &#8594;</kbd>](#android-applications) |
 
 | Security | Desktop | Media | Guides | Misc |
 |:---|:---|:---|:---|:---|
-| &#128274; **Security**<br/>Audit, validate, and secure systems.<br/><sub>[**BetterNext**](https://github.com/SysAdminDoc/BetterNext)<br/>[**ESET**](https://github.com/SysAdminDoc/ESET)</sub><br/>[<kbd>Browse &#8594;</kbd>](#security--networking) | &#128421;&#65039; **Desktop**<br/>Focused Windows and cross-platform apps.<br/><sub>[**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio)<br/>[**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore)<br/>[**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore)</sub><br/>[<kbd>Download &#8594;</kbd>](#native-desktop-applications) | &#127916; **Media**<br/>Capture, conversion, and media repair tools.<br/><sub>[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover)<br/>[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush)<br/>[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut)</sub><br/>[<kbd>Download &#8594;</kbd>](#media--conversion-tools) | &#128218; **Guides**<br/>Step-by-step guides and reference material.<br/><sub>[**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism)<br/>[**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide)<br/>[**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list)</sub><br/>[<kbd>Read &#8594;</kbd>](#guides--resources) | &#128256; **Misc**<br/>Forks, continuations, and supporting utilities.<br/><sub>[**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory)<br/>[**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore)<br/>[**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser)</sub><br/>[<kbd>Explore &#8594;</kbd>](#misc--forks) |
+| &#128274; **Security**<br/>Network auditing and hardening.<br/><sub>[**BetterNext**](https://github.com/SysAdminDoc/BetterNext)<br/>[**ESET**](https://github.com/SysAdminDoc/ESET)</sub><br/>[<kbd>Browse &#8594;</kbd>](#security--networking) | &#128421;&#65039; **Desktop**<br/>Windows and cross-platform apps.<br/><sub>[**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio)<br/>[**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore)<br/>[**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore)</sub><br/>[<kbd>Download &#8594;</kbd>](#native-desktop-applications) | &#127916; **Media**<br/>Video, audio, and stream tools.<br/><sub>[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover)<br/>[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush)<br/>[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut)</sub><br/>[<kbd>Download &#8594;</kbd>](#media--conversion-tools) | &#128218; **Guides**<br/>How-to guides and reference docs.<br/><sub>[**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism)<br/>[**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide)<br/>[**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list)</sub><br/>[<kbd>Read &#8594;</kbd>](#guides--resources) | &#128256; **Misc**<br/>Forks and side projects.<br/><sub>[**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory)<br/>[**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore)<br/>[**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser)</sub><br/>[<kbd>Explore &#8594;</kbd>](#misc--forks) |
 
 <a id="powershell-system-utilities"></a>
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Clipboard-ready Windows administration tools with branch-pinned run commands.</i></summary>
+<summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Paste-and-run scripts for Windows admin work.</i></summary>
 <br/>
 
 Suggested starting points: [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher), [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot), [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor).
@@ -309,7 +186,7 @@ $d="$env:TEMP\WallBrand"; if(Test-Path $d){git -C $d pull -q}else{git clone -q -
 
 <a id="python-desktop-applications"></a>
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> -- 30 repos -- <i>Local-first desktop utilities, media workflows, and automation built on Python 3.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> -- 30 repos -- <i>Desktop apps, creative tools, and automation scripts.</i></summary>
 <br/>
 
 Suggested starting points: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
@@ -456,7 +333,7 @@ $d="$env:TEMP\uBlock-Stylus-Converter"; if(Test-Path $d){git -C $d pull -q}else{
 
 <a id="web-applications"></a>
 <details>
-<summary><b>&#127760; Web Applications</b> -- 28 repos -- <i>Launchable browser tools, dashboards, and project surfaces with no local install.</i></summary>
+<summary><b>&#127760; Web Applications</b> -- 28 repos -- <i>Live web apps and dashboards you can open right now.</i></summary>
 <br/>
 
 Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Openshop), [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar), [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack).
@@ -496,7 +373,7 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 
 <a id="browser-extensions--userscripts"></a>
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 30 repos -- <i>Chrome, Firefox, and userscript installs with explicit release or raw-source paths. Userscripts need a manager such as Tampermonkey, and Chrome now requires Developer mode on chrome://extensions.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 30 repos -- <i>One-click installs for Chrome and Firefox. Userscripts need Tampermonkey or similar.</i></summary>
 <br/>
 
 Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault), [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced).
@@ -538,7 +415,7 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 
 <a id="android-applications"></a>
 <details>
-<summary><b>&#128241; Android Applications</b> -- 25 repos -- <i>AMOLED-friendly APKs, Android source projects, and device-focused utilities.</i></summary>
+<summary><b>&#128241; Android Applications</b> -- 25 repos -- <i>APKs you can sideload and Android source projects.</i></summary>
 <br/>
 
 Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**ClearCut**](https://github.com/SysAdminDoc/ClearCut), [**HostShield**](https://github.com/SysAdminDoc/HostShield).
@@ -575,7 +452,7 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 
 <a id="security--networking"></a>
 <details>
-<summary><b>&#128274; Security & Networking</b> -- 2 repos -- <i>Network auditing, DNS control, and defensive tooling with practical operator notes.</i></summary>
+<summary><b>&#128274; Security & Networking</b> -- 2 repos -- <i>Network audits, DNS control, and hardening scripts.</i></summary>
 <br/>
 
 Suggested starting points: [**BetterNext**](https://github.com/SysAdminDoc/BetterNext), [**ESET**](https://github.com/SysAdminDoc/ESET).
@@ -589,7 +466,7 @@ Suggested starting points: [**BetterNext**](https://github.com/SysAdminDoc/Bette
 
 <a id="media--conversion-tools"></a>
 <details>
-<summary><b>&#127916; Media & Conversion Tools</b> -- 7 repos -- <i>Video repair, compression, conversion, subtitle removal, and stream-capture workflows.</i></summary>
+<summary><b>&#127916; Media & Conversion Tools</b> -- 7 repos -- <i>Video, audio, and stream tools.</i></summary>
 <br/>
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
@@ -630,7 +507,7 @@ $d="$env:TEMP\yt_livestream_downloader"; if(Test-Path $d){git -C $d pull -q}else
 
 <a id="native-desktop-applications"></a>
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 28 repos -- <i>Installable Windows and cross-platform apps across C#, C++, Rust, and TypeScript.</i></summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 28 repos -- <i>Windows and cross-platform desktop apps.</i></summary>
 <br/>
 
 Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore), [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore).
@@ -670,7 +547,7 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 
 <a id="guides--resources"></a>
 <details>
-<summary><b>&#128218; Guides & Resources</b> -- 4 repos -- <i>Public references, checklists, and companion guides for repeatable workflows.</i></summary>
+<summary><b>&#128218; Guides & Resources</b> -- 4 repos -- <i>How-to guides, checklists, and references.</i></summary>
 <br/>
 
 Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism), [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide), [**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list).
@@ -686,7 +563,7 @@ Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Re
 
 <a id="misc--forks"></a>
 <details>
-<summary><b>&#128256; Misc & Forks</b> -- 7 repos -- <i>Forks, continuations, and supporting utilities with upstream context preserved.</i></summary>
+<summary><b>&#128256; Misc & Forks</b> -- 7 repos -- <i>Forks, side projects, and things that didn't fit elsewhere.</i></summary>
 <br/>
 
 Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory), [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore), [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser).
@@ -700,6 +577,108 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 | [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser) | Cross-platform GUI for rclone<br/><sub>Upstream: [kapitainsky/RcloneBrowser](https://github.com/kapitainsky/RcloneBrowser); License: MIT</sub> |
 | [**TabExplorer**](https://github.com/SysAdminDoc/TabExplorer) | Tabbed file manager for Windows<br/><sub>Upstream: [derceg/explorerplusplus](https://github.com/derceg/explorerplusplus); License: GPL-3.0</sub> |
 | [**TagStudio**](https://github.com/SysAdminDoc/TagStudio) | User-focused photo & file management system<br/><sub>Upstream: [TagStudioDev/TagStudio](https://github.com/TagStudioDev/TagStudio); License: GPL-3.0</sub> |
+
+</details>
+
+<a id="first-time-setup"></a>
+
+<details>
+<summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
+<br/>
+
+The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
+
+```powershell
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
+```
+
+Inspect before installing:
+
+```powershell
+$u='https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
+```
+
+| Step | Behavior |
+|:-----|:---------|
+| Checks first | Reports PowerShell 7, Python, pip, and Git state before installing missing tools. |
+| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
+| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.13](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
+| Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
+| Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
+| Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
+
+Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
+
+</details>
+
+<a id="local-validation"></a>
+
+<details>
+<summary><b>&#9989; Local validation</b> -- <i>Regenerate, lint, analyze, test, and smoke-check the profile feed locally.</i></summary>
+<br/>
+
+Use this from the repo root before pushing profile, catalog, asset, or validation changes:
+
+```powershell
+pwsh -NoProfile -File .\scripts\validate-local.ps1
+```
+
+Create a redacted support bundle when local validation or setup needs troubleshooting:
+
+```powershell
+pwsh -NoProfile -File .\scripts\validate-local.ps1 -SupportBundlePath .\SysAdminDoc-support.zip -SupportBundleRedactValue 'PrivateRepoName'
+```
+
+The bundle contains tool versions, validation output, the profile sync report, and dependency-review evidence. User paths, common tokens/secrets, query credentials, and values supplied through `-SupportBundleRedactValue` are redacted. A setup transcript can be added directly when needed:
+
+```powershell
+pwsh -NoProfile -File .\scripts\new-support-bundle.ps1 -OutputPath .\SysAdminDoc-setup-support.zip -ProfileReportPath .\reports\profile-sync-report.json -SetupTranscriptPath (Get-ChildItem "$env:TEMP\SysAdminDoc-setup-*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+```
+
+Run the manual dependency and advisory review:
+
+```powershell
+npm run review:dependencies
+```
+
+Run the opt-in Pester 6 compatibility lane in an isolated module path:
+
+```powershell
+pwsh -NoProfile -File .\scripts\validate-local.ps1 -Pester6Compatibility
+```
+
+Optionally probe the deployed portfolio feed and key routes (warning-only):
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -ProbePortfolio
+```
+
+Emit an optional redaction-safe Backstage catalog export:
+
+```powershell
+pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\reports\backstage-catalog.json
+```
+
+| Check | Behavior |
+|:------|:---------|
+| Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. The committed `.npmrc` sets `ignore-scripts=true`, `audit-level=high` and `min-release-age=1`, and the lane asks npm what it actually resolved before installing, so an environment override cannot quietly re-enable install scripts. |
+| Dependency review | Runs `npm audit --json` and `npm audit signatures`, checks package override drift, verifies npm lock/hash pins, and resolves every pin against the npm and PyPI registries. Each row separates what the parent declares, the resolved pin, and the registry latest. A new major is recorded as review-needed rather than forced, so a deliberate hold stays green. Answers are cached under `.cache/registry-versions.json`; `-OfflineRegistry` reads that cache and reports its age, which goes stale after 30 days. Registry signature verification records verified, invalid and missing counts, names each offending package, and reports per direct dependency whether the installed version carries a registry signature and a build provenance attestation. An invalid or missing signature fails the review. |
+| PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
+| PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. Packages are downloaded as nupkg and their SHA-256 checked against `data/powershell-module-lock.json` before anything is extracted, then every signed file must carry the signer that lock names. A module with no reviewed record is refused rather than installed. Verified packages are cached under `.cache/powershell-modules` so an offline run reuses bytes that already passed. |
+| Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.1.0 into an isolated temporary module path and run the non-integration suite; the default Pester 5.9.1 lane is unchanged. |
+| Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
+| Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
+| Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
+| Tests | Runs `Invoke-Pester -Path tests -Output Detailed`. |
+| Profile check | Runs `sync-profile.ps1 -Check` against the working tree after the tests and fails the run on a non-zero exit, naming the failing report conditions. The Pester suite only exercises the generator against fixtures, so this is the lane that validates the committed README, feed, assets, privacy suppression, and links. Add `-SkipProfileCheck` or `-SkipLinkValidation` for a faster loop; both announce that the run was reduced. |
+| Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
+| Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
+| Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
+| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
+| Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. |
+| Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
+
+Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
 
 </details>
 

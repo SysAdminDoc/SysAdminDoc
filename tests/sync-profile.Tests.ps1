@@ -2929,7 +2929,6 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
     It 'renders local validation bootstrap guidance' {
-        $script:rendered | Should -Match 'Contribute to this repo'
         $script:rendered | Should -Match '<a id="local-validation"></a>'
         $script:rendered | Should -Match 'Regenerate, lint, analyze, test, and smoke-check the profile feed locally'
         $script:rendered | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
@@ -2960,7 +2959,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
         $script:rendered | Should -Not -Match '<img[^>]*assets/profile/'
-        $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf('### Start Here'))
+        $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf("### What's here"))
         [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected in the header'
         $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
         $script:rendered | Should -Match "## Hey, I'm Matt"
@@ -2969,7 +2968,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '<a href="https://portfolio\.getparkerai\.com/healthcare-it/"><b>More about what I do'
         $script:rendered | Should -Not -Match 'AI service overview'
         $script:rendered | Should -Not -Match 'Proof:|186\+ shipped'
-        $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
+        $script:rendered | Should -Not -Match '<a href="#start-here">Start Here</a>'
         $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
         $script:rendered | Should -Match ([regex]::Escape($ProfileTagline))
         $script:rendered | Should -Not -Match '### Professional Focus'
@@ -2980,26 +2979,22 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
         $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
-    It 'renders the compact discovery block without catalog snapshot or featured projects' {
+    It 'renders the catalog grid without start-here table, catalog snapshot, or featured projects' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
-        $script:rendered | Should -Match '### Start Here'
+        $script:rendered | Should -Match "### What's here"
+        $script:rendered | Should -Not -Match '### Start Here'
         $script:rendered | Should -Not -Match '### Catalog Snapshot'
         $script:rendered | Should -Not -Match '### Featured Projects'
-    }
-    It 'adds decision guidance that routes visitors by install surface' {
-        $script:rendered | Should -Match ([regex]::Escape("| I want to... | What you'll find | Action |"))
+        $script:rendered | Should -Not -Match ([regex]::Escape("| I want to... |"))
         # The retired five-column layout forced horizontal scrolling at phone widths.
         $script:rendered | Should -Not -Match ([regex]::Escape("| Signal | I want to... | Best category |"))
-        $script:rendered | Should -Match '<kbd>PS</kbd>'
-        $script:rendered | Should -Match 'PowerShell scripts you can paste and run'
-        $script:rendered | Should -Match 'Browser extensions and userscripts you can install in one click'
         $script:rendered | Should -Not -Match 'Quick platform map'
         $script:rendered | Should -Not -Match 'Feed consumers'
         $script:rendered | Should -Match '<a id="first-time-setup"></a>'
-        $script:rendered | Should -Match '### Tool Catalog'
-        $script:rendered | Should -Match 'Categories with suggested starting points and quick actions'
-        $script:rendered | Should -Match 'Windows automation and administration'
-        $script:rendered | Should -Match 'Self-hosted and online tools for IT'
+        $script:rendered | Should -Match "### What's here"
+        $script:rendered | Should -Match 'Pick a category to jump in'
+        $script:rendered | Should -Match 'Scripts and tools for Windows'
+        $script:rendered | Should -Match 'Browser-based tools and dashboards'
     }
     It 'reports generated README byte size under the default soft budget' {
         $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
@@ -3436,7 +3431,7 @@ Write-Host ok
     It 'reports the generated catalog notice in README experience checks' {
         $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
         $result.generatedCatalogNotice | Should -BeTrue
-        $result.startHereSection | Should -BeTrue
+        $result.startHereSection | Should -BeFalse
         $result.catalogSnapshotSection | Should -BeFalse
         $result.setupInspectPath | Should -BeTrue
         $result.themeAwareImageChrome | Should -BeFalse
@@ -5198,11 +5193,11 @@ Describe 'Rendered profile smoke wiring' {
     }
 
     It 'asserts key rendered sections and overflow/image health' {
-        $script:RenderSmokeScript | Should -Match 'Start Here'
+        $script:RenderSmokeScript | Should -Match "What.s here"
         $script:RenderSmokeScript | Should -Not -Match 'Catalog Snapshot'
         $script:RenderSmokeScript | Should -Not -Match 'Featured Projects'
         $script:RenderSmokeScript | Should -Match 'First-time setup'
-        $script:RenderSmokeScript | Should -Match 'Tool Catalog'
+        $script:RenderSmokeScript | Should -Not -Match 'Tool Catalog'
         $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'
         $script:RenderSmokeScript | Should -Match 'Python Desktop Applications'
         $script:RenderSmokeScript | Should -Match 'Browser Extensions & Userscripts'
@@ -8194,7 +8189,7 @@ Describe 'Hand-authored header links and anchors are validated' {
     }
 
     It 'fails a missing local anchor without any network access' {
-        $planted = $script:LiveReadme.Replace('<a href="#start-here">Start Here</a>', '<a href="#totally-absent-section">Start Here</a>')
+        $planted = $script:LiveReadme.Replace('<a href="#powershell-system-utilities">PowerShell</a>', '<a href="#totally-absent-section">PowerShell</a>')
 
         $missing = @(Test-ReadmeHeaderAnchor -ExpectedReadme $planted)
 
