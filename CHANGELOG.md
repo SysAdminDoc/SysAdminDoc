@@ -17,6 +17,9 @@
 - Regenerated README, feed, assets, and sync report against the current catalog and live metadata.
 - Deleted the scheduled-workflow freshness lane and its orphaned zizmor scanner config. The lane had six functions, a schema section, summary rendering, and seven tests for evaluating GitHub Actions workflows that repository policy forbids creating. `.github/zizmor.yml` configured a scanner for a repo with no workflows or runner. The hosted-automation removal contract test now guards against any of these reappearing.
 - Link validation now distinguishes live-probed from cache-served results. `linkValidationSummary` reports `liveProbedCount`, `cacheServedCount`, `oldestCacheEntryAgeHours`, and `allResultsFromCache`, so a fully cached check reads as such rather than appearing identical to a live pass. The summary writer notes when the check was entirely cache-served.
+- Extracted the profile tagline into `$ProfileTagline` and `$ProfileTaglineHtml` constants beside `$CategoryDefinitions`, so changing the tagline requires editing one string instead of four. All generator, experience-gate, and test assertions reference the constant. The smoke renderer already uses structural selectors for hero detection.
+- Fixed `Test-LinkTargets` not passing through the four new cache-vs-live fields from `Invoke-LinkProbeBatch`, which would have left non-skipped runs always reporting zero for all metrics. Added the missing fields to the passthrough and to the early-return path.
+- Added guard test assertions for the three remaining deleted scheduled-workflow functions (`Get-CronWeekMinuteOffsets`, `Get-ScheduledWorkflowDefinitions`, `Get-ScheduledWorkflowRunLookup`).
 
 ## 2026-09-05
 

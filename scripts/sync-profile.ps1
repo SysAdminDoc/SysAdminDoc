@@ -189,6 +189,9 @@ $script:MetadataFetchResourceLimitReason = $null
 $script:MetadataFetchPageSizeReduced = $false
 $script:ValidationCacheState = $null
 
+$ProfileTagline = 'Broadcast IT, Healthcare IT, and practical public tools.'
+$ProfileTaglineHtml = '<p align="center"><b>{0}</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>' -f $ProfileTagline
+
 $CategoryDefinitions = @(
     [ordered]@{
         Slug = "powershell"
@@ -3227,6 +3230,10 @@ function Invoke-LinkProbeBatch {
             results = @()
             deferredRetries = @()
             targetCount = 0
+            liveProbedCount = 0
+            cacheServedCount = 0
+            oldestCacheEntryAgeHours = $null
+            allResultsFromCache = $false
             throttleLimit = $throttle
             elapsedMs = $stopwatch.ElapsedMilliseconds
         }
@@ -3493,6 +3500,10 @@ function Test-LinkTargets {
         warningCountByHost = $warningCountByHost
         headerHostWarnings = $headerHostWarnings
         targetCount = $probeBatch.targetCount
+        liveProbedCount = [int]$probeBatch.liveProbedCount
+        cacheServedCount = [int]$probeBatch.cacheServedCount
+        oldestCacheEntryAgeHours = $probeBatch.oldestCacheEntryAgeHours
+        allResultsFromCache = [bool]$probeBatch.allResultsFromCache
         throttleLimit = $probeBatch.throttleLimit
         elapsedMs = $probeBatch.elapsedMs
         deferredRetries = @(Get-MemberValue -Object $probeBatch -Name 'deferredRetries')
@@ -4741,7 +4752,8 @@ function New-ProfileHeroSvg {
     $lines.Add("  <path d=`"M886 98 L874 108 L886 118 M904 98 L916 108 L904 118`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
     $lines.Add("  <text x=`"500`" y=`"192`" fill=`"$titleColor`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"54`" font-weight=`"700`">SysAdminDoc</text>")
     $lines.Add("  <line x1=`"456`" y1=`"210`" x2=`"544`" y2=`"210`" stroke=`"$accent`" stroke-width=`"2`"/>")
-    $lines.Add("  <text x=`"500`" y=`"238`" fill=`"$text`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"600`">Broadcast IT, Healthcare IT, and practical public tools</text>")
+    $svgTagline = $ProfileTagline.TrimEnd('.')
+    $lines.Add("  <text x=`"500`" y=`"238`" fill=`"$text`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"600`">$svgTagline</text>")
     $lines.Add("  <rect x=`"412`" y=`"252`" width=`"176`" height=`"32`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$accent`"/>")
     $lines.Add("  <text x=`"500`" y=`"273`" fill=`"$accent`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">View full portfolio -&gt;</text>")
     $lines.Add("</svg>")
@@ -5069,12 +5081,12 @@ function New-ProfileAssetSvgs {
 }
 
 function New-ProfileChrome {
-    # Minimal, text-only header: no SVG/image chrome. Satisfies the minimal
-    # profile-header contract in Test-GeneratedProfileContract (README must start
-    # with the plain-text tagline paragraph, carry the support-lead intro and portfolio
-    # links, and expose plain category nav anchors with no header image).
+    # Minimal header with a Ko-fi support image but no SVG/image chrome. Satisfies the
+    # minimal profile-header contract in Test-ReadmeExperience (README must start with the
+    # tagline paragraph, carry the support-lead intro and portfolio links, and expose
+    # plain category nav anchors with no profile-asset header image).
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>')
+    $lines.Add($ProfileTaglineHtml)
     $lines.Add('')
     $lines.Add('<p align="center">')
     $lines.Add('  <a href="https://ko-fi.com/X8K126YVER">')
@@ -7685,7 +7697,7 @@ function Test-ReadmeExperience {
     $motionPatternCount = [regex]::Matches($ExpectedReadme, $motionPattern).Count
     $motionSafeChrome = $motionPatternCount -eq 0
     $profileStatsChromeCount = [regex]::Matches($ExpectedReadme, '<a href="https://skillicons\.dev">').Count
-    $hasPlainTextTagline = $ExpectedReadme.Contains("Broadcast IT, Healthcare IT, and practical public tools.") -and
+    $hasPlainTextTagline = $ExpectedReadme.Contains($ProfileTagline) -and
         $ExpectedReadme.Contains("Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
     $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
@@ -7713,7 +7725,8 @@ function Test-ReadmeExperience {
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
-    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith('<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools.</b>', [StringComparison]::Ordinal) -and
+    $taglinePrefix = '<p align="center"><b>' + $ProfileTagline + '</b>'
+    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglinePrefix, [StringComparison]::Ordinal) -and
         $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>View my full portfolio') -and
         $ExpectedReadme.Contains('<a href="#powershell-system-utilities">PowerShell</a>') -and
         -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and

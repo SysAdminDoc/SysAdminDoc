@@ -2956,7 +2956,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
     It 'renders a minimal text-only profile chrome without images or third-party render hosts' {
-        $script:rendered.TrimStart() | Should -Match '^<p align="center"><b>Broadcast IT, Healthcare IT, and practical public tools\.</b>'
+        $script:rendered.TrimStart() | Should -Match ('^<p align="center"><b>' + [regex]::Escape($ProfileTagline) + '</b>')
         $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
         $script:rendered | Should -Not -Match '<img[^>]*assets/profile/'
@@ -2971,7 +2971,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'Proof:|186\+ shipped'
         $script:rendered | Should -Match '<a href="#start-here">Start Here</a>'
         $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
-        $script:rendered | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
+        $script:rendered | Should -Match ([regex]::Escape($ProfileTagline))
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
         $script:rendered | Should -Not -Match 'https://skillicons\.dev'
@@ -3489,7 +3489,7 @@ Write-Host ok
         $assets['assets/profile/contributions-dark.svg'] | Should -Match 'contributions in the last year'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
         $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc</text>'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
+        $assets['assets/profile/header-dark.svg'] | Should -Match ([regex]::Escape($ProfileTagline.TrimEnd('.')))
         $assets['assets/profile/header-dark.svg'] | Should -Match 'View full portfolio -&gt;'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
         $assets['assets/profile/stats-dark.svg'] | Should -Match '<title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>'
@@ -3586,7 +3586,7 @@ Describe 'Update-Header idempotency' {
         $result | Should -Match 'storage\.ko-fi\.com'
         $result | Should -Match 'Healthcare IT and support work'
         $result | Should -Not -Match 'AI service overview'
-        $result | Should -Match 'Broadcast IT, Healthcare IT, and practical public tools'
+        $result | Should -Match ([regex]::Escape($ProfileTagline))
         $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
         $result | Should -Not -Match 'Professional Focus|Public portfolio: 100 active repos'
     }
@@ -5732,7 +5732,10 @@ Describe 'Hosted automation removal contract' {
     It 'keeps the scheduled-workflow freshness lane removed' {
         $script:SyncProfileScript | Should -Not -Match 'scheduledWorkflowFreshness'
         $script:SyncProfileScript | Should -Not -Match 'function Get-CronNumericSet'
+        $script:SyncProfileScript | Should -Not -Match 'function Get-CronWeekMinuteOffsets'
         $script:SyncProfileScript | Should -Not -Match 'function Get-CronMaxGapMinutes'
+        $script:SyncProfileScript | Should -Not -Match 'function Get-ScheduledWorkflowDefinitions'
+        $script:SyncProfileScript | Should -Not -Match 'function Get-ScheduledWorkflowRunLookup'
     }
 }
 
