@@ -90,14 +90,14 @@ $d="$env:TEMP\MonitorControl"; if(Test-Path $d){git -C $d pull -q}else{git clone
 $d="$env:TEMP\NetForge"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/NetForge $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\NetForge.ps1"
 ```
 
+[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;3 -- Discover, select, and bulk install software via Winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Wingetter/releases/latest)
+```powershell
+$d="$env:TEMP\Wingetter"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Wingetter $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Wingetter.ps1"
+```
+
 [**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) &#11088;2 -- Comprehensive Adobe telemetry and GrowthSDK suppression for Windows &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest)
 ```powershell
 $d="$env:TEMP\Disable-AdobeTelemetry"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Disable-AdobeTelemetry $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Disable-AdobeTelemetry.ps1"
-```
-
-[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;2 -- Discover, select, and bulk install software via Winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Wingetter/releases/latest)
-```powershell
-$d="$env:TEMP\Wingetter"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/Wingetter $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Wingetter.ps1"
 ```
 
 [**Brave-Portable-Updater**](https://github.com/SysAdminDoc/Brave-Portable-Updater) &#11088;1 -- Update Brave inside a Portapps portable install without touching system install
@@ -348,9 +348,11 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 | [**ImageXpert**](https://github.com/SysAdminDoc/ImageXpert) &#11088;2 | Multi-engine reverse image search. Google Lens, Yandex, Bing, TinEye | [Launch](https://sysadmindoc.github.io/ImageXpert/) |
 | [**Multistreamer**](https://github.com/SysAdminDoc/Multistreamer) &#11088;2 | Multi-video streaming viewer with chat | [Launch](https://sysadmindoc.github.io/Multistreamer/) |
 | [**SearchHub**](https://github.com/SysAdminDoc/SearchHub) &#11088;2 | Search 538 engines across 29 categories | [Launch](https://sysadmindoc.github.io/SearchHub/) |
+| [**Base64Converter**](https://github.com/SysAdminDoc/Base64Converter) &#11088;1 | Base64 encoding/decoding with file, text, QR code, and image support | [Launch](https://sysadmindoc.github.io/Base64Converter/) |
 | [**ConvertFlow**](https://github.com/SysAdminDoc/ConvertFlow) &#11088;1 | Browser-based media converter. Audio, video, image. No uploads | [Launch](https://sysadmindoc.github.io/ConvertFlow/) |
 | [**GifStudio**](https://github.com/SysAdminDoc/GifStudio) &#11088;1 | Browser-based GIF creation and editing studio. 100% client-side | [Launch](https://sysadmindoc.github.io/GifStudio/) |
 | [**IconForge**](https://github.com/SysAdminDoc/IconForge) &#11088;1 | Browser-based image resizer and converter | [Launch](https://sysadmindoc.github.io/IconForge/) |
+| [**kindred**](https://github.com/SysAdminDoc/kindred) &#11088;1 | Compatibility-first dating and social platform | [Repo](https://github.com/SysAdminDoc/kindred) |
 | [**LogLens**](https://github.com/SysAdminDoc/LogLens) &#11088;1 | Log file viewer and analyzer | [Launch](https://sysadmindoc.github.io/LogLens/) |
 | [**MHTMLens**](https://github.com/SysAdminDoc/MHTMLens) &#11088;1 | MHTML file viewer and inspector | [Launch](https://sysadmindoc.github.io/MHTMLens/) |
 | [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack) &#11088;1 | Real-time aircraft tracker. Commercial, military, helicopters | [Launch](https://sysadmindoc.github.io/SkyTrack/) |
@@ -358,12 +360,10 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 | [**StormScope**](https://github.com/SysAdminDoc/StormScope) &#11088;1 | Live US weather radar with webcam overlays. NEXRAD radar plus 7,000+ traffic cameras | [Repo](https://github.com/SysAdminDoc/StormScope) |
 | [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar) &#11088;1 | Open source weather radar viewer | [Launch](https://sysadmindoc.github.io/StormviewRadar/) |
 | [**ApocalypseWatch**](https://github.com/SysAdminDoc/ApocalypseWatch) | Realtime business-jet tracker dashboard vs. 24h baseline | [Launch](https://sysadmindoc.github.io/ApocalypseWatch/) |
-| [**Base64Converter**](https://github.com/SysAdminDoc/Base64Converter) | Base64 encoding/decoding with file, text, QR code, and image support | [Launch](https://sysadmindoc.github.io/Base64Converter/) |
 | [**BookmarkVault**](https://github.com/SysAdminDoc/BookmarkVault) | Bookmark management web app | [Launch](https://sysadmindoc.github.io/BookmarkVault/) |
 | [**CronScope**](https://github.com/SysAdminDoc/CronScope) | Cron expression builder and visualizer | [Launch](https://sysadmindoc.github.io/CronScope/) |
 | [**DeGoogler**](https://github.com/SysAdminDoc/DeGoogler) | Turnkey migration toolkit for leaving Google services | [Launch](https://sysadmindoc.github.io/DeGoogler/) |
 | [**HurricaneMap**](https://github.com/SysAdminDoc/HurricaneMap) | Interactive map of every U.S. hurricane landfall from 1851 to today, built on NOAA HURDAT2 | [Launch](https://sysadmindoc.github.io/HurricaneMap/) |
-| [**kindred**](https://github.com/SysAdminDoc/kindred) | Compatibility-first dating and social platform | [Repo](https://github.com/SysAdminDoc/kindred) |
 | [**NATO_PHONETIC_TRAINING**](https://github.com/SysAdminDoc/NATO_PHONETIC_TRAINING) | NATO phonetic alphabet training app | [Launch](https://sysadmindoc.github.io/NATO_PHONETIC_TRAINING/) |
 | [**Segue**](https://github.com/SysAdminDoc/Segue) | Migrates Spotify playlists and liked songs to YouTube Music with a match-review step | [Launch](https://segue.getparkerai.com) |
 | [**Text-Filter-Editor**](https://github.com/SysAdminDoc/Text-Filter-Editor) | Text filtering and processing tool | [Launch](https://sysadmindoc.github.io/Text-Filter-Editor/) |
@@ -380,8 +380,8 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 
 | Project | Description | Install |
 |:--------|:------------|:-------:|
+| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;14 | Premium YouTube enhancement extension. 150+ features for Chrome & Firefox | [<kbd>&#11015;&nbsp;ZIP/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) &#11088;14 | Undetectable YouTube ad blocker with proxy engine | [Install](https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js) |
-| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;13 | Premium YouTube enhancement extension. 150+ features for Chrome & Firefox | [<kbd>&#11015;&nbsp;ZIP/XPI</kbd>](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) |
 | [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;7 | Open-source Chrome MV3 userscript manager. Monaco editor, 35+ GM APIs | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/ScriptVault/releases/latest) |
 | [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) &#11088;5 | Discover userscripts for any website | [Install](https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js) |
 | [**uBlockVanced**](https://github.com/SysAdminDoc/uBlockVanced) &#11088;4 | uBlock Origin with Catppuccin Mocha and Element Forge panel<br/><sub>Upstream: [gorhill/uBlock](https://github.com/gorhill/uBlock); License: GPL-3.0</sub> | [<kbd>&#11015;&nbsp;CRX</kbd>](https://github.com/SysAdminDoc/uBlockVanced/releases/latest) |
@@ -391,11 +391,11 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 | [**NDNS**](https://github.com/SysAdminDoc/NDNS) &#11088;2 | NextDNS control panel userscript | [Repo](https://github.com/SysAdminDoc/NDNS) |
 | [**RumbleX**](https://github.com/SysAdminDoc/RumbleX) &#11088;2 | Comprehensive Rumble.com enhancement | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/RumbleX/releases/latest) |
 | [**StyleCraft**](https://github.com/SysAdminDoc/StyleCraft) &#11088;2 | Full-featured CSS style editor and manager. Chrome extension | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/StyleCraft/releases/latest) |
+| [**AI-Usage_Tracker**](https://github.com/SysAdminDoc/AI-Usage_Tracker) &#11088;1 | Usage-limit countdowns and notifications for AI chat tools. Chrome and userscript builds | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/AI-Usage_Tracker/releases/latest) |
 | [**Claude-Ultimate-Enhancer**](https://github.com/SysAdminDoc/Claude-Ultimate-Enhancer) &#11088;1 | All-in-one Claude.ai enhancement suite. Themes, usage monitor, prompt library | [Install](https://raw.githubusercontent.com/SysAdminDoc/Claude-Ultimate-Enhancer/main/Claude%20Ultimate%20Enhancer.user.js) |
 | [**ClearGem**](https://github.com/SysAdminDoc/ClearGem) &#11088;1 | Removes visible watermarks from Google Gemini AI-generated images | [Install](https://raw.githubusercontent.com/SysAdminDoc/ClearGem/master/cleargem.user.js) |
 | [**IMDb_Enhanced**](https://github.com/SysAdminDoc/IMDb_Enhanced) &#11088;1 | IMDb enhancement userscript | [Install](https://raw.githubusercontent.com/SysAdminDoc/IMDb_Enhanced/main/IMDb_Enhanced.user.js) |
 | [**Vantage**](https://github.com/SysAdminDoc/Vantage) &#11088;1 | New tab dashboard for Chromium. Customizable search, RSS, news, weather, quick links | [Repo](https://github.com/SysAdminDoc/Vantage) |
-| [**AI-Usage_Tracker**](https://github.com/SysAdminDoc/AI-Usage_Tracker) | Usage-limit countdowns and notifications for AI chat tools. Chrome and userscript builds | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/AI-Usage_Tracker/releases/latest) |
 | [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced) | Chrome MV3 Amazon UX cleanup. Dark theme, sponsored-result removal, review-quality scoring, 20 locales | [<kbd>&#11015;&nbsp;CRX</kbd>](https://github.com/SysAdminDoc/AmazonEnhanced/releases/latest) |
 | [**Aviary**](https://github.com/SysAdminDoc/Aviary) | Download media from X and keep a searchable local post library. | [<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/Aviary/releases/latest) |
 | [**BackgroundSearch**](https://github.com/SysAdminDoc/BackgroundSearch) | Chrome extension. Force background tabs + context menu search | [Repo](https://github.com/SysAdminDoc/BackgroundSearch) |
@@ -422,15 +422,15 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;86 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
-| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;73 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;89 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
+| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;84 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
+| [**hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;55 | Morphe patch bundle for TikTok. Fewer accidental taps, less noise, more control over the feed and downloads. | [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/hushfeed/releases/latest) |
 | [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;46 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3 | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
-| [**hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;41 | Morphe patch bundle for TikTok. Fewer accidental taps, less noise, more control over the feed and downloads. | [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/hushfeed/releases/latest) |
-| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;33 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
-| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;25 | Spam call and text blocker. GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
-| [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;25 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
-| [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;24 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
-| [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;23 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
+| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;35 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
+| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;27 | Spam call and text blocker. GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |
+| [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;27 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
+| [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;25 | Feature-rich alarm clock with dismiss challenges | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest) |
+| [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;24 | SwiftKey-inspired keyboard built on FlorisBoard's foundation | [Repo](https://github.com/SysAdminDoc/SwiftFloris) |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;17 | AMOLED-dark hosts-based ad blocker. Inspired by AdAway | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/HostShield/releases/latest) |
 | [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;14 | Open-source CF.Lumen successor. Root-grade display color filter for Android with rootless fallback | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/OpenLumen/releases/latest) |
 | [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) &#11088;12 | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)* | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/Droidsmith/releases/latest) |
@@ -471,7 +471,7 @@ Suggested starting points: [**BetterNext**](https://github.com/SysAdminDoc/Bette
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;79 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;82 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 ```powershell
 $d="$env:TEMP\VideoSubtitleRemover"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/VideoSubtitleRemover $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; python "$d\VideoSubtitleRemover.py"
 ```
@@ -514,8 +514,8 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 
 | Project | Description | Language | Download |
 |:--------|:------------|:--------:|:--------:|
-| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) &#11088;17 | Thorough Windows uninstaller. Removes programs completely, hunts down every leftover | C# | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/DeepPurge/releases/latest) |
-| [**RcloneBrowserNG**](https://github.com/SysAdminDoc/RcloneBrowserNG) &#11088;8 | Modern rclone GUI. File browser, transfer manager, mount handler. Qt/C++ cross-platform desktop app. Community continuation of RcloneBrowser | C++ | [Repo](https://github.com/SysAdminDoc/RcloneBrowserNG) |
+| [**DeepPurge**](https://github.com/SysAdminDoc/DeepPurge) &#11088;18 | Thorough Windows uninstaller. Removes programs completely, hunts down every leftover | C# | [<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/DeepPurge/releases/latest) |
+| [**RcloneBrowserNG**](https://github.com/SysAdminDoc/RcloneBrowserNG) &#11088;9 | Modern rclone GUI. File browser, transfer manager, mount handler. Qt/C++ cross-platform desktop app. Community continuation of RcloneBrowser | C++ | [Repo](https://github.com/SysAdminDoc/RcloneBrowserNG) |
 | [**UniversalConverterX**](https://github.com/SysAdminDoc/UniversalConverterX) &#11088;6 | Native Windows file converter with context menu integration. 1000+ formats | C# | [Repo](https://github.com/SysAdminDoc/UniversalConverterX) |
 | [**OpenNetLimit**](https://github.com/SysAdminDoc/OpenNetLimit) &#11088;5 | Per-application bandwidth limiter and network monitor for Windows | C# | [Repo](https://github.com/SysAdminDoc/OpenNetLimit) |
 | [**PartitionPilot**](https://github.com/SysAdminDoc/PartitionPilot) &#11088;4 | Windows disk partition manager. WPF disk map, SMART health, maintenance, and image workflows | C# | [Repo](https://github.com/SysAdminDoc/PartitionPilot) |
