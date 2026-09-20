@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-20
+
+- Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.
+- Fixed interrupted-publication recovery when an unpromoted target was updated by another process. Recovery now preserves the newer file and removes only this transaction's staged residue.
+- Added regression coverage for existing targets, newly appearing targets, and exclusive lock ownership.
+- Removed an unused README discovery assignment that prevented the current PowerShell analyzer from reporting a clean generator.
+- Replaced a silent Chrome cleanup catch with verbose diagnostics so the smoke renderer no longer hides child-process cleanup errors.
+- Bumped the internal profile evidence version to `v4.10.4`.
+
 ## 2026-09-17
 
 - Cataloged the MavenBranding public repository as a suppressed internal-branding entry, fixing a `missingPublicRepos` gate failure.

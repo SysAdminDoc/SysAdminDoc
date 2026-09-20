@@ -2034,6 +2034,59 @@ Describe 'Recoverable artifact publication' {
         }
     }
 
+    It 'preserves an externally updated target that this transaction never promoted' {
+        $caseRoot = Join-Path $TestDrive 'external-existing-target'
+        $transactionRoot = Join-Path $caseRoot 'transactions'
+        $targetPath = Join-Path $caseRoot 'cache-entry.json'
+        [System.IO.Directory]::CreateDirectory($caseRoot) | Out-Null
+        [System.IO.File]::WriteAllText($targetPath, 'old', [System.Text.UTF8Encoding]::new($false))
+
+        $transaction = New-ArtifactPublicationTransaction -TransactionRoot $transactionRoot -Artifacts @(
+            [ordered]@{ path = $targetPath; content = 'staged'; isReport = $false }
+        )
+        [System.IO.File]::WriteAllText($targetPath, 'external', [System.Text.UTF8Encoding]::new($false))
+
+        { Publish-ArtifactPublicationTransaction -Transaction $transaction } | Should -Throw '*changed after staging*'
+        Repair-ArtifactPublicationTransactions -TransactionRoot $transactionRoot | Should -Be 1
+
+        [System.IO.File]::ReadAllText($targetPath) | Should -BeExactly 'external'
+        Test-Path -LiteralPath $transaction.artifacts[0].stagedPath | Should -BeFalse
+        @(Get-ChildItem -LiteralPath $transactionRoot -File -Force) | Should -BeNullOrEmpty
+    }
+
+    It 'preserves an external target that appeared after a new target was staged' {
+        $caseRoot = Join-Path $TestDrive 'external-new-target'
+        $transactionRoot = Join-Path $caseRoot 'transactions'
+        $targetPath = Join-Path $caseRoot 'cache-entry.json'
+        [System.IO.Directory]::CreateDirectory($caseRoot) | Out-Null
+
+        $transaction = New-ArtifactPublicationTransaction -TransactionRoot $transactionRoot -Artifacts @(
+            [ordered]@{ path = $targetPath; content = 'staged'; isReport = $false }
+        )
+        [System.IO.File]::WriteAllText($targetPath, 'external', [System.Text.UTF8Encoding]::new($false))
+
+        { Publish-ArtifactPublicationTransaction -Transaction $transaction } | Should -Throw '*appeared after staging*'
+        Repair-ArtifactPublicationTransactions -TransactionRoot $transactionRoot | Should -Be 1
+
+        [System.IO.File]::ReadAllText($targetPath) | Should -BeExactly 'external'
+        Test-Path -LiteralPath $transaction.artifacts[0].stagedPath | Should -BeFalse
+        @(Get-ChildItem -LiteralPath $transactionRoot -File -Force) | Should -BeNullOrEmpty
+    }
+
+    It 'allows only one profile sync process to hold the publication lock' {
+        $lockPath = Join-Path $TestDrive 'profile-sync.lock'
+        $firstLock = Enter-ProfileSyncRunLock -LockPath $lockPath -TimeoutSeconds 0
+        try {
+            { Enter-ProfileSyncRunLock -LockPath $lockPath -TimeoutSeconds 0 } |
+                Should -Throw '*Another profile sync process is already running*'
+        } finally {
+            $firstLock.Dispose()
+        }
+
+        $secondLock = Enter-ProfileSyncRunLock -LockPath $lockPath -TimeoutSeconds 0
+        $secondLock.Dispose()
+    }
+
     It 'keeps a committed new set and removes all publication residue' {
         $caseRoot = Join-Path $TestDrive 'committed'
         $transactionRoot = Join-Path $caseRoot 'transactions'
@@ -5008,6 +5061,16 @@ Describe 'Seed catalog guard' -Tag 'Integration' {
 Describe 'Profile sync entrypoint' {
     It 'exits explicitly after a successful check run' {
         $script:SyncProfileScript | Should -Match '(?s)Write-Host "Profile sync check passed[.] Report: \$ReportPath"\s+# Keep hosted shells from surfacing handled native-command failures[.]\s+exit 0'
+    }
+
+    It 'takes the repository lock before inspecting shared transaction journals' {
+        $mainBlock = $script:SyncProfileScript.Substring($script:SyncProfileScript.IndexOf('# Test seam:'))
+        $lockIndex = $mainBlock.IndexOf('$profileSyncRunLock = Enter-ProfileSyncRunLock')
+        $repairIndex = $mainBlock.IndexOf('$recoveredPublicationCount = Repair-ArtifactPublicationTransactions')
+
+        $lockIndex | Should -BeGreaterThan -1
+        $repairIndex | Should -BeGreaterThan $lockIndex
+        $mainBlock | Should -Match '(?s)finally\s*\{\s*if \(\$null -ne \$profileSyncRunLock\)\s*\{\s*\$profileSyncRunLock[.]Dispose\(\)'
     }
 
     It 'validates the proposed write set before staging one report-last transaction' {

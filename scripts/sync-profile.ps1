@@ -4425,7 +4425,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
 | Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
-| Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. |
+| Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. Overlapping runs wait on one repository lock, so they cannot race shared cache entries or transaction journals. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
 Already bootstrapped? Add `-SkipBootstrap` to reuse installed modules and `node_modules`.
@@ -5127,7 +5127,6 @@ function New-Readme {
     $readme = Get-Content -LiteralPath $readmeReadPath -Raw
     $sectionMarkers = @($GeneratedCatalogNotice, "### Start Here", "### Featured Projects")
     $includeGeneratedNotice = $readme.Contains($GeneratedCatalogNotice)
-    $includeDiscoverySection = $readme.Contains("### Start Here") -or $readme.Contains("### Catalog Snapshot")
     $start = -1
     foreach ($marker in $sectionMarkers) {
         $markerIndex = $readme.IndexOf($marker, [StringComparison]::Ordinal)
@@ -5374,6 +5373,69 @@ function Get-ArtifactPublicationTransactionRoot {
     }
 
     return (Join-Path $cacheRoot 'transactions')
+}
+
+function Enter-ProfileSyncRunLock {
+    <#
+    .SYNOPSIS
+    Serializes profile sync runs before they can inspect or publish shared artifacts.
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$LockPath = (Join-Path (Split-Path -Parent (Get-ArtifactPublicationTransactionRoot)) 'run.lock'),
+
+        [ValidateRange(0, 3600)]
+        [int]$TimeoutSeconds = 900
+    )
+
+    $fullPath = [System.IO.Path]::GetFullPath($LockPath)
+    $directory = Split-Path -Parent $fullPath
+    if ([string]::IsNullOrWhiteSpace($directory)) {
+        throw "Cannot determine the parent directory for the profile sync lock: $LockPath"
+    }
+    [System.IO.Directory]::CreateDirectory($directory) | Out-Null
+
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    $waitWarningWritten = $false
+    while ($true) {
+        $stream = $null
+        try {
+            $stream = [System.IO.FileStream]::new(
+                $fullPath,
+                [System.IO.FileMode]::OpenOrCreate,
+                [System.IO.FileAccess]::ReadWrite,
+                [System.IO.FileShare]::None
+            )
+            $lockMetadata = [ordered]@{
+                processId = $PID
+                acquiredAt = [DateTime]::UtcNow.ToString('o')
+                repoRoot = $RepoRoot
+            } | ConvertTo-Json -Compress
+            $lockBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($lockMetadata + [Environment]::NewLine)
+            $stream.SetLength(0)
+            $stream.Position = 0
+            $stream.Write($lockBytes, 0, $lockBytes.Length)
+            $stream.Flush($true)
+            return $stream
+        } catch [System.IO.IOException] {
+            if ($null -ne $stream) {
+                $stream.Dispose()
+            }
+            if ([DateTime]::UtcNow -ge $deadline) {
+                throw "Another profile sync process is already running and still owns the publication lock after $TimeoutSeconds second(s): $fullPath"
+            }
+            if (-not $waitWarningWritten) {
+                Write-Warning "Another profile sync process is already running. Waiting up to $TimeoutSeconds seconds for its publication lock."
+                $waitWarningWritten = $true
+            }
+            Start-Sleep -Milliseconds 250
+        } catch {
+            if ($null -ne $stream) {
+                $stream.Dispose()
+            }
+            throw
+        }
+    }
 }
 
 function Write-ArtifactPublicationJournal {
@@ -5650,11 +5712,14 @@ function Repair-ArtifactPublicationTransactions {
             [array]::Reverse($rows)
             foreach ($row in $rows) {
                 $targetPath = [string](Get-MemberValue -Object $row -Name 'targetPath')
+                $stagedPath = [string](Get-MemberValue -Object $row -Name 'stagedPath')
                 $backupPath = [string](Get-MemberValue -Object $row -Name 'backupPath')
                 $oldHash = [string](Get-MemberValue -Object $row -Name 'oldHash')
                 $newHash = [string](Get-MemberValue -Object $row -Name 'newHash')
                 $existed = [bool](Get-MemberValue -Object $row -Name 'existed')
+                $promoted = [bool](Get-MemberValue -Object $row -Name 'promoted')
                 if ($existed) {
+                    $restoredBackup = $false
                     if ([System.IO.File]::Exists($backupPath)) {
                         if ([System.IO.File]::Exists($targetPath)) {
                             $recoveryDiscardPath = "$backupPath.recovery-discard"
@@ -5664,17 +5729,26 @@ function Repair-ArtifactPublicationTransactions {
                         } else {
                             [System.IO.File]::Move($backupPath, $targetPath)
                         }
-                    } elseif ((Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
+                        $restoredBackup = $true
+                    } elseif ($promoted -and (Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
                         throw "Cannot recover artifact because its original backup is unavailable: $targetPath"
                     }
-                    if ((Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
+                    # An unpromoted row with no backup never changed its target. Preserve a
+                    # newer file written by another process instead of treating it as damage.
+                    if (($restoredBackup -or $promoted) -and (Get-FileSha256Hex -Path $targetPath) -ne $oldHash) {
                         throw "Recovered artifact hash mismatch for $targetPath."
                     }
                 } elseif ([System.IO.File]::Exists($targetPath)) {
-                    if ((Get-FileSha256Hex -Path $targetPath) -ne $newHash) {
+                    $currentHash = Get-FileSha256Hex -Path $targetPath
+                    $moveCompletedBeforeJournal = -not [System.IO.File]::Exists($stagedPath) -and $currentHash -eq $newHash
+                    if ($promoted -or $moveCompletedBeforeJournal) {
+                        if ($currentHash -ne $newHash) {
+                            throw "Refusing to remove an unexpected file while recovering: $targetPath"
+                        }
+                        [System.IO.File]::Delete($targetPath)
+                    } elseif (-not [System.IO.File]::Exists($stagedPath)) {
                         throw "Refusing to remove an unexpected file while recovering: $targetPath"
                     }
-                    [System.IO.File]::Delete($targetPath)
                 }
             }
         }
@@ -14627,6 +14701,10 @@ if (-not (Test-SafeGitHubName -Name $Owner)) {
 
 Set-Location $RepoRoot
 
+$profileSyncRunLock = $null
+try {
+$profileSyncRunLock = Enter-ProfileSyncRunLock
+
 try {
     $recoveredPublicationCount = Repair-ArtifactPublicationTransactions
     if ($recoveredPublicationCount -gt 0) {
@@ -14863,4 +14941,9 @@ if ($ApplyTopics) {
         }
     }
     Write-Host "Topic apply complete: $applied applied, $skipped skipped."
+}
+} finally {
+    if ($null -ne $profileSyncRunLock) {
+        $profileSyncRunLock.Dispose()
+    }
 }
