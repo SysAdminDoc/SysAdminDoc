@@ -6482,7 +6482,7 @@ Describe 'Seed catalog guard' -Tag 'Integration' {
 
     It 'exits clearly when SeedCatalog is invoked without ForceSeedCatalog' {
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
-        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -Offline -CatalogPath (Join-Path $TestDrive 'blocked-catalog.json') *>&1
+        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -Offline -CatalogPath (Join-Path $TestDrive 'blocked-catalog.json') -CachePath (Join-Path $TestDrive 'seed-blocked-cache') *>&1
 
         $LASTEXITCODE | Should -Be 1
         ($output | Out-String) | Should -Match 'ForceSeedCatalog'
@@ -6499,7 +6499,7 @@ Describe 'Seed catalog guard' -Tag 'Integration' {
             '### Start Here'
         ) -Encoding utf8
 
-        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -ForceSeedCatalog -Offline -ReadmePath $readmePath -CatalogPath $catalogPath *>&1
+        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -ForceSeedCatalog -Offline -ReadmePath $readmePath -CatalogPath $catalogPath -CachePath (Join-Path $TestDrive 'seed-cache') *>&1
 
         $LASTEXITCODE | Should -Be 0
         ($output | Out-String) | Should -Match 'LOSSY LEGACY SEED MODE'
@@ -6621,7 +6621,7 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
     It 'rejects unsafe Owner values before generation or network work' {
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
 
-        $output = & pwsh -NoProfile -File $scriptPath -Owner '../bad' -Check -Offline *>&1
+        $output = & pwsh -NoProfile -File $scriptPath -Owner '../bad' -Check -Offline -CachePath (Join-Path $TestDrive 'bad-owner-cache') *>&1
 
         $LASTEXITCODE | Should -Be 1
         ($output | Out-String) | Should -Match 'Owner must match'
@@ -6655,10 +6655,37 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         '[]' | Set-Content -LiteralPath $allowlistPath -Encoding utf8
 
         $output = & pwsh -NoProfile -File $scriptPath -ApplyTopics -Offline `
-            -TopicAllowlistPath $allowlistPath *>&1
+            -TopicAllowlistPath $allowlistPath -CachePath (Join-Path $TestDrive 'topics-cache') *>&1
 
         $LASTEXITCODE | Should -Be 0
         ($output | Out-String) | Should -Match 'allowlist is empty'
+    }
+}
+
+Describe 'Child generator runs stay out of the checkout' {
+    It 'gives every child run of sync-profile.ps1 its own cache path' {
+        # Without -CachePath a child run takes the run lock under the checkout's
+        # .cache/profile-sync, leaves run.lock behind, and waits on a real run's lock.
+        $tokens = $null
+        $parseErrors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$tokens, [ref]$parseErrors)
+        $childRuns = @($ast.FindAll({
+            param($node)
+            if ($node -isnot [System.Management.Automation.Language.CommandAst] -or $node.GetCommandName() -ne 'pwsh') { return $false }
+            $text = $node.Extent.Text
+            if ($text -match '-File\s+\$script:SyncProfileScriptPath\b') { return $true }
+            if ($text -notmatch '-File\s+\$scriptPath\b') { return $false }
+            # $scriptPath names sync-profile.ps1 when the enclosing test assigns it so.
+            $scope = $node.Parent
+            while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
+            return ($null -ne $scope -and $scope.Extent.Text -match "\`$scriptPath = Join-Path \`$script:RepoRoot 'scripts/sync-profile\.ps1'")
+        }, $true))
+
+        $childRuns.Count | Should -BeGreaterThan 3 -Because 'the scan has to find the seed and entrypoint-mode runs'
+        $missing = @($childRuns | Where-Object {
+            @($_.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq 'CachePath' }).Count -eq 0
+        } | ForEach-Object { 'line {0}: {1}' -f $_.Extent.StartLineNumber, ($_.Extent.Text -split "`n")[0].Trim() })
+        $missing | Should -BeNullOrEmpty
     }
 }
 
