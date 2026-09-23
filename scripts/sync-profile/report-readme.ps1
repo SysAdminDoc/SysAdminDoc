@@ -51,8 +51,10 @@ function New-TextArtifactDiffDiagnostic {
 
     $currentNormalized = ConvertTo-NormalizedGeneratedText -Text $Current
     $expectedNormalized = ConvertTo-NormalizedGeneratedText -Text $Expected
-    $currentLines = @($currentNormalized -split "`n", -1)
-    $expectedLines = @($expectedNormalized -split "`n", -1)
+    # No limit argument: in PowerShell 7 a negative -split limit counts pieces from the
+    # right, so -1 returned the whole artifact as a single "line 1".
+    $currentLines = @($currentNormalized -split "`n")
+    $expectedLines = @($expectedNormalized -split "`n")
     $maxLineCount = [Math]::Max($currentLines.Count, $expectedLines.Count)
     $firstDiff = $null
 
@@ -60,7 +62,8 @@ function New-TextArtifactDiffDiagnostic {
         for ($i = 0; $i -lt $maxLineCount; $i++) {
             $currentLine = if ($i -lt $currentLines.Count) { [string]$currentLines[$i] } else { $null }
             $expectedLine = if ($i -lt $expectedLines.Count) { [string]$expectedLines[$i] } else { $null }
-            if ($currentLine -ne $expectedLine) {
+            # -cne: the sync verdict is case-sensitive, so a case-only change is the difference.
+            if ($currentLine -cne $expectedLine) {
                 $firstDiff = [ordered]@{
                     line = [int]($i + 1)
                     sectionMarker = Get-NearestDiffSectionMarker -Lines $expectedLines -LineIndex $i

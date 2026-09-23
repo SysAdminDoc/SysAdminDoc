@@ -5767,6 +5767,53 @@ Describe 'URL scheme safety' {
     }
 }
 
+Describe 'Artifact drift diagnostic line location' {
+    BeforeAll {
+        $script:DiffExpectedLines = @(
+            '<p align="center"><b>Tagline</b></p>',
+            '',
+            '### What''s here',
+            'Pick a category.',
+            '<summary><b>PowerShell</b></summary>',
+            '[**ToolA**](https://github.com/o/ToolA) &#11088;4 -- first tool',
+            '[**ToolB**](https://github.com/o/ToolB) &#11088;2 -- second tool'
+        )
+    }
+
+    It 'reports the first differing line and its section when a later line drifts' {
+        $current = @($script:DiffExpectedLines)
+        $current[6] = '[**ToolB**](https://github.com/o/ToolB) &#11088;3 -- second tool'
+
+        $diagnostic = New-TextArtifactDiffDiagnostic -Artifact 'README.md' -Current ($current -join "`n") -Expected ($script:DiffExpectedLines -join "`r`n") -InSync:$false
+
+        $diagnostic.firstDiff.line | Should -Be 7
+        $diagnostic.firstDiff.current | Should -Be $current[6]
+        $diagnostic.firstDiff.expected | Should -Be $script:DiffExpectedLines[6]
+        $diagnostic.firstDiff.sectionMarker.line | Should -Be 5
+        $diagnostic.firstDiff.sectionMarker.text | Should -Be '<summary><b>PowerShell</b></summary>'
+    }
+
+    It 'treats a letter-case change as the first difference, matching the case-sensitive sync verdict' {
+        $current = @($script:DiffExpectedLines)
+        $current[3] = 'PICK a category.'
+
+        $diagnostic = New-TextArtifactDiffDiagnostic -Artifact 'README.md' -Current ($current -join "`n") -Expected ($script:DiffExpectedLines -join "`n") -InSync:$false
+
+        $diagnostic.firstDiff.line | Should -Be 4
+        $diagnostic.firstDiff.sectionMarker.text | Should -Be '### What''s here'
+    }
+
+    It 'reports an appended line after an otherwise identical artifact' {
+        $current = @($script:DiffExpectedLines) + 'stray trailing line'
+
+        $diagnostic = New-TextArtifactDiffDiagnostic -Artifact 'README.md' -Current ($current -join "`n") -Expected ($script:DiffExpectedLines -join "`n") -InSync:$false
+
+        $diagnostic.firstDiff.line | Should -Be 8
+        $diagnostic.firstDiff.current | Should -Be 'stray trailing line'
+        $diagnostic.firstDiff.expected | Should -BeNullOrEmpty
+    }
+}
+
 Describe 'Test-ProfileState projects sync gate' {
     It 'fails with artifact diagnostics when README and projects.json are out of sync' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
