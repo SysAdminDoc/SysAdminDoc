@@ -832,7 +832,7 @@ function Test-CompleteGenerationSnapshot {
     if ($repositories.Count -eq 0 -or
         [int](Get-MemberValue -Object $enumeration -Name 'returnedCount') -ne $repositories.Count -or
         (ConvertTo-BooleanValue (Get-MemberValue -Object $enumeration -Name 'truncated')) -or
-        $provider -notin @('graphql', 'rest-fallback') -or
+        $provider -cnotin @('graphql', 'rest-fallback') -or
         $releases.Count -ne $repositories.Count) {
         return $false
     }
@@ -878,7 +878,8 @@ function Test-CompleteGenerationSnapshot {
             (ConvertTo-BooleanValue (Get-MemberValue -Object $repository -Name 'isPrivate')) -or
             [string](Get-MemberValue -Object $repository -Name 'visibility') -ne 'PUBLIC' -or
             [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $repository -Name 'url')) -or
-            [string](Get-MemberValue -Object $repository -Name 'branchTipStatus') -notin @('fresh', 'stale', 'missing', 'unreachable')) {
+            # Case-sensitive, like the schemas' enums: a restored value is published as written.
+            [string](Get-MemberValue -Object $repository -Name 'branchTipStatus') -cnotin @('fresh', 'stale', 'missing', 'unreachable')) {
             return $false
         }
     }

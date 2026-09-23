@@ -475,13 +475,17 @@ Describe 'Catalog refuses deceptive or unsafe one-line text' {
         @($shape.issues | ForEach-Object { '{0}.{1}: {2}' -f $_.repo, $_.field, $_.reason }) | Should -BeNullOrEmpty
     }
 
-    It 'keeps the committed feed''s generator hash in step with the generator' {
-        # A generator change committed without regenerating leaves projects.json naming the old
-        # generator, and -Check fails on it. validate-local skips the profile check, so the
-        # suite has to notice.
+    It 'keeps the committed feed''s <Field> in step with <Source>' -ForEach @(
+        @{ Field = 'generatorSha256'; Source = 'the generator' }
+        @{ Field = 'catalogSha256'; Source = 'the catalog' }
+        @{ Field = 'projectSchemaSha256'; Source = 'the feed schema' }
+    ) {
+        # A generator, catalog or schema change committed without regenerating leaves
+        # projects.json naming the old file, and -Check fails on it. validate-local skips the
+        # profile check, so the suite has to notice.
         $feed = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'projects.json') -Raw | ConvertFrom-Json
 
-        $feed.provenance.generatorSha256 | Should -Be (New-ProjectsProvenance -Repos @()).generatorSha256 -Because 'a generator change needs scripts/sync-profile.ps1 -Write -Check -GraphQlPageSize 300 in the same commit'
+        $feed.provenance.$Field | Should -Be (New-ProjectsProvenance -Repos @()).$Field -Because "a change to $Source needs scripts/sync-profile.ps1 -Write -Check -GraphQlPageSize 300 in the same commit"
     }
 }
 
@@ -665,10 +669,13 @@ Start-Tool WinTool
         @($script:ToolCalls) | Should -Be @('python --version')
     }
 
-    It 'judges <Case> by its exit code in Windows PowerShell 5.1 with the session at Stop' -ForEach @(
-        @{ Case = 'Python 2, which prints its version on stderr'; Stub = 'if "%~1"=="--version" (echo Python 2.7.18 1>&2& exit /b 0)'; Started = $true }
-        @{ Case = 'a python that prints a warning on stderr'; Stub = 'if "%~1"=="--version" (echo warning: user site not writable 1>&2& echo Python 3.12.0& exit /b 0)'; Started = $true }
-        @{ Case = 'the Store stand-in'; Stub = 'echo Python was not found; run without arguments to install from the Microsoft Store 1>&2& exit /b 9009'; Started = $false }
+    It 'judges <Case> by its exit code in Windows PowerShell 5.1 with <Via> at Stop' -ForEach @(
+        @{ Case = 'Python 2, which prints its version on stderr'; Via = 'the session'; Stub = 'if "%~1"=="--version" (echo Python 2.7.18 1>&2& exit /b 0)'; Started = $true }
+        @{ Case = 'a python that prints a warning on stderr'; Via = 'the session'; Stub = 'if "%~1"=="--version" (echo warning: user site not writable 1>&2& echo Python 3.12.0& exit /b 0)'; Started = $true }
+        @{ Case = 'the Store stand-in'; Via = 'the session'; Stub = 'echo Python was not found; run without arguments to install from the Microsoft Store 1>&2& exit /b 9009'; Started = $false }
+        # -ErrorAction Stop sets Start-Tool's own preference, which the check inherits, with
+        # the session left at Continue.
+        @{ Case = 'Python 2, which prints its version on stderr'; Via = 'Start-Tool -ErrorAction Stop'; Stub = 'if "%~1"=="--version" (echo Python 2.7.18 1>&2& exit /b 0)'; Started = $true }
     ) {
         $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
         if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
@@ -681,13 +688,14 @@ Start-Tool WinTool
         $binPath = Join-Path $TestDrive ('python-' + [guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $binPath | Out-Null
         [System.IO.File]::WriteAllText((Join-Path $binPath 'python.cmd'), "@echo off`r`n$Stub`r`necho ran> `"%~dp0ran.txt`"`r`nexit /b 0`r`n")
+        $viaCall = $Via -eq 'Start-Tool -ErrorAction Stop'
         $driver = @'
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = '<session-preference>'
 function Invoke-RestMethod { [pscustomobject]@{ projects = @([pscustomobject]@{ repo = 'PyTool'; branch = 'main'; entrypoint = 'app.py' }) } }
 function git { if ($args[0] -eq 'clone') { New-Item -ItemType Directory -Path ([string]$args[-1]) -Force | Out-Null }; $global:LASTEXITCODE = 0 }
 Get-Content -Raw -LiteralPath $env:SYSADMINDOC_RUN_SCRIPT | Invoke-Expression
-try { Start-Tool PyTool; 'started' } catch { 'threw: ' + $_.Exception.Message }
-'@
+try { Start-Tool PyTool<call-arguments>; 'started' } catch { 'threw: ' + $_.Exception.Message }
+'@.Replace('<session-preference>', $(if ($viaCall) { 'Continue' } else { 'Stop' })).Replace('<call-arguments>', $(if ($viaCall) { ' -ErrorAction Stop' } else { '' }))
         $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($driver))
         $savedPath = $env:PATH
         $env:SYSADMINDOC_RUN_SCRIPT = $script:RunScriptPath
@@ -3020,7 +3028,16 @@ Describe 'Validation cache' {
             $snapshot.sourceCompleteness.releases = $true
             $snapshot.repositoryEnumeration.provider = 'cache-fallback'
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            # A restored provider and tip status are published as written, and the schemas'
+            # enums are case-sensitive, so the restore can't take either in another case.
+            $snapshot.repositoryEnumeration.provider = 'GraphQL'
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
             $snapshot.repositoryEnumeration.provider = 'graphql'
+            $tipStatus = $snapshot.repositories[0].branchTipStatus
+            $snapshot.repositories[0].branchTipStatus = $tipStatus.ToUpperInvariant()
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.repositories[0].branchTipStatus = $tipStatus
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeTrue -Because 'the snapshot passes once both are back in the schemas'' case'
             $snapshot.releases[0].repo = 'DifferentRepo'
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
             $snapshot.releases[0].repo = 'CachedCompleteRepo'
@@ -5897,6 +5914,9 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'a lone list number'; About = '1.'; Expected = '1\.' }
         @{ Case = 'a lone parenthesis list number'; About = '1)'; Expected = '1\)' }
         @{ Case = 'a four-digit list number'; About = '2024. was a good year'; Expected = '2024\. was a good year' }
+        # CommonMark allows nine digits, and GitHub renders 12345. as a list starting at 12345.
+        @{ Case = 'a five-digit list number'; About = '12345. five digits'; Expected = '12345\. five digits' }
+        @{ Case = 'a nine-digit list number'; About = '123456789. nine digits'; Expected = '123456789\. nine digits' }
         @{ Case = 'a quote marker'; About = '> not a quote'; Expected = '&gt; not a quote' }
     ) {
         $header = New-TestProfileHeader
@@ -5919,6 +5939,8 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'a long option'; About = '--help is the flag I read most' }
         @{ Case = 'mixed rule characters'; About = '*-* marks the tools I use daily' }
         @{ Case = 'strong emphasis in a rule''s characters'; About = '***Everything*** here is free' }
+        # Ten digits is past CommonMark's limit, so it's a paragraph already.
+        @{ Case = 'a ten-digit number and a period'; About = '1234567890. ten digits' }
     ) {
         # None of these opens a block, so escaping them would show the markup as text.
         $header = New-TestProfileHeader
@@ -7294,13 +7316,65 @@ Describe 'Feed JSON Schema contracts' {
 
     It 'lets both schemas accept every metadata provider the generator records' {
         # The enums held graphql and rest-fallback only, so a run that fell back to cached
-        # metadata (cache-fallback) failed its own schema check and wrote nothing.
+        # metadata (cache-fallback) failed its own schema check and wrote nothing. The scan
+        # reads the syntax tree, so a spaced, computed or appended value can't slip past it:
+        # every assignment is a string constant, or the snapshot restore, whose values come
+        # from Test-CompleteGenerationSnapshot's allow-list.
         $sources = @('scripts/sync-profile.ps1') + @(Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile') -Filter '*.ps1' | ForEach-Object { 'scripts/sync-profile/' + $_.Name })
-        $providers = @(foreach ($source in $sources) {
-            [regex]::Matches([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $source)), 'RepositoryMetadataProvider = [''"](?<value>[^''"]+)[''"]') | ForEach-Object { $_.Groups['value'].Value }
-        }) | Sort-Object -Unique
+        $providers = [System.Collections.Generic.List[string]]::new()
+        $restores = [System.Collections.Generic.List[string]]::new()
+        $allowList = $null
+        foreach ($source in $sources) {
+            $tokens = $null
+            $parseErrors = $null
+            $tree = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RepoRoot $source), [ref]$tokens, [ref]$parseErrors)
+            $parseErrors | Should -BeNullOrEmpty -Because "$source has to parse"
+            $assignments = $tree.FindAll({
+                param($node)
+                $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and
+                $node.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                $node.Left.VariablePath.UserPath -eq 'script:RepositoryMetadataProvider'
+            }, $true)
+            foreach ($assignment in $assignments) {
+                $owner = $assignment.Parent
+                while ($null -ne $owner -and $owner -isnot [System.Management.Automation.Language.FunctionDefinitionAst]) { $owner = $owner.Parent }
+                $ownerName = if ($null -eq $owner) { '(script)' } else { $owner.Name }
+                if ($assignment.Operator -eq 'Equals' -and
+                    $assignment.Right -is [System.Management.Automation.Language.CommandExpressionAst] -and
+                    $assignment.Right.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
+                    $providers.Add($assignment.Right.Expression.Value)
+                } else {
+                    # The restore has to check the snapshot, allow-list included, before it assigns.
+                    $checked = $null -ne $owner -and $null -ne $owner.Find({
+                        param($node)
+                        $node -is [System.Management.Automation.Language.CommandAst] -and
+                        $node.GetCommandName() -eq 'Test-CompleteGenerationSnapshot' -and
+                        $node.Extent.StartOffset -lt $assignment.Extent.StartOffset
+                    }, $true)
+                    $restores.Add("$ownerName in $source, checked first: $checked")
+                }
+            }
+            $snapshotCheck = $tree.Find({
+                param($node)
+                $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Test-CompleteGenerationSnapshot'
+            }, $true)
+            if ($null -ne $snapshotCheck) {
+                $providerTest = @($snapshotCheck.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.BinaryExpressionAst] -and
+                    $node.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                    $node.Left.VariablePath.UserPath -eq 'provider'
+                }, $true))
+                $providerTest | Should -HaveCount 1 -Because 'the snapshot check tests the provider once'
+                $providerTest[0].Operator | Should -Be ([System.Management.Automation.Language.TokenKind]::Cnotin) -Because 'the allow-list has to be case-sensitive, like the enums'
+                $allowList = @($providerTest[0].Right.FindAll({ param($node) $node -is [System.Management.Automation.Language.StringConstantExpressionAst] }, $true) | ForEach-Object { $_.Value })
+            }
+        }
 
         $providers | Should -Contain 'cache-fallback' -Because 'the scan has to find the cache fallback'
+        ($restores -join '; ') | Should -Be 'Set-GenerationStateFromSnapshot in scripts/sync-profile/artifact-store.ps1, checked first: True' -Because 'only the snapshot restore may assign a value that is not a string constant'
+        $allowList | Should -Contain 'graphql' -Because 'the scan has to find the snapshot allow-list'
+        $providers = @($providers) + @($allowList) | Sort-Object -Unique
         foreach ($schemaPath in 'schemas/profile-projects.v1.json', 'schemas/profile-sync-report.v1.json') {
             $schemaText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $schemaPath))
             $enum = [regex]::Match($schemaText, '"metadataProvider":\s*\{\s*"type":\s*"string",\s*"enum":\s*\[(?<values>[^\]]*)\]')
