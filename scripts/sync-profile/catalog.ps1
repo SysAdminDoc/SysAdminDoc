@@ -194,7 +194,9 @@ function Get-UpstreamUrl {
         return $null
     }
 
-    if ($ForkOf -match '^[^/\s]+/[^/\s]+$') {
+    # The schema's owner/repo shape, anchored at the true end. The link lands in a README
+    # table cell as written, so anything looser (a | splits the row) stays encoded text.
+    if ($ForkOf -cmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z') {
         return "https://github.com/$ForkOf"
     }
 
@@ -737,6 +739,12 @@ function Test-CatalogShape {
         $branch = [string]$entry.branch
         if (-not [string]::IsNullOrWhiteSpace($branch) -and $branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "branch"; value = $branch; reason = "branch must start with a letter or digit and use only letters, digits and ._/-" })
+        }
+        # The fork attribution links https://github.com/<forkOf> from the README row, so it
+        # takes the schema's owner/repo shape here too; -Write alone never runs the schema.
+        $forkOf = [string]$entry.forkOf
+        if (-not [string]::IsNullOrWhiteSpace($forkOf) -and $forkOf -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z') {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "forkOf"; value = ([regex]::Replace($forkOf, '[\p{Cc}  ]', ' ')); reason = "forkOf must be owner/repo: an account name of letters, digits and hyphens, a slash, then a repository name" })
         }
     }
 

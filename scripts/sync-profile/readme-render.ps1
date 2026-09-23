@@ -210,8 +210,8 @@ function Get-ActionLink {
     $label = [string]$action["label"]
     # Live and userscript URLs come from the catalog. Percent-encode what would end or
     # break a Markdown link destination or its table cell; a well-formed URL is unchanged.
-    # Control characters too: -Write alone skips the catalog check, and a line break here
-    # would end the row.
+    # Control characters too, since a line break here would end the row. The catalog check
+    # refuses all of these before -Write or -Check renders, but the renderer doesn't lean on it.
     $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
     $url = [regex]::Replace($url, '[\x00-\x1F\x7F]', { param($match) '%{0:X2}' -f [int][char]$match.Value })
     if ($action["kind"] -eq "release") {
@@ -281,8 +281,8 @@ function Get-ProfilePortfolioUrl {
     if ($null -ne $portfolioVariable) { $configured = [string]$portfolioVariable.Value }
     if (-not [string]::IsNullOrWhiteSpace($configured)) {
         $url = $configured.Trim()
-        # The same shape Test-CatalogShape holds the catalog value to; -Write alone and
-        # -PortfolioUrl skip that check, so a value that could leave its attribute isn't used.
+        # The same shape Test-CatalogShape holds the catalog value to; -PortfolioUrl skips
+        # that check, so a value that could leave its attribute isn't used.
         if ($url -cmatch '^https://[!#-&(-;=?-\[\]-{}~]+\z') {
             if (-not $url.EndsWith("/")) { $url += "/" }
             return $url
@@ -768,8 +768,8 @@ function New-ProfileChrome {
         $lines.Add($aboutText)
         $lines.Add('')
     }
-    # Test-CatalogShape refuses any other URL, but only under -Check. -Write alone renders
-    # this too, so a URL that could leave its attribute, or isn't https, isn't rendered.
+    # Test-CatalogShape refuses any other URL before anything is written, but the renderer
+    # doesn't lean on it: a URL that could leave its attribute, or isn't https, isn't rendered.
     $safeUrlPattern = '^https://[!#-&(-;=?-\[\]-{}~]+\z'
     $links = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'links') | ForEach-Object {
         $url = [string](Get-MemberValue -Object $_ -Name 'url')

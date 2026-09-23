@@ -346,6 +346,30 @@ if ($SeedCatalog) {
     Write-Warning "LOSSY LEGACY SEED MODE: $($seedGuard.message -replace '^-SeedCatalog is a ', '')"
 }
 
+# A normal run reads its catalog before anything is fetched, so a catalog the -Write gate
+# refuses costs no GitHub requests and leaves the snapshot cache alone. A seed builds its
+# catalog from the fetched repositories, so it's read and gated after the seed below.
+$catalogForRun = $null
+if (-not $SeedCatalog -and (Test-Path -LiteralPath $CatalogPath)) {
+    $catalogForRun = Get-Catalog -Path $CatalogPath
+}
+
+# -Write alone never reaches Test-ProfileState, where -Check runs the shape check and the
+# JSON schemas, yet it is the command the README tells editors to run. The shape check
+# holds every value the README renders to its schema shape, so a catalog that fails it
+# stops here and nothing is rendered or written.
+if ($catalogForRun -and $Write -and -not $Check) {
+    $writeShape = Test-CatalogShape -Catalog $catalogForRun
+    if (-not $writeShape.passed) {
+        foreach ($issue in @($writeShape.issues)) {
+            $issueRepo = if ([string]::IsNullOrWhiteSpace([string]$issue.repo)) { '' } else { "$($issue.repo) " }
+            Write-Warning ("Catalog issue: {0}{1}: {2}" -f $issueRepo, $issue.field, $issue.reason)
+        }
+        Write-Error 'The catalog failed its shape check, so nothing was written. Fix the issues above, or run -Check for the full report.' -ErrorAction Continue
+        exit 1
+    }
+}
+
 $repos = @()
 if ($Offline -and ($Write -or $Check)) {
     $generationSnapshot = Get-CompleteGenerationSnapshot
@@ -388,35 +412,26 @@ if ($SeedCatalog) {
     if (-not $Write -and -not $Check) {
         exit 0
     }
+    $catalogForRun = Get-Catalog -Path $CatalogPath
+    # The same -Write gate as above, for the seeded catalog. The seed stays on disk to edit.
+    if ($Write -and -not $Check) {
+        $writeShape = Test-CatalogShape -Catalog $catalogForRun
+        if (-not $writeShape.passed) {
+            foreach ($issue in @($writeShape.issues)) {
+                $issueRepo = if ([string]::IsNullOrWhiteSpace([string]$issue.repo)) { '' } else { "$($issue.repo) " }
+                Write-Warning ("Catalog issue: {0}{1}: {2}" -f $issueRepo, $issue.field, $issue.reason)
+            }
+            Write-Error "The seeded catalog failed its shape check, so nothing else was written. Fix the issues above in $CatalogPath, then run -Write again." -ErrorAction Continue
+            exit 1
+        }
+    }
 }
 
-$catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
-    Get-Catalog -Path $CatalogPath
-} elseif ($SeedCatalog) {
-    Get-Catalog -Path $CatalogPath
-} else {
-    $null
-}
 # The portfolio links follow the catalog unless -PortfolioUrl was given, so a run for another
 # account never links to this profile's site. Get-ProfilePortfolioUrl reads this variable and
 # falls back to the owner's GitHub Pages origin when it is empty.
 if (-not $portfolioUrlGiven -and $catalogForRun) {
     $PortfolioUrl = [string](Get-MemberValue -Object $catalogForRun -Name 'portfolioUrl')
-}
-
-# -Write alone never reaches Test-ProfileState, where the catalog check runs, yet it is the
-# command the README tells editors to run. A catalog that fails the shape check stops here,
-# before anything is rendered or written; -Check reports the same issues in full.
-if ($catalogForRun -and $Write -and -not $Check) {
-    $writeShape = Test-CatalogShape -Catalog $catalogForRun
-    if (-not $writeShape.passed) {
-        foreach ($issue in @($writeShape.issues)) {
-            $issueRepo = if ([string]::IsNullOrWhiteSpace([string]$issue.repo)) { '' } else { "$($issue.repo) " }
-            Write-Warning ("Catalog issue: {0}{1}: {2}" -f $issueRepo, $issue.field, $issue.reason)
-        }
-        Write-Error 'The catalog failed its shape check, so nothing was written. Fix the issues above, or run -Check for the full report.'
-        exit 1
-    }
 }
 
 if ($catalogForRun -and ($Write -or $Check)) {

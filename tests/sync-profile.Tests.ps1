@@ -5231,7 +5231,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
         Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%7Cb%5Cc)'
     }
 
-    It 'percent-encodes a line break in an action link, as -Write alone renders it' {
+    It 'percent-encodes a line break in an action link, whatever the catalog check said' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = "https://example.test/a`r`n| [**Injected**](https://evil.example/) |"
 
@@ -5283,6 +5283,42 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
 
         @($result.errors | Where-Object { $_.instanceLocation -eq '/projects/0/branch' }) | Should -HaveCount 1
+    }
+
+    It 'holds forkOf to owner/repo like its schema: <ForkOf>' -ForEach @(
+        @{ ForkOf = 'upstream-owner/WebTool|x'; Valid = $false }
+        @{ ForkOf = "upstream-owner/WebTool`n"; Valid = $false }
+        @{ ForkOf = 'upstream owner/WebTool'; Valid = $false }
+        @{ ForkOf = 'upstream-owner/..'; Valid = $false }
+        @{ ForkOf = 'upstream-owner/WebTool/tree'; Valid = $false }
+        @{ ForkOf = 'upstream_owner/WebTool'; Valid = $false }
+        @{ ForkOf = 'upstream-owner/Web.Tool_2'; Valid = $true }
+    ) {
+        # -Write alone runs only the shape check, and the fork link lands in a table cell.
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $entry.forkOf = $ForkOf
+
+        $payload = ConvertFrom-JsonPreservingArrays -Json ([System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json')))
+        Set-MemberValue -Object @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'entries'))[0] -Name 'forkOf' -Value $ForkOf
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'forkOf' -and $_.reason -match 'owner/repo' })
+        $schemaErrors = @((Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-catalog.v1.json').errors |
+            Where-Object { $_.instanceLocation -eq '/entries/0/forkOf' })
+
+        $issues.Count -eq 0 | Should -Be $Valid
+        # The same verdict as the schema's own pattern.
+        $schemaErrors.Count -eq 0 | Should -Be $Valid
+    }
+
+    It 'shows a forkOf that isn''t owner/repo as text, not a link' {
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $entry.forkOf = 'upstream-owner/WebTool|x'
+
+        $attribution = Get-UpstreamAttribution $entry
+
+        $attribution | Should -Be '<br/><sub>Upstream: upstream-owner/WebTool\|x</sub>'
+        $entry.forkOf = 'upstream-owner/WebTool'
+        Get-UpstreamAttribution $entry | Should -Be '<br/><sub>Upstream: [upstream-owner/WebTool](https://github.com/upstream-owner/WebTool)</sub>'
     }
 }
 
@@ -5372,7 +5408,7 @@ Describe 'Profile header comes from catalog data' {
     }
 
     It 'renders no header link or button whose URL could leave its attribute' {
-        # -Write alone renders without the catalog check, so the renderer can't rely on it.
+        # The renderer guards itself instead of leaning on the catalog check.
         $header = New-TestProfileHeader
         $header.links = @(
             @{ text = 'About'; url = 'https://x.test/"><img src="https://tracker.example/p.png' }
@@ -7159,6 +7195,53 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         ($output | Out-String) | Should -Match 'nothing was written'
         (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash | Should -Be $before
         Test-Path -LiteralPath (Join-Path $TestDrive 'shape-projects.json') | Should -BeFalse
+    }
+
+    It 'refuses a forkOf that would split its README row' {
+        # The fork link's owner/repo shape used to live only in the schema, which -Write skips.
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $cachePath = Join-Path $TestDrive 'fork-cache'
+        script:New-OfflineSnapshotCache -Path $cachePath
+        $sourceCatalog = Join-Path $TestDrive 'fork-catalog.json'
+        $fixture = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json'))
+        [System.IO.File]::WriteAllText($sourceCatalog, $fixture.Replace('"descriptionOverride": "A test web app",', '"descriptionOverride": "A test web app", "forkOf": "upstream-owner/WebTool|x",'))
+        $readmePath = Join-Path $TestDrive 'fork-README.md'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+        $before = (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -CatalogPath $sourceCatalog -ReadmePath $readmePath `
+            -ProjectsPath (Join-Path $TestDrive 'fork-projects.json') -AssetsPath (Join-Path $TestDrive 'fork-assets') -CachePath $cachePath *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match 'Catalog issue: WebTool forkOf: forkOf must be owner/repo'
+        (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash | Should -Be $before
+        Test-Path -LiteralPath (Join-Path $TestDrive 'fork-projects.json') | Should -BeFalse
+    }
+
+    It 'refuses the catalog before fetching anything from GitHub' {
+        # A stand-in gh first on PATH records every call; the refusal has to come before one.
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $binPath = Join-Path $TestDrive 'early-gate-bin'
+        $null = New-Item -ItemType Directory -Path $binPath
+        $marker = Join-Path $TestDrive 'early-gate-gh-called.txt'
+        [System.IO.File]::WriteAllText((Join-Path $binPath 'gh.cmd'), "@echo called>>`"$marker`"`r`n@exit /b 1`r`n")
+        $sourceCatalog = Join-Path $TestDrive 'early-gate-catalog.json'
+        $fixture = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json'))
+        [System.IO.File]::WriteAllText($sourceCatalog, $fixture.Replace('"descriptionOverride": "A test web app",', '"descriptionOverride": "A test web app", "forkOf": "upstream-owner/WebTool|x",'))
+        $savedPath = $env:PATH
+        try {
+            $env:PATH = $binPath + [System.IO.Path]::PathSeparator + $savedPath
+            $output = & pwsh -NoProfile -File $scriptPath -Write -CatalogPath $sourceCatalog -ReadmePath (Join-Path $TestDrive 'early-gate-README.md') `
+                -ProjectsPath (Join-Path $TestDrive 'early-gate-projects.json') -AssetsPath (Join-Path $TestDrive 'early-gate-assets') -CachePath (Join-Path $TestDrive 'early-gate-cache') *>&1
+            $exitCode = $LASTEXITCODE
+        } finally {
+            $env:PATH = $savedPath
+        }
+
+        $exitCode | Should -Be 1 -Because ($output | Out-String)
+        ($output | Out-String) | Should -Match 'Catalog issue: WebTool forkOf'
+        Test-Path -LiteralPath $marker | Should -BeFalse -Because 'the catalog is checked before any gh call'
+        Test-Path -LiteralPath (Join-Path $TestDrive 'early-gate-README.md') | Should -BeFalse
     }
 
     It 'links the owner''s own address when -PortfolioUrl could leave its attribute' {
