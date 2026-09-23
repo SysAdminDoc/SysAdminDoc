@@ -829,15 +829,16 @@ Describe 'PR delivery checklist carries no recorded history' {
     }
 
     It 'blocks on admin enforcement only while the checks are not yet required' -ForEach @(
-        @{ Case = 'branch protection requires the checks'; RequiredStatusChecks = $true; RulesetCount = 0; Enforced = $true }
-        @{ Case = 'a ruleset requires the checks'; RequiredStatusChecks = $false; RulesetCount = 1; Enforced = $true }
-        @{ Case = 'nothing requires the checks'; RequiredStatusChecks = $false; RulesetCount = 0; Enforced = $false }
+        @{ Case = 'branch protection requires the checks'; RequiredStatusChecks = $true; RulesetCount = 0; RulesetRequires = $false; Enforced = $true }
+        @{ Case = 'a ruleset requires the checks'; RequiredStatusChecks = $false; RulesetCount = 1; RulesetRequires = $true; Enforced = $true }
+        @{ Case = 'a ruleset exists but requires nothing'; RequiredStatusChecks = $false; RulesetCount = 1; RulesetRequires = $false; Enforced = $false }
+        @{ Case = 'nothing requires the checks'; RequiredStatusChecks = $false; RulesetCount = 0; RulesetRequires = $false; Enforced = $false }
     ) {
         Mock Test-RequiredCheckWorkflowCoverage { [ordered]@{ status = 'ready'; workflowCount = 1; candidateCheckCount = 1; warningCount = 0; warnings = @(); workflows = @() } }
 
         $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$true -RulesetsAvailable:$true `
             -RequiredStatusChecks $RequiredStatusChecks -EnforceAdmins $true -ActionsPullRequestCreationAllowed $true `
-            -RulesetCount $RulesetCount -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
+            -RulesetCount $RulesetCount -RulesetRequiresStatusChecks $RulesetRequires -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
 
         $adminBlockers = @($readiness.blockers | Where-Object { $_ -match 'enforces admins' })
         if ($Enforced) {
@@ -848,6 +849,93 @@ Describe 'PR delivery checklist carries no recorded history' {
             $adminBlockers | Should -HaveCount 1
             $readiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
         }
+    }
+
+    It 'counts a ruleset as enforcement only for <Case>' -ForEach @(
+        @{ Case = 'an active required_status_checks rule on main'; BranchRules = @([pscustomobject]@{ type = 'required_status_checks'; ruleset_id = 7 }); Enforced = $true }
+        @{ Case = 'nothing when the only active rule blocks deletion'; BranchRules = @([pscustomobject]@{ type = 'deletion'; ruleset_id = 7 }); Enforced = $false }
+        @{ Case = 'nothing when no rule is active'; BranchRules = @(); Enforced = $false }
+    ) {
+        # The ruleset list includes tag rulesets and disabled ones, so it can't stand for
+        # enforcement; the branch's active rules can.
+        $savedCandidates = $script:RequiredStatusCheckCandidates
+        $script:RequiredStatusCheckCandidates = @([ordered]@{ name = 'validate'; workflow = '.github/workflows/validate.yml' })
+        try {
+            $result = Test-RepositoryCommunityBaseline `
+                -Repository ([pscustomobject]@{ name = 'SysAdminDoc'; default_branch = 'main' }) `
+                -BranchProtection ([pscustomobject]@{ enforce_admins = [pscustomobject]@{ enabled = $true } }) `
+                -Rulesets @([pscustomobject]@{ id = 1; name = 'release tags'; target = 'tag'; enforcement = 'disabled' }) `
+                -BranchRules $BranchRules `
+                -ActionsWorkflowPermissions ([pscustomobject]@{ default_workflow_permissions = 'read'; can_approve_pull_request_reviews = $true }) `
+                -CommunityUnavailableReason 'not needed here' -LanguagesUnavailableReason 'not needed here' `
+                -ScorecardAlertsUnavailableReason 'not needed here' -ScorecardScoreUnavailableReason 'not needed here'
+        } finally {
+            $script:RequiredStatusCheckCandidates = $savedCandidates
+        }
+
+        $settings = $result['repositorySettings']
+        $settings.rulesets.count | Should -Be 1
+        $settings.rulesets.requiresStatusChecks | Should -Be $Enforced
+        if ($Enforced) {
+            $settings.requiredCheckReadiness.status | Should -Be 'enforcement-present'
+            @($settings.requiredCheckReadiness.blockers) | Should -BeNullOrEmpty
+            $settings.requiredCheckReadiness.recommendation | Should -Be 'monitor-required-check-enforcement'
+        } else {
+            $settings.requiredCheckReadiness.readyForEnforcement | Should -BeFalse
+            $settings.requiredCheckReadiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
+            @($settings.requiredCheckReadiness.blockers | Where-Object { $_ -match 'enforces admins' }) | Should -HaveCount 1
+        }
+    }
+
+    It 'describes a repository with workflows without the local-only posture' -ForEach @(
+        @{ Setting = $false; Status = 'needs-decision' }
+        @{ Setting = $true; Status = 'setting-enabled' }
+    ) {
+        $savedCandidates = $script:RequiredStatusCheckCandidates
+        $script:RequiredStatusCheckCandidates = @([ordered]@{ name = 'validate'; workflow = '.github/workflows/validate.yml' })
+        try {
+            $result = Test-RepositoryCommunityBaseline `
+                -Repository ([pscustomobject]@{ name = 'SysAdminDoc'; default_branch = 'main' }) `
+                -BranchProtection ([pscustomobject]@{ enforce_admins = [pscustomobject]@{ enabled = $false } }) `
+                -Rulesets @() -BranchRules @() `
+                -ActionsWorkflowPermissions ([pscustomobject]@{ default_workflow_permissions = 'read'; can_approve_pull_request_reviews = $Setting }) `
+                -CommunityUnavailableReason 'not needed here' -LanguagesUnavailableReason 'not needed here' `
+                -ScorecardAlertsUnavailableReason 'not needed here' -ScorecardScoreUnavailableReason 'not needed here'
+        } finally {
+            $script:RequiredStatusCheckCandidates = $savedCandidates
+        }
+
+        $settings = $result['repositorySettings']
+        ($settings | ConvertTo-Json -Depth 20) | Should -Not -Match 'local-validation-only|local-only validation|absent by policy|repository is local'
+        $settings.actionsWorkflowPermissions.generatedPrCredentialDecision.status | Should -Be $Status
+    }
+}
+
+Describe 'Repository settings read empty live lists as empty' {
+    It 'reports no rulesets, no active rules and no open alerts as available and empty' {
+        # gh api answers [] for each. ConvertFrom-Json turns that into no output, and an
+        # if-expression assignment then passed $null on, which read as "unavailable".
+        Mock Test-GitHubCliAuthenticated { $true }
+        Mock Invoke-GhCli {
+            $path = [string]$Arguments[1]
+            $text = if ($path -eq 'repos/SysAdminDoc/SysAdminDoc') { '{"name":"SysAdminDoc","default_branch":"main"}' }
+            elseif ($path -match '/rulesets$|/rules/branches/main$|/code-scanning/alerts') { '[]' }
+            else { '{}' }
+            [ordered]@{ output = $text; exitCode = 0; text = $text }
+        }
+        $savedOffline = $script:Offline
+        $script:Offline = $false
+        try {
+            $result = Get-RepositoryCommunityBaseline
+        } finally {
+            $script:Offline = $savedOffline
+        }
+
+        $rulesets = $result['repositorySettings'].rulesets
+        $rulesets.available | Should -BeTrue
+        $rulesets.count | Should -Be 0
+        $rulesets.requiresStatusChecks | Should -BeFalse
+        $result['repositorySettings'].security.codeScanning.scorecardAlertPosture.available | Should -BeTrue
     }
 }
 

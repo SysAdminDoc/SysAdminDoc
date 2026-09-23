@@ -622,6 +622,9 @@ function Get-RequiredCheckReadiness {
         [Nullable[bool]]$EnforceAdmins,
         [Nullable[bool]]$ActionsPullRequestCreationAllowed,
         [int]$RulesetCount,
+        # Whether an active ruleset puts a required_status_checks rule on the default branch.
+        # The ruleset count alone can't say: it includes tag rulesets and disabled ones.
+        [Nullable[bool]]$RulesetRequiresStatusChecks,
         [string]$BranchProtectionUnavailableReason,
         [string]$RulesetsUnavailableReason
     )
@@ -652,25 +655,26 @@ function Get-RequiredCheckReadiness {
         }
     }
 
-    $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetCount -gt 0)
+    $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetRequiresStatusChecks -eq $true)
+    # Blockers stand between the repository and enforcement, so they only apply until one
+    # mechanism enforces the checks; after that the checklist's delivery item tracks the drill.
     $blockers = New-Object System.Collections.Generic.List[string]
-    if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
-        $blockers.Add("Branch protection evidence unavailable: $BranchProtectionUnavailableReason.")
-    } elseif ($RequiredStatusChecks -ne $true -and $RulesetCount -eq 0) {
-        # A ruleset that enforces the checks is enough; branch protection needn't as well.
-        $blockers.Add("Branch protection does not require status checks.")
-    }
+    if (-not $requiredChecksEnabled) {
+        if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
+            $blockers.Add("Branch protection evidence unavailable: $BranchProtectionUnavailableReason.")
+        } else {
+            $blockers.Add("Branch protection does not require status checks.")
+        }
 
-    if (-not $RulesetsAvailable -and -not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
-        $blockers.Add("Repository ruleset evidence unavailable: $RulesetsUnavailableReason.")
-    } elseif ($RulesetCount -eq 0 -and $RequiredStatusChecks -ne $true) {
-        $blockers.Add("No repository rulesets are configured.")
-    }
+        if (-not $RulesetsAvailable -and -not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
+            $blockers.Add("Repository ruleset evidence unavailable: $RulesetsUnavailableReason.")
+        } else {
+            $blockers.Add("No active repository ruleset requires status checks on main.")
+        }
 
-    # A blocker only until the checks are required; after that the checklist's delivery
-    # item tracks the drill.
-    if ($EnforceAdmins -eq $true -and -not $requiredChecksEnabled) {
-        $blockers.Add("Protected main enforces admins; a pull-request delivery path needs a live merge drill before required checks are enabled.")
+        if ($EnforceAdmins -eq $true) {
+            $blockers.Add("Protected main enforces admins; a pull-request delivery path needs a live merge drill before required checks are enabled.")
+        }
     }
 
     $prDeliveryTransition = Get-PrDeliveryTransitionChecklist `
@@ -740,21 +744,52 @@ function Get-GeneratedPrWriteEvidence {
 
 function Get-GeneratedPrCredentialDecision {
     param(
-        [Nullable[bool]]$ActionsPullRequestCreationAllowed
+        [Nullable[bool]]$ActionsPullRequestCreationAllowed,
+        # Candidate required-check workflows exist; without them no generated PR runs.
+        [bool]$WorkflowsPresent
     )
 
     $settingAllowsGeneratedPr = Get-NullableBool $ActionsPullRequestCreationAllowed
+    if (-not $WorkflowsPresent) {
+        return [ordered]@{
+            status = "not-applicable"
+            selectedPath = "manual-local-validation"
+            rejectedPath = "hosted-generated-pr-delivery"
+            rationale = "No candidate workflows exist, so generated PR helpers stay offline previews and need no repository Actions PR creation setting."
+            requiresRepositorySetting = $false
+            requiresNewSecret = $false
+            currentSettingAllowsGeneratedPr = $settingAllowsGeneratedPr
+            decisionDocumentPath = "decision:local-validation-only"
+            activationCommand = ""
+            nextAction = "Use scripts/validate-local.ps1 and scripts/render-profile-smoke.ps1 before committing generated artifacts locally."
+        }
+    }
+    if ($settingAllowsGeneratedPr -eq $true) {
+        return [ordered]@{
+            status = "setting-enabled"
+            selectedPath = "enable-actions-pr-creation"
+            rejectedPath = "approved-github-app-or-pat-token"
+            rationale = "Candidate workflows exist and the repository lets GitHub Actions create pull requests, so a generated PR can use GITHUB_TOKEN without a new secret."
+            requiresRepositorySetting = $true
+            requiresNewSecret = $false
+            currentSettingAllowsGeneratedPr = $settingAllowsGeneratedPr
+            decisionDocumentPath = "setting:actions-can-create-pull-requests"
+            activationCommand = ""
+            nextAction = "Run a routine maintenance PR merge drill with a generated pull request."
+        }
+    }
+    $settingText = if ($null -eq $settingAllowsGeneratedPr) { "whether GitHub Actions may create pull requests couldn't be read" } else { "GitHub Actions may not create pull requests" }
     return [ordered]@{
-        status = "not-applicable"
+        status = "needs-decision"
         selectedPath = "manual-local-validation"
         rejectedPath = "hosted-generated-pr-delivery"
-        rationale = "Hosted workflows are absent by policy; generated PR helpers are retained only as offline/manual previews and do not need repository Actions PR creation settings."
-        requiresRepositorySetting = $false
+        rationale = "Candidate workflows exist, but $settingText, so generated pull requests need that setting or a dedicated credential; until then maintenance PRs are opened by hand."
+        requiresRepositorySetting = $true
         requiresNewSecret = $false
         currentSettingAllowsGeneratedPr = $settingAllowsGeneratedPr
-        decisionDocumentPath = "decision:local-validation-only"
+        decisionDocumentPath = "decision:pending"
         activationCommand = ""
-        nextAction = "Use scripts/validate-local.ps1 and scripts/render-profile-smoke.ps1 before committing generated artifacts locally."
+        nextAction = "Allow GitHub Actions to create pull requests, or record a decision to use a GitHub App or token."
     }
 }
 
@@ -890,7 +925,7 @@ function Get-PrDeliveryTransitionChecklist {
                 -Id "recent-check-run-proof" `
                 -Status "needs-live-validation" `
                 -Summary "Each required check must have a current proof path before enforcement." `
-                -Evidence "No hosted candidate-check proof is tracked while the repository is local-validation-only." `
+                -Evidence "No recent check-run proof for the candidate checks is recorded yet." `
                 -NextAction "Define a new local or hosted proof path before making any check required."))
 
     # This checklist only exists when candidate workflows do, so its text describes the
@@ -1041,7 +1076,7 @@ function Get-ReviewPolicyPosture {
         $statusCheckText = if ($requiredStatusChecksEnabled) {
             "Branch protection requires status checks"
         } else {
-            "Branch protection does not require status checks, which matches the local-only validation posture"
+            "Branch protection does not require status checks"
         }
         "$statusCheckText, and it does not require pull request or code-owner reviews. CODEOWNERS is present for routing; review enforcement should wait for an independent reviewer or team model."
     } elseif ($status -eq "enforced-pr-review") {
@@ -1084,6 +1119,9 @@ function Test-RepositoryCommunityBaseline {
         [object]$CommunityProfile,
         [object]$BranchProtection,
         [object[]]$Rulesets = @(),
+        # Active rules on the default branch (GET .../rules/branches/main), from every enabled
+        # ruleset; the ruleset list alone can't say whether any of them requires checks.
+        [object[]]$BranchRules = @(),
         [object]$ActionsWorkflowPermissions,
         [object]$Languages,
         [object[]]$LocalFiles = @(),
@@ -1097,6 +1135,7 @@ function Test-RepositoryCommunityBaseline {
         [string]$CommunityUnavailableReason,
         [string]$BranchProtectionUnavailableReason,
         [string]$RulesetsUnavailableReason,
+        [string]$BranchRulesUnavailableReason,
         [string]$ActionsWorkflowPermissionsUnavailableReason,
         [string]$LanguagesUnavailableReason,
         [string]$ScorecardAlertsUnavailableReason,
@@ -1136,6 +1175,12 @@ function Test-RepositoryCommunityBaseline {
     $communityAvailable = ($null -ne $CommunityProfile -and [string]::IsNullOrWhiteSpace($CommunityUnavailableReason))
     $branchProtectionAvailable = ($null -ne $BranchProtection -and [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason))
     $rulesetsAvailable = ($null -ne $Rulesets -and [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason))
+    $branchRulesAvailable = ($null -ne $BranchRules -and [string]::IsNullOrWhiteSpace($BranchRulesUnavailableReason))
+    $rulesetRequiresStatusChecks = if ($branchRulesAvailable) {
+        [bool](@($BranchRules | Where-Object { [string](Get-MemberValue -Object $_ -Name 'type') -eq 'required_status_checks' }).Count -gt 0)
+    } else {
+        $null
+    }
     $actionsWorkflowPermissionsAvailable = ($null -ne $ActionsWorkflowPermissions -and [string]::IsNullOrWhiteSpace($ActionsWorkflowPermissionsUnavailableReason))
     $languagesAvailable = ($null -ne $Languages -and [string]::IsNullOrWhiteSpace($LanguagesUnavailableReason))
     if ($null -eq $CodeScanningLocalEvidence) {
@@ -1243,17 +1288,20 @@ function Test-RepositoryCommunityBaseline {
             $repoWarnings.Add("GitHub Actions workflow permissions do not allow GITHUB_TOKEN to create pull requests.")
         }
     }
-    $generatedPrCredentialDecision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed
+    $generatedPrCredentialDecision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed -WorkflowsPresent (@($RequiredStatusCheckCandidates).Count -gt 0)
 
+    # Ruleset evidence needs both the list and the branch's active rules.
+    $rulesetEvidenceUnavailableReason = if (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) { $RulesetsUnavailableReason } else { $BranchRulesUnavailableReason }
     $requiredCheckReadiness = Get-RequiredCheckReadiness `
         -BranchProtectionAvailable $branchProtectionAvailable `
-        -RulesetsAvailable $rulesetsAvailable `
+        -RulesetsAvailable ($rulesetsAvailable -and $branchRulesAvailable) `
         -RequiredStatusChecks $requiredStatusChecks `
         -EnforceAdmins $enforceAdmins `
         -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed `
         -RulesetCount $rulesetCount `
+        -RulesetRequiresStatusChecks $rulesetRequiresStatusChecks `
         -BranchProtectionUnavailableReason $BranchProtectionUnavailableReason `
-        -RulesetsUnavailableReason $RulesetsUnavailableReason
+        -RulesetsUnavailableReason $rulesetEvidenceUnavailableReason
 
     $reviewPolicyPosture = Get-ReviewPolicyPosture `
         -BranchProtectionAvailable $branchProtectionAvailable `
@@ -1266,7 +1314,9 @@ function Test-RepositoryCommunityBaseline {
 
     $languageNames = @()
     if ($languagesAvailable) {
-        $languageNames = @($Languages.PSObject.Properties.Name | Sort-Object)
+        # ForEach-Object, not .Name: a repository with no detected languages answers {}, and
+        # under strict mode member access on the empty property list throws.
+        $languageNames = @($Languages.PSObject.Properties | ForEach-Object { $_.Name } | Sort-Object)
     }
     $detectedCodeQlSupportedLanguages = @($languageNames | Where-Object { $CodeQlSupportedLanguages -contains $_ } | Sort-Object)
     $hasCodeqlSupportedLanguage = $detectedCodeQlSupportedLanguages.Count -gt 0
@@ -1429,6 +1479,9 @@ function Test-RepositoryCommunityBaseline {
             available = [bool]$rulesetsAvailable
             unavailableReason = if ($rulesetsAvailable) { $null } else { $RulesetsUnavailableReason }
             count = [int]$rulesetCount
+            # True only when an active ruleset puts required status checks on main.
+            requiresStatusChecks = $rulesetRequiresStatusChecks
+            branchRulesUnavailableReason = if ($branchRulesAvailable) { $null } else { $BranchRulesUnavailableReason }
         }
         actionsWorkflowPermissions = [ordered]@{
             available = [bool]$actionsWorkflowPermissionsAvailable
@@ -1436,7 +1489,15 @@ function Test-RepositoryCommunityBaseline {
             defaultWorkflowPermissions = if ($actionsWorkflowPermissionsAvailable) { $defaultWorkflowPermissions } else { $null }
             canApprovePullRequestReviews = $canApprovePullRequestReviews
             generatedPrCreationAllowed = if ($actionsWorkflowPermissionsAvailable) { $generatedPrCreationAllowed } else { $null }
-            recommendation = "local-validation-only"
+            recommendation = if (@($RequiredStatusCheckCandidates).Count -eq 0) {
+                "local-validation-only"
+            } elseif (-not $actionsWorkflowPermissionsAvailable) {
+                "verify-actions-workflow-permissions"
+            } elseif ($generatedPrCreationAllowed) {
+                "ready-for-generated-pr-delivery"
+            } else {
+                "enable-actions-pr-creation-or-use-approved-automation-token"
+            }
             generatedPrCredentialDecision = $generatedPrCredentialDecision
         }
         requiredCheckReadiness = $requiredCheckReadiness
@@ -1484,6 +1545,7 @@ function Get-RepositoryCommunityBaseline {
             -CommunityUnavailableReason "offline" `
             -BranchProtectionUnavailableReason "offline" `
             -RulesetsUnavailableReason "offline" `
+            -BranchRulesUnavailableReason "offline" `
             -ActionsWorkflowPermissionsUnavailableReason "offline" `
             -LanguagesUnavailableReason "offline" `
             -ScorecardAlertsUnavailableReason "offline" `
@@ -1496,6 +1558,7 @@ function Get-RepositoryCommunityBaseline {
             -CommunityUnavailableReason "gh authentication unavailable" `
             -BranchProtectionUnavailableReason "gh authentication unavailable" `
             -RulesetsUnavailableReason "gh authentication unavailable" `
+            -BranchRulesUnavailableReason "gh authentication unavailable" `
             -ActionsWorkflowPermissionsUnavailableReason "gh authentication unavailable" `
             -LanguagesUnavailableReason "gh authentication unavailable" `
             -ScorecardAlertsUnavailableReason "gh authentication unavailable" `
@@ -1506,6 +1569,7 @@ function Get-RepositoryCommunityBaseline {
     $communityResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/community/profile"
     $branchProtectionResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/branches/main/protection"
     $rulesetsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rulesets"
+    $branchRulesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rules/branches/main"
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
     $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
@@ -1522,10 +1586,16 @@ function Get-RepositoryCommunityBaseline {
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
     $branchProtectionValue = if ($branchProtectionResult["ok"]) { $branchProtectionResult["value"] } else { $null }
-    $rulesetsValue = if ($rulesetsResult["ok"]) { @($rulesetsResult["value"]) } else { @() }
+    # Assigned inside the branch: an if statement sends an array's items down the pipeline,
+    # so "if (...) { @() }" hands $null to the assignment and an empty list read as missing.
+    $rulesetsValue = @()
+    if ($rulesetsResult["ok"]) { $rulesetsValue = @(Get-JsonArrayItems $rulesetsResult["value"]) }
+    $branchRulesValue = @()
+    if ($branchRulesResult["ok"]) { $branchRulesValue = @(Get-JsonArrayItems $branchRulesResult["value"]) }
     $actionsWorkflowPermissionsValue = if ($actionsWorkflowPermissionsResult["ok"]) { $actionsWorkflowPermissionsResult["value"] } else { $null }
     $languagesValue = if ($languagesResult["ok"]) { $languagesResult["value"] } else { $null }
-    $scorecardAlertsValue = if ($scorecardAlertsResult["ok"]) { @($scorecardAlertsResult["value"]) } else { $null }
+    $scorecardAlertsValue = $null
+    if ($scorecardAlertsResult["ok"]) { $scorecardAlertsValue = @(Get-JsonArrayItems $scorecardAlertsResult["value"]) }
     $scorecardScoreValue = if ($scorecardScoreResult["ok"]) { $scorecardScoreResult["value"] } else { $null }
     $dependabotSecurityUpdatesValue = if ($dependabotSecurityUpdatesResult["ok"]) {
         $automatedFixesEnabled = Get-MemberValue -Object $dependabotSecurityUpdatesResult["value"] -Name "enabled"
@@ -1547,6 +1617,7 @@ function Get-RepositoryCommunityBaseline {
         -CommunityProfile $communityValue `
         -BranchProtection $branchProtectionValue `
         -Rulesets $rulesetsValue `
+        -BranchRules $branchRulesValue `
         -ActionsWorkflowPermissions $actionsWorkflowPermissionsValue `
         -Languages $languagesValue `
         -LocalFiles $localFiles `
@@ -1559,6 +1630,7 @@ function Get-RepositoryCommunityBaseline {
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
         -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
         -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
+        -BranchRulesUnavailableReason $(if ($branchRulesResult["ok"]) { $null } else { $branchRulesResult["error"] }) `
         -ActionsWorkflowPermissionsUnavailableReason $(if ($actionsWorkflowPermissionsResult["ok"]) { $null } else { $actionsWorkflowPermissionsResult["error"] }) `
         -LanguagesUnavailableReason $(if ($languagesResult["ok"]) { $null } else { $languagesResult["error"] }) `
         -ScorecardAlertsUnavailableReason $(if ($scorecardAlertsResult["ok"]) { $null } else { $scorecardAlertsResult["error"] }) `

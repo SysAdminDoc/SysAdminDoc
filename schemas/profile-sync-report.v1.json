@@ -3373,7 +3373,9 @@
       "required": [
         "available",
         "unavailableReason",
-        "count"
+        "count",
+        "requiresStatusChecks",
+        "branchRulesUnavailableReason"
       ],
       "properties": {
         "available": {
@@ -3384,6 +3386,12 @@
         },
         "count": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "requiresStatusChecks": {
+          "$ref": "#/$defs/nullableBoolean"
+        },
+        "branchRulesUnavailableReason": {
+          "$ref": "#/$defs/nullableString"
         }
       }
     },
@@ -3449,6 +3457,7 @@
           "type": "string",
           "enum": [
             "decision-recorded",
+            "needs-decision",
             "not-applicable",
             "setting-enabled"
           ]
