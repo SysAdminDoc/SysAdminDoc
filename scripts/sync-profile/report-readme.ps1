@@ -836,6 +836,8 @@ function New-RenderedProfileSmokeSummary {
             detailsKeyboardSanityPassed = $null
             tableCount = 0
             tableOverflowCount = 0
+            # Null, not "none": the smoke did not run, so no table was seen at all.
+            tableOverflowDisposition = $null
             linkCount = 0
             linkLabelCount = 0
             uniqueLinkLabelCount = 0

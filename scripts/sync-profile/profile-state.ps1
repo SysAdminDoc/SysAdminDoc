@@ -327,15 +327,16 @@ function Test-ProfileState {
     # is broken for every visitor regardless of connectivity.
     $missingHeaderAnchors = @(Test-ReadmeHeaderAnchor -ExpectedReadme $ExpectedReadme)
     foreach ($anchor in $missingHeaderAnchors) {
+        # Same shape as a probe failure row (schema: linkValidationRow). Every row in this list
+        # is fatal, so the extra group/fatal fields the anchor rows used to carry made the
+        # report fail its own schema on top of failing linkFailures.
         $linkFailures += [ordered]@{
             repo = $Owner
             type = "readme-header-anchor"
             url = "#$($anchor.fragment)"
-            group = "readme-header"
+            host = $null
             status = $null
             error = [string]$anchor.reason
-            host = $null
-            fatal = $true
         }
     }
     # A bare targetCount of 0 reads like "probed everything, found nothing wrong". Record the

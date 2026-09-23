@@ -256,6 +256,9 @@ function Test-MemberExists {
 }
 
 function Get-SortedReportRows {
+    # Returns the rows through the pipeline, so a caller that needs a list, such as a report
+    # field typed as an array, wraps the call in @(); otherwise no rows become $null and one
+    # row becomes a bare object.
     param(
         [object[]]$Rows,
         [string[]]$Keys

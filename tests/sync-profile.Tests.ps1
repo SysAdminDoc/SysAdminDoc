@@ -274,6 +274,60 @@ Describe 'Function library loads via the dot-source test seam' {
     }
 }
 
+Describe 'Sync report stays valid against its own schema for small catalogs' {
+    BeforeAll {
+        $script:SmallCatalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $script:SmallReadme = New-Readme -Catalog $script:SmallCatalog -Repos @()
+        $script:SmallProjects = New-ProjectsExportJson -Catalog $script:SmallCatalog -Repos @()
+
+        function script:Invoke-SmallCatalogState {
+            param([string]$Readme = $script:SmallReadme)
+            # A missing smoke artifact, so the not-run stub is what gets validated even on a
+            # machine that has a local rendered-smoke run.
+            Test-ProfileState -Catalog $script:SmallCatalog -Repos @() -ExpectedReadme $Readme -ExpectedProjects $script:SmallProjects `
+                -ExpectedAssets @{} -CurrentReadme $Readme -CurrentProjects $script:SmallProjects -CurrentAssets @{} -SkipLinkValidation `
+                -SmokeReportPath (Join-Path $TestDrive 'no-smoke-run.json')
+        }
+    }
+
+    It 'validates the report built from the fixture catalog with no repositories' {
+        $result = script:Invoke-SmallCatalogState
+        $errors = @($result.Report.schemaValidation.report.errors | ForEach-Object { '{0} {1}' -f $_.instanceLocation, $_.message })
+
+        $errors | Should -BeNullOrEmpty
+        $result.Report.schemaValidation.report.valid | Should -BeTrue
+        $result.Report.renderedProfileSmoke.status | Should -Be 'not-run'
+        $result.Report.renderedProfileSmoke.Contains('tableOverflowDisposition') | Should -BeTrue
+        $result.Report.renderedProfileSmoke.tableOverflowDisposition | Should -BeNullOrEmpty
+        # The fixture has exactly one suppressed row and no license data: the two list
+        # shapes a PowerShell return used to unroll.
+        ,$result.Report.staleProjectReview.suppressionReasonCounts | Should -BeOfType [System.Array]
+        @($result.Report.staleProjectReview.suppressionReasonCounts) | Should -HaveCount 1
+        ,$result.Report.projectLicenseMetadata.licenseCounts | Should -BeOfType [System.Array]
+        @($result.Report.projectLicenseMetadata.licenseCounts) | Should -HaveCount 0
+    }
+
+    It 'still validates when a header anchor is dead' {
+        $planted = '<p align="center"><a href="#section-that-does-not-exist">Go</a></p>' + "`n" + $script:SmallReadme
+        $result = script:Invoke-SmallCatalogState -Readme $planted
+
+        [bool]$result.FailureConditions['linkFailures'] | Should -BeTrue
+        $row = @($result.Report.linkValidationFailures | Where-Object { $_.type -eq 'readme-header-anchor' })[0]
+        @($row.Keys) | Should -Be @('repo', 'type', 'url', 'host', 'status', 'error')
+        $result.Report.schemaValidation.report.valid | Should -BeTrue -Because 'a dead link fails linkFailures, not the report schema'
+    }
+
+    It 'keeps a single license count a list' {
+        $entry = New-TestEntry -Repo 'Licensed' -Category 'powershell'
+        $meta = New-TestRepoMeta -Name 'Licensed' -LicenseInfo ([pscustomobject]@{ spdxId = 'MIT'; key = 'mit'; name = 'MIT License' })
+        $result = Test-ProjectLicenseMetadata -Entries @($entry) -RepoLookup (ConvertTo-Lookup @($meta))
+
+        ,$result.licenseCounts | Should -BeOfType [System.Array]
+        @($result.licenseCounts) | Should -HaveCount 1
+        ($result | ConvertTo-Json -Depth 5) | Should -Match '"licenseCounts":\s*\['
+    }
+}
+
 Describe 'The suite runs the generator offline' {
     It 'reads the offline switch only through $script:Offline in the library' {
         $script:Offline | Should -BeTrue

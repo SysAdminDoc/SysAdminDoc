@@ -6116,11 +6116,15 @@
           }
         },
         "tableOverflowDisposition": {
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "enum": [
             "none",
             "page-overflow",
-            "contained-table-scroll"
+            "contained-table-scroll",
+            null
           ]
         }
       }

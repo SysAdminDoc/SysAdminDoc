@@ -832,7 +832,8 @@ function Test-ProjectLicenseMetadata {
         intentionalExceptionCount = [int]$intentionalExceptionCount
         unresolvedUnknownCount = [int]$unresolvedUnknownCount
         warningCount = $missingLicenses.Count + $unresolvedUnknownCount
-        licenseCounts = Get-SortedReportRows -Rows @($licenseCounts.Values) -Keys @("licenseSpdxId", "licenseKey", "licenseName")
+        # @(): the function's return unrolls a zero- or one-row result to $null or a bare row.
+        licenseCounts = @(Get-SortedReportRows -Rows @($licenseCounts.Values) -Keys @("licenseSpdxId", "licenseKey", "licenseName"))
         missingLicenses = $missingLicenses.ToArray()
         unknownLicenses = $unknownLicenses.ToArray()
     }
@@ -1107,7 +1108,8 @@ function Test-StaleProjectReview {
         suppressedCount = [int]$suppressedCount
         warningCount = [int]$staleProjectCount
         statusCounts = @($statusCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ kind = [string]$_.Name; count = [int]$_.Value } })
-        suppressionReasonCounts = Get-SortedReportRows -Rows @($suppressionCounts.Values) -Keys @("reasonCode", "visibilityClass", "publicReason")
+        # @(): the function's return unrolls a zero- or one-row result to $null or a bare row.
+        suppressionReasonCounts = @(Get-SortedReportRows -Rows @($suppressionCounts.Values) -Keys @("reasonCode", "visibilityClass", "publicReason"))
         rows = $rows.ToArray()
         note = "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
     }
