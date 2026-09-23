@@ -30,7 +30,8 @@ function Test-SafeGitHubName {
     param([string]$Name)
 
     if ([string]::IsNullOrWhiteSpace($Name)) { return $false }
-    return $Name -match '^[A-Za-z0-9._-]+$'
+    # \z, not $: in .NET $ also matches before a final newline, so "WinTool`n" would pass.
+    return $Name -cmatch '^[A-Za-z0-9._-]+\z'
 }
 
 function ConvertTo-IsoText {

@@ -204,8 +204,8 @@ function Get-ActionLink {
     $action = Get-PrimaryAction $Entry $Meta $Category
     $label = [string]$action["label"]
     # Live and userscript URLs come from the catalog. Percent-encode what would end or
-    # break a Markdown link destination; a well-formed URL is unchanged.
-    $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E')
+    # break a Markdown link destination or its table cell; a well-formed URL is unchanged.
+    $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
     if ($action["kind"] -eq "release") {
         return "[<kbd>&#11015;&nbsp;$label</kbd>]($url)"
     }

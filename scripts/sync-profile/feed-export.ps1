@@ -1247,7 +1247,7 @@ function Test-StableProjectEntityIds {
         $id = [string](Get-MemberValue -Object $project -Name "id")
         if ([string]::IsNullOrWhiteSpace($id)) {
             $missingIds.Add([ordered]@{ repo = $label; index = $projectIndex })
-        } elseif ($id -notmatch '^[a-z0-9][a-z0-9-]{2,63}$') {
+        } elseif ($id -cnotmatch '^[a-z0-9][a-z0-9-]{2,63}\z') {
             $invalidIds.Add([ordered]@{ repo = $label; id = $id })
         } else {
             $idKey = $id.ToLowerInvariant()

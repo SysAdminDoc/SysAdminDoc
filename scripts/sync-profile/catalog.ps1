@@ -628,8 +628,9 @@ function Test-CatalogShape {
 
     $seenRepos = @{}
     $seenIds = @{}
-    # Public one-line text from the rows and the header, checked together below.
+    # Public one-line text and URLs from the rows and the header, checked together below.
     $publicTexts = New-Object System.Collections.Generic.List[object]
+    $publicUrls = New-Object System.Collections.Generic.List[object]
     foreach ($entry in @($Catalog.entries)) {
         $repo = [string]$entry.repo
         if ([string]::IsNullOrWhiteSpace($repo)) {
@@ -649,8 +650,9 @@ function Test-CatalogShape {
 
         $entryId = [string]$entry.id
         if (-not [string]::IsNullOrWhiteSpace($entryId)) {
-            if ($entryId -notmatch '^[a-z0-9][a-z0-9-]{2,63}$') {
-                $issues.Add([ordered]@{ repo = $repo; field = "id"; value = $entryId; reason = "id must match ^[a-z0-9][a-z0-9-]{2,63}$" })
+            # Case-sensitive and anchored at the true end, like the schema's pattern.
+            if ($entryId -cnotmatch '^[a-z0-9][a-z0-9-]{2,63}\z') {
+                $issues.Add([ordered]@{ repo = $repo; field = "id"; value = $entryId; reason = "id must be 3 to 64 lowercase letters, digits or hyphens, starting with a letter or digit" })
             } else {
                 $idKey = $entryId.ToLowerInvariant()
                 if ($seenIds.ContainsKey($idKey)) {
@@ -694,8 +696,15 @@ function Test-CatalogShape {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "downloadKind"; value = $downloadKind; reason = "unknown downloadKind" })
         }
 
-        foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
+        foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'language', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
             $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field] })
+        }
+        # The action link's destination in the README table row. Plain http passes here
+        # because Test-CatalogUrlSchemes already fails it under its own condition.
+        foreach ($field in @('liveUrl', 'userscriptUrl')) {
+            if (-not [string]::IsNullOrEmpty([string]$entry[$field])) {
+                $publicUrls.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; url = [string]$entry[$field]; scheme = 'https?' })
+            }
         }
 
         # \z, not $: in .NET $ also matches before a final newline, which would pass
@@ -724,7 +733,6 @@ function Test-CatalogShape {
 
     # The README header's text and links, when the catalog has a profileHeader block.
     $header = Get-MemberValue -Object $Catalog -Name 'profileHeader'
-    $headerUrls = New-Object System.Collections.Generic.List[object]
     if ($null -ne $header) {
         foreach ($field in @('tagline', 'heading', 'about')) {
             $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.$field"; text = [string](Get-MemberValue -Object $header -Name $field) })
@@ -737,14 +745,14 @@ function Test-CatalogShape {
         $index = 0
         foreach ($link in @(Get-JsonArrayItems (Get-MemberValue -Object $header -Name 'links'))) {
             $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.links[$index].text"; text = [string](Get-MemberValue -Object $link -Name 'text') })
-            $headerUrls.Add([ordered]@{ field = "profileHeader.links[$index].url"; url = [string](Get-MemberValue -Object $link -Name 'url') })
+            $publicUrls.Add([ordered]@{ repo = $null; field = "profileHeader.links[$index].url"; url = [string](Get-MemberValue -Object $link -Name 'url'); scheme = 'https' })
             $index++
         }
         $support = Get-MemberValue -Object $header -Name 'support'
         if ($null -ne $support) {
             $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.support.imageAlt"; text = [string](Get-MemberValue -Object $support -Name 'imageAlt') })
             foreach ($field in @('url', 'imageUrl')) {
-                $headerUrls.Add([ordered]@{ field = "profileHeader.support.$field"; url = [string](Get-MemberValue -Object $support -Name $field) })
+                $publicUrls.Add([ordered]@{ repo = $null; field = "profileHeader.support.$field"; url = [string](Get-MemberValue -Object $support -Name $field); scheme = 'https' })
             }
         }
     }
@@ -780,11 +788,15 @@ function Test-CatalogShape {
         }
     }
 
-    # Header URLs sit in href and src attributes as written, so a quote, angle bracket,
-    # backslash or space would end the attribute or the tag.
-    foreach ($headerUrl in $headerUrls) {
-        if ([string]$headerUrl.url -cnotmatch '^https://[!#-&(-;=?-\[\]-~]+\z') {
-            $issues.Add([ordered]@{ repo = $null; field = $headerUrl.field; value = [string]$headerUrl.url; reason = "$($headerUrl.field) must be an https URL of printable ASCII with no quote, angle bracket, backslash or space" })
+    # Catalog URLs land in README link destinations, table cells and HTML attributes as
+    # written, so a line break, space, quote, angle bracket, backslash or pipe could end
+    # the attribute or tag, or split the table row. The value in the issue is the URL
+    # with any line break shown as a space, so the issue itself stays one line. Header
+    # URLs have no scheme check of their own, so they must be https here.
+    foreach ($publicUrl in $publicUrls) {
+        if ([string]$publicUrl.url -cnotmatch ('^' + $publicUrl.scheme + '://[!#-&(-;=?-\[\]-{}~]+\z')) {
+            $schemeText = if ($publicUrl.scheme -eq 'https') { 'an https' } else { 'an http or https' }
+            $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = ([regex]::Replace([string]$publicUrl.url, '[\p{Cc}  ]', ' ')); reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
         }
     }
 

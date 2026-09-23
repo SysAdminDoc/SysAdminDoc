@@ -4745,6 +4745,92 @@ Describe 'Update-Header idempotency' {
     }
 }
 
+Describe 'Catalog URLs and names cannot break a README row' {
+    It 'refuses a <Field> that could <Case>' -ForEach @(
+        @{ Field = 'liveUrl'; Case = 'start a new table row'; Url = "https://sysadmindoc.github.io/demo`n| [**Injected**](https://evil.example/) | planted row | x |" }
+        @{ Field = 'liveUrl'; Case = 'split its table cell'; Url = 'https://example.test/a|b' }
+        @{ Field = 'userscriptUrl'; Case = 'leave its link destination'; Url = 'https://example.test/x.user.js) [Evil](https://evil.example/' }
+        @{ Field = 'userscriptUrl'; Case = 'end an HTML attribute'; Url = 'https://example.test/x".user.js' }
+    ) {
+        $entry = New-TestEntry -Repo 'UrlTool' -Category 'web'
+        $entry[$Field] = $Url
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq $Field })
+
+        $issues | Should -HaveCount 1
+        $issues[0].repo | Should -Be 'UrlTool'
+        $issues[0].value | Should -Not -Match '[\r\n]' -Because 'the issue itself stays on one line'
+    }
+
+    It 'leaves plain http to the URL scheme check, so each gate has one reason' {
+        $entry = New-TestEntry -Repo 'UrlTool' -Category 'web'
+        $entry.liveUrl = 'http://example.test/app/'
+
+        @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'liveUrl' }) | Should -BeNullOrEmpty
+        @(Test-CatalogUrlSchemes -Entries @($entry)) | Should -HaveCount 1
+    }
+
+    It 'accepts every action URL in the published catalog' {
+        $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+
+        @((Test-CatalogShape -Catalog $catalog).issues | Where-Object { $_.field -in @('liveUrl', 'userscriptUrl') }) | Should -BeNullOrEmpty
+    }
+
+    It 'percent-encodes a pipe and a backslash in an action link' {
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $entry.liveUrl = 'https://example.test/a|b\c'
+
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%7Cb%5Cc)'
+    }
+
+    It 'gives language the one-line check' {
+        $entry = New-TestEntry -Repo 'LangTool' -Category 'powershell'
+        $entry.language = "C#`nEvil" + [char]0x202E
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'language' })
+
+        $issues | Should -HaveCount 1
+        $issues[0].value | Should -Be 'U+000A'
+    }
+
+    It 'ends repository names and ids at the true end of text' {
+        Test-SafeGitHubName -Name "WinTool`n" | Should -BeFalse
+        Test-SafeGitHubName -Name 'WinTool' | Should -BeTrue
+        $entry = New-TestEntry -Repo 'IdTool' -Category 'powershell'
+        foreach ($id in @("id-tool`n", 'ID-TOOL')) {
+            $entry.id = $id
+            @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'id' }) | Should -HaveCount 1 -Because "'$id' is not a valid id"
+        }
+        $entry.id = 'id-tool'
+        @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'id' }) | Should -BeNullOrEmpty
+    }
+
+    It 'holds names and catalog URLs to the same shapes in the catalog schema' {
+        $payload = ConvertFrom-JsonPreservingArrays -Json ([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'data/profile-catalog.json')))
+        $entry = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'entries'))[0]
+        Set-MemberValue -Object $entry -Name 'repo' -Value "WinTool`n"
+        Set-MemberValue -Object $entry -Name 'liveUrl' -Value 'https://example.test/a|b'
+
+        $locations = @((Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-catalog.v1.json').errors | ForEach-Object { $_.instanceLocation })
+
+        $locations | Should -Contain '/entries/0/repo'
+        $locations | Should -Contain '/entries/0/liveUrl'
+    }
+
+    It 'holds the feed''s branch to the catalog''s branch shape' {
+        # The branch in the feed can come from GitHub's default branch, which the catalog
+        # check never sees; run.ps1 passes it to git clone -b.
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = ConvertFrom-JsonPreservingArrays -Json (New-ProjectsExportJson -Catalog $cat -Repos @())
+        $project = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'projects'))[0]
+        Set-MemberValue -Object $project -Name 'branch' -Value 'x$(Write-Output INJECTED)'
+
+        $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
+
+        @($result.errors | Where-Object { $_.instanceLocation -eq '/projects/0/branch' }) | Should -HaveCount 1
+    }
+}
+
 Describe 'Profile header comes from catalog data' {
     It 'renders the tagline, languages, about text, links and support button from the catalog' {
         $result = (Update-Header -Header (New-TestProfileHeader) -CategorySlugs @('powershell')) -replace "`r`n", "`n"
@@ -8997,6 +9083,21 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         # A duplicate catalog row is also a duplicate feed row: same repo name, same id.
         script:Assert-ConditionNewlyFired -Result $result -Condition 'catalogShape' -AlsoFires @('portfolioCompatibility', 'stableEntityIds')
         @($result.Report.catalogShape.issues | Where-Object { $_.reason -match 'duplicate' }).Count | Should -BeGreaterThan 0
+    }
+
+    It 'fires catalogShape on a liveUrl that plants a README table row' {
+        # The plant from the review of e13349f, which fired nothing at the time.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $web = @($catalog.entries | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.liveUrl) })[0]
+        $web.liveUrl = [string]$web.liveUrl + "`n| [**Injected**](https://evil.example/) | planted row | x |"
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        # The catalog schema's URL pattern refuses the same value.
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'catalogShape' -AlsoFires @('schemaValidation')
+        @($result.Report.catalogShape.issues | Where-Object { $_.field -eq 'liveUrl' }) | Should -HaveCount 1
+        @($result.Report.schemaValidation.catalog.errors | Where-Object { $_.instanceLocation -like '/entries/*/liveUrl' }) | Should -HaveCount 1
     }
 
     It 'fires catalogShape alone on a title with a bidi override' {
