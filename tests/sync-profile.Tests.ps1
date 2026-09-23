@@ -5716,6 +5716,9 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
 
             $summary | Should -Match 'Generated Artifact Drift'
             $summary | Should -Match 'Remediation: `pwsh -NoLogo -NoProfile -File ./scripts/sync-profile[.]ps1 -Write`'
+            $summary | Should -Match '\| Section enforcement \| \d+ blocking, \d+ advisory by policy, \d+ pending decision \|'
+            $summary | Should -Match '#### Pending Enforcement Decisions'
+            $summary | Should -Match '\| userscriptInstallTrust \| Should a userscript'
             $summary | Should -Match 'README[.]md'
             $summary | Should -Match ('a' * 64)
             $summary | Should -Match ('b' * 64)
@@ -7435,6 +7438,69 @@ Describe 'Pester local validation command' {
         $script:SyncProfileScript | Should -Match 'validate-local[.]ps1 -Pester6Compatibility'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
+    }
+}
+
+Describe 'Report section enforcement declarations' {
+    BeforeAll {
+        $script:EnforcementSchema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        $conditionBlock = [regex]::Match($script:SyncProfileScript, '(?s)\$failureConditions = \[ordered\]@\{(?<body>.*?)\n    \}')
+        $script:EnforcementFailureConditions = @([regex]::Matches($conditionBlock.Groups['body'].Value, '(?m)^\s{8}(?<name>[A-Za-z][A-Za-z0-9]*)\s*=') |
+            ForEach-Object { $_.Groups['name'].Value })
+    }
+
+    It 'declares an enforcement for every report section and for nothing else' {
+        # The report schema's required list is the full set of top-level sections.
+        $sections = @($script:EnforcementSchema.required | Where-Object { $_ -ne 'sectionEnforcement' } | Sort-Object)
+        $declared = @($script:ReportSectionEnforcement.Keys | Sort-Object)
+
+        $sections.Count | Should -BeGreaterThan 50
+        @($sections | Where-Object { $_ -notin $declared }) | Should -BeNullOrEmpty -Because 'every section needs an explicit enforcement'
+        @($declared | Where-Object { $_ -notin $sections }) | Should -BeNullOrEmpty -Because 'a declaration must name a real section'
+        foreach ($section in $declared) {
+            $declaration = $script:ReportSectionEnforcement[$section]
+            $declaration.enforcement | Should -BeIn @('blocking', 'advisory-by-policy', 'advisory-pending-decision') -Because $section
+            if ($declaration.enforcement -eq 'blocking') {
+                $declaration.failureCondition | Should -BeIn $script:EnforcementFailureConditions -Because "$section must name the failure condition that makes it blocking"
+            } else {
+                [string]$declaration.reason | Should -Not -BeNullOrEmpty -Because "advisory section $section must say why it cannot fail a run"
+            }
+        }
+    }
+
+    It 'ties every blocking failure condition to exactly one blocking section' {
+        $script:EnforcementFailureConditions.Count | Should -BeGreaterThan 15
+        foreach ($condition in $script:EnforcementFailureConditions) {
+            $owners = @($script:ReportSectionEnforcement.Keys | Where-Object {
+                    $script:ReportSectionEnforcement[$_].enforcement -eq 'blocking' -and
+                    $script:ReportSectionEnforcement[$_].failureCondition -eq $condition
+                })
+            $owners | Should -HaveCount 1 -Because "failure condition $condition"
+        }
+    }
+
+    It 'records undeclared sections so the report schema rejects them' {
+        $result = New-ReportSectionEnforcement -Sections @('readmeInSync', 'userscriptInstallTrust', 'brandNewSection')
+
+        $result.sections['readmeInSync'] | Should -Be 'blocking'
+        $result.sections['brandNewSection'] | Should -Be 'undeclared'
+        @($result.pendingDecisions) | Should -HaveCount 1
+        $result.pendingDecisions[0].section | Should -Be 'userscriptInstallTrust'
+        $result.pendingDecisions[0].question | Should -Match '\?$'
+        $allowed = @($script:EnforcementSchema.'$defs'.sectionEnforcement.properties.sections.additionalProperties.enum)
+        $allowed | Should -Be @('blocking', 'advisory-by-policy', 'advisory-pending-decision')
+        $allowed | Should -Not -Contain 'undeclared'
+    }
+
+    It 'publishes the declarations in the committed report' {
+        $report = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
+        $reportSections = @($report.PSObject.Properties.Name | Where-Object { $_ -ne 'sectionEnforcement' } | Sort-Object)
+        $published = @($report.sectionEnforcement.sections.PSObject.Properties.Name | Sort-Object)
+
+        $published | Should -Be $reportSections
+        @($report.sectionEnforcement.sections.PSObject.Properties.Value) | Should -Not -Contain 'undeclared'
+        $pending = @($script:ReportSectionEnforcement.Keys | Where-Object { $script:ReportSectionEnforcement[$_].enforcement -eq 'advisory-pending-decision' })
+        @($report.sectionEnforcement.pendingDecisions | ForEach-Object section) | Should -Be $pending
     }
 }
 

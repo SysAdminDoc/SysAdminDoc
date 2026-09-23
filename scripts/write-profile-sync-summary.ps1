@@ -156,6 +156,17 @@ $readmeHeadingHierarchy = if ($report.PSObject.Properties.Name -contains 'readme
 $metadataFetch = if ($performance -and $performance.PSObject.Properties.Name -contains 'metadataFetch') { $performance.metadataFetch } else { $null }
 $artifactDriftDiagnostics = if ($report.PSObject.Properties.Name -contains 'artifactDriftDiagnostics') { $report.artifactDriftDiagnostics } else { $null }
 $validationCache = if ($performance -and $performance.PSObject.Properties.Name -contains 'cache') { $performance.cache } else { $null }
+$sectionEnforcement = if ($report.PSObject.Properties.Name -contains 'sectionEnforcement') { $report.sectionEnforcement } else { $null }
+$sectionEnforcementText = "unknown"
+$pendingEnforcementDecisions = @()
+if ($sectionEnforcement) {
+    $enforcementValues = @($sectionEnforcement.sections.PSObject.Properties | ForEach-Object { [string]$_.Value })
+    $sectionEnforcementText = "{0} blocking, {1} advisory by policy, {2} pending decision" -f `
+        @($enforcementValues | Where-Object { $_ -eq 'blocking' }).Count,
+        @($enforcementValues | Where-Object { $_ -eq 'advisory-by-policy' }).Count,
+        @($enforcementValues | Where-Object { $_ -eq 'advisory-pending-decision' }).Count
+    $pendingEnforcementDecisions = @($sectionEnforcement.pendingDecisions)
+}
 
 $missingTopicCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingTopicCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingTopics : $null))) } else { 0 }
 $missingDescriptionCount = if ($metadataHygiene) { [int](Get-ObjectPropertyOrDefault -Object $metadataHygiene -Name "missingDescriptionCount" -Default (Get-Count ($metadataHygiene ? $metadataHygiene.missingDescriptions : $null))) } else { 0 }
@@ -499,6 +510,7 @@ $summary = @"
 | Projects export in sync | $($report.projectsExportInSync) |
 | Profile assets in sync | $($report.profileAssetsInSync) |
 | Schema validation passed | $($report.schemaValidation.passed) |
+| Section enforcement | $sectionEnforcementText |
 | Profile version metadata valid | $($report.docVersionConsistency.passed) |
 | PowerShell runtime status | $runtimeStatus |
 | PowerShell runtime version | $runtimeVersion |
@@ -775,6 +787,21 @@ $summary = @"
 
 Report generated at $($report.generatedAt).
 "@
+
+if ($pendingEnforcementDecisions.Count -gt 0) {
+    $detailLines = New-Object System.Collections.Generic.List[string]
+    $detailLines.Add("")
+    $detailLines.Add("#### Pending Enforcement Decisions")
+    $detailLines.Add("")
+    $detailLines.Add("These sections warn but never fail a run, and nobody has decided yet whether they should.")
+    $detailLines.Add("")
+    $detailLines.Add("| Section | Open question |")
+    $detailLines.Add("| --- | --- |")
+    foreach ($decision in $pendingEnforcementDecisions) {
+        $detailLines.Add("| $(ConvertTo-MarkdownCell ([string]$decision.section)) | $(ConvertTo-MarkdownCell ([string]$decision.question)) |")
+    }
+    $summary = $summary.TrimEnd() + "`n" + ($detailLines -join "`n") + "`n"
+}
 
 if ($artifactDriftDiagnostics -and ($report.readmeInSync -ne $true -or $report.projectsExportInSync -ne $true -or $report.profileAssetsInSync -ne $true)) {
     $detailLines = New-Object System.Collections.Generic.List[string]

@@ -2,6 +2,107 @@
 # assembles reports/profile-sync-report.json, and decides the blocking failure
 # conditions. Dot-sourced by scripts/sync-profile.ps1.
 
+# Enforcement for every top-level report section, so a warning-only section reads as a
+# decision rather than an omission. "blocking" names the failure condition in
+# Test-ProfileState that fires for the section. "advisory-by-policy" is warning-only on
+# purpose, for the reason given. "advisory-pending-decision" carries integrity signal that
+# could reasonably fail a run; its reason is the question the owner still has to answer,
+# and it is published in the report.
+$script:ReportSectionEnforcement = [ordered]@{
+    schema = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Run metadata: the schema this report conforms to.' }
+    generatedAt = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Run metadata: when this report was written.' }
+    readmeInSync = [ordered]@{ enforcement = 'blocking'; failureCondition = 'readmeInSync' }
+    projectsExportInSync = [ordered]@{ enforcement = 'blocking'; failureCondition = 'projectsExportInSync' }
+    profileAssetsInSync = [ordered]@{ enforcement = 'blocking'; failureCondition = 'profileAssetsInSync' }
+    artifactDriftDiagnostics = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Explains the three sync gates; the gates decide.' }
+    profileAssetChecks = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Per-file rows behind profileAssetsInSync, which is the gate.' }
+    publicRepoCount = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Run metadata: public repositories seen.' }
+    catalogEntryCount = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Run metadata: catalog rows read.' }
+    includedReadmeCount = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Run metadata: rows rendered in the README.' }
+    provenance = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Run metadata: source commit, input hashes and metadata provider.' }
+    catalogShape = [ordered]@{ enforcement = 'blocking'; failureCondition = 'catalogShape' }
+    metadataHygiene = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Topic and description guidance. The check never edits repositories; -ApplyTopics is a separate allowlisted step.' }
+    projectLicenseMetadata = [ordered]@{ enforcement = 'advisory-pending-decision'; reason = 'Should a visitor-facing project with no recognizable license fail the run, or stay a review prompt?' }
+    forkParentDrift = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'A catalog row may continue a fork, so attribution drift is listed for review rather than failed.' }
+    staleProjectReview = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'A maintenance prompt: an old push date is not a defect in the profile.' }
+    releaseAssetDrift = [ordered]@{ enforcement = 'advisory-pending-decision'; reason = 'Should a download label that no longer matches the latest release''s assets fail the run?' }
+    branchTipProvenance = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Install snippets follow the branch head by design; tip SHAs are evidence, and a slow API must not fail the profile.' }
+    backstageCatalogExport = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Status of an opt-in export that is off by default.' }
+    releaseArtifactVerification = [ordered]@{ enforcement = 'blocking'; failureCondition = 'releaseArtifactVerification' }
+    userscriptInstallTrust = [ordered]@{ enforcement = 'advisory-pending-decision'; reason = 'Should a userscript without @updateURL or @downloadURL, or with a broad @match, fail the run?' }
+    catalogFeedAccounting = [ordered]@{ enforcement = 'blocking'; failureCondition = 'catalogFeedAccounting' }
+    portfolioCompatibility = [ordered]@{ enforcement = 'blocking'; failureCondition = 'portfolioCompatibility' }
+    portfolioCrossSurfaceProbe = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Opt-in probe of the deployed portfolio; external drift or an outage must not fail local validation.' }
+    stableEntityIds = [ordered]@{ enforcement = 'blocking'; failureCondition = 'stableEntityIds' }
+    feedSchemaMigration = [ordered]@{ enforcement = 'blocking'; failureCondition = 'feedSchemaMigration' }
+    repositorySettings = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Account and plan-level settings such as branch protection and secret scanning are outside what a catalog change can fix.' }
+    communityHealth = [ordered]@{ enforcement = 'blocking'; failureCondition = 'communityHealth' }
+    schemaValidation = [ordered]@{ enforcement = 'blocking'; failureCondition = 'schemaValidation' }
+    docVersionConsistency = [ordered]@{ enforcement = 'blocking'; failureCondition = 'docVersionConsistency' }
+    profileReleaseConsistency = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Public releases are cut by hand at milestones (publicReleaseCadence in data/profile-version.json), so the internal version running ahead is expected.' }
+    runtimeSecurity = [ordered]@{ enforcement = 'blocking'; failureCondition = 'runtimeSecurity' }
+    validationPerformance = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Timing and cache telemetry.' }
+    missingPublicRepos = [ordered]@{ enforcement = 'blocking'; failureCondition = 'missingPublic' }
+    privateVisibilityViolations = [ordered]@{ enforcement = 'blocking'; failureCondition = 'privateViolations' }
+    medicalPrivacyViolations = [ordered]@{ enforcement = 'blocking'; failureCondition = 'medicalViolations' }
+    urlSchemeViolations = [ordered]@{ enforcement = 'blocking'; failureCondition = 'urlSchemeViolations' }
+    orphanedSuppressedEntries = [ordered]@{ enforcement = 'blocking'; failureCondition = 'orphanedSuppressed' }
+    renamedRepoRedirects = [ordered]@{ enforcement = 'blocking'; failureCondition = 'redirects' }
+    metadataDrift = [ordered]@{ enforcement = 'blocking'; failureCondition = 'metadataDrift' }
+    metadataDriftSummary = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Counts behind metadataDrift, which is the gate.' }
+    linkValidationSkipped = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Records whether link probing ran; a skipped lane is announced, not failed.' }
+    linkValidationSummary = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Link lane telemetry; dead links fail through linkValidationFailures.' }
+    linkValidationFailures = [ordered]@{ enforcement = 'blocking'; failureCondition = 'linkFailures' }
+    linkValidationWarnings = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Rate limits, 5xx responses and timeouts are transient and are retried next run instead of failing this one.' }
+    readmeSizeBudget = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'A soft size limit is a prompt to trim, not a broken profile.' }
+    readmeHeadingHierarchy = [ordered]@{ enforcement = 'advisory-pending-decision'; reason = 'Should a skipped heading level in the generated README fail the run like the other README experience checks?' }
+    readmeDensity = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Soft category limits with a ready demotion list; a test also holds the committed README to them.' }
+    artifactBudgets = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Soft byte and count budgets for generated artifacts.' }
+    renderedProfileSmoke = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Evidence from a manual browser run, which cannot run on every check.' }
+    evidenceFreshness = [ordered]@{ enforcement = 'advisory-pending-decision'; reason = 'Should report or smoke evidence older than the newest commit that affects it fail the run?' }
+    roadmapHygiene = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'ROADMAP.md is local-only and absent from most checkouts.' }
+    rootMarkdownHygiene = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'A documentation-contract reminder; stray root Markdown is gitignored and never published.' }
+    profileAssetsAccessibility = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Contrast of generated SVGs. None are generated, and any stray file already fails profileAssetsInSync.' }
+    readmeExperienceChecks = [ordered]@{ enforcement = 'blocking'; failureCondition = 'readmeExperience' }
+}
+
+function New-ReportSectionEnforcement {
+    <#
+    .SYNOPSIS
+    Records the declared enforcement of each report section and the open decisions.
+    .DESCRIPTION
+    A section with no entry in $script:ReportSectionEnforcement is recorded as
+    "undeclared", which the report schema rejects, so a new section fails the run
+    until someone decides whether it can block.
+    .PARAMETER Sections
+    Top-level report section names, in report order.
+    #>
+    [CmdletBinding()]
+    param([string[]]$Sections)
+
+    $enforcementBySection = [ordered]@{}
+    $pendingDecisions = [System.Collections.Generic.List[object]]::new()
+    foreach ($section in @($Sections)) {
+        $declaration = $script:ReportSectionEnforcement[$section]
+        if ($null -eq $declaration) {
+            $enforcementBySection[$section] = "undeclared"
+            continue
+        }
+        $enforcementBySection[$section] = [string]$declaration.enforcement
+        if ($declaration.enforcement -eq "advisory-pending-decision") {
+            $pendingDecisions.Add([ordered]@{
+                section = [string]$section
+                question = [string]$declaration.reason
+            })
+        }
+    }
+
+    return [ordered]@{
+        sections = $enforcementBySection
+        pendingDecisions = $pendingDecisions.ToArray()
+    }
+}
+
 function Test-ProfileState {
     <#
     .SYNOPSIS
@@ -487,6 +588,7 @@ function Test-ProfileState {
         profileAssetsAccessibility = $profileAssetsAccessibility
         readmeExperienceChecks = $experienceChecks
     }
+    $report.sectionEnforcement = New-ReportSectionEnforcement -Sections @($report.Keys)
     # Compact report sections to keep the committed JSON below the 70 % soft-limit.
     # The live PS objects are still fully populated for downstream use within this
     # function; only the serialised report copy is stripped here.

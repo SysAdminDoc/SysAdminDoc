@@ -59,7 +59,8 @@
     "roadmapHygiene",
     "readmeHeadingHierarchy",
     "rootMarkdownHygiene",
-    "profileAssetsAccessibility"
+    "profileAssetsAccessibility",
+    "sectionEnforcement"
   ],
   "properties": {
     "schema": {
@@ -257,9 +258,52 @@
     },
     "readmeExperienceChecks": {
       "$ref": "#/$defs/readmeExperienceChecks"
+    },
+    "sectionEnforcement": {
+      "$ref": "#/$defs/sectionEnforcement"
     }
   },
   "$defs": {
+    "sectionEnforcement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sections",
+        "pendingDecisions"
+      ],
+      "properties": {
+        "sections": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "blocking",
+              "advisory-by-policy",
+              "advisory-pending-decision"
+            ]
+          }
+        },
+        "pendingDecisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "section",
+              "question"
+            ],
+            "properties": {
+              "section": {
+                "type": "string"
+              },
+              "question": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
     "nonNegativeInteger": {
       "type": "integer",
       "minimum": 0
