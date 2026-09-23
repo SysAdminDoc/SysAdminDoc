@@ -13193,6 +13193,29 @@ Describe 'Local validation helpers (in-process)' {
         Compare-CheckoutFileState -Before $before -After $before | Should -BeNullOrEmpty
     }
 
+    It 'sees a same-size rewrite with its time put back, a case-only rename and a new directory, and walks no junction' {
+        # Size and write time missed the first; a case-insensitive table the second; files
+        # alone the third; and a junction back to the root would have looped the walk.
+        $root = Join-Path $TestDrive 'checkout-state-subtle'
+        New-Item -ItemType Directory -Path (Join-Path $root 'reports') -Force | Out-Null
+        $report = Join-Path $root 'reports/profile-sync-report.json'
+        Set-Content -LiteralPath $report -Value 'aaaa' -NoNewline
+        Set-Content -LiteralPath (Join-Path $root 'README.md') -Value 'readme'
+        New-Item -ItemType Junction -Path (Join-Path $root 'loop') -Target $root | Out-Null
+        $before = Get-CheckoutFileState -RepoRoot $root
+        $writeTime = (Get-Item -LiteralPath $report).LastWriteTimeUtc
+
+        Set-Content -LiteralPath $report -Value 'bbbb' -NoNewline
+        (Get-Item -LiteralPath $report).LastWriteTimeUtc = $writeTime
+        Rename-Item -LiteralPath (Join-Path $root 'README.md') -NewName 'readme.md'
+        New-Item -ItemType Directory -Path (Join-Path $root '.cache/profile-sync') -Force | Out-Null
+        $after = Get-CheckoutFileState -RepoRoot $root
+
+        @($before.Keys | Where-Object { $_ -like 'loop*' }) | Should -BeNullOrEmpty -Because 'the junction is not followed'
+        Compare-CheckoutFileState -Before $before -After $after |
+            Should -Be @('added .cache/', 'added .cache/profile-sync/', 'added readme.md', 'changed reports/profile-sync-report.json', 'removed README.md')
+    }
+
     It 'fails the lane when the test run writes into the checkout' {
         $validation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
         $snapshot = $validation.IndexOf('$checkoutBefore = Get-CheckoutFileState -RepoRoot $repoRoot')

@@ -151,11 +151,14 @@ function Get-UncoveredCoverageFile {
 function Get-CheckoutFileState {
     <#
     .SYNOPSIS
-    Records every file in the checkout with its size and last write time.
+    Records every file in the checkout by content hash, and every directory.
     .DESCRIPTION
     Taken before and after the test run, so a test that writes into the checkout fails the
     lane whatever started it: a child pwsh in any form, a dot-sourced library, a splatted
-    call. .git, node_modules and .claude are tool state, not the checkout's content.
+    call. The content hash sees a rewrite that keeps the size and the write time, and the
+    keys are case-sensitive, so a case-only rename shows. Directories get a trailing / and
+    count too. Reparse points aren't followed, so a junction can't loop the walk. .git,
+    node_modules and .claude are tool state, not the checkout's content.
     .PARAMETER RepoRoot
     The checkout to walk.
     #>
@@ -163,19 +166,33 @@ function Get-CheckoutFileState {
     param([Parameter(Mandatory)][string]$RepoRoot)
 
     $root = [System.IO.Path]::GetFullPath($RepoRoot)
-    $state = @{}
-    $pending = [System.Collections.Generic.Stack[string]]::new()
-    $pending.Push($root)
-    while ($pending.Count -gt 0) {
-        $directory = $pending.Pop()
-        foreach ($child in [System.IO.Directory]::EnumerateDirectories($directory)) {
-            if ($directory -eq $root -and [System.IO.Path]::GetFileName($child) -in @('.git', 'node_modules', '.claude')) { continue }
-            $pending.Push($child)
+    $state = [System.Collections.Generic.Dictionary[string, string]]::new([StringComparer]::Ordinal)
+    $options = [System.IO.EnumerationOptions]::new()
+    $options.AttributesToSkip = [System.IO.FileAttributes]::ReparsePoint
+    $options.IgnoreInaccessible = $false
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $pending = [System.Collections.Generic.Stack[string]]::new()
+        $pending.Push($root)
+        while ($pending.Count -gt 0) {
+            $directory = $pending.Pop()
+            foreach ($child in [System.IO.Directory]::EnumerateDirectories($directory, '*', $options)) {
+                if ($directory -eq $root -and [System.IO.Path]::GetFileName($child) -in @('.git', 'node_modules', '.claude')) { continue }
+                $state[(([System.IO.Path]::GetRelativePath($root, $child) -replace '\\', '/') + '/')] = 'directory'
+                $pending.Push($child)
+            }
+            foreach ($file in [System.IO.Directory]::EnumerateFiles($directory, '*', $options)) {
+                $stream = [System.IO.File]::Open($file, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                try {
+                    $hash = [System.Convert]::ToHexString($sha256.ComputeHash($stream))
+                } finally {
+                    $stream.Dispose()
+                }
+                $state[([System.IO.Path]::GetRelativePath($root, $file) -replace '\\', '/')] = $hash
+            }
         }
-        foreach ($file in [System.IO.Directory]::EnumerateFiles($directory)) {
-            $info = [System.IO.FileInfo]::new($file)
-            $state[([System.IO.Path]::GetRelativePath($root, $file) -replace '\\', '/')] = '{0}|{1}' -f $info.Length, $info.LastWriteTimeUtc.Ticks
-        }
+    } finally {
+        $sha256.Dispose()
     }
     return $state
 }
@@ -189,8 +206,8 @@ function Compare-CheckoutFileState {
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory)][hashtable]$Before,
-        [Parameter(Mandatory)][hashtable]$After,
+        [Parameter(Mandatory)][System.Collections.IDictionary]$Before,
+        [Parameter(Mandatory)][System.Collections.IDictionary]$After,
         [string[]]$Allowed = @()
     )
 
