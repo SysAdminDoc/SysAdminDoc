@@ -80,8 +80,8 @@ function ConvertTo-HtmlText {
     if ([string]::IsNullOrEmpty($Text)) {
         return ''
     }
-    $oneLine = [regex]::Replace($Text, '\r\n|[\r\n\u0085  ]', ' ')
-    $visible = [regex]::Replace($oneLine, '[\p{Cc}‪-‮⁦-⁩]', '')
+    $oneLine = [regex]::Replace($Text, '\r\n|[\r\n\u0085\u2028\u2029]', ' ')
+    $visible = [regex]::Replace($oneLine, '[\p{Cc}\u202A-\u202E\u2066-\u2069]', '')
     return [System.Net.WebUtility]::HtmlEncode($visible)
 }
 

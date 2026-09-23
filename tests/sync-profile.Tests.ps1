@@ -6720,6 +6720,32 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
     }
 }
 
+Describe 'Source files carry no invisible characters' {
+    It 'spells line separators and bidi controls in scripts as escapes' {
+        # A literal U+2028 or U+202E looks like nothing in an editor, which can drop or
+        # reorder it; a regex that needs one writes it as a \u escape instead. The pattern is
+        # built from the code points so this file holds none of the characters itself.
+        $codes = @(0x85, 0x2028, 0x2029) + @(0x202A..0x202E) + @(0x2066..0x2069)
+        $pattern = '[' + (($codes | ForEach-Object { [string][char]92 + 'u' + $_.ToString('X4') }) -join '') + ']'
+        $files = @(
+            foreach ($directory in @('scripts', 'scripts/sync-profile', 'tests')) {
+                Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot $directory) -Filter '*.ps1' -File
+            }
+            Get-Item -LiteralPath (Join-Path $script:RepoRoot 'run.ps1'), (Join-Path $script:RepoRoot 'setup.ps1')
+        )
+
+        $offenders = foreach ($file in $files) {
+            $text = [System.IO.File]::ReadAllText($file.FullName)
+            foreach ($match in [regex]::Matches($text, $pattern)) {
+                '{0}:{1} U+{2:X4}' -f $file.Name, ($text.Substring(0, $match.Index) -split "`n").Count, [int][char]$match.Value
+            }
+        }
+
+        $files.Count | Should -BeGreaterThan 15 -Because 'the scan has to reach the generator, its library and the tests'
+        @($offenders) | Should -BeNullOrEmpty
+    }
+}
+
 Describe 'Child script runs stay out of the checkout' {
     It 'gives every child run of sync-profile.ps1 its own cache path' {
         # Without -CachePath a child run takes the run lock under the checkout's

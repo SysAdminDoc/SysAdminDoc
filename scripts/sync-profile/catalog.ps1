@@ -796,7 +796,7 @@ function Test-CatalogShape {
     foreach ($publicUrl in $publicUrls) {
         if ([string]$publicUrl.url -cnotmatch ('^' + $publicUrl.scheme + '://[!#-&(-;=?-\[\]-{}~]+\z')) {
             $schemeText = if ($publicUrl.scheme -eq 'https') { 'an https' } else { 'an http or https' }
-            $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = ([regex]::Replace([string]$publicUrl.url, '[\p{Cc}  ]', ' ')); reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
+            $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = ([regex]::Replace([string]$publicUrl.url, '[\p{Cc}\u2028\u2029]', ' ')); reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
         }
     }
 
