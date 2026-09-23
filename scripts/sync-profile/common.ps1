@@ -1,0 +1,487 @@
+# Shared helpers for the profile generator: member access on JSON and hashtable
+# values, JSON round-tripping, hashing, date and version parsing. Dot-sourced by
+# scripts/sync-profile.ps1, whose parameters and constants these functions read.
+
+function ConvertTo-BooleanValue {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $false
+    }
+    if ($Value -is [bool]) {
+        return [bool]$Value
+    }
+    return ([string]$Value).ToLowerInvariant() -eq "true"
+}
+
+function Test-SafeGitHubName {
+    <#
+    .SYNOPSIS
+    Returns true when a repository or owner name is safe to interpolate into a URL or gh api path.
+    .DESCRIPTION
+    GitHub repository names allow only ASCII letters, digits, period, underscore, and hyphen.
+    This guard rejects path-traversal (../), query/fragment injection, whitespace, and slashes so
+    catalog-sourced names cannot be tampered into unexpected gh api paths or generated install snippets.
+    .PARAMETER Name
+    The candidate repository or owner name.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param([string]$Name)
+
+    if ([string]::IsNullOrWhiteSpace($Name)) { return $false }
+    return $Name -match '^[A-Za-z0-9._-]+$'
+}
+
+function ConvertTo-IsoText {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [datetime]) {
+        return $Value.ToString("o")
+    }
+    return [string]$Value
+}
+
+function ConvertTo-DateTimeOffsetOrNull {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [datetimeoffset]) {
+        return $Value
+    }
+    if ($Value -is [datetime]) {
+        return [datetimeoffset]$Value
+    }
+
+    $parsed = [datetimeoffset]::MinValue
+    if ([datetimeoffset]::TryParse([string]$Value, [ref]$parsed)) {
+        return $parsed
+    }
+    return $null
+}
+
+function Get-AgeDays {
+    param(
+        [object]$Value,
+        [datetimeoffset]$Now
+    )
+
+    $parsed = ConvertTo-DateTimeOffsetOrNull -Value $Value
+    if ($null -eq $parsed) {
+        return $null
+    }
+    return [math]::Round(($Now.ToUniversalTime() - $parsed.ToUniversalTime()).TotalDays, 2)
+}
+
+function ConvertTo-RawGitHubUrl {
+    param(
+        [string]$RepositoryOwner = $Owner,
+        [string]$Repo,
+        [string]$Branch,
+        [string]$Path
+    )
+
+    $segments = $Path -split '[\\/]'
+    $encodedPath = ($segments | ForEach-Object { [Uri]::EscapeDataString($_) }) -join '/'
+    return "https://raw.githubusercontent.com/$RepositoryOwner/$Repo/$Branch/$encodedPath"
+}
+
+function Get-RepoFileSha256 {
+    param([string]$RelativePath)
+
+    $fullPath = Join-Path $RepoRoot $RelativePath
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        return $null
+    }
+
+    $content = [System.IO.File]::ReadAllText($fullPath, [System.Text.Encoding]::UTF8)
+    $normalizedContent = $content -replace "`r`n", "`n" -replace "`r", "`n"
+    $contentBytes = [System.Text.Encoding]::UTF8.GetBytes($normalizedContent)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($contentBytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
+function ConvertTo-NormalizedGeneratedText {
+    param([AllowNull()][string]$Text)
+
+    if ($null -eq $Text) {
+        return ""
+    }
+
+    return (($Text -replace "`r`n", "`n" -replace "`r", "`n").TrimEnd())
+}
+
+function Get-StringSha256 {
+    param([AllowNull()][string]$Text)
+
+    $normalizedText = ConvertTo-NormalizedGeneratedText -Text $Text
+    $contentBytes = [System.Text.Encoding]::UTF8.GetBytes($normalizedText)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($contentBytes) | ForEach-Object { $_.ToString("x2") }) -join "")
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
+function Get-FileSha256Hex {
+    param([string]$Path)
+
+    if (-not [System.IO.File]::Exists($Path)) {
+        return $null
+    }
+
+    $stream = [System.IO.File]::OpenRead($Path)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($stream) | ForEach-Object { $_.ToString('x2') }) -join '')
+    } finally {
+        $sha256.Dispose()
+        $stream.Dispose()
+    }
+}
+
+function Get-Utf8TextSha256Hex {
+    param([AllowNull()][string]$Text)
+
+    $textValue = if ($null -eq $Text) { '' } else { $Text }
+    $contentBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($textValue)
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        return (($sha256.ComputeHash($contentBytes) | ForEach-Object { $_.ToString('x2') }) -join '')
+    } finally {
+        $sha256.Dispose()
+    }
+}
+
+function Get-GitHeadCommit {
+    $head = & git -C $RepoRoot rev-parse HEAD 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        return $null
+    }
+
+    $commit = (($head | Out-String).Trim()).ToLowerInvariant()
+    if ($commit -notmatch '^[a-f0-9]{40}$') {
+        return $null
+    }
+
+    return $commit
+}
+
+function Get-NullableString {
+    param([AllowNull()][object]$Value)
+    $text = [string]$Value
+    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
+    return $text
+}
+
+function Get-MemberValue {
+    param(
+        [object]$Object,
+        [string]$Name
+    )
+
+    if ($null -eq $Object) {
+        return $null
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        if ($Object.Contains($Name)) {
+            return $Object[$Name]
+        }
+        return $null
+    }
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) {
+        return $property.Value
+    }
+    return $null
+}
+
+function Test-MemberExists {
+    param(
+        [object]$Object,
+        [string]$Name
+    )
+
+    if ($null -eq $Object -or [string]::IsNullOrWhiteSpace($Name)) {
+        return $false
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        return $Object.Contains($Name)
+    }
+
+    return $null -ne $Object.PSObject.Properties[$Name]
+}
+
+function Get-SortedReportRows {
+    param(
+        [object[]]$Rows,
+        [string[]]$Keys
+    )
+
+    $sortProperties = @(
+        foreach ($key in $Keys) {
+            $sortKey = $key
+            @{
+                Expression = {
+                    $value = $null
+                    if ($_ -is [System.Collections.IDictionary]) {
+                        if ($_.Contains($sortKey)) {
+                            $value = $_[$sortKey]
+                        }
+                    } else {
+                        $property = $_.PSObject.Properties[$sortKey]
+                        if ($property) {
+                            $value = $property.Value
+                        }
+                    }
+                    if ($null -eq $value) { "" } else { [string]$value }
+                }.GetNewClosure()
+            }
+        }
+    )
+
+    return @($Rows | Sort-Object -Property $sortProperties)
+}
+
+function Set-MemberValue {
+    param(
+        [object]$Object,
+        [string]$Name,
+        [object]$Value
+    )
+
+    if ($null -eq $Object) {
+        return
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        $Object[$Name] = $Value
+        return
+    }
+
+    $property = $Object.PSObject.Properties[$Name]
+    if ($property) {
+        $property.Value = $Value
+    } else {
+        Add-Member -InputObject $Object -NotePropertyName $Name -NotePropertyValue $Value -Force
+    }
+}
+
+function ConvertTo-VersionValue {
+    param([object]$Version)
+
+    if ($null -eq $Version) {
+        return [version]"0.0.0"
+    }
+    if ($Version -is [version]) {
+        $patch = if ($Version.Build -lt 0) { 0 } else { [int]$Version.Build }
+        return [version]::new([int]$Version.Major, [int]$Version.Minor, $patch)
+    }
+    if ($Version -is [string]) {
+        return ConvertTo-VersionValue -Version ([version]$Version)
+    }
+
+    $major = Get-MemberValue -Object $Version -Name "Major"
+    $minor = Get-MemberValue -Object $Version -Name "Minor"
+    $patch = Get-MemberValue -Object $Version -Name "Patch"
+    if ($null -eq $patch) {
+        $patch = Get-MemberValue -Object $Version -Name "Build"
+    }
+    $patchValue = if ($null -eq $patch) { 0 } else { [int]$patch }
+
+    return [version]::new([int]$major, [int]$minor, $patchValue)
+}
+
+function Get-NestedMemberValue {
+    param(
+        [object]$Object,
+        [string]$Path
+    )
+
+    $value = $Object
+    foreach ($segment in ($Path -split '\.')) {
+        $value = Get-MemberValue -Object $value -Name $segment
+        if ($null -eq $value) {
+            return $null
+        }
+    }
+    return $value
+}
+
+function Get-NullableBool {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    return [bool]$Value
+}
+
+function ConvertTo-NullableDouble {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [double] -or $Value -is [float] -or $Value -is [decimal] -or $Value -is [int] -or $Value -is [long]) {
+        return [double]$Value
+    }
+
+    $parsed = [double]0
+    if ([double]::TryParse(
+            [string]$Value,
+            [System.Globalization.NumberStyles]::Float,
+            [System.Globalization.CultureInfo]::InvariantCulture,
+            [ref]$parsed
+        )) {
+        return $parsed
+    }
+    return $null
+}
+
+function ConvertTo-ComparableJson {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return "null"
+    }
+    return ConvertTo-Json -InputObject $Value -Depth 20 -Compress
+}
+
+function ConvertFrom-JsonElementValue {
+    param([System.Text.Json.JsonElement]$Element)
+
+    switch ($Element.ValueKind) {
+        ([System.Text.Json.JsonValueKind]::Object) {
+            $hash = [ordered]@{}
+            foreach ($property in $Element.EnumerateObject()) {
+                $hash[$property.Name] = (ConvertFrom-JsonElementValue -Element $property.Value)
+            }
+            return $hash
+        }
+        ([System.Text.Json.JsonValueKind]::Array) {
+            $items = New-Object System.Collections.Generic.List[object]
+            foreach ($item in $Element.EnumerateArray()) {
+                $items.Add((ConvertFrom-JsonElementValue -Element $item))
+            }
+            $wrapper = [pscustomobject]@{
+                __JsonArray = $true
+                Items = $null
+            }
+            $wrapper.Items = $items
+            return $wrapper
+        }
+        ([System.Text.Json.JsonValueKind]::String) {
+            return $Element.GetString()
+        }
+        ([System.Text.Json.JsonValueKind]::Number) {
+            $integerValue = [int64]0
+            if ($Element.TryGetInt64([ref]$integerValue)) {
+                return $integerValue
+            }
+            return $Element.GetDouble()
+        }
+        ([System.Text.Json.JsonValueKind]::True) {
+            return $true
+        }
+        ([System.Text.Json.JsonValueKind]::False) {
+            return $false
+        }
+        default {
+            return $null
+        }
+    }
+}
+
+function ConvertFrom-JsonPreservingArrays {
+    param([string]$Json)
+
+    $document = [System.Text.Json.JsonDocument]::Parse($Json)
+    try {
+        return ConvertFrom-JsonElementValue -Element $document.RootElement
+    } finally {
+        $document.Dispose()
+    }
+}
+
+function Get-ObjectPropertyNames {
+    param([object]$Object)
+
+    if ($null -eq $Object) {
+        return @()
+    }
+    if ($Object -is [System.Collections.IDictionary]) {
+        return @($Object.Keys | ForEach-Object { [string]$_ })
+    }
+    return @($Object.PSObject.Properties | Where-Object { $_.MemberType -in @('NoteProperty', 'Property') } | ForEach-Object { $_.Name })
+}
+
+function Test-JsonArrayWrapper {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $false
+    }
+    $marker = $Value.PSObject.Properties['__JsonArray']
+    return [bool]($marker -and $marker.Value -eq $true -and $Value.PSObject.Properties['Items'])
+}
+
+function Get-JsonArrayItems {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return
+    }
+    if (Test-JsonArrayWrapper $Value) {
+        foreach ($item in $Value.Items) {
+            $item
+        }
+        return
+    }
+    foreach ($item in @($Value)) {
+        $item
+    }
+}
+
+function ConvertTo-RepoRelativeReportPath {
+    param([string]$Path)
+
+    $fullPath = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    $resolvedPath = Resolve-Path -LiteralPath $fullPath -ErrorAction SilentlyContinue
+    if ($resolvedPath) {
+        return ([System.IO.Path]::GetRelativePath($RepoRoot, $resolvedPath.Path) -replace '\\', '/')
+    }
+
+    return ($Path -replace '\\', '/')
+}
+
+function Test-IsoDateText {
+    param([string]$Value)
+
+    $parsedDate = [datetime]::MinValue
+    return [datetime]::TryParseExact(
+        $Value,
+        "yyyy-MM-dd",
+        [System.Globalization.CultureInfo]::InvariantCulture,
+        [System.Globalization.DateTimeStyles]::None,
+        [ref]$parsedDate
+    )
+}
+
+function ConvertTo-PowerShellSingleQuotedArgument {
+    param([AllowNull()][string]$Value)
+
+    $normalized = if ($null -eq $Value) { "" } else { (([string]$Value -replace "\r?\n", " ") -replace "\s+", " ").Trim() }
+    return "'$($normalized.Replace("'", "''"))'"
+}

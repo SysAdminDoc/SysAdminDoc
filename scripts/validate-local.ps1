@@ -547,6 +547,9 @@ function Assert-ScriptAnalyzerClean {
     )
 
     $settingsPath = Join-Path $RepoRoot "PSScriptAnalyzerSettings.psd1"
+    $generatorLibrary = @(Get-ChildItem -LiteralPath (Join-Path $RepoRoot "scripts/sync-profile") -Filter "*.ps1" -File |
+        Sort-Object Name |
+        ForEach-Object { "scripts/sync-profile/$($_.Name)" })
     $targets = @(
         "scripts/sync-profile.ps1",
         "scripts/review-local-dependencies.ps1",
@@ -555,7 +558,7 @@ function Assert-ScriptAnalyzerClean {
         "scripts/write-profile-sync-summary.ps1",
         "scripts/new-support-bundle.ps1",
         "setup.ps1"
-    )
+    ) + $generatorLibrary
 
     $findings = foreach ($target in $targets) {
         Invoke-ScriptAnalyzer -Path (Join-Path $RepoRoot $target) -Settings $settingsPath
@@ -839,7 +842,7 @@ try {
 
     # Invoke-Pester -Path tests with a configuration object so JaCoCo code coverage
     # (coverage.xml, gitignored) is produced for the generation engine. Profiler-based
-    # coverage (UseBreakpoints = $false) keeps the large sync-profile.ps1 scan fast.
+    # coverage (UseBreakpoints = $false) keeps the large generator scan fast.
     $coveragePath = Join-Path $repoRoot "coverage.xml"
     $pesterConfig = New-PesterConfiguration
     $pesterConfig.Run.Path = (Join-Path $repoRoot "tests")
@@ -847,7 +850,10 @@ try {
     $pesterConfig.Output.Verbosity = "Detailed"
     $pesterConfig.CodeCoverage.Enabled = $true
     $pesterConfig.CodeCoverage.UseBreakpoints = $false
-    $pesterConfig.CodeCoverage.Path = @(Join-Path $repoRoot "scripts/sync-profile.ps1")
+    $pesterConfig.CodeCoverage.Path = @(
+        Join-Path $repoRoot "scripts/sync-profile.ps1"
+        Join-Path $repoRoot "scripts/sync-profile"
+    )
     $pesterConfig.CodeCoverage.OutputFormat = "JaCoCo"
     $pesterConfig.CodeCoverage.OutputPath = $coveragePath
 

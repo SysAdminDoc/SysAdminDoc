@@ -17,9 +17,13 @@
 BeforeAll {
     $script:RepoRoot = Split-Path -Parent $PSScriptRoot
     $script:SyncProfileScriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
-    $script:SyncProfileScript = Get-Content -LiteralPath $script:SyncProfileScriptPath -Raw
-    # Dot-source the library. The script's test seam stops before the fetch/main block.
+    # Dot-source the library. The script's test seam stops before the fetch/main block,
+    # after the entry point has dot-sourced every file in $GeneratorLibraryFiles.
     . $script:SyncProfileScriptPath
+    # Source-scan assertions read the whole generator: the entry script, then each library
+    # file in load order, so a moved function is still in scope for them.
+    $script:SyncProfileSourcePaths = @($script:SyncProfileScriptPath) + @($GeneratorLibraryFiles | ForEach-Object { Join-Path $script:RepoRoot $_ })
+    $script:SyncProfileScript = @($script:SyncProfileSourcePaths | ForEach-Object { Get-Content -LiteralPath $_ -Raw }) -join "`n"
     # Run offline so nothing reaches out to GitHub.
     $script:Offline = $true
 
@@ -149,10 +153,38 @@ Describe 'Function library loads via the dot-source test seam' {
             Should -HaveCount 5
     }
 
+    It 'loads every generator library file and nothing outside the list' {
+        $onDisk = @(Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile') -Filter '*.ps1' -File |
+            ForEach-Object { "scripts/sync-profile/$($_.Name)" } | Sort-Object)
+        @($GeneratorLibraryFiles | Sort-Object) | Should -Be $onDisk -Because 'a library file the entry point does not load is dead code, and a listed file that is missing breaks every run'
+        @($GeneratorLibraryFiles).Count | Should -BeGreaterOrEqual 5
+    }
+
+    It 'keeps library files to function definitions and constants, each function defined once' {
+        $seen = @{}
+        foreach ($relativePath in @($GeneratorLibraryFiles)) {
+            $tokens = $null
+            $parseErrors = $null
+            $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RepoRoot $relativePath), [ref]$tokens, [ref]$parseErrors)
+            $parseErrors | Should -BeNullOrEmpty -Because $relativePath
+            $ast.ParamBlock | Should -BeNullOrEmpty -Because "$relativePath is dot-sourced by the entry point and takes no parameters"
+            foreach ($statement in @($ast.EndBlock.Statements)) {
+                if ($statement -is [System.Management.Automation.Language.FunctionDefinitionAst]) {
+                    $seen.ContainsKey($statement.Name) | Should -BeFalse -Because "$($statement.Name) is defined in $relativePath and $($seen[$statement.Name])"
+                    $seen[$statement.Name] = $relativePath
+                } else {
+                    # Loading a library file must not do work: only constant assignments.
+                    $statement | Should -BeOfType ([System.Management.Automation.Language.AssignmentStatementAst]) -Because "top-level statement in $relativePath"
+                }
+            }
+        }
+        $seen.Count | Should -BeGreaterThan 300
+    }
+
     It 'documents the key public test-seam functions with comment-based help' {
         $tokens = $null
         $parseErrors = $null
-        $ast = [System.Management.Automation.Language.Parser]::ParseFile($script:SyncProfileScriptPath, [ref]$tokens, [ref]$parseErrors)
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($script:SyncProfileScript, [ref]$tokens, [ref]$parseErrors)
         $parseErrors | Should -BeNullOrEmpty
         $functionAsts = @{}
         foreach ($functionAst in @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true))) {
@@ -5290,7 +5322,7 @@ Describe 'Generated profile PR validation handoff' {
 
     It 'keeps no generated-PR helper references in the validation lane' {
         $validationScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
-        $syncScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $syncScript = $script:SyncProfileScript
 
         $validationScript | Should -Not -Match 'open-generated-profile-pr|set-generated-validation-status'
         $syncScript | Should -Not -Match 'open-generated-profile-pr|set-generated-validation-status'
@@ -5946,7 +5978,7 @@ Describe 'Test-ProfileState projects sync gate' {
         # A field tolerated by the mask but treated as fatal by the drift model (or the
         # reverse) is how the two diverged before; assert they read the same source.
         $script:ProjectsFeedVolatileProjectFields | Should -Not -BeNullOrEmpty
-        $generator = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $generator = $script:SyncProfileScript
         $generator | Should -Match '\$infoFields = @\(\$script:ProjectsFeedVolatileProjectFields\)'
         $generator | Should -Not -Match '\$projectsComparableInSync -or'
     }
@@ -7136,7 +7168,7 @@ Describe 'Failure condition reachability coverage' {
     }
 
     It 'has a reachability case or a reasoned exemption for every blocking condition' {
-        $generator = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $generator = $script:SyncProfileScript
         $block = [regex]::Match($generator, '(?s)\$failureConditions = \[ordered\]@\{(?<body>.*?)\n    \}')
         $block.Success | Should -BeTrue -Because 'the failure condition block must be discoverable'
         $conditions = @([regex]::Matches($block.Groups['body'].Value, '(?m)^\s{8}(?<name>[A-Za-z][A-Za-z0-9]*)\s*=') |
@@ -7158,7 +7190,7 @@ Describe 'Failure condition reachability coverage' {
 
     It 'keeps every exemption pointed at a real condition with a stated reason' {
         # A stale exemption would silently excuse a condition that is now plantable.
-        $generator = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile.ps1') -Raw
+        $generator = $script:SyncProfileScript
         $block = [regex]::Match($generator, '(?s)\$failureConditions = \[ordered\]@\{(?<body>.*?)\n    \}')
         $conditions = @([regex]::Matches($block.Groups['body'].Value, '(?m)^\s{8}(?<name>[A-Za-z][A-Za-z0-9]*)\s*=') |
             ForEach-Object { $_.Groups['name'].Value })
