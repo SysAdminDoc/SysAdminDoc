@@ -7443,9 +7443,7 @@
         "catalogSnapshotSection",
         "generatedCatalogNotice",
         "setupInspectPath",
-        "themeAwareImageChrome",
         "plainTextTagline",
-        "meaningfulImageAltText",
         "minimalProfileHeader",
         "richProfileHeader",
         "genericImageAltTextCount",
@@ -7487,13 +7485,7 @@
         "setupInspectPath": {
           "type": "boolean"
         },
-        "themeAwareImageChrome": {
-          "type": "boolean"
-        },
         "plainTextTagline": {
-          "type": "boolean"
-        },
-        "meaningfulImageAltText": {
           "type": "boolean"
         },
         "minimalProfileHeader": {

@@ -209,10 +209,6 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains("-CheckOnly") -and
         $ExpectedReadme.Contains("SysAdminDoc-setup.ps1") -and
         $ExpectedReadme.Contains("SysAdminDoc-setup-*.log")
-    $hasThemeAwareChrome = $ExpectedReadme.Contains("#gh-dark-mode-only") -and
-        $ExpectedReadme.Contains("#gh-light-mode-only") -and
-        $ExpectedReadme.Contains("assets/profile/header-light.svg#gh-light-mode-only") -and
-        $ExpectedReadme.Contains("assets/profile/footer-light.svg#gh-light-mode-only")
     $thirdPartyMetricHostPattern = 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
     $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
     $thirdPartyBadgeHostPattern = 'img\.shields\.io/github/(?:followers|stars)'
@@ -231,9 +227,6 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains("Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
     $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
-    $hasMeaningfulAltText = $genericAltCount -eq 0 -and
-        $ExpectedReadme.Contains('alt="' + $Owner + ' public tools command center profile header"') -and
-        $ExpectedReadme.Contains('alt="' + $Owner + ' generated profile footer"')
     # Per GitHub accessibility guidance, every <img> needs descriptive alt text.
     # Warning-only completeness check across all rendered <img> tags.
     $genericAltValuePattern = '(?i)^(header|typing svg|profile views|followers|stars|tech stack|github stats|top languages|github streak|activity graph|footer|image|img|logo|icon|screenshot|banner)$'
@@ -272,8 +265,10 @@ function Test-ReadmeExperience {
         $ExpectedReadme.Contains("| Project | Focus | Action |")
     $hasDiscoveryContract = ($hasMinimalProfileHeader -and -not $hasSnapshot -and $hasGeneratedNotice) -or
         ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
-    $hasProfileHeaderContract = ($hasRichProfileHeader -and $hasThemeAwareChrome -and $hasPlainTextTagline -and $hasMeaningfulAltText -and $profileStatsChromeCount -eq 0) -or
-        ($hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0)
+    # The minimal text header is the only one the generator renders. The old SVG header
+    # (richProfileHeader) and its plain-text tagline line are reported so a README that
+    # still carries them says why it fails.
+    $hasProfileHeaderContract = $hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0
     $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasCurrentlyBuildingActionColumn -and
         $hasProfileHeaderContract -and
         $motionSafeChrome -and
@@ -286,9 +281,7 @@ function Test-ReadmeExperience {
         catalogSnapshotSection = [bool]$hasSnapshot
         generatedCatalogNotice = [bool]$hasGeneratedNotice
         setupInspectPath = [bool]$hasSetupInspectPath
-        themeAwareImageChrome = [bool]$hasThemeAwareChrome
         plainTextTagline = [bool]$hasPlainTextTagline
-        meaningfulImageAltText = [bool]$hasMeaningfulAltText
         minimalProfileHeader = [bool]$hasMinimalProfileHeader
         richProfileHeader = [bool]$hasRichProfileHeader
         genericImageAltTextCount = $genericAltCount

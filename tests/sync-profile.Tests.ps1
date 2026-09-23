@@ -4655,9 +4655,10 @@ Write-Host ok
         $result.startHereSection | Should -BeFalse
         $result.catalogSnapshotSection | Should -BeFalse
         $result.setupInspectPath | Should -BeTrue
-        $result.themeAwareImageChrome | Should -BeFalse
         $result.plainTextTagline | Should -BeFalse
-        $result.meaningfulImageAltText | Should -BeFalse
+        # Only the SVG header could set these, and the generator no longer renders one.
+        $result.Keys | Should -Not -Contain 'themeAwareImageChrome'
+        $result.Keys | Should -Not -Contain 'meaningfulImageAltText'
         $result.minimalProfileHeader | Should -BeTrue
         $result.richProfileHeader | Should -BeFalse
         $result.genericImageAltTextCount | Should -Be 0
@@ -4671,6 +4672,27 @@ Write-Host ok
         $result.featuredPrimaryActions | Should -BeFalse
         $result.currentlyBuildingActionColumn | Should -BeTrue
         $result.passed | Should -BeTrue
+    }
+
+    It 'fails the header contract for a README that still carries the old SVG header' {
+        # The header the generator rendered before the README went text-only.
+        $oldHeader = @'
+<p align="center">
+  <img src="assets/profile/header-dark.svg#gh-dark-mode-only" alt="SysAdminDoc public tools command center profile header" />
+  <img src="assets/profile/header-light.svg#gh-light-mode-only" alt="SysAdminDoc public tools command center profile header" />
+</p>
+
+<p align="center">Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence</p>
+
+**[View full portfolio](https://portfolio.getparkerai.com/)**
+
+'@
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme ($oldHeader + $script:rendered)
+
+        $result.richProfileHeader | Should -BeTrue
+        $result.plainTextTagline | Should -BeTrue
+        $result.minimalProfileHeader | Should -BeFalse
+        $result.passed | Should -BeFalse
     }
 
     It 'fails README experience checks for auto-starting profile motion patterns' {
