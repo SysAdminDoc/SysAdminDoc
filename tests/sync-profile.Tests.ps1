@@ -6035,7 +6035,7 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
     It 'writes a public-safe aggregate summary from the committed report' {
         $summaryPath = New-TemporaryFile
         try {
-            pwsh -NoProfile -File $script:SummaryScriptPath -SummaryPath $summaryPath.FullName -Context 'Pester summary test'
+            pwsh -NoProfile -File $script:SummaryScriptPath -ReportPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -SummaryPath $summaryPath.FullName -Context 'Pester summary test'
             $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
 
             $summary | Should -Match 'Pester summary test report'
@@ -6334,7 +6334,7 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
     It 'keeps the committed report summary below the local step-summary soft budget' {
         $summaryPath = New-TemporaryFile
         try {
-            pwsh -NoProfile -File $script:SummaryScriptPath -SummaryPath $summaryPath.FullName -Context 'Pester summary budget test'
+            pwsh -NoProfile -File $script:SummaryScriptPath -ReportPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -SummaryPath $summaryPath.FullName -Context 'Pester summary budget test'
             $summary = Get-Content -LiteralPath $summaryPath.FullName -Raw
             $summaryBytes = [Text.Encoding]::UTF8.GetByteCount($summary)
 
