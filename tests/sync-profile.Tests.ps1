@@ -7287,15 +7287,58 @@ Describe 'Source files carry no invisible characters' {
 }
 
 Describe 'Child script runs stay out of the checkout' {
-    It 'gives every child run of sync-profile.ps1 its own cache path' {
-        # Without -CachePath a child run takes the run lock under the checkout's
-        # .cache/profile-sync, leaves run.lock behind, and waits on a real run's lock.
+    BeforeAll {
         $tokens = $null
         $parseErrors = $null
-        $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$tokens, [ref]$parseErrors)
-        $childRuns = @($ast.FindAll({
+        $script:TestFileAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$tokens, [ref]$parseErrors)
+
+        # Every child pwsh that runs -File with a path the file-matching block accepts, however
+        # pwsh is named: pwsh, pwsh.exe or (Get-Command pwsh).Source.
+        function script:Find-ChildRun {
+            param([scriptblock]$FileMatches)
+            @($script:TestFileAst.FindAll({
+                param($node)
+                $node -is [System.Management.Automation.Language.CommandAst] -and
+                    $node.CommandElements[0].Extent.Text -match '^(?:pwsh(?:\.exe)?|\(Get-Command pwsh(?:\.exe)?\)\.Source)$' -and
+                    (& $FileMatches $node)
+            }, $true))
+        }
+
+        # True when the run passes one of the parameters with a value under the test drive,
+        # given directly or through a variable its script block assigns from $TestDrive.
+        function script:Test-TestDriveArgument {
+            param($Command, [string[]]$ParameterName)
+            $elements = @($Command.CommandElements)
+            for ($index = 0; $index -lt $elements.Count - 1; $index++) {
+                $element = $elements[$index]
+                if ($element -isnot [System.Management.Automation.Language.CommandParameterAst] -or $element.ParameterName -notin $ParameterName) { continue }
+                $value = $elements[$index + 1]
+                if ($value.Extent.Text -match '\$TestDrive\b') { return $true }
+                if ($value -is [System.Management.Automation.Language.VariableExpressionAst]) {
+                    $scope = $Command.Parent
+                    while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
+                    $variableText = '$' + $value.VariablePath.UserPath
+                    $fromTestDrive = @($scope.FindAll({
+                        param($node)
+                        $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq $variableText -and $node.Right.Extent.Text -match '\$TestDrive\b'
+                    }, $true))
+                    if ($fromTestDrive.Count -gt 0) { return $true }
+                }
+            }
+            return $false
+        }
+
+        function script:Format-ChildRun {
+            param($Command)
+            'line {0}: {1}' -f $Command.Extent.StartLineNumber, ($Command.Extent.Text -split "`n")[0].Trim()
+        }
+    }
+
+    It 'gives every child run of sync-profile.ps1 a cache path under the test drive' {
+        # Without -CachePath a child run takes the run lock under the checkout's
+        # .cache/profile-sync, leaves run.lock behind, and waits on a real run's lock.
+        $childRuns = script:Find-ChildRun -FileMatches {
             param($node)
-            if ($node -isnot [System.Management.Automation.Language.CommandAst] -or $node.GetCommandName() -ne 'pwsh') { return $false }
             $text = $node.Extent.Text
             if ($text -match '-File\s+\$script:SyncProfileScriptPath\b') { return $true }
             if ($text -notmatch '-File\s+\$scriptPath\b') { return $false }
@@ -7303,32 +7346,24 @@ Describe 'Child script runs stay out of the checkout' {
             $scope = $node.Parent
             while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
             return ($null -ne $scope -and $scope.Extent.Text -match "\`$scriptPath = Join-Path \`$script:RepoRoot 'scripts/sync-profile\.ps1'")
-        }, $true))
+        }
 
-        $childRuns.Count | Should -BeGreaterThan 3 -Because 'the scan has to find the seed and entrypoint-mode runs'
-        $missing = @($childRuns | Where-Object {
-            @($_.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq 'CachePath' }).Count -eq 0
-        } | ForEach-Object { 'line {0}: {1}' -f $_.Extent.StartLineNumber, ($_.Extent.Text -split "`n")[0].Trim() })
-        $missing | Should -BeNullOrEmpty
+        $childRuns.Count | Should -BeGreaterThan 5 -Because 'the scan has to find the seed and entrypoint-mode runs'
+        @($childRuns | Where-Object { -not (script:Test-TestDriveArgument -Command $_ -ParameterName 'CachePath') } | ForEach-Object { script:Format-ChildRun $_ }) |
+            Should -BeNullOrEmpty
     }
 
-    It 'gives every child run of review-local-dependencies.ps1 a registry cache outside the checkout' {
+    It 'gives every child run of review-local-dependencies.ps1 a registry cache or root under the test drive' {
         # The default registry cache is the checkout's .cache/registry-versions.json, which
         # the validation lane owns; a test run belongs in its own cache or its own root.
-        $tokens = $null
-        $parseErrors = $null
-        $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$tokens, [ref]$parseErrors)
-        $childRuns = @($ast.FindAll({
+        $childRuns = script:Find-ChildRun -FileMatches {
             param($node)
-            $node -is [System.Management.Automation.Language.CommandAst] -and $node.GetCommandName() -eq 'pwsh' -and
-                $node.Extent.Text -match '-File\s+\$script:DependencyReviewScriptPath\b'
-        }, $true))
+            $node.Extent.Text -match '-File\s+\$script:(?:DependencyReviewScriptPath|ReviewScriptPath)\b'
+        }
 
-        $childRuns.Count | Should -BeGreaterThan 2 -Because 'the scan has to find the dependency review runs'
-        $missing = @($childRuns | Where-Object {
-            @($_.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -in @('RegistryCachePath', 'RepoRoot') }).Count -eq 0
-        } | ForEach-Object { 'line {0}: {1}' -f $_.Extent.StartLineNumber, ($_.Extent.Text -split "`n")[0].Trim() })
-        $missing | Should -BeNullOrEmpty
+        $childRuns.Count | Should -BeGreaterThan 6 -Because 'the scan has to find the pwsh and (Get-Command pwsh).Source runs'
+        @($childRuns | Where-Object { -not (script:Test-TestDriveArgument -Command $_ -ParameterName @('RegistryCachePath', 'RepoRoot')) } | ForEach-Object { script:Format-ChildRun $_ }) |
+            Should -BeNullOrEmpty
     }
 }
 
@@ -11742,7 +11777,7 @@ markdown-it@14.3.0 (https://registry.npmjs.org)
         Set-Content -LiteralPath $fixture -Value $script:TamperedSignatureText -Encoding utf8
 
         $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath `
-            -NpmSignatureTextPath $fixture -SkipNpmAudit -OfflineRegistry 2>&1
+            -NpmSignatureTextPath $fixture -SkipNpmAudit -OfflineRegistry -RegistryCachePath (Join-Path $TestDrive 'signature-registry-cache.json') 2>&1
         $exitCode = $LASTEXITCODE
         $review = ($output | Out-String) | ConvertFrom-Json
 
@@ -11756,7 +11791,7 @@ markdown-it@14.3.0 (https://registry.npmjs.org)
         Set-Content -LiteralPath $fixture -Value $script:CleanSignatureText -Encoding utf8
 
         $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath `
-            -NpmSignatureTextPath $fixture -SkipNpmAudit -OfflineRegistry 2>&1
+            -NpmSignatureTextPath $fixture -SkipNpmAudit -OfflineRegistry -RegistryCachePath (Join-Path $TestDrive 'signature-registry-cache.json') 2>&1
         $exitCode = $LASTEXITCODE
         $review = ($output | Out-String) | ConvertFrom-Json
 
@@ -11770,7 +11805,7 @@ markdown-it@14.3.0 (https://registry.npmjs.org)
     It 'enumerates every direct dependency at its locked version' {
         # Offline, so the row set and the version resolution are proved without depending
         # on the registry being reachable; the live signature answer is an Integration test.
-        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath -SkipNpmAudit -SkipNpmSignatures -OfflineRegistry 2>&1
+        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath -SkipNpmAudit -SkipNpmSignatures -OfflineRegistry -RegistryCachePath (Join-Path $TestDrive 'provenance-registry-cache.json') 2>&1
         $review = ($output | Out-String) | ConvertFrom-Json
         $rows = @($review.npm.provenance.rows)
 
@@ -11854,7 +11889,7 @@ Describe 'Registry signatures verified against the live registry' -Tag 'Integrat
     }
 
     It 'confirms npm verifies every installed package and that direct dependencies are signed' {
-        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath -SkipNpmAudit 2>&1
+        $output = & (Get-Command pwsh).Source -NoProfile -File $script:ReviewScriptPath -SkipNpmAudit -RegistryCachePath (Join-Path $TestDrive 'live-registry-cache.json') 2>&1
         $review = ($output | Out-String) | ConvertFrom-Json
 
         $review.npm.signatures.status | Should -Be 'verified'
