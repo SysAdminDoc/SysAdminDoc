@@ -5555,6 +5555,9 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'four spaces'; About = '    not a code block'; Expected = 'not a code block' }
         @{ Case = 'an ordered list marker'; About = '1. not an ordered list'; Expected = '1\. not an ordered list' }
         @{ Case = 'a parenthesis list marker'; About = '42) not an ordered list'; Expected = '42\) not an ordered list' }
+        @{ Case = 'a lone list number'; About = '1.'; Expected = '1\.' }
+        @{ Case = 'a lone parenthesis list number'; About = '1)'; Expected = '1\)' }
+        @{ Case = 'a four-digit list number'; About = '2024. was a good year'; Expected = '2024\. was a good year' }
         @{ Case = 'a quote marker'; About = '> not a quote'; Expected = '&gt; not a quote' }
     ) {
         $header = New-TestProfileHeader
@@ -5576,6 +5579,7 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'a negative number'; About = '-5 degrees outside, still coding' }
         @{ Case = 'a long option'; About = '--help is the flag I read most' }
         @{ Case = 'mixed rule characters'; About = '*-* marks the tools I use daily' }
+        @{ Case = 'strong emphasis in a rule''s characters'; About = '***Everything*** here is free' }
     ) {
         # None of these opens a block, so escaping them would show the markup as text.
         $header = New-TestProfileHeader
