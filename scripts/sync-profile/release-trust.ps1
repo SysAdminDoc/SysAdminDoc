@@ -252,6 +252,8 @@ function Test-ReleaseArtifactVerification {
     Maximum byte size for each downloaded asset.
     .PARAMETER DownloadScript
     Optional injectable downloader used by hermetic tests.
+    .PARAMETER Now
+    Picks the week whose slice of eligible assets is verified; injectable for tests.
     #>
     [CmdletBinding()]
     param(
@@ -263,7 +265,8 @@ function Test-ReleaseArtifactVerification {
         [int]$MaxAssets = $script:ReleaseVerificationMaxAssets,
         [ValidateRange(1024, 52428800)]
         [int]$MaxBytes = $script:ReleaseVerificationMaxBytes,
-        [scriptblock]$DownloadScript
+        [scriptblock]$DownloadScript,
+        [datetimeoffset]$Now = [datetimeoffset]::UtcNow
     )
 
     $targetRows = @(
@@ -286,47 +289,85 @@ function Test-ReleaseArtifactVerification {
             verifiedCount = 0
             skippedCount = 0
             failureCount = 0
+            unreachableCount = 0
             downloadedBytes = 0
+            rotation = $null
             rows = @()
             errors = @()
             note = "Metadata evidence only: release artifacts were not downloaded or locally verified. Use -VerifyReleaseArtifacts for the capped pilot."
         }
     }
 
-    $eligibleCount = 0
+    # Which targets can be verified at all, first, so the per-run cap applies to those only.
+    $allowedKinds = @("apk", "crx", "deb", "dmg", "exe", "jar", "rpm", "xpi", "zip")
+    # object[], not string[]: a string array element turns $null into "".
+    $ineligibleReasons = New-Object 'object[]' $targetRows.Count
+    $eligibleIndexes = New-Object System.Collections.Generic.List[int]
+    for ($index = 0; $index -lt $targetRows.Count; $index++) {
+        $target = $targetRows[$index]
+        $checksumName = Get-MemberValue -Object $target -Name "checksumAssetName"
+        $ineligibleReasons[$index] = if ([string](Get-MemberValue -Object $target -Name "assetKind") -notin $allowedKinds) {
+            "asset kind is outside the verification allowlist"
+        } elseif ([string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "assetUrl"))) {
+            "asset download URL is missing"
+        } elseif ($null -eq (Get-MemberValue -Object $target -Name "assetSize")) {
+            "asset size is unknown; refusing an uncapped download"
+        } elseif ([int64](Get-MemberValue -Object $target -Name "assetSize") -gt $MaxBytes) {
+            "asset exceeds the configured byte cap"
+        } elseif ([string]::IsNullOrWhiteSpace([string]$checksumName) -or [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "checksumUrl"))) {
+            "matching checksum sidecar is missing"
+        } else {
+            $null
+        }
+        if ([string]::IsNullOrEmpty($ineligibleReasons[$index])) {
+            $eligibleIndexes.Add($index)
+        }
+    }
+
+    # Then one MaxAssets-wide slice of them, in a stable order, picked by the UTC week
+    # (weeks counted from Monday 2026-01-05). A weekly run walks through every eligible
+    # asset in turn instead of checking the same first few in catalog order forever.
+    $orderedEligible = @($eligibleIndexes | Sort-Object {
+            ConvertTo-OrdinalSortKey ("{0}/{1}" -f [string](Get-MemberValue -Object $targetRows[$_] -Name "repo"), [string](Get-MemberValue -Object $targetRows[$_] -Name "assetName"))
+        })
+    $weekIndex = [int][Math]::Floor(($Now.UtcDateTime.Date - [datetime]::new(2026, 1, 5)).TotalDays / 7)
+    $sliceCount = [int][Math]::Ceiling($orderedEligible.Count / [double]$MaxAssets)
+    $sliceIndex = if ($sliceCount -gt 0) { (($weekIndex % $sliceCount) + $sliceCount) % $sliceCount } else { 0 }
+    $selectedIndexes = [System.Collections.Generic.HashSet[int]]::new()
+    foreach ($selected in @($orderedEligible | Select-Object -Skip ($sliceIndex * $MaxAssets) -First $MaxAssets)) {
+        [void]$selectedIndexes.Add([int]$selected)
+    }
+
+    $checkedCount = 0
     $verifiedCount = 0
     $skippedCount = 0
     $failureCount = 0
+    $unreachableCount = 0
     $downloadedBytes = [int64]0
-    $allowedKinds = @("apk", "crx", "deb", "dmg", "exe", "jar", "rpm", "xpi", "zip")
-    foreach ($target in $targetRows) {
+    for ($index = 0; $index -lt $targetRows.Count; $index++) {
+        $target = $targetRows[$index]
         $repo = [string](Get-MemberValue -Object $target -Name "repo")
         $assetName = [string](Get-MemberValue -Object $target -Name "assetName")
         $assetKind = [string](Get-MemberValue -Object $target -Name "assetKind")
         $checksumName = Get-MemberValue -Object $target -Name "checksumAssetName"
         $status = "skipped"
-        $reason = $null
+        $reason = $ineligibleReasons[$index]
         $expected = $null
         $actual = $null
         $assetBytes = [int64]0
 
-        if ($assetKind -notin $allowedKinds) {
-            $reason = "asset kind is outside the verification allowlist"
-        } elseif ($eligibleCount -ge $MaxAssets) {
-            $reason = "per-run asset count cap reached"
-        } elseif ([string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "assetUrl"))) {
-            $reason = "asset download URL is missing"
-        } elseif ($null -eq (Get-MemberValue -Object $target -Name "assetSize")) {
-            $reason = "asset size is unknown; refusing an uncapped download"
-        } elseif ([int64](Get-MemberValue -Object $target -Name "assetSize") -gt $MaxBytes) {
-            $reason = "asset exceeds the configured byte cap"
-        } elseif ([string]::IsNullOrWhiteSpace([string]$checksumName) -or [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "checksumUrl"))) {
-            $reason = "matching checksum sidecar is missing"
+        if (-not [string]::IsNullOrEmpty($reason)) {
+            # Not verifiable; the reason says why.
+        } elseif (-not $selectedIndexes.Contains($index)) {
+            $reason = "outside this week's rotation slice"
         } else {
-            $eligibleCount++
+            $checkedCount++
             $assetDownload = if ($DownloadScript) { & $DownloadScript $target "asset" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "assetUrl")) -MaxBytes $MaxBytes }
+            # A download that fails says nothing about the artifact, and in an unattended run
+            # it is usually the network; it warns. Only bytes that disagree with their
+            # published checksum fail the run.
             if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "ok"))) {
-                $status = "failed"
+                $status = "unreachable"
                 $reason = "asset download failed: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
             } else {
                 $assetByteValue = Get-MemberValue -Object $assetDownload -Name "bytes"
@@ -335,7 +376,7 @@ function Test-ReleaseArtifactVerification {
                 $downloadedBytes += $assetBytes
                 $checksumDownload = if ($DownloadScript) { & $DownloadScript $target "checksum" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "checksumUrl")) -MaxBytes ([Math]::Min($MaxBytes, 256KB)) }
                 if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "ok"))) {
-                    $status = "failed"
+                    $status = "unreachable"
                     $reason = "checksum sidecar download failed: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
                 } else {
                     $checksumText = [string](Get-MemberValue -Object $checksumDownload -Name "text")
@@ -358,6 +399,7 @@ function Test-ReleaseArtifactVerification {
 
         if ($status -eq "verified") { $verifiedCount++ }
         elseif ($status -eq "failed") { $failureCount++ }
+        elseif ($status -eq "unreachable") { $unreachableCount++ }
         else { $skippedCount++ }
         $rows.Add([ordered]@{
             repo = $repo
@@ -374,19 +416,26 @@ function Test-ReleaseArtifactVerification {
 
     return [ordered]@{
         enabled = $true
-        status = if ($failureCount -gt 0) { "failed" } elseif ($verifiedCount -gt 0) { "verified" } elseif ($skippedCount -gt 0) { "skipped" } else { "no-candidates" }
+        status = if ($failureCount -gt 0) { "failed" } elseif ($unreachableCount -gt 0) { "warning" } elseif ($verifiedCount -gt 0) { "verified" } elseif ($skippedCount -gt 0) { "skipped" } else { "no-candidates" }
         verificationMode = "opt-in"
         maxAssets = [int]$MaxAssets
         maxBytes = [int]$MaxBytes
         targetCount = [int]$targetRows.Count
-        checkedAssetCount = [int]$eligibleCount
+        checkedAssetCount = [int]$checkedCount
         verifiedCount = [int]$verifiedCount
         skippedCount = [int]$skippedCount
         failureCount = [int]$failureCount
+        unreachableCount = [int]$unreachableCount
         downloadedBytes = $downloadedBytes
+        rotation = [ordered]@{
+            weekIndex = $weekIndex
+            sliceIndex = $sliceIndex
+            sliceCount = $sliceCount
+            eligibleCount = $orderedEligible.Count
+        }
         rows = @($rows.ToArray())
         errors = @()
-        note = "Opt-in pilot only: eligible GitHub release assets were capped by count and bytes, then compared with matching SHA-256 sidecars. Default releaseTrust remains metadata-only."
+        note = "Opt-in: one slice of the eligible GitHub release assets per UTC week, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch fails the run; an asset that cannot be downloaded is a warning. Default releaseTrust remains metadata-only."
     }
 }
 

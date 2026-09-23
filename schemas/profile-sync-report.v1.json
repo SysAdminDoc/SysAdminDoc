@@ -2072,7 +2072,9 @@
         "verifiedCount",
         "skippedCount",
         "failureCount",
+        "unreachableCount",
         "downloadedBytes",
+        "rotation",
         "rows",
         "errors",
         "note"
@@ -2088,6 +2090,7 @@
             "verified",
             "skipped",
             "failed",
+            "warning",
             "no-candidates"
           ]
         },
@@ -2116,8 +2119,38 @@
         "failureCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
+        "unreachableCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
         "downloadedBytes": {
           "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "rotation": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "weekIndex",
+            "sliceIndex",
+            "sliceCount",
+            "eligibleCount"
+          ],
+          "properties": {
+            "weekIndex": {
+              "type": "integer"
+            },
+            "sliceIndex": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "sliceCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "eligibleCount": {
+              "$ref": "#/$defs/nonNegativeInteger"
+            }
+          }
         },
         "rows": {
           "type": "array",
@@ -2165,7 +2198,8 @@
           "enum": [
             "verified",
             "skipped",
-            "failed"
+            "failed",
+            "unreachable"
           ]
         },
         "reason": {

@@ -2580,6 +2580,68 @@ Describe 'Report schema depth helpers' {
         ($result.rows | Where-Object { $_.repo -eq 'ScriptTool' }).reason | Should -Match 'allowlist'
     }
 
+    It 'walks a date-seeded slice of eligible assets so weekly runs cover them all' {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes('release payload')
+        $hash = Get-ReleaseArtifactSha256 -Bytes $bytes
+        $targets = @(foreach ($name in 'Echo', 'Alpha', 'Delta', 'Bravo', 'Charlie') {
+                [ordered]@{
+                    repo = $name; assetName = "$name.zip"; assetKind = 'zip'; assetUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/$name.zip"; assetSize = $bytes.Length
+                    checksumAssetName = 'SHA256SUMS'; checksumUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/SHA256SUMS"; checksumSize = 80
+                }
+            })
+        $download = {
+            param($target, $kind)
+            $text = if ($kind -eq 'checksum') { "$hash  $($target.assetName)" } else { $null }
+            [ordered]@{ ok = $true; bytes = if ($kind -eq 'asset') { $bytes } else { [System.Text.Encoding]::UTF8.GetBytes([string]$text) }; text = $text; error = $null; bytesRead = 0 }
+        }
+        $monday = [datetimeoffset]'2026-09-21T09:15:00Z'
+
+        $runs = @(0, 1, 2 | ForEach-Object {
+                Test-ReleaseArtifactVerification -Targets $targets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $download -Now $monday.AddDays(7 * $_)
+            })
+        $checked = @($runs | ForEach-Object { @($_.rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo }) })
+
+        # Three weeks, slices of two in a stable order: every eligible asset once, none twice.
+        @($checked | Sort-Object -Unique) | Should -Be @('Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo')
+        $checked | Should -HaveCount 5
+        $runs[0].rotation.sliceCount | Should -Be 3
+        $runs[0].rotation.eligibleCount | Should -Be 5
+        @($runs[0].rows | Where-Object { $_.status -eq 'skipped' } | ForEach-Object { $_.reason } | Sort-Object -Unique) | Should -Be @("outside this week's rotation slice")
+        # The same week, any day, checks the same slice.
+        $friday = Test-ReleaseArtifactVerification -Targets $targets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $download -Now $monday.AddDays(4)
+        @($friday.rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo }) | Should -Be @($runs[0].rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo })
+    }
+
+    It 'warns on an asset it cannot download and fails only on a checksum mismatch' {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes('release payload')
+        $targets = @(foreach ($name in 'Offline', 'Mismatch') {
+                [ordered]@{
+                    repo = $name; assetName = "$name.zip"; assetKind = 'zip'; assetUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/$name.zip"; assetSize = $bytes.Length
+                    checksumAssetName = 'SHA256SUMS'; checksumUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/SHA256SUMS"; checksumSize = 80
+                }
+            })
+        $download = {
+            param($target, $kind)
+            if ($target.repo -eq 'Offline' -and $kind -eq 'asset') {
+                return [ordered]@{ ok = $false; bytes = @(); text = $null; error = 'connection timed out'; bytesRead = 0 }
+            }
+            $text = if ($kind -eq 'checksum') { ('0' * 64) + "  $($target.assetName)" } else { $null }
+            [ordered]@{ ok = $true; bytes = if ($kind -eq 'asset') { $bytes } else { [System.Text.Encoding]::UTF8.GetBytes([string]$text) }; text = $text; error = $null; bytesRead = 0 }
+        }
+
+        $unreachableOnly = Test-ReleaseArtifactVerification -Targets @($targets[0]) -Enabled -MaxAssets 4 -MaxBytes 1024 -DownloadScript $download
+        $unreachableOnly.status | Should -Be 'warning'
+        $unreachableOnly.failureCount | Should -Be 0
+        $unreachableOnly.unreachableCount | Should -Be 1
+        $unreachableOnly.rows[0].status | Should -Be 'unreachable'
+        $unreachableOnly.rows[0].reason | Should -Match 'connection timed out'
+
+        $both = Test-ReleaseArtifactVerification -Targets $targets -Enabled -MaxAssets 4 -MaxBytes 1024 -DownloadScript $download
+        $both.status | Should -Be 'failed'
+        $both.failureCount | Should -Be 1
+        $both.unreachableCount | Should -Be 1
+    }
+
     It 'derives verification targets only from capped asset classes with checksum candidates' {
         $entry = New-TestEntry -Repo 'VerifiedTool' -Category 'desktop'
         $repo = New-TestRepoMeta -Name 'VerifiedTool' -WithRelease -AssetNames @('VerifiedTool.zip', 'SHA256SUMS')

@@ -386,6 +386,7 @@ $releaseArtifactVerificationStatus = if ($releaseArtifactVerification) { [string
 $releaseArtifactVerificationVerifiedCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.verifiedCount } else { 0 }
 $releaseArtifactVerificationSkippedCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.skippedCount } else { 0 }
 $releaseArtifactVerificationFailureCount = if ($releaseArtifactVerification) { [int]$releaseArtifactVerification.failureCount } else { 0 }
+$releaseArtifactVerificationUnreachableCount = [int](Get-ObjectPropertyOrDefault -Object $releaseArtifactVerification -Name "unreachableCount" -Default 0)
 $stableEntityIdsStatus = if ($stableEntityIds) { [string]$stableEntityIds.status } else { "unknown" }
 $stableEntityIdsFatalCount = if ($stableEntityIds) { [int]$stableEntityIds.fatalCount } else { 0 }
 $feedSchemaMigrationStatus = if ($feedSchemaMigration) { [string]$feedSchemaMigration.status } else { "unknown" }
@@ -543,6 +544,7 @@ $summary = @"
 | Release artifacts verified | $releaseArtifactVerificationVerifiedCount |
 | Release artifacts skipped | $releaseArtifactVerificationSkippedCount |
 | Release artifact verification failures | $releaseArtifactVerificationFailureCount |
+| Release artifacts unreachable | $releaseArtifactVerificationUnreachableCount |
 | Stable feed entity IDs | $stableEntityIdsStatus |
 | Stable feed entity ID gaps | $stableEntityIdsFatalCount |
 | Feed schema migration policy | $feedSchemaMigrationStatus |
@@ -959,6 +961,9 @@ if ($portfolioCrossSurfaceProbeWarningCount -gt 0) {
 
 if ($releaseArtifactVerificationFailureCount -gt 0) {
     Write-Output "::error::Profile sync report has $releaseArtifactVerificationFailureCount release artifact verification failure(s)."
+}
+if ($releaseArtifactVerificationUnreachableCount -gt 0) {
+    Write-Output "::warning::Profile sync report could not download $releaseArtifactVerificationUnreachableCount release artifact(s) or their checksums to verify."
 }
 
 if ($readmeDensityWarningCount -gt 0) {
