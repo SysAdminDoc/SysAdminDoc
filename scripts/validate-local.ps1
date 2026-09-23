@@ -125,6 +125,29 @@ function Get-FailedProfileConditionName {
     return $failed.ToArray()
 }
 
+function Get-UncoveredCoverageFile {
+    <#
+    .SYNOPSIS
+    Names the instrumented files in which the test run executed no command at all.
+    .DESCRIPTION
+    A script the suite never loads measures 0% forever and only pulls the total down, so
+    the gap is easy to miss. Naming the files turns it into a failure.
+    .PARAMETER Coverage
+    The CodeCoverage result of an Invoke-Pester run.
+    #>
+    [CmdletBinding()]
+    param([object]$Coverage)
+
+    if ($null -eq $Coverage) {
+        return @()
+    }
+    $executed = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($command in @($Coverage.CommandsExecuted)) {
+        [void]$executed.Add([string]$command.File)
+    }
+    return @($Coverage.FilesAnalyzed | Where-Object { -not $executed.Contains([string]$_) } | Sort-Object)
+}
+
 function Get-PowerShellRuntimeChannel {
     param(
         [Parameter(Mandatory)]
@@ -779,6 +802,10 @@ function New-LocalSupportBundle {
     Write-Host "Support bundle written to $OutputPath"
 }
 
+# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
+# functions above and stop before installing tools or running any lane.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $supportBundlePathResolved = $null
 $validationOutputPath = $null
@@ -841,8 +868,9 @@ try {
     Invoke-DependencyReview -RepoRoot $repoRoot -OutputPath $dependencyReviewPath
 
     # Invoke-Pester -Path tests with a configuration object so JaCoCo code coverage
-    # (coverage.xml, gitignored) is produced for the generation engine. Profiler-based
-    # coverage (UseBreakpoints = $false) keeps the large generator scan fast.
+    # (coverage.xml, gitignored) is produced for every script under scripts/ and the
+    # public setup.ps1 bootstrap. Profiler-based coverage (UseBreakpoints = $false) keeps
+    # the large generator scan fast.
     $coveragePath = Join-Path $repoRoot "coverage.xml"
     $pesterConfig = New-PesterConfiguration
     $pesterConfig.Run.Path = (Join-Path $repoRoot "tests")
@@ -851,8 +879,8 @@ try {
     $pesterConfig.CodeCoverage.Enabled = $true
     $pesterConfig.CodeCoverage.UseBreakpoints = $false
     $pesterConfig.CodeCoverage.Path = @(
-        Join-Path $repoRoot "scripts/sync-profile.ps1"
-        Join-Path $repoRoot "scripts/sync-profile"
+        Join-Path $repoRoot "scripts"
+        Join-Path $repoRoot "setup.ps1"
     )
     $pesterConfig.CodeCoverage.OutputFormat = "JaCoCo"
     $pesterConfig.CodeCoverage.OutputPath = $coveragePath
@@ -868,6 +896,11 @@ try {
         $covered = [int]$coverage.CommandsExecutedCount
         $total = [int]$coverage.CommandsAnalyzedCount
         Write-Host "Code coverage: $percent% ($covered/$total commands) -> $coveragePath (JaCoCo)"
+        $uncoveredFiles = @(Get-UncoveredCoverageFile -Coverage $coverage)
+        if ($uncoveredFiles.Count -gt 0) {
+            $names = @($uncoveredFiles | ForEach-Object { [System.IO.Path]::GetRelativePath($repoRoot, [string]$_) -replace '\\', '/' })
+            throw "Code coverage recorded no executed command in: $($names -join ', '). Add in-process tests that load them."
+        }
     }
 
     if ($SkipProfileCheck) {

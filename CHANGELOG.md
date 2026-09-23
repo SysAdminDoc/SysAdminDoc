@@ -16,6 +16,8 @@
 
 - Schema validation failures now say where they are. The check used to keep one exception string, which against a 7,400-line report schema rarely named the field. Each failure in `schemaValidation.catalog`, `.projects` and `.report` now carries `instanceLocation` (a JSON Pointer to the bad value), `keywordLocation` (the path through the schema to the rule that failed) and a message, in a stable order. The unsupported-keyword check also reaches into `anyOf`, `allOf`, `oneOf`, `not`, `if`/`then`/`else`, tuple items and definitions nested below the root, where it used to stop at plain properties.
 
+- Code coverage now measures every script under `scripts/` and the public `setup.ps1`, not just the generator. The other scripts only ran as child processes in the tests, which coverage can't see, so each gained a test seam that stops a dot-source before its main body. That means no browser, npm, winget or report write happens when the tests load them. `setup.ps1` still runs normally through `irm | iex` and `-File`, which was checked in both Windows PowerShell 5.1 and PowerShell 7. New in-process tests cover their pure helpers, and `validate-local.ps1` fails if any instrumented file ends a run with zero executed commands. Coverage over the wider set is 65%.
+
 ## 2026-09-20
 
 - Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.

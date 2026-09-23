@@ -885,6 +885,10 @@ function Get-DependencyPinFreshness {
     }
 }
 
+# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
+# functions above and stop before running npm or querying a registry.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
 $resolvedRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
 $packageJsonPath = Join-Path $resolvedRoot "package.json"
 $packageLockPath = Join-Path $resolvedRoot "package-lock.json"

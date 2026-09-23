@@ -485,10 +485,6 @@ function Invoke-RenderedSmoke {
     }
 }
 
-$currentDirectory = (Get-Location).ProviderPath
-$resolvedOutputDir = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $currentDirectory $OutputDir }
-New-Item -ItemType Directory -Force -Path $resolvedOutputDir | Out-Null
-
 function Write-RenderedSmokeArtifact {
     param([object]$Report)
 
@@ -554,6 +550,14 @@ function Remove-RenderedSmokeProfileDir {
         Write-Warning "Could not remove rendered-smoke profile directory '$Path': $($_.Exception.Message)"
     }
 }
+
+# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
+# functions above and stop before creating the output directory or starting a browser.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
+$currentDirectory = (Get-Location).ProviderPath
+$resolvedOutputDir = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $currentDirectory $OutputDir }
+New-Item -ItemType Directory -Force -Path $resolvedOutputDir | Out-Null
 
 $chrome = $null
 try {

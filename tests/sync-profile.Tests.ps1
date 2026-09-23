@@ -9510,3 +9510,274 @@ Describe 'Registry signatures verified against the live registry' -Tag 'Integrat
         $review.npm.provenance.unknownCount | Should -Be 0
     }
 }
+
+# The Describe blocks below dot-source the other production scripts so code coverage can
+# see them. Each script stops at its test seam, so nothing is installed, no npm or browser
+# runs, and no report is read or written. They load into their own Describe scope, and the
+# render-smoke block (which dot-sources the generator again) stays last in the file.
+
+Describe 'Summary writer helpers (in-process)' {
+    BeforeAll {
+        . (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -ReportPath (Join-Path $TestDrive 'no-report.json') -SummaryPath (Join-Path $TestDrive 'no-summary.md')
+    }
+
+    It 'loads without reading a report or writing a summary' {
+        Test-Path -LiteralPath (Join-Path $TestDrive 'no-summary.md') | Should -BeFalse
+    }
+
+    It 'counts null, single values and collections' {
+        Get-Count $null | Should -Be 0
+        Get-Count 'one' | Should -Be 1
+        Get-Count @(1, 2, 3) | Should -Be 3
+    }
+
+    It 'compacts values for summary cells' {
+        ConvertTo-CompactSummaryValue $null | Should -Be 'null'
+        ConvertTo-CompactSummaryValue "a`n   b" | Should -Be 'a b'
+        ConvertTo-CompactSummaryValue ([ordered]@{ k = 1 }) | Should -Be '{"k":1}'
+        ConvertTo-CompactSummaryValue ('x' * 300) -MaxLength 10 | Should -Be 'xxxxxxx...'
+    }
+
+    It 'escapes Markdown table cells' {
+        ConvertTo-MarkdownCell "a|b`r`nc" | Should -Be 'a\|b c'
+        ConvertTo-MarkdownCell '   ' | Should -Be ''
+    }
+
+    It 'encodes GitHub workflow command values and properties' {
+        ConvertTo-GitHubAnnotationValue "50%`r`nnext" | Should -Be '50%25%0D%0Anext'
+        ConvertTo-GitHubAnnotationValue $null | Should -Be ''
+        ConvertTo-GitHubAnnotationProperty 'file:a,b' | Should -Be 'file%3Aa%2Cb'
+    }
+
+    It 'reads optional report properties with a default' {
+        $object = [pscustomobject]@{ present = 'value'; empty = $null }
+        Get-ObjectPropertyOrDefault -Object $object -Name 'present' -Default 'fallback' | Should -Be 'value'
+        Get-ObjectPropertyOrDefault -Object $object -Name 'missing' -Default 'fallback' | Should -Be 'fallback'
+        Get-ObjectPropertyOrDefault -Object $object -Name 'empty' -Default 'fallback' | Should -Be 'fallback'
+        Get-ObjectPropertyOrDefault -Object $null -Name 'present' -Default 'fallback' | Should -Be 'fallback'
+    }
+}
+
+Describe 'Dependency review helpers (in-process)' {
+    BeforeAll {
+        . (Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1') -RepoRoot $script:RepoRoot
+    }
+
+    It 'classifies a pin against the registry latest without forcing majors' {
+        Test-CompatibleWithLatest -CurrentVersion '1.2.3' -RegistryLatest '1.2.3' | Should -Be 'current'
+        Test-CompatibleWithLatest -CurrentVersion '1.2.3' -RegistryLatest '1.3.0' | Should -Be 'behind-registry-latest'
+        Test-CompatibleWithLatest -CurrentVersion '14.3.0' -RegistryLatest '15.0.1' | Should -Be 'major-upgrade-available'
+        Test-CompatibleWithLatest -CurrentVersion '2.0.0' -RegistryLatest '1.9.9' | Should -Be 'ahead-of-registry-latest'
+        Test-CompatibleWithLatest -CurrentVersion '1.0.0' -RegistryLatest '' | Should -Be 'unknown'
+        Test-CompatibleWithLatest -CurrentVersion 'next' -RegistryLatest '1.0.0' | Should -Be 'behind-registry-latest'
+    }
+
+    It 'reads npm signature tallies from the audit summary text' {
+        $body = "audited 120 packages in 1s`n118 packages have verified registry signatures`n2 packages have missing registry signatures"
+        Get-NpmSignatureCount -Body $body -Subject 'verified registry signatures' | Should -Be 118
+        Get-NpmSignatureCount -Body $body -Subject 'missing registry signatures' | Should -Be 2
+        Get-NpmSignatureCount -Body $body -Subject 'invalid registry signatures' | Should -Be 0
+    }
+
+    It 'reads map values and counts with defaults' {
+        Get-MapValue -Map @{ a = 1 } -Key 'a' | Should -Be 1
+        Get-MapValue -Map @{ a = 1 } -Key 'b' -Default 'none' | Should -Be 'none'
+        Get-MapValue -Map 'not a map' -Key 'a' -Default 'none' | Should -Be 'none'
+        ConvertTo-Count $null | Should -Be 0
+        ConvertTo-Count '7' | Should -Be 7
+    }
+
+    It 'marks registry evidence stale past its window and missing evidence unavailable' {
+        $now = [datetimeoffset]'2026-09-22T00:00:00Z'
+        $fresh = New-PinFreshnessRow -Name 'pkg' -Kind 'npm-override' -CurrentVersion '1.0.0' -RegistryLatest '1.0.0' -LatestCheckedAt '2026-09-20T00:00:00Z' -Now $now -StaleAfterDays 30
+        $stale = New-PinFreshnessRow -Name 'pkg' -Kind 'npm-override' -CurrentVersion '1.0.0' -RegistryLatest '2.0.0' -LatestCheckedAt '2026-07-01T00:00:00Z' -Now $now -StaleAfterDays 30
+        $unknown = New-PinFreshnessRow -Name 'pkg' -Kind 'npm-override' -CurrentVersion '1.0.0' -RegistryLatest '' -LatestCheckedAt '' -Now $now -StaleAfterDays 30
+
+        $fresh.freshnessStatus | Should -Be 'fresh'
+        $fresh.warning | Should -BeNullOrEmpty
+        $stale.freshnessStatus | Should -Be 'stale'
+        $stale.compatibilityStatus | Should -Be 'major-upgrade-available'
+        $stale.warning | Should -Match '83 day'
+        $unknown.freshnessStatus | Should -Be 'unavailable'
+        $unknown.registryLatest | Should -BeNullOrEmpty
+    }
+
+    It 'refuses a missing JSON input by name' {
+        { Get-JsonHashtable -Path (Join-Path $TestDrive 'absent.json') } | Should -Throw '*Required JSON file not found*'
+    }
+}
+
+Describe 'Local validation helpers (in-process)' {
+    BeforeAll {
+        . (Join-Path $script:RepoRoot 'scripts/validate-local.ps1')
+    }
+
+    It 'maps PowerShell versions to support channels' {
+        Get-PowerShellRuntimeChannel -Version '5.1' -Edition 'Desktop' | Should -Be 'windows-powershell-bootstrap-only'
+        Get-PowerShellRuntimeChannel -Version '7.3.9' | Should -Be 'unsupported'
+        Get-PowerShellRuntimeChannel -Version '7.4.19' | Should -Be 'previous-lts'
+        Get-PowerShellRuntimeChannel -Version '7.5.3' | Should -Be 'stable-non-lts'
+        Get-PowerShellRuntimeChannel -Version '7.6.6' | Should -Be 'current-lts'
+        Get-PowerShellRuntimeChannel -Version '7.7.0' | Should -Be 'newer-than-current-lts'
+    }
+
+    It 'names the failing report conditions and tolerates a missing or unreadable report' {
+        $reportPath = Join-Path $TestDrive 'report.json'
+        [ordered]@{
+            readmeInSync = $true
+            projectsExportInSync = $false
+            profileAssetsInSync = $true
+            missingPublicRepos = @('NewRepo')
+            linkValidationFailures = @()
+        } | ConvertTo-Json | Set-Content -LiteralPath $reportPath -Encoding utf8
+        Set-Content -LiteralPath (Join-Path $TestDrive 'broken.json') -Value '{not json' -Encoding utf8
+
+        @(Get-FailedProfileConditionName -ReportPath $reportPath) | Should -Be @('projectsExportInSync', 'missingPublicRepos')
+        @(Get-FailedProfileConditionName -ReportPath (Join-Path $TestDrive 'absent.json')) | Should -BeNullOrEmpty
+        @(Get-FailedProfileConditionName -ReportPath (Join-Path $TestDrive 'broken.json')) | Should -BeNullOrEmpty
+    }
+
+    It 'finds the reviewed lock record for a pinned module and refuses an unreviewed one' {
+        $entry = Get-ModuleLockEntry -RepoRoot $script:RepoRoot -Name 'Pester' -Version '5.9.1'
+        $entry.nupkgSha256 | Should -Match '^[a-fA-F0-9]{64}$'
+        { Get-ModuleLockEntry -RepoRoot $script:RepoRoot -Name 'Pester' -Version '0.0.1' } | Should -Throw '*No reviewed lock record*'
+    }
+
+    It 'names instrumented files that the tests never executed' {
+        $coverage = [pscustomobject]@{
+            FilesAnalyzed = @('C:\repo\a.ps1', 'C:\repo\b.ps1', 'C:\repo\c.ps1')
+            CommandsExecuted = @([pscustomobject]@{ File = 'C:\REPO\A.ps1' }, [pscustomobject]@{ File = 'C:\repo\c.ps1' })
+        }
+
+        @(Get-UncoveredCoverageFile -Coverage $coverage) | Should -Be @('C:\repo\b.ps1')
+        @(Get-UncoveredCoverageFile -Coverage $null) | Should -BeNullOrEmpty
+    }
+
+    It 'fails the lane when an instrumented file has no executed command' {
+        $validation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
+        $validation | Should -Match 'Join-Path \$repoRoot "scripts"'
+        $validation | Should -Match 'Join-Path \$repoRoot "setup\.ps1"'
+        $validation | Should -Match '\$uncoveredFiles = @\(Get-UncoveredCoverageFile -Coverage \$coverage\)'
+        $validation | Should -Match 'Code coverage recorded no executed command in'
+    }
+
+    It 'surfaces a failing native command' {
+        $pwsh = (Get-Command pwsh -CommandType Application | Select-Object -First 1).Source
+        { Invoke-NativeCommand -FilePath $pwsh -ArgumentList @('-NoProfile', '-NonInteractive', '-Command', 'exit 3') } | Should -Throw '*failed with exit code 3*'
+    }
+}
+
+Describe 'Support bundle helpers (in-process)' {
+    BeforeAll {
+        . (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') -OutputPath (Join-Path $TestDrive 'never-written.zip')
+    }
+
+    It 'loads without writing a bundle' {
+        Test-Path -LiteralPath (Join-Path $TestDrive 'never-written.zip') | Should -BeFalse
+    }
+
+    It 'redacts user paths, tokens, secrets, query credentials and caller values' {
+        $text = 'C:\Users\Alice\repo "C:\Users\Bob Smith\x" ghp_abc123 Bearer tok.en password=hunter2 https://h/?token=abc PrivateRepoName'
+        $redacted = ConvertTo-RedactedSupportText -Text $text -AdditionalValues @('PrivateRepoName')
+
+        $redacted | Should -Not -Match 'Alice|Bob Smith|ghp_abc123|tok\.en|hunter2|token=abc|PrivateRepoName'
+        $redacted | Should -Match '<REDACTED_USER_PATH>'
+        $redacted | Should -Match '<REDACTED_TOKEN>'
+        $redacted | Should -Match '<REDACTED_SECRET>'
+        $redacted | Should -Match '<REDACTED_QUERY_VALUE>'
+        $redacted | Should -Match '<REDACTED_VALUE>'
+    }
+
+    It 'rejects an invalid caller redaction pattern' {
+        { ConvertTo-RedactedSupportText -Text 'x' -AdditionalPatterns @('(') } | Should -Throw '*Invalid support-bundle redaction pattern*'
+    }
+
+    It 'truncates oversized input on a UTF-8 boundary' {
+        $text = ('a' * 1023) + ([string][char]0x00E9) + 'tail'
+        $limited = Limit-SupportText -Text $text -MaxBytes 1024
+
+        $limited | Should -Match 'truncated at 1024 bytes'
+        $limited | Should -Not -Match ([string][char]0xFFFD)
+        $limited.StartsWith('a' * 1023) | Should -BeTrue
+        Limit-SupportText -Text 'short' -MaxBytes 1024 | Should -Be 'short'
+    }
+}
+
+Describe 'Setup bootstrapper helpers (in-process)' {
+    BeforeAll {
+        # The seam stops before anything is checked or installed. Install-Pkg,
+        # Update-PathFromRegistry and the transcript helpers change the machine or the
+        # session and are not called here.
+        . (Join-Path $script:RepoRoot 'setup.ps1')
+        $script:MissingCommand = 'sysadmindoc-no-such-command-' + [guid]::NewGuid().ToString('N')
+    }
+
+    It 'detects commands on PATH' {
+        Test-Cmd 'pwsh' | Should -BeTrue
+        Test-Cmd $script:MissingCommand | Should -BeFalse
+    }
+
+    It 'reads a version line only for installed tools' {
+        Get-VersionLine $script:MissingCommand | Should -BeNullOrEmpty
+        [string](Get-VersionLine 'pwsh') | Should -Match '7\.\d+'
+    }
+
+    It 'reports a tool status as present or missing' {
+        Write-ToolStatus 'pwsh' 'pwsh' 6>$null | Should -BeTrue
+        Write-ToolStatus 'none' $script:MissingCommand 6>$null | Should -BeFalse
+    }
+
+    It 'stops setup with the message it prints' {
+        { Stop-SetupWithFailure 'setup cannot continue' 6>$null } | Should -Throw 'setup cannot continue'
+    }
+
+    It 'answers the elevation question with a boolean' {
+        Test-Admin | Should -BeOfType ([bool])
+    }
+
+    It 'prints status lines without failing' {
+        { & { Write-Step 'step'; Write-Ok 'ok'; Write-Skip 'skip'; Write-Warn2 'warn' } 6>$null } | Should -Not -Throw
+    }
+}
+
+Describe 'Rendered smoke helpers (in-process)' {
+    BeforeAll {
+        # Loads the helpers only: the seam stops before the output directory is created or a
+        # browser starts. Invoke-RenderedSmoke is never called here.
+        . (Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1') -OutputDir (Join-Path $TestDrive 'never-created')
+    }
+
+    It 'loads without creating the output directory' {
+        Test-Path -LiteralPath (Join-Path $TestDrive 'never-created') | Should -BeFalse
+        Get-Command Invoke-RenderedSmoke -CommandType Function | Should -Not -BeNullOrEmpty
+    }
+
+    It 'writes the smoke artifact without touching a sync report outside its directory' {
+        $resolvedOutputDir = Join-Path $TestDrive 'smoke-out'
+        $currentDirectory = Join-Path $TestDrive 'no-repo'
+        New-Item -ItemType Directory -Path $resolvedOutputDir, $currentDirectory -Force | Out-Null
+
+        $artifact = Write-RenderedSmokeArtifact -Report ([ordered]@{ status = 'passed'; viewports = @() })
+
+        $artifact | Should -Be (Join-Path $resolvedOutputDir 'rendered-profile-smoke.json')
+        (Get-Content -LiteralPath $artifact -Raw | ConvertFrom-Json).status | Should -Be 'passed'
+        Test-Path -LiteralPath (Join-Path $currentDirectory 'reports') | Should -BeFalse
+    }
+
+    It 'removes only its own temporary browser profile directories' {
+        $foreign = Join-Path $TestDrive 'not-a-smoke-profile'
+        New-Item -ItemType Directory -Path $foreign | Out-Null
+        $own = Join-Path ([System.IO.Path]::GetTempPath()) ('SysAdminDoc-render-smoke-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $own | Out-Null
+        try {
+            Remove-RenderedSmokeProfileDir -Path $foreign 3>$null
+            Remove-RenderedSmokeProfileDir -Path $own
+
+            Test-Path -LiteralPath $foreign | Should -BeTrue -Because 'a directory without the smoke profile name must be left alone'
+            Test-Path -LiteralPath $own | Should -BeFalse
+            { Remove-RenderedSmokeProfileDir -Path $null } | Should -Not -Throw
+        } finally {
+            Remove-Item -LiteralPath $own -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}

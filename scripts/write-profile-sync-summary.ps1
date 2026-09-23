@@ -100,6 +100,10 @@ function Get-ObjectPropertyOrDefault {
     return $value
 }
 
+# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
+# functions above and stop before reading a report or writing a summary.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
 if (-not (Test-Path -LiteralPath $ReportPath)) {
     $message = "Profile sync report not found at $ReportPath."
     Write-Output "::warning::$message"

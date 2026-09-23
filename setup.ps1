@@ -130,6 +130,11 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
     else { Write-Warn2 "$display not on PATH yet - close and reopen PowerShell, then re-run." }
 }
 
+# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
+# functions above and stop before checking or installing anything. Run through
+# irm | iex or -File, the invocation name is not '.', so setup runs as before.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
 try {
     Write-Host ""
     Write-Host "SysAdminDoc Setup" -ForegroundColor Cyan
