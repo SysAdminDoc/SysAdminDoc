@@ -18,6 +18,9 @@
       "type": "string",
       "format": "date-time"
     },
+    "profileHeader": {
+      "$ref": "#/$defs/profileHeader"
+    },
     "entries": {
       "type": "array",
       "minItems": 1,
@@ -249,6 +252,83 @@
         },
         "notes": {
           "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "headerUrl": {
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^https://[!#-&(-;=?-\\[\\]-~]+(?![\\s\\S])"
+    },
+    "profileHeader": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tagline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "heading": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "about": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "text",
+              "url"
+            ],
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "url": {
+                "$ref": "#/$defs/headerUrl"
+              }
+            }
+          }
+        },
+        "support": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url",
+            "imageUrl",
+            "imageAlt"
+          ],
+          "properties": {
+            "url": {
+              "$ref": "#/$defs/headerUrl"
+            },
+            "imageUrl": {
+              "$ref": "#/$defs/headerUrl"
+            },
+            "imageAlt": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
         }
       }
     }

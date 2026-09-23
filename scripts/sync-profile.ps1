@@ -191,11 +191,9 @@ $script:MetadataFetchResourceLimitReason = $null
 $script:MetadataFetchPageSizeReduced = $false
 $script:ValidationCacheState = $null
 
-$ProfileTagline = 'Sysadmin by day, tool-builder by habit. Everything here is something I actually use.'
 # Star counts below this are left off project links: a lone star beside a name is noise,
 # not a signal. Ordering still uses the real count.
 $script:MinStarDisplay = 2
-$script:ProfileTaglineHtml = '<p align="center"><b>{0}</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>' -f $ProfileTagline
 
 $script:CategoryDefinitions = @(
     [ordered]@{

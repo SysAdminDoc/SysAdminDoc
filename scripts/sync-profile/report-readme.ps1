@@ -223,8 +223,8 @@ function Test-ReadmeExperience {
     $motionPatternCount = [regex]::Matches($ExpectedReadme, $motionPattern).Count
     $motionSafeChrome = $motionPatternCount -eq 0
     $profileStatsChromeCount = [regex]::Matches($ExpectedReadme, '<a href="https://skillicons\.dev">').Count
-    $hasPlainTextTagline = $ExpectedReadme.Contains($ProfileTagline) -and
-        $ExpectedReadme.Contains("Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence")
+    # The plain-text line under the old SVG header.
+    $hasPlainTextTagline = $ExpectedReadme.Contains("Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
     $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
     # Per GitHub accessibility guidance, every <img> needs descriptive alt text.
@@ -248,11 +248,13 @@ function Test-ReadmeExperience {
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
     $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern) + '.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
-    $taglinePrefix = '<p align="center"><b>' + $ProfileTagline + '</b>'
+    # The tagline paragraph this catalog's header opens with, from its profileHeader block
+    # or the neutral tagline when it has none.
+    $taglineLine = ((New-ProfileChrome -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')) -split '\r?\n', 2)[0]
     # Any category nav link: the header links only categories that rendered, so a catalog
     # with no PowerShell rows has no PowerShell link and is still a valid header.
     $categoryNavPattern = '<a href="#(?:' + (@($CategoryDefinitions | ForEach-Object { [regex]::Escape((Get-CategoryAnchor $_.Slug)) }) -join '|') + ')">'
-    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglinePrefix, [StringComparison]::Ordinal) -and
+    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglineLine, [StringComparison]::Ordinal) -and
         $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>See everything') -and
         [regex]::IsMatch($ExpectedReadme, $categoryNavPattern) -and
         -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and

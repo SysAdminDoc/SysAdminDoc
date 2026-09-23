@@ -130,11 +130,18 @@ function Get-Catalog {
         ConvertTo-EntryHashtable $entry
     }
 
-    return [ordered]@{
+    $normalized = [ordered]@{
         schema = $catalog.schema
         generatedAt = $catalog.generatedAt
-        entries = @($entries)
     }
+    # Optional: the README header's personal text and links. Absent, the header is neutral,
+    # and the key stays absent so the normalized catalog still matches the schema.
+    $profileHeader = Get-MemberValue -Object $catalog -Name 'profileHeader'
+    if ($null -ne $profileHeader) {
+        $normalized['profileHeader'] = $profileHeader
+    }
+    $normalized['entries'] = @($entries)
+    return $normalized
 }
 
 function Get-RepoMeta {
@@ -621,6 +628,8 @@ function Test-CatalogShape {
 
     $seenRepos = @{}
     $seenIds = @{}
+    # Public one-line text from the rows and the header, checked together below.
+    $publicTexts = New-Object System.Collections.Generic.List[object]
     foreach ($entry in @($Catalog.entries)) {
         $repo = [string]$entry.repo
         if ([string]::IsNullOrWhiteSpace($repo)) {
@@ -685,41 +694,15 @@ function Test-CatalogShape {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "downloadKind"; value = $downloadKind; reason = "unknown downloadKind" })
         }
 
-        # Public one-line text: nothing that breaks a line, hides as a control character,
-        # reorders what a reader sees (bidi embedding, override or isolate), or is half of a
-        # surrogate pair. The README encoder would drop these, so the catalog refuses them
-        # rather than publishing text that differs from what was written. The value in the
-        # issue is the offending code point, never the text itself.
         foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
-            $text = [string]$entry[$field]
-            if ([string]::IsNullOrEmpty($text)) {
-                continue
-            }
-            $problem = $null
-            for ($index = 0; $index -lt $text.Length -and $null -eq $problem; $index++) {
-                $character = $text[$index]
-                $code = [int]$character
-                if ([char]::IsHighSurrogate($character) -and $index + 1 -lt $text.Length -and [char]::IsLowSurrogate($text[$index + 1])) {
-                    $index++
-                } elseif ([char]::IsSurrogate($character)) {
-                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains an unpaired surrogate" }
-                } elseif ($code -eq 0x0A -or $code -eq 0x0D -or $code -eq 0x85 -or $code -eq 0x2028 -or $code -eq 0x2029) {
-                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "must be one line" }
-                } elseif ([char]::IsControl($character)) {
-                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains a control character" }
-                } elseif (($code -ge 0x202A -and $code -le 0x202E) -or ($code -ge 0x2066 -and $code -le 0x2069)) {
-                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains a bidi embedding, override or isolate character" }
-                }
-            }
-            if ($null -ne $problem) {
-                $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; value = $problem.codePoint; reason = "$field $($problem.reason)" })
-            }
+            $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field] })
         }
 
         # \z, not $: in .NET $ also matches before a final newline, which would pass
         # "tool.ps1`n" and break the pasted command.
-        # entrypoint and branch are pasted into the install one-liners: & "$d\<entrypoint>" and
-        # git clone -b <branch>. A $ or backtick would expand inside the double quotes and a
+        # entrypoint and branch reach git and the shell through run.ps1 (git clone -b <branch>,
+        # then the entry script), and the expanded command in the README's setup section
+        # quotes them the same way. A $ or backtick would expand inside double quotes and a
         # quote, semicolon or space would end the argument, so both take a strict shape.
         $entrypoint = [string]$entry.entrypoint
         if (-not [string]::IsNullOrWhiteSpace($entrypoint) -and $entrypoint -cnotmatch '^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\.(?:ps1|py|pyw)\z') {
@@ -736,6 +719,72 @@ function Test-CatalogShape {
         $branch = [string]$entry.branch
         if (-not [string]::IsNullOrWhiteSpace($branch) -and $branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "branch"; value = $branch; reason = "branch must start with a letter or digit and use only letters, digits and ._/-" })
+        }
+    }
+
+    # The README header's text and links, when the catalog has a profileHeader block.
+    $header = Get-MemberValue -Object $Catalog -Name 'profileHeader'
+    $headerUrls = New-Object System.Collections.Generic.List[object]
+    if ($null -ne $header) {
+        foreach ($field in @('tagline', 'heading', 'about')) {
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.$field"; text = [string](Get-MemberValue -Object $header -Name $field) })
+        }
+        $index = 0
+        foreach ($language in @(Get-JsonArrayItems (Get-MemberValue -Object $header -Name 'languages'))) {
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.languages[$index]"; text = [string]$language })
+            $index++
+        }
+        $index = 0
+        foreach ($link in @(Get-JsonArrayItems (Get-MemberValue -Object $header -Name 'links'))) {
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.links[$index].text"; text = [string](Get-MemberValue -Object $link -Name 'text') })
+            $headerUrls.Add([ordered]@{ field = "profileHeader.links[$index].url"; url = [string](Get-MemberValue -Object $link -Name 'url') })
+            $index++
+        }
+        $support = Get-MemberValue -Object $header -Name 'support'
+        if ($null -ne $support) {
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.support.imageAlt"; text = [string](Get-MemberValue -Object $support -Name 'imageAlt') })
+            foreach ($field in @('url', 'imageUrl')) {
+                $headerUrls.Add([ordered]@{ field = "profileHeader.support.$field"; url = [string](Get-MemberValue -Object $support -Name $field) })
+            }
+        }
+    }
+
+    # Public one-line text: nothing that breaks a line, hides as a control character,
+    # reorders what a reader sees (bidi embedding, override or isolate), or is half of a
+    # surrogate pair. The README encoders would drop these, so the catalog refuses them
+    # rather than publishing text that differs from what was written. The value in the
+    # issue is the offending code point, never the text itself.
+    foreach ($publicText in $publicTexts) {
+        $text = [string]$publicText.text
+        if ([string]::IsNullOrEmpty($text)) {
+            continue
+        }
+        $problem = $null
+        for ($index = 0; $index -lt $text.Length -and $null -eq $problem; $index++) {
+            $character = $text[$index]
+            $code = [int]$character
+            if ([char]::IsHighSurrogate($character) -and $index + 1 -lt $text.Length -and [char]::IsLowSurrogate($text[$index + 1])) {
+                $index++
+            } elseif ([char]::IsSurrogate($character)) {
+                $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains an unpaired surrogate" }
+            } elseif ($code -eq 0x0A -or $code -eq 0x0D -or $code -eq 0x85 -or $code -eq 0x2028 -or $code -eq 0x2029) {
+                $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "must be one line" }
+            } elseif ([char]::IsControl($character)) {
+                $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains a control character" }
+            } elseif (($code -ge 0x202A -and $code -le 0x202E) -or ($code -ge 0x2066 -and $code -le 0x2069)) {
+                $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains a bidi embedding, override or isolate character" }
+            }
+        }
+        if ($null -ne $problem) {
+            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $problem.codePoint; reason = "$($publicText.field) $($problem.reason)" })
+        }
+    }
+
+    # Header URLs sit in href and src attributes as written, so a quote, angle bracket,
+    # backslash or space would end the attribute or the tag.
+    foreach ($headerUrl in $headerUrls) {
+        if ([string]$headerUrl.url -cnotmatch '^https://[!#-&(-;=?-\[\]-~]+\z') {
+            $issues.Add([ordered]@{ repo = $null; field = $headerUrl.field; value = [string]$headerUrl.url; reason = "$($headerUrl.field) must be an https URL of printable ASCII with no quote, angle bracket, backslash or space" })
         }
     }
 
@@ -928,7 +977,11 @@ function Write-CatalogEntryDraft {
 
     $entries = @(Get-JsonArrayItems (Get-MemberValue -Object $catalog -Name "entries")) + $additions.ToArray()
     Set-MemberValue -Object $catalog -Name "entries" -Value $entries
-    $json = ($catalog | ConvertTo-Json -Depth 20) -replace "`r`n", "`n"
+    # The array-preserving parser wraps every array as { __JsonArray, Items }, which
+    # ConvertTo-Json would write out as an object; unwrap back to plain arrays first.
+    $plainCatalog = $null
+    ConvertTo-JsonSchemaValidationValue -Value $catalog -Result ([ref]$plainCatalog)
+    $json = ($plainCatalog | ConvertTo-Json -Depth 20) -replace "`r`n", "`n"
     Write-AtomicUtf8TextFile -Path $fullPath -Content ($json.TrimEnd() + "`n")
     Write-Host "Drafted $($drafted.Count) suppressed catalog row(s) in $($CatalogPath): $($drafted -join ', '). Review and complete them before publishing."
 }

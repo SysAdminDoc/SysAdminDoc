@@ -58,6 +58,28 @@ function ConvertTo-MarkdownText {
     return $builder.ToString()
 }
 
+function ConvertTo-HtmlText {
+    <#
+    .SYNOPSIS
+    Encodes catalog text for an HTML element or attribute in the README header.
+    .DESCRIPTION
+    GitHub shows the inside of an HTML block as written, so the Markdown escapes from
+    ConvertTo-MarkdownText would appear as backslashes there. Line breaks become spaces,
+    because a blank line would end the block, control and bidi characters are dropped
+    the same way, and WebUtility.HtmlEncode turns & < > " and ' into entities.
+    .PARAMETER Text
+    The untrusted text; $null renders as an empty string.
+    #>
+    param([AllowNull()][string]$Text)
+
+    if ([string]::IsNullOrEmpty($Text)) {
+        return ''
+    }
+    $oneLine = [regex]::Replace($Text, '\r\n|[\r\n\u0085  ]', ' ')
+    $visible = [regex]::Replace($oneLine, '[\p{Cc}‪-‮⁦-⁩]', '')
+    return [System.Net.WebUtility]::HtmlEncode($visible)
+}
+
 function Get-ProjectLink {
     param(
         [hashtable]$Entry,
@@ -682,25 +704,52 @@ function New-ProfileAssetSvgs {
 }
 
 function New-ProfileChrome {
-    # Minimal header with a Ko-fi support image at the bottom. Satisfies the minimal
-    # profile-header contract in Test-ReadmeExperience (README must start with the tagline
-    # paragraph, carry the support-lead intro and portfolio links, and expose plain
-    # category nav anchors with no profile-asset header image).
+    # Minimal text header. Everything personal in it (tagline, languages, greeting, about
+    # text, links and support button) comes from the catalog's profileHeader block, so a
+    # run for another account publishes only what its own catalog says. With no block the
+    # header is a neutral tagline and the category nav. Satisfies the minimal header
+    # contract in Test-ReadmeExperience: the README starts with the tagline paragraph and
+    # exposes plain category nav anchors with no profile-asset header image.
     param(
         # Categories that rendered a section. The nav links only to these: an empty category
         # renders no section, so its anchor would be dead. Omitted, every category is linked.
-        [string[]]$CategorySlugs
+        [string[]]$CategorySlugs,
+        # The catalog's profileHeader block; $null renders the neutral header.
+        [object]$Header
     )
 
+    $tagline = [string](Get-MemberValue -Object $Header -Name 'tagline')
+    if ([string]::IsNullOrWhiteSpace($tagline)) {
+        $tagline = "Public projects by $Owner"
+    }
+    $languages = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'languages') | ForEach-Object { ConvertTo-HtmlText ([string]$_) })
+    $taglineLine = '<p align="center"><b>' + (ConvertTo-HtmlText $tagline) + '</b>'
+    if ($languages.Count -gt 0) {
+        $taglineLine += '<br/><sub>' + ($languages -join ' &middot; ') + '</sub>'
+    }
+
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add($ProfileTaglineHtml)
+    $lines.Add($taglineLine + '</p>')
     $lines.Add('')
-    $lines.Add('## Hey, I''m Matt')
-    $lines.Add('')
-    $lines.Add('I do technical support for a medical imaging company during the day, and I build things at night. Some of these are tools I wrote to fix problems at work. Others are side projects, personal apps, or just things I wanted to exist. All of it is stuff I actually use or actively maintain.')
-    $lines.Add('')
-    $lines.Add('<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>More about what I do &#8594;</b></a></p>')
-    $lines.Add('')
+    $heading = [string](Get-MemberValue -Object $Header -Name 'heading')
+    if (-not [string]::IsNullOrWhiteSpace($heading)) {
+        $lines.Add('## ' + (ConvertTo-MarkdownText $heading))
+        $lines.Add('')
+    }
+    $about = [string](Get-MemberValue -Object $Header -Name 'about')
+    if (-not [string]::IsNullOrWhiteSpace($about)) {
+        $lines.Add((ConvertTo-MarkdownText $about))
+        $lines.Add('')
+    }
+    # Test-CatalogShape holds every URL to an https shape with no quote, angle bracket or
+    # space, so it can sit in an attribute as written.
+    $links = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'links') | ForEach-Object {
+        '<a href="' + [string](Get-MemberValue -Object $_ -Name 'url') + '"><b>' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $_ -Name 'text'))) + ' &#8594;</b></a>'
+    })
+    if ($links.Count -gt 0) {
+        $lines.Add('<p align="center">' + ($links -join ' &middot; ') + '</p>')
+        $lines.Add('')
+    }
     $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
     if ($PSBoundParameters.ContainsKey('CategorySlugs')) {
         $navSlugs = @($navSlugs | Where-Object { $CategorySlugs -ccontains $_ })
@@ -714,12 +763,17 @@ function New-ProfileChrome {
         $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
         $lines.Add('')
     }
-    $lines.Add('<p align="center">')
-    $lines.Add('  <a href="https://ko-fi.com/X8K126YVER">')
-    $lines.Add('    <img height="36" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />')
-    $lines.Add('  </a>')
-    $lines.Add('</p>')
-    $lines.Add('')
+    $support = Get-MemberValue -Object $Header -Name 'support'
+    $supportUrl = [string](Get-MemberValue -Object $support -Name 'url')
+    $supportImageUrl = [string](Get-MemberValue -Object $support -Name 'imageUrl')
+    if (-not [string]::IsNullOrWhiteSpace($supportUrl) -and -not [string]::IsNullOrWhiteSpace($supportImageUrl)) {
+        $lines.Add('<p align="center">')
+        $lines.Add('  <a href="' + $supportUrl + '">')
+        $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $support -Name 'imageAlt'))) + '" />')
+        $lines.Add('  </a>')
+        $lines.Add('</p>')
+        $lines.Add('')
+    }
     return ($lines -join [Environment]::NewLine)
 }
 
@@ -735,7 +789,10 @@ function New-ProfileFooter {
 }
 
 function Update-Header {
-    param([string[]]$CategorySlugs)
+    param(
+        [string[]]$CategorySlugs,
+        [object]$Header
+    )
 
     return (New-ProfileChrome @PSBoundParameters).TrimEnd()
 }
@@ -784,7 +841,7 @@ function New-Readme {
         $renderedSlugs.Add([string]$definition.Slug)
     }
     $footer = New-ProfileFooter
-    $header = Update-Header -CategorySlugs $renderedSlugs.ToArray()
+    $header = Update-Header -CategorySlugs $renderedSlugs.ToArray() -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')
     $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
 
     $blocks = New-Object System.Collections.Generic.List[string]

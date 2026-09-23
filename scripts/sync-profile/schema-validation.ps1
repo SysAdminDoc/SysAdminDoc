@@ -63,7 +63,9 @@ function ConvertTo-JsonSchemaValidationValue {
         $hash = [ordered]@{}
         foreach ($propertyName in $propertyNames) {
             $convertedValue = $null
-            ConvertTo-JsonSchemaValidationValue -Value (Get-MemberValue -Object $Value -Name $propertyName) -Result ([ref]$convertedValue)
+            # Read the property directly: returned from a function such as Get-MemberValue,
+            # a one-item array would unroll to its item and validate as the wrong type.
+            ConvertTo-JsonSchemaValidationValue -Value $Value.PSObject.Properties[$propertyName].Value -Result ([ref]$convertedValue)
             $hash[$propertyName] = $convertedValue
         }
         $Result.Value = $hash

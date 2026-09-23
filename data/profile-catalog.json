@@ -1,6 +1,31 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
   "generatedAt": "2026-06-01T16:18:55.099894-04:00",
+  "profileHeader": {
+    "tagline": "Sysadmin by day, tool-builder by habit. Everything here is something I actually use.",
+    "languages": [
+      "PowerShell",
+      "Python",
+      "C#",
+      "Kotlin",
+      "JavaScript",
+      "Rust",
+      "C++"
+    ],
+    "heading": "Hey, I'm Matt",
+    "about": "I do technical support for a medical imaging company during the day, and I build things at night. Some of these are tools I wrote to fix problems at work. Others are side projects, personal apps, or just things I wanted to exist. All of it is stuff I actually use or actively maintain.",
+    "links": [
+      {
+        "text": "More about what I do",
+        "url": "https://portfolio.getparkerai.com/healthcare-it/"
+      }
+    ],
+    "support": {
+      "url": "https://ko-fi.com/X8K126YVER",
+      "imageUrl": "https://storage.ko-fi.com/cdn/kofi2.png?v=3",
+      "imageAlt": "Buy me a coffee on Ko-fi"
+    }
+  },
   "entries": [
     {
       "repo": "win11-nvme-driver-patcher",

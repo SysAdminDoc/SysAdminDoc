@@ -65,6 +65,18 @@ BeforeAll {
         ConvertTo-EntryHashtable (New-CatalogEntry -Repo $Repo -Category $Category -Description $Description -Order $Order)
     }
 
+    # A catalog profileHeader block with every field, none of it this profile's own text.
+    function New-TestProfileHeader {
+        @{
+            tagline = 'Fixture tagline for the header.'
+            languages = @('PowerShell', 'Python')
+            heading = 'Hi, fixture here'
+            about = 'Fixture about text.'
+            links = @(@{ text = 'More about the fixture'; url = 'https://fixture.example.test/about/' })
+            support = @{ url = 'https://support.example.test/fixture'; imageUrl = 'https://support.example.test/button.png'; imageAlt = 'Support the fixture' }
+        }
+    }
+
     function New-TestRepoMeta {
         param(
             [string]$Name,
@@ -3832,7 +3844,9 @@ Describe 'What-is-this sentence before the category grid' {
         $sentence[0] | Should -Match "^This is the index of the $visible public projects I've published"
         $sentence[0] | Should -Match 'for anyone who'
         ($sentence[0] -split '(?<=[.!?])\s+').Count | Should -Be 1 -Because 'it is a single sentence'
-        $sentence[0] | Should -Not -Match ([regex]::Escape($ProfileTagline))
+        $tagline = [regex]::Match($readme.TrimStart(), '^<p align="center"><b>(?<text>[^<]+)</b>').Groups['text'].Value
+        $tagline | Should -Not -BeNullOrEmpty
+        $sentence[0] | Should -Not -Match ([regex]::Escape($tagline))
         $sentence[0] | Should -Not -Match '[\u2013\u2014]'
         $section.IndexOf($sentence[0]) | Should -BeLessThan $section.IndexOf('| PowerShell |') -Because 'it has to come before the grid'
     }
@@ -4176,22 +4190,19 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         [regex]::Matches($rendered, 'Upstream: \[UpstreamOrg/WinTool\]\(https://github\.com/UpstreamOrg/WinTool\); License: MIT').Count | Should -Be 1
     }
     It 'renders a minimal text-only profile chrome without images or third-party render hosts' {
-        $script:rendered.TrimStart() | Should -Match ('^<p align="center"><b>' + [regex]::Escape($ProfileTagline) + '</b>')
+        # The fixture catalog has no profileHeader block, so this is the neutral header.
+        $script:rendered.TrimStart() | Should -Match '^<p align="center"><b>Public projects by SysAdminDoc</b></p>'
         $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
         $script:rendered | Should -Not -Match '<img[^>]*assets/profile/'
         $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf("### What's here"))
-        [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected in the header'
+        [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 0 -Because 'a header without support data has no image'
         $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
-        $script:rendered | Should -Match "## Hey, I'm Matt"
-        $script:rendered | Should -Match 'medical imaging'
-        # One deliberate outbound call to action, not a pair of competing links.
-        $script:rendered | Should -Match '<a href="https://portfolio\.getparkerai\.com/healthcare-it/"><b>More about what I do'
+        $script:rendered | Should -Not -Match "Hey, I'm Matt|medical imaging|getparkerai\.com/healthcare-it|ko-fi"
         $script:rendered | Should -Not -Match 'AI service overview'
         $script:rendered | Should -Not -Match 'Proof:|186\+ shipped'
         $script:rendered | Should -Not -Match '<a href="#start-here">Start Here</a>'
         $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
-        $script:rendered | Should -Match ([regex]::Escape($ProfileTagline))
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
         $script:rendered | Should -Not -Match 'https://skillicons\.dev'
@@ -4720,17 +4731,152 @@ Describe 'Update-Header idempotency' {
     }
 
     It 'produces a minimal text-only header with no image chrome' {
-        $result = Update-Header
+        $result = Update-Header -Header (New-TestProfileHeader)
 
         $result | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $result | Should -Not -Match '<img[^>]*assets/profile/'
-        [regex]::Matches($result, '<img\b').Count | Should -Be 1 -Because 'only the Ko-fi support image is expected'
-        $result | Should -Match 'storage\.ko-fi\.com'
-        $result | Should -Match 'More about what I do'
+        [regex]::Matches($result, '<img\b').Count | Should -Be 1 -Because 'only the support image is expected'
+        $result | Should -Match 'support\.example\.test/button\.png'
+        $result | Should -Match 'More about the fixture'
         $result | Should -Not -Match 'AI service overview'
-        $result | Should -Match ([regex]::Escape($ProfileTagline))
+        $result | Should -Match 'Fixture tagline for the header\.'
         $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
         $result | Should -Not -Match 'Professional Focus|Public portfolio: 100 active repos'
+    }
+}
+
+Describe 'Profile header comes from catalog data' {
+    It 'renders the tagline, languages, about text, links and support button from the catalog' {
+        $result = (Update-Header -Header (New-TestProfileHeader) -CategorySlugs @('powershell')) -replace "`r`n", "`n"
+
+        $result | Should -Match '^<p align="center"><b>Fixture tagline for the header\.</b><br/><sub>PowerShell &middot; Python</sub></p>'
+        $result | Should -Match '(?m)^## Hi, fixture here$'
+        $result | Should -Match '(?m)^Fixture about text\.$'
+        # One deliberate outbound call to action, not a pair of competing links.
+        [regex]::Matches($result, '(?m)^<p align="center"><a href="https://fixture\.example\.test/about/"><b>More about the fixture &#8594;</b></a></p>$').Count | Should -Be 1
+        $result | Should -Match '<a href="https://support\.example\.test/fixture">\s*<img height="36" src="https://support\.example\.test/button\.png" alt="Support the fixture" />\s*</a>'
+    }
+
+    It 'encodes header text for the HTML or Markdown it lands in' {
+        $header = New-TestProfileHeader
+        $header.tagline = 'Tools & <scripts> "quoted"'
+        $header.languages = @('C#', '<script>')
+        $header.heading = 'Hi | [there]'
+        $header.about = 'A [link](https://evil.example/) and <b>bold</b>'
+        $header.links = @(@{ text = 'Read "more" <now>'; url = 'https://fixture.example.test/about/' })
+        $header.support.imageAlt = 'Buy "me" a <coffee>'
+
+        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+
+        # Inside an HTML block GitHub shows backslashes as written, so only entities are used there.
+        $result | Should -Match ([regex]::Escape('<b>Tools &amp; &lt;scripts&gt; &quot;quoted&quot;</b><br/><sub>C# &middot; &lt;script&gt;</sub>'))
+        $result | Should -Match ([regex]::Escape('## Hi \| \[there\]'))
+        $result | Should -Match ([regex]::Escape('A \[link\](https://evil.example/) and &lt;b&gt;bold&lt;/b&gt;'))
+        $result | Should -Match ([regex]::Escape('<b>Read &quot;more&quot; &lt;now&gt; &#8594;</b>'))
+        $result | Should -Match ([regex]::Escape('alt="Buy &quot;me&quot; a &lt;coffee&gt;"'))
+        $result | Should -Not -Match '<script>|<scripts>|<now>|<coffee>'
+    }
+
+    It 'renders a neutral header for another owner with no header data' {
+        $Owner = 'FixtureOwner'
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $catalog.Contains('profileHeader') | Should -BeFalse
+
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        $headerRegion = $readme.Substring(0, $readme.IndexOf("### What's here"))
+        $headerRegion.TrimStart() | Should -Match '^<p align="center"><b>Public projects by FixtureOwner</b></p>'
+        $headerRegion | Should -Not -Match "Matt|medical|getparkerai|ko-fi|Sysadmin by day|tool-builder"
+        [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 0
+        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
+        $experience.minimalProfileHeader | Should -BeTrue
+        $experience.passed | Should -BeTrue
+    }
+
+    It 'holds the README to the tagline its own catalog renders' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $catalog.profileHeader = New-TestProfileHeader
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeTrue
+        $catalog.profileHeader.tagline = 'A different tagline.'
+        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeFalse
+    }
+
+    It 'keeps this profile''s personal header text out of the generator' {
+        $personal = @("Hey, I'm Matt", 'medical imaging', 'healthcare-it', 'ko-fi', 'X8K126YVER', 'Sysadmin by day')
+        $offenders = foreach ($path in $script:SyncProfileSourcePaths) {
+            $text = [System.IO.File]::ReadAllText($path)
+            foreach ($phrase in $personal) {
+                if ($text.IndexOf($phrase, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                    '{0}: {1}' -f [System.IO.Path]::GetFileName($path), $phrase
+                }
+            }
+        }
+
+        @($offenders) | Should -BeNullOrEmpty
+    }
+
+    It 'publishes the header this catalog describes' {
+        $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $slugs = @($CategoryDefinitions | ForEach-Object { [string]$_.Slug })
+        $header = (Update-Header -CategorySlugs $slugs -Header $catalog.profileHeader) -replace "`r`n", "`n"
+        $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md')) -replace "`r`n", "`n"
+
+        $catalog.profileHeader | Should -Not -BeNullOrEmpty
+        $committed.StartsWith($header, [StringComparison]::Ordinal) | Should -BeTrue
+    }
+
+    It 'refuses header text that breaks a line and header URLs that could leave their attribute' {
+        $header = New-TestProfileHeader
+        $header.tagline = "Two`nlines"
+        $header.links = @(@{ text = 'Link'; url = 'https://example.test/"onmouseover="x' })
+        $header.support.imageUrl = 'http://insecure.example.test/button.png'
+
+        $result = Test-CatalogShape -Catalog @{ entries = @(New-TestEntry -Repo 'ShapeTool' -Category 'powershell'); profileHeader = $header }
+
+        $issues = @($result.issues | Where-Object { $_.field -like 'profileHeader*' })
+        @($issues | ForEach-Object { $_.field } | Sort-Object) | Should -Be @('profileHeader.links[0].url', 'profileHeader.support.imageUrl', 'profileHeader.tagline')
+        ($issues | Where-Object { $_.field -eq 'profileHeader.tagline' }).value | Should -Be 'U+000A'
+        $result.passed | Should -BeFalse
+    }
+
+    It 'accepts a complete header block' {
+        $result = Test-CatalogShape -Catalog @{ entries = @(New-TestEntry -Repo 'ShapeTool' -Category 'powershell'); profileHeader = (New-TestProfileHeader) }
+
+        @($result.issues | Where-Object { $_.field -like 'profileHeader*' }) | Should -BeNullOrEmpty
+    }
+
+    It 'validates the catalog the generator loads, one-link header included' {
+        # Get-Catalog reads with ConvertFrom-Json, so the header is a PSCustomObject whose
+        # one-item links array must still validate as an array.
+        $result = Test-JsonSchemaContract -Value (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')) -SchemaPath 'schemas/profile-catalog.v1.json'
+
+        @($result.errors | ForEach-Object { '{0} {1}' -f $_.instanceLocation, $_.message }) | Should -BeNullOrEmpty
+        $result.valid | Should -BeTrue
+    }
+
+    It 'keeps a one-item array an array when it prepares an object for validation' {
+        $converted = $null
+        ConvertTo-JsonSchemaValidationValue -Value ([pscustomobject]@{ one = @('only'); none = @(); many = @(1, 2) }) -Result ([ref]$converted)
+
+        ,$converted['one'] | Should -BeOfType [object[]]
+        @($converted['one']) | Should -Be @('only')
+        ,$converted['none'] | Should -BeOfType [object[]]
+        @($converted['none']).Count | Should -Be 0
+        @($converted['many']).Count | Should -Be 2
+    }
+
+    It 'validates the header block against the catalog schema' {
+        $payload = ConvertFrom-JsonPreservingArrays -Json ([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'data/profile-catalog.json')))
+        (Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-catalog.v1.json').valid | Should -BeTrue
+
+        $link = @(Get-JsonArrayItems (Get-MemberValue -Object (Get-MemberValue -Object $payload -Name 'profileHeader') -Name 'links'))[0]
+        Set-MemberValue -Object $link -Name 'url' -Value 'https://example.test/"x'
+        $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-catalog.v1.json'
+
+        $result.valid | Should -BeFalse
+        @($result.errors | Where-Object { $_.instanceLocation -eq '/profileHeader/links/0/url' }) | Should -Not -BeNullOrEmpty
     }
 }
 
@@ -8933,7 +9079,8 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
     It 'fires readmeExperience when the header contract breaks' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
-        $broken = $baseline.ExpectedReadme -replace [regex]::Escape($ProfileTagline), 'Something Else Entirely.'
+        $broken = [regex]::Replace($baseline.ExpectedReadme, '^(\s*<p align="center"><b>)[^<]+', '${1}Something Else Entirely.')
+        $broken | Should -Not -Be $baseline.ExpectedReadme
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
             ExpectedReadme = $broken
@@ -9861,6 +10008,26 @@ Describe 'Uncataloged public repos get a reviewable stub' {
         [int](Get-MemberValue -Object $drafted[0] -Name 'order') | Should -BeGreaterThan 0
 
         (Test-JsonSchemaContract -Value $after -SchemaPath 'schemas/profile-catalog.v1.json').valid | Should -BeTrue
+    }
+
+    It 'keeps every other array in the catalog an array when it writes a draft' {
+        # The writer reads with the array-preserving parser, whose wrappers ConvertTo-Json
+        # would otherwise write out as { "__JsonArray": true, "Items": [...] } objects.
+        $catalogPath = Join-Path $TestDrive 'arrays.json'
+        $catalog = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'data/profile-catalog.json')) | ConvertFrom-Json
+        $catalog.entries[0] | Add-Member -NotePropertyName aliases -NotePropertyValue @('OldName') -Force
+        [System.IO.File]::WriteAllText($catalogPath, ($catalog | ConvertTo-Json -Depth 20))
+        $mystery = New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'MysteryTwo' -Language $null -Branch 'master')
+        $rows = @([ordered]@{ repo = 'MysteryTwo'; catalogEntryStub = [pscustomobject]$mystery.entry; unresolvedFields = @($mystery.unresolvedFields) })
+
+        Write-CatalogEntryDraft -MissingPublicRepos $rows -CatalogPath $catalogPath
+
+        $written = [System.IO.File]::ReadAllText($catalogPath)
+        $written | Should -Not -Match '__JsonArray'
+        $after = $written | ConvertFrom-Json -AsHashtable
+        @($after.entries[0].aliases) | Should -Be @('OldName')
+        @($after.profileHeader.languages).Count | Should -Be @($catalog.profileHeader.languages).Count
+        @($after.profileHeader.links)[0].url | Should -Be @($catalog.profileHeader.links)[0].url
     }
 
     It 'writes nothing when there is nothing to draft' {
@@ -11272,6 +11439,24 @@ Describe 'Rendered smoke helpers (in-process)' {
     It 'loads without creating the output directory' {
         Test-Path -LiteralPath (Join-Path $TestDrive 'never-created') | Should -BeFalse
         Get-Command Invoke-RenderedSmoke -CommandType Function | Should -Not -BeNullOrEmpty
+    }
+
+    It 'renders the profile of the owner it is given unless a URL is named' {
+        $smokeScript = Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1'
+        $outputDir = Join-Path $TestDrive 'never-created'
+        try {
+            # Each dot-source runs in its own child scope, so each binds its own parameters.
+            $default = & { . $smokeScript -OutputDir $outputDir; $Url }
+            $forOwner = & { . $smokeScript -Owner 'FixtureOwner' -OutputDir $outputDir; $Url }
+            $named = & { . $smokeScript -Owner 'FixtureOwner' -Url 'https://example.test/profile' -OutputDir $outputDir; $Url }
+        } finally {
+            # The generator's entry ran again in each dot-source and reset the run settings.
+            $script:Offline = $true
+        }
+
+        $default | Should -Be 'https://github.com/SysAdminDoc'
+        $forOwner | Should -Be 'https://github.com/FixtureOwner'
+        $named | Should -Be 'https://example.test/profile'
     }
 
     It 'writes the smoke artifact without touching a sync report outside its directory' {

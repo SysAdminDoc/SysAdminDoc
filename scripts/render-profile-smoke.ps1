@@ -1,7 +1,10 @@
 #Requires -Version 7.4
 [CmdletBinding()]
 param(
-    [string]$Url = "https://github.com/SysAdminDoc",
+    # The page to render. Defaults to the GitHub profile of -Owner.
+    [string]$Url,
+    # The account whose profile is rendered. Defaults to the generator's own -Owner default.
+    [string]$Owner,
     [string]$OutputDir = "reports",
     [int]$Port = 9224,
     [int]$TimeoutSec = 60
@@ -10,7 +13,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-. (Join-Path $PSScriptRoot "sync-profile.ps1")
+# Dot-sourcing binds the generator's parameters in this scope, $Owner included, so an
+# -Owner given here has to be passed through or the generator's default replaces it.
+$libraryParameters = @{}
+if ($PSBoundParameters.ContainsKey('Owner')) {
+    $libraryParameters['Owner'] = $Owner
+}
+. (Join-Path $PSScriptRoot "sync-profile.ps1") @libraryParameters
+if ([string]::IsNullOrWhiteSpace($Url)) {
+    $Url = "https://github.com/$Owner"
+}
 
 function Find-ChromeExecutable {
     $commands = @("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
