@@ -8153,20 +8153,9 @@ Describe 'Failure condition reachability coverage' {
     # either a reachability case or an explicit, reasoned exemption. The cases
     # themselves are Integration-tagged because each costs 8-50s of live metadata.
     BeforeAll {
-        # Conditions that cannot be planted through Test-ProfileState inputs today.
-        # Each needs an injection seam of its own, mirroring -PortfolioProbeSnapshot.
-        $script:ReachabilityExemptions = [ordered]@{
-            privateViolations = 'Needs live repository metadata marking a cataloged repo private; the offline fixture already trips it, so a plant proves nothing.'
-            redirects = 'Needs a live renamed repository lookup through gh.'
-            communityHealth = 'Reads live repository settings and community-profile API responses.'
-            portfolioCompatibility = 'Compares against the deployed portfolio feed; already true offline.'
-            stableEntityIds = 'Derived from generated feed identity, which the generator itself produces; a plant would have to corrupt its own output.'
-            feedSchemaMigration = 'Derived from schemaPolicy the generator emits, same problem as stableEntityIds.'
-            schemaValidation = 'Already true offline because the fixture report cannot satisfy the full report schema.'
-            docVersionConsistency = 'Reads data/profile-version.json and CHANGELOG.md from the repo root, not from parameters.'
-            runtimeSecurity = 'Reflects the PowerShell version actually executing the suite.'
-            linkFailures = 'Already true on the offline fixture; the anchor case below proves the specific mechanism instead.'
-        }
+        # Conditions that cannot be planted yet, each with the reason. Empty: every blocking
+        # condition has a case. A new condition needs a case or a reasoned entry here.
+        $script:ReachabilityExemptions = [ordered]@{}
     }
 
     It 'has a reachability case or a reasoned exemption for every blocking condition' {
@@ -8212,9 +8201,12 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
     # default lane and refuses a condition with no case here.
     BeforeAll {
         $script:ReachabilityCatalogPath = Join-Path $PSScriptRoot 'fixtures/catalog.json'
+        # The portfolio feed contract needs at least one release action, which only live
+        # release metadata produces; with it the untouched fixture passes every gate.
+        $script:ReachabilityRepos = @((New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -AssetNames @('ReleaseTool.zip')))
 
         function script:New-ReachabilityBaseline {
-            param([hashtable]$Catalog, [object[]]$Repos = @())
+            param([hashtable]$Catalog, [object[]]$Repos = $script:ReachabilityRepos)
             $expectedReadme = New-Readme -Catalog $Catalog -Repos $Repos
             $expectedProjects = New-ProjectsExportJson -Catalog $Catalog -Repos $Repos
             $expectedAssets = New-ProfileAssetSvgs
@@ -8269,14 +8261,11 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         $script:ReachabilityBaselineFired = @(script:Get-FiredConditions -Result (script:Invoke-ReachabilityState -Baseline $script:ReachabilityBaseline))
     }
 
-    It 'records which conditions the untouched fixture already fires' {
+    It 'starts every case from a baseline where no condition fires' {
         # The control. Without it a case could "pass" because the baseline was already
-        # failing for an unrelated reason. The offline fixture has no repository metadata,
-        # so these three cannot pass on it.
-        $script:ReachabilityBaselineFired | Should -Not -BeNullOrEmpty
-        foreach ($condition in $script:ReachabilityBaselineFired) {
-            $condition | Should -BeIn @('linkFailures', 'portfolioCompatibility', 'schemaValidation')
-        }
+        # failing for an unrelated reason, so each case below has to take its own condition
+        # from false to true and flip nothing else.
+        $script:ReachabilityBaselineFired | Should -BeNullOrEmpty
     }
 
     It 'fires readmeInSync when the published README drifts' {
@@ -8366,16 +8355,18 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
         # Local fragments are resolved without probing, so this fires even with
-        # link validation skipped.
-        $planted = '<p align="center"><a href="#section-that-does-not-exist">Go</a></p>' + "`n" + $baseline.ExpectedReadme
+        # link validation skipped. The dead link goes at the end of the header, just above
+        # the generated-catalog notice: above the tagline it would break the header contract
+        # too, and below the notice the header check does not look.
+        $planted = $baseline.ExpectedReadme.Replace($GeneratedCatalogNotice, '<p align="center"><a href="#section-that-does-not-exist">Go</a></p>' + "`n`n" + $GeneratedCatalogNotice)
+        $planted | Should -Not -Be $baseline.ExpectedReadme
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
             ExpectedReadme = $planted
             CurrentReadme = $planted
         }
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['linkFailures'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'linkFailures'
         @($result.Report.linkValidationFailures | Where-Object { $_.type -eq 'readme-header-anchor' }).Count |
             Should -BeGreaterThan 0
     }
@@ -8444,6 +8435,148 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         [bool]$result.FailureConditions['metadataDrift'] | Should -BeTrue
         $result.Report.metadataDriftSummary.fatalCount | Should -BeGreaterThan 0
         $script:ReachabilityBaselineFired | Should -Not -Contain 'metadataDrift'
+    }
+
+    It 'fires privateViolations when a cataloged repo turns private' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $private = New-TestRepoMeta -Name 'WinTool'
+        $private.visibility = 'PRIVATE'
+        $private.isPrivate = $true
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos @($script:ReachabilityRepos + $private)
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'privateViolations'
+        @($result.Report.privateVisibilityViolations | Where-Object { $_.repo -eq 'WinTool' }).Count | Should -Be 1
+    }
+
+    It 'fires redirects when a cataloged repo answers under a new name' {
+        # Online, a visible row missing from the live repo list is looked up with gh repo view.
+        # Every other visible row gets metadata, so WinTool is the only lookup, and the stub
+        # answers it under a new name. Every other gh call fails, as it would unauthenticated.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $visible = @($catalog.entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })
+        $repos = @($visible | Where-Object { $_.repo -ne 'WinTool' } | ForEach-Object {
+            if ($_.repo -eq 'ReleaseTool') { $script:ReachabilityRepos[0] } else { New-TestRepoMeta -Name ([string]$_.repo) }
+        })
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
+        Mock Invoke-GhCli {
+            if ($Arguments[0] -eq 'repo' -and $Arguments[1] -eq 'view') {
+                $view = '{"name":"WinToolRenamed","url":"https://github.com/SysAdminDoc/WinToolRenamed","visibility":"PUBLIC"}'
+                return [ordered]@{ output = $view; exitCode = 0; text = $view }
+            }
+            return [ordered]@{ output = 'gh unavailable in this test'; exitCode = 1; text = 'gh unavailable in this test' }
+        }
+
+        $savedOffline = $script:Offline
+        $script:Offline = $false
+        try {
+            $result = script:Invoke-ReachabilityState -Baseline $baseline
+        } finally {
+            $script:Offline = $savedOffline
+        }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'redirects'
+        @($result.Report.renamedRepoRedirects | Where-Object { $_.repo -eq 'WinTool' -and $_.canonical -eq 'WinToolRenamed' }).Count | Should -Be 1
+    }
+
+    It 'fires communityHealth when a required community file is missing' {
+        $script:CommunityFilesWithoutSecurity = @(Get-CommunityLocalFileStatus | ForEach-Object {
+            $row = [ordered]@{ path = $_.path; required = $_.required; exists = $_.exists }
+            if ($row.path -eq 'SECURITY.md') { $row.exists = $false }
+            $row
+        })
+        Mock Get-CommunityLocalFileStatus { $script:CommunityFilesWithoutSecurity }
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'communityHealth'
+    }
+
+    It 'fires portfolioCompatibility when the feed miscounts its own projects' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $payload = $baseline.ExpectedProjects | ConvertFrom-Json
+        $payload.projectCount = [int]$payload.projectCount + 1
+        $planted = $payload | ConvertTo-Json -Depth 30
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ ExpectedProjects = $planted; CurrentProjects = $planted }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'portfolioCompatibility'
+    }
+
+    It 'fires stableEntityIds when two feed rows share an id' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $payload = $baseline.ExpectedProjects | ConvertFrom-Json
+        $payload.projects[1].id = $payload.projects[0].id
+        $planted = $payload | ConvertTo-Json -Depth 30
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ ExpectedProjects = $planted; CurrentProjects = $planted }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'stableEntityIds'
+    }
+
+    It 'fires feedSchemaMigration when the supported versions leave out the current one' {
+        # The schema already refuses a breaking change without a migration note, so the
+        # plant has to be a policy the schema accepts: a supported window that no longer
+        # includes the version the feed is written in.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $payload = $baseline.ExpectedProjects | ConvertFrom-Json
+        $payload.schemaPolicy.supportedVersions = @([int]$payload.schemaPolicy.currentVersion + 1)
+        $planted = $payload | ConvertTo-Json -Depth 30
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ ExpectedProjects = $planted; CurrentProjects = $planted }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'feedSchemaMigration'
+    }
+
+    It 'fires schemaValidation on a feed field the schema does not allow' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+        $payload = $baseline.ExpectedProjects | ConvertFrom-Json
+        $payload | Add-Member -NotePropertyName 'undeclaredField' -NotePropertyValue 'not in the contract'
+        $planted = $payload | ConvertTo-Json -Depth 30
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ ExpectedProjects = $planted; CurrentProjects = $planted }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'schemaValidation'
+        @($result.Report.schemaValidation.projects.errors | Where-Object { $_.instanceLocation -eq '/undeclaredField' }).Count | Should -Be 1
+    }
+
+    It 'fires docVersionConsistency on a malformed profile version' {
+        $versionPath = Join-Path $TestDrive 'profile-version.json'
+        $version = Get-Content -LiteralPath $script:ProfileVersionPath -Raw | ConvertFrom-Json
+        $version.version = 'v4.10'
+        $version | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $versionPath -Encoding utf8
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $savedVersionPath = $script:ProfileVersionPath
+        $script:ProfileVersionPath = $versionPath
+        try {
+            $result = script:Invoke-ReachabilityState -Baseline $baseline
+        } finally {
+            $script:ProfileVersionPath = $savedVersionPath
+        }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'docVersionConsistency'
+    }
+
+    It 'fires runtimeSecurity on a PowerShell below the generator floor' {
+        # The real check, fed a version the suite is not running on.
+        $script:RealRuntimeSecurity = ${function:Test-PowerShellRuntimeSecurity}
+        Mock Test-PowerShellRuntimeSecurity { & $script:RealRuntimeSecurity -Version ([version]'7.2.0') }
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'runtimeSecurity'
+        $result.Report.runtimeSecurity.status | Should -Be 'fail'
     }
 
     It 'fires releaseArtifactVerification only when the switch is set' {
