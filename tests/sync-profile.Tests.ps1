@@ -604,7 +604,7 @@ Start-Tool WinTool
         { Start-Tool WinTool } | Should -Throw '*exit 128*delete it and run Start-Tool again*'
     }
 
-    It 'stops before fetching anything when <Tool> is missing' -ForEach @(
+    It 'stops before cloning when <Tool> is missing' -ForEach @(
         @{ Tool = 'git'; Entrypoint = 'WinTool.ps1'; Message = "*git isn't installed or isn't on PATH*" }
         @{ Tool = 'python'; Entrypoint = 'app.py'; Message = "*is a Python tool, and python isn't installed*" }
     ) {
@@ -632,6 +632,49 @@ Start-Tool WinTool
 
         { Start-Tool PyTool } | Should -Throw "*is a Python tool, and python isn't installed*"
         @($script:ToolCalls) | Should -Be @('python --version')
+    }
+
+    It 'judges <Case> by its exit code in Windows PowerShell 5.1 with the session at Stop' -ForEach @(
+        @{ Case = 'Python 2, which prints its version on stderr'; Stub = 'if "%~1"=="--version" (echo Python 2.7.18 1>&2& exit /b 0)'; Started = $true }
+        @{ Case = 'a python that prints a warning on stderr'; Stub = 'if "%~1"=="--version" (echo warning: user site not writable 1>&2& echo Python 3.12.0& exit /b 0)'; Started = $true }
+        @{ Case = 'the Store stand-in'; Stub = 'echo Python was not found; run without arguments to install from the Microsoft Store 1>&2& exit /b 9009'; Started = $false }
+    ) {
+        $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+        if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
+            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
+            return
+        }
+        # With the session at Stop, Windows PowerShell turned any stderr line from python
+        # --version into an error, so a working python read as missing. Real python.cmd
+        # stubs, since a function stub writes no stderr.
+        $binPath = Join-Path $TestDrive ('python-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $binPath | Out-Null
+        [System.IO.File]::WriteAllText((Join-Path $binPath 'python.cmd'), "@echo off`r`n$Stub`r`necho ran> `"%~dp0ran.txt`"`r`nexit /b 0`r`n")
+        $driver = @'
+$ErrorActionPreference = 'Stop'
+function Invoke-RestMethod { [pscustomobject]@{ projects = @([pscustomobject]@{ repo = 'PyTool'; branch = 'main'; entrypoint = 'app.py' }) } }
+function git { if ($args[0] -eq 'clone') { New-Item -ItemType Directory -Path ([string]$args[-1]) -Force | Out-Null }; $global:LASTEXITCODE = 0 }
+Get-Content -Raw -LiteralPath $env:SYSADMINDOC_RUN_SCRIPT | Invoke-Expression
+try { Start-Tool PyTool; 'started' } catch { 'threw: ' + $_.Exception.Message }
+'@
+        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($driver))
+        $savedPath = $env:PATH
+        $env:SYSADMINDOC_RUN_SCRIPT = $script:RunScriptPath
+        try {
+            $env:PATH = $binPath + [System.IO.Path]::PathSeparator + $savedPath
+            $output = @(& $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded 2>&1 | ForEach-Object { [string]$_ })
+        } finally {
+            $env:PATH = $savedPath
+            Remove-Item Env:SYSADMINDOC_RUN_SCRIPT -ErrorAction SilentlyContinue
+        }
+
+        if ($Started) {
+            $output | Should -Contain 'started' -Because ($output -join "`n")
+            Test-Path -LiteralPath (Join-Path $binPath 'ran.txt') | Should -BeTrue -Because 'the tool itself ran with that python'
+        } else {
+            ($output -join "`n") | Should -Match "threw: Start-Tool: PyTool is a Python tool, and python isn't installed"
+            Test-Path -LiteralPath (Join-Path $binPath 'ran.txt') | Should -BeFalse
+        }
     }
 
     It 'warns when the requirements fail to install and still starts the tool' {

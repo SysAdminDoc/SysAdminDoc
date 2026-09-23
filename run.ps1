@@ -38,11 +38,13 @@ function Start-Tool {
     # counts as missing. Checked only when a Python tool or requirements need it.
     $pythonReady = {
         if (-not (Get-Command python -ErrorAction SilentlyContinue)) { return $false }
+        # Continue inside this block only: with the session's preference at Stop, Windows
+        # PowerShell turns any stderr line into an error, and Python 2 prints its version on
+        # stderr. The exit code decides.
+        $ErrorActionPreference = 'Continue'
         try {
             $null = & python --version 2>&1
         } catch {
-            # With the session's preference at Stop, Windows PowerShell turns the stand-in's
-            # stderr line into an error; that python can't report its version either.
             return $false
         }
         return ($LASTEXITCODE -eq 0)
@@ -72,7 +74,7 @@ function Start-Tool {
     # Before cloning: a Python tool can't start without a working python.
     $usesPython = $entrypoint -notlike '*.ps1'
     if ($usesPython -and -not (& $pythonReady)) {
-        throw "Start-Tool: $repo is a Python tool, and python isn't installed or isn't on PATH. The profile's first-time setup section installs it."
+        throw "Start-Tool: $repo is a Python tool, and python isn't installed. Either none is on PATH or the one there can't report its version, like the Windows Store's stand-in. The profile's first-time setup section installs it."
     }
 
     $directory = Join-Path $env:TEMP $repo
@@ -89,7 +91,7 @@ function Start-Tool {
     if (Test-Path -LiteralPath $requirements) {
         # python -m pip, so the requirements land in the interpreter that runs the tool.
         if (-not (& $pythonReady)) {
-            Write-Warning "Start-Tool: $repo lists Python requirements, but python isn't on PATH; starting it without them."
+            Write-Warning "Start-Tool: $repo lists Python requirements, but there's no working python to install them with, so it starts without them."
         } else {
             python -m pip install -q -r $requirements
             if ($LASTEXITCODE -ne 0) {
