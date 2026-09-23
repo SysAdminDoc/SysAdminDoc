@@ -1003,7 +1003,9 @@ Describe 'PR delivery checklist carries no recorded history' {
         if ($Protection -eq 'requiring checks' -or $Rules -eq 'requiring checks') {
             $readiness.status | Should -Be 'enforcement-present'
             $readiness.recommendation | Should -Be 'monitor-required-check-enforcement'
-            $readiness.readyForEnforcement | Should -BeTrue
+            # Nothing blocks, but no check-run proof or merge drill is recorded, so the
+            # checklist isn't ready, and readiness says the same.
+            $readiness.readyForEnforcement | Should -BeFalse
             $blockers | Should -BeNullOrEmpty
             $enforcementItem.status | Should -Be 'ready'
         } elseif ($Protection -eq 'requiring nothing' -and $Rules -eq 'requiring nothing') {
@@ -1037,6 +1039,8 @@ Describe 'PR delivery checklist carries no recorded history' {
             'Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism.'
         }
         $enforcementItem.evidence | Should -BeExactly $expectedEvidence
+        # The two readiness answers agree in every case.
+        $readiness.readyForEnforcement | Should -Be $readiness.prDeliveryTransition.readyForRequiredCheckEnforcement
         $rulesWarnings = @($settings.warnings | Where-Object { $_ -like 'Default branch rules unavailable*' })
         $rulesWarnings | Should -HaveCount $(if ($Rules -eq 'unreadable') { 1 } else { 0 })
     }

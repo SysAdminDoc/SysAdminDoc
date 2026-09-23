@@ -2,6 +2,7 @@
 
 ## 2026-09-23
 
+- Required-check readiness agrees with its own checklist now. With enforcement on, readiness said ready because nothing blocked it, while the checklist said not ready because no check-run proof or merge drill was recorded. Ready needs both now. This repository has no workflows, so its report didn't change.
 - `forkOf` is held to the schema's length and non-blank rules too. An empty value or one longer than 140 characters passed `-Write` and then failed `-Check`.
 - The readiness tests pin each enforcement verdict's wording and the blockers for a source read with no reason given, which two deliberate breakages used to slip past. A ruleset list or branch rule list that a caller leaves out now reads as unread, where it read as read and empty.
 - Release verification refuses a download whose redirects end off GitHub's release hosts. Only the first address was checked, so a redirect to any public host was followed and whatever came back was hashed. The refusal names the host. A URL that names a private address itself is refused with a reason that says so, where it used to blame a DNS answer that never happened.

@@ -717,7 +717,10 @@ function Get-RequiredCheckReadiness {
     return [ordered]@{
         status = $status
         recommendation = $recommendation
-        readyForEnforcement = [bool]($blockers.Count -eq 0)
+        # Ready means nothing blocks enforcement and every delivery item is proven, the same
+        # answer prDeliveryTransition.readyForRequiredCheckEnforcement gives. Enforcement
+        # already being on doesn't prove the check-run evidence or the merge drill.
+        readyForEnforcement = [bool]($blockers.Count -eq 0 -and (Get-MemberValue -Object $prDeliveryTransition -Name 'readyForRequiredCheckEnforcement') -eq $true)
         branchProtectionRequiredStatusChecks = Get-NullableBool $RequiredStatusChecks
         rulesetCount = [int]$RulesetCount
         enforceAdmins = Get-NullableBool $EnforceAdmins
