@@ -104,12 +104,15 @@ function Test-SchemaKeywordCoverage {
     # Every place a subschema can sit is walked, so a keyword outside the allowlist cannot
     # hide inside a composition branch, a conditional, or a definition nested below the root.
     $children = [System.Collections.Generic.List[object]]::new()
-    foreach ($mapKeyword in @('properties', 'patternProperties', 'dependentSchemas', '$defs', 'definitions')) {
+    foreach ($mapKeyword in @('properties', 'patternProperties', 'dependentSchemas', 'dependencies', '$defs', 'definitions')) {
         $map = Get-MemberValue -Object $Schema -Name $mapKeyword
         if ($null -eq $map) { continue }
         foreach ($childName in @(Get-ObjectPropertyNames $map)) {
+            $childSchema = Get-MemberValue -Object $map -Name $childName
+            # A "dependencies" value can also be a list of property names, which is not a schema.
+            if (Test-JsonArrayWrapper $childSchema) { continue }
             $childPath = if ($Path -eq '$' -and $mapKeyword -in @('$defs', 'definitions')) { "$mapKeyword.$childName" } else { "$Path.$mapKeyword.$childName" }
-            $children.Add([pscustomobject]@{ Path = $childPath; Schema = Get-MemberValue -Object $map -Name $childName })
+            $children.Add([pscustomobject]@{ Path = $childPath; Schema = $childSchema })
         }
     }
     foreach ($listKeyword in @('allOf', 'anyOf', 'oneOf', 'prefixItems', 'items')) {
@@ -120,7 +123,7 @@ function Test-SchemaKeywordCoverage {
             $children.Add([pscustomobject]@{ Path = "$Path.$listKeyword[$index]"; Schema = $list[$index] })
         }
     }
-    foreach ($singleKeyword in @('items', 'additionalItems', 'additionalProperties', 'unevaluatedItems', 'unevaluatedProperties', 'contains', 'propertyNames', 'not', 'if', 'then', 'else')) {
+    foreach ($singleKeyword in @('items', 'additionalItems', 'additionalProperties', 'unevaluatedItems', 'unevaluatedProperties', 'contains', 'propertyNames', 'contentSchema', 'not', 'if', 'then', 'else')) {
         $value = Get-MemberValue -Object $Schema -Name $singleKeyword
         if ($null -eq $value -or (Test-JsonArrayWrapper $value)) { continue }
         $children.Add([pscustomobject]@{ Path = "$Path.$singleKeyword"; Schema = $value })
@@ -149,13 +152,15 @@ function New-SchemaContractError {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string]$Message,
-        [AllowNull()][string]$InstanceLocation = $null,
-        [AllowNull()][string]$KeywordLocation = $null
+        # Untyped on purpose: a [string] parameter turns $null into "", which is the pointer
+        # to the document root rather than "no location".
+        [AllowNull()]$InstanceLocation = $null,
+        [AllowNull()]$KeywordLocation = $null
     )
 
     return [ordered]@{
-        instanceLocation = $InstanceLocation
-        keywordLocation = $KeywordLocation
+        instanceLocation = if ($null -eq $InstanceLocation) { $null } else { [string]$InstanceLocation }
+        keywordLocation = if ($null -eq $KeywordLocation) { $null } else { [string]$KeywordLocation }
         message = $Message
     }
 }
@@ -167,7 +172,9 @@ function Get-JsonSchemaEvaluationErrors {
     .DESCRIPTION
     Test-Json reduces a failure to one exception string. The JsonSchema.Net evaluator it
     wraps can report each failing node, so this returns one error per failing keyword with
-    its instance and keyword locations, sorted so the report is stable between runs.
+    its instance and keyword locations, sorted so the report is stable between runs. Only
+    failing nodes are followed: an anyOf branch that failed while another branch passed
+    did not cause the failure and is not reported.
     .PARAMETER SchemaPath
     Absolute path of the schema file.
     .PARAMETER Json
@@ -184,24 +191,45 @@ function Get-JsonSchemaEvaluationErrors {
     }
     $schema = [Json.Schema.JsonSchema]::FromFile($SchemaPath)
     $options = [Json.Schema.EvaluationOptions]::new()
-    $options.OutputFormat = [Json.Schema.OutputFormat]::List
+    $options.OutputFormat = [Json.Schema.OutputFormat]::Hierarchical
     $evaluation = $schema.Evaluate([System.Text.Json.Nodes.JsonNode]::Parse($Json), $options)
     if ($evaluation.IsValid) {
         return @()
     }
 
-    $failures = foreach ($result in @(@($evaluation) + @($evaluation.Details))) {
-        if ($null -eq $result -or -not $result.HasErrors) { continue }
-        foreach ($entry in $result.Errors.GetEnumerator()) {
-            # JsonPointer enumerates its segments, so a [string] cast would join them with
-            # spaces; ToString() gives the pointer text.
-            $keywordLocation = $result.EvaluationPath.ToString()
-            # A false subschema reports its error with an empty keyword: the path already
-            # ends at the keyword that held it (for example /additionalProperties).
-            if (-not [string]::IsNullOrEmpty([string]$entry.Key)) {
-                $keywordLocation += '/' + (([string]$entry.Key -replace '~', '~0') -replace '/', '~1')
+    $failures = [System.Collections.Generic.List[object]]::new()
+    $pending = [System.Collections.Generic.Stack[object]]::new()
+    $pending.Push($evaluation)
+    while ($pending.Count -gt 0) {
+        $node = $pending.Pop()
+        # A passing node did not cause the failure, and neither did anything below it.
+        if ($null -eq $node -or $node.IsValid) { continue }
+        # JsonPointer enumerates its segments, so a [string] cast would join them with
+        # spaces; ToString() gives the pointer text.
+        $nodePath = $node.EvaluationPath.ToString()
+        $instancePath = $node.InstanceLocation.ToString()
+        $invalidChildren = @($node.Details | Where-Object { $null -ne $_ -and -not $_.IsValid })
+        if ($node.HasErrors) {
+            foreach ($entry in $node.Errors.GetEnumerator()) {
+                # A false subschema reports its error with an empty keyword: the path already
+                # ends at the keyword that held it (for example /additionalProperties).
+                $keywordLocation = $nodePath
+                if (-not [string]::IsNullOrEmpty([string]$entry.Key)) {
+                    $keywordLocation += '/' + (([string]$entry.Key -replace '~', '~0') -replace '/', '~1')
+                }
+                $failures.Add((New-SchemaContractError -Message ([string]$entry.Value) -InstanceLocation $instancePath -KeywordLocation $keywordLocation))
             }
-            New-SchemaContractError -Message ([string]$entry.Value) -InstanceLocation $result.InstanceLocation.ToString() -KeywordLocation $keywordLocation
+        } elseif ($invalidChildren.Count -eq 0) {
+            # Failing with no message and no failing child: a "not" whose subschema passed.
+            $negated = @($node.Details | Where-Object { $null -ne $_ -and $_.EvaluationPath.ToString().EndsWith('/not', [StringComparison]::Ordinal) }) | Select-Object -First 1
+            if ($negated) {
+                $failures.Add((New-SchemaContractError -Message 'The value matches the schema under "not", which it must not.' -InstanceLocation $instancePath -KeywordLocation $negated.EvaluationPath.ToString()))
+            } else {
+                $failures.Add((New-SchemaContractError -Message 'The value does not match this schema.' -InstanceLocation $instancePath -KeywordLocation $nodePath))
+            }
+        }
+        foreach ($child in $invalidChildren) {
+            $pending.Push($child)
         }
     }
     $sorted = @($failures | Sort-Object `

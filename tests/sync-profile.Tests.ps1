@@ -4842,9 +4842,32 @@ Describe 'Feed JSON Schema contracts' {
 
         $result.valid | Should -BeFalse
         @($result.errors) | Should -HaveCount 1
-        $result.errors[0].instanceLocation | Should -BeNullOrEmpty
-        $result.errors[0].keywordLocation | Should -BeNullOrEmpty
+        # Null, not "": an empty pointer means the document root.
+        $null -eq $result.errors[0].instanceLocation | Should -BeTrue
+        $null -eq $result.errors[0].keywordLocation | Should -BeTrue
         $result.errors[0].message | Should -Match 'schema file not found'
+    }
+
+    It 'reports only the failures that decide the result, including a failed not' {
+        $schemaPath = Join-Path $TestDrive 'composition.json'
+        Set-Content -LiteralPath $schemaPath -Encoding utf8 -Value @'
+{
+  "type": "object",
+  "properties": {
+    "a": { "anyOf": [ { "type": "string" }, { "type": "integer" } ] },
+    "b": { "not": { "type": "integer" } },
+    "c": { "type": "string" }
+  }
+}
+'@
+
+        $result = Test-JsonSchemaContract -Value ([ordered]@{ a = 5; b = 7; c = 1 }) -SchemaPath $schemaPath
+
+        $result.valid | Should -BeFalse
+        @($result.errors | ForEach-Object instanceLocation) | Should -Be @('/b', '/c') -Because 'the anyOf branch that failed while another passed did not cause the failure'
+        $result.errors[0].keywordLocation | Should -Be '/properties/b/not'
+        $result.errors[0].message | Should -Match 'not'
+        $result.errors[1].keywordLocation | Should -Be '/properties/c/type'
     }
 
     It 'requires always-emitted nested profile sync report fields' {
@@ -4913,7 +4936,8 @@ Describe 'Feed JSON Schema contracts' {
     "b": { "$defs": { "inner": { "type": "integer", "multipleOf": 2 } }, "$ref": "#/properties/b/$defs/inner" },
     "c": { "if": { "type": "string" }, "then": { "minProperties": 1 }, "else": true },
     "d": { "type": "array", "prefixItems": [ { "type": "string", "exclusiveMaximum": 5 } ] },
-    "e": { "type": "object", "additionalProperties": { "type": "string", "uniqueItems": true } }
+    "e": { "type": "object", "additionalProperties": { "type": "string", "uniqueItems": true } },
+    "f": { "dependencies": { "x": { "maxLength": 1 }, "y": [ "z" ] }, "contentSchema": { "minProperties": 1 } }
   },
   "$defs": { "outer": { "allOf": [ { "not": { "maxItems": 1 } } ] } }
 }
@@ -4930,7 +4954,9 @@ Describe 'Feed JSON Schema contracts' {
             "`$.properties.d.prefixItems[0] uses schema keyword 'exclusiveMaximum'",
             "`$.properties.e.additionalProperties uses schema keyword 'uniqueItems'",
             "`$defs.outer uses schema keyword 'allOf'",
-            "`$defs.outer.allOf[0].not uses schema keyword 'maxItems'"
+            "`$defs.outer.allOf[0].not uses schema keyword 'maxItems'",
+            "`$.properties.f.dependencies.x uses schema keyword 'maxLength'",
+            "`$.properties.f.contentSchema uses schema keyword 'minProperties'"
         )
         foreach ($warning in $expected) {
             @($warnings | Where-Object { $_.StartsWith($warning, [StringComparison]::Ordinal) }) | Should -HaveCount 1 -Because "the walker must reach: $warning"
