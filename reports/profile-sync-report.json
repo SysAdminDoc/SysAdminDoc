@@ -1,6 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json",
-  "generatedAt": "2026-09-23T11:19:55.9430585-04:00",
+  "generatedAt": "2026-09-23T11:23:33.6955627-04:00",
   "readmeInSync": true,
   "projectsExportInSync": true,
   "profileAssetsInSync": true,
@@ -17,8 +17,8 @@
     "projects": {
       "artifact": "projects.json",
       "inSync": true,
-      "currentSha256": "ac7eae050bfc090b4c2e4b1723020823675c6904283818962251d56f44a5d075",
-      "expectedSha256": "ac7eae050bfc090b4c2e4b1723020823675c6904283818962251d56f44a5d075",
+      "currentSha256": "48e780787ee3b761dda9ad3afc5ecbe3036a3dd5ba2a3fc09817197f5d063d4d",
+      "expectedSha256": "48e780787ee3b761dda9ad3afc5ecbe3036a3dd5ba2a3fc09817197f5d063d4d",
       "diffBasis": "comparable-json-lines",
       "firstDiff": null
     },
@@ -36,14 +36,14 @@
     "version": 1,
     "feedSchemaVersion": 3,
     "sourceRepository": "SysAdminDoc/SysAdminDoc",
-    "sourceCommit": "f171a8b29f53f1b3c0e904362c44d681fd7ccc55",
+    "sourceCommit": "8f306e6a1600ca8e9c36cdd7c861f761b385a101",
     "catalogSha256": "c01024f6a648c1b42db8186b39245c6f2ecf93e106b2aec7ff94bd092f5767ca",
-    "generatorSha256": "ab01638a430d088b71fef90199db284f136aad480c66d159e9d0efa15c2f7fe1",
+    "generatorSha256": "e1567fb1e2fbc3b9ef161aa2ccee6f13c985ade61b504b2682c0913bfc047170",
     "projectSchemaSha256": "fa11972ed471c411c5bb0c8f5120f0d7dd7cd6888285aae24e90318d99aa4fcd",
-    "metadataSnapshotAt": "2026-09-23T11:18:51.2559495-04:00",
-    "metadataProvider": "cache-fallback",
+    "metadataSnapshotAt": "2026-09-23T11:19:59.2941280-04:00",
+    "metadataProvider": "rest-fallback",
     "repoEnumeration": {
-      "requestedLimit": 300,
+      "requestedLimit": 0,
       "returnedCount": 230,
       "truncated": false
     }
@@ -82,14 +82,15 @@
       "excludedUnsafeOrPrivateDescriptionCount": 0,
       "topicRows": [
         {
-          "repo": "WeightTrack",
-          "language": "Kotlin",
-          "category": "android",
+          "repo": "GLP-Ultra",
+          "language": "JavaScript",
+          "category": "extensions",
           "topicHints": [
-            "android",
-            "kotlin"
+            "browser-extension",
+            "userscript",
+            "javascript"
           ],
-          "command": "gh repo edit SysAdminDoc/WeightTrack --add-topic android --add-topic kotlin"
+          "command": "gh repo edit SysAdminDoc/GLP-Ultra --add-topic browser-extension --add-topic userscript --add-topic javascript"
         },
         {
           "repo": "HubSpot-Ticket-Refined",
@@ -113,15 +114,14 @@
           "command": "gh repo edit SysAdminDoc/IRL_Streamer --add-topic android --add-topic kotlin"
         },
         {
-          "repo": "GLP-Ultra",
-          "language": "JavaScript",
-          "category": "extensions",
+          "repo": "WeightTrack",
+          "language": "Kotlin",
+          "category": "android",
           "topicHints": [
-            "browser-extension",
-            "userscript",
-            "javascript"
+            "android",
+            "kotlin"
           ],
-          "command": "gh repo edit SysAdminDoc/GLP-Ultra --add-topic browser-extension --add-topic userscript --add-topic javascript"
+          "command": "gh repo edit SysAdminDoc/WeightTrack --add-topic android --add-topic kotlin"
         }
       ],
       "descriptionRows": [],
@@ -129,19 +129,20 @@
     },
     "missingTopics": [
       {
-        "repo": "WeightTrack",
-        "language": "Kotlin",
-        "pushedAt": "2026-09-15T03:36:40Z",
-        "category": "android",
+        "repo": "GLP-Ultra",
+        "language": "JavaScript",
+        "pushedAt": "2026-09-14T00:58:15.0000000Z",
+        "category": "extensions",
         "topicHints": [
-          "android",
-          "kotlin"
+          "browser-extension",
+          "userscript",
+          "javascript"
         ]
       },
       {
         "repo": "HubSpot-Ticket-Refined",
         "language": "JavaScript",
-        "pushedAt": "2026-09-14T00:58:24Z",
+        "pushedAt": "2026-09-14T00:58:24.0000000Z",
         "category": "extensions",
         "topicHints": [
           "browser-extension",
@@ -152,7 +153,7 @@
       {
         "repo": "IRL_Streamer",
         "language": "Kotlin",
-        "pushedAt": "2026-09-14T00:58:38Z",
+        "pushedAt": "2026-09-14T00:58:38.0000000Z",
         "category": "android",
         "topicHints": [
           "android",
@@ -160,14 +161,13 @@
         ]
       },
       {
-        "repo": "GLP-Ultra",
-        "language": "JavaScript",
-        "pushedAt": "2026-09-14T00:58:15Z",
-        "category": "extensions",
+        "repo": "WeightTrack",
+        "language": "Kotlin",
+        "pushedAt": "2026-09-15T03:36:40.0000000Z",
+        "category": "android",
         "topicHints": [
-          "browser-extension",
-          "userscript",
-          "javascript"
+          "android",
+          "kotlin"
         ]
       }
     ],
@@ -285,14 +285,19 @@
     "redactedDetailRowCount": 18,
     "matchingGitHubForks": [
       {
+        "repo": "android-debloat-list",
+        "catalogForkOf": "MuntashirAkon/android-debloat-list",
+        "githubParent": "MuntashirAkon/android-debloat-list"
+      },
+      {
+        "repo": "LTSC-MicrosoftStore",
+        "catalogForkOf": "minihub/LTSC-Add-MicrosoftStore",
+        "githubParent": "minihub/LTSC-Add-MicrosoftStore"
+      },
+      {
         "repo": "RcloneBrowser",
         "catalogForkOf": "kapitainsky/RcloneBrowser",
         "githubParent": "kapitainsky/RcloneBrowser"
-      },
-      {
-        "repo": "Vigil",
-        "catalogForkOf": "ungoogled-software/ungoogled-chromium-windows",
-        "githubParent": "ungoogled-software/ungoogled-chromium-windows"
       },
       {
         "repo": "TabExplorer",
@@ -305,17 +310,17 @@
         "githubParent": "TagStudioDev/TagStudio"
       },
       {
-        "repo": "LTSC-MicrosoftStore",
-        "catalogForkOf": "minihub/LTSC-Add-MicrosoftStore",
-        "githubParent": "minihub/LTSC-Add-MicrosoftStore"
-      },
-      {
-        "repo": "android-debloat-list",
-        "catalogForkOf": "MuntashirAkon/android-debloat-list",
-        "githubParent": "MuntashirAkon/android-debloat-list"
+        "repo": "Vigil",
+        "catalogForkOf": "ungoogled-software/ungoogled-chromium-windows",
+        "githubParent": "ungoogled-software/ungoogled-chromium-windows"
       }
     ],
     "catalogContinuations": [
+      {
+        "repo": "AppManagerNG",
+        "catalogForkOf": "MuntashirAkon/AppManager",
+        "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
+      },
       {
         "repo": "qBittorrent-Vanced",
         "catalogForkOf": "c0re100/qBittorrent-Enhanced-Edition",
@@ -329,11 +334,6 @@
       {
         "repo": "uBlockVanced",
         "catalogForkOf": "gorhill/uBlock",
-        "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
-      },
-      {
-        "repo": "AppManagerNG",
-        "catalogForkOf": "MuntashirAkon/AppManager",
         "reason": "catalog declares an upstream continuation/import, but GitHub does not mark this repository as a fork"
       }
     ],
@@ -469,16 +469,16 @@
       "unknownCount": 0
     },
     "platformDigestCoverage": {
-      "withDigestCount": 0,
-      "withoutDigestCount": 170
+      "withDigestCount": 144,
+      "withoutDigestCount": 26
     },
     "executableDownloadTrustShortlist": {
       "evidenceSource": "release-metadata-only",
       "executableDownloadCount": 101,
       "metadataCompleteCount": 5,
       "checksumGapCount": 78,
-      "metadataEvidenceGapCount": 78,
-      "platformDigestCount": 0,
+      "metadataEvidenceGapCount": 0,
+      "platformDigestCount": 101,
       "attestationGapCount": 101,
       "attestationAchievable": false,
       "attestationUnachievableReason": "Build-provenance attestation requires a GitHub Actions OIDC token to mint the signing certificate, and this repository ships no workflows by policy. SHA-256 sidecars and immutable releases are the achievable ceiling.",
@@ -499,11 +499,7 @@
         },
         {
           "readinessLevel": "digest-metadata",
-          "count": 7
-        },
-        {
-          "readinessLevel": "no-metadata-evidence",
-          "count": 47
+          "count": 54
         }
       ],
       "shortlistSoftCap": 10,
@@ -523,12 +519,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "partial",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -544,12 +540,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -565,12 +561,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -586,12 +582,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "partial",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -607,12 +603,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -628,12 +624,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "partial",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -649,12 +645,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -671,12 +667,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -693,12 +689,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "partial",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         },
@@ -715,12 +711,12 @@
           "evidenceSource": "release-metadata-only",
           "hasChecksum": false,
           "checksumCoverage": "none",
-          "hasPlatformDigest": false,
-          "hasMetadataEvidence": false,
+          "hasPlatformDigest": true,
+          "hasMetadataEvidence": true,
           "hasSbom": false,
           "hasAttestation": false,
           "isImmutable": false,
-          "readinessLevel": "no-metadata-evidence",
+          "readinessLevel": "digest-metadata",
           "gapScore": 4,
           "nextAction": "publish-sha256-checksums"
         }
@@ -924,18 +920,18 @@
     "note": "Release asset filename inspection compares catalog downloadKind labels against uploaded latest-release asset names; source-only releases remain repo actions."
   },
   "branchTipProvenance": {
-    "status": "warning",
+    "status": "ok",
     "checkedInstallActionCount": 61,
     "staleAfterHours": 24,
-    "freshCount": 0,
-    "staleCount": 61,
+    "freshCount": 61,
+    "staleCount": 0,
     "unreachableCount": 0,
     "missingCount": 0,
-    "warningCount": 61,
+    "warningCount": 0,
     "statusCounts": [
       {
         "kind": "fresh",
-        "count": 0
+        "count": 61
       },
       {
         "kind": "missing",
@@ -943,7 +939,7 @@
       },
       {
         "kind": "stale",
-        "count": 61
+        "count": 0
       },
       {
         "kind": "unreachable",
@@ -955,489 +951,489 @@
         "repo": "AlphaCut",
         "branch": "main",
         "branchTipSha": "47f9832497fedcc9edfdf56174271dfb6dfb346b",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "MediaForge",
         "branch": "main",
         "branchTipSha": "a092b9bd7662aa470c34246a48b945fa0d6562d5",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "StreamKeep",
         "branch": "main",
         "branchTipSha": "df875f8b17335cf73ad11e0b6dbd9f205b7f98d2",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "VideoCrush",
         "branch": "main",
         "branchTipSha": "06728c183b1227879b01259211979fb7e678dbe9",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "VideoSubtitleRemover",
         "branch": "main",
         "branchTipSha": "770578e9c711f432d541399f3454434304de5fcd",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "yt_livestream_downloader",
         "branch": "main",
         "branchTipSha": "1490f12f741af72efe2a32d3589cfd3e0ff2629c",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "AdapterLock",
         "branch": "master",
         "branchTipSha": "55261853527a65f82b2cdd981d58b3e9ae4de3b4",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Brave-Portable-Updater",
         "branch": "main",
         "branchTipSha": "b632580a2179c2615ca9c2c7d5bf1e296b6f16a0",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Debloat-Win11",
         "branch": "main",
         "branchTipSha": "30d78e1099e6d44e87f67fb897428459390c00c9",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "DefenderControl",
         "branch": "main",
         "branchTipSha": "9fd6780c849f19d4e6d386835f6a0b39bcda5bef",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "DefenderShield",
         "branch": "main",
         "branchTipSha": "f7ed56bcd7e24d5ff2b9f59efa4f12097de8315a",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Disable-AdobeTelemetry",
         "branch": "main",
         "branchTipSha": "b3528841859a45c00d8af0cb5dacaee4e456cd8f",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "DisableDefender",
         "branch": "main",
         "branchTipSha": "2f474e89c801538e1ea32aacf9004cc4e639d1e2",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "EXTRACTORX",
         "branch": "main",
         "branchTipSha": "dd00d019fbfd69ad451539c260c8661ca67df512",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "FirewallForge",
         "branch": "main",
         "branchTipSha": "bfacdc98404a6e6802573ad0b02703e366d7a848",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "HostnameForensics",
         "branch": "main",
         "branchTipSha": "b186beca5402821ee50bf2cca679c5e985bbcfca",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "JDownloader-2-Ultimate-Manager",
         "branch": "main",
         "branchTipSha": "3fb27d8581ff577d0a08a467374784929d4a60e4",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "LibreSpot",
         "branch": "main",
         "branchTipSha": "51f39e223118598195a2eabce2699ba3c35cf76d",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "MonitorControl",
         "branch": "main",
         "branchTipSha": "5cc293577dd437ab605b59f95e08980feec86cc9",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "NetForge",
         "branch": "main",
         "branchTipSha": "afa85f3779ab8efd28128948aaeaef2b2fd4e08e",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Network_Security_Auditor",
         "branch": "main",
         "branchTipSha": "5f54f05fc8aac97760087a8d3bc84a4bd98c9308",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "npp-sc-scanner",
         "branch": "main",
         "branchTipSha": "198e0beb4967484ba025b37044980117856f2acd",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "NuclearDellRemover",
         "branch": "main",
         "branchTipSha": "5116bdad6fa606de43a489e9c3ef1ec249ce7ea5",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "PathForge",
         "branch": "main",
         "branchTipSha": "db9f81ed906b3ebf2c3c09f20991e708486d5dae",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Restore-WindowsDefaults",
         "branch": "main",
         "branchTipSha": "2fa8758d94f88c0a92a79e3bff6d0b2a9855332e",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Start-Menu-Organizer",
         "branch": "main",
         "branchTipSha": "da4f4ebf6295aca10d4e12f17f6751b3a54bd37e",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "SystemUpdatePro",
         "branch": "main",
         "branchTipSha": "cfe22d6a9be1c46b5b0045581c15f2ea45f2ddfc",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "TelemetrySlayer",
         "branch": "main",
         "branchTipSha": "17fd12cced1c815a0d3d2dcf3eff3c7cde63181e",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "ThankYouJeffrey",
         "branch": "main",
         "branchTipSha": "eb63864b953cfdeb222bccd9f5c197dd4d5cc712",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "VoidTools-Everything-Settings-Manager",
         "branch": "main",
         "branchTipSha": "cec60dc1fce4e74dc6518e822e3906f873608f5a",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "WallBrand",
         "branch": "main",
         "branchTipSha": "ef76c0d76598c1a9aea0ce2a72aba54adaeeb5c4",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "win11-nvme-driver-patcher",
         "branch": "main",
         "branchTipSha": "c4771a0bd2b10c3298b2fc4e4d9eede8773e253c",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "WinForge",
         "branch": "main",
         "branchTipSha": "7c34c8ba93636a1c7c5982252b47b8d763edb871",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Wingetter",
         "branch": "main",
         "branchTipSha": "b36c0c00cdcbb6c005397e2f2b436e61ea4f95df",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "WURepair",
         "branch": "main",
         "branchTipSha": "c22742130ecb84223197e7544b923c1fa07cc63a",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "AI-Model-Compass",
         "branch": "main",
         "branchTipSha": "a513cbcbf129bc8a6330be9cab8f488d93749a3d",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "AppList",
         "branch": "main",
         "branchTipSha": "b8e2fb5ed3bdb8b25e49b9ed2e32b2c6ea91cfcc",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Bookmark-Organizer-Pro",
         "branch": "main",
         "branchTipSha": "6c0f03f53af9f3706ad61a493aae1a70758d64e0",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "ExplorerTweaks",
         "branch": "main",
         "branchTipSha": "f533d4ce27053a4fe934a8cfc85ac3aaf38f953e",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "FaceSlim",
         "branch": "main",
         "branchTipSha": "6521f8d118d3c7062d4dfa2279e0160e05ccc8f5",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "FileOrganizer",
         "branch": "main",
         "branchTipSha": "eafb9d98665567f427b9f7033ebec482674b6297",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "FrameSnap",
         "branch": "main",
         "branchTipSha": "f7fd5da76b3d1d9fc32f13aece603e16e403b07f",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "GitForge",
         "branch": "main",
         "branchTipSha": "6788d5cf5e16acdf65c5359708818d29322edcd5",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "HostsFileGet",
         "branch": "main",
         "branchTipSha": "c29e623577fb5717d73d744e1de544d44c8c19da",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "ImgConverter",
         "branch": "master",
         "branchTipSha": "fd0d0e668b0f70ef59eed17aea81b481ad563395",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "LlamaLink",
         "branch": "master",
         "branchTipSha": "195e0801063cc314d917de3102ed23fa2057808a",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Mattpad",
         "branch": "main",
         "branchTipSha": "595fc35bfc3d2543b93d5193ba4bbdc976abb3ec",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "MSStoreHelper",
         "branch": "main",
         "branchTipSha": "af9c0e94d33aa678467d5d79e0c3a84e67c98110",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "OpenCut",
         "branch": "main",
         "branchTipSha": "9aaf31f96d1d29ce4d1c1ac63a59aac2ef77334c",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "project-nomad-desktop",
         "branch": "master",
         "branchTipSha": "0c84f87e226e3ed33ea766d1d05b34ee79af7788",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "PromptCompanion",
         "branch": "main",
         "branchTipSha": "fcb74c4a36dd61f1c946e32b469b36f15576edd5",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "PyShop",
         "branch": "main",
         "branchTipSha": "fd2aa5f272d837da9775a6d6d1ff64705d4e3b21",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "PyWall",
         "branch": "main",
         "branchTipSha": "283c2ad60e65cc63147b88074f67196f1cc75877",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "QuickFind",
         "branch": "main",
         "branchTipSha": "d5810637904f27ca48d21441e4ebe760f213a510",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Qwen3-TTS-Studio",
         "branch": "main",
         "branchTipSha": "f08d9f191e953390fd8a3bae78b60a11349e9187",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "SlunderStudio",
         "branch": "main",
         "branchTipSha": "8031e2af0a701d60448733cba12440018d27dc64",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "SunoJump",
         "branch": "main",
         "branchTipSha": "58a8f704349fc7cbf2c89c0f938a767c33b7d1cf",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "SwiftShot",
         "branch": "main",
         "branchTipSha": "1b4bad22ea02cee5f456024795627b44d62e7352",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "uBlock-Stylus-Converter",
         "branch": "main",
         "branchTipSha": "b4ba46bf4e5b6d1af1d4a6263997d3899425afbb",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "UniFile",
         "branch": "master",
         "branchTipSha": "06d2da7d828abe1c81081875e6cda3e31ab66362",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       },
       {
         "repo": "Vertigo",
         "branch": "main",
         "branchTipSha": "a3d84ed733959496c4b4ec3f220565498fbd4156",
-        "branchTipFetchedAt": "2026-09-23T15:07:26.1117119Z",
-        "status": "stale",
-        "warning": "Branch-tip refresh was unreachable; retaining evidence fetched 0.2 hour(s) ago."
+        "branchTipFetchedAt": "2026-09-23T15:23:11.8502878Z",
+        "status": "fresh",
+        "warning": null
       }
     ],
     "note": "Branch-current clone/install snippets remain the README default. Tip SHA and fetched-at fields are warning-only verification evidence; stale or unreachable branch metadata never rewrites a visitor-facing branch or blocks generation."
@@ -2236,7 +2232,7 @@
     "status": "disabled",
     "portfolioUrl": "https://portfolio.getparkerai.com/",
     "feedUrl": "https://portfolio.getparkerai.com/projects.json",
-    "localFeedGeneratedAt": "2026-09-23T11:19:32.9079140-04:00",
+    "localFeedGeneratedAt": "2026-09-23T11:23:11.9246352-04:00",
     "deployedPortfolioGeneratedAt": null,
     "deployedProfileFeedGeneratedAt": null,
     "localFeedSchemaVersion": 3,
@@ -2397,7 +2393,7 @@
           "unavailableReason": null,
           "provider": "github-code-scanning-alerts",
           "tool": "Scorecard",
-          "queriedAt": "2026-09-23T11:18:51.2559495-04:00",
+          "queriedAt": "2026-09-23T11:19:59.2941280-04:00",
           "openAlertCount": 5,
           "localActionableCount": 0,
           "needsHostedRefreshCount": 0,
@@ -2738,7 +2734,7 @@
     "expectedVersion": "v4.10.4",
     "latestReleaseTag": "v4.10.0",
     "latestReleaseUrl": "https://github.com/SysAdminDoc/SysAdminDoc/releases/tag/v4.10.0",
-    "latestReleasePublishedAt": "2026-08-20T18:03:20Z",
+    "latestReleasePublishedAt": "2026-08-20T18:03:20.0000000Z",
     "versionRelation": "behind",
     "latestReleaseMatchesExpected": false,
     "latestReleaseAtLeastExpected": false,
@@ -2818,17 +2814,17 @@
   },
   "validationPerformance": {
     "metadataFetch": {
-      "provider": "cache-fallback",
+      "provider": "rest-fallback",
       "graphQlPageSize": 300,
       "requestCount": 3,
-      "attemptCount": 3,
-      "retryCount": 2,
+      "attemptCount": 2,
+      "retryCount": 1,
       "fallbackUsed": true,
-      "fallbackReason": "HTTP 502: 502 Bad Gateway (https://api.github.com/graphql)",
-      "resourceLimitFallback": true,
-      "resourceLimitFallbackReason": "HTTP 502: 502 Bad Gateway (https://api.github.com/graphql)",
+      "fallbackReason": "gh repo list returned 150 repos at limit 150; falling back to REST pagination to avoid a truncated enumeration.",
+      "resourceLimitFallback": false,
+      "resourceLimitFallbackReason": null,
       "pageSizeReduced": true,
-      "effectivePageSize": 300,
+      "effectivePageSize": 0,
       "repoCount": 230,
       "truncated": false,
       "fidelityDegraded": true
@@ -2837,22 +2833,22 @@
       "skipped": false,
       "targetCount": 388,
       "throttleLimit": 16,
-      "elapsedMs": 3121,
+      "elapsedMs": 3513,
       "failureCount": 0,
       "warningCount": 1,
       "warningHostCount": 1,
       "headerWarningHostCount": 0
     },
     "restFallbackReleaseFetch": {
-      "used": false,
-      "status": "not-used",
-      "repoCount": 0,
-      "authenticated": false,
+      "used": true,
+      "status": "completed",
+      "repoCount": 230,
+      "authenticated": true,
       "maxReleaseFetches": 240,
       "unauthenticatedReleaseFetchLimit": 50,
-      "attemptedReleaseFetches": 0,
-      "successfulReleaseFetches": 0,
-      "noRelease404Count": 0,
+      "attemptedReleaseFetches": 230,
+      "successfulReleaseFetches": 190,
+      "noRelease404Count": 40,
       "fatal": false,
       "abortRepo": null,
       "abortHttpStatus": null,
@@ -2863,19 +2859,19 @@
       "path": ".cache/profile-sync",
       "ttlHours": 24,
       "metadata": {
-        "hitCount": 1,
+        "hitCount": 0,
         "missCount": 0,
         "staleCount": 0,
-        "writeCount": 1,
-        "fallbackHitCount": 1,
-        "usedForFallback": true,
-        "lastFallbackReason": "HTTP 502: 502 Bad Gateway (https://api.github.com/graphql)"
+        "writeCount": 2,
+        "fallbackHitCount": 0,
+        "usedForFallback": false,
+        "lastFallbackReason": null
       },
       "releases": {
         "hitCount": 0,
         "missCount": 0,
         "staleCount": 0,
-        "writeCount": 0,
+        "writeCount": 190,
         "fallbackHitCount": 0,
         "usedForFallback": false,
         "lastFallbackReason": null
@@ -2902,7 +2898,7 @@
     "fatalCount": 0,
     "informationalCount": 0,
     "generatedAt": {
-      "value": "2026-09-23T15:19:32.9079140Z",
+      "value": "2026-09-23T15:23:11.9246352Z",
       "ageDays": 0.0,
       "staleAfterDays": 7,
       "stale": false,
@@ -2916,10 +2912,10 @@
     "targetCount": 388,
     "liveProbedCount": 1,
     "cacheServedCount": 387,
-    "oldestCacheEntryAgeHours": 14.44,
+    "oldestCacheEntryAgeHours": 14.5,
     "allResultsFromCache": false,
     "throttleLimit": 16,
-    "elapsedMs": 3121,
+    "elapsedMs": 3513,
     "readmeActionTargetCount": 176,
     "readmeInstallSnippetTargetCount": 61,
     "readmeInstallDispatcherTargetCount": 1,
@@ -3237,7 +3233,7 @@
     "status": "warning",
     "warningCount": 1,
     "warnings": [
-      "reports/profile-sync-report.json bytes is 130103, above the 114688 soft limit."
+      "reports/profile-sync-report.json bytes is 125218, above the 114688 soft limit."
     ],
     "rows": [
       {
@@ -3297,7 +3293,7 @@
       {
         "artifact": "projects.json",
         "metric": "bytes",
-        "value": 487922,
+        "value": 483870,
         "softLimit": 512000,
         "overSoftLimit": false,
         "warning": null,
@@ -3306,10 +3302,10 @@
       {
         "artifact": "reports/profile-sync-report.json",
         "metric": "bytes",
-        "value": 130103,
+        "value": 125218,
         "softLimit": 114688,
         "overSoftLimit": true,
-        "warning": "reports/profile-sync-report.json bytes is 130103, above the 114688 soft limit.",
+        "warning": "reports/profile-sync-report.json bytes is 125218, above the 114688 soft limit.",
         "note": "Serialized sync-report size budget."
       },
       {
@@ -3393,9 +3389,9 @@
   "evidenceFreshness": {
     "status": "stale",
     "committedReportPresent": true,
-    "committedReportGeneratedAt": "2026-09-23T15:07:47.7272887Z",
-    "latestReportAffectingCommitSha": "f171a8b29f53f1b3c0e904362c44d681fd7ccc55",
-    "latestReportAffectingCommitDate": "2026-09-23T11:07:49.0000000-04:00",
+    "committedReportGeneratedAt": "2026-09-23T15:19:55.9430585Z",
+    "latestReportAffectingCommitSha": "8f306e6a1600ca8e9c36cdd7c861f761b385a101",
+    "latestReportAffectingCommitDate": "2026-09-23T11:19:58.0000000-04:00",
     "reportAgeBehindCommit": true,
     "reportAgeBehindHours": 0.0,
     "generatedWithCommit": true,
@@ -3403,7 +3399,7 @@
     "smokeStatus": "passed",
     "smokeEvidenceStale": true,
     "smokeEvidenceGeneratedAt": "2026-08-20T17:20:52.4580904Z",
-    "smokeEvidenceAgeHours": 813.98,
+    "smokeEvidenceAgeHours": 814.04,
     "smokeEvidenceBehindReadme": true,
     "smokeAffectingPaths": [
       "README.md",

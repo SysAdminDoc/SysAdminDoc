@@ -1139,10 +1139,11 @@ function Test-RepositoryCommunityBaseline {
         [object]$Repository,
         [object]$CommunityProfile,
         [object]$BranchProtection,
-        [object[]]$Rulesets = @(),
+        # Left out, a list reads as unread, not as read and empty: an empty list is an answer.
+        [object[]]$Rulesets = $null,
         # Active rules on the default branch (GET .../rules/branches/<default branch>), from
         # every enabled ruleset; the ruleset list alone can't say whether any requires checks.
-        [object[]]$BranchRules = @(),
+        [object[]]$BranchRules = $null,
         [object]$ActionsWorkflowPermissions,
         [object]$Languages,
         [object[]]$LocalFiles = @(),

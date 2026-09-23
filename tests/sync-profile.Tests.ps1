@@ -1023,8 +1023,57 @@ Describe 'PR delivery checklist carries no recorded history' {
             if ($Protection -eq 'unreadable') { $blockers | Should -Contain 'Branch protection evidence unavailable: HTTP 404: Branch not protected.' }
             if ($Rules -eq 'unreadable') { $blockers | Should -Contain 'Repository ruleset evidence unavailable: HTTP 502.' }
         }
+        # The evidence names what was read, word for word: a negative match missed the old
+        # "readable and currently show no" wording.
+        $expectedEvidence = if ($Protection -eq 'requiring checks' -or $Rules -eq 'requiring checks') {
+            'Required-check enforcement is already present.'
+        } elseif ($Protection -ne 'unreadable' -and $Rules -ne 'unreadable') {
+            "Branch protection and the default branch's rules are readable and show no required-check enforcement."
+        } elseif ($Protection -ne 'unreadable') {
+            "Branch protection requires no status checks, but the default branch's rules couldn't be read, so a ruleset may still require them."
+        } elseif ($Rules -ne 'unreadable') {
+            "No rule on the default branch requires status checks, but branch protection couldn't be read, so it may still require them."
+        } else {
+            'Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism.'
+        }
+        $enforcementItem.evidence | Should -BeExactly $expectedEvidence
         $rulesWarnings = @($settings.warnings | Where-Object { $_ -like 'Default branch rules unavailable*' })
         $rulesWarnings | Should -HaveCount $(if ($Rules -eq 'unreadable') { 1 } else { 0 })
+    }
+
+    It 'names an unread source as unread even with no reason given' {
+        # The old blockers only said "unavailable" when a reason came with it, and otherwise
+        # called the unread source one that doesn't require checks.
+        Mock Test-RequiredCheckWorkflowCoverage { [ordered]@{ status = 'ready'; workflowCount = 1; candidateCheckCount = 1; warningCount = 0; warnings = @(); workflows = @() } }
+
+        $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$false -RulesetsAvailable:$false `
+            -RequiredStatusChecks $null -EnforceAdmins $null -ActionsPullRequestCreationAllowed $true -RulesetCount 0 `
+            -RulesetRequiresStatusChecks $null -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
+
+        @($readiness.blockers) | Should -Be @('Branch protection evidence unavailable.', 'Repository ruleset evidence unavailable.')
+        $readiness.status | Should -Be 'needs-live-validation'
+    }
+
+    It 'reads left-out ruleset lists as unread, not as read and empty' {
+        # -Rulesets and -BranchRules defaulted to @(), so a caller that left them out got
+        # "readable, no rules" and a not-enabled verdict it never checked.
+        $savedCandidates = $script:RequiredStatusCheckCandidates
+        $script:RequiredStatusCheckCandidates = @([ordered]@{ name = 'validate'; workflow = '.github/workflows/validate.yml' })
+        try {
+            $result = Test-RepositoryCommunityBaseline `
+                -Repository ([pscustomobject]@{ name = 'SysAdminDoc'; default_branch = 'main' }) `
+                -BranchProtection ([pscustomobject]@{ enforce_admins = [pscustomobject]@{ enabled = $false } }) `
+                -ActionsWorkflowPermissions ([pscustomobject]@{ default_workflow_permissions = 'read'; can_approve_pull_request_reviews = $true }) `
+                -CommunityUnavailableReason 'not needed here' -LanguagesUnavailableReason 'not needed here' `
+                -ScorecardAlertsUnavailableReason 'not needed here' -ScorecardScoreUnavailableReason 'not needed here'
+        } finally {
+            $script:RequiredStatusCheckCandidates = $savedCandidates
+        }
+
+        $settings = $result['repositorySettings']
+        $settings.rulesets.available | Should -BeFalse
+        $settings.requiredCheckReadiness.status | Should -Be 'needs-live-validation'
+        @($settings.warnings | Where-Object { $_ -like 'Default branch rules unavailable*' }) | Should -HaveCount 1
     }
 
     It 'records neither generated-PR path while the decision is open, with the setting <Setting>' -ForEach @(
