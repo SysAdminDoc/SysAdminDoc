@@ -148,6 +148,69 @@ function Get-UncoveredCoverageFile {
     return @($Coverage.FilesAnalyzed | Where-Object { -not $executed.Contains([string]$_) } | Sort-Object)
 }
 
+function Get-CheckoutFileState {
+    <#
+    .SYNOPSIS
+    Records every file in the checkout with its size and last write time.
+    .DESCRIPTION
+    Taken before and after the test run, so a test that writes into the checkout fails the
+    lane whatever started it: a child pwsh in any form, a dot-sourced library, a splatted
+    call. .git, node_modules and .claude are tool state, not the checkout's content.
+    .PARAMETER RepoRoot
+    The checkout to walk.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$RepoRoot)
+
+    $root = [System.IO.Path]::GetFullPath($RepoRoot)
+    $state = @{}
+    $pending = [System.Collections.Generic.Stack[string]]::new()
+    $pending.Push($root)
+    while ($pending.Count -gt 0) {
+        $directory = $pending.Pop()
+        foreach ($child in [System.IO.Directory]::EnumerateDirectories($directory)) {
+            if ($directory -eq $root -and [System.IO.Path]::GetFileName($child) -in @('.git', 'node_modules', '.claude')) { continue }
+            $pending.Push($child)
+        }
+        foreach ($file in [System.IO.Directory]::EnumerateFiles($directory)) {
+            $info = [System.IO.FileInfo]::new($file)
+            $state[([System.IO.Path]::GetRelativePath($root, $file) -replace '\\', '/')] = '{0}|{1}' -f $info.Length, $info.LastWriteTimeUtc.Ticks
+        }
+    }
+    return $state
+}
+
+function Compare-CheckoutFileState {
+    <#
+    .SYNOPSIS
+    Names the files added, changed or removed between two Get-CheckoutFileState records.
+    .PARAMETER Allowed
+    Relative paths the run itself writes, such as coverage.xml.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][hashtable]$Before,
+        [Parameter(Mandatory)][hashtable]$After,
+        [string[]]$Allowed = @()
+    )
+
+    $changes = New-Object System.Collections.Generic.List[string]
+    foreach ($path in $After.Keys) {
+        if ($Allowed -contains $path) { continue }
+        if (-not $Before.ContainsKey($path)) {
+            $changes.Add("added $path")
+        } elseif ($Before[$path] -ne $After[$path]) {
+            $changes.Add("changed $path")
+        }
+    }
+    foreach ($path in $Before.Keys) {
+        if ($Allowed -notcontains $path -and -not $After.ContainsKey($path)) {
+            $changes.Add("removed $path")
+        }
+    }
+    return @($changes | Sort-Object)
+}
+
 function Get-PowerShellRuntimeChannel {
     param(
         [Parameter(Mandatory)]
@@ -889,9 +952,18 @@ try {
     $pesterConfig.CodeCoverage.OutputFormat = "JaCoCo"
     $pesterConfig.CodeCoverage.OutputPath = $coveragePath
 
+    # Tests write under $TestDrive or the temp folder. Anything the run leaves in the checkout
+    # (a tracked file, a new file, the cache) fails the lane, whatever form wrote it.
+    $checkoutBefore = Get-CheckoutFileState -RepoRoot $repoRoot
     $pesterResult = Invoke-Pester -Configuration $pesterConfig
+    $checkoutWrites = @(Compare-CheckoutFileState -Before $checkoutBefore -After (Get-CheckoutFileState -RepoRoot $repoRoot) -Allowed @('coverage.xml'))
+    $checkoutWriteText = "The test run wrote into the checkout: $($checkoutWrites -join '; '). Tests must write under `$TestDrive or the temp folder."
     if ($pesterResult.FailedCount -gt 0) {
+        if ($checkoutWrites.Count -gt 0) { Write-Warning $checkoutWriteText }
         throw "Pester reported $($pesterResult.FailedCount) failed test(s)."
+    }
+    if ($checkoutWrites.Count -gt 0) {
+        throw $checkoutWriteText
     }
 
     $coverage = $pesterResult.CodeCoverage

@@ -4317,11 +4317,12 @@ exit $LASTEXITCODE
     It 'still flags a medical-imaging repository in a fresh tr-TR process' -Tag 'Integration' {
         $runner = Join-Path $TestDrive 'medical-runner.ps1'
         Set-Content -LiteralPath $runner -Encoding utf8 -Value @'
-param([string]$GeneratorEntry, [string]$FixtureCatalogPath)
+param([string]$GeneratorEntry, [string]$FixtureCatalogPath, [string]$RunnerCachePath)
 # Parameter names must not match the generator's own (a dot-source rebinds them) or a
-# later variable ($catalog would coerce into a [string] $Catalog parameter).
+# later variable ($catalog would coerce into a [string] $Catalog parameter). The cache is
+# the test drive's: the generator's default is the checkout's .cache.
 [System.Globalization.CultureInfo]::CurrentCulture = 'tr-TR'
-. $GeneratorEntry
+. $GeneratorEntry -CachePath $RunnerCachePath
 $Offline = $true
 $script:Offline = $true
 $catalog = Get-Catalog -Path $FixtureCatalogPath
@@ -4342,7 +4343,8 @@ $result = Test-ProfileState -Catalog $catalog -Repos @($repo) -ExpectedReadme $r
 "medical=$(@($result.Report.medicalPrivacyViolations | Where-Object { $_.repo -eq 'DICOM-Viewer' }).Count)"
 '@
 
-        $output = & pwsh -NoProfile -File $runner -GeneratorEntry $script:SyncProfileScriptPath -FixtureCatalogPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') 2>&1 | Out-String
+        $output = & pwsh -NoProfile -File $runner -GeneratorEntry $script:SyncProfileScriptPath -FixtureCatalogPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') `
+            -RunnerCachePath (Join-Path $TestDrive 'medical-cache') 2>&1 | Out-String
 
         $output | Should -Match 'culture=tr-TR' -Because 'the check must run under the Turkish culture that broke it'
         $output | Should -Match 'medical=1' -Because $output
@@ -7586,10 +7588,14 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         foreach ($case in @('catalog', 'empty')) {
             $readmes[$case] = Join-Path $TestDrive "portfolio-$case.md"
             Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmes[$case] -Force
-            $arguments = @('-NoProfile', '-File', $scriptPath, '-Write', '-Offline', '-CatalogPath', $catalogPath, '-ReadmePath', $readmes[$case],
-                '-ProjectsPath', (Join-Path $TestDrive "portfolio-feed-$case.json"), '-AssetsPath', (Join-Path $TestDrive "portfolio-assets-$case"), '-CachePath', $cachePath)
-            if ($case -eq 'empty') { $arguments += @('-PortfolioUrl', '') }
-            $output = & pwsh @arguments *>&1
+            # Written out in full for each case: the checkout guard can't read a splatted run.
+            if ($case -eq 'empty') {
+                $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -PortfolioUrl '' -CatalogPath $catalogPath -ReadmePath $readmes[$case] `
+                    -ProjectsPath (Join-Path $TestDrive "portfolio-feed-$case.json") -AssetsPath (Join-Path $TestDrive "portfolio-assets-$case") -CachePath $cachePath *>&1
+            } else {
+                $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -CatalogPath $catalogPath -ReadmePath $readmes[$case] `
+                    -ProjectsPath (Join-Path $TestDrive "portfolio-feed-$case.json") -AssetsPath (Join-Path $TestDrive "portfolio-assets-$case") -CachePath $cachePath *>&1
+            }
             $LASTEXITCODE | Should -Be 0 -Because ($output | Out-String)
         }
 
@@ -7600,7 +7606,9 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
     It 'rejects unsafe Owner values before generation or network work' {
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
 
-        $output = & pwsh -NoProfile -File $scriptPath -Owner '../bad' -Check -Offline -CachePath (Join-Path $TestDrive 'bad-owner-cache') *>&1
+        # -ReportPath too: without it the run would write the tracked report if the check ever moved.
+        $output = & pwsh -NoProfile -File $scriptPath -Owner '../bad' -Check -Offline -CachePath (Join-Path $TestDrive 'bad-owner-cache') `
+            -ReportPath (Join-Path $TestDrive 'bad-owner-report.json') *>&1
 
         $LASTEXITCODE | Should -Be 1
         ($output | Out-String) | Should -Match 'Owner must match'
@@ -7685,28 +7693,92 @@ Describe 'Child script runs stay out of the checkout' {
             }, $true))
         }
 
-        # True when the run passes one of the parameters with a value under the test drive,
-        # given directly or through a variable its script block assigns from $TestDrive.
-        function script:Test-TestDriveArgument {
-            param($Command, [string[]]$ParameterName)
+        # True when a path value comes from the test drive: $TestDrive itself, Join-Path with
+        # $TestDrive as its base, a double-quoted string that starts with it, or a variable or
+        # indexed value whose last assignment before the run is one of those. The text alone
+        # isn't enough: '$TestDrive/cache' in single quotes is a relative path in the checkout.
+        function script:Test-TestDriveValue {
+            param($Value, [int]$Before, [int]$Depth = 0)
+            if ($null -eq $Value -or $Depth -gt 6) { return $false }
+            switch ($Value.GetType().Name) {
+                'VariableExpressionAst' {
+                    if ($Value.VariablePath.UserPath -eq 'TestDrive') { return $true }
+                    return (script:Test-AssignedFromTestDrive -Target $Value -Before $Before -Depth $Depth)
+                }
+                'IndexExpressionAst' { return (script:Test-AssignedFromTestDrive -Target $Value -Before $Before -Depth $Depth) }
+                'ParenExpressionAst' { return (script:Test-TestDriveValue -Value $Value.Pipeline -Before $Before -Depth ($Depth + 1)) }
+                'PipelineAst' {
+                    if ($Value.PipelineElements.Count -ne 1) { return $false }
+                    return (script:Test-TestDriveValue -Value $Value.PipelineElements[0] -Before $Before -Depth ($Depth + 1))
+                }
+                'CommandExpressionAst' { return (script:Test-TestDriveValue -Value $Value.Expression -Before $Before -Depth ($Depth + 1)) }
+                'CommandAst' {
+                    if ($Value.GetCommandName() -ne 'Join-Path') { return $false }
+                    # The base: -Path's value, or the first positional argument.
+                    $elements = @($Value.CommandElements)
+                    for ($index = 1; $index -lt $elements.Count; $index++) {
+                        $element = $elements[$index]
+                        if ($element -is [System.Management.Automation.Language.CommandParameterAst]) {
+                            if ($element.ParameterName -eq 'Path') {
+                                $base = if ($null -ne $element.Argument) { $element.Argument } elseif ($index + 1 -lt $elements.Count) { $elements[$index + 1] } else { $null }
+                                return (script:Test-TestDriveValue -Value $base -Before $Before -Depth ($Depth + 1))
+                            }
+                            if ($null -eq $element.Argument) { $index++ }
+                            continue
+                        }
+                        return (script:Test-TestDriveValue -Value $element -Before $Before -Depth ($Depth + 1))
+                    }
+                    return $false
+                }
+                'ExpandableStringExpressionAst' { return ($Value.Extent.Text -match '^"\$(?:TestDrive\b|\{TestDrive\}|\(\$TestDrive\))') }
+                default { return $false }
+            }
+        }
+
+        function script:Test-AssignedFromTestDrive {
+            param($Target, [int]$Before, [int]$Depth)
+            $scope = $Target.Parent
+            while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
+            if ($null -eq $scope) { return $false }
+            $targetText = $Target.Extent.Text
+            $last = @($scope.FindAll({
+                param($node)
+                $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq $targetText -and $node.Extent.EndOffset -le $Before
+            }, $true) | Sort-Object { $_.Extent.StartOffset }) | Select-Object -Last 1
+            if ($null -eq $last) { return $false }
+            return (script:Test-TestDriveValue -Value $last.Right -Before $last.Extent.StartOffset -Depth ($Depth + 1))
+        }
+
+        function script:Get-ParameterValue {
+            param($Command, [string]$Name)
             $elements = @($Command.CommandElements)
-            for ($index = 0; $index -lt $elements.Count - 1; $index++) {
+            for ($index = 0; $index -lt $elements.Count; $index++) {
                 $element = $elements[$index]
-                if ($element -isnot [System.Management.Automation.Language.CommandParameterAst] -or $element.ParameterName -notin $ParameterName) { continue }
-                $value = $elements[$index + 1]
-                if ($value.Extent.Text -match '\$TestDrive\b') { return $true }
-                if ($value -is [System.Management.Automation.Language.VariableExpressionAst]) {
-                    $scope = $Command.Parent
-                    while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
-                    $variableText = '$' + $value.VariablePath.UserPath
-                    $fromTestDrive = @($scope.FindAll({
-                        param($node)
-                        $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq $variableText -and $node.Right.Extent.Text -match '\$TestDrive\b'
-                    }, $true))
-                    if ($fromTestDrive.Count -gt 0) { return $true }
+                if ($element -is [System.Management.Automation.Language.CommandParameterAst] -and $element.ParameterName -eq $Name) {
+                    if ($null -ne $element.Argument) { return $element.Argument }
+                    if ($index + 1 -lt $elements.Count) { return $elements[$index + 1] }
                 }
             }
-            return $false
+            return $null
+        }
+
+        # The output paths the run passes that don't come from the test drive, and the ones it
+        # needs and leaves out (they default into the checkout). An empty list is safe.
+        function script:Get-UnsafeOutputPath {
+            param($Command, [string[]]$Required, [string[]]$Optional)
+            @(foreach ($name in @($Required) + @($Optional)) {
+                $value = script:Get-ParameterValue -Command $Command -Name $name
+                if ($null -eq $value) {
+                    if ($Required -contains $name) { "-$name missing" }
+                } elseif (-not (script:Test-TestDriveValue -Value $value -Before $Command.Extent.StartOffset)) {
+                    "-$name $($value.Extent.Text)"
+                }
+            })
+        }
+
+        function script:Test-SwitchPresent {
+            param($Command, [string]$Name)
+            @($Command.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq $Name }).Count -gt 0
         }
 
         function script:Format-ChildRun {
@@ -7730,8 +7802,16 @@ Describe 'Child script runs stay out of the checkout' {
         }
 
         $childRuns.Count | Should -BeGreaterThan 5 -Because 'the scan has to find the seed and entrypoint-mode runs'
-        @($childRuns | Where-Object { -not (script:Test-TestDriveArgument -Command $_ -ParameterName 'CachePath') } | ForEach-Object { script:Format-ChildRun $_ }) |
-            Should -BeNullOrEmpty
+        # What each mode writes: the cache and lock always, the report under -Check, the
+        # README, feed and assets under -Write, the catalog under -SeedCatalog.
+        @(foreach ($run in $childRuns) {
+            $required = @('CachePath')
+            if (script:Test-SwitchPresent -Command $run -Name 'Check') { $required += 'ReportPath' }
+            if (script:Test-SwitchPresent -Command $run -Name 'Write') { $required += @('ReadmePath', 'ProjectsPath', 'AssetsPath') }
+            if (script:Test-SwitchPresent -Command $run -Name 'SeedCatalog') { $required += 'CatalogPath' }
+            $unsafe = @(script:Get-UnsafeOutputPath -Command $run -Required $required -Optional @('BackstageExportPath'))
+            if ($unsafe.Count -gt 0) { '{0} ({1})' -f (script:Format-ChildRun $run), ($unsafe -join ', ') }
+        }) | Should -BeNullOrEmpty
     }
 
     It 'gives every child run of review-local-dependencies.ps1 a registry cache or root under the test drive' {
@@ -7743,8 +7823,41 @@ Describe 'Child script runs stay out of the checkout' {
         }
 
         $childRuns.Count | Should -BeGreaterThan 6 -Because 'the scan has to find the pwsh and (Get-Command pwsh).Source runs'
-        @($childRuns | Where-Object { -not (script:Test-TestDriveArgument -Command $_ -ParameterName @('RegistryCachePath', 'RepoRoot')) } | ForEach-Object { script:Format-ChildRun $_ }) |
-            Should -BeNullOrEmpty
+        # The cache defaults to <RepoRoot>/.cache, so one of the two has to be given, and
+        # every one given has to come from the test drive.
+        @(foreach ($run in $childRuns) {
+            $given = @('RegistryCachePath', 'RepoRoot' | Where-Object { $null -ne (script:Get-ParameterValue -Command $run -Name $_) })
+            $unsafe = @(if ($given.Count -eq 0) { '-RegistryCachePath or -RepoRoot missing' } else { script:Get-UnsafeOutputPath -Command $run -Required $given -Optional @() })
+            if ($unsafe.Count -gt 0) { '{0} ({1})' -f (script:Format-ChildRun $run), ($unsafe -join ', ') }
+        }) | Should -BeNullOrEmpty
+    }
+
+    It 'writes every child pwsh run out in full, so the checks above can read it' {
+        # A splatted argument list hides the paths the run writes; the guards can't see it.
+        $splatted = @($script:TestFileAst.FindAll({
+            param($node)
+            $node -is [System.Management.Automation.Language.CommandAst] -and
+                $node.CommandElements[0].Extent.Text -match 'pwsh' -and
+                @($node.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] -and $_.Splatted }).Count -gt 0
+        }, $true))
+
+        @($splatted | ForEach-Object { script:Format-ChildRun $_ }) | Should -BeNullOrEmpty
+    }
+
+    It 'traces a path to the test drive only through <Case>' -ForEach @(
+        @{ Case = 'the variable itself'; Code = '& pwsh -File x.ps1 -CachePath $TestDrive'; Safe = $true }
+        @{ Case = 'Join-Path on it'; Code = '& pwsh -File x.ps1 -CachePath (Join-Path $TestDrive "c")'; Safe = $true }
+        @{ Case = 'a double-quoted string that starts with it'; Code = '& pwsh -File x.ps1 -CachePath "$TestDrive\c"'; Safe = $true }
+        @{ Case = 'a variable last assigned from it'; Code = '$c = Join-Path $script:RepoRoot "c"; $c = Join-Path $TestDrive "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $true }
+        @{ Case = 'not a single-quoted string, which is a relative path'; Code = '& pwsh -File x.ps1 -CachePath ''$TestDrive/c'''; Safe = $false }
+        @{ Case = 'not a variable reassigned into the checkout'; Code = '$c = Join-Path $TestDrive "c"; $c = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a value that only mentions it'; Code = '& pwsh -File x.ps1 -CachePath ($TestDrive -replace ''.+'', $script:RepoRoot)'; Safe = $false }
+        @{ Case = 'not an assignment made after the run'; Code = '& pwsh -File x.ps1 -CachePath $c; $c = Join-Path $TestDrive "c"'; Safe = $false }
+    ) {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+        $run = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] -and $node.CommandElements[0].Extent.Text -eq 'pwsh' }, $true))[0]
+
+        @(script:Get-UnsafeOutputPath -Command $run -Required @('CachePath') -Optional @()).Count -eq 0 | Should -Be $Safe
     }
 }
 
@@ -12588,6 +12701,44 @@ Describe 'Local validation helpers (in-process)' {
     It 'surfaces a failing native command' {
         $pwsh = (Get-Command pwsh -CommandType Application | Select-Object -First 1).Source
         { Invoke-NativeCommand -FilePath $pwsh -ArgumentList @('-NoProfile', '-NonInteractive', '-Command', 'exit 3') } | Should -Throw '*failed with exit code 3*'
+    }
+
+    It 'names every file a run added, changed or removed in the checkout, and nothing else' {
+        # The AST guards only see the child-run forms they know; this sees any write.
+        $root = Join-Path $TestDrive 'checkout-state'
+        foreach ($folder in '.cache', 'reports', '.git', 'node_modules', '.claude') {
+            New-Item -ItemType Directory -Path (Join-Path $root $folder) -Force | Out-Null
+        }
+        Set-Content -LiteralPath (Join-Path $root 'README.md') -Value 'readme'
+        Set-Content -LiteralPath (Join-Path $root 'reports/profile-sync-report.json') -Value '{}'
+        Set-Content -LiteralPath (Join-Path $root '.cache/registry-versions.json') -Value '{}'
+        Set-Content -LiteralPath (Join-Path $root 'coverage.xml') -Value 'old'
+        $before = Get-CheckoutFileState -RepoRoot $root
+
+        Set-Content -LiteralPath (Join-Path $root 'reports/profile-sync-report.json') -Value '{"rewritten":true}'
+        Set-Content -LiteralPath (Join-Path $root '.cache/run.lock') -Value ''
+        Remove-Item -LiteralPath (Join-Path $root 'README.md')
+        Set-Content -LiteralPath (Join-Path $root 'coverage.xml') -Value 'new coverage'
+        foreach ($toolFile in '.git/index', 'node_modules/x.js', '.claude/settings.local.json') {
+            Set-Content -LiteralPath (Join-Path $root $toolFile) -Value 'tool state'
+        }
+        $after = Get-CheckoutFileState -RepoRoot $root
+
+        Compare-CheckoutFileState -Before $before -After $after -Allowed @('coverage.xml') |
+            Should -Be @('added .cache/run.lock', 'changed reports/profile-sync-report.json', 'removed README.md')
+        Compare-CheckoutFileState -Before $before -After $before | Should -BeNullOrEmpty
+    }
+
+    It 'fails the lane when the test run writes into the checkout' {
+        $validation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
+        $snapshot = $validation.IndexOf('$checkoutBefore = Get-CheckoutFileState -RepoRoot $repoRoot')
+        $run = $validation.IndexOf('$pesterResult = Invoke-Pester -Configuration $pesterConfig')
+        $compare = $validation.IndexOf('Compare-CheckoutFileState -Before $checkoutBefore -After (Get-CheckoutFileState -RepoRoot $repoRoot) -Allowed @(''coverage.xml'')')
+
+        $snapshot | Should -BeGreaterThan -1
+        $run | Should -BeGreaterThan $snapshot
+        $compare | Should -BeGreaterThan $run
+        $validation | Should -Match 'throw \$checkoutWriteText'
     }
 }
 
