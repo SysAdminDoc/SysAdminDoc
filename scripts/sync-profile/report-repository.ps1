@@ -1521,7 +1521,7 @@ function Test-RepositoryCommunityBaseline {
 
 function Get-RepositoryCommunityBaseline {
     $localFiles = @(Get-CommunityLocalFileStatus)
-    if ($Offline) {
+    if ($script:Offline) {
         return Test-RepositoryCommunityBaseline `
             -LocalFiles $localFiles `
             -RepositoryUnavailableReason "offline" `

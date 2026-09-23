@@ -27,7 +27,9 @@ BeforeAll {
     # file in load order, so a moved function is still in scope for them.
     $script:SyncProfileSourcePaths = @($script:SyncProfileScriptPath) + @($GeneratorLibraryFiles | ForEach-Object { Join-Path $script:RepoRoot $_ })
     $script:SyncProfileScript = @($script:SyncProfileSourcePaths | ForEach-Object { Get-Content -LiteralPath $_ -Raw }) -join "`n"
-    # Run offline so nothing reaches out to GitHub.
+    # Run offline so nothing reaches out to GitHub. The generator reads $script:Offline; the
+    # dot-source above also bound a local $Offline parameter ($false) in this scope, which is
+    # what plain $Offline reads used to find.
     $script:Offline = $true
 
     function Get-MarkdownTrailingWhitespaceViolations {
@@ -269,6 +271,34 @@ Describe 'Function library loads via the dot-source test seam' {
         $script:SyncProfileScript | Should -Not -Match 'contributionsCollection'
         $script:SyncProfileScript | Should -Not -Match 'function Get-ContributionCalendar'
         $script:SyncProfileScript | Should -Not -Match 'Get-ContributionCalendar'
+    }
+}
+
+Describe 'The suite runs the generator offline' {
+    It 'reads the offline switch only through $script:Offline in the library' {
+        $script:Offline | Should -BeTrue
+        $plainReads = foreach ($path in @($script:SyncProfileSourcePaths | Where-Object { $_ -ne $script:SyncProfileScriptPath })) {
+            Select-String -LiteralPath $path -Pattern '(?<![:\w])\$Offline\b' |
+                ForEach-Object { '{0}:{1}' -f $_.Filename, $_.LineNumber }
+        }
+
+        @($plainReads) | Should -BeNullOrEmpty -Because 'a plain $Offline read in a dot-sourced library sees the parameter bound in the suite''s BeforeAll, not $script:Offline'
+    }
+
+    It 'checks the fixture catalog without calling GitHub' {
+        Mock Invoke-GhCli { throw "live gh call: $($Arguments -join ' ')" }
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $readme = New-Readme -Catalog $catalog -Repos @()
+        $projects = New-ProjectsExportJson -Catalog $catalog -Repos @()
+
+        $result = Test-ProfileState -Catalog $catalog -Repos @() -ExpectedReadme $readme -ExpectedProjects $projects `
+            -ExpectedAssets @{} -CurrentReadme $readme -CurrentProjects $projects -CurrentAssets @{} -SkipLinkValidation
+
+        Should -Invoke Invoke-GhCli -Times 0 -Exactly
+        # Online, each fixture row missing from the live repo list is looked up with gh and
+        # reported as private; offline that lookup must not happen at all.
+        [bool]$result.FailureConditions['privateViolations'] | Should -BeFalse
+        $result.Report.repositorySettings.unavailableReason | Should -Be 'offline'
     }
 }
 
@@ -1243,7 +1273,15 @@ Describe 'Repository settings and community-health baseline' {
 }
 
 Describe 'GraphQL resource limit downshift' {
+    BeforeEach {
+        # These cases drive the online fetch through a stubbed Invoke-GhCli, so they have to
+        # leave the suite's offline mode; offline, Get-GitHubRepos reads the local cache.
+        $script:DownshiftOldOffline = $script:Offline
+        $script:Offline = $false
+    }
+
     AfterEach {
+        $script:Offline = $script:DownshiftOldOffline
         Remove-Item Function:\Invoke-GhCli -ErrorAction SilentlyContinue
         Remove-Variable -Name RequestedLimits -Scope Script -ErrorAction SilentlyContinue
         Reset-MetadataFetchTelemetry
@@ -8000,8 +8038,8 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
     # A gate nobody has ever seen fail is not evidence. Each case plants the smallest
     # realistic violation and asserts that its own condition goes true, that the run
     # fails, and that no unrelated condition flipped. Tagged Integration because each
-    # Test-ProfileState call costs 16-31s against live GitHub metadata; the cheap guard
-    # test below runs in the default lane and refuses a condition with no case here.
+    # Test-ProfileState call builds a full report; the cheap guard test below runs in the
+    # default lane and refuses a condition with no case here.
     BeforeAll {
         $script:ReachabilityCatalogPath = Join-Path $PSScriptRoot 'fixtures/catalog.json'
 
@@ -8063,11 +8101,11 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
     It 'records which conditions the untouched fixture already fires' {
         # The control. Without it a case could "pass" because the baseline was already
-        # failing for an unrelated reason. These four need live repository metadata the
-        # offline fixture does not have.
+        # failing for an unrelated reason. The offline fixture has no repository metadata,
+        # so these three cannot pass on it.
         $script:ReachabilityBaselineFired | Should -Not -BeNullOrEmpty
         foreach ($condition in $script:ReachabilityBaselineFired) {
-            $condition | Should -BeIn @('privateViolations', 'linkFailures', 'portfolioCompatibility', 'schemaValidation')
+            $condition | Should -BeIn @('linkFailures', 'portfolioCompatibility', 'schemaValidation')
         }
     }
 

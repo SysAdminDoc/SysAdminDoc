@@ -436,7 +436,7 @@ function Get-ProfileRepositoryTagRef {
         return $result
     }
 
-    if ($Offline) {
+    if ($script:Offline) {
         $result.unavailableReason = "offline mode"
         return $result
     }

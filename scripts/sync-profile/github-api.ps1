@@ -148,7 +148,7 @@ function Invoke-GhCli {
 }
 
 function Get-GitHubReposFromRest {
-    if ($Offline) {
+    if ($script:Offline) {
         return @()
     }
 
@@ -393,7 +393,7 @@ function Get-GitHubRepos {
 
     Reset-MetadataFetchTelemetry
 
-    if ($Offline) {
+    if ($script:Offline) {
         $cachedRepos = Get-ValidationCacheValue -Bucket metadata -Key (Get-LiveRepositoryMetadataCacheKey) -FallbackReason 'offline'
         if ($null -ne $cachedRepos) {
             $script:RepositoryMetadataProvider = "cache-offline"
@@ -506,7 +506,7 @@ function Get-BranchTipRows {
     [CmdletBinding()]
     param([object[]]$Repos)
 
-    if ($Offline) {
+    if ($script:Offline) {
         return [ordered]@{
             succeeded = $false
             fetchedAt = $null
@@ -710,7 +710,7 @@ function Add-BranchTipMetadata {
     [CmdletBinding()]
     param([object[]]$Repos)
 
-    if ($Offline) {
+    if ($script:Offline) {
         return @($Repos)
     }
 
@@ -768,7 +768,7 @@ function Add-ReleaseAssetMetadata {
     [CmdletBinding()]
     param([object[]]$Repos)
 
-    if ($Offline -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase)) {
+    if ($script:Offline -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase)) {
         return @($Repos)
     }
 
@@ -890,7 +890,7 @@ function Add-ForkParentMetadata {
     [CmdletBinding()]
     param([object[]]$Repos)
 
-    if ($Offline) {
+    if ($script:Offline) {
         return @($Repos)
     }
 
@@ -969,7 +969,7 @@ function Add-LiveRepositoryMetadata {
     [CmdletBinding()]
     param([object[]]$Repos)
 
-    if ($Offline) {
+    if ($script:Offline) {
         return @($Repos)
     }
 

@@ -58,6 +58,11 @@ $script:CacheEnabled = -not [bool]$NoCache
 $script:ReleaseVerificationEnabled = [bool]$VerifyReleaseArtifacts
 $script:ReleaseVerificationMaxAssets = [int]$ReleaseVerificationMaxAssets
 $script:ReleaseVerificationMaxBytes = [int]$ReleaseVerificationMaxBytes
+# Library functions read $script:Offline, like the copies above. A plain $Offline inside a
+# function resolves to the nearest $Offline up its caller's scopes; when the Pester suite
+# dot-sources this file that is the parameter bound in its BeforeAll ($false), so the suite's
+# $script:Offline = $true never reached the generator and "offline" tests called GitHub.
+$script:Offline = [bool]$Offline
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) {
     $Check = $true

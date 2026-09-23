@@ -212,7 +212,7 @@ function Test-ProfileState {
     foreach ($entry in $included) {
         $meta = Get-RepoMeta $entry $repoLookup
         if (-not $meta) {
-            if (-not $Offline) {
+            if (-not $script:Offline) {
                 $view = $null
                 $entryRepo = [string]$entry.repo
                 if (Test-SafeGitHubName -Name $entryRepo) {
@@ -340,7 +340,7 @@ function Test-ProfileState {
     }
     # A bare targetCount of 0 reads like "probed everything, found nothing wrong". Record the
     # skip explicitly so a skipped run is never mistaken for a clean one.
-    $linkValidationSkipReason = if ($Offline) {
+    $linkValidationSkipReason = if ($script:Offline) {
         "offline mode"
     } elseif ($SkipLinkValidation) {
         "-SkipLinkValidation"
@@ -348,7 +348,7 @@ function Test-ProfileState {
         $null
     }
     $linkValidationSummary = [ordered]@{
-        skipped = [bool]($Offline -or $SkipLinkValidation)
+        skipped = [bool]($script:Offline -or $SkipLinkValidation)
         skipReason = $linkValidationSkipReason
         targetCount = 0
         liveProbedCount = 0
@@ -365,7 +365,7 @@ function Test-ProfileState {
         headerHostWarnings = @()
         deferredRetries = @()
     }
-    if (-not $Offline -and -not $SkipLinkValidation) {
+    if (-not $script:Offline -and -not $SkipLinkValidation) {
         $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
         $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme)
         $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets @($readmeHeaderTargets + $readmeActionTargets)
@@ -462,7 +462,7 @@ function Test-ProfileState {
         -Enabled:$VerifyReleaseArtifacts `
         -MaxAssets $ReleaseVerificationMaxAssets `
         -MaxBytes $ReleaseVerificationMaxBytes
-    $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($Offline -or $SkipLinkValidation)
+    $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($script:Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
     $portfolioCrossSurfaceProbe = Test-PortfolioCrossSurfaceDrift `
@@ -518,7 +518,7 @@ function Test-ProfileState {
             fidelityDegraded = [bool]($script:RepositoryEnumerationTruncated -or $script:RepositoryMetadataProvider -eq "rest-fallback" -or $script:RepositoryMetadataProvider -eq "offline-empty" -or ([string]$script:RepositoryMetadataProvider).StartsWith("cache", [StringComparison]::OrdinalIgnoreCase))
         }
         linkValidation = [ordered]@{
-            skipped = [bool]($Offline -or $SkipLinkValidation)
+            skipped = [bool]($script:Offline -or $SkipLinkValidation)
             targetCount = $linkValidationSummary.targetCount
             throttleLimit = $linkValidationSummary.throttleLimit
             elapsedMs = $linkValidationSummary.elapsedMs
@@ -576,7 +576,7 @@ function Test-ProfileState {
             informationalCount = $metadataDriftResult.informationalCount
             generatedAt = $metadataDriftResult.generatedAt
         }
-        linkValidationSkipped = [bool]($Offline -or $SkipLinkValidation)
+        linkValidationSkipped = [bool]($script:Offline -or $SkipLinkValidation)
         linkValidationSummary = $linkValidationSummary
         linkValidationFailures = @($linkFailures)
         linkValidationWarnings = @($linkWarnings)

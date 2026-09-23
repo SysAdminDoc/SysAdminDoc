@@ -303,7 +303,7 @@ function Test-UserscriptInstallTrust {
     if ($Skip) {
         return [ordered]@{
             skipped = $true
-            skipReason = if ($Offline) { "offline mode" } else { "link validation skipped" }
+            skipReason = if ($script:Offline) { "offline mode" } else { "link validation skipped" }
             checkedCount = 0
             installActionCount = $userscriptEntries.Count
             rawGitHubCount = 0
