@@ -100,8 +100,27 @@ function ConvertTo-NpmAuditReview {
         }
     }
 
-    $metadata = Get-MapValue -Map $audit -Key "metadata" -Default @{}
-    $vulnerabilities = Get-MapValue -Map $metadata -Key "vulnerabilities" -Default @{}
+    $metadata = Get-MapValue -Map $audit -Key "metadata" -Default $null
+    $vulnerabilities = Get-MapValue -Map $metadata -Key "vulnerabilities" -Default $null
+    # A failed audit (registry unreachable, audit endpoint error) still prints JSON: an error
+    # object with no advisory counts. With loglevel=silent, or from a saved -NpmAuditJsonPath
+    # file, nothing else marks the failure, and reading the missing counts as zero would
+    # report an audit that never ran as clean.
+    if ($null -ne (Get-MapValue -Map $audit -Key "error") -or $vulnerabilities -isnot [System.Collections.IDictionary]) {
+        $npmMessage = [string](Get-MapValue -Map $audit -Key "message" -Default "")
+        if ([string]::IsNullOrWhiteSpace($npmMessage)) {
+            $npmMessage = [string](Get-MapValue -Map (Get-MapValue -Map $audit -Key "error") -Key "summary" -Default "")
+        }
+        return [ordered]@{
+            status = "unavailable"
+            source = $Source
+            command = $command
+            exitCode = $ExitCode
+            severityCounts = [ordered]@{ info = 0; low = 0; moderate = 0; high = 0; critical = 0; total = 0 }
+            dependencyCounts = [ordered]@{ prod = 0; dev = 0; optional = 0; peer = 0; peerOptional = 0; total = 0 }
+            note = if ([string]::IsNullOrWhiteSpace($npmMessage)) { "npm audit returned no advisory counts." } else { "npm audit returned an error instead of advisory counts: $npmMessage" }
+        }
+    }
     $dependencies = Get-MapValue -Map $metadata -Key "dependencies" -Default @{}
     $severityCounts = [ordered]@{
         info = ConvertTo-Count (Get-MapValue -Map $vulnerabilities -Key "info" -Default 0)

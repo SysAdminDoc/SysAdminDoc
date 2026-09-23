@@ -2,6 +2,7 @@
 
 ## 2026-09-23
 
+- Fixed the dependency review calling a failed npm audit clean. When npm can't reach the advisory service it still prints JSON, only it's an error object with no counts in it, and the review read the missing counts as zero. Most of the time npm's own error lines broke the parse first. With npm's log level set to silent, or with a saved audit file, they didn't, and the review said "ok" about an audit that never ran. Output with no advisory counts is now `unavailable`, the note carries npm's message, and the review asks for a look.
 - Fixed `setup.ps1` skipping itself without a word when `irm | iex` ran inside a dot-sourced script or profile. The test seam added for code coverage stopped any dot-source, and code run by `iex` sees the invocation of the script that called it, so the one-liner loaded its functions, installed nothing and reported nothing. An editor's Run button, which dot-sources the file in VS Code, did the same to the other scripts. The seams now stop only when the test suite asks for it by setting `SYSADMINDOC_TEST_SEAM=1`, and a test runs each script's real seam line in all three shapes.
 
 ## 2026-09-22

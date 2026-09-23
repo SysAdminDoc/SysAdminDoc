@@ -9912,6 +9912,54 @@ Describe 'Dependency review helpers (in-process)' {
     It 'refuses a missing JSON input by name' {
         { Get-JsonHashtable -Path (Join-Path $TestDrive 'absent.json') } | Should -Throw '*Required JSON file not found*'
     }
+
+    It 'reads npm audit counts and calls the result clean only when advisories came back empty' {
+        $clean = '{"auditReportVersion":2,"vulnerabilities":{},"metadata":{"vulnerabilities":{"info":0,"low":0,"moderate":0,"high":0,"critical":0,"total":0},"dependencies":{"prod":1,"dev":339,"optional":2,"peer":0,"peerOptional":0,"total":341}}}'
+        $found = '{"auditReportVersion":2,"vulnerabilities":{"example":{}},"metadata":{"vulnerabilities":{"info":0,"low":1,"moderate":0,"high":2,"critical":0,"total":3},"dependencies":{"prod":1,"dev":10,"optional":0,"peer":0,"peerOptional":0,"total":11}}}'
+
+        $cleanReview = ConvertTo-NpmAuditReview -RawJson $clean -ExitCode 0 -Source 'local'
+        $cleanReview.status | Should -Be 'clean'
+        $cleanReview.exitCode | Should -Be 0
+        $cleanReview.dependencyCounts.dev | Should -Be 339
+        $cleanReview.dependencyCounts.total | Should -Be 341
+
+        $foundReview = ConvertTo-NpmAuditReview -RawJson $found -ExitCode 1 -Source 'file'
+        $foundReview.status | Should -Be 'vulnerabilities-found'
+        $foundReview.source | Should -Be 'file'
+        $foundReview.severityCounts.low | Should -Be 1
+        $foundReview.severityCounts.high | Should -Be 2
+        $foundReview.severityCounts.total | Should -Be 3
+        $foundReview.note | Should -Match 'Review npm advisory details'
+    }
+
+    It 'never reads a failed npm audit as clean' {
+        # What npm 10 prints with loglevel=silent when the advisory request fails (exit 1).
+        $failed = '{"message":"request to http://127.0.0.1:9/-/npm/v1/security/advisories/bulk failed, reason: connect ECONNREFUSED 127.0.0.1:9","error":{"summary":"","detail":""}}'
+        $review = ConvertTo-NpmAuditReview -RawJson $failed -ExitCode 1 -Source 'local'
+        $review.status | Should -Be 'unavailable'
+        $review.exitCode | Should -Be 1
+        $review.note | Should -Match 'ECONNREFUSED'
+        $review.severityCounts.total | Should -Be 0
+
+        # Older npm names the failure only in error.summary.
+        $older = ConvertTo-NpmAuditReview -RawJson '{"error":{"code":"ENOAUDIT","summary":"Your configured registry does not support audit requests.","detail":""}}' -ExitCode 1 -Source 'file'
+        $older.status | Should -Be 'unavailable'
+        $older.note | Should -Match 'does not support audit requests'
+
+        (ConvertTo-NpmAuditReview -RawJson '{}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+        (ConvertTo-NpmAuditReview -RawJson '[]' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+        (ConvertTo-NpmAuditReview -RawJson '{"metadata":{"dependencies":{"total":5}}}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+    }
+
+    It 'keeps missing and unparseable audit output apart' {
+        $empty = ConvertTo-NpmAuditReview -RawJson '' -ExitCode $null -Source 'local'
+        $empty.status | Should -Be 'unavailable'
+        $empty.note | Should -Be 'npm audit did not return JSON.'
+
+        $broken = ConvertTo-NpmAuditReview -RawJson "npm error code ENOLOCK`n{" -ExitCode 1 -Source 'local'
+        $broken.status | Should -Be 'invalid-json'
+        $broken.severityCounts.total | Should -Be 0
+    }
 }
 
 Describe 'Local validation helpers (in-process)' {
