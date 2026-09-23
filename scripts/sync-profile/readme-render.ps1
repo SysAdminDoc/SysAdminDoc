@@ -551,10 +551,10 @@ irm https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/r
 [`run.ps1`](https://github.com/__PROFILE_OWNER__/__PROFILE_OWNER__/blob/main/run.ps1) looks the project up in the public `projects.json` feed, clones it into `%TEMP%` (or updates the copy that's already there), installs its `requirements.txt` if it has one, and starts its entry script. Written out in full, `Start-Tool <Name>` runs:
 
 ```text
-$d="$env:TEMP\<Name>"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b <branch> https://github.com/__PROFILE_OWNER__/<Name> $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\<entry script>"
+$d="$env:TEMP\<Name>"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b <branch> https://github.com/__PROFILE_OWNER__/<Name> $d}; if(Test-Path "$d\requirements.txt"){python -m pip install -q -r "$d\requirements.txt"}; & "$d\<entry script>"
 ```
 
-A `.py` entry script runs with `python` instead of `&`.
+A `.py` entry script runs with `python` instead of `&`. Both one-liners download over TLS 1.2, which Windows PowerShell uses by default on Windows 10 and later. On older Windows, run `[Net.ServicePointManager]::SecurityProtocol = 'Tls12'` first.
 
 </details>
 '@

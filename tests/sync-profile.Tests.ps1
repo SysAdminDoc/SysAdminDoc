@@ -513,20 +513,23 @@ Describe 'run.ps1 install dispatcher' {
             Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
             return
         }
-        # The feed, git and pip are stubbed, so nothing leaves the machine and the entry script
-        # is one this test wrote. A function wins over a cmdlet of the same name, so the stub
-        # feed also replaces Invoke-RestMethod inside Start-Tool.
+        # The feed and git are stubbed, so nothing leaves the machine and the entry script is
+        # one this test wrote. A function wins over a cmdlet of the same name, so the stub
+        # feed also replaces Invoke-RestMethod inside Start-Tool. The entry script reports
+        # the error preference it sees and any of Start-Tool's variables it can read.
         $driver = @'
 function Invoke-RestMethod { [pscustomobject]@{ projects = @([pscustomobject]@{ repo = 'WinTool'; branch = 'main'; entrypoint = 'Tools\Win Tool.ps1' }) } }
 function git {
     if ($args[0] -eq 'clone') {
         $directory = [string]$args[-1]
         New-Item -ItemType Directory -Path (Join-Path $directory 'Tools') -Force | Out-Null
-        Set-Content -LiteralPath (Join-Path $directory 'Tools\Win Tool.ps1') -Value '"ran in PowerShell $($PSVersionTable.PSVersion.Major) with $ErrorActionPreference"'
+        Set-Content -LiteralPath (Join-Path $directory 'Tools\Win Tool.ps1') -Value @(
+            '$leaked = @(''feed'', ''project'', ''repo'', ''directory'', ''target'', ''profileOwner'') | Where-Object { Get-Variable -Name $_ -ErrorAction SilentlyContinue }'
+            '"ran in PowerShell $($PSVersionTable.PSVersion.Major) with $ErrorActionPreference; leaked=$($leaked -join '','')"'
+        )
     }
     $global:LASTEXITCODE = 0
 }
-function pip { }
 Get-Content -Raw -LiteralPath $env:SYSADMINDOC_RUN_SCRIPT | Invoke-Expression
 Start-Tool WinTool
 '@
@@ -539,7 +542,7 @@ Start-Tool WinTool
         }
 
         $LASTEXITCODE | Should -Be 0
-        $output | Should -Contain 'ran in PowerShell 5 with Continue'
+        $output | Should -Contain 'ran in PowerShell 5 with Continue; leaked='
     }
 
     It 'clones, installs requirements and runs the entry script the feed names' {
@@ -554,13 +557,14 @@ Start-Tool WinTool
             }
             $global:LASTEXITCODE = 0
         }
-        function pip { $script:ToolCalls.Add('pip ' + ($args -join ' ')) }
+        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
 
         Start-Tool WinTool
 
         $directory = Join-Path $env:TEMP 'WinTool'
         $script:ToolCalls[0] | Should -Be "git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $directory"
-        $script:ToolCalls[1] | Should -Be ('pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
+        # python -m pip, so the requirements land in the interpreter a Python tool runs in.
+        $script:ToolCalls[1] | Should -Be ('python -m pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
         Get-Content -LiteralPath (Join-Path $directory 'ran.txt') | Should -Be 'ran'
         Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Uri -eq 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json' }
     }
@@ -590,6 +594,63 @@ Start-Tool WinTool
         function git { $global:LASTEXITCODE = 128 }
 
         { Start-Tool WinTool } | Should -Throw '*exit 128*delete it and run Start-Tool again*'
+    }
+
+    It 'stops before fetching anything when <Tool> is missing' -ForEach @(
+        @{ Tool = 'git'; Entrypoint = 'WinTool.ps1'; Message = "*git isn't installed or isn't on PATH*" }
+        @{ Tool = 'python'; Entrypoint = 'app.py'; Message = "*is a Python tool, and python isn't installed*" }
+    ) {
+        # Without the check a missing git left an old exit code behind, and the tool was
+        # started from a folder that was never cloned.
+        $script:MissingTool = $Tool
+        $script:FakeEntrypoint = $Entrypoint
+        Mock Invoke-RestMethod { New-FakeFeed -Entrypoint $script:FakeEntrypoint }
+        Mock Get-Command { $null } -ParameterFilter { $Name -eq $script:MissingTool }
+        function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
+        function python { $script:ToolCalls.Add('python') }
+
+        { Start-Tool WinTool } | Should -Throw $Message
+        @($script:ToolCalls) | Should -BeNullOrEmpty
+    }
+
+    It 'warns when the requirements fail to install and still starts the tool' {
+        Mock Invoke-RestMethod { New-FakeFeed }
+        function git {
+            if ($args[0] -eq 'clone') {
+                $directory = [string]$args[-1]
+                New-Item -ItemType Directory -Path $directory | Out-Null
+                Set-Content -LiteralPath (Join-Path $directory 'requirements.txt') -Value 'rich' -Encoding utf8
+                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'ran.txt') -Value 'ran'" -Encoding utf8
+            }
+            $global:LASTEXITCODE = 0
+        }
+        function python { $global:LASTEXITCODE = 1 }
+
+        Start-Tool WinTool -WarningVariable warnings 3>$null
+
+        @($warnings) | Should -HaveCount 1
+        [string]$warnings[0] | Should -Match 'requirements failed \(exit 1\); starting it anyway'
+        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\ran.txt') | Should -Be 'ran'
+    }
+
+    It 'runs the tool with none of Start-Tool''s variables in reach' {
+        # The old one-liner ran the tool from the prompt, where only its own $d existed.
+        Mock Invoke-RestMethod { New-FakeFeed }
+        function git {
+            if ($args[0] -eq 'clone') {
+                $directory = [string]$args[-1]
+                New-Item -ItemType Directory -Path $directory | Out-Null
+                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Encoding utf8 -Value @(
+                    '$names = @(''Name'', ''feed'', ''project'', ''repo'', ''branch'', ''entrypoint'', ''directory'', ''requirements'', ''target'', ''profileOwner'', ''usesPython'')'
+                    'Set-Content -LiteralPath (Join-Path $PSScriptRoot ''leaked.txt'') -Value (@($names | Where-Object { Get-Variable -Name $_ -ErrorAction SilentlyContinue }) -join '','')'
+                )
+            }
+            $global:LASTEXITCODE = 0
+        }
+
+        Start-Tool WinTool
+
+        [System.IO.File]::ReadAllText((Join-Path $env:TEMP 'WinTool\leaked.txt')).Trim() | Should -BeNullOrEmpty
     }
 
     It 'updates an existing copy and runs a Python entry script with python' {

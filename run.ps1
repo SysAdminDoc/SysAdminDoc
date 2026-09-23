@@ -7,9 +7,12 @@
 #
 # Start-Tool <Name> does what the profile's older one-line snippets spelled out in full:
 #   $d="$env:TEMP\<Name>"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b <branch> https://github.com/SysAdminDoc/<Name> $d};
-#   if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\<entry script>"
+#   if(Test-Path "$d\requirements.txt"){python -m pip install -q -r "$d\requirements.txt"}; & "$d\<entry script>"
 # The branch and the entry script come from the profile's public projects.json feed. A
 # .ps1 entry script runs in this PowerShell; a .py or .pyw one runs with python.
+#
+# A fork of the profile changes $profileOwner below to its own account; the profile's
+# README check fails until it does.
 
 function Start-Tool {
     [CmdletBinding()]
@@ -18,16 +21,13 @@ function Start-Tool {
         [string]$Name
     )
 
-    # No function-wide $ErrorActionPreference: the entry script inherits this scope's
-    # preferences, and a tool written for the default would stop at its first
-    # non-terminating error. Failures here throw or use -ErrorAction Stop instead.
+    # No function-wide $ErrorActionPreference: the entry script would inherit it, and a tool
+    # written for the default would stop at its first non-terminating error. Failures here
+    # throw or use -ErrorAction Stop instead.
     $profileOwner = 'SysAdminDoc'
     if ($Name -cnotmatch '^[A-Za-z0-9._-]+\z') {
         throw "Start-Tool: '$Name' is not a repository name."
     }
-
-    # Windows PowerShell 5.1 on an older .NET default can refuse GitHub's TLS 1.2 endpoints.
-    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
     $feed = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$profileOwner/$profileOwner/main/projects.json" -ErrorAction Stop
     $project = @($feed.projects | Where-Object { [string]$_.repo -eq $Name -and -not [string]::IsNullOrWhiteSpace([string]$_.entrypoint) }) | Select-Object -First 1
@@ -50,6 +50,16 @@ function Start-Tool {
         throw "Start-Tool: the feed names an unexpected entry script '$entrypoint' for $repo."
     }
 
+    # Say what's missing before anything is fetched. A missing git would otherwise leave an
+    # old exit code behind, and the tool would be started from a folder that was never cloned.
+    $usesPython = $entrypoint -notlike '*.ps1'
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        throw "Start-Tool: git isn't installed or isn't on PATH. The profile's first-time setup section installs it."
+    }
+    if ($usesPython -and -not (Get-Command python -ErrorAction SilentlyContinue)) {
+        throw "Start-Tool: $repo is a Python tool, and python isn't installed or isn't on PATH. The profile's first-time setup section installs it."
+    }
+
     $directory = Join-Path $env:TEMP $repo
     if (Test-Path -LiteralPath $directory) {
         git -C $directory pull -q
@@ -62,13 +72,24 @@ function Start-Tool {
 
     $requirements = Join-Path $directory 'requirements.txt'
     if (Test-Path -LiteralPath $requirements) {
-        pip install -q -r $requirements
+        # python -m pip, so the requirements land in the interpreter that runs the tool.
+        if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+            Write-Warning "Start-Tool: $repo lists Python requirements, but python isn't on PATH; starting it without them."
+        } else {
+            python -m pip install -q -r $requirements
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Start-Tool: installing $repo's requirements failed (exit $LASTEXITCODE); starting it anyway."
+            }
+        }
     }
 
     $target = Join-Path $directory $entrypoint
-    if ($entrypoint -like '*.ps1') {
-        & $target
-    } else {
+    if ($usesPython) {
         python $target
+    } else {
+        # From a fresh module scope, whose parent is the session: the tool sees the session's
+        # variables, as it did when the old one-liner ran it from the prompt, and none of
+        # Start-Tool's ($Name, $feed, $repo, $target and the rest).
+        & (New-Module -ScriptBlock { }) { & $args[0] } $target
     }
 }
