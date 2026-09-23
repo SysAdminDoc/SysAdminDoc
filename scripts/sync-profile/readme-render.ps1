@@ -210,8 +210,8 @@ function Get-ActionLink {
     $label = [string]$action["label"]
     # Live and userscript URLs come from the catalog. Percent-encode what would end or
     # break a Markdown link destination or its table cell; a well-formed URL is unchanged.
-    # Control characters too, since a line break here would end the row. The catalog check
-    # refuses all of these before -Write or -Check renders, but the renderer doesn't lean on it.
+    # Control characters too, since a line break here would end the row. -Write refuses all
+    # of these before it renders and -Check fails on them, but the renderer doesn't lean on either.
     $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
     # C1 controls (0x80-0x9F) too, as their UTF-8 bytes: U+0085 is a line break to some readers.
     $url = [regex]::Replace($url, '[\x00-\x1F\x7F-\x9F]', { param($match) -join ([System.Text.Encoding]::UTF8.GetBytes($match.Value) | ForEach-Object { '%{0:X2}' -f $_ }) })
@@ -674,7 +674,7 @@ function New-CategorySection {
             $lines.Add("|:--------|:------------|:--------:|:--------:|")
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
+                $language = if (Test-VisibleText ([string]$entry.language)) {
                     [string]$entry.language
                 } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
                     [string]$meta.primaryLanguage.name
@@ -802,10 +802,13 @@ function New-ProfileChrome {
     $support = Get-MemberValue -Object $Header -Name 'support'
     $supportUrl = [string](Get-MemberValue -Object $support -Name 'url')
     $supportImageUrl = [string](Get-MemberValue -Object $support -Name 'imageUrl')
-    if ($supportUrl -cmatch $safeUrlPattern -and $supportImageUrl -cmatch $safeUrlPattern) {
+    # The image is the link's only content, so without alt text a reader can see (or hear)
+    # the button has no name; like a link with no text, it isn't drawn.
+    $supportAlt = [string](Get-MemberValue -Object $support -Name 'imageAlt')
+    if ($supportUrl -cmatch $safeUrlPattern -and $supportImageUrl -cmatch $safeUrlPattern -and (Test-VisibleText $supportAlt)) {
         $lines.Add('<p align="center">')
         $lines.Add('  <a href="' + $supportUrl + '">')
-        $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $support -Name 'imageAlt'))) + '" />')
+        $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText $supportAlt) + '" />')
         $lines.Add('  </a>')
         $lines.Add('</p>')
         $lines.Add('')

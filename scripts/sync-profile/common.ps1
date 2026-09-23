@@ -39,9 +39,13 @@ function Test-VisibleText {
     .SYNOPSIS
     Returns true when text has at least one character a reader would see.
     .DESCRIPTION
-    Whitespace, NBSP and the other separators, control characters, format characters
-    (zero-width space, bidi marks and controls, word joiner, byte order mark) and
-    variation selectors render as nothing. IsNullOrWhiteSpace counts most of them as
+    Judged by code point, so a character outside the Basic Multilingual Plane is seen whole
+    rather than as its surrogates. Invisible: controls; format characters (zero-width space,
+    bidi marks and controls, word joiner, byte order mark, tag characters) except the
+    prepended concatenation marks, which draw a glyph; whitespace and other separators
+    except U+1680, which draws a line; the other default-ignorable code points (variation
+    selectors, Hangul fillers, the grapheme joiner, Khmer inherent vowels, Mongolian
+    variation selectors); and the braille blank. IsNullOrWhiteSpace counts most of these as
     text, so a label made only of them would draw an empty link or heading.
     .PARAMETER Text
     The candidate text; $null and empty are not visible.
@@ -51,7 +55,24 @@ function Test-VisibleText {
     param([AllowNull()][string]$Text)
 
     if ([string]::IsNullOrEmpty($Text)) { return $false }
-    return $Text -match '[^\s\p{Z}\p{Cc}\p{Cf}\p{IsVariationSelectors}]'
+    # A lone surrogate comes back as U+FFFD, which the encoders write too: visible.
+    foreach ($rune in $Text.EnumerateRunes()) {
+        $code = $rune.Value
+        $invisible = switch ([System.Text.Rune]::GetUnicodeCategory($rune)) {
+            'Control' { $true }
+            'Format' { -not (($code -ge 0x0600 -and $code -le 0x0605) -or $code -in @(0x06DD, 0x070F, 0x0890, 0x0891, 0x08E2, 0x110BD, 0x110CD)) }
+            'SpaceSeparator' { $code -ne 0x1680 }
+            'LineSeparator' { $true }
+            'ParagraphSeparator' { $true }
+            default {
+                $code -eq 0x034F -or ($code -ge 0x115F -and $code -le 0x1160) -or ($code -ge 0x17B4 -and $code -le 0x17B5) -or
+                ($code -ge 0x180B -and $code -le 0x180F) -or $code -eq 0x2800 -or $code -eq 0x3164 -or ($code -ge 0xFE00 -and $code -le 0xFE0F) -or
+                $code -eq 0xFFA0 -or ($code -ge 0xFFF0 -and $code -le 0xFFF8) -or ($code -ge 0xE0000 -and $code -le 0xE0FFF)
+            }
+        }
+        if (-not $invisible) { return $true }
+    }
+    return $false
 }
 
 function ConvertTo-IsoText {

@@ -5717,6 +5717,76 @@ Describe 'Profile header comes from catalog data' {
         Test-VisibleText $Text | Should -Be $Visible
     }
 
+    It 'judges U+<Code> by code point: visible <Visible>' -ForEach @(
+        # Outside the Basic Multilingual Plane a character is two UTF-16 units, and the first,
+        # a high surrogate, used to count as visible whatever the character was.
+        @{ Code = 'E0020'; Visible = $false; Note = 'tag space' }
+        @{ Code = 'E0001'; Visible = $false; Note = 'language tag' }
+        @{ Code = '1D173'; Visible = $false; Note = 'musical symbol begin beam' }
+        @{ Code = '13430'; Visible = $false; Note = 'Egyptian hieroglyph joiner' }
+        @{ Code = '1BCA0'; Visible = $false; Note = 'shorthand format letter overlap' }
+        @{ Code = 'E0100'; Visible = $false; Note = 'variation selector 17' }
+        # Default-ignorable characters that aren't format characters draw nothing either.
+        @{ Code = '180B'; Visible = $false; Note = 'Mongolian free variation selector one' }
+        @{ Code = '180F'; Visible = $false; Note = 'Mongolian free variation selector four' }
+        @{ Code = '3164'; Visible = $false; Note = 'Hangul filler' }
+        @{ Code = '115F'; Visible = $false; Note = 'Hangul choseong filler' }
+        @{ Code = 'FFA0'; Visible = $false; Note = 'halfwidth Hangul filler' }
+        @{ Code = '034F'; Visible = $false; Note = 'combining grapheme joiner' }
+        @{ Code = '17B4'; Visible = $false; Note = 'Khmer vowel inherent aq' }
+        @{ Code = '2800'; Visible = $false; Note = 'braille pattern blank' }
+        # And these draw something although their category says space or format.
+        @{ Code = '1680'; Visible = $true; Note = 'Ogham space mark' }
+        @{ Code = '0600'; Visible = $true; Note = 'Arabic number sign' }
+        @{ Code = '06DD'; Visible = $true; Note = 'Arabic end of ayah' }
+        @{ Code = '070F'; Visible = $true; Note = 'Syriac abbreviation mark' }
+        @{ Code = '110BD'; Visible = $true; Note = 'Kaithi number sign' }
+    ) {
+        Test-VisibleText ([char]::ConvertFromUtf32([Convert]::ToInt32($Code, 16))) | Should -Be $Visible -Because $Note
+    }
+
+    It 'counts a lone surrogate as visible, since the encoders write it as U+FFFD' {
+        Test-VisibleText ([string][char]0xD800) | Should -BeTrue
+    }
+
+    It 'falls back from row text a reader can''t see' {
+        # descriptionOverride, the Language cell and upstreamLicense used IsNullOrWhiteSpace,
+        # so zero-width text left an empty cell or a bare "License: ".
+        $blank = [string][char]0x200B
+        $entry = New-TestEntry -Repo 'RowTool' -Category 'desktop'
+        $entry.descriptionOverride = $blank
+        $entry.upstreamLicense = $blank
+        $entry.forkOf = 'upstream-owner/RowTool'
+        $meta = New-TestRepoMeta -Name 'RowTool'
+        Set-MemberValue -Object $meta -Name 'description' -Value 'From GitHub'
+
+        Get-Description $entry $meta | Should -Be 'From GitHub'
+        Get-UpstreamAttribution $entry | Should -Be '<br/><sub>Upstream: [upstream-owner/RowTool](https://github.com/upstream-owner/RowTool)</sub>'
+    }
+
+    It 'draws no support button whose image has no alt a reader can see' {
+        $header = New-TestProfileHeader
+        $header.support.imageAlt = [string][char]0x200B
+
+        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+
+        [regex]::Matches($result, '<img\b').Count | Should -Be 0
+    }
+
+    It 'refuses given row text a reader can''t see, and allows it left out' {
+        $entry = New-TestEntry -Repo 'RowTool' -Category 'desktop'
+        foreach ($field in 'descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense') {
+            $entry[$field] = [char]::ConvertFromUtf32(0xE0020)
+        }
+        $blankFields = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.reason -match 'must not be blank or only invisible characters' } | ForEach-Object { $_.field } | Sort-Object)
+
+        $blankFields | Should -Be @('currentlyBuildingText', 'descriptionOverride', 'language', 'upstreamLicense')
+        foreach ($field in 'descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense') {
+            $entry[$field] = $null
+        }
+        @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues) | Should -BeNullOrEmpty
+    }
+
     It 'draws no header part whose text is only <Case>' -ForEach @(
         @{ Case = 'an NBSP'; Blank = [string][char]0x00A0 }
         @{ Case = 'a zero-width space'; Blank = [string][char]0x200B }

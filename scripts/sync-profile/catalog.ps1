@@ -178,10 +178,12 @@ function Get-Description {
         [object]$Meta
     )
 
-    if (-not [string]::IsNullOrWhiteSpace([string]$Entry.descriptionOverride)) {
+    # Text a reader can't see falls through, like a missing value: an override of only
+    # zero-width characters would leave the description cell empty.
+    if (Test-VisibleText ([string]$Entry.descriptionOverride)) {
         return [string]$Entry.descriptionOverride
     }
-    if ($Meta -and -not [string]::IsNullOrWhiteSpace([string]$Meta.description)) {
+    if ($Meta -and (Test-VisibleText ([string]$Meta.description))) {
         return [string]$Meta.description
     }
     return [string]$Entry.repo
@@ -218,7 +220,7 @@ function Get-UpstreamAttribution {
     }
 
     $upstreamLicense = [string]$Entry.upstreamLicense
-    if (-not [string]::IsNullOrWhiteSpace($upstreamLicense)) {
+    if (Test-VisibleText $upstreamLicense) {
         $parts.Add("License: $(ConvertTo-MarkdownText $upstreamLicense)")
     }
 
@@ -707,9 +709,11 @@ function Test-CatalogShape {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "downloadKind"; value = $downloadKind; reason = "unknown downloadKind" })
         }
 
-        # The title is every row's link text, so it can't be blank; the rest may be empty.
+        # The title is every row's link text, so it can't be blank. The row's other text may be
+        # left out (null), but when it's given it has to say something a reader can see.
         foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'language', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
-            $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field]; nonBlank = ($field -eq 'title') })
+            $nonBlank = ($field -eq 'title') -or ($field -in @('descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense') -and $null -ne $entry[$field])
+            $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field]; nonBlank = $nonBlank })
         }
         # The action link's destination in the README table row. Plain http passes here
         # because Test-CatalogUrlSchemes already fails it under its own condition.
