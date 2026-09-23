@@ -13345,19 +13345,27 @@ Describe 'Local validation helpers (in-process)' {
         $report = Join-Path $root 'reports/profile-sync-report.json'
         Set-Content -LiteralPath $report -Value 'aaaa' -NoNewline
         Set-Content -LiteralPath (Join-Path $root 'README.md') -Value 'readme'
-        New-Item -ItemType Junction -Path (Join-Path $root 'loop') -Target $root | Out-Null
-        $before = Get-CheckoutFileState -RepoRoot $root
-        $writeTime = (Get-Item -LiteralPath $report).LastWriteTimeUtc
+        $loop = Join-Path $root 'loop'
+        New-Item -ItemType Junction -Path $loop -Target $root | Out-Null
+        try {
+            $before = Get-CheckoutFileState -RepoRoot $root
+            $writeTime = (Get-Item -LiteralPath $report).LastWriteTimeUtc
 
-        Set-Content -LiteralPath $report -Value 'bbbb' -NoNewline
-        (Get-Item -LiteralPath $report).LastWriteTimeUtc = $writeTime
-        Rename-Item -LiteralPath (Join-Path $root 'README.md') -NewName 'readme.md'
-        New-Item -ItemType Directory -Path (Join-Path $root '.cache/profile-sync') -Force | Out-Null
-        $after = Get-CheckoutFileState -RepoRoot $root
+            Set-Content -LiteralPath $report -Value 'bbbb' -NoNewline
+            (Get-Item -LiteralPath $report).LastWriteTimeUtc = $writeTime
+            Rename-Item -LiteralPath (Join-Path $root 'README.md') -NewName 'readme.md'
+            New-Item -ItemType Directory -Path (Join-Path $root '.cache/profile-sync') -Force | Out-Null
+            $after = Get-CheckoutFileState -RepoRoot $root
 
-        @($before.Keys | Where-Object { $_ -like 'loop*' }) | Should -BeNullOrEmpty -Because 'the junction is not followed'
-        Compare-CheckoutFileState -Before $before -After $after |
-            Should -Be @('added .cache/', 'added .cache/profile-sync/', 'added readme.md', 'changed reports/profile-sync-report.json', 'removed README.md')
+            @($before.Keys | Where-Object { $_ -like 'loop*' }) | Should -BeNullOrEmpty -Because 'the junction is not followed'
+            Compare-CheckoutFileState -Before $before -After $after |
+                Should -Be @('added .cache/', 'added .cache/profile-sync/', 'added readme.md', 'changed reports/profile-sync-report.json', 'removed README.md')
+        } finally {
+            # Pester's TestDrive cleanup follows a junction, so a loop left here ran it until
+            # the path was too long, and the framework error failed every test after this
+            # one. Deleting the link itself doesn't follow it.
+            [System.IO.Directory]::Delete($loop)
+        }
     }
 
     It 'fails the lane when the test run writes into the checkout' {
