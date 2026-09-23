@@ -28,6 +28,25 @@ function Start-Tool {
     if ($Name -cnotmatch '^[A-Za-z0-9._-]+\z') {
         throw "Start-Tool: '$Name' is not a repository name."
     }
+    # Say a tool is missing before anything is fetched. A missing git would otherwise leave an
+    # old exit code behind, and the tool would be started from a folder that was never cloned.
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        throw "Start-Tool: git isn't installed or isn't on PATH. The profile's first-time setup section installs it."
+    }
+    # On a machine without Python, the python on PATH can be the Windows Store's stand-in,
+    # which prints "Python was not found" and exits 9009; one that can't report its version
+    # counts as missing. Checked only when a Python tool or requirements need it.
+    $pythonReady = {
+        if (-not (Get-Command python -ErrorAction SilentlyContinue)) { return $false }
+        try {
+            $null = & python --version 2>&1
+        } catch {
+            # With the session's preference at Stop, Windows PowerShell turns the stand-in's
+            # stderr line into an error; that python can't report its version either.
+            return $false
+        }
+        return ($LASTEXITCODE -eq 0)
+    }
 
     $feed = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$profileOwner/$profileOwner/main/projects.json" -ErrorAction Stop
     $project = @($feed.projects | Where-Object { [string]$_.repo -eq $Name -and -not [string]::IsNullOrWhiteSpace([string]$_.entrypoint) }) | Select-Object -First 1
@@ -50,13 +69,9 @@ function Start-Tool {
         throw "Start-Tool: the feed names an unexpected entry script '$entrypoint' for $repo."
     }
 
-    # Say what's missing before anything is fetched. A missing git would otherwise leave an
-    # old exit code behind, and the tool would be started from a folder that was never cloned.
+    # Before cloning: a Python tool can't start without a working python.
     $usesPython = $entrypoint -notlike '*.ps1'
-    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-        throw "Start-Tool: git isn't installed or isn't on PATH. The profile's first-time setup section installs it."
-    }
-    if ($usesPython -and -not (Get-Command python -ErrorAction SilentlyContinue)) {
+    if ($usesPython -and -not (& $pythonReady)) {
         throw "Start-Tool: $repo is a Python tool, and python isn't installed or isn't on PATH. The profile's first-time setup section installs it."
     }
 
@@ -73,7 +88,7 @@ function Start-Tool {
     $requirements = Join-Path $directory 'requirements.txt'
     if (Test-Path -LiteralPath $requirements) {
         # python -m pip, so the requirements land in the interpreter that runs the tool.
-        if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+        if (-not (& $pythonReady)) {
             Write-Warning "Start-Tool: $repo lists Python requirements, but python isn't on PATH; starting it without them."
         } else {
             python -m pip install -q -r $requirements
@@ -89,7 +104,9 @@ function Start-Tool {
     } else {
         # From a fresh module scope, whose parent is the session: the tool sees the session's
         # variables, as it did when the old one-liner ran it from the prompt, and none of
-        # Start-Tool's ($Name, $feed, $repo, $target and the rest).
+        # Start-Tool's ($Name, $feed, $repo, $target and the rest). One difference: a module
+        # the tool imports stays with that scope, so it isn't left loaded in the session
+        # after the tool exits.
         & (New-Module -ScriptBlock { }) { & $args[0] } $target
     }
 }

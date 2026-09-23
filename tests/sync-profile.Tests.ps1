@@ -563,8 +563,10 @@ Start-Tool WinTool
 
         $directory = Join-Path $env:TEMP 'WinTool'
         $script:ToolCalls[0] | Should -Be "git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $directory"
-        # python -m pip, so the requirements land in the interpreter a Python tool runs in.
-        $script:ToolCalls[1] | Should -Be ('python -m pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
+        # A working python first, then python -m pip, so the requirements land in the
+        # interpreter a Python tool runs in.
+        $script:ToolCalls[1] | Should -Be 'python --version'
+        $script:ToolCalls[2] | Should -Be ('python -m pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
         Get-Content -LiteralPath (Join-Path $directory 'ran.txt') | Should -Be 'ran'
         Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Uri -eq 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json' }
     }
@@ -613,10 +615,23 @@ Start-Tool WinTool
         Mock Invoke-RestMethod { New-FakeFeed -Entrypoint $script:FakeEntrypoint }
         Mock Get-Command { $null } -ParameterFilter { $Name -eq $script:MissingTool }
         function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
-        function python { $script:ToolCalls.Add('python') }
+        function python { $script:ToolCalls.Add('python'); $global:LASTEXITCODE = 0 }
 
         { Start-Tool WinTool } | Should -Throw $Message
         @($script:ToolCalls) | Should -BeNullOrEmpty
+        # git is checked before the feed request; python needs the feed's entry script first.
+        Should -Invoke Invoke-RestMethod -Times $(if ($Tool -eq 'git') { 0 } else { 1 }) -Exactly
+    }
+
+    It 'treats a python that can''t report its version as missing' {
+        # On a machine without Python, the python on PATH is often the Store's stand-in,
+        # which prints "Python was not found" and exits 9009.
+        Mock Invoke-RestMethod { New-FakeFeed -Repo 'PyTool' -Entrypoint 'app.py' }
+        function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
+        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')); $global:LASTEXITCODE = 9009 }
+
+        { Start-Tool PyTool } | Should -Throw "*is a Python tool, and python isn't installed*"
+        @($script:ToolCalls) | Should -Be @('python --version')
     }
 
     It 'warns when the requirements fail to install and still starts the tool' {
@@ -630,7 +645,8 @@ Start-Tool WinTool
             }
             $global:LASTEXITCODE = 0
         }
-        function python { $global:LASTEXITCODE = 1 }
+        # A working python whose pip install fails.
+        function python { $global:LASTEXITCODE = $(if ($args[0] -eq '--version') { 0 } else { 1 }) }
 
         Start-Tool WinTool -WarningVariable warnings 3>$null
 
@@ -663,12 +679,13 @@ Start-Tool WinTool
         Mock Invoke-RestMethod { New-FakeFeed -Repo 'PyTool' -Branch 'master' -Entrypoint 'app\main.py' }
         New-Item -ItemType Directory -Path (Join-Path $env:TEMP 'PyTool') | Out-Null
         function git { $script:ToolCalls.Add('git ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
-        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')) }
+        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
 
         Start-Tool PyTool
 
         $directory = Join-Path $env:TEMP 'PyTool'
-        @($script:ToolCalls) | Should -Be @("git -C $directory pull -q", ('python ' + (Join-Path $directory 'app\main.py')))
+        # python --version first: a python that can't answer is the Store's stand-in.
+        @($script:ToolCalls) | Should -Be @('python --version', "git -C $directory pull -q", ('python ' + (Join-Path $directory 'app\main.py')))
     }
 
     It 'refuses <Case> before git or any script runs' -ForEach @(
