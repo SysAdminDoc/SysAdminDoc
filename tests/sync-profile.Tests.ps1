@@ -7300,6 +7300,34 @@ Describe 'Feed JSON Schema contracts' {
         }
     }
 
+    It 'prints tricky schema values by their structure, never decoding them twice' {
+        # A catch-all decode after the const branch turned a string holding the text
+        # backslash-u-0041 into "A", brought a control character in an object back raw so the
+        # printed value stopped being JSON, and left required names half decoded.
+        $bs = [string][char]92
+        $schemaPath = Join-Path $TestDrive 'tricky-messages.json'
+        $schema = [ordered]@{
+            type = 'object'
+            required = @('q"uote', ('back' + $bs + 'slash'), "nl`nx")
+            properties = [ordered]@{
+                literal = @{ const = $bs + 'u0041' }
+                escape = @{ const = [ordered]@{ s = 'a' + [char]27 + 'b' } }
+                list = @{ const = @(1, 'two', '<3>') }
+            }
+        }
+        [System.IO.File]::WriteAllText($schemaPath, ($schema | ConvertTo-Json -Depth 10))
+
+        $result = Test-JsonSchemaContract -Value ([ordered]@{ literal = 'x'; escape = @{}; list = @() }) -SchemaPath $schemaPath
+        $byKeyword = @{}
+        foreach ($schemaError in @($result.errors)) { $byKeyword[$schemaError.keywordLocation] = [string]$schemaError.message }
+
+        $byKeyword['/properties/literal/const'] | Should -BeExactly ('Expected "' + $bs + 'u0041"')
+        (ConvertFrom-Json -InputObject ($byKeyword['/properties/escape/const'] -replace '^Expected ', '')).s | Should -BeExactly ('a' + [char]27 + 'b')
+        $byKeyword['/properties/list/const'] | Should -BeExactly 'Expected [1,"two","<3>"]'
+        $names = ConvertFrom-Json -InputObject ($byKeyword['/required'] -replace '^Required properties ', '' -replace ' are not present$', '')
+        @($names) | Should -Be @('q"uote', ('back' + $bs + 'slash'), "nl`nx")
+    }
+
     It 'requires always-emitted nested profile sync report fields' {
         $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
 

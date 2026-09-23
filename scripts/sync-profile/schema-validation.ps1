@@ -220,27 +220,29 @@ function Get-JsonSchemaEvaluationErrors {
                     $keywordLocation += '/' + (([string]$entry.Key -replace '~', '~0') -replace '/', '~1')
                 }
                 # The evaluator writes values JSON-encoded. A const failure reads Expected, then
-                # the value's JSON text escaped a second time, so its quotes, & and < arrive as
-                # backslash-u escapes. Unescape it once, parse it, and show it as written; a
-                # string in plain quotes, anything else as JSON without HTML-style escapes.
-                # Names in other messages (required) carry those escapes one level deep.
+                # the value's JSON text escaped a second time, and a required failure lists its
+                # names as JSON. Each is parsed and printed by its structure, never decoded twice:
+                # a string const as written (as a JSON string when it holds a control or format
+                # character), anything else as JSON without HTML-style escapes.
                 $message = [string]$entry.Value
-                if ($message -match '^Expected "(?<value>.*)"\z') {
-                    try {
+                $relaxed = [System.Text.Json.JsonSerializerOptions]::new()
+                $relaxed.Encoder = [System.Text.Encodings.Web.JavaScriptEncoder]::UnsafeRelaxedJsonEscaping
+                try {
+                    if ($message -match '^Expected "(?<value>.*)"\z') {
                         $valueJson = [System.Text.Json.JsonDocument]::Parse('"' + $Matches['value'] + '"').RootElement.GetString()
                         $valueElement = [System.Text.Json.JsonDocument]::Parse($valueJson).RootElement
-                        $message = if ($valueElement.ValueKind -eq [System.Text.Json.JsonValueKind]::String) {
+                        $message = if ($valueElement.ValueKind -eq [System.Text.Json.JsonValueKind]::String -and $valueElement.GetString() -notmatch '[\p{Cc}\p{Cf}]') {
                             'Expected "' + $valueElement.GetString() + '"'
                         } else {
-                            $relaxed = [System.Text.Json.JsonSerializerOptions]::new()
-                            $relaxed.Encoder = [System.Text.Encodings.Web.JavaScriptEncoder]::UnsafeRelaxedJsonEscaping
                             'Expected ' + [System.Text.Json.JsonSerializer]::Serialize($valueElement, [System.Text.Json.JsonElement], $relaxed)
                         }
-                    } catch [System.Text.Json.JsonException] {
-                        Write-Verbose "Schema message kept as the evaluator wrote it: $($_.Exception.Message)"
+                    } elseif ($message -match '^(?<lead>Required properties )(?<names>\[.*\])(?<tail> are not present)\z') {
+                        $namesElement = [System.Text.Json.JsonDocument]::Parse($Matches['names']).RootElement
+                        $message = $Matches['lead'] + [System.Text.Json.JsonSerializer]::Serialize($namesElement, [System.Text.Json.JsonElement], $relaxed) + $Matches['tail']
                     }
+                } catch [System.Text.Json.JsonException] {
+                    Write-Verbose "Schema message kept as the evaluator wrote it: $($_.Exception.Message)"
                 }
-                $message = [regex]::Replace($message, '(?<!\\)\\u([0-9A-Fa-f]{4})', { param($match) [string][char][Convert]::ToInt32($match.Groups[1].Value, 16) })
                 $failures.Add((New-SchemaContractError -Message $message -InstanceLocation $instancePath -KeywordLocation $keywordLocation))
             }
         } elseif ($invalidChildren.Count -eq 0) {
