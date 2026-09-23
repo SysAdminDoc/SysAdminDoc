@@ -298,6 +298,15 @@ foreach ($generatorLibraryFile in $GeneratorLibraryFiles) {
 # before running the live-metadata fetch / generation below.
 if ($MyInvocation.InvocationName -eq '.') { return }
 
+# Generated artifacts must not depend on the machine locale. Case-insensitive -match and
+# -like follow the current culture, and under tr-TR a capital I is not an upper-case i,
+# so '.SIG' stopped matching '\.sig$' and 'DICOM' stopped matching the medical-privacy
+# pattern. Pin the invariant culture for this thread and for the parallel link probes.
+[System.Globalization.CultureInfo]::CurrentCulture = [System.Globalization.CultureInfo]::InvariantCulture
+[System.Globalization.CultureInfo]::CurrentUICulture = [System.Globalization.CultureInfo]::InvariantCulture
+[System.Globalization.CultureInfo]::DefaultThreadCurrentCulture = [System.Globalization.CultureInfo]::InvariantCulture
+[System.Globalization.CultureInfo]::DefaultThreadCurrentUICulture = [System.Globalization.CultureInfo]::InvariantCulture
+
 if (-not (Test-SafeGitHubName -Name $Owner)) {
     Write-Error "Owner must match ^[A-Za-z0-9._-]+$ so generated URLs and gh API paths cannot contain slashes, whitespace, or shell metacharacters."
     exit 1

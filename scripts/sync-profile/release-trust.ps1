@@ -39,7 +39,7 @@ function Get-ReleaseAssetKinds {
     $kinds = foreach ($name in $names) {
         ConvertTo-ReleaseAssetKind -Name $name
     }
-    return @($kinds | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Sort-Object -Unique)
+    return @($kinds | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } | Sort-Object { ConvertTo-OrdinalSortKey $_ } -Unique)
 }
 
 function Get-ReleaseAssetNamesFromApiRelease {
@@ -400,7 +400,7 @@ function Get-ExecutableReleaseAssetKinds {
     param([string[]]$AssetKinds)
 
     $executableKinds = @("apk", "crx", "deb", "dmg", "exe", "jar", "rpm", "script", "userscript", "xpi", "zip")
-    return @($AssetKinds | Where-Object { $_ -in $executableKinds } | Sort-Object -Unique)
+    return @($AssetKinds | Where-Object { $_ -in $executableKinds } | Sort-Object { ConvertTo-OrdinalSortKey $_ } -Unique)
 }
 
 function Test-ChecksumCoverageForExecutableAssets {
@@ -442,10 +442,10 @@ function New-ReleaseTrust {
     )
 
     $names = @($AssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
-    $checksumAssets = @($names | Where-Object { $_ -match '(?i)(sha256|sha512|checksum|checksums|sums|\.sha256|\.sha512)' } | Sort-Object)
-    $signatureAssets = @($names | Where-Object { $_ -match '(?i)(\.sig$|\.asc$|signature|signatures)' } | Sort-Object)
-    $sbomAssets = @($names | Where-Object { $_ -match '(?i)(sbom|spdx|cyclonedx)' } | Sort-Object)
-    $attestationAssets = @($names | Where-Object { $_ -match '(?i)(attestation|intoto|in-toto|\.att$)' } | Sort-Object)
+    $checksumAssets = @($names | Where-Object { $_ -match '(?i)(sha256|sha512|checksum|checksums|sums|\.sha256|\.sha512)' } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
+    $signatureAssets = @($names | Where-Object { $_ -match '(?i)(\.sig$|\.asc$|signature|signatures)' } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
+    $sbomAssets = @($names | Where-Object { $_ -match '(?i)(sbom|spdx|cyclonedx)' } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
+    $attestationAssets = @($names | Where-Object { $_ -match '(?i)(attestation|intoto|in-toto|\.att$)' } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
     $debugArtifactPresent = [bool](@($names | Where-Object { $_ -match '(?i)(^|[-_.])debug([-_.]|$)' }).Count)
     $executableAssetKinds = @(Get-ExecutableReleaseAssetKinds -AssetKinds $AssetKinds)
     $executableAssetNames = @(

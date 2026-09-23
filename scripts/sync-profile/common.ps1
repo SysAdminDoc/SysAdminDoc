@@ -40,7 +40,12 @@ function ConvertTo-IsoText {
         return $null
     }
     if ($Value -is [datetime]) {
-        return $Value.ToString("o")
+        # ConvertFrom-Json turns an offset like +02:00 into local time, so a local value is
+        # written as UTC; otherwise the feed would change with the machine's time zone.
+        # SpecifyKind because ToUniversalTime keeps Kind Local when the local zone is UTC,
+        # and "o" then writes +00:00 where every other machine writes Z.
+        $normalized = if ($Value.Kind -eq [System.DateTimeKind]::Local) { [datetime]::SpecifyKind($Value.ToUniversalTime(), [System.DateTimeKind]::Utc) } else { $Value }
+        return $normalized.ToString("o", [System.Globalization.CultureInfo]::InvariantCulture)
     }
     return [string]$Value
 }

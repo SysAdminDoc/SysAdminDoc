@@ -2957,6 +2957,21 @@ Describe 'Generation determinism across culture, time zone and input order' {
                         [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) -and [string]::IsNullOrWhiteSpace([string]$_.aliasOf)
                     })) {
                 $index++
+                # Every fourth row carries a release whose asset names mix I and i, which sort
+                # and match differently under tr-TR; one row has an offset timestamp, which
+                # ConvertFrom-Json turns into local time.
+                $release = if ($index % 4 -eq 0) {
+                    [ordered]@{
+                        tagName = 'v1.0.0'
+                        url = "https://github.com/SysAdminDoc/$($entry.repo)/releases/tag/v1.0.0"
+                        publishedAt = '2026-06-04T00:00:00Z'
+                        releaseAssetNames = @('Imager-x64.exe', 'imager-arm64.exe', 'Imager-x64.exe.sha256', 'imager-arm64.exe.sha256', 'IMAGER.EXE.SIG', 'SBOM.SPDX.JSON', 'Setup.ZIP')
+                        releaseAssetKinds = @()
+                        assetApiInspected = $true
+                    }
+                } else {
+                    $null
+                }
                 [ordered]@{
                     name = [string]$entry.repo
                     description = "Fixture description for $($entry.repo)"
@@ -2964,14 +2979,14 @@ Describe 'Generation determinism across culture, time zone and input order' {
                     primaryLanguage = [ordered]@{ name = 'PowerShell' }
                     repositoryTopics = @([ordered]@{ name = 'utility' }, [ordered]@{ name = 'Ideas' }, [ordered]@{ name = 'iot' })
                     defaultBranchRef = [ordered]@{ name = 'main'; target = [ordered]@{ oid = ('{0:x40}' -f $index) } }
-                    latestRelease = $null
+                    latestRelease = $release
                     licenseInfo = [ordered]@{ spdxId = 'MIT'; key = 'mit'; name = 'MIT License' }
                     isFork = $false
                     parent = $null
                     visibility = 'PUBLIC'
                     isPrivate = $false
                     isArchived = $false
-                    pushedAt = '2026-06-04T00:00:00Z'
+                    pushedAt = if ($index -eq 5) { '2026-06-04T02:00:00+02:00' } else { '2026-06-04T00:00:00Z' }
                     url = "https://github.com/SysAdminDoc/$($entry.repo)"
                     branchTipSha = ('{0:x40}' -f $index)
                     branchTipFetchedAt = '2026-06-04T00:00:00Z'
@@ -2997,6 +3012,10 @@ Describe 'Generation determinism across culture, time zone and input order' {
                 script:Set-DeterminismTimeZone -Id $TimeZoneId
                 $script:MetadataSnapshotAt = '2026-08-23T12:00:00.0000000Z'
                 $repos = @($RepoJson | ForEach-Object { $_ | ConvertFrom-Json })
+                foreach ($repo in @($repos | Where-Object { $null -ne $_.latestRelease })) {
+                    # Asset kinds are derived at fetch time, so derive them under this run's culture.
+                    $repo.latestRelease.releaseAssetKinds = @(Get-ReleaseAssetKinds -AssetNames @($repo.latestRelease.releaseAssetNames))
+                }
                 $artifacts = [ordered]@{
                     culture = [cultureinfo]::CurrentCulture.Name
                     timeZone = [TimeZoneInfo]::Local.Id
@@ -3028,6 +3047,10 @@ Describe 'Generation determinism across culture, time zone and input order' {
         $script:DeterminismBaseline.timeZone | Should -Be ([TimeZoneInfo]::FindSystemTimeZoneById('UTC').Id)
         $script:DeterminismBaseline.readme | Should -Match 'iOSIconPack'
         $script:DeterminismBaseline.readme | Should -Match 'IRL_Streamer'
+        # The fixture must reach the release-trust and timestamp paths, or the comparisons
+        # below prove nothing about them.
+        $script:DeterminismBaseline.projects | Should -Match 'IMAGER\.EXE\.SIG'
+        $script:DeterminismBaseline.projects | Should -Not -Match '"pushedAt":\s*"[^"]*[+-]\d\d:\d\d"' -Because 'a local timestamp must be written as UTC'
     }
 
     It 'renders byte-identical README, feed and Backstage output under tr-TR' {
@@ -3056,6 +3079,99 @@ Describe 'Generation determinism across culture, time zone and input order' {
 
             script:Assert-SameGeneration -Actual $shuffled -Because "for shuffle $shuffle"
         }
+    }
+
+    It 'writes byte-identical README and feed from the entry point in fresh tr-TR and en-US processes' -Tag 'Integration' {
+        $cachePath = Join-Path $TestDrive 'culture-cache'
+        $oldCachePath = $script:CachePath
+        $oldCacheEnabled = $script:CacheEnabled
+        $oldMetadataSnapshotAt = $script:MetadataSnapshotAt
+        $oldProvider = $script:RepositoryMetadataProvider
+        $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
+        $oldTruncated = $script:RepositoryEnumerationTruncated
+        $assets = @('Imager-x64.exe', 'imager-arm64.exe', 'Imager-x64.exe.sha256', 'imager-arm64.exe.sha256', 'IMAGER.EXE.SIG', 'SBOM.SPDX.JSON', 'Setup.ZIP')
+        try {
+            $script:CachePath = $cachePath
+            $script:CacheEnabled = $true
+            $script:MetadataSnapshotAt = (Get-Date).ToUniversalTime().ToString('o')
+            $script:RepositoryMetadataProvider = 'graphql'
+            $script:RepositoryEnumerationRequestedLimit = 25
+            $script:RepositoryEnumerationTruncated = $false
+            Reset-ValidationCacheState
+            $repos = @(
+                (New-TestRepoMeta -Name 'WinTool' -Topics @('Imaging', 'iot') -WithRelease -AssetNames $assets),
+                (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -AssetNames $assets),
+                (New-TestRepoMeta -Name 'PyTool' -Language 'Python')
+            )
+            Write-CompleteGenerationSnapshot -Repos $repos -ReleaseMetadataComplete:$true | Should -BeTrue
+        } finally {
+            $script:CachePath = $oldCachePath
+            $script:CacheEnabled = $oldCacheEnabled
+            $script:MetadataSnapshotAt = $oldMetadataSnapshotAt
+            $script:RepositoryMetadataProvider = $oldProvider
+            $script:RepositoryEnumerationRequestedLimit = $oldRequestedLimit
+            $script:RepositoryEnumerationTruncated = $oldTruncated
+            Reset-ValidationCacheState
+        }
+
+        $runner = Join-Path $TestDrive 'culture-runner.ps1'
+        Set-Content -LiteralPath $runner -Encoding utf8 -Value @'
+param([string]$Culture, [string]$Entry, [string]$Catalog, [string]$Readme, [string]$Projects, [string]$Cache)
+[System.Globalization.CultureInfo]::CurrentCulture = $Culture
+& $Entry -Write -Offline -CatalogPath $Catalog -ReadmePath $Readme -ProjectsPath $Projects -CachePath $Cache
+exit $LASTEXITCODE
+'@
+        $outputs = @{}
+        foreach ($culture in @('en-US', 'tr-TR')) {
+            $readme = Join-Path $TestDrive "README-$culture.md"
+            $projects = Join-Path $TestDrive "projects-$culture.json"
+            Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readme -Force
+            $log = & pwsh -NoProfile -File $runner -Culture $culture -Entry $script:SyncProfileScriptPath `
+                -Catalog (Join-Path $PSScriptRoot 'fixtures/catalog.json') -Readme $readme -Projects $projects -Cache $cachePath *>&1
+            $LASTEXITCODE | Should -Be 0 -Because ($log | Out-String)
+            $outputs[$culture] = @{
+                readme = [System.IO.File]::ReadAllText($readme)
+                projects = [System.IO.File]::ReadAllText($projects)
+            }
+        }
+
+        $outputs['en-US'].projects | Should -Match 'IMAGER\.EXE\.SIG'
+        $outputs['tr-TR'].readme | Should -BeExactly $outputs['en-US'].readme
+        $outputs['tr-TR'].projects | Should -BeExactly $outputs['en-US'].projects
+    }
+
+    It 'still flags a medical-imaging repository in a fresh tr-TR process' -Tag 'Integration' {
+        $runner = Join-Path $TestDrive 'medical-runner.ps1'
+        Set-Content -LiteralPath $runner -Encoding utf8 -Value @'
+param([string]$GeneratorEntry, [string]$FixtureCatalogPath)
+# Parameter names must not match the generator's own (a dot-source rebinds them) or a
+# later variable ($catalog would coerce into a [string] $Catalog parameter).
+[System.Globalization.CultureInfo]::CurrentCulture = 'tr-TR'
+. $GeneratorEntry
+$Offline = $true
+$script:Offline = $true
+$catalog = Get-Catalog -Path $FixtureCatalogPath
+$catalog.entries = @($catalog.entries + (ConvertTo-EntryHashtable (New-CatalogEntry -Repo 'DICOM-Viewer' -Category 'desktop' -Description 'desc' -Order 99)))
+$repo = [pscustomobject]@{
+    name = 'DICOM-Viewer'; description = 'Viewer'; primaryLanguage = [pscustomobject]@{ name = 'C#' }
+    repositoryTopics = @(); defaultBranchRef = [pscustomobject]@{ name = 'main'; target = $null }
+    branchTipSha = $null; branchTipFetchedAt = $null; branchTipStatus = 'unreachable'; branchTipWarning = 'fixture'
+    latestRelease = $null; stargazerCount = 0; pushedAt = '2026-06-04T00:00:00Z'; licenseInfo = $null
+    isFork = $false; parent = $null; forkParentFetchError = $null; visibility = 'PUBLIC'; isPrivate = $false
+    isArchived = $false; url = 'https://github.com/SysAdminDoc/DICOM-Viewer'
+}
+$readme = New-Readme -Catalog $catalog -Repos @($repo)
+$projects = New-ProjectsExportJson -Catalog $catalog -Repos @($repo)
+$result = Test-ProfileState -Catalog $catalog -Repos @($repo) -ExpectedReadme $readme -ExpectedProjects $projects `
+    -CurrentReadme $readme -CurrentProjects $projects -ExpectedAssets (New-ProfileAssetSvgs) -CurrentAssets @{} -SkipLinkValidation
+"culture=$([System.Globalization.CultureInfo]::CurrentCulture.Name)"
+"medical=$(@($result.Report.medicalPrivacyViolations | Where-Object { $_.repo -eq 'DICOM-Viewer' }).Count)"
+'@
+
+        $output = & pwsh -NoProfile -File $runner -GeneratorEntry $script:SyncProfileScriptPath -FixtureCatalogPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') 2>&1 | Out-String
+
+        $output | Should -Match 'culture=tr-TR' -Because 'the check must run under the Turkish culture that broke it'
+        $output | Should -Match 'medical=1' -Because $output
     }
 
     It 'orders identifiers by OrdinalIgnoreCase whatever the culture' {

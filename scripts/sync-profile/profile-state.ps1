@@ -249,7 +249,9 @@ function Test-ProfileState {
 
         $topicText = if ($meta.repositoryTopics) { ($meta.repositoryTopics.name -join " ") } else { "" }
         $medicalText = "$($entry.repo) $($meta.description) $topicText"
-        if ($medicalText -match $MedicalPattern -and $entry.allowPublicMedical -ne $true) {
+        # CultureInvariant: under tr-TR the (?i) match of 'DICOM' against 'dicom' fails, which
+        # would publish a medical-imaging repository the gate exists to keep private.
+        if ([regex]::IsMatch($medicalText, $MedicalPattern, [System.Text.RegularExpressions.RegexOptions]::CultureInvariant) -and $entry.allowPublicMedical -ne $true) {
             $medicalViolations += [ordered]@{
                 repo = $entry.repo
                 reason = "medical-imaging keyword requires explicit allowPublicMedical"
