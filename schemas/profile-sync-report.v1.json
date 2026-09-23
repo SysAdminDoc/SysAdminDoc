@@ -7445,6 +7445,8 @@
         "setupInspectPath",
         "plainTextTagline",
         "minimalProfileHeader",
+        "installDispatcherOwner",
+        "installDispatcherMatchesOwner",
         "richProfileHeader",
         "genericImageAltTextCount",
         "imageTagCount",
@@ -7489,6 +7491,12 @@
           "type": "boolean"
         },
         "minimalProfileHeader": {
+          "type": "boolean"
+        },
+        "installDispatcherOwner": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "installDispatcherMatchesOwner": {
           "type": "boolean"
         },
         "richProfileHeader": {

@@ -142,6 +142,11 @@ function Get-Catalog {
     if ($null -ne $profileHeaderProperty) {
         $normalized['profileHeader'] = $profileHeaderProperty.Value
     }
+    # Optional too: the portfolio behind "See everything", used unless -PortfolioUrl is given.
+    $portfolioUrlProperty = $catalog.PSObject.Properties['portfolioUrl']
+    if ($null -ne $portfolioUrlProperty) {
+        $normalized['portfolioUrl'] = $portfolioUrlProperty.Value
+    }
     $normalized['entries'] = @($entries)
     return $normalized
 }
@@ -734,6 +739,10 @@ function Test-CatalogShape {
     }
 
     # The README header's text and links, when the catalog has a profileHeader block.
+    if (Test-MemberExists -Object $Catalog -Name 'portfolioUrl') {
+        $publicUrls.Add([ordered]@{ repo = $null; field = 'portfolioUrl'; url = [string](Get-MemberValue -Object $Catalog -Name 'portfolioUrl'); scheme = 'https' })
+    }
+
     # nonBlank marks text that must say something when present: a blank tagline would fall
     # back to the neutral one unnoticed, and a blank link text or alt renders an empty label.
     $header = Get-MemberValue -Object $Catalog -Name 'profileHeader'

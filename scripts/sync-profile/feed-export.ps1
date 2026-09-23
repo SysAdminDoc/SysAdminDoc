@@ -994,7 +994,7 @@ function Test-PortfolioCrossSurfaceDrift {
     .PARAMETER Enabled
     Enables outbound requests to the configured portfolio URL.
     .PARAMETER PortfolioUrl
-    HTTPS origin of the deployed portfolio.
+    HTTPS origin of the deployed portfolio; defaults to the one the page links.
     .PARAMETER Snapshot
     Optional deterministic root/feed/route evidence used by tests instead of network calls.
     #>
@@ -1005,7 +1005,7 @@ function Test-PortfolioCrossSurfaceDrift {
 
         [switch]$Enabled,
 
-        [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
+        [string]$PortfolioUrl = (Get-ProfilePortfolioUrl),
 
         [object]$Snapshot
     )

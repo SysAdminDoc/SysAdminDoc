@@ -5123,9 +5123,34 @@ Describe 'Profile header comes from catalog data' {
         $headerRegion.TrimStart() | Should -Match '^<p align="center"><b>Public projects by FixtureOwner</b></p>'
         $headerRegion | Should -Not -Match "Matt|medical|getparkerai|ko-fi|Sysadmin by day|tool-builder"
         [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 0
+        # The footer and the grid's portfolio links use the owner's own fallback.
+        $readme | Should -Not -Match 'getparkerai'
+        $readme | Should -Match ([regex]::Escape('<a href="https://fixtureowner.github.io/"><b>See everything</b></a>'))
         $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
         $experience.minimalProfileHeader | Should -BeTrue
+        # This repository's run.ps1 still serves SysAdminDoc, so the page's install lines
+        # would install that account's tools until the owner's own copy names the owner.
+        $experience.installDispatcherOwner | Should -Be 'SysAdminDoc'
+        $experience.installDispatcherMatchesOwner | Should -BeFalse
+        $experience.passed | Should -BeFalse
+    }
+
+    It 'passes the install dispatcher check for the owner run.ps1 serves' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
+
+        [regex]::Matches($readme, '(?m)^irm \S+/run\.ps1 \| iex; Start-Tool ').Count | Should -BeGreaterThan 0
+        $experience.installDispatcherOwner | Should -Be $Owner
+        $experience.installDispatcherMatchesOwner | Should -BeTrue
         $experience.passed | Should -BeTrue
+    }
+
+    It 'refuses a portfolioUrl that isn''t a plain https URL' {
+        $result = Test-CatalogShape -Catalog @{ entries = @(New-TestEntry -Repo 'ShapeTool' -Category 'powershell'); portfolioUrl = 'http://portfolio.example.test/"x' }
+
+        @($result.issues | Where-Object { $_.field -eq 'portfolioUrl' }) | Should -HaveCount 1
     }
 
     It 'holds the README to the tagline its own catalog renders' {
@@ -5138,10 +5163,12 @@ Describe 'Profile header comes from catalog data' {
         (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeFalse
     }
 
-    It 'keeps this profile''s personal header text out of the generator' {
-        $personal = @("Hey, I'm Matt", 'medical imaging', 'healthcare-it', 'ko-fi', 'X8K126YVER', 'Sysadmin by day')
+    It 'keeps this profile''s personal text and links out of the generator' {
+        $personal = @("Hey, I'm Matt", 'medical imaging', 'healthcare-it', 'ko-fi', 'X8K126YVER', 'Sysadmin by day', 'getparkerai')
         $offenders = foreach ($path in $script:SyncProfileSourcePaths) {
-            $text = [System.IO.File]::ReadAllText($path)
+            # The report names the importer whose feed contract it checks; that names the
+            # contract, not a link on the page.
+            $text = [System.IO.File]::ReadAllText($path).Replace('consumerContract = "portfolio.getparkerai.com profile-feed importer"', '')
             foreach ($phrase in $personal) {
                 if ($text.IndexOf($phrase, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
                     '{0}: {1}' -f [System.IO.Path]::GetFileName($path), $phrase
@@ -6843,6 +6870,49 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         $feed.provenance.metadataProvider | Should -Be 'graphql'
         $feed.provenance.repoEnumeration.returnedCount | Should -Be 1
         Test-Path -LiteralPath $assetsPath | Should -BeFalse -Because 'the text-only README has no generated assets to write'
+    }
+
+    It 'links the catalog''s portfolioUrl unless -PortfolioUrl says otherwise' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $cachePath = Join-Path $TestDrive 'portfolio-cache'
+        $catalogPath = Join-Path $TestDrive 'portfolio-catalog.json'
+        $fixture = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json'))
+        [System.IO.File]::WriteAllText($catalogPath, $fixture.Replace('"entries":', '"portfolioUrl": "https://portfolio.example.test/", "entries":'))
+        $saved = @{
+            CachePath = $script:CachePath; CacheEnabled = $script:CacheEnabled; MetadataSnapshotAt = $script:MetadataSnapshotAt
+            Provider = $script:RepositoryMetadataProvider; RequestedLimit = $script:RepositoryEnumerationRequestedLimit; Truncated = $script:RepositoryEnumerationTruncated
+        }
+        try {
+            $script:CachePath = $cachePath
+            $script:CacheEnabled = $true
+            $script:MetadataSnapshotAt = (Get-Date).ToUniversalTime().ToString('o')
+            $script:RepositoryMetadataProvider = 'graphql'
+            $script:RepositoryEnumerationRequestedLimit = 25
+            $script:RepositoryEnumerationTruncated = $false
+            Reset-ValidationCacheState
+            Write-CompleteGenerationSnapshot -Repos @((New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip'))) -ReleaseMetadataComplete:$true | Should -BeTrue
+        } finally {
+            $script:CachePath = $saved.CachePath
+            $script:CacheEnabled = $saved.CacheEnabled
+            $script:MetadataSnapshotAt = $saved.MetadataSnapshotAt
+            $script:RepositoryMetadataProvider = $saved.Provider
+            $script:RepositoryEnumerationRequestedLimit = $saved.RequestedLimit
+            $script:RepositoryEnumerationTruncated = $saved.Truncated
+            Reset-ValidationCacheState
+        }
+        $readmes = @{}
+        foreach ($case in @('catalog', 'empty')) {
+            $readmes[$case] = Join-Path $TestDrive "portfolio-$case.md"
+            Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmes[$case] -Force
+            $arguments = @('-NoProfile', '-File', $scriptPath, '-Write', '-Offline', '-CatalogPath', $catalogPath, '-ReadmePath', $readmes[$case],
+                '-ProjectsPath', (Join-Path $TestDrive "portfolio-feed-$case.json"), '-AssetsPath', (Join-Path $TestDrive "portfolio-assets-$case"), '-CachePath', $cachePath)
+            if ($case -eq 'empty') { $arguments += @('-PortfolioUrl', '') }
+            $output = & pwsh @arguments *>&1
+            $LASTEXITCODE | Should -Be 0 -Because ($output | Out-String)
+        }
+
+        [System.IO.File]::ReadAllText($readmes['catalog']) | Should -Match ([regex]::Escape('<a href="https://portfolio.example.test/"><b>See everything</b></a>'))
+        [System.IO.File]::ReadAllText($readmes['empty']) | Should -Match ([regex]::Escape('<a href="https://sysadmindoc.github.io/"><b>See everything</b></a>'))
     }
 
     It 'rejects unsafe Owner values before generation or network work' {

@@ -262,6 +262,17 @@ function Test-ReadmeExperience {
     $hasRichProfileHeader = $ExpectedReadme.Contains("assets/profile/header-dark.svg") -and
         $ExpectedReadme.Contains("View full portfolio") -and
         $ExpectedReadme.Contains("public tools command center")
+    # Every Start-Tool line fetches this repository's run.ps1, which fetches the feed and the
+    # repositories of the owner it names. A copy that names someone else, such as a fork
+    # that hasn't changed it, would install that account's tools from this page.
+    $installLineCount = [regex]::Matches($ExpectedReadme, '(?m)^irm \S+/run\.ps1 \| iex; Start-Tool ').Count
+    $runScriptPath = Join-Path $RepoRoot 'run.ps1'
+    $installDispatcherOwner = $null
+    if (Test-Path -LiteralPath $runScriptPath) {
+        $ownerMatch = [regex]::Match([System.IO.File]::ReadAllText($runScriptPath), '(?m)^\s*\$profileOwner = ''(?<owner>[^'']+)''')
+        if ($ownerMatch.Success) { $installDispatcherOwner = $ownerMatch.Groups['owner'].Value }
+    }
+    $installDispatcherMatchesOwner = $installLineCount -eq 0 -or ($null -ne $installDispatcherOwner -and $installDispatcherOwner -eq $Owner)
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
         (-not $ExpectedReadme.Contains("**Currently Building**")) -or
         $ExpectedReadme.Contains("| Project | Focus | Action |")
@@ -272,7 +283,7 @@ function Test-ReadmeExperience {
     # still carries them says why it fails.
     $hasProfileHeaderContract = $hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0
     $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasCurrentlyBuildingActionColumn -and
-        $hasProfileHeaderContract -and
+        $hasProfileHeaderContract -and $installDispatcherMatchesOwner -and
         $motionSafeChrome -and
         $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $thirdPartyRenderHosts.Count -eq 0 -and
         $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
@@ -285,6 +296,8 @@ function Test-ReadmeExperience {
         setupInspectPath = [bool]$hasSetupInspectPath
         plainTextTagline = [bool]$hasPlainTextTagline
         minimalProfileHeader = [bool]$hasMinimalProfileHeader
+        installDispatcherOwner = $installDispatcherOwner
+        installDispatcherMatchesOwner = [bool]$installDispatcherMatchesOwner
         richProfileHeader = [bool]$hasRichProfileHeader
         genericImageAltTextCount = $genericAltCount
         imageTagCount = [int]$imageTagCount

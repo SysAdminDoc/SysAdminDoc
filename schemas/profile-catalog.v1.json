@@ -18,6 +18,9 @@
       "type": "string",
       "format": "date-time"
     },
+    "portfolioUrl": {
+      "$ref": "#/$defs/publicHttpsUrl"
+    },
     "profileHeader": {
       "$ref": "#/$defs/profileHeader"
     },
@@ -248,7 +251,7 @@
         }
       }
     },
-    "headerUrl": {
+    "publicHttpsUrl": {
       "type": "string",
       "maxLength": 2048,
       "pattern": "^https://[!#-&(-;=?-\\[\\]-{}~]+(?![\\s\\S])"
@@ -304,7 +307,7 @@
                 "maxLength": 100
               },
               "url": {
-                "$ref": "#/$defs/headerUrl"
+                "$ref": "#/$defs/publicHttpsUrl"
               }
             }
           }
@@ -319,10 +322,10 @@
           ],
           "properties": {
             "url": {
-              "$ref": "#/$defs/headerUrl"
+              "$ref": "#/$defs/publicHttpsUrl"
             },
             "imageUrl": {
-              "$ref": "#/$defs/headerUrl"
+              "$ref": "#/$defs/publicHttpsUrl"
             },
             "imageAlt": {
               "type": "string",

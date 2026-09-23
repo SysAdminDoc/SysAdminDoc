@@ -1,6 +1,7 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json",
   "generatedAt": "2026-06-01T16:18:55.099894-04:00",
+  "portfolioUrl": "https://portfolio.getparkerai.com/",
   "profileHeader": {
     "tagline": "Sysadmin by day, tool-builder by habit. Everything here is something I actually use.",
     "languages": [

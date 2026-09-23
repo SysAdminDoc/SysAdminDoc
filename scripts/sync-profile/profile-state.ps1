@@ -141,7 +141,7 @@ function Test-ProfileState {
     .PARAMETER ProbePortfolio
     Enables the warning-only deployed portfolio feed and route probe.
     .PARAMETER PortfolioUrl
-    HTTPS origin used by the optional deployed portfolio probe.
+    HTTPS origin used by the optional deployed portfolio probe; defaults to the one the page links.
     .PARAMETER PortfolioProbeSnapshot
     Optional deterministic probe evidence used by tests instead of network calls.
     #>
@@ -164,7 +164,7 @@ function Test-ProfileState {
     [object]$BackstageExport,
     [string]$BackstageExportPath,
     [switch]$ProbePortfolio,
-    [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
+    [string]$PortfolioUrl = (Get-ProfilePortfolioUrl),
     [object]$PortfolioProbeSnapshot,
     [string]$SmokeReportPath = $script:SmokeReportPath
     )

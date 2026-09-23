@@ -28,7 +28,9 @@ param(
     [int]$ReleaseVerificationMaxBytes = 5MB,
     [string]$BackstageExportPath,
     [switch]$ProbePortfolio,
-    [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
+    # The portfolio origin behind "See everything" and -ProbePortfolio. Left out, the
+    # catalog's portfolioUrl is used; given as '', the owner's GitHub Pages origin.
+    [string]$PortfolioUrl,
     [switch]$DraftMissingCatalogEntries,
     [switch]$RunScorecard,
     [switch]$Offline
@@ -50,6 +52,8 @@ try {
 }
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
+# Read before the library is dot-sourced below, which can replace $PSBoundParameters here.
+$portfolioUrlGiven = $PSBoundParameters.ContainsKey('PortfolioUrl')
 $script:SmokeReportPath = $SmokeReportPath
 $script:AssetsPath = $AssetsPath
 $script:GraphQlPageSize = [int]$GraphQlPageSize
@@ -392,6 +396,12 @@ $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
     Get-Catalog -Path $CatalogPath
 } else {
     $null
+}
+# The portfolio links follow the catalog unless -PortfolioUrl was given, so a run for another
+# account never links to this profile's site. Get-ProfilePortfolioUrl reads this variable and
+# falls back to the owner's GitHub Pages origin when it is empty.
+if (-not $portfolioUrlGiven -and $catalogForRun) {
+    $PortfolioUrl = [string](Get-MemberValue -Object $catalogForRun -Name 'portfolioUrl')
 }
 
 if ($catalogForRun -and ($Write -or $Check)) {
