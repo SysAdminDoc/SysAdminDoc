@@ -67,6 +67,11 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Debloat-Win11
 ```
 
+[**Start-Menu-Organizer**](https://github.com/SysAdminDoc/Start-Menu-Organizer) &#11088;5 &middot; Clean junk, detect broken shortcuts, reorganize Start Menu &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest)
+```powershell
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Start-Menu-Organizer
+```
+
 [**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) &#11088;5 &middot; Enterprise Windows update automation. OEM drivers, Windows Update, winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SystemUpdatePro/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool SystemUpdatePro
@@ -80,11 +85,6 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 [**MonitorControl**](https://github.com/SysAdminDoc/MonitorControl) &#11088;4 &middot; Control monitor settings via DDC/CI &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/MonitorControl/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool MonitorControl
-```
-
-[**Start-Menu-Organizer**](https://github.com/SysAdminDoc/Start-Menu-Organizer) &#11088;4 &middot; Clean junk, detect broken shortcuts, reorganize Start Menu &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest)
-```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Start-Menu-Organizer
 ```
 
 [**NetForge**](https://github.com/SysAdminDoc/NetForge) &#11088;3 &middot; WPF network adapter manager. Static/DHCP, DNS presets, profile management &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/NetForge/releases/latest)
@@ -427,7 +427,7 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;93 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | [Repo](https://github.com/SysAdminDoc/AppManagerNG) |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;90 | FOSS Tasker alternative for Android | [Repo](https://github.com/SysAdminDoc/OpenTasker) |
 | [**hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;64 | Morphe patch bundle for TikTok. Fewer accidental taps, less noise, more control over the feed and downloads. | [<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/hushfeed/releases/latest) |
-| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;48 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3 | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
+| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;49 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3 | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;35 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/Aura/releases/latest) |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;28 | Full-featured file manager with root access, archive support, cloud storage | [Repo](https://github.com/SysAdminDoc/FileExplorer) |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;27 | Spam call and text blocker. GitHub-hosted spam database, no API keys, no subscriptions | [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/CallShield/releases/latest) |

@@ -5322,10 +5322,19 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'a backtick fence'; About = '```is how I start every code block.'; Expected = '\`\`\`is how I start every code block.' }
         @{ Case = 'a tilde fence'; About = '~~~ opens a fence too'; Expected = '\~~~ opens a fence too' }
         @{ Case = 'a heading marker'; About = '# not a heading'; Expected = '\# not a heading' }
+        @{ Case = 'a level 6 heading marker'; About = '###### not a heading'; Expected = '\###### not a heading' }
+        @{ Case = 'a lone heading marker'; About = '#'; Expected = '\#' }
         @{ Case = 'a rule'; About = '---'; Expected = '\---' }
+        @{ Case = 'a star rule'; About = '***'; Expected = '\***' }
+        @{ Case = 'an underscore rule'; About = '___'; Expected = '\___' }
+        @{ Case = 'a spaced rule'; About = '_ _ _ _'; Expected = '\_ _ _ _' }
         @{ Case = 'a list marker'; About = '- not a list'; Expected = '\- not a list' }
+        @{ Case = 'a plus list marker'; About = '+ not a list'; Expected = '\+ not a list' }
+        @{ Case = 'a star list marker'; About = '* not a list'; Expected = '\* not a list' }
+        @{ Case = 'a lone list marker'; About = '-'; Expected = '\-' }
         @{ Case = 'four spaces'; About = '    not a code block'; Expected = 'not a code block' }
         @{ Case = 'an ordered list marker'; About = '1. not an ordered list'; Expected = '1\. not an ordered list' }
+        @{ Case = 'a parenthesis list marker'; About = '42) not an ordered list'; Expected = '42\) not an ordered list' }
         @{ Case = 'a quote marker'; About = '> not a quote'; Expected = '&gt; not a quote' }
     ) {
         $header = New-TestProfileHeader
@@ -5334,6 +5343,25 @@ Describe 'Profile header comes from catalog data' {
         $lines = @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n')
 
         $lines | Should -Contain $Expected
+    }
+
+    It 'leaves the about text as written when it starts with <Case>' -ForEach @(
+        @{ Case = 'emphasis'; About = '*Sysadmin* by day' }
+        @{ Case = 'strong emphasis'; About = '**Tools** I actually use' }
+        @{ Case = 'underscore emphasis'; About = '_Mostly_ PowerShell' }
+        @{ Case = 'strikethrough'; About = '~~Old~~ new tools' }
+        @{ Case = 'a hashtag'; About = '#homelab tools and notes' }
+        @{ Case = 'a decimal number'; About = '1.5 million downloads so far' }
+        @{ Case = 'a plus sign'; About = '+1 for automation' }
+        @{ Case = 'a negative number'; About = '-5 degrees outside, still coding' }
+        @{ Case = 'a long option'; About = '--help is the flag I read most' }
+        @{ Case = 'mixed rule characters'; About = '*-* marks the tools I use daily' }
+    ) {
+        # None of these opens a block, so escaping them would show the markup as text.
+        $header = New-TestProfileHeader
+        $header.about = $About
+
+        @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain $About
     }
 
     It 'keeps a # at the end of the heading' {

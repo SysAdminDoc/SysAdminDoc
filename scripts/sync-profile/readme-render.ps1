@@ -754,11 +754,15 @@ function New-ProfileChrome {
     if (-not [string]::IsNullOrWhiteSpace($about)) {
         # The about text is a paragraph on its own line, so its first characters could open
         # a heading, list, rule or fence, and leading spaces a code block. Backticks, < and
-        # > are already escaped or entities by now.
+        # > are already escaped or entities by now, and tabs dropped. Only a marker that
+        # really opens a block is escaped: a rule line (three or more of one of - * _), a
+        # list marker or 1 to 6 #s followed by a space, a tilde fence, an ordered-list number
+        # followed by a space. Leading emphasis (*x*, **x**, _x_, ~~x~~) and a #hashtag stay
+        # as written. The line after a blank one can't underline a heading, so = is safe.
         $aboutText = (ConvertTo-MarkdownText $about).TrimStart()
-        if ($aboutText -match '^[#+*=_~-]') {
+        if ($aboutText -match '^([-*_])(?: *\1){2,} *\z' -or $aboutText -match '^(?:[-+*](?: |\z)|#{1,6}(?: |\z)|~~~)') {
             $aboutText = '\' + $aboutText
-        } elseif ($aboutText -match '^(\d{1,9})([.)])') {
+        } elseif ($aboutText -match '^([0-9]{1,9})([.)])(?= |\z)') {
             $aboutText = $Matches[1] + '\' + $Matches[2] + $aboutText.Substring($Matches[0].Length)
         }
         $lines.Add($aboutText)
