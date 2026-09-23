@@ -64,7 +64,8 @@
   ],
   "properties": {
     "schema": {
-      "const": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-sync-report.v1.json"
+      "type": "string",
+      "pattern": "^https://raw\\.githubusercontent\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/main/schemas/profile-sync-report\\.v1\\.json$"
     },
     "generatedAt": {
       "type": "string",
@@ -604,7 +605,7 @@
         },
         "sourceRepository": {
           "type": "string",
-          "const": "SysAdminDoc/SysAdminDoc"
+          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
         },
         "sourceCommit": {
           "$ref": "#/$defs/nullableCommitSha"

@@ -3443,6 +3443,43 @@ Describe 'Owner-bound output follows -Owner' {
         $row[0].liveUrl | Should -Be 'https://fixture.example.test/'
     }
 
+    It 'passes the published schemas with the catalog, feed and report of another owner' {
+        # The schemas pin the shape of the owner-bound fields, not the account: a fork's own
+        # feed has to validate without editing them.
+        $Owner = 'FixtureOwner'
+        $SchemaBaseUrl = 'https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/schemas'
+        $CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
+        $ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
+        $ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
+        $catalog.schema = $CatalogSchemaUrl
+        $readme = New-Readme -Catalog $catalog -Repos @()
+        $projects = New-ProjectsExportJson -Catalog $catalog -Repos @()
+
+        $feed = Test-FeedSchemaContracts -Catalog $catalog -ProjectsJson $projects
+        @(@($feed.catalog.errors) + @($feed.projects.errors) | ForEach-Object { '{0} {1}' -f $_.instanceLocation, $_.message }) | Should -BeNullOrEmpty
+        $feed.passed | Should -BeTrue
+        ($projects | ConvertFrom-Json).provenance.sourceRepository | Should -Be 'FixtureOwner/FixtureOwner'
+
+        $state = Test-ProfileState -Catalog $catalog -Repos @() -ExpectedReadme $readme -ExpectedProjects $projects `
+            -ExpectedAssets @{} -CurrentReadme $readme -CurrentProjects $projects -CurrentAssets @{} -SkipLinkValidation `
+            -SmokeReportPath (Join-Path $TestDrive 'no-smoke-run.json')
+        @($state.Report.schemaValidation.report.errors | ForEach-Object { '{0} {1}' -f $_.instanceLocation, $_.message }) | Should -BeNullOrEmpty
+        $state.Report.schema | Should -Be $ReportSchemaUrl
+    }
+
+    It 'still rejects a schema URL for another file or a malformed source' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $catalog -Repos @() | ConvertFrom-Json
+        $payload.schema = 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-catalog.v1.json'
+        $payload.source = 'SysAdminDoc data/profile-catalog.json'
+
+        $feed = Test-FeedSchemaContracts -Catalog $catalog -ProjectsJson ($payload | ConvertTo-Json -Depth 30)
+        $feed.projects.valid | Should -BeFalse
+        @($feed.projects.errors | ForEach-Object { $_.instanceLocation }) | Should -Contain '/schema'
+        @($feed.projects.errors | ForEach-Object { $_.instanceLocation }) | Should -Contain '/source'
+    }
+
     It 'seeds every legacy row shape from a README written for another owner' {
         $Owner = 'FixtureOwner'
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
