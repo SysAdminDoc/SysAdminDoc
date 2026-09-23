@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-22
+
+- Cataloged Onward, the auto-pager userscript that went public on 2026-09-21. Until it had a catalog row the profile check failed its missing-public-repo gate. Adding it pushed Browser Extensions & Userscripts to 31 rows against the 30-row README limit, so BackgroundSearch moved to portfolio-only. It stays in `projects.json` and on the portfolio.
+- Regenerated the README, feed, and report against current star counts.
+
 ## 2026-09-20
 
 - Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.
