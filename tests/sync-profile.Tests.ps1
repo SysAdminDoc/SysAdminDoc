@@ -569,8 +569,9 @@ Start-Tool WinTool
         Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Uri -eq 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json' }
     }
 
-    It 'runs the entry script with the error preference of the session that called it' {
-        # A tool written for the default preference must not inherit a stricter one from run.ps1.
+    It 'runs the entry script with the session''s error preference, not a caller''s' {
+        # The tool runs as if from the prompt, like the old one-liner: it sees the session's
+        # (global) preference, and neither a stricter one in Start-Tool nor its caller's own.
         Mock Invoke-RestMethod { New-FakeFeed }
         function git {
             if ($args[0] -eq 'clone') {
@@ -580,12 +581,17 @@ Start-Tool WinTool
             }
             $global:LASTEXITCODE = 0
         }
-        function pip { }
-        $ErrorActionPreference = 'Continue'
+        $savedPreference = $global:ErrorActionPreference
+        try {
+            $global:ErrorActionPreference = 'SilentlyContinue'
+            $ErrorActionPreference = 'Stop'
 
-        Start-Tool WinTool
+            Start-Tool WinTool
+        } finally {
+            $global:ErrorActionPreference = $savedPreference
+        }
 
-        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\preference.txt') | Should -Be 'Continue'
+        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\preference.txt') | Should -Be 'SilentlyContinue'
     }
 
     It 'says how to recover when git cannot update an old copy' {
