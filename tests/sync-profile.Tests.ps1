@@ -473,6 +473,41 @@ Describe 'run.ps1 install dispatcher' {
         [int]$parseErrors | Should -Be 0
     }
 
+    It 'runs end to end in Windows PowerShell 5.1, fed through iex like the README line' {
+        $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+        if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
+            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
+            return
+        }
+        # The feed, git and pip are stubbed, so nothing leaves the machine and the entry script
+        # is one this test wrote. A function wins over a cmdlet of the same name, so the stub
+        # feed also replaces Invoke-RestMethod inside Start-Tool.
+        $driver = @'
+function Invoke-RestMethod { [pscustomobject]@{ projects = @([pscustomobject]@{ repo = 'WinTool'; branch = 'main'; entrypoint = 'Tools\Win Tool.ps1' }) } }
+function git {
+    if ($args[0] -eq 'clone') {
+        $directory = [string]$args[-1]
+        New-Item -ItemType Directory -Path (Join-Path $directory 'Tools') -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $directory 'Tools\Win Tool.ps1') -Value '"ran in PowerShell $($PSVersionTable.PSVersion.Major) with $ErrorActionPreference"'
+    }
+    $global:LASTEXITCODE = 0
+}
+function pip { }
+Get-Content -Raw -LiteralPath $env:SYSADMINDOC_RUN_SCRIPT | Invoke-Expression
+Start-Tool WinTool
+'@
+        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($driver))
+        $env:SYSADMINDOC_RUN_SCRIPT = $script:RunScriptPath
+        try {
+            $output = @(& $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded 2>&1 | ForEach-Object { [string]$_ })
+        } finally {
+            Remove-Item Env:SYSADMINDOC_RUN_SCRIPT -ErrorAction SilentlyContinue
+        }
+
+        $LASTEXITCODE | Should -Be 0
+        $output | Should -Contain 'ran in PowerShell 5 with Continue'
+    }
+
     It 'clones, installs requirements and runs the entry script the feed names' {
         Mock Invoke-RestMethod { New-FakeFeed }
         function git {
@@ -494,6 +529,33 @@ Describe 'run.ps1 install dispatcher' {
         $script:ToolCalls[1] | Should -Be ('pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
         Get-Content -LiteralPath (Join-Path $directory 'ran.txt') | Should -Be 'ran'
         Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Uri -eq 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json' }
+    }
+
+    It 'runs the entry script with the error preference of the session that called it' {
+        # A tool written for the default preference must not inherit a stricter one from run.ps1.
+        Mock Invoke-RestMethod { New-FakeFeed }
+        function git {
+            if ($args[0] -eq 'clone') {
+                $directory = [string]$args[-1]
+                New-Item -ItemType Directory -Path $directory | Out-Null
+                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'preference.txt') -Value `$ErrorActionPreference" -Encoding utf8
+            }
+            $global:LASTEXITCODE = 0
+        }
+        function pip { }
+        $ErrorActionPreference = 'Continue'
+
+        Start-Tool WinTool
+
+        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\preference.txt') | Should -Be 'Continue'
+    }
+
+    It 'says how to recover when git cannot update an old copy' {
+        Mock Invoke-RestMethod { New-FakeFeed }
+        New-Item -ItemType Directory -Path (Join-Path $env:TEMP 'WinTool') | Out-Null
+        function git { $global:LASTEXITCODE = 128 }
+
+        { Start-Tool WinTool } | Should -Throw '*exit 128*delete it and run Start-Tool again*'
     }
 
     It 'updates an existing copy and runs a Python entry script with python' {
@@ -837,23 +899,22 @@ Describe 'MedicalPattern privacy regex is word-boundary anchored' {
 }
 
 Describe 'Get-InstallSnippet' {
-    It 'emits a branch-pinned clone-install-run snippet with the PowerShell runner' {
+    It 'emits the short run.ps1 line for a PowerShell project' {
         $e = New-TestEntry -Repo 'WinTool' -Category 'powershell'
         $e.entrypoint = 'WinTool.ps1'; $e.installKind = 'powershell'; $e.branch = 'main'
-        $snippet = Get-InstallSnippet -Entry $e -Meta $null -Category 'powershell'
-        $snippet | Should -Match 'git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool'
-        $snippet | Should -Match '& "\$d\\WinTool\.ps1"'
+        Get-InstallSnippet -Entry $e | Should -Be 'irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinTool'
     }
-    It 'emits the python runner and honours a non-main branch' {
+    It 'emits the same short line for a Python project on another branch' {
+        # run.ps1 reads the branch and the runner from projects.json.
         $e = New-TestEntry -Repo 'PyTool' -Category 'python'
         $e.entrypoint = 'app.py'; $e.installKind = 'python'; $e.branch = 'master'
-        $snippet = Get-InstallSnippet -Entry $e -Meta $null -Category 'python'
-        $snippet | Should -Match '-b master '
-        $snippet | Should -Match 'python "\$d\\app\.py"'
+        $snippet = Get-InstallSnippet -Entry $e
+        $snippet | Should -Be 'irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool PyTool'
+        $snippet.Length | Should -BeLessThan 110
     }
     It 'returns null when the entry has no entrypoint' {
         $e = New-TestEntry -Repo 'NoEntry' -Category 'powershell'
-        Get-InstallSnippet -Entry $e -Meta $null -Category 'powershell' | Should -BeNullOrEmpty
+        Get-InstallSnippet -Entry $e | Should -BeNullOrEmpty
     }
 }
 
@@ -2778,31 +2839,42 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | i
     It 'extracts rendered README install, download, and userscript action targets' {
         $readme = @'
 ```powershell
-$d="$env:TEMP\WinTool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\Tools\Win Tool.ps1"
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinTool
+```
+
+```powershell
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool <Name>
 ```
 
 [<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/MobileTool/releases/latest)
 | [**ScriptTool**](https://github.com/SysAdminDoc/ScriptTool) | Browser helper | [Install](https://raw.githubusercontent.com/SysAdminDoc/ScriptTool/main/ScriptTool.user.js) |
 '@
-        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
+        $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
+        $winTool.entrypoint = 'Tools\Win Tool.ps1'; $winTool.branch = 'main'
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @($winTool))
 
-        $targets | Should -HaveCount 3
+        # The "<Name>" placeholder in the setup section's example resolves to nothing.
+        $targets | Should -HaveCount 4
         ($targets | ForEach-Object { $_.type } | Sort-Object) -join ',' |
-            Should -Be 'readme-download,readme-install-entrypoint,readme-userscript-install'
+            Should -Be 'readme-download,readme-install-dispatcher,readme-install-entrypoint,readme-userscript-install'
         ($targets | Where-Object { $_.type -eq 'readme-install-entrypoint' }).url |
             Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/Tools/Win%20Tool.ps1'
+        ($targets | Where-Object { $_.type -eq 'readme-install-dispatcher' }).url |
+            Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1'
         ($targets | Where-Object { $_.type -eq 'readme-download' }).repo | Should -Be 'MobileTool'
         ($targets | Where-Object { $_.type -eq 'readme-userscript-install' }).repo | Should -Be 'ScriptTool'
-        ($targets | Where-Object { $_.group -eq 'readme-actions' }) | Should -HaveCount 3
+        ($targets | Where-Object { $_.group -eq 'readme-actions' }) | Should -HaveCount 4
     }
 
     It 'keeps README action target failures visible through link validation rows' {
         $readme = @'
 ```powershell
-$d="$env:TEMP\WinTool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\WinTool.ps1"
+irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinTool
 ```
 '@
-        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
+        $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
+        $winTool.entrypoint = 'WinTool.ps1'; $winTool.branch = 'main'
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @($winTool))
         $probe = {
             param($target)
 
@@ -2811,9 +2883,9 @@ $d="$env:TEMP\WinTool"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --d
 
         $result = Test-LinkTargets -Included @() -RepoLookup @{} -ExtraTargets $targets -ProbeScript $probe -ThrottleLimit 2
 
-        @($result.failures) | Should -HaveCount 1
-        $result.failures[0].type | Should -Be 'readme-install-entrypoint'
-        $result.failures[0].url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/WinTool.ps1'
+        @($result.failures) | Should -HaveCount 2
+        @($result.failures | ForEach-Object { $_.type } | Sort-Object) | Should -Be @('readme-install-dispatcher', 'readme-install-entrypoint')
+        @($result.failures | Where-Object { $_.type -eq 'readme-install-entrypoint' })[0].url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/WinTool.ps1'
     }
 }
 

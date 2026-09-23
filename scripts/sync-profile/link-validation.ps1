@@ -442,25 +442,40 @@ function Add-ReadmeActionLinkValidationTarget {
 }
 
 function Get-ReadmeActionLinkValidationTargets {
-    param([string]$ExpectedReadme)
+    param(
+        [string]$ExpectedReadme,
+        # Catalog rows and live metadata, to resolve each "Start-Tool <Name>" line to the
+        # entry script run.ps1 will start.
+        [hashtable[]]$Entries = @(),
+        [hashtable]$RepoLookup = @{}
+    )
 
     $targets = New-Object System.Collections.Generic.List[object]
     $seenTargets = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $entryByRepo = @{}
+    foreach ($entry in @($Entries)) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.repo)) {
+            $entryByRepo[([string]$entry.repo).ToLowerInvariant()] = $entry
+        }
+    }
 
     foreach ($block in [regex]::Matches($ExpectedReadme, '(?ms)```(?:powershell|pwsh|ps1)?\s*(?<script>.*?)```')) {
         $scriptText = $block.Groups['script'].Value
-        $cloneMatch = [regex]::Match($scriptText, 'git clone -q --depth 1 -b (?<branch>[^\s;]+) https://github\.com/(?<owner>[^/\s;]+)/(?<repo>[^\s;]+) \$d')
-        $runnerMatch = [regex]::Match($scriptText, '(?:^|;)\s*(?:&|python)\s+"\$d\\(?<entry>[^"]+)"')
-        if (-not $cloneMatch.Success -or -not $runnerMatch.Success) {
+        $startMatch = [regex]::Match($scriptText, '(?m)^\s*irm (?<dispatcher>https://raw\.githubusercontent\.com/\S+/run\.ps1) \| iex; Start-Tool (?<repo>[A-Za-z0-9._-]+)\s*$')
+        if (-not $startMatch.Success) {
             continue
         }
 
-        $cloneOwner = $cloneMatch.Groups['owner'].Value
-        $repo = $cloneMatch.Groups['repo'].Value
-        $branch = $cloneMatch.Groups['branch'].Value
-        $entrypoint = $runnerMatch.Groups['entry'].Value
-        $rawUrl = ConvertTo-RawGitHubUrl -RepositoryOwner $cloneOwner -Repo $repo -Branch $branch -Path $entrypoint
-        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-entrypoint" -Url $rawUrl -Repo $repo
+        # The dispatcher itself: every one-liner breaks if it is missing.
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-dispatcher" -Url $startMatch.Groups['dispatcher'].Value
+        $repo = $startMatch.Groups['repo'].Value
+        $entry = $entryByRepo[$repo.ToLowerInvariant()]
+        if ($null -eq $entry -or [string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) {
+            continue
+        }
+        $branch = Get-Branch $entry (Get-RepoMeta $entry $RepoLookup)
+        $rawUrl = ConvertTo-RawGitHubUrl -RepositoryOwner $Owner -Repo ([string]$entry.repo) -Branch $branch -Path ([string]$entry.entrypoint)
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-entrypoint" -Url $rawUrl -Repo ([string]$entry.repo)
     }
 
     foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\]\((?<url>https://github\.com/[^)\s]+/releases/latest)\)')) {

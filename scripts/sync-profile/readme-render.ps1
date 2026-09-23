@@ -192,31 +192,15 @@ function Get-ActionLink {
 }
 
 function Get-InstallSnippet {
-    param(
-        [hashtable]$Entry,
-        [object]$Meta,
-        [string]$Category
-    )
+    # One short line per project. The clone, requirements and run steps live in run.ps1,
+    # which looks the branch and entry script up in projects.json; the first-time setup
+    # section shows the steps written out in full.
+    param([hashtable]$Entry)
 
-    $branch = Get-Branch $Entry $Meta
-    $installKind = if (-not [string]::IsNullOrWhiteSpace([string]$Entry.installKind)) {
-        [string]$Entry.installKind
-    } else {
-        ($CategoryDefinitions | Where-Object { $_.Slug -eq $Category }).DefaultInstallKind
-    }
-
-    $entrypoint = [string]$Entry.entrypoint
-    if ([string]::IsNullOrWhiteSpace($entrypoint)) {
+    if ([string]::IsNullOrWhiteSpace([string]$Entry.entrypoint)) {
         return $null
     }
-
-    $runner = if ($installKind -eq "powershell") {
-        '& "$d\{0}"' -f $entrypoint
-    } else {
-        'python "$d\{0}"' -f $entrypoint
-    }
-
-    return '$d="$env:TEMP\{0}"; if(Test-Path $d){{git -C $d pull -q}}else{{git clone -q --depth 1 -b {1} https://github.com/{2}/{0} $d}}; if(Test-Path "$d\requirements.txt"){{pip install -q -r "$d\requirements.txt"}}; {3}' -f $Entry.repo, $branch, $Owner, $runner
+    return "irm https://raw.githubusercontent.com/$Owner/$Owner/main/run.ps1 | iex; Start-Tool $($Entry.repo)"
 }
 
 function New-CategoryLink {
@@ -531,6 +515,20 @@ $u='https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/s
 
 Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
 
+Every PowerShell and Python project on this page starts with one line like this:
+
+```powershell
+irm https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/run.ps1 | iex; Start-Tool <Name>
+```
+
+[`run.ps1`](https://github.com/__PROFILE_OWNER__/__PROFILE_OWNER__/blob/main/run.ps1) looks the project up in the public `projects.json` feed, clones it into `%TEMP%` (or updates the copy that's already there), installs its `requirements.txt` if it has one, and starts its entry script. Written out in full, `Start-Tool <Name>` runs:
+
+```text
+$d="$env:TEMP\<Name>"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b <branch> https://github.com/__PROFILE_OWNER__/<Name> $d}; if(Test-Path "$d\requirements.txt"){pip install -q -r "$d\requirements.txt"}; & "$d\<entry script>"
+```
+
+A `.py` entry script runs with `python` instead of `&`.
+
 </details>
 '@
     return $content.Replace('__PROFILE_OWNER__', [string]$Owner)
@@ -597,7 +595,7 @@ function New-CategorySection {
                     $line += " &nbsp;$action"
                 }
                 $lines.Add($line)
-                $snippet = Get-InstallSnippet $entry $meta $Definition.Slug
+                $snippet = Get-InstallSnippet $entry
                 if ($snippet) {
                     $lines.Add('```powershell')
                     $lines.Add($snippet)

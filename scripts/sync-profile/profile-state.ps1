@@ -368,7 +368,7 @@ function Test-ProfileState {
     }
     if (-not $script:Offline -and -not $SkipLinkValidation) {
         $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
-        $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme)
+        $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup)
         $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets @($readmeHeaderTargets + $readmeActionTargets)
         $linkFailures = @($linkFailures + @($linkResult.failures))
         $linkWarnings = @($linkResult.warnings)

@@ -18,7 +18,9 @@ function Start-Tool {
         [string]$Name
     )
 
-    $ErrorActionPreference = 'Stop'
+    # No function-wide $ErrorActionPreference: the entry script inherits this scope's
+    # preferences, and a tool written for the default would stop at its first
+    # non-terminating error. Failures here throw or use -ErrorAction Stop instead.
     $profileOwner = 'SysAdminDoc'
     if ($Name -cnotmatch '^[A-Za-z0-9._-]+\z') {
         throw "Start-Tool: '$Name' is not a repository name."
@@ -27,7 +29,7 @@ function Start-Tool {
     # Windows PowerShell 5.1 on an older .NET default can refuse GitHub's TLS 1.2 endpoints.
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
-    $feed = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$profileOwner/$profileOwner/main/projects.json"
+    $feed = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$profileOwner/$profileOwner/main/projects.json" -ErrorAction Stop
     $project = @($feed.projects | Where-Object { [string]$_.repo -eq $Name -and -not [string]::IsNullOrWhiteSpace([string]$_.entrypoint) }) | Select-Object -First 1
     if (-not $project) {
         throw "Start-Tool: $Name is not a project you can run from the $profileOwner profile. Check the name on https://github.com/$profileOwner."
@@ -55,7 +57,7 @@ function Start-Tool {
         git clone -q --depth 1 -b $branch "https://github.com/$profileOwner/$repo" $directory
     }
     if ($LASTEXITCODE -ne 0) {
-        throw "Start-Tool: git could not fetch $repo (exit $LASTEXITCODE)."
+        throw "Start-Tool: git could not fetch $repo (exit $LASTEXITCODE). If $directory holds an old copy, delete it and run Start-Tool again."
     }
 
     $requirements = Join-Path $directory 'requirements.txt'
