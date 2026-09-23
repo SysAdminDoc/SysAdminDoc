@@ -250,7 +250,12 @@ function Get-ReadmeHeaderLinkReference {
     .DESCRIPTION
     Recognizing three known URLs meant an arbitrary hand-written call to action could
     die without failing the link check, which is how a dead services link shipped.
-    Collects Markdown links and images, HTML href/src/srcset, and local fragments.
+    The header is read the way GitHub renders it (checked with the /markdown API). In
+    Markdown text: links and images, their destinations unescaped (#sec\_tion links
+    #sec_tion), and every bare http(s) URL GitHub autolinks, escaped link text such as
+    \[docs\](https://x) included. In HTML: href, src and srcset, but only inside a real
+    <a>, <img> or <source> tag, so the words href="#x" in a paragraph aren't a link. An
+    HTML block is raw: nothing in it is autolinked, and a backslash there is plain text.
     #>
     param([string]$ExpectedReadme)
 
@@ -267,28 +272,167 @@ function Get-ReadmeHeaderLinkReference {
         $references.Add([ordered]@{ kind = $Kind; value = $trimmed })
     }
 
-    # A backslash makes the next character plain text, so "\[x\](y)", which is how
-    # ConvertTo-MarkdownText writes brackets from catalog text, is not a link. Escapes are
-    # blanked out before looking for Markdown links; HTML attributes are read as written.
-    $markdownText = [regex]::Replace($header, '\\.', '  ')
-    # Markdown images first so the link pattern does not claim them.
-    foreach ($match in [regex]::Matches($markdownText, '!\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
-        & $add "image" $match.Groups['url'].Value
-    }
-    foreach ($match in [regex]::Matches($markdownText, '(?<![!])\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
-        & $add "link" $match.Groups['url'].Value
-    }
-    foreach ($match in [regex]::Matches($header, '(?i)\bhref\s*=\s*"(?<url>[^"]*)"')) {
-        & $add "link" $match.Groups['url'].Value
-    }
-    foreach ($match in [regex]::Matches($header, '(?i)\bsrc\s*=\s*"(?<url>[^"]*)"')) {
-        & $add "image" $match.Groups['url'].Value
-    }
-    # srcset is a comma-separated candidate list, each optionally followed by a descriptor.
-    foreach ($match in [regex]::Matches($header, '(?i)\bsrcset\s*=\s*"(?<set>[^"]*)"')) {
-        foreach ($candidate in @($match.Groups['set'].Value -split ',')) {
-            & $add "image" (@($candidate.Trim() -split '\s+')[0])
+    # Split HTML blocks from Markdown text where CommonMark does. A line opening with a
+    # raw-text tag, a comment, <? or <! starts a block that runs to its closing marker; one
+    # opening with a block-level tag starts a block that runs to a blank line; so does a
+    # line holding nothing but one complete tag, unless it would interrupt a paragraph.
+    $blockTags = 'address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul'
+    $attribute = '\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\s*=\s*(?:[^\s"''=<>`]+|''[^'']*''|"[^"]*"))?'
+    $htmlBlockStarts = @(
+        @{ Start = '(?i)^ {0,3}<(?:pre|script|style|textarea)(?:[\s>]|\z)'; End = '(?i)</(?:pre|script|style|textarea)>' }
+        @{ Start = '^ {0,3}<!--'; End = '-->' }
+        @{ Start = '^ {0,3}<\?'; End = '\?>' }
+        @{ Start = '^ {0,3}<!\[CDATA\['; End = '\]\]>' }
+        @{ Start = '^ {0,3}<![A-Za-z]'; End = '>' }
+        @{ Start = "(?i)^ {0,3}</?(?:$blockTags)(?:[\s>]|/>|\z)"; End = $null }
+    )
+    $completeTagLine = "^ {0,3}(?:<[A-Za-z][A-Za-z0-9-]*(?:$attribute)*\s*/?>|</[A-Za-z][A-Za-z0-9-]*\s*>)\s*\z"
+    $htmlLines = [System.Collections.Generic.List[string]]::new()
+    $markdownLines = [System.Collections.Generic.List[string]]::new()
+    $inHtml = $false
+    $htmlEnd = $null
+    $inParagraph = $false
+    foreach ($line in ($header -split '\r?\n')) {
+        $blank = [string]::IsNullOrWhiteSpace($line)
+        if (-not $inHtml -and -not $blank) {
+            foreach ($start in $htmlBlockStarts) {
+                if ($line -match $start.Start) {
+                    $inHtml = $true
+                    $htmlEnd = $start.End
+                    break
+                }
+            }
+            if (-not $inHtml -and -not $inParagraph -and $line -match $completeTagLine) {
+                $inHtml = $true
+                $htmlEnd = $null
+            }
         }
+        if ($inHtml -and -not ($blank -and $null -eq $htmlEnd)) {
+            $htmlLines.Add($line)
+            $markdownLines.Add('')
+            if ($null -ne $htmlEnd -and $line -match $htmlEnd) {
+                $inHtml = $false
+            }
+            $inParagraph = $false
+            continue
+        }
+        $inHtml = $false
+        # An ATX heading is a block of its own; any other text line opens or continues a paragraph.
+        $inParagraph = -not $blank -and $line -notmatch '^ {0,3}#{1,6}(?:[ \t]|\z)'
+        $htmlLines.Add('')
+        $markdownLines.Add($line)
+    }
+    $htmlText = $htmlLines -join "`n"
+    $markdownText = $markdownLines -join "`n"
+
+    # Markdown text is read one construct at a time, and each one read is blanked so a later
+    # pass can't look inside it: code spans, then inline tags, images, links and last the
+    # bare URLs. $plain keeps the text as written, $markup has each backslash escape blanked
+    # too (a backslash before ASCII punctuation makes it plain text, so "\[x\](y)", which is
+    # how ConvertTo-MarkdownText writes brackets from catalog text, is not a link). Blanking
+    # writes spaces over the same characters, so offsets line up across the two.
+    $plain = $markdownText.ToCharArray()
+    $markup = ([regex]::Replace($markdownText, '\\[!-/:-@\[-`{-~]', '  ')).ToCharArray()
+    $blankOut = {
+        param([int]$Start, [int]$Length)
+        for ($index = $Start; $index -lt $Start + $Length; $index++) {
+            $plain[$index] = ' '
+            $markup[$index] = ' '
+        }
+    }
+
+    # A code span shows its text as written: nothing inside it is a tag, a link or a URL.
+    foreach ($span in [regex]::Matches([string]::new($markup), '(?<!`)(?<ticks>`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])+?(?<!`)\k<ticks>(?!`)')) {
+        & $blankOut $span.Index $span.Length
+    }
+
+    # Tags: everything in an HTML block, and in Markdown text a complete tag whose < isn't
+    # escaped. Attribute values are HTML, so entities are decoded. GitHub keeps href on
+    # <a>, src on <img> and srcset on a <picture>'s <source> (a theme image); it strips
+    # srcset from <img>.
+    $tagPattern = "(?i)<(?<name>a|img|source)(?<attributes>(?:$attribute)*)\s*/?>"
+    $attributeCapture = '\s+(?<name>[A-Za-z_:][A-Za-z0-9_.:-]*)(?:\s*=\s*(?:(?<value>[^\s"''=<>`]+)|''(?<value>[^'']*)''|"(?<value>[^"]*)"))?'
+    $inlineTags = [regex]::Matches([string]::new($plain), '(?<=(?:^|[^\\])(?:\\\\)*)' + $tagPattern)
+    foreach ($tag in @([regex]::Matches($htmlText, $tagPattern)) + @($inlineTags)) {
+        $tagName = $tag.Groups['name'].Value.ToLowerInvariant()
+        foreach ($pair in [regex]::Matches($tag.Groups['attributes'].Value, $attributeCapture)) {
+            $name = $pair.Groups['name'].Value.ToLowerInvariant()
+            $value = [System.Net.WebUtility]::HtmlDecode($pair.Groups['value'].Value)
+            if ($tagName -eq 'a' -and $name -eq 'href') {
+                & $add "link" $value
+            } elseif ($tagName -eq 'img' -and $name -eq 'src') {
+                & $add "image" $value
+            } elseif ($tagName -eq 'source' -and $name -eq 'srcset') {
+                # A comma-separated candidate list, each optionally followed by a descriptor.
+                foreach ($candidate in @($value -split ',')) {
+                    & $add "image" (@($candidate.Trim() -split '\s+')[0])
+                }
+            }
+        }
+    }
+    foreach ($tag in $inlineTags) {
+        & $blankOut $tag.Index $tag.Length
+    }
+
+    # Images, then links, so a badge image inside a link's text is read as an image and
+    # the link around it still has a bracket-free label. The destination is read as
+    # written, then its escapes and entities are decoded the way CommonMark does, and a
+    # literal backslash becomes %5C as GitHub writes it. Without the closing parenthesis
+    # it isn't a link, and the bare-URL pass sees the text instead.
+    $destinationPattern = [regex]::new('\G[ \t]*\n?[ \t]*(?:<(?<url>(?:\\.|[^<>\n\\])*)>|(?<url>(?:\\\S|\((?:\\\S|[^\s()\\])*\)|[^\s()<\\])(?:\\\S|\((?:\\\S|[^\s()\\])*\)|[^\s()\\])*))(?:[ \t]*\n?[ \t]*(?:"(?:\\.|[^"\\])*"|''(?:\\.|[^''\\])*''|\((?:\\.|[^()\\])*\)))?[ \t]*\n?[ \t]*\)')
+    foreach ($pass in @(@{ Kind = 'image'; Pattern = '!\[[^\]]*\]\(' }, @{ Kind = 'link'; Pattern = '\[[^\]]*\]\(' })) {
+        foreach ($match in [regex]::Matches([string]::new($markup), $pass.Pattern)) {
+            $destination = $destinationPattern.Match($markdownText, $match.Index + $match.Length)
+            if (-not $destination.Success) {
+                continue
+            }
+            $url = [regex]::Replace($destination.Groups['url'].Value, '\\([!-/:-@\[-`{-~])|&(?:#[0-9]{1,7}|#[xX][0-9A-Fa-f]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});', {
+                    param($token)
+                    if ($token.Groups[1].Success) { $token.Groups[1].Value } else { [System.Net.WebUtility]::HtmlDecode($token.Value) }
+                })
+            & $add $pass.Kind $url.Replace('\', '%5C')
+            & $blankOut $match.Index ($destination.Index + $destination.Length - $match.Index)
+        }
+    }
+
+    # Bare URLs, found the way GitHub's autolink extension finds them: the letters before
+    # :// must be exactly http or https, the domain is host characters, hyphens, dots and
+    # underscores (none in its last two labels), and the link runs to ASCII whitespace or
+    # <, then drops trailing ? ! . , : * _ ~ ' ", an entity-like &name;, and each ) beyond
+    # the ones it opened. Backslashes and entities stay as written, as GitHub keeps them.
+    $scan = [string]::new($plain)
+    foreach ($scheme in [regex]::Matches($scan, '(?<![A-Za-z])[A-Za-z]+(?=://)')) {
+        if ($scheme.Value -notin @('http', 'https')) {
+            continue
+        }
+        $domainStart = $scheme.Index + $scheme.Length + 3
+        $domain = [regex]::Match($scan.Substring($domainStart), '^(?:[^\s!-/:-@\[-`{-~\p{P}]|[-._])+')
+        if (-not $domain.Success -or $domain.Value -match '_[^.]*(?:\.[^.]*)?\z') {
+            continue
+        }
+        $end = $domainStart + $domain.Length
+        while ($end -lt $scan.Length -and $scan[$end] -ne '<' -and " `t`n`r`f`v".IndexOf($scan[$end]) -lt 0) {
+            $end++
+        }
+        $url = $scan.Substring($scheme.Index, $end - $scheme.Index)
+        $opened = $url.Split('(').Count - 1
+        $closed = $url.Split(')').Count - 1
+        while ($url.Length -gt 0) {
+            $last = $url[$url.Length - 1]
+            if ($last -eq ')' -and $closed -gt $opened) {
+                $closed--
+            } elseif ($last -eq ';') {
+                $entity = [regex]::Match($url, '&[A-Za-z]+;\z')
+                if ($entity.Success) {
+                    $url = $url.Substring(0, $entity.Index)
+                    continue
+                }
+            } elseif ('?!.,:*_~''"'.IndexOf($last) -lt 0) {
+                break
+            }
+            $url = $url.Substring(0, $url.Length - 1)
+        }
+        & $add "link" $url.Replace('\', '%5C')
     }
 
     return $references.ToArray()
@@ -350,11 +494,20 @@ function Test-ReadmeHeaderAnchor {
     }
 
     $anchors = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)<a\s+id="(?<id>[^"]+)"')) {
-        $null = $anchors.Add($match.Groups['id'].Value)
-    }
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\bname\s*=\s*"(?<id>[^"]+)"')) {
-        $null = $anchors.Add($match.Groups['id'].Value)
+    # Only a real tag names an anchor, an <a> by its id and any tag by its name, so the
+    # words name="x" in a paragraph can't make a missing anchor look present.
+    $attribute = '\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\s*=\s*(?:[^\s"''=<>`]+|''[^'']*''|"[^"]*"))?'
+    $attributeCapture = '\s+(?<name>[A-Za-z_:][A-Za-z0-9_.:-]*)(?:\s*=\s*(?:(?<value>[^\s"''=<>`]+)|''(?<value>[^'']*)''|"(?<value>[^"]*)"))?'
+    foreach ($tag in [regex]::Matches($ExpectedReadme, "<(?<name>[A-Za-z][A-Za-z0-9-]*)(?<attributes>(?:$attribute)*)\s*/?>")) {
+        foreach ($pair in [regex]::Matches($tag.Groups['attributes'].Value, $attributeCapture)) {
+            $name = $pair.Groups['name'].Value
+            if ($name -eq 'name' -or ($name -eq 'id' -and $tag.Groups['name'].Value -eq 'a')) {
+                $id = [System.Net.WebUtility]::HtmlDecode($pair.Groups['value'].Value)
+                if (-not [string]::IsNullOrWhiteSpace($id)) {
+                    $null = $anchors.Add($id)
+                }
+            }
+        }
     }
     foreach ($match in [regex]::Matches($ExpectedReadme, '(?m)^\s{0,3}#{1,6}\s+(?<text>.+?)\s*$')) {
         $slug = ConvertTo-GitHubHeadingAnchor -Text $match.Groups['text'].Value

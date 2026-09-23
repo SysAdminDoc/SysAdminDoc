@@ -12065,13 +12065,18 @@ Describe 'Hand-authored header links and anchors are validated' {
         $cta.fatalOnFailure | Should -BeTrue
     }
 
-    It 'reads no link or anchor from escaped brackets, as catalog text renders them' {
+    It 'reads no Markdown link from escaped brackets, but probes the URL GitHub autolinks in them' {
+        # GitHub autolinks the bare URL between escaped brackets (checked with the /markdown
+        # API), so it's a link a reader can follow and the check has to probe it. The escaped
+        # fragment is plain text.
         $header = New-TestProfileHeader
         $header.about = 'Jump to [the tools](#tools) or read [the docs](https://docs.invalid/guide).'
         $readme = Update-Header -Header $header -CategorySlugs @('powershell')
         $readme | Should -Match ([regex]::Escape('\[the tools\](#tools)'))
 
-        @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme | Where-Object { $_.url -like '*docs.invalid*' }) | Should -BeNullOrEmpty
+        $docs = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme | Where-Object { $_.url -like '*docs.invalid*' })
+        (@($docs | ForEach-Object { $_.url }) -join ' ; ') | Should -Be 'https://docs.invalid/guide'
+        $docs[0].fatalOnFailure | Should -BeTrue
         @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | Where-Object { $_.fragment -eq 'tools' }) | Should -BeNullOrEmpty
     }
 
@@ -12080,8 +12085,41 @@ Describe 'Hand-authored header links and anchors are validated' {
 
         $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme)
         @($targets | Where-Object { $_.url -eq 'https://real.example/guide' }) | Should -HaveCount 1
-        @($targets | Where-Object { $_.url -like '*escaped.example*' }) | Should -BeNullOrEmpty
+        # Not a Markdown link, but GitHub autolinks the URL and leaves the ) outside it.
+        (@($targets | Where-Object { $_.url -like '*escaped.example*' } | ForEach-Object { $_.url }) -join ' ; ') | Should -Be 'https://escaped.example/'
         @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | Where-Object { $_.fragment -eq 'no-such-anchor' }) | Should -HaveCount 1
+    }
+
+    It 'reads <Case> the way GitHub renders it' -ForEach @(
+        # Each expectation is what GitHub's /markdown API linked for the same text on 2026-09-23.
+        @{ Case = 'a bare URL between escaped brackets'; Text = '\[the docs\](https://docs.invalid/guide)'; Expected = @('link https://docs.invalid/guide') }
+        @{ Case = 'escapes in a destination'; Text = '[guide](#sec\_tion) and [two](https://g.invalid/a\_b\(c\))'; Expected = @('link #sec_tion', 'link https://g.invalid/a_b(c)') }
+        @{ Case = 'attribute words in a paragraph'; Text = 'See href="#x" and href="https://h.invalid/" here'; Expected = @('link https://h.invalid/') }
+        @{ Case = 'a bare URL in an HTML block'; Text = '<p align="center"><b>See https://docs.invalid/x now</b></p>'; Expected = @() }
+        @{ Case = 'an entity in an href'; Text = '<p align="center"><a href="https://ok.invalid/a?x=1&amp;y=2">x</a></p>'; Expected = @('link https://ok.invalid/a?x=1&y=2') }
+        @{ Case = 'trailing punctuation'; Text = 'x https://f.invalid/x_ y https://f2.invalid/y* z https://f3.invalid/z? w https://f4.invalid/w! v https://f5.invalid/v. q "https://f6.invalid/q"'; Expected = @('link https://f.invalid/x', 'link https://f2.invalid/y', 'link https://f3.invalid/z', 'link https://f4.invalid/w', 'link https://f5.invalid/v', 'link https://f6.invalid/q') }
+        @{ Case = 'parentheses'; Text = '(see https://d.invalid/x) and https://d2.invalid/wiki/A_(b) end'; Expected = @('link https://d.invalid/x', 'link https://d2.invalid/wiki/A_(b)') }
+        @{ Case = 'an entity after a URL'; Text = 'Go &lt;https://c.invalid/x&gt; now'; Expected = @('link https://c.invalid/x') }
+        @{ Case = 'letters before the scheme'; Text = 'abchttps://j.invalid/k and :https://k.invalid/l'; Expected = @('link https://k.invalid/l') }
+        @{ Case = 'a URL in link text'; Text = '[https://a.invalid/p](https://b.invalid/q)'; Expected = @('link https://b.invalid/q') }
+        @{ Case = 'a badge inside a link'; Text = '[![badge](https://img.invalid/b.svg)](https://badge.invalid/c)'; Expected = @('image https://img.invalid/b.svg', 'link https://badge.invalid/c') }
+        @{ Case = 'a URL in a code span'; Text = 'a `https://code.invalid/` and `[x](https://code2.invalid/)` b'; Expected = @() }
+        @{ Case = 'a URL cut by a tag'; Text = 'Pay at https://q.invalid/pay<span>$</span> now'; Expected = @('link https://q.invalid/pay') }
+        @{ Case = 'a theme picture'; Text = '<picture><source media="(prefers-color-scheme: dark)" srcset="https://s4.invalid/dark.png"><img src="https://s5.invalid/light.png" srcset="https://s6.invalid/x.png 2x"></picture>'; Expected = @('image https://s4.invalid/dark.png', 'image https://s5.invalid/light.png') }
+        @{ Case = 'a URL after a lone tag line'; Text = "<a href=`"https://seven.invalid/`">`nhttps://after.invalid/x"; Expected = @('link https://seven.invalid/') }
+        @{ Case = 'a URL after a comment'; Text = "<!-- https://comment.invalid/ -->`nhttps://aftercomment.invalid/z"; Expected = @('link https://aftercomment.invalid/z') }
+    ) {
+        $references = @(Get-ReadmeHeaderLinkReference -ExpectedReadme $Text | ForEach-Object { $_.kind + ' ' + $_.value })
+
+        (@($references | Sort-Object) -join ' ; ') | Should -Be (@($Expected | Sort-Object) -join ' ; ')
+    }
+
+    It 'takes an anchor only from a real tag' {
+        # The words name="ghost" in a paragraph used to count as an anchor, so a link to a
+        # missing one looked fine.
+        $readme = 'See name="ghost" here. <a name="real"></a>' + "`n`n" + '<p align="center"><a href="#ghost">A</a> &middot; <a href="#real">B</a></p>'
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'ghost'
     }
 
     It 'fails on an unknown dead call to action in the header' {
@@ -12118,7 +12156,9 @@ Describe 'Hand-authored header links and anchors are validated' {
     }
 
     It 'splits srcset candidates and keeps images warning-only' {
-        $fixture = '<p><img srcset="https://a.example/x.png 1x, https://b.example/y.png 2x" src="https://c.example/z.png"></p>' + "`n" + $GeneratedCatalogNotice
+        # GitHub strips srcset from an <img> and keeps it on a <picture>'s <source>, the theme
+        # image, so the candidates there are what a reader can load.
+        $fixture = '<p><picture><source media="(prefers-color-scheme: dark)" srcset="https://a.example/x.png 1x, https://b.example/y.png 2x"><img srcset="https://d.example/w.png 2x" src="https://c.example/z.png"></picture></p>' + "`n" + $GeneratedCatalogNotice
 
         $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $fixture)
 
@@ -12128,6 +12168,7 @@ Describe 'Hand-authored header links and anchors are validated' {
             $target.fatalOnFailure | Should -BeFalse
         }
         ($targets | ForEach-Object { $_.url }) | Should -Contain 'https://b.example/y.png'
+        ($targets | ForEach-Object { $_.url }) | Should -Not -Contain 'https://d.example/w.png'
     }
 
     It 'slugs headings the way GitHub does' {
