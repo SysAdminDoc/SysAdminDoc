@@ -410,29 +410,44 @@ function Test-ReleaseArtifactVerification {
                 $reason = "asset download failed: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
             } else {
                 $assetByteValue = Get-MemberValue -Object $assetDownload -Name "bytes"
-                $assetBytesValue = if ($assetByteValue -is [byte[]]) { $assetByteValue } else { [byte[]]@($assetByteValue) }
+                # Set inside the branches: an if expression unrolls a one-byte array into a
+                # byte and an empty one into nothing, and .Length then fails under strict mode.
+                if ($null -eq $assetByteValue) {
+                    $assetBytesValue = [byte[]]::new(0)
+                } elseif ($assetByteValue -is [byte[]]) {
+                    $assetBytesValue = $assetByteValue
+                } else {
+                    $assetBytesValue = [byte[]]@($assetByteValue)
+                }
                 $assetBytes = [int64]$assetBytesValue.Length
                 $downloadedBytes += $assetBytes
-                $checksumDownload = if ($DownloadScript) { & $DownloadScript $target "checksum" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "checksumUrl")) -MaxBytes ([Math]::Min($MaxBytes, 256KB)) }
-                if (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "refused")) {
+                # A body that isn't the listed size isn't the listed asset, whatever a sidecar
+                # served next to it says: the cap stops a longer one, this a shorter one.
+                if ($assetBytes -ne $publishedSize) {
                     $status = "failed"
-                    $reason = "checksum sidecar download refused: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
-                } elseif (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "ok"))) {
-                    $status = "unreachable"
-                    $reason = "checksum sidecar download failed: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
+                    $reason = "asset body is $assetBytes bytes, but the release lists $publishedSize"
                 } else {
-                    $checksumText = [string](Get-MemberValue -Object $checksumDownload -Name "text")
-                    $expected = Get-ReleaseArtifactChecksumFromText -Text $checksumText -AssetName $assetName
-                    if ([string]::IsNullOrWhiteSpace($expected)) {
+                    $checksumDownload = if ($DownloadScript) { & $DownloadScript $target "checksum" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "checksumUrl")) -MaxBytes ([Math]::Min($MaxBytes, 256KB)) }
+                    if (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "refused")) {
                         $status = "failed"
-                        $reason = "checksum sidecar did not contain a SHA-256 value"
+                        $reason = "checksum sidecar download refused: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
+                    } elseif (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "ok"))) {
+                        $status = "unreachable"
+                        $reason = "checksum sidecar download failed: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
                     } else {
-                        $actual = Get-ReleaseArtifactSha256 -Bytes $assetBytesValue
-                        if ($actual -eq $expected) {
-                            $status = "verified"
-                        } else {
+                        $checksumText = [string](Get-MemberValue -Object $checksumDownload -Name "text")
+                        $expected = Get-ReleaseArtifactChecksumFromText -Text $checksumText -AssetName $assetName
+                        if ([string]::IsNullOrWhiteSpace($expected)) {
                             $status = "failed"
-                            $reason = "SHA-256 mismatch"
+                            $reason = "checksum sidecar did not contain a SHA-256 value"
+                        } else {
+                            $actual = Get-ReleaseArtifactSha256 -Bytes $assetBytesValue
+                            if ($actual -eq $expected) {
+                                $status = "verified"
+                            } else {
+                                $status = "failed"
+                                $reason = "SHA-256 mismatch"
+                            }
                         }
                     }
                 }
