@@ -12,7 +12,7 @@
   "properties": {
     "schema": {
       "type": "string",
-      "pattern": "^https://raw\\.githubusercontent\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/main/schemas/profile-catalog\\.v1\\.json$"
+      "pattern": "^https://raw\\.githubusercontent\\.com/([A-Za-z0-9-]+)/\\1/main/schemas/profile-catalog\\.v1\\.json(?![\\s\\S])"
     },
     "generatedAt": {
       "type": "string",
@@ -123,7 +123,7 @@
             "null"
           ],
           "maxLength": 100,
-          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*(?![\\s\\S])"
         },
         "entrypoint": {
           "type": [
@@ -131,7 +131,7 @@
             "null"
           ],
           "maxLength": 200,
-          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\\.(?:ps1|py|pyw)$"
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\\.(?:ps1|py|pyw)(?![\\s\\S])"
         },
         "installKind": {
           "type": [
@@ -221,7 +221,7 @@
             "null"
           ],
           "maxLength": 140,
-          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
+          "pattern": "^[A-Za-z0-9-]+/(?!\\.\\.?(?![\\s\\S]))[A-Za-z0-9._-]+(?![\\s\\S])"
         },
         "upstreamLicense": {
           "type": [

@@ -19,7 +19,7 @@
   "properties": {
     "schema": {
       "type": "string",
-      "pattern": "^https://raw\\.githubusercontent\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/main/schemas/profile-projects\\.v1\\.json$"
+      "pattern": "^https://raw\\.githubusercontent\\.com/([A-Za-z0-9-]+)/\\1/main/schemas/profile-projects\\.v1\\.json(?![\\s\\S])"
     },
     "generatedAt": {
       "type": "string",
@@ -27,7 +27,7 @@
     },
     "source": {
       "type": "string",
-      "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+ data/profile-catalog\\.json$"
+      "pattern": "^([A-Za-z0-9-]+)/\\1 data/profile-catalog\\.json(?![\\s\\S])"
     },
     "provenance": {
       "$ref": "#/$defs/provenance"
@@ -206,7 +206,7 @@
         },
         "sourceRepository": {
           "type": "string",
-          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
+          "pattern": "^([A-Za-z0-9-]+)/\\1(?![\\s\\S])"
         },
         "sourceCommit": {
           "$ref": "#/$defs/nullableCommitSha"

@@ -383,6 +383,8 @@ Describe 'Catalog refuses deceptive or unsafe one-line text' {
         @{ Field = 'entrypoint'; Value = 'notes.txt' }
         @{ Field = 'branch'; Value = 'main; Remove-Item x' }
         @{ Field = 'branch'; Value = '--upload-pack=touch' }
+        @{ Field = 'entrypoint'; Value = "tool.ps1`n" }
+        @{ Field = 'branch'; Value = "main`n" }
     ) {
         $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
         $entry[$Field] = $Value
@@ -3725,6 +3727,27 @@ Describe 'Owner-bound output follows -Owner' {
         $feed.projects.valid | Should -BeFalse
         @($feed.projects.errors | ForEach-Object { $_.instanceLocation }) | Should -Contain '/schema'
         @($feed.projects.errors | ForEach-Object { $_.instanceLocation }) | Should -Contain '/source'
+    }
+
+    It 'rejects <Case> in the owner-bound feed fields' -ForEach @(
+        @{ Case = 'a trailing newline'; Schema = "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-projects.v1.json`n"; Source = "SysAdminDoc/SysAdminDoc data/profile-catalog.json`n"; SourceRepository = "SysAdminDoc/SysAdminDoc`n" }
+        @{ Case = 'a dot segment'; Schema = 'https://raw.githubusercontent.com/SysAdminDoc/../main/schemas/profile-projects.v1.json'; Source = 'SysAdminDoc/.. data/profile-catalog.json'; SourceRepository = 'x/..' }
+        @{ Case = 'a repo that is not the profile repo'; Schema = 'https://raw.githubusercontent.com/someone/other-repo/main/schemas/profile-projects.v1.json'; Source = 'someone/other-repo data/profile-catalog.json'; SourceRepository = 'someone/other-repo' }
+    ) {
+        # .NET regex lets $ match before a final newline, and a loose owner/repo pattern let
+        # through values the old const refused; the patterns pin the profile repo and the end.
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
+        $payload = New-ProjectsExportJson -Catalog $catalog -Repos @() | ConvertFrom-Json
+        $payload.schema = $Schema
+        $payload.source = $Source
+        $payload.provenance.sourceRepository = $SourceRepository
+
+        $feed = Test-FeedSchemaContracts -Catalog $catalog -ProjectsJson ($payload | ConvertTo-Json -Depth 30)
+
+        $locations = @($feed.projects.errors | ForEach-Object { $_.instanceLocation })
+        $locations | Should -Contain '/schema'
+        $locations | Should -Contain '/source'
+        $locations | Should -Contain '/provenance/sourceRepository'
     }
 
     It 'seeds every legacy row shape from a README written for another owner' {

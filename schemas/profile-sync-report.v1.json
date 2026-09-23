@@ -65,7 +65,7 @@
   "properties": {
     "schema": {
       "type": "string",
-      "pattern": "^https://raw\\.githubusercontent\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/main/schemas/profile-sync-report\\.v1\\.json$"
+      "pattern": "^https://raw\\.githubusercontent\\.com/([A-Za-z0-9-]+)/\\1/main/schemas/profile-sync-report\\.v1\\.json(?![\\s\\S])"
     },
     "generatedAt": {
       "type": "string",
@@ -605,7 +605,7 @@
         },
         "sourceRepository": {
           "type": "string",
-          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
+          "pattern": "^([A-Za-z0-9-]+)/\\1(?![\\s\\S])"
         },
         "sourceCommit": {
           "$ref": "#/$defs/nullableCommitSha"
@@ -7282,7 +7282,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uri"
+          "format": "uri-reference"
         },
         "host": {
           "$ref": "#/$defs/nullableString"
