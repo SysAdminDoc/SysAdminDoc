@@ -3075,6 +3075,38 @@ Describe 'Generation determinism across culture, time zone and input order' {
     }
 }
 
+Describe 'Star count display threshold' {
+    It 'shows star counts at or above the threshold and hides lower ones' {
+        $MinStarDisplay | Should -Be 2
+        Get-StarText $null | Should -Be ''
+        Get-StarText ([pscustomobject]@{ stargazerCount = 0 }) | Should -Be ''
+        Get-StarText ([pscustomobject]@{ stargazerCount = 1 }) | Should -Be ''
+        Get-StarText ([pscustomobject]@{ stargazerCount = 2 }) | Should -Be ' &#11088;2'
+        Get-StarText ([pscustomobject]@{ stargazerCount = 69 }) | Should -Be ' &#11088;69'
+    }
+
+    It 'follows the constant rather than a hard-coded threshold' {
+        $MinStarDisplay = 5
+
+        Get-StarText ([pscustomobject]@{ stargazerCount = 4 }) | Should -Be ''
+        Get-StarText ([pscustomobject]@{ stargazerCount = 5 }) | Should -Be ' &#11088;5'
+    }
+
+    It 'renders README rows with the threshold applied and keeps star order' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $oneStar = New-TestRepoMeta -Name 'WinTool'
+        $oneStar.stargazerCount = 1
+        $threeStars = New-TestRepoMeta -Name 'PyTool' -Language 'Python'
+        $threeStars.stargazerCount = 3
+
+        $readme = New-Readme -Catalog $cat -Repos @($oneStar, $threeStars)
+
+        $readme | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- '
+        $readme | Should -Not -Match 'WinTool\) &#11088;1'
+        $readme | Should -Match '\[\*\*PyTool\*\*\]\(https://github\.com/SysAdminDoc/PyTool\) &#11088;3'
+    }
+}
+
 Describe 'Empty category sections are not rendered' {
     It 'returns an empty string for a category with no visible entries' {
         $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'security' } | Select-Object -First 1

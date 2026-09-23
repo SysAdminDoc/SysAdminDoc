@@ -18,6 +18,8 @@
 
 - Code coverage now measures every script under `scripts/` and the public `setup.ps1`, not just the generator. The other scripts only ran as child processes in the tests, which coverage can't see, so each gained a test seam that stops a dot-source before its main body. That means no browser, npm, winget or report write happens when the tests load them. `setup.ps1` still runs normally through `irm | iex` and `-File`, which was checked in both Windows PowerShell 5.1 and PowerShell 7. New in-process tests cover their pure helpers, and `validate-local.ps1` fails if any instrumented file ends a run with zero executed commands. Coverage over the wider set is 65%.
 
+- Star counts under 2 are no longer shown beside a project name. A single star read as noise rather than a signal, and 85 rows still show their count. Rows keep sorting by the real number, and the cutoff is one constant, `$MinStarDisplay`, next to the tagline.
+
 ## 2026-09-20
 
 - Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.

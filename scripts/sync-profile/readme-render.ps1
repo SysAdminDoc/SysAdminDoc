@@ -5,7 +5,7 @@
 function Get-StarText {
     param([object]$Meta)
 
-    if ($Meta -and $Meta.stargazerCount -gt 0) {
+    if ($Meta -and $Meta.stargazerCount -gt 0 -and $Meta.stargazerCount -ge $MinStarDisplay) {
         return " &#11088;$($Meta.stargazerCount)"
     }
     return ""
