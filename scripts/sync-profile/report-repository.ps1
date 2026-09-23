@@ -684,7 +684,7 @@ function Get-RequiredCheckReadiness {
         if (-not $RulesetsAvailable) {
             $blockers.Add("Repository ruleset evidence unavailable$(if (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) { ": $RulesetsUnavailableReason" }).")
         } else {
-            $blockers.Add("No active repository ruleset requires status checks on main.")
+            $blockers.Add("No active repository ruleset requires status checks on the default branch.")
         }
 
         if ($EnforceAdmins -eq $true) {
@@ -1140,8 +1140,8 @@ function Test-RepositoryCommunityBaseline {
         [object]$CommunityProfile,
         [object]$BranchProtection,
         [object[]]$Rulesets = @(),
-        # Active rules on the default branch (GET .../rules/branches/main), from every enabled
-        # ruleset; the ruleset list alone can't say whether any of them requires checks.
+        # Active rules on the default branch (GET .../rules/branches/<default branch>), from
+        # every enabled ruleset; the ruleset list alone can't say whether any requires checks.
         [object[]]$BranchRules = @(),
         [object]$ActionsWorkflowPermissions,
         [object]$Languages,
@@ -1503,7 +1503,7 @@ function Test-RepositoryCommunityBaseline {
             available = [bool]$rulesetsAvailable
             unavailableReason = if ($rulesetsAvailable) { $null } else { $RulesetsUnavailableReason }
             count = [int]$rulesetCount
-            # True only when an active ruleset puts required status checks on main.
+            # True only when an active ruleset puts required status checks on the default branch.
             requiresStatusChecks = $rulesetRequiresStatusChecks
             branchRulesUnavailableReason = if ($branchRulesAvailable) { $null } else { $BranchRulesUnavailableReason }
         }
@@ -1590,13 +1590,18 @@ function Get-RepositoryCommunityBaseline {
     }
 
     $repositoryResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner"
+    # Protection and rules belong to the default branch, which isn't always main. A name of
+    # an unexpected shape, or an unreadable repository answer, falls back to main.
+    $defaultBranch = if ($repositoryResult["ok"]) { [string](Get-MemberValue -Object $repositoryResult["value"] -Name "default_branch") } else { "" }
+    if ($defaultBranch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') { $defaultBranch = "main" }
+    $branchSegment = [uri]::EscapeDataString($defaultBranch)
     $communityResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/community/profile"
-    $branchProtectionResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/branches/main/protection"
-    $rulesetsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rulesets"
-    $branchRulesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rules/branches/main"
+    $branchProtectionResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/branches/$branchSegment/protection"
+    $rulesetsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rulesets" -Paginate
+    $branchRulesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/rules/branches/$branchSegment" -Paginate
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
-    $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
+    $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100" -Paginate
     # Scorecard runs locally when asked. The hosted API only held scans from a workflow this
     # repository no longer has, so the score it returned was months out of date.
     $scorecardScoreResult = if ($script:RunScorecard) {

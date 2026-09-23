@@ -1030,9 +1030,15 @@ function Get-PublicSafeGhError {
 }
 
 function Invoke-GhApiJsonSafe {
-    param([string]$Path)
+    param(
+        [string]$Path,
+        # List endpoints: every page, flattened into one array. GitHub pages them at 30
+        # items by default, so the first page alone can miss a ruleset, rule or alert.
+        [switch]$Paginate
+    )
 
-    $gh = Invoke-GhCli -Arguments @("api", $Path)
+    # The path stays right after "api"; gh reads its flags from anywhere on the line.
+    $gh = Invoke-GhCli -Arguments $(if ($Paginate) { @("api", $Path, "--paginate", "--slurp") } else { @("api", $Path) })
     $text = $gh.text
     if ($gh.exitCode -ne 0) {
         return [ordered]@{
@@ -1043,9 +1049,15 @@ function Invoke-GhApiJsonSafe {
     }
 
     try {
+        $value = if ($Paginate) {
+            # --slurp wraps the pages in one outer array; the items of every page, in order.
+            , @(foreach ($page in (ConvertFrom-Json -InputObject $text -NoEnumerate)) { foreach ($item in $page) { $item } })
+        } else {
+            $text | ConvertFrom-Json
+        }
         return [ordered]@{
             ok = $true
-            value = ($text | ConvertFrom-Json)
+            value = $value
             error = $null
         }
     } catch {

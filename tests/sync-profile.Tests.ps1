@@ -1011,7 +1011,7 @@ Describe 'PR delivery checklist carries no recorded history' {
             $readiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
             $readiness.readyForEnforcement | Should -BeFalse
             $blockers | Should -Contain 'Branch protection does not require status checks.'
-            $blockers | Should -Contain 'No active repository ruleset requires status checks on main.'
+            $blockers | Should -Contain 'No active repository ruleset requires status checks on the default branch.'
             $enforcementItem.status | Should -Be 'blocked'
         } else {
             # Unknown: nothing may read as ready, and nothing unread may read as absent.
@@ -1105,6 +1105,42 @@ Describe 'Repository settings read empty live lists as empty' {
         $rulesets.count | Should -Be 0
         $rulesets.requiresStatusChecks | Should -BeFalse
         $result['repositorySettings'].security.codeScanning.scorecardAlertPosture.available | Should -BeTrue
+    }
+
+    It 'reads protection and every page of rules for the default branch, <Case>' -ForEach @(
+        @{ Case = 'master'; DefaultBranch = 'master'; Segment = 'master' }
+        @{ Case = 'with a slash in it'; DefaultBranch = 'release/2.x'; Segment = 'release%2F2.x' }
+        @{ Case = 'falling back to main for an unexpected name'; DefaultBranch = 'bad name'; Segment = 'main' }
+    ) {
+        # Both endpoints named main whatever the default branch was, and only the first page
+        # of rules and rulesets was read.
+        $script:GhCalls = [System.Collections.Generic.List[string]]::new()
+        $script:DefaultBranchAnswer = $DefaultBranch
+        Mock Test-GitHubCliAuthenticated { $true }
+        Mock Invoke-GhCli {
+            $script:GhCalls.Add($Arguments -join ' ')
+            $path = [string]$Arguments[1]
+            $text = if ($path -eq 'repos/SysAdminDoc/SysAdminDoc') { '{"name":"SysAdminDoc","default_branch":' + (ConvertTo-Json $script:DefaultBranchAnswer) + '}' }
+            elseif ($path -match '/rules/branches/') { '[[{"type":"deletion","ruleset_id":1}],[{"type":"required_status_checks","ruleset_id":2}]]' }
+            elseif ($path -match '/rulesets$') { '[[{"id":1,"name":"one"}],[{"id":2,"name":"two"}]]' }
+            elseif ($path -match '/code-scanning/alerts') { '[[]]' }
+            else { '{}' }
+            [ordered]@{ output = $text; exitCode = 0; text = $text }
+        }
+        $savedOffline = $script:Offline
+        $script:Offline = $false
+        try {
+            $result = Get-RepositoryCommunityBaseline
+        } finally {
+            $script:Offline = $savedOffline
+        }
+
+        $script:GhCalls | Should -Contain "api repos/SysAdminDoc/SysAdminDoc/branches/$Segment/protection"
+        $script:GhCalls | Should -Contain "api repos/SysAdminDoc/SysAdminDoc/rules/branches/$Segment --paginate --slurp"
+        $script:GhCalls | Should -Contain 'api repos/SysAdminDoc/SysAdminDoc/rulesets --paginate --slurp'
+        $rulesets = $result['repositorySettings'].rulesets
+        $rulesets.count | Should -Be 2
+        $rulesets.requiresStatusChecks | Should -BeTrue -Because 'the required-check rule is on the second page'
     }
 }
 
