@@ -173,8 +173,16 @@ Describe 'Function library loads via the dot-source test seam' {
                     $seen.ContainsKey($statement.Name) | Should -BeFalse -Because "$($statement.Name) is defined in $relativePath and $($seen[$statement.Name])"
                     $seen[$statement.Name] = $relativePath
                 } else {
-                    # Loading a library file must not do work: only constant assignments.
+                    # Loading a library file must not do work: only constant assignments, whose
+                    # value runs no command and calls no method ($null = Remove-Item ... would
+                    # otherwise pass as an assignment).
                     $statement | Should -BeOfType ([System.Management.Automation.Language.AssignmentStatementAst]) -Because "top-level statement in $relativePath"
+                    $work = @($statement.Right.FindAll({
+                                param($node)
+                                $node -is [System.Management.Automation.Language.CommandAst] -or
+                                $node -is [System.Management.Automation.Language.InvokeMemberExpressionAst]
+                            }, $true))
+                    $work | Should -BeNullOrEmpty -Because "the assignment at $relativePath line $($statement.Extent.StartLineNumber) must be a constant"
                 }
             }
         }

@@ -1,5 +1,4 @@
 #Requires -Version 7.4
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Justification = 'The constants below are read by the library files dot-sourced from scripts/sync-profile/, which the analyzer checks separately.')]
 [CmdletBinding()]
 param(
     [switch]$SeedCatalog,
@@ -68,24 +67,24 @@ if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) 
 # different GitHub account without code edits.
 # Word-boundary anchored so substrings (e.g. "dose" inside "glucose"/"overdose")
 # do not false-flag a benign public repo as medical-imaging.
-$MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
-$GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
-$MetadataGeneratedAtStaleDays = 7
-$SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
-$LinkValidationThrottle = 16
-$RestFallbackMaxReleaseFetches = 240
-$RestFallbackUnauthenticatedReleaseFetchLimit = 50
-$ReadmeSoftLimitBytes = 96KB
-$ReadmeCategorySoftLimit = 30
-$ReadmeLowSignalSoftLimit = 15
-$ReadmeLineSoftLimit = 1000
-$ReadmeTableRowSoftLimit = 220
-$ReadmeDetailsSectionSoftLimit = 15
-$ReadmeImageTagSoftLimit = 10
-$ReadmeCodeBlockSoftLimit = 100
-$ProjectsJsonSoftLimitBytes = 500KB
-$ProjectsFeedSchemaVersion = 3
-$PortfolioFeedSchemaVersion = 1
+$script:MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
+$script:GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
+$script:MetadataGeneratedAtStaleDays = 7
+$script:SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
+$script:LinkValidationThrottle = 16
+$script:RestFallbackMaxReleaseFetches = 240
+$script:RestFallbackUnauthenticatedReleaseFetchLimit = 50
+$script:ReadmeSoftLimitBytes = 96KB
+$script:ReadmeCategorySoftLimit = 30
+$script:ReadmeLowSignalSoftLimit = 15
+$script:ReadmeLineSoftLimit = 1000
+$script:ReadmeTableRowSoftLimit = 220
+$script:ReadmeDetailsSectionSoftLimit = 15
+$script:ReadmeImageTagSoftLimit = 10
+$script:ReadmeCodeBlockSoftLimit = 100
+$script:ProjectsJsonSoftLimitBytes = 500KB
+$script:ProjectsFeedSchemaVersion = 3
+$script:PortfolioFeedSchemaVersion = 1
 # Feed fields that legitimately differ between a -Write and a later -Check because they
 # track live upstream state or the generation run itself. This is the single source of
 # tolerance: ConvertTo-ProjectsSyncComparableJson masks exactly these before comparing,
@@ -110,14 +109,14 @@ $script:ProjectsFeedVolatileProjectFields = @(
     "branchTipStatus",
     "branchTipWarning"
 )
-$ReportJsonSoftLimitBytes = 112KB
-$ProfileAssetsSoftLimitBytes = 128KB
-$ProfileAssetsCountSoftLimit = 16
-$RenderedSmokeMinimumRootClientWidth = 300
-$BranchTipStaleAfterHours = 24
+$script:ReportJsonSoftLimitBytes = 112KB
+$script:ProfileAssetsSoftLimitBytes = 128KB
+$script:ProfileAssetsCountSoftLimit = 16
+$script:RenderedSmokeMinimumRootClientWidth = 300
+$script:BranchTipStaleAfterHours = 24
 # Paths whose changes can alter the committed sync report / rendered smoke evidence.
 # Used to detect a committed report that predates the latest report-affecting commit.
-$ReportAffectingPaths = @(
+$script:ReportAffectingPaths = @(
     "scripts/sync-profile.ps1",
     "scripts/sync-profile",
     "scripts/render-profile-smoke.ps1",
@@ -130,46 +129,46 @@ $ReportAffectingPaths = @(
 # Paths whose changes invalidate the rendered-smoke evidence specifically. The smoke
 # run screenshots the published profile, so a regenerated README or a changed capture
 # script means the committed evidence describes a page that no longer exists.
-$SmokeAffectingPaths = @(
+$script:SmokeAffectingPaths = @(
     "README.md",
     "data/profile-catalog.json",
     "scripts/render-profile-smoke.ps1"
 )
 # How long a local dependency-advisory review stays credible as the compensating
 # control for the banned Dependabot lane.
-$LocalAdvisoryReviewStaleDays = 7
-$StaleProjectPushedAtReviewDays = 365
-$StaleProjectReleaseReviewDays = 540
-$ArchiveProjectPushedAtReviewDays = 730
-$RequiredStatusCheckCandidates = @()
-$CodeQlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
+$script:LocalAdvisoryReviewStaleDays = 7
+$script:StaleProjectPushedAtReviewDays = 365
+$script:StaleProjectReleaseReviewDays = 540
+$script:ArchiveProjectPushedAtReviewDays = 730
+$script:RequiredStatusCheckCandidates = @()
+$script:CodeQlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
-$CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
-$ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
-$ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
-$CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
-$ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
-$ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
+$script:CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
+$script:ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
+$script:ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
+$script:CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
+$script:ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
+$script:ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
 # Pinned REST calendar version. 2022-11-28 stays supported for at least 24 months from
 # the 2026-03-12 announcement; migrating to 2026-03-10 is a tracked, deliberate change.
-$GitHubRestApiVersion = "2022-11-28"
-$PowerShellMinimumGeneratorVersion = [version]"7.4.0"
-$PowerShellPreferredLtsVersion = [version]"7.6.0"
-$PowerShellPreviousLtsAcceptedUntil = "2026-11-10"
+$script:GitHubRestApiVersion = "2022-11-28"
+$script:PowerShellMinimumGeneratorVersion = [version]"7.4.0"
+$script:PowerShellPreferredLtsVersion = [version]"7.6.0"
+$script:PowerShellPreviousLtsAcceptedUntil = "2026-11-10"
 # CVE-2026-50523 (command injection) affects 7.4.0-7.4.18, 7.5.0-7.5.9, and 7.6.0-7.6.4.
 # Patched builds are 7.4.19, 7.5.10, and 7.6.5, so an in-support runtime can still be
 # vulnerable and needs its own per-line minimum rather than only a floor check.
-$PowerShellSecurityAdvisoryId = "CVE-2026-50523"
-$PowerShellSecurityAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2026-50523"
-$PowerShellMinimumSecurePatchVersions = @(
+$script:PowerShellSecurityAdvisoryId = "CVE-2026-50523"
+$script:PowerShellSecurityAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2026-50523"
+$script:PowerShellMinimumSecurePatchVersions = @(
     [version]"7.4.19",
     [version]"7.5.10",
     [version]"7.6.5"
 )
-$WindowsPowerShellBootstrapVersion = "5.1"
-$WindowsPowerShellAdvisoryId = "CVE-2025-54100"
-$PowerShellLifecycleUrl = "https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle?view=powershell-7.6"
-$WindowsPowerShellAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2025-54100"
+$script:WindowsPowerShellBootstrapVersion = "5.1"
+$script:WindowsPowerShellAdvisoryId = "CVE-2025-54100"
+$script:PowerShellLifecycleUrl = "https://learn.microsoft.com/en-us/powershell/scripting/install/powershell-support-lifecycle?view=powershell-7.6"
+$script:WindowsPowerShellAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2025-54100"
 $script:ProfileVersionPath = Join-Path $RepoRoot "data/profile-version.json"
 $script:RepositoryMetadataProvider = "graphql"
 $script:RepositoryEnumerationRequestedLimit = $script:GraphQlPageSize
@@ -186,9 +185,9 @@ $script:MetadataFetchPageSizeReduced = $false
 $script:ValidationCacheState = $null
 
 $ProfileTagline = 'Sysadmin by day, tool-builder by habit. Everything here is something I actually use.'
-$ProfileTaglineHtml = '<p align="center"><b>{0}</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>' -f $ProfileTagline
+$script:ProfileTaglineHtml = '<p align="center"><b>{0}</b><br/><sub>PowerShell &middot; Python &middot; C# &middot; Kotlin &middot; JavaScript &middot; Rust &middot; C++</sub></p>' -f $ProfileTagline
 
-$CategoryDefinitions = @(
+$script:CategoryDefinitions = @(
     [ordered]@{
         Slug = "powershell"
         DisplayName = "PowerShell"
