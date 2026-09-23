@@ -397,22 +397,28 @@ function Invoke-ScorecardCli {
         if ($process.ExitCode -eq 0) {
             return [ordered]@{ ok = $true; value = ($stdoutTask.Result | ConvertFrom-Json); error = $null }
         }
-        # One line, capped: only the reason matters.
+        # One line: only the reason matters.
         $firstLine = @(([string]$stderrTask.Result) -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1)
         $detail = if ($firstLine.Count -gt 0) { ([string]$firstLine[0]).Trim() } else { "no error output" }
-        if ($detail.Length -gt 200) { $detail = $detail.Substring(0, 200) }
         $failure = "scorecard exited $($process.ExitCode): $detail"
     } catch {
         $failure = "scorecard could not run: $($_.Exception.Message)"
     } finally {
         $process.Dispose()
     }
-    # The report is public: take tokens and account names out of whatever the tool said. The
-    # account is everything after Users or home up to the next separator or quote, so a name
-    # with a space goes too, in plain, doubled-backslash (Go-quoted), forward-slash and UNC
-    # paths alike.
-    $failure = [regex]::Replace($failure, '(?i)\b(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|\b[0-9a-f]{40}\b', '<token>')
-    $failure = [regex]::Replace($failure, '(?i)((?:\\{1,2}|/)(?:Users|home)(?:\\{1,2}|/))[^\\/"''<>\r\n]+', '${1}<user>')
+    # The report is public: take tokens and account names out of whatever the tool said, and
+    # only then cap it, so the cut can't leave part of a token behind.
+    # Tokens: gh's prefixes wherever they start (after %20 too), and runs of 40 or more hex
+    # digits, the shape of the tokens issued before 2021.
+    $failure = [regex]::Replace($failure, '(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|(?<![0-9A-Fa-f])[0-9a-f]{40,}(?![0-9A-Fa-f])', '<token>')
+    # Windows accounts, after \Users\ with any run of backslashes (Go and JSON double them) or
+    # after C:/Users/. The name runs to a character Windows doesn't allow in one, so spaces and
+    # apostrophes stay inside it ("John Smith", "O'Brien") and ": Access is denied." survives.
+    $failure = [regex]::Replace($failure, '(?i)((?:\\+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:\\+|/+))[^\\/"<>:|?*\[\];=,+\r\n]+', '${1}<user>')
+    # macOS and Linux accounts, after /Users/ or /home/ as written (so an API URL's /users/
+    # stays) and not inside a URL. These names hold no space, and \/ is JSON's slash.
+    $failure = [regex]::Replace($failure, '(?<![A-Za-z0-9._~%-])((?:\\?/)(?:Users|home)(?:\\?/))[^\\/\s"''<>:]+', '${1}<user>')
+    if ($failure.Length -gt 240) { $failure = $failure.Substring(0, 240) }
     return [ordered]@{ ok = $false; value = $null; error = $failure }
 }
 

@@ -1098,6 +1098,45 @@ Describe 'OpenSSF Scorecard runs locally' {
         $run.error | Should -Match ([regex]::Escape($Kept))
     }
 
+    It 'keeps the reason and nothing private in <Case>' -ForEach @(
+        @{ Case = 'a Windows path that ends at the name'; Line = 'mkdir C:\Users\bob: Access is denied.'; Expected = 'mkdir C:\Users\<user>: Access is denied.'; Gone = 'bob' }
+        @{ Case = 'a Linux home that ends at the name'; Line = 'stat /home/runner: no such file or directory'; Expected = 'stat /home/<user>: no such file or directory'; Gone = 'runner' }
+        @{ Case = 'a name with an apostrophe'; Line = 'open C:\Users\Sean O''Brien\AppData\x: denied'; Expected = 'open C:\Users\<user>\AppData\x: denied'; Gone = 'Sean|Brien' }
+        @{ Case = 'a path with its escapes doubled twice'; Line = 'open C:\\\\Users\\\\bob\\\\x failed'; Expected = 'open C:\\\\Users\\\\<user>\\\\x failed'; Gone = 'bob' }
+        @{ Case = 'a JSON-escaped path'; Line = '{"path":"\/home\/bob\/x"} unreadable'; Expected = '{"path":"\/home\/<user>\/x"} unreadable'; Gone = 'bob' }
+        @{ Case = 'a Windows path with forward slashes'; Line = 'open C:/Users/John Smith/x: denied'; Expected = 'open C:/Users/<user>/x: denied'; Gone = 'John|Smith' }
+        @{ Case = 'an API URL with /users/ in it'; Line = 'GET https://api.github.com/users/octocat: 404 Not Found'; Expected = 'GET https://api.github.com/users/octocat: 404 Not Found'; Gone = '<user>' }
+        @{ Case = 'a token after %20'; Line = 'GET https://x.test/?q=%20ghp_ABCDEFGHIJKLMNOPQRSTUV failed'; Expected = 'GET https://x.test/?q=%20<token> failed'; Gone = 'ghp_' }
+    ) {
+        # The account redaction ran to the next separator or quote, which took the reason
+        # after a name at the end of a path, and stopped at an apostrophe inside one.
+        $fake = Join-Path $TestDrive 'scorecard-fail-reason.cmd'
+        # cmd reads % as the start of a variable, so the script doubles it.
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', "echo $($Line.Replace('%', '%%')) 1>&2", 'exit /b 3')
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('gho_ZYXWVUTSRQPONMLKJIHG9876'); exitCode = 0; text = 'gho_ZYXWVUTSRQPONMLKJIHG9876' } }
+
+        $run = Invoke-ScorecardCli
+
+        $Expected | Should -Not -Match $Gone -Because 'the expected line must itself hold nothing private'
+        $run.error | Should -BeExactly ('scorecard exited 3: ' + $Expected)
+    }
+
+    It 'takes out a token the length cap would have cut, then caps the line' {
+        # The cap ran first, and 23 of a legacy token's 40 characters got past the redaction.
+        $fake = Join-Path $TestDrive 'scorecard-fail-long.cmd'
+        $line = ('x' * 170) + ' token 0123456789abcdef0123456789abcdef01234567 rejected ' + ('y' * 200)
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', "echo $line 1>&2", 'exit /b 3')
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('gho_ZYXWVUTSRQPONMLKJIHG9876'); exitCode = 0; text = 'gho_ZYXWVUTSRQPONMLKJIHG9876' } }
+
+        $run = Invoke-ScorecardCli
+
+        $run.error | Should -Not -Match '[0-9a-f]{8}'
+        $run.error | Should -Match ' token <token> rejected y'
+        $run.error.Length | Should -Be 240
+    }
+
     It 'accepts a legacy 40-hex token from gh auth token' {
         $fake = Join-Path $TestDrive 'scorecard-echo-legacy.cmd'
         Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', 'echo {"token":"%GITHUB_AUTH_TOKEN%"}')
