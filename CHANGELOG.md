@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-23
+
+- Fixed `setup.ps1` skipping itself without a word when `irm | iex` ran inside a dot-sourced script or profile. The test seam added for code coverage stopped any dot-source, and code run by `iex` sees the invocation of the script that called it, so the one-liner loaded its functions, installed nothing and reported nothing. An editor's Run button, which dot-sources the file in VS Code, did the same to the other scripts. The seams now stop only when the test suite asks for it by setting `SYSADMINDOC_TEST_SEAM=1`, and a test runs each script's real seam line in all three shapes.
+
 ## 2026-09-22
 
 - Cataloged Onward, the auto-pager userscript that went public on 2026-09-21. Until it had a catalog row the profile check failed its missing-public-repo gate. Adding it pushed Browser Extensions & Userscripts to 31 rows against the 30-row README limit, so BackgroundSearch moved to portfolio-only. It stays in `projects.json` and on the portfolio.

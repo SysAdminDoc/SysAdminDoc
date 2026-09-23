@@ -802,9 +802,11 @@ function New-LocalSupportBundle {
     Write-Host "Support bundle written to $OutputPath"
 }
 
-# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
-# functions above and stop before installing tools or running any lane.
-if ($MyInvocation.InvocationName -eq '.') { return }
+# Test seam: the Pester suite sets SYSADMINDOC_TEST_SEAM=1 and dot-sources this file for
+# code coverage, which loads the functions above and stops before installing tools or running any lane.
+# A dot-source alone is not enough to stop: an editor's F5 (VS Code dot-sources by default)
+# must still run the script.
+if ($MyInvocation.InvocationName -eq '.' -and $env:SYSADMINDOC_TEST_SEAM -eq '1') { return }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $supportBundlePathResolved = $null

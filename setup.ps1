@@ -130,10 +130,11 @@ function Install-Pkg([string]$id, [string]$display, [string]$probe) {
     else { Write-Warn2 "$display not on PATH yet - close and reopen PowerShell, then re-run." }
 }
 
-# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
-# functions above and stop before checking or installing anything. Run through
-# irm | iex or -File, the invocation name is not '.', so setup runs as before.
-if ($MyInvocation.InvocationName -eq '.') { return }
+# Test seam: the Pester suite sets SYSADMINDOC_TEST_SEAM=1 and dot-sources this file for
+# code coverage, which loads the functions above and stops before checking or installing
+# anything. A dot-source alone is not enough to stop: code run by iex sees its caller's
+# invocation, so irm | iex inside a dot-sourced script or profile would skip setup.
+if ($MyInvocation.InvocationName -eq '.' -and $env:SYSADMINDOC_TEST_SEAM -eq '1') { return }
 
 try {
     Write-Host ""

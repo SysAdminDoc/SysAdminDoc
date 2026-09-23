@@ -15,6 +15,9 @@
 #>
 
 BeforeAll {
+    # Lets the Describe blocks at the end dot-source the other scripts for coverage without
+    # running their main bodies; see the seams in scripts/*.ps1 and setup.ps1.
+    $env:SYSADMINDOC_TEST_SEAM = '1'
     $script:RepoRoot = Split-Path -Parent $PSScriptRoot
     $script:SyncProfileScriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
     # Dot-source the library. The script's test seam stops before the fetch/main block,
@@ -145,6 +148,10 @@ BeforeAll {
             }
         }
     }
+}
+
+AfterAll {
+    Remove-Item -LiteralPath Env:SYSADMINDOC_TEST_SEAM -ErrorAction SilentlyContinue
 }
 
 Describe 'Function library loads via the dot-source test seam' {
@@ -9760,9 +9767,60 @@ Describe 'Registry signatures verified against the live registry' -Tag 'Integrat
     }
 }
 
+Describe 'Script test seams need the suite opt-in' {
+    BeforeDiscovery {
+        $seamScripts = @(
+            'setup.ps1'
+            'scripts/validate-local.ps1'
+            'scripts/review-local-dependencies.ps1'
+            'scripts/write-profile-sync-summary.ps1'
+            'scripts/render-profile-smoke.ps1'
+            'scripts/new-support-bundle.ps1'
+        )
+    }
+
+    # Each case copies the script's real seam line in front of a marker line, so it checks the
+    # condition that ships without running the script itself.
+    It '<_> still runs its main body when dot-sourced outside the suite' -ForEach $seamScripts {
+        $scriptPath = Join-Path $script:RepoRoot $_
+        $seam = @(Get-Content -LiteralPath $scriptPath | Where-Object { $_ -match "^if \(\`$MyInvocation\.InvocationName -(eq|ne) '\.'" })
+        $seam | Should -HaveCount 1
+        $probeLines = if ($seam[0].TrimEnd().EndsWith('{')) { @($seam[0], "    Write-Output 'MAIN-BODY'", '}') } else { @($seam[0], "Write-Output 'MAIN-BODY'") }
+        $name = [System.IO.Path]::GetFileNameWithoutExtension($scriptPath)
+        $probe = Join-Path $TestDrive "$name-seam.ps1"
+        $wrapper = Join-Path $TestDrive "$name-iex-wrapper.ps1"
+        Set-Content -LiteralPath $probe -Value $probeLines -Encoding utf8
+        Set-Content -LiteralPath $wrapper -Value "Get-Content -Raw -LiteralPath '$probe' | Invoke-Expression" -Encoding utf8
+
+        $suiteValue = $env:SYSADMINDOC_TEST_SEAM
+        try {
+            Remove-Item -LiteralPath Env:SYSADMINDOC_TEST_SEAM -ErrorAction SilentlyContinue
+            @(. $probe) | Should -Be @('MAIN-BODY') -Because 'an editor F5 dot-sources the script and must still run it'
+            @(. $wrapper) | Should -Be @('MAIN-BODY') -Because 'irm | iex inside a dot-sourced script or profile sees that script''s invocation name'
+            @(& $probe) | Should -Be @('MAIN-BODY')
+
+            $env:SYSADMINDOC_TEST_SEAM = '1'
+            @(. $probe) | Should -BeNullOrEmpty -Because 'the suite dot-sources the script to load its functions only'
+            @(& $probe) | Should -Be @('MAIN-BODY') -Because 'the opt-in alone must not stop a script that was not dot-sourced'
+        } finally {
+            $env:SYSADMINDOC_TEST_SEAM = $suiteValue
+        }
+    }
+
+    It 'keeps the generator seam a plain dot-source check' {
+        # render-profile-smoke.ps1 dot-sources sync-profile.ps1 as a library in normal use, so
+        # gating this seam on the suite variable would run the whole generator there.
+        $seam = @(Get-Content -LiteralPath $script:SyncProfileScriptPath | Where-Object { $_ -match '^if \(\$MyInvocation\.InvocationName' })
+        $seam | Should -Be @("if (`$MyInvocation.InvocationName -eq '.') { return }")
+        Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1') -Raw |
+            Should -Match '(?m)^\. \(Join-Path \$PSScriptRoot "sync-profile\.ps1"\)'
+    }
+}
+
 # The Describe blocks below dot-source the other production scripts so code coverage can
-# see them. Each script stops at its test seam, so nothing is installed, no npm or browser
-# runs, and no report is read or written. They load into their own Describe scope, and the
+# see them. Each script stops at its test seam (the suite sets SYSADMINDOC_TEST_SEAM=1 in
+# its top-level BeforeAll), so nothing is installed, no npm or browser runs, and no report is
+# read or written. They load into their own Describe scope, and the
 # render-smoke block (which dot-sources the generator again) stays last in the file.
 
 Describe 'Summary writer helpers (in-process)' {

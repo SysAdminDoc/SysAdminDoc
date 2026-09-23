@@ -885,9 +885,11 @@ function Get-DependencyPinFreshness {
     }
 }
 
-# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
-# functions above and stop before running npm or querying a registry.
-if ($MyInvocation.InvocationName -eq '.') { return }
+# Test seam: the Pester suite sets SYSADMINDOC_TEST_SEAM=1 and dot-sources this file for
+# code coverage, which loads the functions above and stops before running npm or querying a registry.
+# A dot-source alone is not enough to stop: an editor's F5 (VS Code dot-sources by default)
+# must still run the script.
+if ($MyInvocation.InvocationName -eq '.' -and $env:SYSADMINDOC_TEST_SEAM -eq '1') { return }
 
 $resolvedRoot = (Resolve-Path -LiteralPath $RepoRoot).Path
 $packageJsonPath = Join-Path $resolvedRoot "package.json"

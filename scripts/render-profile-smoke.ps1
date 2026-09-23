@@ -551,9 +551,11 @@ function Remove-RenderedSmokeProfileDir {
     }
 }
 
-# Test seam: when dot-sourced (the Pester suite does, for code coverage), load the
-# functions above and stop before creating the output directory or starting a browser.
-if ($MyInvocation.InvocationName -eq '.') { return }
+# Test seam: the Pester suite sets SYSADMINDOC_TEST_SEAM=1 and dot-sources this file for
+# code coverage, which loads the functions above and stops before creating the output directory or starting a browser.
+# A dot-source alone is not enough to stop: an editor's F5 (VS Code dot-sources by default)
+# must still run the script.
+if ($MyInvocation.InvocationName -eq '.' -and $env:SYSADMINDOC_TEST_SEAM -eq '1') { return }
 
 $currentDirectory = (Get-Location).ProviderPath
 $resolvedOutputDir = if ([System.IO.Path]::IsPathRooted($OutputDir)) { $OutputDir } else { Join-Path $currentDirectory $OutputDir }

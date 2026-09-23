@@ -377,6 +377,8 @@ function New-SupportBundle {
     }
 }
 
-if ($MyInvocation.InvocationName -ne '.') {
+# Test seam: only a dot-source from the Pester suite (SYSADMINDOC_TEST_SEAM=1) skips the
+# bundle; an editor's F5 dot-source still builds it.
+if ($MyInvocation.InvocationName -ne '.' -or $env:SYSADMINDOC_TEST_SEAM -ne '1') {
     New-SupportBundle @PSBoundParameters | ConvertTo-Json -Depth 5 -Compress
 }
