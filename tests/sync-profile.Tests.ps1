@@ -3741,36 +3741,70 @@ Describe 'Report schema depth helpers' {
         ($result.rows | Where-Object { $_.repo -eq 'ScriptTool' }).reason | Should -Match 'allowlist'
     }
 
-    It 'walks a date-seeded slice of eligible assets so weekly runs cover them all' {
-        $bytes = [System.Text.Encoding]::UTF8.GetBytes('release payload')
-        $hash = Get-ReleaseArtifactSha256 -Bytes $bytes
-        $targets = @(foreach ($name in 'Echo', 'Alpha', 'Delta', 'Bravo', 'Charlie') {
-                [ordered]@{
-                    repo = $name; assetName = "$name.zip"; assetKind = 'zip'; assetUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/$name.zip"; assetSize = $bytes.Length
-                    checksumAssetName = 'SHA256SUMS'; checksumUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/SHA256SUMS"; checksumSize = 80
-                }
-            })
-        $download = {
-            param($target, $kind)
-            $text = if ($kind -eq 'checksum') { "$hash  $($target.assetName)" } else { $null }
-            [ordered]@{ ok = $true; bytes = if ($kind -eq 'asset') { $bytes } else { [System.Text.Encoding]::UTF8.GetBytes([string]$text) }; text = $text; error = $null; bytesRead = 0 }
+    Context 'rotation' {
+        BeforeAll {
+            $script:RotationBytes = [System.Text.Encoding]::UTF8.GetBytes('release payload')
+            $script:RotationHash = Get-ReleaseArtifactSha256 -Bytes $script:RotationBytes
+            $script:RotationTargets = @(foreach ($name in 'Echo', 'Alpha', 'Delta', 'Bravo', 'Charlie') {
+                    [ordered]@{
+                        repo = $name; assetName = "$name.zip"; assetKind = 'zip'; assetUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/$name.zip"; assetSize = $script:RotationBytes.Length
+                        checksumAssetName = 'SHA256SUMS'; checksumUrl = "https://github.com/SysAdminDoc/$name/releases/download/v1/SHA256SUMS"; checksumSize = 80
+                    }
+                })
+            $script:RotationDownload = {
+                param($target, $kind)
+                $text = if ($kind -eq 'checksum') { "$($script:RotationHash)  $($target.assetName)" } else { $null }
+                [ordered]@{ ok = $true; bytes = if ($kind -eq 'asset') { $script:RotationBytes } else { [System.Text.Encoding]::UTF8.GetBytes([string]$text) }; text = $text; error = $null; bytesRead = 0 }
+            }
         }
-        $monday = [datetimeoffset]'2026-09-21T09:15:00Z'
 
-        $runs = @(0, 1, 2 | ForEach-Object {
-                Test-ReleaseArtifactVerification -Targets $targets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $download -Now $monday.AddDays(7 * $_)
-            })
-        $checked = @($runs | ForEach-Object { @($_.rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo }) })
+        It 'checks the slice after the one the committed report recorded, whatever the cadence' {
+            # The slice used to come from the UTC week, so runs every three weeks over three
+            # slices checked the same two assets forever. Each run now takes the slice after
+            # the one the report recorded, handed on the way the committed report carries it.
+            $start = [datetimeoffset]'2026-09-21T09:15:00Z'
+            $recorded = $null
+            $runs = @(foreach ($run in 0..3) {
+                    $result = Test-ReleaseArtifactVerification -Targets $script:RotationTargets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $script:RotationDownload -PreviousRotation $recorded -Now $start.AddDays(21 * $run)
+                    $recorded = $result.rotation | ConvertTo-Json | ConvertFrom-Json
+                    $result
+                })
+            $checked = @($runs[0..2] | ForEach-Object { @($_.rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo }) })
 
-        # Three weeks, slices of two in a stable order: every eligible asset once, none twice.
-        @($checked | Sort-Object -Unique) | Should -Be @('Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo')
-        $checked | Should -HaveCount 5
-        $runs[0].rotation.sliceCount | Should -Be 3
-        $runs[0].rotation.eligibleCount | Should -Be 5
-        @($runs[0].rows | Where-Object { $_.status -eq 'skipped' } | ForEach-Object { $_.reason } | Sort-Object -Unique) | Should -Be @("outside this week's rotation slice")
-        # The same week, any day, checks the same slice.
-        $friday = Test-ReleaseArtifactVerification -Targets $targets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $download -Now $monday.AddDays(4)
-        @($friday.rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo }) | Should -Be @($runs[0].rows | Where-Object { $_.status -eq 'verified' } | ForEach-Object { $_.repo })
+            # Three runs, slices of two in a stable order: every eligible asset once, none twice.
+            (@($checked | Sort-Object) -join ',') | Should -Be 'Alpha,Bravo,Charlie,Delta,Echo'
+            (@($runs | ForEach-Object { $_.rotation.sliceIndex }) -join ',') | Should -Be '0,1,2,0' -Because 'the fourth run wraps to the first slice'
+            $runs[0].rotation.sliceCount | Should -Be 3
+            $runs[0].rotation.eligibleCount | Should -Be 5
+            $runs[1].rotation.ranAt | Should -Be '2026-10-12T09:15:00.0000000Z'
+            (@($runs[0].rows | Where-Object { $_.status -eq 'skipped' } | ForEach-Object { $_.reason } | Sort-Object -Unique) -join ',') | Should -Be "outside this run's rotation slice"
+        }
+
+        It 'carries the recorded slice through a run that does not verify' {
+            # Plain regenerations don't verify, and the report they commit is what the next
+            # verifying run reads, so they keep the record instead of dropping it.
+            $verified = Test-ReleaseArtifactVerification -Targets $script:RotationTargets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $script:RotationDownload -Now ([datetimeoffset]'2026-09-21T09:15:00Z')
+            $plain = Test-ReleaseArtifactVerification -Targets $script:RotationTargets -PreviousRotation ($verified.rotation | ConvertTo-Json | ConvertFrom-Json)
+            $next = Test-ReleaseArtifactVerification -Targets $script:RotationTargets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $script:RotationDownload -PreviousRotation ($plain.rotation | ConvertTo-Json | ConvertFrom-Json)
+
+            $plain.status | Should -Be 'disabled'
+            ($plain.rotation | ConvertTo-Json -Compress) | Should -Be ($verified.rotation | ConvertTo-Json -Compress)
+            $next.rotation.sliceIndex | Should -Be 1
+        }
+
+        It 'starts at the first slice when the recorded rotation is <Case>' -ForEach @(
+            @{ Case = 'missing'; Recorded = $null }
+            @{ Case = 'the old week-based shape'; Recorded = @{ weekIndex = 37; sliceIndex = 1; sliceCount = 3; eligibleCount = 5 } }
+            @{ Case = 'past the last slice'; Recorded = @{ sliceIndex = 3; sliceCount = 3; eligibleCount = 5; ranAt = '2026-09-21T09:15:00.0000000Z' } }
+            @{ Case = 'negative'; Recorded = @{ sliceIndex = -1; sliceCount = 3; eligibleCount = 5; ranAt = '2026-09-21T09:15:00.0000000Z' } }
+            @{ Case = 'undated'; Recorded = @{ sliceIndex = 1; sliceCount = 3; eligibleCount = 5; ranAt = 'last week' } }
+        ) {
+            $result = Test-ReleaseArtifactVerification -Targets $script:RotationTargets -Enabled -MaxAssets 2 -MaxBytes 1024 -DownloadScript $script:RotationDownload -PreviousRotation $Recorded
+            $plain = Test-ReleaseArtifactVerification -Targets $script:RotationTargets -PreviousRotation $Recorded
+
+            $result.rotation.sliceIndex | Should -Be 0
+            $plain.rotation | Should -BeNullOrEmpty -Because 'a record the next run can''t use isn''t carried forward'
+        }
     }
 
     It 'warns on an asset it cannot download and fails only on a checksum mismatch' {

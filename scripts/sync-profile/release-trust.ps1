@@ -275,8 +275,10 @@ function Test-ReleaseArtifactVerification {
     Maximum byte size for each downloaded asset.
     .PARAMETER DownloadScript
     Optional injectable downloader used by hermetic tests.
+    .PARAMETER PreviousRotation
+    The rotation block of the committed report: the slice the last verifying run checked.
     .PARAMETER Now
-    Picks the week whose slice of eligible assets is verified; injectable for tests.
+    When this run happens, recorded as the rotation's ranAt; injectable for tests.
     #>
     [CmdletBinding()]
     param(
@@ -289,6 +291,7 @@ function Test-ReleaseArtifactVerification {
         [ValidateRange(1024, 52428800)]
         [int]$MaxBytes = $script:ReleaseVerificationMaxBytes,
         [scriptblock]$DownloadScript,
+        [AllowNull()][object]$PreviousRotation,
         [datetimeoffset]$Now = [datetimeoffset]::UtcNow
     )
 
@@ -299,6 +302,23 @@ function Test-ReleaseArtifactVerification {
             @(Get-ReleaseArtifactVerificationTargets -Entries $Entries -RepoLookup $RepoLookup)
         }
     )
+    # The committed report's rotation, when it has the shape a verifying run writes. A run
+    # that doesn't verify carries it forward as it is, so the next verifying run knows where
+    # to start however many plain regenerations came between.
+    $lastRotation = $null
+    $lastFields = @('sliceIndex', 'sliceCount', 'eligibleCount' | ForEach-Object { [string](Get-MemberValue -Object $PreviousRotation -Name $_) })
+    $lastRanAt = ConvertTo-IsoText (Get-MemberValue -Object $PreviousRotation -Name "ranAt")
+    $lastRanAtValue = [datetimeoffset]::MinValue
+    if (@($lastFields | Where-Object { $_ -notmatch '^[0-9]{1,9}\z' }).Count -eq 0 -and
+        ([int]$lastFields[0] -lt [int]$lastFields[1] -or ([int]$lastFields[0] -eq 0 -and [int]$lastFields[1] -eq 0)) -and
+        [datetimeoffset]::TryParse([string]$lastRanAt, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$lastRanAtValue)) {
+        $lastRotation = [ordered]@{
+            sliceIndex = [int]$lastFields[0]
+            sliceCount = [int]$lastFields[1]
+            eligibleCount = [int]$lastFields[2]
+            ranAt = $lastRanAt
+        }
+    }
     $rows = New-Object System.Collections.Generic.List[object]
     if (-not $Enabled) {
         return [ordered]@{
@@ -314,10 +334,10 @@ function Test-ReleaseArtifactVerification {
             failureCount = 0
             unreachableCount = 0
             downloadedBytes = 0
-            rotation = $null
+            rotation = $lastRotation
             rows = @()
             errors = @()
-            note = "Metadata evidence only: release artifacts were not downloaded or locally verified. Use -VerifyReleaseArtifacts for the capped pilot."
+            note = "Metadata evidence only: release artifacts were not downloaded or locally verified. Use -VerifyReleaseArtifacts for the capped pilot. A rotation here is the slice the last verifying run checked, and the next one checks the slice after it."
         }
     }
 
@@ -350,15 +370,15 @@ function Test-ReleaseArtifactVerification {
         }
     }
 
-    # Then one MaxAssets-wide slice of them, in a stable order, picked by the UTC week
-    # (weeks counted from Monday 2026-01-05). A weekly run walks through every eligible
-    # asset in turn instead of checking the same first few in catalog order forever.
+    # Then one MaxAssets-wide slice of them, in a stable order: the slice after the one the
+    # committed report recorded, or the first. Every slice is reached in sliceCount verifying
+    # runs, whatever their cadence. A slice picked by the UTC week wasn't: runs every k weeks
+    # only reached the slices whose index is a multiple of gcd(k, sliceCount).
     $orderedEligible = @($eligibleIndexes | Sort-Object {
             ConvertTo-OrdinalSortKey ("{0}/{1}" -f [string](Get-MemberValue -Object $targetRows[$_] -Name "repo"), [string](Get-MemberValue -Object $targetRows[$_] -Name "assetName"))
         })
-    $weekIndex = [int][Math]::Floor(($Now.UtcDateTime.Date - [datetime]::new(2026, 1, 5)).TotalDays / 7)
     $sliceCount = [int][Math]::Ceiling($orderedEligible.Count / [double]$MaxAssets)
-    $sliceIndex = if ($sliceCount -gt 0) { (($weekIndex % $sliceCount) + $sliceCount) % $sliceCount } else { 0 }
+    $sliceIndex = if ($sliceCount -gt 0 -and $null -ne $lastRotation) { ($lastRotation.sliceIndex + 1) % $sliceCount } else { 0 }
     $selectedIndexes = [System.Collections.Generic.HashSet[int]]::new()
     foreach ($selected in @($orderedEligible | Select-Object -Skip ($sliceIndex * $MaxAssets) -First $MaxAssets)) {
         [void]$selectedIndexes.Add([int]$selected)
@@ -385,7 +405,7 @@ function Test-ReleaseArtifactVerification {
         if (-not [string]::IsNullOrEmpty($reason)) {
             # Not verifiable; the reason says why.
         } elseif (-not $selectedIndexes.Contains($index)) {
-            $reason = "outside this week's rotation slice"
+            $reason = "outside this run's rotation slice"
         } else {
             $checkedCount++
             # Capped at the size the release lists (never 0, which the reader refuses): a
@@ -485,14 +505,14 @@ function Test-ReleaseArtifactVerification {
         unreachableCount = [int]$unreachableCount
         downloadedBytes = $downloadedBytes
         rotation = [ordered]@{
-            weekIndex = $weekIndex
             sliceIndex = $sliceIndex
             sliceCount = $sliceCount
             eligibleCount = $orderedEligible.Count
+            ranAt = ConvertTo-IsoText $Now.UtcDateTime
         }
         rows = @($rows.ToArray())
         errors = @()
-        note = "Opt-in: one slice of the eligible GitHub release assets per UTC week, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch, a body bigger than its published size, or a host or redirect the outbound safety check refused fails the run; an asset that can't be reached is a warning. Default releaseTrust remains metadata-only."
+        note = "Opt-in: one slice of the eligible GitHub release assets per run, the one after the slice the committed report recorded, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch, a body bigger than its published size, or a host or redirect the outbound safety check refused fails the run; an asset that can't be reached is a warning. Default releaseTrust remains metadata-only."
     }
 }
 

@@ -2135,15 +2135,12 @@
           ],
           "additionalProperties": false,
           "required": [
-            "weekIndex",
             "sliceIndex",
             "sliceCount",
-            "eligibleCount"
+            "eligibleCount",
+            "ranAt"
           ],
           "properties": {
-            "weekIndex": {
-              "type": "integer"
-            },
             "sliceIndex": {
               "$ref": "#/$defs/nonNegativeInteger"
             },
@@ -2152,6 +2149,10 @@
             },
             "eligibleCount": {
               "$ref": "#/$defs/nonNegativeInteger"
+            },
+            "ranAt": {
+              "type": "string",
+              "format": "date-time"
             }
           }
         },

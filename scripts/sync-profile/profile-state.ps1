@@ -459,12 +459,15 @@ function Test-ProfileState {
             note = [string]$summary.note
         }
     }
+    # The committed report says which slice the last verifying run checked; this run takes
+    # the next one, or carries the record forward when it doesn't verify.
     $releaseArtifactVerification = Test-ReleaseArtifactVerification `
         -Entries $included `
         -RepoLookup $repoLookup `
         -Enabled:$VerifyReleaseArtifacts `
         -MaxAssets $ReleaseVerificationMaxAssets `
-        -MaxBytes $ReleaseVerificationMaxBytes
+        -MaxBytes $ReleaseVerificationMaxBytes `
+        -PreviousRotation (Get-MemberValue -Object (Get-MemberValue -Object $committedReportForFreshness -Name 'releaseArtifactVerification') -Name 'rotation')
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($script:Offline -or $SkipLinkValidation)
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
