@@ -805,12 +805,18 @@ if ($artifactDriftDiagnostics -and ($report.readmeInSync -ne $true -or $report.p
     $affectedAssets = if ($assets -and $assets.PSObject.Properties.Name -contains 'affectedAssets') { @($assets.affectedAssets | Where-Object { $_.fatal -eq $true }) } else { @() }
     if ($affectedAssets.Count -gt 0) {
         $detailLines.Add("")
-        $detailLines.Add("| Asset | Exists | Current SHA-256 | Expected SHA-256 |")
-        $detailLines.Add("| --- | ---: | --- | --- |")
+        $detailLines.Add("| Asset | Exists | Current SHA-256 | Expected SHA-256 | Fix |")
+        $detailLines.Add("| --- | ---: | --- | --- | --- |")
         foreach ($asset in $affectedAssets) {
             $currentHash = [string](Get-ObjectPropertyOrDefault -Object $asset -Name "currentSha256" -Default "")
             $expectedHash = [string](Get-ObjectPropertyOrDefault -Object $asset -Name "expectedSha256" -Default "")
-            $detailLines.Add("| $(ConvertTo-MarkdownCell ([string]$asset.path)) | $($asset.exists) | ``$currentHash`` | ``$expectedHash`` |")
+            $expectedCell = if ([string]::IsNullOrWhiteSpace($expectedHash)) { "not generated" } else { "``$expectedHash``" }
+            $fix = if ([string](Get-ObjectPropertyOrDefault -Object $asset -Name "remediation" -Default "run-write") -eq "delete-file") {
+                "Delete the file; the generator does not produce it and -Write never deletes."
+            } else {
+                "Run the remediation command."
+            }
+            $detailLines.Add("| $(ConvertTo-MarkdownCell ([string]$asset.path)) | $($asset.exists) | ``$currentHash`` | $expectedCell | $(ConvertTo-MarkdownCell $fix) |")
         }
     }
 

@@ -678,29 +678,6 @@ function New-ProfileAssetSvgs {
     return [ordered]@{}
 }
 
-function Get-ProfileAssetFileContents {
-    <#
-    .SYNOPSIS
-    Reads every file under -AssetsPath, keyed by the relative path generated assets use.
-    .PARAMETER Path
-    Asset directory, repository-relative or absolute; defaults to the -AssetsPath parameter.
-    #>
-    [CmdletBinding()]
-    param([string]$Path = $script:AssetsPath)
-
-    $contents = @{}
-    $assetRoot = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
-    if (-not (Test-Path -LiteralPath $assetRoot -PathType Container)) {
-        return $contents
-    }
-    $assetPathPrefix = ($Path -replace '\\', '/').TrimEnd('/')
-    foreach ($file in @(Get-ChildItem -LiteralPath $assetRoot -File -Recurse | Sort-Object FullName)) {
-        $relativePath = [System.IO.Path]::GetRelativePath($assetRoot, $file.FullName) -replace '\\', '/'
-        $contents["$assetPathPrefix/$relativePath"] = [string](Get-Content -LiteralPath $file.FullName -Raw)
-    }
-    return $contents
-}
-
 function New-ProfileChrome {
     # Minimal header with a Ko-fi support image at the bottom. Satisfies the minimal
     # profile-header contract in Test-ReadmeExperience (README must start with the tagline

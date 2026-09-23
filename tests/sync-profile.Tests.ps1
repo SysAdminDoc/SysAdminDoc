@@ -5682,6 +5682,15 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
                             fatal = $true
                             currentSha256 = ('e' * 64)
                             expectedSha256 = ('f' * 64)
+                            remediation = 'run-write'
+                        },
+                        [pscustomobject]@{
+                            path = 'assets/profile/stray.svg'
+                            exists = $true
+                            fatal = $true
+                            currentSha256 = ('0' * 64)
+                            expectedSha256 = $null
+                            remediation = 'delete-file'
                         }
                     )
                 }
@@ -5703,6 +5712,8 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match ('b' * 64)
             $summary | Should -Match '## Tool Catalog'
             $summary | Should -Match 'assets/profile/footer-dark[.]svg'
+            $summary | Should -Match '\| assets/profile/stray[.]svg \| True \| `0{64}` \| not generated \| Delete the file; the generator does not produce it and -Write never deletes[.] \|'
+            $summary | Should -Match '\| assets/profile/footer-dark[.]svg \| True \| `e{64}` \| `f{64}` \| Run the remediation command[.] \|'
         } finally {
             Remove-Item -LiteralPath $reportPath.FullName -Force -ErrorAction SilentlyContinue
             Remove-Item -LiteralPath $summaryPath.FullName -Force -ErrorAction SilentlyContinue
@@ -6242,6 +6253,7 @@ Describe 'Profile asset sync gate' {
         $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].path | Should -Be 'assets/profile/footer-dark.svg'
         $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].fatal | Should -BeTrue
         $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].expectedSha256 | Should -Match '^[a-f0-9]{64}$'
+        $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].remediation | Should -Be 'run-write'
     }
 
     It 'fails the asset gate when a file the generator does not produce is present' {
@@ -6264,6 +6276,8 @@ Describe 'Profile asset sync gate' {
         $row[0].inSync | Should -BeFalse
         $drift = $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0]
         $drift.fatal | Should -BeTrue
+        $drift.expectedSha256 | Should -BeNullOrEmpty -Because 'the generator produces no content for a stray file'
+        $drift.remediation | Should -Be 'delete-file' -Because '-Write never deletes, so it cannot clear a stray file'
         $drift.currentSha256 | Should -Be (Get-StringSha256 -Text (ConvertTo-NormalizedGeneratedText -Text $stray)) -Because 'the row must describe the stray file, not an empty read'
     }
 
@@ -6274,6 +6288,12 @@ Describe 'Profile asset sync gate' {
         $strayRoot = Join-Path $TestDrive 'stray-assets'
         New-Item -ItemType Directory -Path (Join-Path $strayRoot 'nested') -Force | Out-Null
         Set-Content -LiteralPath (Join-Path $strayRoot 'nested/stats-dark.svg') -Value '<svg/>' -Encoding utf8
+
+        # git commits hidden files and dotfiles, so the scan must see them as well.
+        $hidden = Join-Path $strayRoot 'hidden.svg'
+        Set-Content -LiteralPath $hidden -Value '<svg/>' -Encoding utf8
+        (Get-Item -LiteralPath $hidden -Force).Attributes = [System.IO.FileAttributes]::Hidden
+        Set-Content -LiteralPath (Join-Path $strayRoot '.dotfile.svg') -Value '<svg/>' -Encoding utf8
 
         $onDisk = Get-ProfileAssetFileContents -Path $strayRoot
         $oldAssetsPath = $script:AssetsPath
@@ -6287,11 +6307,14 @@ Describe 'Profile asset sync gate' {
             $script:AssetsPath = $oldAssetsPath
         }
 
-        $onDisk.Keys | Should -HaveCount 1
-        @($onDisk.Keys)[0] | Should -BeLike '*/stray-assets/nested/stats-dark.svg'
+        $onDisk.Keys | Should -HaveCount 3
+        @($onDisk.Keys | Where-Object { $_ -like '*/stray-assets/nested/stats-dark.svg' }) | Should -HaveCount 1
+        @($onDisk.Keys | Where-Object { $_ -like '*/stray-assets/hidden.svg' }) | Should -HaveCount 1
+        @($onDisk.Keys | Where-Object { $_ -like '*/stray-assets/.dotfile.svg' }) | Should -HaveCount 1
         $result.Report.profileAssetsInSync | Should -BeFalse
         @($result.Report.profileAssetChecks | Where-Object { $_.path -like '*/nested/stats-dark.svg' }) | Should -HaveCount 1
-        $result.Report.profileAssetsAccessibility.assetCount | Should -Be 1
+        @($result.Report.profileAssetChecks) | Should -HaveCount 3
+        $result.Report.profileAssetsAccessibility.assetCount | Should -Be 3
     }
 
     It 'passes the asset gate when the generator produces nothing and the directory is absent' {

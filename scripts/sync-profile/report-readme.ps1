@@ -102,13 +102,16 @@ function New-GeneratedArtifactDriftDiagnostics {
     foreach ($assetCheck in @($AssetChecks | Where-Object { $null -ne $_ -and $_.inSync -ne $true })) {
         $path = [string]$assetCheck.path
         $currentText = if ($CurrentAssets.ContainsKey($path)) { [string]$CurrentAssets[$path] } else { "" }
-        $expectedText = if ($ExpectedAssets -and $ExpectedAssets.ContainsKey($path)) { [string]$ExpectedAssets[$path] } else { "" }
+        # A file the generator does not produce has no expected content, and -Write cannot
+        # clear it because a write never deletes. Say so instead of hashing an empty string.
+        $generated = [bool]($ExpectedAssets -and $ExpectedAssets.ContainsKey($path))
         $affectedAssets.Add([ordered]@{
             path = $path
             exists = [bool]$assetCheck.exists
             fatal = $true
             currentSha256 = if ([bool]$assetCheck.exists) { Get-StringSha256 -Text $currentText } else { $null }
-            expectedSha256 = Get-StringSha256 -Text $expectedText
+            expectedSha256 = if ($generated) { Get-StringSha256 -Text ([string]$ExpectedAssets[$path]) } else { $null }
+            remediation = if ($generated) { "run-write" } else { "delete-file" }
         })
     }
 

@@ -477,7 +477,8 @@
         "exists",
         "fatal",
         "currentSha256",
-        "expectedSha256"
+        "expectedSha256",
+        "remediation"
       ],
       "properties": {
         "path": {
@@ -493,7 +494,14 @@
           "$ref": "#/$defs/nullableSha256"
         },
         "expectedSha256": {
-          "$ref": "#/$defs/sha256"
+          "$ref": "#/$defs/nullableSha256"
+        },
+        "remediation": {
+          "type": "string",
+          "enum": [
+            "run-write",
+            "delete-file"
+          ]
         }
       }
     },

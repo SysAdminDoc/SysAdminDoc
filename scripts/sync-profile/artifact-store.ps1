@@ -68,6 +68,32 @@ function Write-AtomicUtf8TextFile {
     }
 }
 
+function Get-ProfileAssetFileContents {
+    <#
+    .SYNOPSIS
+    Reads every file under -AssetsPath, keyed by the relative path generated assets use.
+    .DESCRIPTION
+    -Force includes hidden files and dotfiles: git commits them like any other file, so
+    the stray-asset gate has to see them too.
+    .PARAMETER Path
+    Asset directory, repository-relative or absolute; defaults to the -AssetsPath parameter.
+    #>
+    [CmdletBinding()]
+    param([string]$Path = $script:AssetsPath)
+
+    $contents = @{}
+    $assetRoot = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    if (-not (Test-Path -LiteralPath $assetRoot -PathType Container)) {
+        return $contents
+    }
+    $assetPathPrefix = ($Path -replace '\\', '/').TrimEnd('/')
+    foreach ($file in @(Get-ChildItem -LiteralPath $assetRoot -File -Recurse -Force | Sort-Object FullName)) {
+        $relativePath = [System.IO.Path]::GetRelativePath($assetRoot, $file.FullName) -replace '\\', '/'
+        $contents["$assetPathPrefix/$relativePath"] = [string](Get-Content -LiteralPath $file.FullName -Raw)
+    }
+    return $contents
+}
+
 function Get-ArtifactPublicationTransactionRoot {
     $cacheRoot = Get-ValidationCacheRoot
     if ([string]::IsNullOrWhiteSpace($cacheRoot)) {
