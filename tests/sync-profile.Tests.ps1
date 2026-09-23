@@ -724,6 +724,64 @@ Describe 'PR delivery checklist carries no recorded history' {
         @($transition.items | Where-Object { $_.id -eq 'pr-delivery-or-bypass' })[0].status | Should -Be 'needs-live-validation'
         $transition.readyForRequiredCheckEnforcement | Should -BeFalse
     }
+
+    It 'describes PR creation <PrCreation>, required checks <Checks> and admins <Admins> as they are' -ForEach @(
+        foreach ($prCreation in @('on', 'off', 'unknown')) {
+            foreach ($checks in @('on', 'off')) {
+                foreach ($admins in @('enforced', 'not enforced')) {
+                    @{ PrCreation = $prCreation; Checks = $checks; Admins = $admins }
+                }
+            }
+        }
+    ) {
+        $allowed = switch ($PrCreation) { 'on' { $true } 'off' { $false } default { $null } }
+        $transition = Get-PrDeliveryTransitionChecklist `
+            -WorkflowCoverage ([ordered]@{ status = 'ready'; workflowCount = 1; warningCount = 0 }) `
+            -RequiredChecksEnabled ($Checks -eq 'on') `
+            -EnforceAdmins ($Admins -eq 'enforced') `
+            -ActionsPullRequestCreationAllowed $allowed `
+            -BranchProtectionAvailable $true `
+            -RulesetsAvailable $true
+        $delivery = @($transition.items | Where-Object { $_.id -eq 'pr-delivery-or-bypass' })[0]
+
+        # Workflows exist on this path, so nothing may describe the local-only posture.
+        "$($delivery.evidence) $($delivery.nextAction)" | Should -Not -Match 'absent|retired|offline-only'
+        $delivery.status | Should -Be $(if ($PrCreation -eq 'off') { 'blocked' } else { 'needs-live-validation' })
+        $delivery.nextAction | Should -Match 'merge drill'
+        if ($Checks -eq 'on') {
+            $delivery.nextAction | Should -Match 'while the checks are required'
+            $delivery.nextAction | Should -Not -Match 'before enabling'
+        } else {
+            $delivery.nextAction | Should -Match 'before enabling required checks'
+        }
+        switch ($PrCreation) {
+            'off' { $delivery.evidence | Should -Match "don't let GitHub Actions create pull requests" }
+            'unknown' { $delivery.evidence | Should -Match "couldn't be read" }
+            'on' { $delivery.evidence | Should -Match 'may create pull requests' }
+        }
+    }
+
+    It 'blocks on admin enforcement only while the checks are not yet required' -ForEach @(
+        @{ Case = 'branch protection requires the checks'; RequiredStatusChecks = $true; RulesetCount = 0; Enforced = $true }
+        @{ Case = 'a ruleset requires the checks'; RequiredStatusChecks = $false; RulesetCount = 1; Enforced = $true }
+        @{ Case = 'nothing requires the checks'; RequiredStatusChecks = $false; RulesetCount = 0; Enforced = $false }
+    ) {
+        Mock Test-RequiredCheckWorkflowCoverage { [ordered]@{ status = 'ready'; workflowCount = 1; candidateCheckCount = 1; warningCount = 0; warnings = @(); workflows = @() } }
+
+        $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$true -RulesetsAvailable:$true `
+            -RequiredStatusChecks $RequiredStatusChecks -EnforceAdmins $true -ActionsPullRequestCreationAllowed $true `
+            -RulesetCount $RulesetCount -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
+
+        $adminBlockers = @($readiness.blockers | Where-Object { $_ -match 'enforces admins' })
+        if ($Enforced) {
+            $adminBlockers | Should -BeNullOrEmpty -Because "$Case, so a drill 'before required checks are enabled' is already past"
+            @($readiness.blockers) | Should -BeNullOrEmpty
+            $readiness.recommendation | Should -Be 'monitor-required-check-enforcement'
+        } else {
+            $adminBlockers | Should -HaveCount 1
+            $readiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
+        }
+    }
 }
 
 Describe 'OpenSSF Scorecard runs locally' {

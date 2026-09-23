@@ -646,7 +646,8 @@ function Get-RequiredCheckReadiness {
     $blockers = New-Object System.Collections.Generic.List[string]
     if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
         $blockers.Add("Branch protection evidence unavailable: $BranchProtectionUnavailableReason.")
-    } elseif ($RequiredStatusChecks -ne $true) {
+    } elseif ($RequiredStatusChecks -ne $true -and $RulesetCount -eq 0) {
+        # A ruleset that enforces the checks is enough; branch protection needn't as well.
         $blockers.Add("Branch protection does not require status checks.")
     }
 
@@ -656,7 +657,9 @@ function Get-RequiredCheckReadiness {
         $blockers.Add("No repository rulesets are configured.")
     }
 
-    if ($EnforceAdmins -eq $true) {
+    # A blocker only until the checks are required; after that the checklist's delivery
+    # item tracks the drill.
+    if ($EnforceAdmins -eq $true -and -not $requiredChecksEnabled) {
         $blockers.Add("Protected main enforces admins; a pull-request delivery path needs a live merge drill before required checks are enabled.")
     }
 
@@ -880,26 +883,31 @@ function Get-PrDeliveryTransitionChecklist {
                 -Evidence "No hosted candidate-check proof is tracked while the repository is local-validation-only." `
                 -NextAction "Define a new local or hosted proof path before making any check required."))
 
+    # This checklist only exists when candidate workflows do, so its text describes the
+    # settings it was given and never the local-only posture.
+    $drillTiming = if ($RequiredChecksEnabled) { "while the checks are required" } else { "before enabling required checks" }
     $deliveryStatus = if ($ActionsPullRequestCreationAllowed -eq $false) {
         "blocked"
     } else {
         "needs-live-validation"
     }
     $deliveryEvidence = if ($ActionsPullRequestCreationAllowed -eq $false) {
-        "Generated PR delivery is retired while hosted workflows are absent; repository Actions PR creation is not a local-validation requirement."
+        "Repository settings don't let GitHub Actions create pull requests, so no generated PR delivery path exists."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
-        "Generated PR delivery is retired while hosted workflows are absent; Actions PR creation permission evidence is not required."
+        "Whether GitHub Actions may create pull requests couldn't be read."
     } elseif ($EnforceAdmins -eq $true) {
-        "Generated PR delivery is retired while hosted workflows are absent; routine maintenance must use local validation or a newly defined PR delivery path."
+        "GitHub Actions may create pull requests and main enforces admins, but no PR has been shown to merge through that path."
     } else {
-        "Admin enforcement is not confirmed as blocking, but the delivery path still needs a live PR or documented bypass drill."
+        "GitHub Actions may create pull requests, but no PR has been shown to merge through that path and no bypass is documented."
     }
     $deliveryNextAction = if ($ActionsPullRequestCreationAllowed -eq $false) {
-        "Keep generated helpers offline-only and validate generated artifacts locally."
+        "Allow Actions to create pull requests or open maintenance PRs by hand, then run a routine maintenance PR merge drill $drillTiming."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
-        "Keep generated helpers offline-only and validate generated artifacts locally."
+        "Read the repository's Actions workflow permissions, then run a routine maintenance PR merge drill $drillTiming."
+    } elseif ($EnforceAdmins -eq $true) {
+        "Run a routine maintenance PR merge drill $drillTiming, since admins can't push past them."
     } else {
-        "Run a routine maintenance PR merge drill before enabling admin-enforced required-check protection."
+        "Run a routine maintenance PR merge drill, or document a bypass, $drillTiming."
     }
     $items.Add((New-PrDeliveryChecklistItem `
                 -Id "pr-delivery-or-bypass" `
