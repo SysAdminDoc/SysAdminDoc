@@ -474,7 +474,7 @@ $u='https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/s
 | Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.13](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
 | Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
 | Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
-| Shows its source | [`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1) is the exact script being run. |
+| Shows its source | [`setup.ps1`](https://github.com/__PROFILE_OWNER__/__PROFILE_OWNER__/blob/main/setup.ps1) is the exact script being run. |
 
 Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
 

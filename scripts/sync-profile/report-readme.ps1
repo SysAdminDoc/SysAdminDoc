@@ -232,8 +232,8 @@ function Test-ReadmeExperience {
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
     $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
     $hasMeaningfulAltText = $genericAltCount -eq 0 -and
-        $ExpectedReadme.Contains('alt="SysAdminDoc public tools command center profile header"') -and
-        $ExpectedReadme.Contains('alt="SysAdminDoc generated profile footer"')
+        $ExpectedReadme.Contains('alt="' + $Owner + ' public tools command center profile header"') -and
+        $ExpectedReadme.Contains('alt="' + $Owner + ' generated profile footer"')
     # Per GitHub accessibility guidance, every <img> needs descriptive alt text.
     # Warning-only completeness check across all rendered <img> tags.
     $genericAltValuePattern = '(?i)^(header|typing svg|profile views|followers|stars|tech stack|github stats|top languages|github streak|activity graph|footer|image|img|logo|icon|screenshot|banner)$'
@@ -253,7 +253,7 @@ function Test-ReadmeExperience {
     }
     $imageAltTextComplete = $imageAltTextIssueCount -eq 0
     $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
-    $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
+    $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern) + '.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
     $taglinePrefix = '<p align="center"><b>' + $ProfileTagline + '</b>'
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglinePrefix, [StringComparison]::Ordinal) -and
@@ -512,7 +512,7 @@ function Test-ReadmeDensity {
         [regex]::Split($safeReadme.TrimEnd(), '\r?\n').Count
     }
     $detailsSectionCount = [regex]::Matches($safeReadme, '(?m)^<details>\s*$').Count
-    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/').Count
+    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern)).Count
     $categoryRows = New-Object System.Collections.Generic.List[object]
     $warnings = New-Object System.Collections.Generic.List[string]
     $repoOnlyProjectCount = 0
@@ -741,7 +741,7 @@ function Test-GeneratedArtifactBudgets {
     } else {
         [regex]::Split($safeReadme.TrimEnd(), '\r?\n').Count
     }
-    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(https://github\.com/SysAdminDoc/').Count
+    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern)).Count
     $detailsSectionCount = [regex]::Matches($safeReadme, '(?m)^<details>\s*$').Count
     $imageTagCount = [regex]::Matches($safeReadme, '<img\b|!\[').Count
     $codeFenceCount = [regex]::Matches($safeReadme, '(?m)^```').Count

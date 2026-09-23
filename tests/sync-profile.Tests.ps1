@@ -3298,6 +3298,84 @@ Describe 'Star count display threshold' {
     }
 }
 
+Describe 'Owner-bound output follows -Owner' {
+    BeforeAll {
+        $script:OwnerAgnosticCatalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
+    }
+
+    It 'renders no link to the default owner when another owner generates the README' {
+        $Owner = 'FixtureOwner'
+        $readme = New-Readme -Catalog $script:OwnerAgnosticCatalog -Repos @()
+
+        $readme | Should -Not -Match '(?i)github\.com/SysAdminDoc|githubusercontent\.com/SysAdminDoc'
+        $readme | Should -Match ([regex]::Escape('[`setup.ps1`](https://github.com/FixtureOwner/FixtureOwner/blob/main/setup.ps1)'))
+        # What is left names the files setup.ps1 itself writes, which a fork's copy keeps.
+        $leftovers = @([regex]::Matches($readme, '(?i)SysAdminDoc[\w.*-]*') | ForEach-Object { $_.Value } | Select-Object -Unique)
+        $leftovers | Should -HaveCount 2
+        $leftovers | Should -Contain 'SysAdminDoc-setup.ps1'
+        $leftovers | Should -Contain 'SysAdminDoc-setup-*.log'
+    }
+
+    It 'counts rendered table rows for another owner' {
+        $Owner = 'FixtureOwner'
+        $readme = New-Readme -Catalog $script:OwnerAgnosticCatalog -Repos @()
+        $expectedRows = [regex]::Matches($readme, '(?m)^\| \[\*\*.+?\*\*\]\(https://github\.com/FixtureOwner/').Count
+        $expectedRows | Should -BeGreaterThan 0 -Because 'the fixture renders a web tools table row'
+
+        $density = Test-ReadmeDensity -ExpectedReadme $readme -Entries @($script:OwnerAgnosticCatalog.entries) -RepoLookup (ConvertTo-Lookup @())
+        $budgets = Test-GeneratedArtifactBudgets -ExpectedReadme $readme -ExpectedProjectsJson '{"projects":[]}' -ExpectedAssets @{} -ReportJson '{}'
+
+        $density.tableRowCount | Should -Be $expectedRows
+        @($budgets.rows | Where-Object { $_.metric -eq 'tableRows' })[0].value | Should -Be $expectedRows
+    }
+
+    It 'recognizes a featured action list row for another owner' {
+        $Owner = 'FixtureOwner'
+        $readme = '- [**FixtureTool**](https://github.com/FixtureOwner/FixtureTool) -- A fixture tool<br/>Web Tools<br/>Action: [Launch](https://fixture.example.test/)'
+
+        (Test-ReadmeExperience -Catalog $script:OwnerAgnosticCatalog -Repos @() -ExpectedReadme $readme).featuredActionList | Should -BeTrue
+    }
+
+    It 'seeds a catalog from a README generated for another owner' {
+        $Owner = 'FixtureOwner'
+        # Render before pointing $ReadmePath at the copy: New-Readme reads $ReadmePath too.
+        $readme = New-Readme -Catalog $script:OwnerAgnosticCatalog -Repos @()
+        $ReadmePath = Join-Path $TestDrive 'fixture-owner-readme.md'
+        Set-Content -LiteralPath $ReadmePath -Value $readme -Encoding utf8
+
+        $seeded = New-CatalogFromReadme -Repos @()
+
+        $row = @($seeded.entries | Where-Object { $_.repo -eq 'FixtureTool' })
+        $row | Should -HaveCount 1
+        $row[0].category | Should -Be 'web'
+        $row[0].liveUrl | Should -Be 'https://fixture.example.test/'
+    }
+
+    It 'names the default owner in the generator only where it is not the owner' {
+        # Any other literal would put the default owner into a run made with -Owner.
+        $allowed = @(
+            '^\s*\[string\]\$Owner = "SysAdminDoc",$'                           # the parameter default
+            '^# \$Owner is a script parameter \(defaults to "SysAdminDoc"\)'     # the comment on it
+            "-UserAgent 'SysAdminDoc-[a-z-]+'|\[string\]\`$UserAgent = 'SysAdminDoc-profile-sync'"  # names the tool to servers
+            'SysAdminDoc\.Networking'                                           # namespace of the compiled HTTP handler
+            'SysAdminDoc-setup'                                                 # files setup.ps1 itself writes
+            'sysadmindoc-backstage-catalog\.v1'                                 # feed format identifier
+            'https://github\.com/SysAdminDoc/SysAdminDoc/pull/1[46]"'           # recorded evidence about this repository's own PRs
+        )
+        $offenders = foreach ($path in $script:SyncProfileSourcePaths) {
+            $lineNumber = 0
+            foreach ($line in [System.IO.File]::ReadAllLines($path)) {
+                $lineNumber++
+                if ($line -match 'sysadmindoc' -and -not @($allowed | Where-Object { $line -match $_ })) {
+                    '{0}:{1}: {2}' -f [System.IO.Path]::GetFileName($path), $lineNumber, $line.Trim()
+                }
+            }
+        }
+
+        @($offenders) | Should -BeNullOrEmpty
+    }
+}
+
 Describe 'Empty category sections are not rendered' {
     It 'returns an empty string for a category with no visible entries' {
         $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'security' } | Select-Object -First 1

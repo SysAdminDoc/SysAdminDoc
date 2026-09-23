@@ -244,6 +244,12 @@ function Get-RepoUrl {
     return "https://github.com/$Owner/$repo"
 }
 
+function Get-OwnerRepoUrlPattern {
+    # Regex for the start of a repository link as Get-RepoUrl writes it. The README parsers
+    # and row counters match rendered links with it, so they follow -Owner.
+    return 'https://github\.com/' + [regex]::Escape([string]$Owner) + '/'
+}
+
 function Get-ProjectCanonicalRepo {
     <#
     .SYNOPSIS
@@ -420,9 +426,10 @@ function New-CatalogFromReadme {
     $inCode = $false
     $codeLines = New-Object System.Collections.Generic.List[string]
 
+    $ownerRepoUrl = Get-OwnerRepoUrlPattern
     $featuredRank = 1
     foreach ($line in $lines) {
-        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \|$') {
+        if ($line -match ('^\| \[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \|$')) {
             $repo = $Matches.repo
             if (-not $entries.Contains($repo)) {
                 $entries[$repo] = New-CatalogEntry -Repo $repo -Category "misc" -Description $Matches.description -Order 9999
@@ -430,7 +437,7 @@ function New-CatalogFromReadme {
             $entries[$repo].featured = $true
             $entries[$repo].featuredRank = $featuredRank
             $featuredRank++
-        } elseif ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\) \| (?<category>.*?) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \| (?<action>.*?) \|$') {
+        } elseif ($line -match ('^\| \[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\) \| (?<category>.*?) \| &#11088;(?<stars>\d+) \| (?<description>.*?) \| (?<action>.*?) \|$')) {
             $repo = $Matches.repo
             if (-not $entries.Contains($repo)) {
                 $entries[$repo] = New-CatalogEntry -Repo $repo -Category "misc" -Description $Matches.description -Order 9999
@@ -480,7 +487,7 @@ function New-CatalogFromReadme {
             continue
         }
 
-        if ($line -match '^\[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? (?:--|—) (?<rest>.+)$') {
+        if ($line -match ('^\[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? (?:--|—) (?<rest>.+)$')) {
             $repo = $Matches.repo
             $rest = $Matches.rest
             $description = $rest -replace '\s*&nbsp;\[.*$', ''
@@ -499,7 +506,7 @@ function New-CatalogFromReadme {
             continue
         }
 
-        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? \| (?<description>.*?) \| (?<tail>.*) \|$') {
+        if ($line -match ('^\| \[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? \| (?<description>.*?) \| (?<tail>.*) \|$')) {
             $repo = $Matches.repo
             $tail = $Matches.tail
             $order[$category]++
@@ -537,7 +544,7 @@ function New-CatalogFromReadme {
             continue
         }
 
-        if ($line -match '^\| \[\*\*(?<title>.+?)\*\*\]\(https://github\.com/SysAdminDoc/(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? \| (?<description>.*?) \|$') {
+        if ($line -match ('^\| \[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? \| (?<description>.*?) \|$')) {
             $repo = $Matches.repo
             $order[$category]++
             if (-not $entries.Contains($repo)) {
