@@ -6662,7 +6662,7 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
     }
 }
 
-Describe 'Child generator runs stay out of the checkout' {
+Describe 'Child script runs stay out of the checkout' {
     It 'gives every child run of sync-profile.ps1 its own cache path' {
         # Without -CachePath a child run takes the run lock under the checkout's
         # .cache/profile-sync, leaves run.lock behind, and waits on a real run's lock.
@@ -6684,6 +6684,25 @@ Describe 'Child generator runs stay out of the checkout' {
         $childRuns.Count | Should -BeGreaterThan 3 -Because 'the scan has to find the seed and entrypoint-mode runs'
         $missing = @($childRuns | Where-Object {
             @($_.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq 'CachePath' }).Count -eq 0
+        } | ForEach-Object { 'line {0}: {1}' -f $_.Extent.StartLineNumber, ($_.Extent.Text -split "`n")[0].Trim() })
+        $missing | Should -BeNullOrEmpty
+    }
+
+    It 'gives every child run of review-local-dependencies.ps1 a registry cache outside the checkout' {
+        # The default registry cache is the checkout's .cache/registry-versions.json, which
+        # the validation lane owns; a test run belongs in its own cache or its own root.
+        $tokens = $null
+        $parseErrors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$tokens, [ref]$parseErrors)
+        $childRuns = @($ast.FindAll({
+            param($node)
+            $node -is [System.Management.Automation.Language.CommandAst] -and $node.GetCommandName() -eq 'pwsh' -and
+                $node.Extent.Text -match '-File\s+\$script:DependencyReviewScriptPath\b'
+        }, $true))
+
+        $childRuns.Count | Should -BeGreaterThan 2 -Because 'the scan has to find the dependency review runs'
+        $missing = @($childRuns | Where-Object {
+            @($_.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -in @('RegistryCachePath', 'RepoRoot') }).Count -eq 0
         } | ForEach-Object { 'line {0}: {1}' -f $_.Extent.StartLineNumber, ($_.Extent.Text -split "`n")[0].Trim() })
         $missing | Should -BeNullOrEmpty
     }
@@ -10729,7 +10748,21 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
 '@
             [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
 
-            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -SkipNpmSignatures
+            # A fresh registry answer in the test drive: the run stays offline and leaves the
+            # checkout's .cache/registry-versions.json to the validation lane that owns it.
+            $cachePath = Join-Path $TestDrive 'fresh-registry-cache.json'
+            ([ordered]@{
+                fetchedAt = ([datetimeoffset]::Now).ToString('o')
+                packages = [ordered]@{
+                    'npm/markdownlint-cli2' = '0.23.2'
+                    'npm/js-yaml' = '5.2.2'
+                    'npm/markdown-it' = '14.3.0'
+                    'python/zizmor' = '1.29.0'
+                }
+            } | ConvertTo-Json -Depth 5) | Set-Content -LiteralPath $cachePath -Encoding utf8
+
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -SkipNpmSignatures `
+                -OfflineRegistry -RegistryCachePath $cachePath
             $LASTEXITCODE | Should -Be 0
             $report = ($output -join "`n") | ConvertFrom-Json
 
@@ -10857,7 +10890,8 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
 '@
             [System.IO.File]::WriteAllText($auditPath, $auditJson, [System.Text.UTF8Encoding]::new($false))
 
-            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -SkipNpmSignatures *>&1
+            $output = & pwsh -NoProfile -File $script:DependencyReviewScriptPath -NpmAuditJsonPath $auditPath -SkipNpmSignatures `
+                -OfflineRegistry -RegistryCachePath (Join-Path $TestDrive 'needs-action-registry-cache.json') *>&1
             $LASTEXITCODE | Should -Be 1
             $report = ($output -join "`n") | ConvertFrom-Json
 
