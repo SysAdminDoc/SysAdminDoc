@@ -621,6 +621,8 @@ function Get-ScorecardAlertPosture {
 function Get-RequiredCheckReadiness {
     param(
         [bool]$BranchProtectionAvailable,
+        # Whether the default branch's active rules could be read. They show what every
+        # enabled ruleset enforces there, so the ruleset list itself isn't needed.
         [bool]$RulesetsAvailable,
         [Nullable[bool]]$RequiredStatusChecks,
         [Nullable[bool]]$EnforceAdmins,
@@ -660,18 +662,21 @@ function Get-RequiredCheckReadiness {
     }
 
     $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetRequiresStatusChecks -eq $true)
+    # Either source showing enforcement settles it. "Not enabled" needs both readable and
+    # silent; with one unreadable and the other silent the answer is unknown, and says so.
+    $enforcementKnown = $requiredChecksEnabled -or ($BranchProtectionAvailable -and $RulesetsAvailable)
     # Blockers stand between the repository and enforcement, so they only apply until one
     # mechanism enforces the checks; after that the checklist's delivery item tracks the drill.
     $blockers = New-Object System.Collections.Generic.List[string]
     if (-not $requiredChecksEnabled) {
-        if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
-            $blockers.Add("Branch protection evidence unavailable: $BranchProtectionUnavailableReason.")
+        if (-not $BranchProtectionAvailable) {
+            $blockers.Add("Branch protection evidence unavailable$(if (-not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) { ": $BranchProtectionUnavailableReason" }).")
         } else {
             $blockers.Add("Branch protection does not require status checks.")
         }
 
-        if (-not $RulesetsAvailable -and -not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
-            $blockers.Add("Repository ruleset evidence unavailable: $RulesetsUnavailableReason.")
+        if (-not $RulesetsAvailable) {
+            $blockers.Add("Repository ruleset evidence unavailable$(if (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) { ": $RulesetsUnavailableReason" }).")
         } else {
             $blockers.Add("No active repository ruleset requires status checks on main.")
         }
@@ -689,12 +694,12 @@ function Get-RequiredCheckReadiness {
         -BranchProtectionAvailable $BranchProtectionAvailable `
         -RulesetsAvailable $RulesetsAvailable
 
-    $status = if (-not $BranchProtectionAvailable -and -not $RulesetsAvailable) {
-        "needs-live-validation"
-    } elseif ($requiredChecksEnabled) {
+    $status = if ($requiredChecksEnabled) {
         "enforcement-present"
-    } else {
+    } elseif ($enforcementKnown) {
         "not-enabled"
+    } else {
+        "needs-live-validation"
     }
 
     $recommendation = if ($requiredChecksEnabled -and $blockers.Count -eq 0) {
@@ -965,11 +970,16 @@ function Get-PrDeliveryTransitionChecklist {
                 -Evidence $deliveryEvidence `
                 -NextAction $deliveryNextAction))
 
-    $enforcementStatus = if ($RequiredChecksEnabled) { "ready" } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) { "blocked" } else { "needs-live-validation" }
+    # Absent only when both sources were read; one unreadable source leaves it unknown.
+    $enforcementStatus = if ($RequiredChecksEnabled) { "ready" } elseif ($BranchProtectionAvailable -and $RulesetsAvailable) { "blocked" } else { "needs-live-validation" }
     $enforcementEvidence = if ($RequiredChecksEnabled) {
         "Required-check enforcement is already present."
-    } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) {
-        "Live settings are readable and currently show no required-check enforcement."
+    } elseif ($BranchProtectionAvailable -and $RulesetsAvailable) {
+        "Branch protection and the default branch's rules are readable and show no required-check enforcement."
+    } elseif ($BranchProtectionAvailable) {
+        "Branch protection requires no status checks, but the default branch's rules couldn't be read, so a ruleset may still require them."
+    } elseif ($RulesetsAvailable) {
+        "No rule on the default branch requires status checks, but branch protection couldn't be read, so it may still require them."
     } else {
         "Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism."
     }
@@ -1280,6 +1290,10 @@ function Test-RepositoryCommunityBaseline {
     } elseif (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) {
         $repoWarnings.Add("Repository rulesets unavailable: $RulesetsUnavailableReason.")
     }
+    # The default branch's rules decide ruleset enforcement, so not reading them leaves it unknown.
+    if (-not $branchRulesAvailable) {
+        $repoWarnings.Add("Default branch rules unavailable$(if (-not [string]::IsNullOrWhiteSpace($BranchRulesUnavailableReason)) { ": $BranchRulesUnavailableReason" }), so a ruleset's required checks can't be seen.")
+    }
 
     $defaultWorkflowPermissions = $null
     $canApprovePullRequestReviews = $null
@@ -1294,18 +1308,17 @@ function Test-RepositoryCommunityBaseline {
     }
     $generatedPrCredentialDecision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed -WorkflowsPresent (@($RequiredStatusCheckCandidates).Count -gt 0)
 
-    # Ruleset evidence needs both the list and the branch's active rules.
-    $rulesetEvidenceUnavailableReason = if (-not [string]::IsNullOrWhiteSpace($RulesetsUnavailableReason)) { $RulesetsUnavailableReason } else { $BranchRulesUnavailableReason }
+    # Ruleset enforcement comes from the branch's active rules alone; the list only counts.
     $requiredCheckReadiness = Get-RequiredCheckReadiness `
         -BranchProtectionAvailable $branchProtectionAvailable `
-        -RulesetsAvailable ($rulesetsAvailable -and $branchRulesAvailable) `
+        -RulesetsAvailable $branchRulesAvailable `
         -RequiredStatusChecks $requiredStatusChecks `
         -EnforceAdmins $enforceAdmins `
         -ActionsPullRequestCreationAllowed $generatedPrCreationAllowed `
         -RulesetCount $rulesetCount `
         -RulesetRequiresStatusChecks $rulesetRequiresStatusChecks `
         -BranchProtectionUnavailableReason $BranchProtectionUnavailableReason `
-        -RulesetsUnavailableReason $rulesetEvidenceUnavailableReason
+        -RulesetsUnavailableReason $BranchRulesUnavailableReason
 
     $reviewPolicyPosture = Get-ReviewPolicyPosture `
         -BranchProtectionAvailable $branchProtectionAvailable `

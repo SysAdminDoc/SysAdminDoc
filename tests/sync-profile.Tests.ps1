@@ -904,6 +904,77 @@ Describe 'PR delivery checklist carries no recorded history' {
         }
     }
 
+    It 'agrees with itself when branch protection is <Protection>, the ruleset list <List> and the branch rules <Rules>' -ForEach @(
+        foreach ($protection in @('requiring checks', 'requiring nothing', 'unreadable')) {
+            foreach ($list in @('readable', 'unreadable')) {
+                foreach ($rules in @('requiring checks', 'requiring nothing', 'unreadable')) {
+                    @{ Protection = $protection; List = $list; Rules = $rules }
+                }
+            }
+        }
+    ) {
+        # Status used to key on the ruleset list while enforcement keyed on the branch rules,
+        # so one combination reported needs-live-validation and ready at the same time.
+        $protectionValue = $null
+        if ($Protection -eq 'requiring checks') {
+            $protectionValue = [pscustomobject]@{ required_status_checks = [pscustomobject]@{ strict = $true; contexts = @('validate') }; enforce_admins = [pscustomobject]@{ enabled = $false } }
+        } elseif ($Protection -eq 'requiring nothing') {
+            $protectionValue = [pscustomobject]@{ enforce_admins = [pscustomobject]@{ enabled = $false } }
+        }
+        $listValue = $null
+        if ($List -eq 'readable') { $listValue = @([pscustomobject]@{ id = 1; name = 'main'; target = 'branch'; enforcement = 'active' }) }
+        $rulesValue = $null
+        if ($Rules -eq 'requiring checks') {
+            $rulesValue = @([pscustomobject]@{ type = 'required_status_checks'; ruleset_id = 1 })
+        } elseif ($Rules -eq 'requiring nothing') {
+            $rulesValue = @()
+        }
+        $savedCandidates = $script:RequiredStatusCheckCandidates
+        $script:RequiredStatusCheckCandidates = @([ordered]@{ name = 'validate'; workflow = '.github/workflows/validate.yml' })
+        try {
+            $result = Test-RepositoryCommunityBaseline `
+                -Repository ([pscustomobject]@{ name = 'SysAdminDoc'; default_branch = 'main' }) `
+                -BranchProtection $protectionValue -BranchProtectionUnavailableReason $(if ($null -eq $protectionValue) { 'HTTP 404: Branch not protected' } else { '' }) `
+                -Rulesets $listValue -RulesetsUnavailableReason $(if ($null -eq $listValue) { 'HTTP 403' } else { '' }) `
+                -BranchRules $rulesValue -BranchRulesUnavailableReason $(if ($Rules -eq 'unreadable') { 'HTTP 502' } else { '' }) `
+                -ActionsWorkflowPermissions ([pscustomobject]@{ default_workflow_permissions = 'read'; can_approve_pull_request_reviews = $true }) `
+                -CommunityUnavailableReason 'not needed here' -LanguagesUnavailableReason 'not needed here' `
+                -ScorecardAlertsUnavailableReason 'not needed here' -ScorecardScoreUnavailableReason 'not needed here'
+        } finally {
+            $script:RequiredStatusCheckCandidates = $savedCandidates
+        }
+
+        $settings = $result['repositorySettings']
+        $readiness = $settings.requiredCheckReadiness
+        $blockers = @($readiness.blockers)
+        $enforcementItem = @($readiness.prDeliveryTransition.items | Where-Object { $_.id -eq 'enforcement-mechanism' })[0]
+        if ($Protection -eq 'requiring checks' -or $Rules -eq 'requiring checks') {
+            $readiness.status | Should -Be 'enforcement-present'
+            $readiness.recommendation | Should -Be 'monitor-required-check-enforcement'
+            $readiness.readyForEnforcement | Should -BeTrue
+            $blockers | Should -BeNullOrEmpty
+            $enforcementItem.status | Should -Be 'ready'
+        } elseif ($Protection -eq 'requiring nothing' -and $Rules -eq 'requiring nothing') {
+            $readiness.status | Should -Be 'not-enabled'
+            $readiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
+            $readiness.readyForEnforcement | Should -BeFalse
+            $blockers | Should -Contain 'Branch protection does not require status checks.'
+            $blockers | Should -Contain 'No active repository ruleset requires status checks on main.'
+            $enforcementItem.status | Should -Be 'blocked'
+        } else {
+            # Unknown: nothing may read as ready, and nothing unread may read as absent.
+            $readiness.status | Should -Be 'needs-live-validation'
+            $readiness.recommendation | Should -Be 'defer-until-pr-delivery-or-bypass'
+            $readiness.readyForEnforcement | Should -BeFalse
+            $enforcementItem.status | Should -Be 'needs-live-validation'
+            $enforcementItem.evidence | Should -Not -Match 'readable and show no'
+            if ($Protection -eq 'unreadable') { $blockers | Should -Contain 'Branch protection evidence unavailable: HTTP 404: Branch not protected.' }
+            if ($Rules -eq 'unreadable') { $blockers | Should -Contain 'Repository ruleset evidence unavailable: HTTP 502.' }
+        }
+        $rulesWarnings = @($settings.warnings | Where-Object { $_ -like 'Default branch rules unavailable*' })
+        $rulesWarnings | Should -HaveCount $(if ($Rules -eq 'unreadable') { 1 } else { 0 })
+    }
+
     It 'describes a repository with workflows without the local-only posture' -ForEach @(
         @{ Setting = $false; Status = 'needs-decision' }
         @{ Setting = $true; Status = 'setting-enabled' }
