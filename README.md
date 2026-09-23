@@ -674,7 +674,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
-| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
+| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory and release metadata; cold or partial caches stop before any generated file is opened. |
 | Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. Overlapping runs wait on one repository lock, so they cannot race shared cache entries or transaction journals. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 

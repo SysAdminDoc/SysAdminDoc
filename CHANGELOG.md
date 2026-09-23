@@ -4,6 +4,8 @@
 
 - Cataloged Onward, the auto-pager userscript that went public on 2026-09-21. Until it had a catalog row the profile check failed its missing-public-repo gate. Adding it pushed Browser Extensions & Userscripts to 31 rows against the 30-row README limit, so BackgroundSearch moved to portfolio-only. It stays in `projects.json` and on the portfolio.
 - Regenerated the README, feed, and report against current star counts.
+- Stopped generating the twelve profile SVGs. The README has been text-only since 2026-09-17 and referenced none of them, yet every run rendered, committed, budgeted and drift-checked all twelve, and fetched the contribution calendar just to draw two heatmaps nobody saw. That query was also the only reason the token needed `read:user`. The files are gone, and so is the calendar from the offline generation snapshot, which is now schema 3. An older cached snapshot is refused, so the first offline write after this change needs one online `-Check`.
+- The asset gate now fails on any file under `assets/profile` that the generator doesn't produce. With nothing generated, the old per-asset comparison could never fire, and a restored SVG would have sat in the tree with the check green. This also covers `-Write -Check`, since a write never deletes anything.
 
 ## 2026-09-20
 

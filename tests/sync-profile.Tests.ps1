@@ -169,7 +169,6 @@ Describe 'Function library loads via the dot-source test seam' {
             'Add-ForkParentMetadata',
             'Add-LiveRepositoryMetadata',
             'ConvertTo-Lookup',
-            'Get-ContributionCalendar',
             'New-CompleteGenerationSnapshot',
             'Test-CompleteGenerationSnapshot',
             'Write-CompleteGenerationSnapshot',
@@ -177,9 +176,7 @@ Describe 'Function library loads via the dot-source test seam' {
             'Set-GenerationStateFromSnapshot',
             'Get-Catalog',
             'New-ProfileAssetSvgs',
-            'New-ContributionGraphSvg',
-            'Get-ExistingProfileAssetText',
-            'New-ContributionAssetSvg',
+            'Get-ProfileAssetFileContents',
             'New-Readme',
             'New-ProjectsExportJson',
             'New-BackstageCatalogExport',
@@ -219,10 +216,12 @@ Describe 'Function library loads via the dot-source test seam' {
         }
     }
 
-    It 'uses a parameterized GraphQL query for contribution calendar lookup' {
-        $script:SyncProfileScript | Should -Match 'query\(\$login: String!\)'
-        $script:SyncProfileScript | Should -Match '"-f", "login=\$Owner"'
-        $script:SyncProfileScript | Should -Not -Match "user\(login: `"\s*\+"
+    It 'makes no contribution-calendar GraphQL call' {
+        # The heatmap SVGs were the only consumer, and the README references no generated
+        # image, so the read:user-scoped query is gone rather than guarded.
+        $script:SyncProfileScript | Should -Not -Match 'contributionsCollection'
+        $script:SyncProfileScript | Should -Not -Match 'function Get-ContributionCalendar'
+        $script:SyncProfileScript | Should -Not -Match 'Get-ContributionCalendar'
     }
 }
 
@@ -1690,20 +1689,6 @@ Describe 'Validation cache' {
         $oldProvider = $script:RepositoryMetadataProvider
         $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
         $oldTruncated = $script:RepositoryEnumerationTruncated
-        $calendar = [pscustomobject]@{
-            totalContributions = 3
-            weeks = @(
-                [pscustomobject]@{
-                    contributionDays = @(
-                        [pscustomobject]@{
-                            contributionCount = 3
-                            date = '2026-08-23'
-                            weekday = 0
-                        }
-                    )
-                }
-            )
-        }
         $repo = New-TestRepoMeta -Name 'CachedCompleteRepo' -WithRelease -AssetNames @('CachedCompleteRepo.zip')
 
         try {
@@ -1712,7 +1697,7 @@ Describe 'Validation cache' {
             $script:RepositoryEnumerationRequestedLimit = 25
             $script:RepositoryEnumerationTruncated = $false
 
-            Write-CompleteGenerationSnapshot -Repos @($repo) -ContributionCalendar $calendar -ReleaseMetadataComplete:$true | Should -BeTrue
+            Write-CompleteGenerationSnapshot -Repos @($repo) -ReleaseMetadataComplete:$true | Should -BeTrue
             $snapshot = Get-CompleteGenerationSnapshot
             $cacheFile = Get-ValidationCacheFilePath -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey)
             $cacheEnvelope = Read-ValidationCacheEntry -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey)
@@ -1721,13 +1706,14 @@ Describe 'Validation cache' {
             $snapshot.sourceComplete | Should -BeTrue
             $snapshot.sourceCompleteness.repositoryEnumeration | Should -BeTrue
             $snapshot.sourceCompleteness.releases | Should -BeTrue
-            $snapshot.sourceCompleteness.contributionData | Should -BeTrue
+            $snapshot.schemaVersion | Should -Be 3
+            $snapshot.Contains('contributionData') | Should -BeFalse
+            $snapshot.sourceCompleteness.Contains('contributionData') | Should -BeFalse
             $snapshot.repositoryEnumeration.returnedCount | Should -Be 1
             $snapshot.repositoryEnumeration.truncated | Should -BeFalse
             $snapshot.repositories | Should -HaveCount 1
             $snapshot.releases | Should -HaveCount 1
             $snapshot.releases[0].latestRelease.tagName | Should -Be 'v1.0.0'
-            $snapshot.contributionData.totalContributions | Should -Be 3
             $cacheEnvelope.fetchedAt | Should -Not -BeNullOrEmpty
             $cacheEnvelope.value.fetchedAt | Should -Be '2026-08-23T12:00:00.0000000Z'
             $cacheEnvelope.value.generationTimestamp | Should -Not -BeNullOrEmpty
@@ -1735,9 +1721,13 @@ Describe 'Validation cache' {
             $snapshot.owner = 'DifferentOwner'
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
             $snapshot.owner = 'SysAdminDoc'
-            $snapshot.sourceCompleteness.contributionData = $false
+            # A schema-2 snapshot from before the calendar was dropped must not replay.
+            $snapshot.schemaVersion = 2
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
-            $snapshot.sourceCompleteness.contributionData = $true
+            $snapshot.schemaVersion = 3
+            $snapshot.sourceCompleteness.releases = $false
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.sourceCompleteness.releases = $true
             $snapshot.repositoryEnumeration.provider = 'cache-fallback'
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
             $snapshot.repositoryEnumeration.provider = 'graphql'
@@ -1763,18 +1753,6 @@ Describe 'Validation cache' {
             $mismatchedRelease.releases[0].latestRelease.tagName = 'v9.9.9'
             Test-CompleteGenerationSnapshot -Snapshot $mismatchedRelease | Should -BeFalse
 
-            $missingContributionTotal = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
-            $missingContributionTotal.contributionData.PSObject.Properties.Remove('totalContributions')
-            Test-CompleteGenerationSnapshot -Snapshot $missingContributionTotal | Should -BeFalse
-
-            $emptyContributionWeeks = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
-            $emptyContributionWeeks.contributionData.weeks = @()
-            Test-CompleteGenerationSnapshot -Snapshot $emptyContributionWeeks | Should -BeFalse
-
-            $emptyContributionDays = $snapshot | ConvertTo-Json -Depth 50 | ConvertFrom-Json
-            $emptyContributionDays.contributionData.weeks[0].contributionDays = @()
-            Test-CompleteGenerationSnapshot -Snapshot $emptyContributionDays | Should -BeFalse
-
             $snapshot.repositories = @($snapshot.repositories[0], $snapshot.repositories[0])
             $snapshot.releases = @($snapshot.releases[0], $snapshot.releases[0])
             $snapshot.repositoryEnumeration.returnedCount = 2
@@ -1798,20 +1776,6 @@ Describe 'Validation cache' {
             (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip')),
             (New-TestRepoMeta -Name 'PyTool' -Language 'Python')
         )
-        $calendar = [pscustomobject]@{
-            totalContributions = 2
-            weeks = @(
-                [pscustomobject]@{
-                    contributionDays = @(
-                        [pscustomobject]@{
-                            contributionCount = 2
-                            date = '2026-08-23'
-                            weekday = 0
-                        }
-                    )
-                }
-            )
-        }
 
         try {
             $script:MetadataSnapshotAt = '2026-08-23T12:00:00.0000000Z'
@@ -1822,24 +1786,17 @@ Describe 'Validation cache' {
 
             $onlineReadme = New-Readme -Catalog $catalog -Repos $repos
             $onlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $repos -GeneratedAt $generationTimestamp
-            $onlineAssets = New-ProfileAssetSvgs -Catalog $catalog -Repos $repos -ContributionCalendar $calendar
-            Write-CompleteGenerationSnapshot -Repos $repos -ContributionCalendar $calendar -ReleaseMetadataComplete:$true -GenerationTimestamp $generationTimestamp | Should -BeTrue
+            Write-CompleteGenerationSnapshot -Repos $repos -ReleaseMetadataComplete:$true -GenerationTimestamp $generationTimestamp | Should -BeTrue
 
             $snapshot = Get-CompleteGenerationSnapshot
             Set-GenerationStateFromSnapshot -Snapshot $snapshot
             $cachedRepos = @(Get-MemberValue -Object $snapshot -Name 'repositories')
-            $cachedCalendar = Get-MemberValue -Object $snapshot -Name 'contributionData'
             $offlineReadme = New-Readme -Catalog $catalog -Repos $cachedRepos
             Start-Sleep -Milliseconds 25
             $offlineProjects = New-ProjectsExportJson -Catalog $catalog -Repos $cachedRepos -GeneratedAt $script:GenerationArtifactTimestamp
-            $offlineAssets = New-ProfileAssetSvgs -Catalog $catalog -Repos $cachedRepos -ContributionCalendar $cachedCalendar
 
             $offlineReadme | Should -BeExactly $onlineReadme
             $offlineProjects | Should -BeExactly $onlineProjects
-            @($offlineAssets.Keys) | Should -Be @($onlineAssets.Keys)
-            foreach ($assetPath in @($onlineAssets.Keys)) {
-                $offlineAssets[$assetPath] | Should -BeExactly $onlineAssets[$assetPath]
-            }
         } finally {
             $script:MetadataSnapshotAt = $oldMetadataSnapshotAt
             $script:RepositoryMetadataProvider = $oldProvider
@@ -2909,7 +2866,7 @@ Describe 'Offline generation with an empty repository set' {
     It 'renders README, feed, and asset SVGs without a Count-on-null crash when repos bind to null' {
         { New-Readme -Catalog $script:emptyCat -Repos $null } | Should -Not -Throw
         { New-ProjectsExportJson -Catalog $script:emptyCat -Repos $null } | Should -Not -Throw
-        { New-ProfileAssetSvgs -Catalog $script:emptyCat -Repos $null -ContributionCalendar $null } | Should -Not -Throw
+        { New-ProfileAssetSvgs } | Should -Not -Throw
     }
     It 'reports zero live repositories in the feed provenance when the repo set is empty' {
         $feed = New-ProjectsExportJson -Catalog $script:emptyCat -Repos @() | ConvertFrom-Json
@@ -2917,20 +2874,13 @@ Describe 'Offline generation with an empty repository set' {
         $feed.provenance.repoEnumeration.returnedCount | Should -Be 0
     }
 
-    It 'generates the full set of theme-aware profile SVG assets' {
-        $assets = New-ProfileAssetSvgs -Catalog $script:emptyCat -Repos @() -ContributionCalendar $null
-        $expected = @(
-            'header-dark.svg', 'header-light.svg', 'stats-dark.svg', 'stats-light.svg',
-            'languages-dark.svg', 'languages-light.svg', 'activity-dark.svg', 'activity-light.svg',
-            'contributions-dark.svg', 'contributions-light.svg', 'footer-dark.svg', 'footer-light.svg'
-        )
-        @($assets.Keys).Count | Should -Be 12
-        foreach ($name in $expected) {
-            $key = @($assets.Keys | Where-Object { $_ -like "*$name" }) | Select-Object -First 1
-            $key | Should -Not -BeNullOrEmpty
-            $assets[$key] | Should -Match '<svg'
-            $assets[$key] | Should -Match 'role="img"'
-        }
+    It 'generates no profile SVG assets for the text-only README' {
+        # The README header and footer reference no generated image. Twelve SVGs used to be
+        # rendered, committed and drift-checked for a rich header that never displayed.
+        $assets = New-ProfileAssetSvgs
+
+        $null -eq $assets | Should -BeFalse -Because 'callers enumerate the returned dictionary'
+        $assets.Count | Should -Be 0
     }
 }
 
@@ -3518,103 +3468,6 @@ Write-Host ok
         $result.thirdPartyRenderHosts | Should -Contain 'readme-typing-svg.demolab.com'
         $result.thirdPartyRenderHosts | Should -Contain 'capsule-render.vercel.app'
         $result.passed | Should -BeFalse
-    }
-
-    It 'generates committed local profile SVG assets' {
-        $repo = New-TestRepoMeta -Name 'WinTool'
-        $repo.stargazerCount = 7
-        $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @($repo)
-
-        $assets.Keys | Should -Contain 'assets/profile/header-dark.svg'
-        $assets.Keys | Should -Contain 'assets/profile/header-light.svg'
-        $assets.Keys | Should -Contain 'assets/profile/stats-dark.svg'
-        $assets.Keys | Should -Contain 'assets/profile/languages-light.svg'
-        $assets.Keys | Should -Contain 'assets/profile/activity-dark.svg'
-        $assets.Keys | Should -Contain 'assets/profile/contributions-dark.svg'
-        $assets.Keys | Should -Contain 'assets/profile/contributions-light.svg'
-        $assets.Keys | Should -Contain 'assets/profile/footer-dark.svg'
-        $assets.Keys | Should -Contain 'assets/profile/footer-light.svg'
-        $assets['assets/profile/contributions-dark.svg'] | Should -Match 'Contribution Activity'
-        $assets['assets/profile/contributions-dark.svg'] | Should -Match 'contributions in the last year'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc profile header'
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'SysAdminDoc</text>'
-        $assets['assets/profile/header-dark.svg'] | Should -Match ([regex]::Escape($ProfileTagline.TrimEnd('.')))
-        $assets['assets/profile/header-dark.svg'] | Should -Match 'View full portfolio -&gt;'
-        $assets['assets/profile/stats-dark.svg'] | Should -Match '<svg'
-        $assets['assets/profile/stats-dark.svg'] | Should -Match '<title id="profile-sysadmindoc-catalog-stats-dark-title">SysAdminDoc Catalog Stats</title>'
-        $assets['assets/profile/stats-dark.svg'] | Should -Match 'total public stars'
-        $assets['assets/profile/stats-dark.svg'] | Should -Match '>7</text>'
-        $assets['assets/profile/activity-light.svg'] | Should -Match 'Release Asset Health'
-        $assets['assets/profile/footer-light.svg'] | Should -Match 'Built from Broadcast IT, Healthcare IT'
-        $assets['assets/profile/footer-light.svg'] | Should -Match 'View portfolio -&gt;'
-
-        foreach ($asset in $assets.GetEnumerator()) {
-            [xml]$assetXml = $asset.Value
-            $root = $assetXml.DocumentElement
-            $labelledBy = $root.GetAttribute('aria-labelledby')
-            $describedBy = $root.GetAttribute('aria-describedby')
-            $titleNode = $root.GetElementsByTagName('title')[0]
-            $descNode = $root.GetElementsByTagName('desc')[0]
-
-            $root.GetAttribute('role') | Should -Be 'img'
-            $root.GetAttribute('aria-label') | Should -Be ''
-            $labelledBy | Should -Not -BeNullOrEmpty
-            $describedBy | Should -Not -BeNullOrEmpty
-            $titleNode.GetAttribute('id') | Should -Be $labelledBy
-            $descNode.GetAttribute('id') | Should -Be $describedBy
-            $titleNode.InnerText | Should -Not -BeNullOrEmpty
-            $descNode.InnerText | Should -Not -BeNullOrEmpty
-        }
-
-        [xml]$statsXml = $assets['assets/profile/stats-dark.svg']
-        $statsRoot = $statsXml.DocumentElement
-        $statsRoot.GetAttribute('aria-labelledby') | Should -Be 'profile-sysadmindoc-catalog-stats-dark-title'
-        $statsRoot.GetAttribute('aria-describedby') | Should -Be 'profile-sysadmindoc-catalog-stats-dark-desc'
-        $statsDesc = $statsRoot.GetElementsByTagName('desc')[0].InnerText
-        $statsDesc | Should -Match ([regex]::Escape('Rows: 1 active public repositories'))
-        $statsDesc | Should -Match ([regex]::Escape('7 total public stars'))
-
-        $escapedSvg = New-ProfilePanelSvg -Title 'A&B <Stats>' -Subtitle 'Summary & status' -Rows @(
-            [ordered]@{ label = 'stars <public>'; value = '7 & 8'; detail = 'live > stale' }
-        ) -Theme dark
-        [xml]$escapedXml = $escapedSvg
-        $escapedRoot = $escapedXml.DocumentElement
-        $escapedRoot.GetAttribute('aria-labelledby') | Should -Be 'profile-a-b-stats-dark-title'
-        $escapedSvg | Should -Match 'A&amp;B &lt;Stats&gt;'
-        $escapedRoot.GetElementsByTagName('desc')[0].InnerText | Should -Be 'Summary & status Rows: 7 & 8 stars <public> (live > stale).'
-    }
-
-    It 'preserves committed contribution graphs when the live calendar is unavailable' {
-        $repo = New-TestRepoMeta -Name 'WinTool'
-        $assets = New-ProfileAssetSvgs -Catalog $script:cat -Repos @($repo) -ContributionCalendar $null
-        $committedDark = (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'assets/profile/contributions-dark.svg') -Raw).TrimEnd()
-
-        $assets['assets/profile/contributions-dark.svg'] | Should -Be $committedDark
-    }
-
-    It 'expands contribution graph width for unusually long calendars' {
-        $weeks = @(
-            for ($w = 0; $w -lt 60; $w++) {
-                [pscustomobject]@{
-                    contributionDays = @(
-                        [pscustomobject]@{
-                            contributionCount = 1
-                            date = ('2026-01-{0:00}' -f ((($w % 28) + 1)))
-                            weekday = 0
-                        }
-                    )
-                }
-            }
-        )
-        $calendar = [pscustomobject]@{
-            totalContributions = 60
-            weeks = $weeks
-        }
-
-        $svg = New-ContributionGraphSvg -Calendar $calendar -Theme dark -Width 820
-
-        $svg | Should -Match 'width="932"'
-        $svg | Should -Match 'viewBox="0 0 932 236"'
     }
 }
 
@@ -5082,7 +4935,8 @@ Describe 'Profile sync entrypoint' {
         $publicationIndex | Should -BeGreaterThan $validationIndex
         $mainBlock | Should -Match 'profileStateParameters\[''CurrentReadme''\] = \$expected'
         $mainBlock | Should -Match 'profileStateParameters\[''CurrentProjects''\] = \$expectedProjects'
-        $mainBlock | Should -Match 'profileStateParameters\[''CurrentAssets''\] = \$expectedAssets'
+        $mainBlock | Should -Match '\$assetsAfterWrite = Get-ProfileAssetFileContents'
+        $mainBlock | Should -Match 'profileStateParameters\[''CurrentAssets''\] = \$assetsAfterWrite'
         $mainBlock | Should -Match 'isReport = \$true'
         $mainBlock | Should -Match 'Generated targets were not changed'
     }
@@ -5099,10 +4953,7 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
         Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'projects.json') -Destination $projectsPath -Force
         Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Destination $reportPath -Force
-        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'assets/profile') -Destination $assetsPath -Recurse -Force
-        $targetPaths = @($readmePath, $projectsPath, $reportPath) + @(
-            Get-ChildItem -LiteralPath $assetsPath -File | Sort-Object FullName | ForEach-Object FullName
-        )
+        $targetPaths = @($readmePath, $projectsPath, $reportPath)
         $beforeHashes = @{}
         foreach ($path in $targetPaths) {
             $beforeHashes[$path] = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
@@ -5115,7 +4966,8 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
 
         $LASTEXITCODE | Should -Be 1
         ($output | Out-String) | Should -Match 'Offline writes require a fresh, complete generation snapshot'
-        $targetPaths | Should -HaveCount 15
+        $targetPaths | Should -HaveCount 3
+        Test-Path -LiteralPath $assetsPath | Should -BeFalse
         foreach ($path in $targetPaths) {
             (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash | Should -Be $beforeHashes[$path]
         }
@@ -5134,20 +4986,6 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         $oldProvider = $script:RepositoryMetadataProvider
         $oldRequestedLimit = $script:RepositoryEnumerationRequestedLimit
         $oldTruncated = $script:RepositoryEnumerationTruncated
-        $calendar = [pscustomobject]@{
-            totalContributions = 1
-            weeks = @(
-                [pscustomobject]@{
-                    contributionDays = @(
-                        [pscustomobject]@{
-                            contributionCount = 1
-                            date = '2026-08-23'
-                            weekday = 0
-                        }
-                    )
-                }
-            )
-        }
 
         try {
             $script:CachePath = $cachePath
@@ -5159,7 +4997,6 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
             Reset-ValidationCacheState
             Write-CompleteGenerationSnapshot `
                 -Repos @((New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip'))) `
-                -ContributionCalendar $calendar `
                 -ReleaseMetadataComplete:$true | Should -BeTrue
         } finally {
             $script:CachePath = $oldCachePath
@@ -5182,7 +5019,7 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         $feed.publicRepoCount | Should -Be 1
         $feed.provenance.metadataProvider | Should -Be 'graphql'
         $feed.provenance.repoEnumeration.returnedCount | Should -Be 1
-        @(Get-ChildItem -LiteralPath $assetsPath -File) | Should -HaveCount 12
+        Test-Path -LiteralPath $assetsPath | Should -BeFalse -Because 'the text-only README has no generated assets to write'
     }
 
     It 'rejects unsafe Owner values before generation or network work' {
@@ -6139,7 +5976,7 @@ Describe 'Test-ProfileState projects sync gate' {
     }
 }
 
-Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive' {
+Describe 'Profile asset sync gate' {
     It 'checks prospective in-memory SVGs before publication' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $expectedReadme = New-Readme -Catalog $cat -Repos @()
@@ -6158,56 +5995,7 @@ Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive
         $result.Report.profileAssetsAccessibility.contrastRatios[0].asset | Should -Be 'prospective.svg'
     }
 
-    It 'does not fail the fatal asset gate when only the live contribution heatmaps drift' {
-        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $expectedReadme = New-Readme -Catalog $cat -Repos @()
-        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
-        $expectedAssets = @{
-            'assets/profile/contributions-dark.svg'  = '<svg>drifted heatmap</svg>'
-            'assets/profile/contributions-light.svg' = '<svg>drifted heatmap</svg>'
-        }
-
-        $result = Test-ProfileState -Catalog $cat -Repos @() `
-            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
-            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
-            -ExpectedAssets $expectedAssets -SkipLinkValidation
-
-        $result.Report.profileAssetsInSync | Should -BeTrue
-        $contribRow = $result.Report.profileAssetChecks | Where-Object { $_.path -eq 'assets/profile/contributions-dark.svg' }
-        $contribRow.inSync | Should -BeFalse
-    }
-
-    It 'does not fail the fatal asset gate when only the live activity panel drifts' {
-        # activity-*.svg renders release-inspection counters that move as repositories
-        # publish, not with the catalog. Treating it as deterministic made -Check go red
-        # on an unmodified checkout within hours of the commit that generated it.
-        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $expectedReadme = New-Readme -Catalog $cat -Repos @()
-        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
-        $expectedAssets = @{
-            'assets/profile/activity-dark.svg'  = '<svg>drifted counters</svg>'
-            'assets/profile/activity-light.svg' = '<svg>drifted counters</svg>'
-        }
-
-        $result = Test-ProfileState -Catalog $cat -Repos @() `
-            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
-            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
-            -ExpectedAssets $expectedAssets -SkipLinkValidation
-
-        $result.Report.profileAssetsInSync | Should -BeTrue
-        $activityRow = $result.Report.profileAssetChecks | Where-Object { $_.path -eq 'assets/profile/activity-dark.svg' }
-        $activityRow.inSync | Should -BeFalse
-    }
-
-    It 'keeps one pattern for every live-derived asset exclusion' {
-        # Two call sites decided this independently before; a divergence is how the
-        # activity panel ended up fatal while the heatmap was not.
-        $script:SyncProfileScript | Should -Match '\$LiveDerivedProfileAssetPattern = '
-        @([regex]::Matches($script:SyncProfileScript, '-notmatch \$LiveDerivedProfileAssetPattern')).Count | Should -Be 2
-        $script:SyncProfileScript | Should -Not -Match "-notmatch 'contributions-\(dark"
-    }
-
-    It 'still fails the fatal asset gate when a deterministic (non-contribution) asset drifts' {
+    It 'fails the asset gate when a generated asset drifts' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $expectedReadme = New-Readme -Catalog $cat -Repos @()
         $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
@@ -6224,6 +6012,79 @@ Describe 'Profile asset sync gate treats contribution heatmaps as time-sensitive
         $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].path | Should -Be 'assets/profile/footer-dark.svg'
         $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].fatal | Should -BeTrue
         $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0].expectedSha256 | Should -Match '^[a-f0-9]{64}$'
+    }
+
+    It 'fails the asset gate when a file the generator does not produce is present' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $stray = '<svg><title>restored heatmap</title></svg>'
+
+        $result = Test-ProfileState -Catalog $cat -Repos @() `
+            -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+            -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+            -ExpectedAssets (New-ProfileAssetSvgs) -CurrentAssets @{ 'assets/profile/contributions-dark.svg' = $stray } `
+            -SkipLinkValidation
+
+        $result.Report.profileAssetsInSync | Should -BeFalse
+        $result.FailureConditions['profileAssetsInSync'] | Should -BeTrue
+        $row = @($result.Report.profileAssetChecks | Where-Object { $_.path -eq 'assets/profile/contributions-dark.svg' })
+        $row | Should -HaveCount 1
+        $row[0].exists | Should -BeTrue
+        $row[0].inSync | Should -BeFalse
+        $drift = $result.Report.artifactDriftDiagnostics.assets.affectedAssets[0]
+        $drift.fatal | Should -BeTrue
+        $drift.currentSha256 | Should -Be (Get-StringSha256 -Text (ConvertTo-NormalizedGeneratedText -Text $stray)) -Because 'the row must describe the stray file, not an empty read'
+    }
+
+    It 'finds a stray file on disk under the asset path when no current set is passed' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $strayRoot = Join-Path $TestDrive 'stray-assets'
+        New-Item -ItemType Directory -Path (Join-Path $strayRoot 'nested') -Force | Out-Null
+        Set-Content -LiteralPath (Join-Path $strayRoot 'nested/stats-dark.svg') -Value '<svg/>' -Encoding utf8
+
+        $onDisk = Get-ProfileAssetFileContents -Path $strayRoot
+        $oldAssetsPath = $script:AssetsPath
+        try {
+            $script:AssetsPath = $strayRoot
+            $result = Test-ProfileState -Catalog $cat -Repos @() `
+                -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+                -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+                -ExpectedAssets (New-ProfileAssetSvgs) -SkipLinkValidation
+        } finally {
+            $script:AssetsPath = $oldAssetsPath
+        }
+
+        $onDisk.Keys | Should -HaveCount 1
+        @($onDisk.Keys)[0] | Should -BeLike '*/stray-assets/nested/stats-dark.svg'
+        $result.Report.profileAssetsInSync | Should -BeFalse
+        @($result.Report.profileAssetChecks | Where-Object { $_.path -like '*/nested/stats-dark.svg' }) | Should -HaveCount 1
+        $result.Report.profileAssetsAccessibility.assetCount | Should -Be 1
+    }
+
+    It 'passes the asset gate when the generator produces nothing and the directory is absent' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedReadme = New-Readme -Catalog $cat -Repos @()
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @()
+        $oldAssetsPath = $script:AssetsPath
+        try {
+            $script:AssetsPath = Join-Path $TestDrive 'no-such-assets'
+            $result = Test-ProfileState -Catalog $cat -Repos @() `
+                -ExpectedReadme $expectedReadme -ExpectedProjects $expectedProjects `
+                -CurrentReadme $expectedReadme -CurrentProjects $expectedProjects `
+                -ExpectedAssets (New-ProfileAssetSvgs) -SkipLinkValidation
+        } finally {
+            $script:AssetsPath = $oldAssetsPath
+        }
+
+        $result.Report.profileAssetsInSync | Should -BeTrue
+        @($result.Report.profileAssetChecks) | Should -HaveCount 0
+        $result.Report.profileAssetsAccessibility.assetCount | Should -Be 0
+        $budget = @($result.Report.artifactBudgets.rows | Where-Object { $_.artifact -eq 'assets/profile' -and $_.metric -eq 'files' })
+        $budget | Should -HaveCount 1
+        $budget[0].value | Should -Be 0
     }
 }
 
@@ -7191,10 +7052,10 @@ Describe 'Profile SVG color contrast' {
         $result.textColors[0].meetsTextMin | Should -BeFalse
     }
 
-    It 'reports ok across the committed profile SVG assets' {
+    It 'reports ok with nothing to check now that no profile SVGs are committed' {
         $result = Test-ProfileAssetsAccessibility
         $result.status | Should -Be 'ok'
-        $result.assetCount | Should -BeGreaterThan 0
+        $result.assetCount | Should -Be 0
         $result.failingAssetCount | Should -Be 0
         $result.textMinRatio | Should -Be 4.5
     }
@@ -7322,7 +7183,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
             param([hashtable]$Catalog, [object[]]$Repos = @())
             $expectedReadme = New-Readme -Catalog $Catalog -Repos $Repos
             $expectedProjects = New-ProjectsExportJson -Catalog $Catalog -Repos $Repos
-            $expectedAssets = New-ProfileAssetSvgs -Catalog $Catalog -Repos $Repos -ContributionCalendar $null
+            $expectedAssets = New-ProfileAssetSvgs
             [ordered]@{
                 Catalog = $Catalog
                 Repos = $Repos
@@ -7406,14 +7267,10 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         script:Assert-ConditionNewlyFired -Result $result -Condition 'projectsExportInSync'
     }
 
-    It 'fires profileAssetsInSync when a deterministic asset drifts' {
+    It 'fires profileAssetsInSync when a file the generator does not produce is present' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
-        $current = @{}
-        foreach ($key in $baseline.ExpectedAssets.Keys) { $current[$key] = $baseline.ExpectedAssets[$key] }
-        $deterministic = @($current.Keys | Where-Object { $_ -notmatch '(contributions|activity)-' } | Sort-Object)[0]
-        $deterministic | Should -Not -BeNullOrEmpty
-        $current[$deterministic] = '<svg><title>drifted</title></svg>'
+        $current = @{ 'assets/profile/header-dark.svg' = '<svg><title>restored</title></svg>' }
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ CurrentAssets = $current }
 

@@ -7,7 +7,7 @@ Contributions, bug reports, and feature requests are welcome through [issues](ht
 The public `README.md` is generated from two sources:
 
 1. **`data/profile-catalog.json`** -- the canonical list of projects, categories, descriptions, actions, and suppression rules.
-2. **`scripts/sync-profile.ps1`** -- reads the catalog plus live GitHub metadata, then renders the full README, `projects.json` feed, validation report, and profile SVG assets.
+2. **`scripts/sync-profile.ps1`** -- reads the catalog plus live GitHub metadata, then renders the full README, `projects.json` feed, and validation report.
 
 The header and everything below the `<!-- GENERATED PROFILE CATALOG -->` marker are generated and should not be edited directly.
 

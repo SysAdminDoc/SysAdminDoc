@@ -50,6 +50,7 @@ try {
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $script:SmokeReportPath = $SmokeReportPath
+$script:AssetsPath = $AssetsPath
 $script:GraphQlPageSize = [int]$GraphQlPageSize
 $script:CachePath = $CachePath
 $script:CacheTtlHours = [int]$CacheTtlHours
@@ -132,13 +133,6 @@ $SmokeAffectingPaths = @(
     "data/profile-catalog.json",
     "scripts/render-profile-smoke.ps1"
 )
-# Generated SVGs whose contents track live upstream state rather than the catalog, so
-# committed-vs-fresh drift is expected between a -Write and any later -Check. The
-# contribution heatmap moves with account activity; the activity panel renders release
-# inspection counters that move as repositories publish. Both stay visible per-asset in
-# profileAssetChecks but are excluded from the fatal sync gate. One pattern, read by
-# every caller, so the exclusion cannot drift apart again.
-$LiveDerivedProfileAssetPattern = '(contributions|activity)-(dark|light)\.svg$'
 # How long a local dependency-advisory review stays credible as the compensating
 # control for the banned Dependabot lane.
 $LocalAdvisoryReviewStaleDays = 7
@@ -531,8 +525,7 @@ function ConvertFrom-RestRepoPageJson {
 function Test-GitHubCliAuthenticated {
     # Authenticates via GH_TOKEN/GITHUB_TOKEN or the gh CLI keyring. Minimum token scopes:
     #   - Read-only generation (-Write/-Check): public repo read is enough; a fine-grained
-    #     token needs read-only "Metadata" + "Contents" on public repos. GraphQL contribution
-    #     calendar data needs classic "read:user" (or fine-grained "Profile" read).
+    #     token needs read-only "Metadata" + "Contents" on public repos.
     #   - -ApplyTopics (writes repo topics via PUT /repos/.../topics): needs classic "public_repo"
     #     (or fine-grained "Administration: read and write" on the target public repos).
     if (-not [string]::IsNullOrWhiteSpace($env:GH_TOKEN) -or -not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
@@ -1145,37 +1138,6 @@ function ConvertTo-BooleanValue {
         return [bool]$Value
     }
     return ([string]$Value).ToLowerInvariant() -eq "true"
-}
-
-function Get-ContributionCalendar {
-    <#
-    .SYNOPSIS
-    Fetches the owner's GitHub contribution calendar for committed SVG assets.
-    .DESCRIPTION
-    Returns null in offline mode or when GitHub GraphQL contribution evidence is
-    unavailable so generation can preserve the previously committed graph.
-    #>
-    [CmdletBinding()]
-    param()
-
-    if ($Offline) {
-        return $null
-    }
-
-    $query = 'query($login: String!) { user(login: $login) { contributionsCollection { contributionCalendar { totalContributions weeks { contributionDays { contributionCount date weekday } } } } } }'
-    try {
-        $gh = Invoke-GhCli -Arguments @("api", "graphql", "-f", "query=$query", "-f", "login=$Owner")
-        $raw = $gh.text
-        if ($gh.exitCode -ne 0) {
-            Write-Warning "Contribution calendar fetch failed: $raw"
-            return $null
-        }
-        $parsed = $raw | ConvertFrom-Json
-        return $parsed.data.user.contributionsCollection.contributionCalendar
-    } catch {
-        Write-Warning "Contribution calendar error: $($_.Exception.Message)"
-        return $null
-    }
 }
 
 function Get-RepoNameWithOwner {
@@ -4424,7 +4386,7 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |
 | Metadata budget drill | Runs `pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -GraphQlPageSize 300` to exercise a smaller GitHub metadata page size and record request/retry telemetry. |
-| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory, release metadata, and contribution calendar; cold or partial caches stop before any generated file is opened. |
+| Offline writes | `-Write -Offline` requires a fresh complete cache containing the repository inventory and release metadata; cold or partial caches stop before any generated file is opened. |
 | Artifact publication | Checks the proposed generated set in memory, then stages each file beside its target with old and new SHA-256 hashes in a durable journal. Existing files are replaced atomically, the report moves last, and an interrupted run is repaired before the next generation. Overlapping runs wait on one repository lock, so they cannot race shared cache entries or transaction journals. |
 | Release verification pilot | Add `-VerifyReleaseArtifacts` to `-Check` to opt into capped GitHub release downloads with matching SHA-256 sidecars; the default remains metadata-only. |
 
@@ -4541,523 +4503,44 @@ function New-CategorySection {
     return ($lines -join [Environment]::NewLine)
 }
 
-function New-ThemeAwareImage {
-    param(
-        [string]$DarkUrl,
-        [string]$LightUrl,
-        [string]$Alt,
-        [string]$Attributes = ""
-    )
-
-    $suffix = if ([string]::IsNullOrWhiteSpace($Attributes)) { "" } else { " $Attributes" }
-    return "<img src=`"$DarkUrl#gh-dark-mode-only`" alt=`"$Alt`"$suffix /><img src=`"$LightUrl#gh-light-mode-only`" alt=`"$Alt`"$suffix />"
-}
-
-function ConvertTo-SvgText {
-    param([object]$Value)
-
-    if ($null -eq $Value) { return "" }
-    return [System.Security.SecurityElement]::Escape([string]$Value)
-}
-
-function ConvertTo-SvgId {
-    param([string]$Value)
-
-    $slug = ([string]$Value).ToLowerInvariant() -replace '[^a-z0-9]+', '-'
-    $slug = $slug.Trim('-')
-    if ([string]::IsNullOrWhiteSpace($slug)) {
-        return "profile-svg"
-    }
-    return "profile-$slug"
-}
-
-function New-ProfilePanelDescription {
-    param(
-        [string]$Subtitle,
-        [object[]]$Rows
-    )
-
-    $parts = New-Object System.Collections.Generic.List[string]
-    if (-not [string]::IsNullOrWhiteSpace($Subtitle)) {
-        $parts.Add($Subtitle.Trim())
-    }
-
-    $rowSummaries = New-Object System.Collections.Generic.List[string]
-    foreach ($row in @($Rows)) {
-        $value = [string](Get-MemberValue -Object $row -Name "value")
-        $label = [string](Get-MemberValue -Object $row -Name "label")
-        $detail = [string](Get-MemberValue -Object $row -Name "detail")
-
-        if ([string]::IsNullOrWhiteSpace($value) -and [string]::IsNullOrWhiteSpace($label)) {
-            continue
-        }
-
-        $summary = @($value.Trim(), $label.Trim()) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        $summaryText = ($summary -join " ")
-        if (-not [string]::IsNullOrWhiteSpace($detail)) {
-            $summaryText = "$summaryText ($($detail.Trim()))"
-        }
-        $rowSummaries.Add($summaryText)
-    }
-
-    if ($rowSummaries.Count -gt 0) {
-        $parts.Add("Rows: $($rowSummaries -join '; ').")
-    }
-
-    return ($parts -join " ")
-}
-
-function New-ProfilePanelSvg {
-    param(
-        [string]$Title,
-        [string]$Subtitle,
-        [object[]]$Rows,
-        [ValidateSet("dark", "light")]
-        [string]$Theme,
-        [int]$Width = 820,
-        [int]$Height = 250
-    )
-
-    if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $rule = "#1f6feb"
-    } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#24292f"; $muted = "#57606a"; $accent = "#0969da"; $rule = "#0969da"
-    }
-
-    $baseId = ConvertTo-SvgId "$Title $Theme"
-    $titleId = "$baseId-title"
-    $descId = "$baseId-desc"
-    $description = New-ProfilePanelDescription -Subtitle $Subtitle -Rows $Rows
-
-    $rowY = 112
-    $columns = 2
-    $physicalRows = [math]::Ceiling(@($Rows).Count / $columns)
-    $lastContentY = $rowY + (($physicalRows - 1) * 54) + 36
-    $minHeight = $lastContentY + 30
-    $Height = [math]::Max($Height, $minHeight)
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
-    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $Title)</title>")
-    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
-    $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <line x1=`"28`" y1=`"28`" x2=`"$($Width - 28)`" y2=`"28`" stroke=`"$rule`" stroke-width=`"1`" opacity=`"0.45`"/>")
-    $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $Title)</text>")
-    $lines.Add("  <text x=`"32`" y=`"70`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">$(ConvertTo-SvgText $Subtitle)</text>")
-    $lines.Add("  <line x1=`"32`" y1=`"84`" x2=`"$($Width - 32)`" y2=`"84`" stroke=`"$border`" stroke-width=`"0.5`" opacity=`"0.6`"/>")
-
-    $colWidth = [math]::Floor(($Width - 64) / $columns)
-    for ($i = 0; $i -lt @($Rows).Count; $i++) {
-        $row = $Rows[$i]
-        $col = $i % $columns
-        $line = [math]::Floor($i / $columns)
-        $x = 32 + ($col * $colWidth)
-        $y = $rowY + ($line * 54)
-        $value = Get-MemberValue -Object $row -Name "value"
-        $label = Get-MemberValue -Object $row -Name "label"
-        $detail = Get-MemberValue -Object $row -Name "detail"
-        $lines.Add("  <rect x=`"$x`" y=`"$($y - 14)`" width=`"3`" height=`"20`" rx=`"1.5`" fill=`"$accent`"/>")
-        $lines.Add("  <text x=`"$($x + 14)`" y=`"$y`" fill=`"$text`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">$(ConvertTo-SvgText $value)</text>")
-        $lines.Add("  <text x=`"$($x + 14)`" y=`"$($y + 20)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`">$(ConvertTo-SvgText $label)</text>")
-        if (-not [string]::IsNullOrWhiteSpace([string]$detail)) {
-            $lines.Add("  <text x=`"$($x + 14)`" y=`"$($y + 36)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"11`">$(ConvertTo-SvgText $detail)</text>")
-        }
-    }
-
-    $lines.Add("</svg>")
-    return ($lines -join [Environment]::NewLine)
-}
-
-function New-ProfileHeroSvg {
-    param(
-        [ValidateSet("dark", "light")]
-        [string]$Theme,
-        [int]$Width = 1000,
-        [int]$Height = 300
-    )
-
-    if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $panelTwo = "#0f1720"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $accentStrong = "#1f6feb"; $success = "#3fb950"
-    } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $panelTwo = "#ffffff"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $accentStrong = "#0969da"; $success = "#1a7f37"
-    }
-
-    $title = "SysAdminDoc profile header"
-    $description = "Static public tools command center header for Broadcast IT, Healthcare IT, systems automation, DICOM/PACS, and generated open-source project routing."
-    $baseId = ConvertTo-SvgId "$title $Theme"
-    $titleId = "$baseId-title"
-    $descId = "$baseId-desc"
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
-    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
-    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
-    $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"14`" y=`"14`" width=`"$($Width - 28)`" height=`"$($Height - 28)`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
-    foreach ($x in 32, 46, 60, 74, 88, 102, 116) {
-        foreach ($y in 30, 44, 58, 72, 86, 100) {
-            $lines.Add("  <rect x=`"$x`" y=`"$y`" width=`"6`" height=`"6`" rx=`"1`" fill=`"$accent`" opacity=`"0.14`"/>")
-        }
-    }
-    foreach ($x in ($Width - 132), ($Width - 118), ($Width - 104), ($Width - 90), ($Width - 76), ($Width - 62), ($Width - 48)) {
-        foreach ($y in 30, 44, 58, 72, 86, 100) {
-            $lines.Add("  <rect x=`"$x`" y=`"$y`" width=`"6`" height=`"6`" rx=`"1`" fill=`"$accent`" opacity=`"0.14`"/>")
-        }
-    }
-    $lines.Add("  <path d=`"M58 132 H128 V106 H202 V72 H276 V40 H352`" fill=`"none`" stroke=`"$accent`" stroke-width=`"1`" opacity=`"0.28`"/>")
-    $lines.Add("  <path d=`"M648 40 H722 V72 H798 V106 H874 V132 H942`" fill=`"none`" stroke=`"$accent`" stroke-width=`"1`" opacity=`"0.28`"/>")
-    $lines.Add("  <rect x=`"86`" y=`"54`" width=`"116`" height=`"98`" rx=`"6`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.75`"/>")
-    foreach ($rowY in 74, 102, 130) {
-        $lines.Add("  <line x1=`"104`" y1=`"$rowY`" x2=`"184`" y2=`"$rowY`" stroke=`"$border`" stroke-width=`"1`"/>")
-        $lines.Add("  <circle cx=`"164`" cy=`"$($rowY - 10)`" r=`"3`" fill=`"$success`"/>")
-        $lines.Add("  <circle cx=`"176`" cy=`"$($rowY - 10)`" r=`"3`" fill=`"$success`" opacity=`"0.65`"/>")
-    }
-    $lines.Add("  <rect x=`"220`" y=`"94`" width=`"88`" height=`"56`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.75`"/>")
-    $lines.Add("  <path d=`"M242 112 L256 124 L242 136`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
-    $lines.Add("  <line x1=`"266`" y1=`"136`" x2=`"290`" y2=`"136`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`"/>")
-    $lines.Add("  <path d=`"M500 42 L548 64 V104 C548 132 528 152 500 164 C472 152 452 132 452 104 V64 Z`" fill=`"$panelTwo`" stroke=`"$accent`" stroke-width=`"1.4`" opacity=`"0.85`"/>")
-    $lines.Add("  <line x1=`"500`" y1=`"80`" x2=`"500`" y2=`"126`" stroke=`"$accentStrong`" stroke-width=`"10`" stroke-linecap=`"round`"/>")
-    $lines.Add("  <line x1=`"477`" y1=`"103`" x2=`"523`" y2=`"103`" stroke=`"$accentStrong`" stroke-width=`"10`" stroke-linecap=`"round`"/>")
-    $lines.Add("  <rect x=`"620`" y=`"58`" width=`"126`" height=`"76`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.78`"/>")
-    $lines.Add("  <polyline points=`"638,102 660,102 672,82 690,118 704,94 716,102 732,102`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
-    $lines.Add("  <line x1=`"670`" y1=`"150`" x2=`"698`" y2=`"150`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.5`"/>")
-    $lines.Add("  <line x1=`"684`" y1=`"134`" x2=`"684`" y2=`"150`" stroke=`"$accent`" stroke-width=`"1.5`" opacity=`"0.5`"/>")
-    $lines.Add("  <rect x=`"770`" y=`"70`" width=`"62`" height=`"72`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.72`"/>")
-    $lines.Add("  <path d=`"M790 88 C812 100 814 120 792 134 M812 88 C790 100 788 120 810 134`" fill=`"none`" stroke=`"$muted`" stroke-width=`"2`" opacity=`"0.85`"/>")
-    $lines.Add("  <line x1=`"801`" y1=`"84`" x2=`"801`" y2=`"138`" stroke=`"$muted`" stroke-width=`"1`" opacity=`"0.45`"/>")
-    $lines.Add("  <rect x=`"852`" y=`"66`" width=`"86`" height=`"58`" rx=`"5`" fill=`"$panelTwo`" stroke=`"$accent`" opacity=`"0.75`"/>")
-    $lines.Add("  <circle cx=`"870`" cy=`"80`" r=`"2`" fill=`"$muted`"/>")
-    $lines.Add("  <circle cx=`"880`" cy=`"80`" r=`"2`" fill=`"$muted`"/>")
-    $lines.Add("  <path d=`"M886 98 L874 108 L886 118 M904 98 L916 108 L904 118`" fill=`"none`" stroke=`"$accent`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
-    $lines.Add("  <text x=`"500`" y=`"192`" fill=`"$titleColor`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"54`" font-weight=`"700`">SysAdminDoc</text>")
-    $lines.Add("  <line x1=`"456`" y1=`"210`" x2=`"544`" y2=`"210`" stroke=`"$accent`" stroke-width=`"2`"/>")
-    $svgTagline = $ProfileTagline.TrimEnd('.')
-    $lines.Add("  <text x=`"500`" y=`"238`" fill=`"$text`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"18`" font-weight=`"600`">$svgTagline</text>")
-    $lines.Add("  <rect x=`"412`" y=`"252`" width=`"176`" height=`"32`" rx=`"8`" fill=`"$panelTwo`" stroke=`"$accent`"/>")
-    $lines.Add("  <text x=`"500`" y=`"273`" fill=`"$accent`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`" font-weight=`"700`">View full portfolio -&gt;</text>")
-    $lines.Add("</svg>")
-    return ($lines -join [Environment]::NewLine)
-}
-
-function New-ProfileFooterSvg {
-    param(
-        [ValidateSet("dark", "light")]
-        [string]$Theme,
-        [int]$Width = 1000,
-        [int]$Height = 140
-    )
-
-    if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $panelTwo = "#0f1720"; $border = "#30363d"; $titleColor = "#f0f6fc"; $text = "#c9d1d9"; $muted = "#8b949e"; $accent = "#58a6ff"; $success = "#3fb950"
-    } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $panelTwo = "#ffffff"; $border = "#d0d7de"; $titleColor = "#24292f"; $text = "#57606a"; $muted = "#57606a"; $accent = "#0969da"; $success = "#1a7f37"
-    }
-
-    $title = "SysAdminDoc profile footer"
-    $description = "Static footer divider showing the generated profile flow from catalog data to README, feed, and portfolio validation."
-    $baseId = ConvertTo-SvgId "$title $Theme"
-    $titleId = "$baseId-title"
-    $descId = "$baseId-desc"
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
-    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
-    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
-    $lines.Add("  <rect width=`"100%`" height=`"100%`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"14`" y=`"18`" width=`"$($Width - 28)`" height=`"104`" rx=`"8`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <path d=`"M44 58 L64 48 L84 58 V82 C84 96 74 106 64 112 C54 106 44 96 44 82 Z`" fill=`"$panelTwo`" stroke=`"$accent`" stroke-width=`"1.4`"/>")
-    $lines.Add("  <path d=`"M56 80 L62 86 L74 70`" fill=`"none`" stroke=`"$success`" stroke-width=`"3`" stroke-linecap=`"round`" stroke-linejoin=`"round`"/>")
-    $lines.Add("  <text x=`"104`" y=`"62`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"16`" font-weight=`"700`">Built from Broadcast IT, Healthcare IT (DICOM/PACS), and systems automation experience</text>")
-    $lines.Add("  <text x=`"104`" y=`"88`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">Practical tools, generated catalog data, local validation evidence, and public-safe release metadata.</text>")
-    $lines.Add("  <rect x=`"$($Width - 254)`" y=`"52`" width=`"146`" height=`"34`" rx=`"8`" fill=`"$bg`" stroke=`"$accent`"/>")
-    $lines.Add("  <text x=`"$($Width - 181)`" y=`"74`" fill=`"$accent`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`" font-weight=`"700`">View portfolio -&gt;</text>")
-    $lines.Add("  <rect x=`"$($Width - 94)`" y=`"52`" width=`"58`" height=`"34`" rx=`"8`" fill=`"$bg`" stroke=`"$border`"/>")
-    $lines.Add("  <text x=`"$($Width - 65)`" y=`"74`" fill=`"$text`" text-anchor=`"middle`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"12`" font-weight=`"700`">Repos</text>")
-    $lines.Add("</svg>")
-    return ($lines -join [Environment]::NewLine)
-}
-
-function Get-TopLanguageRows {
-    param(
-        [hashtable[]]$Entries,
-        [hashtable]$RepoLookup
-    )
-
-    $counts = @{}
-    foreach ($entry in $Entries) {
-        $meta = Get-RepoMeta $entry $RepoLookup
-        $language = if (-not [string]::IsNullOrWhiteSpace([string]$entry.language)) {
-            [string]$entry.language
-        } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
-            [string]$meta.primaryLanguage.name
-        } else {
-            "Other"
-        }
-        if (-not $counts.ContainsKey($language)) { $counts[$language] = 0 }
-        $counts[$language]++
-    }
-
-    return @(
-        $counts.GetEnumerator() |
-            Sort-Object @{ Expression = { [int]$_.Value }; Descending = $true }, Name |
-            Select-Object -First 6 |
-            ForEach-Object {
-                [ordered]@{
-                    label = [string]$_.Key
-                    value = [string]$_.Value
-                    detail = "visitor-facing projects"
-                }
-            }
-    )
-}
-
-function New-ContributionGraphSvg {
-    <#
-    .SYNOPSIS
-    Renders a theme-aware GitHub contribution heatmap SVG.
-    .PARAMETER Calendar
-    GitHub contribution calendar object returned by Get-ContributionCalendar.
-    .PARAMETER Theme
-    Visual theme variant to render.
-    .PARAMETER Width
-    Minimum SVG width; the function expands it when more week columns are present.
-    #>
-    [CmdletBinding()]
-    param(
-        [object]$Calendar,
-        [ValidateSet("dark", "light")]
-        [string]$Theme,
-        [int]$Width = 820
-    )
-
-    if ($Theme -eq "dark") {
-        $bg = "#0d1117"; $panel = "#161b22"; $border = "#30363d"; $titleColor = "#f0f6fc"
-        $muted = "#8b949e"; $rule = "#1f6feb"
-        $cellEmpty = "#161b22"
-        $cellLevels = @("#0e4429", "#006d32", "#26a641", "#39d353")
-    } else {
-        $bg = "#ffffff"; $panel = "#f6f8fa"; $border = "#d0d7de"; $titleColor = "#24292f"
-        $muted = "#57606a"; $rule = "#0969da"
-        $cellEmpty = "#ebedf0"
-        $cellLevels = @("#9be9a8", "#40c463", "#30a14e", "#216e39")
-    }
-
-    $weeks = @()
-    $totalContributions = 0
-    if ($null -ne $Calendar) {
-        $weeks = @($Calendar.weeks)
-        $total = Get-MemberValue -Object $Calendar -Name "totalContributions"
-        if ($null -ne $total) { $totalContributions = [int]$total }
-    }
-
-    $cellSize = 12
-    $cellGap = 2
-    $cellStep = $cellSize + $cellGap
-    $gridLeft = 60
-    $gridTop = 100
-    $monthLabelY = $gridTop - 8
-    $minimumWidth = $gridLeft + ([Math]::Max(53, $weeks.Count) * $cellStep) + 32
-    $Width = [Math]::Max($Width, $minimumWidth)
-    $gridHeight = 7 * $cellStep - $cellGap
-    $Height = $gridTop + $gridHeight + 40
-
-    $title = "Contribution activity for $Owner"
-    $description = "GitHub contribution heatmap showing $totalContributions contributions in the last year."
-    $baseId = ConvertTo-SvgId "$title $Theme"
-    $titleId = "$baseId-title"
-    $descId = "$baseId-desc"
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<svg xmlns=`"http://www.w3.org/2000/svg`" width=`"$Width`" height=`"$Height`" viewBox=`"0 0 $Width $Height`" role=`"img`" aria-labelledby=`"$titleId`" aria-describedby=`"$descId`">")
-    $lines.Add("  <title id=`"$titleId`">$(ConvertTo-SvgText $title)</title>")
-    $lines.Add("  <desc id=`"$descId`">$(ConvertTo-SvgText $description)</desc>")
-    $lines.Add("  <rect width=`"100%`" height=`"100%`" rx=`"0`" fill=`"$bg`"/>")
-    $lines.Add("  <rect x=`"12`" y=`"12`" width=`"$($Width - 24)`" height=`"$($Height - 24)`" rx=`"12`" fill=`"$panel`" stroke=`"$border`"/>")
-    $lines.Add("  <line x1=`"28`" y1=`"28`" x2=`"$($Width - 28)`" y2=`"28`" stroke=`"$rule`" stroke-width=`"1`" opacity=`"0.45`"/>")
-    $lines.Add("  <text x=`"32`" y=`"45`" fill=`"$titleColor`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"20`" font-weight=`"700`">Contribution Activity</text>")
-    $lines.Add("  <text x=`"32`" y=`"70`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"13`">$totalContributions contributions in the last year</text>")
-    $lines.Add("  <line x1=`"32`" y1=`"84`" x2=`"$($Width - 32)`" y2=`"84`" stroke=`"$border`" stroke-width=`"0.5`" opacity=`"0.6`"/>")
-
-    $dayLabels = @("", "Mon", "", "Wed", "", "Fri", "")
-    for ($d = 0; $d -lt 7; $d++) {
-        if (-not [string]::IsNullOrWhiteSpace($dayLabels[$d])) {
-            $labelY = $gridTop + ($d * $cellStep) + $cellSize - 2
-            $lines.Add("  <text x=`"32`" y=`"$labelY`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"10`">$($dayLabels[$d])</text>")
-        }
-    }
-
-    $monthNames = @("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
-    $lastMonth = -1
-    for ($w = 0; $w -lt $weeks.Count; $w++) {
-        $weekDays = @($weeks[$w].contributionDays)
-        if ($weekDays.Count -eq 0) { continue }
-
-        $firstDate = [string]$weekDays[0].date
-        if ($firstDate -match '^\d{4}-(\d{2})-') {
-            $month = [int]$Matches[1] - 1
-            if ($month -ne $lastMonth) {
-                $labelX = $gridLeft + ($w * $cellStep)
-                $lines.Add("  <text x=`"$labelX`" y=`"$monthLabelY`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"10`">$($monthNames[$month])</text>")
-                $lastMonth = $month
-            }
-        }
-
-        foreach ($day in $weekDays) {
-            $count = 0
-            $countVal = Get-MemberValue -Object $day -Name "contributionCount"
-            if ($null -ne $countVal) { $count = [int]$countVal }
-            $weekday = 0
-            $wdVal = Get-MemberValue -Object $day -Name "weekday"
-            if ($null -ne $wdVal) { $weekday = [int]$wdVal }
-
-            if ($count -eq 0) {
-                $fill = $cellEmpty
-            } elseif ($count -le 2) {
-                $fill = $cellLevels[0]
-            } elseif ($count -le 5) {
-                $fill = $cellLevels[1]
-            } elseif ($count -le 9) {
-                $fill = $cellLevels[2]
-            } else {
-                $fill = $cellLevels[3]
-            }
-
-            $cx = $gridLeft + ($w * $cellStep)
-            $cy = $gridTop + ($weekday * $cellStep)
-            $lines.Add("  <rect x=`"$cx`" y=`"$cy`" width=`"$cellSize`" height=`"$cellSize`" rx=`"2`" fill=`"$fill`"/>")
-        }
-    }
-
-    $legendY = $gridTop + $gridHeight + 16
-    $legendX = $Width - 200
-    $lines.Add("  <text x=`"$legendX`" y=`"$($legendY + 10)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"10`">Less</text>")
-    $legendBoxX = $legendX + 28
-    $lines.Add("  <rect x=`"$legendBoxX`" y=`"$legendY`" width=`"$cellSize`" height=`"$cellSize`" rx=`"2`" fill=`"$cellEmpty`"/>")
-    foreach ($lvl in 0..3) {
-        $lx = $legendBoxX + (($lvl + 1) * $cellStep)
-        $lines.Add("  <rect x=`"$lx`" y=`"$legendY`" width=`"$cellSize`" height=`"$cellSize`" rx=`"2`" fill=`"$($cellLevels[$lvl])`"/>")
-    }
-    $moreX = $legendBoxX + (5 * $cellStep) + 4
-    $lines.Add("  <text x=`"$moreX`" y=`"$($legendY + 10)`" fill=`"$muted`" font-family=`"Segoe UI, Arial, sans-serif`" font-size=`"10`">More</text>")
-
-    $lines.Add("</svg>")
-    return ($lines -join [Environment]::NewLine)
-}
-
-function Get-ExistingProfileAssetText {
-    <#
-    .SYNOPSIS
-    Reads an existing generated profile asset for fallback preservation.
-    .PARAMETER AssetPath
-    Repository-relative or absolute asset path to read.
-    #>
-    [CmdletBinding()]
-    param([string]$AssetPath)
-
-    $normalizedPath = $AssetPath -replace '/', [System.IO.Path]::DirectorySeparatorChar
-    $fullPath = if ([System.IO.Path]::IsPathRooted($normalizedPath)) {
-        $normalizedPath
-    } else {
-        Join-Path $RepoRoot $normalizedPath
-    }
-    if (-not (Test-Path -LiteralPath $fullPath)) {
-        return $null
-    }
-    return (Get-Content -LiteralPath $fullPath -Raw).TrimEnd()
-}
-
-function New-ContributionAssetSvg {
-    <#
-    .SYNOPSIS
-    Builds or preserves a contribution graph SVG asset.
-    .PARAMETER AssetPath
-    Target contribution SVG asset path.
-    .PARAMETER Calendar
-    Contribution calendar object; null preserves an existing committed asset.
-    .PARAMETER Theme
-    Visual theme variant to render when a calendar is available.
-    #>
-    [CmdletBinding()]
-    param(
-        [string]$AssetPath,
-        [object]$Calendar,
-        [ValidateSet("dark", "light")]
-        [string]$Theme
-    )
-
-    if ($null -eq $Calendar) {
-        $existing = Get-ExistingProfileAssetText -AssetPath $AssetPath
-        if (-not [string]::IsNullOrWhiteSpace($existing)) {
-            return $existing
-        }
-    }
-    return New-ContributionGraphSvg -Calendar $Calendar -Theme $Theme
-}
-
 function New-ProfileAssetSvgs {
     <#
     .SYNOPSIS
-    Generates the committed theme-aware SVG profile assets.
-    .PARAMETER Catalog
-    Normalized profile catalog returned by Get-Catalog.
-    .PARAMETER Repos
-    Live or offline repository metadata used for counts and release summaries.
-    .PARAMETER ContributionCalendar
-    Contribution calendar object from Get-ContributionCalendar, or $null for offline/empty.
+    Returns the generated profile SVG assets, which is an empty set for the text-only README.
+    .DESCRIPTION
+    The README header and footer are plain text and reference no generated image, so
+    nothing is rendered, committed, budgeted or drift-checked, and no contribution
+    calendar is fetched. Test-ProfileState reports any file under -AssetsPath as out of
+    sync. Bringing image chrome back is a code change: add the renderer here together
+    with the README markup that references it.
     #>
     [CmdletBinding()]
-    param(
-        [hashtable]$Catalog,
-        [object[]]$Repos,
-        [object]$ContributionCalendar
-    )
+    param()
 
-    $repoLookup = ConvertTo-Lookup $Repos
-    $entries = @($Catalog.entries | Where-Object {
-        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
-    })
-    $releaseDrift = Test-ReleaseAssetDrift -Entries $entries -RepoLookup $repoLookup
-    $currentBuilds = @($entries | Where-Object { $_.currentlyBuilding -eq $true }).Count
-    $totalStars = 0
-    foreach ($repo in @($Repos)) {
-        $stars = Get-MemberValue -Object $repo -Name "stargazerCount"
-        if ($null -ne $stars -and [string]$stars -match '^\d+$') {
-            $totalStars += [int]$stars
-        }
+    return [ordered]@{}
+}
+
+function Get-ProfileAssetFileContents {
+    <#
+    .SYNOPSIS
+    Reads every file under -AssetsPath, keyed by the relative path generated assets use.
+    .PARAMETER Path
+    Asset directory, repository-relative or absolute; defaults to the -AssetsPath parameter.
+    #>
+    [CmdletBinding()]
+    param([string]$Path = $script:AssetsPath)
+
+    $contents = @{}
+    $assetRoot = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    if (-not (Test-Path -LiteralPath $assetRoot -PathType Container)) {
+        return $contents
     }
-    $languageRows = @(Get-TopLanguageRows -Entries $entries -RepoLookup $repoLookup)
-    $assetPathPrefix = ($AssetsPath -replace '\\', '/').TrimEnd('/')
-
-    $statsRows = @(
-        [ordered]@{ label = "active public repositories"; value = [string]@($Repos | Where-Object { $null -ne $_ }).Count; detail = "live GitHub metadata" },
-        [ordered]@{ label = "visitor-facing projects"; value = [string]@($entries).Count; detail = "generated profile catalog" },
-        [ordered]@{ label = "total public stars"; value = [string]$totalStars; detail = "live GitHub metadata" },
-        [ordered]@{ label = "currently building"; value = [string]$currentBuilds; detail = "first-viewport queue" }
-    )
-    $activityRows = @(
-        [ordered]@{ label = "latest releases inspected"; value = [string]$releaseDrift.inspectedReleaseRows; detail = "asset names normalized" },
-        [ordered]@{ label = "release kind mismatches"; value = [string]@($releaseDrift.releaseAssetKindMismatches).Count; detail = "catalog vs assets" },
-        [ordered]@{ label = "source-only release rows"; value = [string]@($releaseDrift.sourceOnlyWithRelease).Count; detail = "kept as Repo actions" },
-        [ordered]@{ label = "asset fetch failures"; value = [string]@($releaseDrift.releaseAssetFetchFailures).Count; detail = "latest report" }
-    )
-
-    $assets = [ordered]@{}
-    $assets["$assetPathPrefix/header-dark.svg"] = New-ProfileHeroSvg -Theme dark
-    $assets["$assetPathPrefix/header-light.svg"] = New-ProfileHeroSvg -Theme light
-    $assets["$assetPathPrefix/stats-dark.svg"] = New-ProfilePanelSvg -Title "SysAdminDoc Catalog Stats" -Subtitle "Generated from public GitHub metadata and data/profile-catalog.json" -Rows $statsRows -Theme dark
-    $assets["$assetPathPrefix/stats-light.svg"] = New-ProfilePanelSvg -Title "SysAdminDoc Catalog Stats" -Subtitle "Generated from public GitHub metadata and data/profile-catalog.json" -Rows $statsRows -Theme light
-    $assets["$assetPathPrefix/languages-dark.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme dark
-    $assets["$assetPathPrefix/languages-light.svg"] = New-ProfilePanelSvg -Title "Language Mix" -Subtitle "Top visitor-facing project languages from the catalog" -Rows $languageRows -Theme light
-    $assets["$assetPathPrefix/activity-dark.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme dark
-    $assets["$assetPathPrefix/activity-light.svg"] = New-ProfilePanelSvg -Title "Release Asset Health" -Subtitle "Generated release taxonomy and validation summary" -Rows $activityRows -Theme light
-    $contributionsDarkPath = "$assetPathPrefix/contributions-dark.svg"
-    $contributionsLightPath = "$assetPathPrefix/contributions-light.svg"
-    $assets[$contributionsDarkPath] = New-ContributionAssetSvg -AssetPath $contributionsDarkPath -Calendar $ContributionCalendar -Theme dark
-    $assets[$contributionsLightPath] = New-ContributionAssetSvg -AssetPath $contributionsLightPath -Calendar $ContributionCalendar -Theme light
-    $assets["$assetPathPrefix/footer-dark.svg"] = New-ProfileFooterSvg -Theme dark
-    $assets["$assetPathPrefix/footer-light.svg"] = New-ProfileFooterSvg -Theme light
-    return $assets
+    $assetPathPrefix = ($Path -replace '\\', '/').TrimEnd('/')
+    foreach ($file in @(Get-ChildItem -LiteralPath $assetRoot -File -Recurse | Sort-Object FullName)) {
+        $relativePath = [System.IO.Path]::GetRelativePath($assetRoot, $file.FullName) -replace '\\', '/'
+        $contents["$assetPathPrefix/$relativePath"] = [string](Get-Content -LiteralPath $file.FullName -Raw)
+    }
+    return $contents
 }
 
 function New-ProfileChrome {
@@ -5992,7 +5475,7 @@ function Get-CompleteGenerationSnapshotCacheKey {
     [CmdletBinding()]
     param()
 
-    return "generation-snapshot:v2:$Owner"
+    return "generation-snapshot:v3:$Owner"
 }
 
 function New-CompleteGenerationSnapshot {
@@ -6001,8 +5484,6 @@ function New-CompleteGenerationSnapshot {
     Packages complete, replayable generation inputs for safe offline writes.
     .PARAMETER Repos
     Fully enriched repository metadata from the current online run.
-    .PARAMETER ContributionCalendar
-    Contribution calendar data used to render the committed heatmap assets.
     .PARAMETER ReleaseMetadataComplete
     Confirms that release enrichment completed without a partial-result failure.
     .PARAMETER GenerationTimestamp
@@ -6011,8 +5492,6 @@ function New-CompleteGenerationSnapshot {
     [CmdletBinding()]
     param(
         [object[]]$Repos,
-        [AllowNull()]
-        [object]$ContributionCalendar,
         [bool]$ReleaseMetadataComplete,
         [string]$GenerationTimestamp = (Get-Date).ToString('o')
     )
@@ -6024,7 +5503,6 @@ function New-CompleteGenerationSnapshot {
         -not [bool]$script:RepositoryEnumerationTruncated -and
         $provider -in @('graphql', 'rest-fallback')
     )
-    $contributionDataComplete = $null -ne $ContributionCalendar
     $releaseRows = @(
         foreach ($repo in $repoRows) {
             [ordered]@{
@@ -6034,10 +5512,10 @@ function New-CompleteGenerationSnapshot {
         }
     )
     $releaseDataComplete = [bool]($ReleaseMetadataComplete -and $releaseRows.Count -eq $repoRows.Count)
-    $sourceComplete = [bool]($repositoryEnumerationComplete -and $releaseDataComplete -and $contributionDataComplete)
+    $sourceComplete = [bool]($repositoryEnumerationComplete -and $releaseDataComplete)
 
     return [ordered]@{
-        schemaVersion = 2
+        schemaVersion = 3
         owner = [string]$Owner
         fetchedAt = [string]$script:MetadataSnapshotAt
         generationTimestamp = $GenerationTimestamp
@@ -6045,7 +5523,6 @@ function New-CompleteGenerationSnapshot {
         sourceCompleteness = [ordered]@{
             repositoryEnumeration = $repositoryEnumerationComplete
             releases = $releaseDataComplete
-            contributionData = $contributionDataComplete
         }
         repositoryEnumeration = [ordered]@{
             provider = $provider
@@ -6055,7 +5532,6 @@ function New-CompleteGenerationSnapshot {
         }
         repositories = $repoRows
         releases = $releaseRows
-        contributionData = $ContributionCalendar
         restFallbackReleaseFetch = Get-RestFallbackReleaseFetchState
     }
 }
@@ -6070,7 +5546,7 @@ function Test-CompleteGenerationSnapshot {
     [CmdletBinding()]
     param([AllowNull()][object]$Snapshot)
 
-    if ($null -eq $Snapshot -or [int](Get-MemberValue -Object $Snapshot -Name 'schemaVersion') -ne 2) {
+    if ($null -eq $Snapshot -or [int](Get-MemberValue -Object $Snapshot -Name 'schemaVersion') -ne 3) {
         return $false
     }
     $snapshotOwner = [string](Get-MemberValue -Object $Snapshot -Name 'owner')
@@ -6098,7 +5574,7 @@ function Test-CompleteGenerationSnapshot {
     }
 
     $completeness = Get-MemberValue -Object $Snapshot -Name 'sourceCompleteness'
-    foreach ($field in @('repositoryEnumeration', 'releases', 'contributionData')) {
+    foreach ($field in @('repositoryEnumeration', 'releases')) {
         if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $completeness -Name $field))) {
             return $false
         }
@@ -6107,14 +5583,12 @@ function Test-CompleteGenerationSnapshot {
     $enumeration = Get-MemberValue -Object $Snapshot -Name 'repositoryEnumeration'
     $repositories = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $Snapshot -Name 'repositories'))
     $releases = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $Snapshot -Name 'releases'))
-    $contributionData = Get-MemberValue -Object $Snapshot -Name 'contributionData'
     $provider = [string](Get-MemberValue -Object $enumeration -Name 'provider')
     if ($repositories.Count -eq 0 -or
         [int](Get-MemberValue -Object $enumeration -Name 'returnedCount') -ne $repositories.Count -or
         (ConvertTo-BooleanValue (Get-MemberValue -Object $enumeration -Name 'truncated')) -or
         $provider -notin @('graphql', 'rest-fallback') -or
-        $releases.Count -ne $repositories.Count -or
-        $null -eq $contributionData) {
+        $releases.Count -ne $repositories.Count) {
         return $false
     }
 
@@ -6187,44 +5661,6 @@ function Test-CompleteGenerationSnapshot {
         }
     }
 
-    $totalContributionsText = [string](Get-MemberValue -Object $contributionData -Name 'totalContributions')
-    $totalContributions = [int64]0
-    if (-not (Test-MemberExists -Object $contributionData -Name 'totalContributions') -or
-        $totalContributionsText -notmatch '^\d+$' -or
-        -not [int64]::TryParse($totalContributionsText, [ref]$totalContributions)) {
-        return $false
-    }
-
-    $weeks = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $contributionData -Name 'weeks'))
-    if ($weeks.Count -eq 0) {
-        return $false
-    }
-    foreach ($week in $weeks) {
-        $days = @(Get-JsonArrayItems -Value (Get-MemberValue -Object $week -Name 'contributionDays'))
-        if ($days.Count -eq 0) {
-            return $false
-        }
-        foreach ($day in $days) {
-            $countText = [string](Get-MemberValue -Object $day -Name 'contributionCount')
-            $weekdayText = [string](Get-MemberValue -Object $day -Name 'weekday')
-            $dateText = [string](Get-MemberValue -Object $day -Name 'date')
-            $contributionCount = [int64]0
-            $weekday = [int]0
-            $parsedDate = [datetime]::MinValue
-            if (-not (Test-MemberExists -Object $day -Name 'contributionCount') -or
-                -not (Test-MemberExists -Object $day -Name 'weekday') -or
-                -not (Test-MemberExists -Object $day -Name 'date') -or
-                $countText -notmatch '^\d+$' -or
-                -not [int64]::TryParse($countText, [ref]$contributionCount) -or
-                $weekdayText -notmatch '^\d+$' -or
-                -not [int]::TryParse($weekdayText, [ref]$weekday) -or
-                $weekday -lt 0 -or $weekday -gt 6 -or
-                -not [datetime]::TryParseExact($dateText, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::None, [ref]$parsedDate)) {
-                return $false
-            }
-        }
-    }
-
     return $true
 }
 
@@ -6234,8 +5670,6 @@ function Write-CompleteGenerationSnapshot {
     Writes a complete online generation snapshot when every required source is present.
     .PARAMETER Repos
     Fully enriched repository metadata from the current online run.
-    .PARAMETER ContributionCalendar
-    Contribution calendar data used to render the committed heatmap assets.
     .PARAMETER ReleaseMetadataComplete
     Confirms that release enrichment completed without a partial-result failure.
     .PARAMETER GenerationTimestamp
@@ -6244,15 +5678,12 @@ function Write-CompleteGenerationSnapshot {
     [CmdletBinding()]
     param(
         [object[]]$Repos,
-        [AllowNull()]
-        [object]$ContributionCalendar,
         [bool]$ReleaseMetadataComplete,
         [string]$GenerationTimestamp = (Get-Date).ToString('o')
     )
 
     $snapshot = New-CompleteGenerationSnapshot `
         -Repos $Repos `
-        -ContributionCalendar $ContributionCalendar `
         -ReleaseMetadataComplete:$ReleaseMetadataComplete `
         -GenerationTimestamp $GenerationTimestamp
     if (-not (Test-CompleteGenerationSnapshot -Snapshot $snapshot)) {
@@ -6405,24 +5836,19 @@ function New-GeneratedArtifactDriftDiagnostics {
         [bool]$ProjectsInSync,
         [bool]$ProfileAssetsInSync,
         [object[]]$AssetChecks,
-        [hashtable]$ExpectedAssets
+        [hashtable]$ExpectedAssets,
+        [hashtable]$CurrentAssets = @{}
     )
 
     $affectedAssets = New-Object System.Collections.Generic.List[object]
     foreach ($assetCheck in @($AssetChecks | Where-Object { $null -ne $_ -and $_.inSync -ne $true })) {
         $path = [string]$assetCheck.path
-        $currentText = ""
-        if ([bool]$assetCheck.exists) {
-            $assetFullPath = Join-Path $RepoRoot $path
-            if (Test-Path -LiteralPath $assetFullPath) {
-                $currentText = Get-Content -LiteralPath $assetFullPath -Raw
-            }
-        }
+        $currentText = if ($CurrentAssets.ContainsKey($path)) { [string]$CurrentAssets[$path] } else { "" }
         $expectedText = if ($ExpectedAssets -and $ExpectedAssets.ContainsKey($path)) { [string]$ExpectedAssets[$path] } else { "" }
         $affectedAssets.Add([ordered]@{
             path = $path
             exists = [bool]$assetCheck.exists
-            fatal = [bool]($assetCheck.exists -ne $true -or $path -notmatch $LiveDerivedProfileAssetPattern)
+            fatal = $true
             currentSha256 = if ([bool]$assetCheck.exists) { Get-StringSha256 -Text $currentText } else { $null }
             expectedSha256 = Get-StringSha256 -Text $expectedText
         })
@@ -14259,30 +13685,28 @@ function Test-ProfileState {
     # be reintroduced here as a second, weaker predicate. An -or against the drift model
     # made the gate pass for every field that model does not enumerate.
     $projectsInSync = $projectsComparableInSync
+    $currentAssetSet = if ($PSBoundParameters.ContainsKey('CurrentAssets')) { $CurrentAssets } else { Get-ProfileAssetFileContents }
     $assetChecks = New-Object System.Collections.Generic.List[object]
     foreach ($assetPath in @($ExpectedAssets.Keys | Sort-Object)) {
-        $fullPath = Join-Path $RepoRoot $assetPath
-        $usesCurrentAssets = $PSBoundParameters.ContainsKey('CurrentAssets')
-        $exists = if ($usesCurrentAssets) { $CurrentAssets.ContainsKey($assetPath) } else { Test-Path -LiteralPath $fullPath }
-        $assetInSync = $false
-        if ($exists) {
-            $currentAsset = if ($usesCurrentAssets) { [string]$CurrentAssets[$assetPath] } else { Get-Content -LiteralPath $fullPath -Raw }
-            $assetInSync = ((ConvertTo-NormalizedGeneratedText -Text $currentAsset) -ceq (ConvertTo-NormalizedGeneratedText -Text ([string]$ExpectedAssets[$assetPath])))
-        }
+        $exists = $currentAssetSet.ContainsKey($assetPath)
+        $assetInSync = $exists -and ((ConvertTo-NormalizedGeneratedText -Text ([string]$currentAssetSet[$assetPath])) -ceq (ConvertTo-NormalizedGeneratedText -Text ([string]$ExpectedAssets[$assetPath])))
         $assetChecks.Add([ordered]@{
             path = [string]$assetPath
             exists = [bool]$exists
             inSync = [bool]$assetInSync
         })
     }
-    # Contribution heatmaps are regenerated from the live GitHub contribution calendar, which
-    # changes continuously for an active account, so committed-vs-fresh drift is expected between
-    # a -Write and a later -Check. Keep their per-asset drift visible in the rows but exclude them
-    # from the fatal sync gate; the deterministic catalog-driven assets remain fatal. Missing
-    # (non-existent) contribution files still fail the gate.
-    $assetsInSync = @($assetChecks | Where-Object {
-        $_.inSync -ne $true -and ($_.exists -ne $true -or [string]$_.path -notmatch $LiveDerivedProfileAssetPattern)
-    }).Count -eq 0
+    # A file under -AssetsPath that the generator does not produce is drift too. Nothing
+    # regenerates, budgets or contrast-checks it, and -Write never deletes, so without this
+    # row a stray or restored SVG would sit in the published tree with the gate green.
+    foreach ($assetPath in @($currentAssetSet.Keys | Where-Object { -not $ExpectedAssets.ContainsKey([string]$_) } | Sort-Object)) {
+        $assetChecks.Add([ordered]@{
+            path = [string]$assetPath
+            exists = $true
+            inSync = $false
+        })
+    }
+    $assetsInSync = @($assetChecks | Where-Object { $_.inSync -ne $true }).Count -eq 0
     $artifactDriftDiagnostics = New-GeneratedArtifactDriftDiagnostics `
         -CurrentReadme $currentReadme `
         -ExpectedReadme $ExpectedReadme `
@@ -14292,7 +13716,8 @@ function Test-ProfileState {
         -ProjectsInSync:$projectsInSync `
         -ProfileAssetsInSync:$assetsInSync `
         -AssetChecks $assetChecks.ToArray() `
-        -ExpectedAssets $ExpectedAssets
+        -ExpectedAssets $ExpectedAssets `
+        -CurrentAssets $currentAssetSet
 
     $linkFailures = @()
     $linkWarnings = @()
@@ -14387,21 +13812,14 @@ function Test-ProfileState {
     $evidenceFreshness = Test-ReportEvidenceFreshness -CommittedReport $committedReportForFreshness -LatestCommitDate $latestReportCommit.date -LatestCommitSha $latestReportCommit.sha -SmokeAffectingCommitDate $latestSmokeCommit.date
     $roadmapHygiene = Test-RoadmapHygiene
     $rootMarkdownHygiene = Test-RootMarkdownHygiene
-    $profileAssetContents = $null
-    if ($PSBoundParameters.ContainsKey('CurrentAssets')) {
-        $profileAssetContents = @{}
-        foreach ($assetPath in @($CurrentAssets.Keys)) {
-            $assetName = [System.IO.Path]::GetFileName([string]$assetPath)
-            if ($assetName.EndsWith('.svg', [StringComparison]::OrdinalIgnoreCase)) {
-                $profileAssetContents[$assetName] = [string]$CurrentAssets[$assetPath]
-            }
+    $profileAssetContents = @{}
+    foreach ($assetPath in @($currentAssetSet.Keys)) {
+        $assetName = [System.IO.Path]::GetFileName([string]$assetPath)
+        if ($assetName.EndsWith('.svg', [StringComparison]::OrdinalIgnoreCase)) {
+            $profileAssetContents[$assetName] = [string]$currentAssetSet[$assetPath]
         }
     }
-    $profileAssetsAccessibility = if ($null -ne $profileAssetContents) {
-        Test-ProfileAssetsAccessibility -AssetContents $profileAssetContents
-    } else {
-        Test-ProfileAssetsAccessibility
-    }
+    $profileAssetsAccessibility = Test-ProfileAssetsAccessibility -AssetContents $profileAssetContents
     $metadataHygiene = Test-MetadataHygiene -Repos $Repos -CatalogEntries $entries
     $projectLicenseMetadata = Test-ProjectLicenseMetadata -Entries $included -RepoLookup $repoLookup
     $forkParentDrift = Test-ForkParentDrift -Repos $Repos -CatalogEntries $entries
@@ -14725,7 +14143,6 @@ if ($SeedCatalog) {
 }
 
 $repos = @()
-$contributionCalendar = $null
 if ($Offline -and ($Write -or $Check)) {
     $generationSnapshot = Get-CompleteGenerationSnapshot
     if ($null -eq $generationSnapshot) {
@@ -14740,16 +14157,13 @@ if ($Offline -and ($Write -or $Check)) {
     } else {
         Set-GenerationStateFromSnapshot -Snapshot $generationSnapshot
         $repos = @(Get-MemberValue -Object $generationSnapshot -Name 'repositories')
-        $contributionCalendar = Get-MemberValue -Object $generationSnapshot -Name 'contributionData'
     }
 } elseif (-not $Offline) {
     $repos = @(Add-LiveRepositoryMetadata -Repos (Get-GitHubRepos))
-    $contributionCalendar = Get-ContributionCalendar
     if ($Write -or $Check) {
         $script:GenerationArtifactTimestamp = (Get-Date).ToString('o')
         $snapshotWritten = Write-CompleteGenerationSnapshot `
             -Repos $repos `
-            -ContributionCalendar $contributionCalendar `
             -ReleaseMetadataComplete:$true `
             -GenerationTimestamp $script:GenerationArtifactTimestamp
         if (-not $snapshotWritten) {
@@ -14783,7 +14197,7 @@ $catalogForRun = if (Test-Path -LiteralPath $CatalogPath) {
 if ($catalogForRun -and ($Write -or $Check)) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
     $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos -GeneratedAt $script:GenerationArtifactTimestamp
-    $expectedAssets = New-ProfileAssetSvgs -Catalog $catalogForRun -Repos $repos -ContributionCalendar $contributionCalendar
+    $expectedAssets = New-ProfileAssetSvgs
     $backstageExport = if ([string]::IsNullOrWhiteSpace($BackstageExportPath)) { $null } else { New-BackstageCatalogExport -Catalog $catalogForRun -Repos $repos }
 
     $publicationTransaction = $null
@@ -14825,7 +14239,13 @@ if ($catalogForRun -and ($Write -or $Check)) {
             if ($Write) {
                 $profileStateParameters['CurrentReadme'] = $expected
                 $profileStateParameters['CurrentProjects'] = $expectedProjects
-                $profileStateParameters['CurrentAssets'] = $expectedAssets
+                # The write replaces generated assets but never deletes, so a stray file
+                # under -AssetsPath is still there afterwards and must still be reported.
+                $assetsAfterWrite = Get-ProfileAssetFileContents
+                foreach ($assetPath in @($expectedAssets.Keys)) {
+                    $assetsAfterWrite[$assetPath] = [string]$expectedAssets[$assetPath]
+                }
+                $profileStateParameters['CurrentAssets'] = $assetsAfterWrite
             }
             $result = Test-ProfileState @profileStateParameters
             $reportFullPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) { $ReportPath } else { Join-Path $RepoRoot $ReportPath }
@@ -14856,7 +14276,6 @@ if ($catalogForRun -and ($Write -or $Check)) {
         if ($Write) {
             Write-Host "Wrote $ReadmePath from $CatalogPath."
             Write-Host "Wrote $ProjectsPath from $CatalogPath."
-            Write-Host "Wrote profile assets to $AssetsPath."
         }
         if ($backstageExport) {
             Write-Host "Wrote Backstage export to $BackstageExportPath."
