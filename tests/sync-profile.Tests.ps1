@@ -1339,6 +1339,17 @@ Describe 'OpenSSF Scorecard runs locally' {
         @{ Case = 'a Windows path with forward slashes'; Line = 'open C:/Users/John Smith/x: denied'; Expected = 'open C:/Users/<user>/x: denied'; Gone = 'John|Smith' }
         @{ Case = 'an API URL with /users/ in it'; Line = 'GET https://api.github.com/users/octocat: 404 Not Found'; Expected = 'GET https://api.github.com/users/octocat: 404 Not Found'; Gone = '<user>' }
         @{ Case = 'a token after %20'; Line = 'GET https://x.test/?q=%20ghp_ABCDEFGHIJKLMNOPQRSTUV failed'; Expected = 'GET https://x.test/?q=%20<token> failed'; Gone = 'ghp_' }
+        # A path segment before /Users/ or /home/ was taken for a URL, so these leaked.
+        @{ Case = 'a WSL mount'; Line = 'open /mnt/c/Users/bob/x: permission denied'; Expected = 'open /mnt/c/Users/<user>/x: permission denied'; Gone = 'bob' }
+        @{ Case = 'an MSYS path'; Line = 'open /c/Users/bob/x: permission denied'; Expected = 'open /c/Users/<user>/x: permission denied'; Gone = 'bob' }
+        @{ Case = 'a macOS data volume'; Line = 'stat /System/Volumes/Data/Users/bob/x failed'; Expected = 'stat /System/Volumes/Data/Users/<user>/x failed'; Gone = 'bob' }
+        @{ Case = 'an ostree home'; Line = 'stat /var/home/bob/x failed'; Expected = 'stat /var/home/<user>/x failed'; Gone = 'bob' }
+        @{ Case = 'a share written with slashes'; Line = 'open //fileserver/Users/bob/x failed'; Expected = 'open //fileserver/Users/<user>/x failed'; Gone = 'bob' }
+        # And a URL written with JSON's escaped slashes was redacted as if it were a path.
+        @{ Case = 'a JSON-escaped URL'; Line = '{"url":"https:\/\/example.com\/home\/docs"} failed'; Expected = '{"url":"https:\/\/example.com\/home\/docs"} failed'; Gone = '<user>' }
+        # Uppercase hex beside a legacy token (percent-encoding, a word) hid it.
+        @{ Case = 'a token after %3D'; Line = 'GET https://x.test/?access_token%3D0123456789abcdef0123456789abcdef01234567 failed'; Expected = 'GET https://x.test/?access_token%3D<token> failed'; Gone = '0123456789abcdef' }
+        @{ Case = 'a token followed by a capital'; Line = 'token 0123456789abcdef0123456789abcdef01234567Expired'; Expected = 'token <token>Expired'; Gone = '0123456789abcdef' }
     ) {
         # The account redaction ran to the next separator or quote, which took the reason
         # after a name at the end of a path, and stopped at an apostrophe inside one.

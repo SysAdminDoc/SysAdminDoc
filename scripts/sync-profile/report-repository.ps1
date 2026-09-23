@@ -409,15 +409,20 @@ function Invoke-ScorecardCli {
     # The report is public: take tokens and account names out of whatever the tool said, and
     # only then cap it, so the cut can't leave part of a token behind.
     # Tokens: gh's prefixes wherever they start (after %20 too), and runs of 40 or more hex
-    # digits, the shape of the tokens issued before 2021.
-    $failure = [regex]::Replace($failure, '(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|(?<![0-9A-Fa-f])[0-9a-f]{40,}(?![0-9A-Fa-f])', '<token>')
+    # digits, the shape of the tokens issued before 2021. Only lowercase hex bounds the run:
+    # percent-encoding writes uppercase, so %3D or a word like Expired can sit right against one.
+    $failure = [regex]::Replace($failure, '(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|(?<![0-9a-f])[0-9a-f]{40,}(?![0-9a-f])', '<token>')
     # Windows accounts, after \Users\ with any run of backslashes (Go and JSON double them) or
     # after C:/Users/. The name runs to a character Windows doesn't allow in one, so spaces and
     # apostrophes stay inside it ("John Smith", "O'Brien") and ": Access is denied." survives.
     $failure = [regex]::Replace($failure, '(?i)((?:\\+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:\\+|/+))[^\\/"<>:|?*\[\];=,+\r\n]+', '${1}<user>')
     # macOS and Linux accounts, after /Users/ or /home/ as written (so an API URL's /users/
-    # stays) and not inside a URL. These names hold no space, and \/ is JSON's slash.
-    $failure = [regex]::Replace($failure, '(?<![A-Za-z0-9._~%-])((?:\\?/)(?:Users|home)(?:\\?/))[^\\/\s"''<>:]+', '${1}<user>')
+    # stays), wherever the path sits: /mnt/c/Users, /var/home, //server/Users. URLs, plain or
+    # with JSON's \/ slashes, match first and come back as they were. These names hold no space.
+    $failure = [regex]::Replace($failure, '(?<url>https?:(?:\\?/){2}[^\s"''<>]*)|(?<prefix>(?:\\?/)(?:Users|home)(?:\\?/))[^\\/\s"''<>:]+', {
+            param($match)
+            if ($match.Groups['url'].Success) { $match.Value } else { $match.Groups['prefix'].Value + '<user>' }
+        })
     if ($failure.Length -gt 240) { $failure = $failure.Substring(0, 240) }
     return [ordered]@{ ok = $false; value = $null; error = $failure }
 }
