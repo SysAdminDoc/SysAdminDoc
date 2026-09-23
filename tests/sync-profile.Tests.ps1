@@ -4126,7 +4126,7 @@ Describe 'Star count display threshold' {
 
         $readme = New-Readme -Catalog $cat -Repos @($oneStar, $threeStars)
 
-        $readme | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- '
+        $readme | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) &middot; '
         $readme | Should -Not -Match 'WinTool\) &#11088;1'
         $readme | Should -Match '\[\*\*PyTool\*\*\]\(https://github\.com/SysAdminDoc/PyTool\) &#11088;3'
     }
@@ -4146,12 +4146,12 @@ Describe 'Star count display threshold' {
         }
 
         $section = New-CategorySection -Entries $entries -RepoLookup $lookup -Definition $definition
-        $rows = @([regex]::Matches($section, '(?m)^\[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? -- ') | ForEach-Object { $_.Groups[1].Value })
+        $rows = @([regex]::Matches($section, '(?m)^\[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? &middot; ') | ForEach-Object { $_.Groups[1].Value })
 
         # Mu's single star is not shown, and it still ranks above Alpha's zero; alphabetical
         # order would put Alpha first.
         $rows | Should -Be @('Zeta', 'Mu', 'Alpha')
-        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 -- '
+        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 &middot; '
         $section | Should -Not -Match '&#11088;1'
     }
 }
@@ -4377,7 +4377,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     }
     It 'links project titles to the repo root (not /releases/latest)' {
         $script:rendered | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\)'
-        $script:rendered | Should -Not -Match 'releases/latest\) -- '
+        $script:rendered | Should -Not -Match 'releases/latest\) &middot; '
     }
     It 'includes included entries and excludes suppressed entries' {
         $script:rendered | Should -Match 'WinTool'
@@ -4990,6 +4990,33 @@ Describe 'Update-Header idempotency' {
         $result | Should -Match 'Fixture tagline for the header\.'
         $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
         $result | Should -Not -Match 'Professional Focus|Public portfolio: 100 active repos'
+    }
+}
+
+Describe 'README separators' {
+    It 'joins its parts with middots, never a double hyphen or a dash' {
+        # A double hyphen or an em or en dash between a name and its description reads as a
+        # dash substitute; the page uses &middot; the way its header and footer already do.
+        $readme = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+
+        $readme | Should -Not -Match ' -- '
+        $readme.IndexOf([char]0x2014) | Should -Be -1
+        $readme.IndexOf([char]0x2013) | Should -Be -1
+        $readme | Should -Match '(?m)^<summary><b>.+?</b> &middot; \d+ repos &middot; <i>'
+        $readme | Should -Match '(?m)^\[\*\*WinTool\*\*\]\([^)]+\) &middot; '
+    }
+
+    It 'seeds a catalog from rows written with a middot or the old double hyphen' {
+        $rendered = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+        foreach ($variant in @('middot', 'hyphens')) {
+            $text = if ($variant -eq 'middot') { $rendered } else { [regex]::Replace($rendered, '(?m)^(\[\*\*.+?\*\*\]\([^)]+\)(?: &#11088;\d+)?) &middot; ', '$1 -- ') }
+            $ReadmePath = Join-Path $TestDrive "seed-$variant.md"
+            [System.IO.File]::WriteAllText($ReadmePath, $text)
+
+            $seeded = New-CatalogFromReadme -Repos @()
+
+            @($seeded.entries | ForEach-Object { [string]$_.repo }) | Should -Contain 'WinTool' -Because "rows use $variant"
+        }
     }
 }
 

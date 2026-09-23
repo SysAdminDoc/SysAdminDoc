@@ -32,154 +32,154 @@ Pick a category to jump in. Each one has a few suggestions to start with.
 
 <a id="powershell-system-utilities"></a>
 <details>
-<summary><b>&#9889; PowerShell System Utilities</b> -- 30 repos -- <i>Paste-and-run scripts for Windows admin work.</i></summary>
+<summary><b>&#9889; PowerShell System Utilities</b> &middot; 30 repos &middot; <i>Paste-and-run scripts for Windows admin work.</i></summary>
 <br/>
 
 Suggested starting points: [**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher), [**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot), [**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor).
 
-[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;70 -- GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
+[**win11-nvme-driver-patcher**](https://github.com/SysAdminDoc/win11-nvme-driver-patcher) &#11088;70 &middot; GUI to enable Windows Server 2025 NVMe driver on Win11 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/win11-nvme-driver-patcher/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool win11-nvme-driver-patcher
 ```
 
-[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;14 -- Spotify customization. Automates Spicetify, themes, extensions &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
+[**LibreSpot**](https://github.com/SysAdminDoc/LibreSpot) &#11088;14 &middot; Spotify customization. Automates Spicetify, themes, extensions &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LibreSpot/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool LibreSpot
 ```
 
-[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) &#11088;13 -- WPF GUI to fully disable or re-enable Microsoft Defender &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DefenderControl/releases/latest)
+[**DefenderControl**](https://github.com/SysAdminDoc/DefenderControl) &#11088;13 &middot; WPF GUI to fully disable or re-enable Microsoft Defender &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DefenderControl/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool DefenderControl
 ```
 
-[**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;12 -- Defender disabler/remover with CLI + premium WPF GUI; firewall preserved &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DisableDefender/releases/latest)
+[**DisableDefender**](https://github.com/SysAdminDoc/DisableDefender) &#11088;12 &middot; Defender disabler/remover with CLI + premium WPF GUI; firewall preserved &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/DisableDefender/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool DisableDefender
 ```
 
-[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) &#11088;6 -- 67 automated checks across 8 security domains, MITRE ATT&amp;CK mapping &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
+[**Network_Security_Auditor**](https://github.com/SysAdminDoc/Network_Security_Auditor) &#11088;6 &middot; 67 automated checks across 8 security domains, MITRE ATT&amp;CK mapping &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Network_Security_Auditor/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Network_Security_Auditor
 ```
 
-[**Debloat-Win11**](https://github.com/SysAdminDoc/Debloat-Win11) &#11088;5 -- Enterprise Windows 11 debloating with AppX removal, Office cleanup, telemetry blocking &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Debloat-Win11/releases/latest)
+[**Debloat-Win11**](https://github.com/SysAdminDoc/Debloat-Win11) &#11088;5 &middot; Enterprise Windows 11 debloating with AppX removal, Office cleanup, telemetry blocking &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Debloat-Win11/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Debloat-Win11
 ```
 
-[**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) &#11088;5 -- Enterprise Windows update automation. OEM drivers, Windows Update, winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SystemUpdatePro/releases/latest)
+[**SystemUpdatePro**](https://github.com/SysAdminDoc/SystemUpdatePro) &#11088;5 &middot; Enterprise Windows update automation. OEM drivers, Windows Update, winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SystemUpdatePro/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool SystemUpdatePro
 ```
 
-[**WURepair**](https://github.com/SysAdminDoc/WURepair) &#11088;5 -- Comprehensive Windows Update component repair. DLL re-registration, DISM, SFC, network reset &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/WURepair/releases/latest)
+[**WURepair**](https://github.com/SysAdminDoc/WURepair) &#11088;5 &middot; Comprehensive Windows Update component repair. DLL re-registration, DISM, SFC, network reset &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/WURepair/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WURepair
 ```
 
-[**MonitorControl**](https://github.com/SysAdminDoc/MonitorControl) &#11088;4 -- Control monitor settings via DDC/CI &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/MonitorControl/releases/latest)
+[**MonitorControl**](https://github.com/SysAdminDoc/MonitorControl) &#11088;4 &middot; Control monitor settings via DDC/CI &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/MonitorControl/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool MonitorControl
 ```
 
-[**Start-Menu-Organizer**](https://github.com/SysAdminDoc/Start-Menu-Organizer) &#11088;4 -- Clean junk, detect broken shortcuts, reorganize Start Menu &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest)
+[**Start-Menu-Organizer**](https://github.com/SysAdminDoc/Start-Menu-Organizer) &#11088;4 &middot; Clean junk, detect broken shortcuts, reorganize Start Menu &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Start-Menu-Organizer/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Start-Menu-Organizer
 ```
 
-[**NetForge**](https://github.com/SysAdminDoc/NetForge) &#11088;3 -- WPF network adapter manager. Static/DHCP, DNS presets, profile management &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/NetForge/releases/latest)
+[**NetForge**](https://github.com/SysAdminDoc/NetForge) &#11088;3 &middot; WPF network adapter manager. Static/DHCP, DNS presets, profile management &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/NetForge/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool NetForge
 ```
 
-[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;3 -- Discover, select, and bulk install software via Winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Wingetter/releases/latest)
+[**Wingetter**](https://github.com/SysAdminDoc/Wingetter) &#11088;3 &middot; Discover, select, and bulk install software via Winget &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Wingetter/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Wingetter
 ```
 
-[**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) &#11088;2 -- Comprehensive Adobe telemetry and GrowthSDK suppression for Windows &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest)
+[**Disable-AdobeTelemetry**](https://github.com/SysAdminDoc/Disable-AdobeTelemetry) &#11088;2 &middot; Comprehensive Adobe telemetry and GrowthSDK suppression for Windows &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Disable-AdobeTelemetry/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Disable-AdobeTelemetry
 ```
 
-[**Brave-Portable-Updater**](https://github.com/SysAdminDoc/Brave-Portable-Updater) -- Update Brave inside a Portapps portable install without touching system install
+[**Brave-Portable-Updater**](https://github.com/SysAdminDoc/Brave-Portable-Updater) &middot; Update Brave inside a Portapps portable install without touching system install
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Brave-Portable-Updater
 ```
 
-[**DefenderShield**](https://github.com/SysAdminDoc/DefenderShield) -- Repair and restore Windows Defender and Firewall after debloaters
+[**DefenderShield**](https://github.com/SysAdminDoc/DefenderShield) &middot; Repair and restore Windows Defender and Firewall after debloaters
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool DefenderShield
 ```
 
-[**EXTRACTORX**](https://github.com/SysAdminDoc/EXTRACTORX) -- Open-source bulk archive extraction tool for Windows &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/EXTRACTORX/releases/latest)
+[**EXTRACTORX**](https://github.com/SysAdminDoc/EXTRACTORX) &middot; Open-source bulk archive extraction tool for Windows &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/EXTRACTORX/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool EXTRACTORX
 ```
 
-[**FirewallForge**](https://github.com/SysAdminDoc/FirewallForge) -- WPF Windows Firewall manager with live rule editing and offline backup editor
+[**FirewallForge**](https://github.com/SysAdminDoc/FirewallForge) &middot; WPF Windows Firewall manager with live rule editing and offline backup editor
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool FirewallForge
 ```
 
-[**TelemetrySlayer**](https://github.com/SysAdminDoc/TelemetrySlayer) -- WPF GUI to disable Windows telemetry, data collection, and compatibility bloat &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/TelemetrySlayer/releases/latest)
+[**TelemetrySlayer**](https://github.com/SysAdminDoc/TelemetrySlayer) &middot; WPF GUI to disable Windows telemetry, data collection, and compatibility bloat &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/TelemetrySlayer/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool TelemetrySlayer
 ```
 
-[**VoidTools-Everything-Settings-Manager**](https://github.com/SysAdminDoc/VoidTools-Everything-Settings-Manager) -- GUI for managing VoidTools Everything settings, INI editing, CSV filter/bookmark management
+[**VoidTools-Everything-Settings-Manager**](https://github.com/SysAdminDoc/VoidTools-Everything-Settings-Manager) &middot; GUI for managing VoidTools Everything settings, INI editing, CSV filter/bookmark management
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool VoidTools-Everything-Settings-Manager
 ```
 
-[**WinForge**](https://github.com/SysAdminDoc/WinForge) -- All-in-one Windows provisioning suite. App installer, tweaks, features, updates
+[**WinForge**](https://github.com/SysAdminDoc/WinForge) &middot; All-in-one Windows provisioning suite. App installer, tweaks, features, updates
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinForge
 ```
 
-[**AdapterLock**](https://github.com/SysAdminDoc/AdapterLock) -- Per-adapter IP lockdown for Windows. WPF GUI, CLI mode, policy export, and event-log auditing
+[**AdapterLock**](https://github.com/SysAdminDoc/AdapterLock) &middot; Per-adapter IP lockdown for Windows. WPF GUI, CLI mode, policy export, and event-log auditing
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool AdapterLock
 ```
 
-[**HostnameForensics**](https://github.com/SysAdminDoc/HostnameForensics) -- Traces how, when, and by whom a Windows hostname changed, with zipped raw evidence
+[**HostnameForensics**](https://github.com/SysAdminDoc/HostnameForensics) &middot; Traces how, when, and by whom a Windows hostname changed, with zipped raw evidence
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool HostnameForensics
 ```
 
-[**JDownloader-2-Ultimate-Manager**](https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager) -- Comprehensive automation for JDownloader 2 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager/releases/latest)
+[**JDownloader-2-Ultimate-Manager**](https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager) &middot; Comprehensive automation for JDownloader 2 &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/JDownloader-2-Ultimate-Manager/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool JDownloader-2-Ultimate-Manager
 ```
 
-[**LogVerdict**](https://github.com/SysAdminDoc/LogVerdict) -- Scans Windows logs, deduplicates them into signatures, and rules on each one in plain English &nbsp;[<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/LogVerdict/releases/latest)
+[**LogVerdict**](https://github.com/SysAdminDoc/LogVerdict) &middot; Scans Windows logs, deduplicates them into signatures, and rules on each one in plain English &nbsp;[<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/LogVerdict/releases/latest)
 
-[**npp-sc-scanner**](https://github.com/SysAdminDoc/npp-sc-scanner) -- Detect and remediate Notepad++ supply chain attack IOCs
+[**npp-sc-scanner**](https://github.com/SysAdminDoc/npp-sc-scanner) &middot; Detect and remediate Notepad++ supply chain attack IOCs
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool npp-sc-scanner
 ```
 
-[**NuclearDellRemover**](https://github.com/SysAdminDoc/NuclearDellRemover) -- Scorched-earth Dell bloatware removal. 8-phase complete cleanup &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/NuclearDellRemover/releases/latest)
+[**NuclearDellRemover**](https://github.com/SysAdminDoc/NuclearDellRemover) &middot; Scorched-earth Dell bloatware removal. 8-phase complete cleanup &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/NuclearDellRemover/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool NuclearDellRemover
 ```
 
-[**PathForge**](https://github.com/SysAdminDoc/PathForge) -- Filesystem repair, stubborn file deletion, path management &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PathForge/releases/latest)
+[**PathForge**](https://github.com/SysAdminDoc/PathForge) &middot; Filesystem repair, stubborn file deletion, path management &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PathForge/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool PathForge
 ```
 
-[**Restore-WindowsDefaults**](https://github.com/SysAdminDoc/Restore-WindowsDefaults) -- Reverse debloat changes and restore Windows to factory defaults
+[**Restore-WindowsDefaults**](https://github.com/SysAdminDoc/Restore-WindowsDefaults) &middot; Reverse debloat changes and restore Windows to factory defaults
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Restore-WindowsDefaults
 ```
 
-[**ThankYouJeffrey**](https://github.com/SysAdminDoc/ThankYouJeffrey) -- A tribute to the creator of PowerShell, Jeffrey Snover
+[**ThankYouJeffrey**](https://github.com/SysAdminDoc/ThankYouJeffrey) &middot; A tribute to the creator of PowerShell, Jeffrey Snover
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool ThankYouJeffrey
 ```
 
-[**WallBrand**](https://github.com/SysAdminDoc/WallBrand) -- Wallpaper branding tool with GUI and CLI modes
+[**WallBrand**](https://github.com/SysAdminDoc/WallBrand) &middot; Wallpaper branding tool with GUI and CLI modes
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WallBrand
 ```
@@ -188,145 +188,145 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 
 <a id="python-desktop-applications"></a>
 <details>
-<summary><b>&#128013; Python Desktop Applications</b> -- 30 repos -- <i>Desktop apps, creative tools, and automation scripts.</i></summary>
+<summary><b>&#128013; Python Desktop Applications</b> &middot; 30 repos &middot; <i>Desktop apps, creative tools, and automation scripts.</i></summary>
 <br/>
 
 Suggested starting points: [**OpenCut**](https://github.com/SysAdminDoc/OpenCut), [**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop), [**Vertigo**](https://github.com/SysAdminDoc/Vertigo).
 
-[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;51 -- AI-powered video editing automation for Premiere Pro. Caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
+[**OpenCut**](https://github.com/SysAdminDoc/OpenCut) &#11088;51 &middot; AI-powered video editing automation for Premiere Pro. Caption generation, audio processing, VFX &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/OpenCut/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool OpenCut
 ```
 
-[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;13 -- Offline survival command center. Maps, AI chat, situation room, NukeMap, supply tracking &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
+[**project-nomad-desktop**](https://github.com/SysAdminDoc/project-nomad-desktop) &#11088;13 &middot; Offline survival command center. Maps, AI chat, situation room, NukeMap, supply tracking &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/project-nomad-desktop/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool project-nomad-desktop
 ```
 
-[**SunoJump**](https://github.com/SysAdminDoc/SunoJump) &#11088;13 -- Audio fingerprint masking for Suno AI. 10-pass pipeline, PyQt6 GUI, batch processing &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SunoJump/releases/latest)
+[**SunoJump**](https://github.com/SysAdminDoc/SunoJump) &#11088;13 &middot; Audio fingerprint masking for Suno AI. 10-pass pipeline, PyQt6 GUI, batch processing &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SunoJump/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool SunoJump
 ```
 
-[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;12 -- Offline AI music generation suite. Song creation, lyrics, MIDI, vocals, stem separation, mastering &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SlunderStudio/releases/latest)
+[**SlunderStudio**](https://github.com/SysAdminDoc/SlunderStudio) &#11088;12 &middot; Offline AI music generation suite. Song creation, lyrics, MIDI, vocals, stem separation, mastering &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SlunderStudio/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool SlunderStudio
 ```
 
-[**Bookmark-Organizer-Pro**](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro) &#11088;7 -- AI-powered bookmark manager and categorizer &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/latest)
+[**Bookmark-Organizer-Pro**](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro) &#11088;7 &middot; AI-powered bookmark manager and categorizer &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Bookmark-Organizer-Pro/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Bookmark-Organizer-Pro
 ```
 
-[**MSStoreHelper**](https://github.com/SysAdminDoc/MSStoreHelper) &#11088;7 -- Install Microsoft Store apps without the Store &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/MSStoreHelper/releases/latest)
+[**MSStoreHelper**](https://github.com/SysAdminDoc/MSStoreHelper) &#11088;7 &middot; Install Microsoft Store apps without the Store &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/MSStoreHelper/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool MSStoreHelper
 ```
 
-[**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) &#11088;5 -- AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FaceSlim/releases/latest)
+[**FaceSlim**](https://github.com/SysAdminDoc/FaceSlim) &#11088;5 &middot; AI face slimming, reshaping, and beautification with real-time preview and GPU acceleration &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FaceSlim/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool FaceSlim
 ```
 
-[**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) &#11088;3 -- AI-powered desktop tool for classifying and organizing design asset folders &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FileOrganizer/releases/latest)
+[**FileOrganizer**](https://github.com/SysAdminDoc/FileOrganizer) &#11088;3 &middot; AI-powered desktop tool for classifying and organizing design asset folders &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FileOrganizer/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool FileOrganizer
 ```
 
-[**ImgConverter**](https://github.com/SysAdminDoc/ImgConverter) &#11088;3 -- Universal image batch converter (PyQt6 GUI + CLI) with metadata, ICC, and HDR fidelity &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/ImgConverter/releases/latest)
+[**ImgConverter**](https://github.com/SysAdminDoc/ImgConverter) &#11088;3 &middot; Universal image batch converter (PyQt6 GUI + CLI) with metadata, ICC, and HDR fidelity &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/ImgConverter/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool ImgConverter
 ```
 
-[**PyShop**](https://github.com/SysAdminDoc/PyShop) &#11088;3 -- Open source Photoshop alternative &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PyShop/releases/latest)
+[**PyShop**](https://github.com/SysAdminDoc/PyShop) &#11088;3 &middot; Open source Photoshop alternative &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PyShop/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool PyShop
 ```
 
-[**AppList**](https://github.com/SysAdminDoc/AppList) &#11088;2 -- Scan, catalog, and export all installed applications &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/AppList/releases/latest)
+[**AppList**](https://github.com/SysAdminDoc/AppList) &#11088;2 &middot; Scan, catalog, and export all installed applications &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/AppList/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool AppList
 ```
 
-[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) &#11088;2 -- GUI for toggling 50+ Windows File Explorer registry settings with live preview &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest)
+[**ExplorerTweaks**](https://github.com/SysAdminDoc/ExplorerTweaks) &#11088;2 &middot; GUI for toggling 50+ Windows File Explorer registry settings with live preview &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/ExplorerTweaks/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool ExplorerTweaks
 ```
 
-[**HostsFileGet**](https://github.com/SysAdminDoc/HostsFileGet) &#11088;2 -- GUI for managing the Windows hosts file &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/HostsFileGet/releases/latest)
+[**HostsFileGet**](https://github.com/SysAdminDoc/HostsFileGet) &#11088;2 &middot; GUI for managing the Windows hosts file &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/HostsFileGet/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool HostsFileGet
 ```
 
-[**QuickFind**](https://github.com/SysAdminDoc/QuickFind) &#11088;2 -- Lightning-fast file search for Windows. Reads NTFS MFT directly &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/QuickFind/releases/latest)
+[**QuickFind**](https://github.com/SysAdminDoc/QuickFind) &#11088;2 &middot; Lightning-fast file search for Windows. Reads NTFS MFT directly &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/QuickFind/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool QuickFind
 ```
 
-[**UniFile**](https://github.com/SysAdminDoc/UniFile) &#11088;2 -- AI-powered unified file organization. 5 engines, tag-based library, LLM integration &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/UniFile/releases/latest)
+[**UniFile**](https://github.com/SysAdminDoc/UniFile) &#11088;2 &middot; AI-powered unified file organization. 5 engines, tag-based library, LLM integration &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/UniFile/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool UniFile
 ```
 
-[**AI-Model-Compass**](https://github.com/SysAdminDoc/AI-Model-Compass) -- Discover, download, and run local AI models tailored to your hardware &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/AI-Model-Compass/releases/latest)
+[**AI-Model-Compass**](https://github.com/SysAdminDoc/AI-Model-Compass) &middot; Discover, download, and run local AI models tailored to your hardware &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/AI-Model-Compass/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool AI-Model-Compass
 ```
 
-[**FoxPort**](https://github.com/SysAdminDoc/FoxPort) -- Migrate passwords, bookmarks, and extensions from Chromium browsers to Firefox &nbsp;[<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/FoxPort/releases/latest)
+[**FoxPort**](https://github.com/SysAdminDoc/FoxPort) &middot; Migrate passwords, bookmarks, and extensions from Chromium browsers to Firefox &nbsp;[<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/FoxPort/releases/latest)
 
-[**GitForge**](https://github.com/SysAdminDoc/GitForge) -- Full GitHub repo manager. Clone, sync, diff, manage &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/GitForge/releases/latest)
+[**GitForge**](https://github.com/SysAdminDoc/GitForge) &middot; Full GitHub repo manager. Clone, sync, diff, manage &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/GitForge/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool GitForge
 ```
 
-[**LlamaLink**](https://github.com/SysAdminDoc/LlamaLink) -- Sleek GUI frontend for llama.cpp. Search, download, and chat with local LLMs &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LlamaLink/releases/latest)
+[**LlamaLink**](https://github.com/SysAdminDoc/LlamaLink) &middot; Sleek GUI frontend for llama.cpp. Search, download, and chat with local LLMs &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/LlamaLink/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool LlamaLink
 ```
 
-[**PromptCompanion**](https://github.com/SysAdminDoc/PromptCompanion) -- A curated, searchable, offline library of the best AI prompts &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PromptCompanion/releases/latest)
+[**PromptCompanion**](https://github.com/SysAdminDoc/PromptCompanion) &middot; A curated, searchable, offline library of the best AI prompts &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PromptCompanion/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool PromptCompanion
 ```
 
-[**PyWall**](https://github.com/SysAdminDoc/PyWall) -- Real-time Windows Firewall manager and network monitor &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PyWall/releases/latest)
+[**PyWall**](https://github.com/SysAdminDoc/PyWall) &middot; Real-time Windows Firewall manager and network monitor &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/PyWall/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool PyWall
 ```
 
-[**Qwen3-TTS-Studio**](https://github.com/SysAdminDoc/Qwen3-TTS-Studio) -- AI voice generator powered by Qwen3-TTS &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Qwen3-TTS-Studio/releases/latest)
+[**Qwen3-TTS-Studio**](https://github.com/SysAdminDoc/Qwen3-TTS-Studio) &middot; AI voice generator powered by Qwen3-TTS &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Qwen3-TTS-Studio/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Qwen3-TTS-Studio
 ```
 
-[**Vertigo**](https://github.com/SysAdminDoc/Vertigo) -- Vertical video studio for short-form creators. Turns raw footage into polished 9:16 for Shorts/TikTok/Reels &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Vertigo/releases/latest)
+[**Vertigo**](https://github.com/SysAdminDoc/Vertigo) &middot; Vertical video studio for short-form creators. Turns raw footage into polished 9:16 for Shorts/TikTok/Reels &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Vertigo/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Vertigo
 ```
 
-[**AIUsageTracker**](https://github.com/SysAdminDoc/AIUsageTracker) -- Windows dashboard that tracks AI assistant usage windows and alarms when they reset &nbsp;[<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/AIUsageTracker/releases/latest)
+[**AIUsageTracker**](https://github.com/SysAdminDoc/AIUsageTracker) &middot; Windows dashboard that tracks AI assistant usage windows and alarms when they reset &nbsp;[<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/AIUsageTracker/releases/latest)
 
-[**AstraDownloader**](https://github.com/SysAdminDoc/AstraDownloader) -- Desktop video downloader for Windows that also serves the Astra Deck extension locally &nbsp;[<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/AstraDownloader/releases/latest)
+[**AstraDownloader**](https://github.com/SysAdminDoc/AstraDownloader) &middot; Desktop video downloader for Windows that also serves the Astra Deck extension locally &nbsp;[<kbd>&#11015;&nbsp;EXE</kbd>](https://github.com/SysAdminDoc/AstraDownloader/releases/latest)
 
-[**FantasyLeagueFootball**](https://github.com/SysAdminDoc/FantasyLeagueFootball) -- Draft-day board for half-PPR fantasy football, one offline HTML second screen plus a CLI &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FantasyLeagueFootball/releases/latest)
+[**FantasyLeagueFootball**](https://github.com/SysAdminDoc/FantasyLeagueFootball) &middot; Draft-day board for half-PPR fantasy football, one offline HTML second screen plus a CLI &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FantasyLeagueFootball/releases/latest)
 
-[**FrameSnap**](https://github.com/SysAdminDoc/FrameSnap) -- Browse MP4 videos, mark frames visually, and export precise screenshots &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FrameSnap/releases/latest)
+[**FrameSnap**](https://github.com/SysAdminDoc/FrameSnap) &middot; Browse MP4 videos, mark frames visually, and export precise screenshots &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/FrameSnap/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool FrameSnap
 ```
 
-[**Mattpad**](https://github.com/SysAdminDoc/Mattpad) -- Minimal notepad built for personal workflow &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Mattpad/releases/latest)
+[**Mattpad**](https://github.com/SysAdminDoc/Mattpad) &middot; Minimal notepad built for personal workflow &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/Mattpad/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool Mattpad
 ```
 
-[**SwiftShot**](https://github.com/SysAdminDoc/SwiftShot) -- Debloated, Greenshot-inspired screenshot tool &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SwiftShot/releases/latest)
+[**SwiftShot**](https://github.com/SysAdminDoc/SwiftShot) &middot; Debloated, Greenshot-inspired screenshot tool &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/SwiftShot/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool SwiftShot
 ```
 
-[**uBlock-Stylus-Converter**](https://github.com/SysAdminDoc/uBlock-Stylus-Converter) -- Convert uBlock cosmetic filters to Stylus CSS &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/uBlock-Stylus-Converter/releases/latest)
+[**uBlock-Stylus-Converter**](https://github.com/SysAdminDoc/uBlock-Stylus-Converter) &middot; Convert uBlock cosmetic filters to Stylus CSS &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/uBlock-Stylus-Converter/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool uBlock-Stylus-Converter
 ```
@@ -335,7 +335,7 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 
 <a id="web-applications"></a>
 <details>
-<summary><b>&#127760; Web Applications</b> -- 28 repos -- <i>Live web apps and dashboards you can open right now.</i></summary>
+<summary><b>&#127760; Web Applications</b> &middot; 28 repos &middot; <i>Live web apps and dashboards you can open right now.</i></summary>
 <br/>
 
 Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Openshop), [**StormviewRadar**](https://github.com/SysAdminDoc/StormviewRadar), [**SkyTrack**](https://github.com/SysAdminDoc/SkyTrack).
@@ -375,7 +375,7 @@ Suggested starting points: [**Openshop**](https://github.com/SysAdminDoc/Opensho
 
 <a id="browser-extensions--userscripts"></a>
 <details>
-<summary><b>&#129513; Browser Extensions & Userscripts</b> -- 30 repos -- <i>One-click installs for Chrome and Firefox. Userscripts need Tampermonkey or similar.</i></summary>
+<summary><b>&#129513; Browser Extensions & Userscripts</b> &middot; 30 repos &middot; <i>One-click installs for Chrome and Firefox. Userscripts need Tampermonkey or similar.</i></summary>
 <br/>
 
 Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck), [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault), [**AmazonEnhanced**](https://github.com/SysAdminDoc/AmazonEnhanced).
@@ -417,7 +417,7 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 
 <a id="android-applications"></a>
 <details>
-<summary><b>&#128241; Android Applications</b> -- 25 repos -- <i>APKs you can sideload and Android source projects.</i></summary>
+<summary><b>&#128241; Android Applications</b> &middot; 25 repos &middot; <i>APKs you can sideload and Android source projects.</i></summary>
 <br/>
 
 Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**ClearCut**](https://github.com/SysAdminDoc/ClearCut), [**HostShield**](https://github.com/SysAdminDoc/HostShield).
@@ -454,7 +454,7 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 
 <a id="security--networking"></a>
 <details>
-<summary><b>&#128274; Security & Networking</b> -- 2 repos -- <i>Network audits, DNS control, and hardening scripts.</i></summary>
+<summary><b>&#128274; Security & Networking</b> &middot; 2 repos &middot; <i>Network audits, DNS control, and hardening scripts.</i></summary>
 <br/>
 
 Suggested starting points: [**BetterNext**](https://github.com/SysAdminDoc/BetterNext), [**ESET**](https://github.com/SysAdminDoc/ESET).
@@ -468,39 +468,39 @@ Suggested starting points: [**BetterNext**](https://github.com/SysAdminDoc/Bette
 
 <a id="media--conversion-tools"></a>
 <details>
-<summary><b>&#127916; Media & Conversion Tools</b> -- 7 repos -- <i>Video, audio, and stream tools.</i></summary>
+<summary><b>&#127916; Media & Conversion Tools</b> &middot; 7 repos &middot; <i>Video, audio, and stream tools.</i></summary>
 <br/>
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;83 -- Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;83 &middot; Remove hardcoded subtitles from video &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool VideoSubtitleRemover
 ```
 
-[**StreamKeep**](https://github.com/SysAdminDoc/StreamKeep) &#11088;11 -- Multi-platform stream/VOD downloader with built-in media converter &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/StreamKeep/releases/latest)
+[**StreamKeep**](https://github.com/SysAdminDoc/StreamKeep) &#11088;11 &middot; Multi-platform stream/VOD downloader with built-in media converter &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/StreamKeep/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool StreamKeep
 ```
 
-[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut) -- Video background removal and compositing &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/AlphaCut/releases/latest)
+[**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut) &middot; Video background removal and compositing &nbsp;[<kbd>&#11015;&nbsp;Download</kbd>](https://github.com/SysAdminDoc/AlphaCut/releases/latest)
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool AlphaCut
 ```
 
-[**MediaForge**](https://github.com/SysAdminDoc/MediaForge) -- Multi-format media converter
+[**MediaForge**](https://github.com/SysAdminDoc/MediaForge) &middot; Multi-format media converter
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool MediaForge
 ```
 
-[**GIFM**](https://github.com/SysAdminDoc/GIFM) -- Local GIF maker and compressor with Discord-ready target fitting &nbsp;[<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/GIFM/releases/latest)
+[**GIFM**](https://github.com/SysAdminDoc/GIFM) &middot; Local GIF maker and compressor with Discord-ready target fitting &nbsp;[<kbd>&#11015;&nbsp;ZIP</kbd>](https://github.com/SysAdminDoc/GIFM/releases/latest)
 
-[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) -- Video compression and processing
+[**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush) &middot; Video compression and processing
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool VideoCrush
 ```
 
-[**yt_livestream_downloader**](https://github.com/SysAdminDoc/yt_livestream_downloader) -- Download livestreams while they're still live
+[**yt_livestream_downloader**](https://github.com/SysAdminDoc/yt_livestream_downloader) &middot; Download livestreams while they're still live
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool yt_livestream_downloader
 ```
@@ -509,7 +509,7 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 
 <a id="native-desktop-applications"></a>
 <details>
-<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- 28 repos -- <i>Windows and cross-platform desktop apps.</i></summary>
+<summary><b>&#128421;&#65039; Native Desktop Applications</b> &middot; 28 repos &middot; <i>Windows and cross-platform desktop apps.</i></summary>
 <br/>
 
 Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPortfolio), [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore), [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore).
@@ -549,7 +549,7 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 
 <a id="guides--resources"></a>
 <details>
-<summary><b>&#128218; Guides & Resources</b> -- 4 repos -- <i>How-to guides, checklists, and references.</i></summary>
+<summary><b>&#128218; Guides & Resources</b> &middot; 4 repos &middot; <i>How-to guides, checklists, and references.</i></summary>
 <br/>
 
 Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism), [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide), [**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list).
@@ -565,7 +565,7 @@ Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Re
 
 <a id="misc--forks"></a>
 <details>
-<summary><b>&#128256; Misc & Forks</b> -- 7 repos -- <i>Forks, side projects, and things that didn't fit elsewhere.</i></summary>
+<summary><b>&#128256; Misc & Forks</b> &middot; 7 repos &middot; <i>Forks, side projects, and things that didn't fit elsewhere.</i></summary>
 <br/>
 
 Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/octopus-factory), [**LTSC-MicrosoftStore**](https://github.com/SysAdminDoc/LTSC-MicrosoftStore), [**RcloneBrowser**](https://github.com/SysAdminDoc/RcloneBrowser).
@@ -585,7 +585,7 @@ Suggested starting points: [**octopus-factory**](https://github.com/SysAdminDoc/
 <a id="first-time-setup"></a>
 
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
+<summary><b>&#128190; First-time setup</b> &middot; <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
 <br/>
 
 The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
@@ -630,7 +630,7 @@ A `.py` entry script runs with `python` instead of `&`. Both one-liners download
 <a id="local-validation"></a>
 
 <details>
-<summary><b>&#9989; Local validation</b> -- <i>For contributors: check the profile before you push.</i></summary>
+<summary><b>&#9989; Local validation</b> &middot; <i>For contributors: check the profile before you push.</i></summary>
 <br/>
 
 Changing the catalog or the generator? Run this from the repo root first:

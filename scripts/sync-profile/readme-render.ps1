@@ -516,7 +516,7 @@ function New-FirstTimeSetupSection {
 <a id="first-time-setup"></a>
 
 <details>
-<summary><b>&#128190; First-time setup</b> -- <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
+<summary><b>&#128190; First-time setup</b> &middot; <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
 <br/>
 
 The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
@@ -568,7 +568,7 @@ function New-LocalValidationSection {
 <a id="local-validation"></a>
 
 <details>
-<summary><b>&#9989; Local validation</b> -- <i>For contributors: check the profile before you push.</i></summary>
+<summary><b>&#9989; Local validation</b> &middot; <i>For contributors: check the profile before you push.</i></summary>
 <br/>
 
 Changing the catalog or the generator? Run this from the repo root first:
@@ -616,7 +616,7 @@ function New-CategorySection {
         "code" {
             foreach ($entry in $items) {
                 $meta = Get-RepoMeta $entry $RepoLookup
-                $line = "$(Get-ProjectLink $entry $meta) -- $(Get-DisplayDescription $entry $meta)"
+                $line = "$(Get-ProjectLink $entry $meta) &middot; $(Get-DisplayDescription $entry $meta)"
                 $action = Get-ActionLink $entry $meta $Definition.Slug
                 if ($action -match 'releases/latest') {
                     $line += " &nbsp;$action"

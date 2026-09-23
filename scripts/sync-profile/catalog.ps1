@@ -502,7 +502,9 @@ function New-CatalogFromReadme {
             continue
         }
 
-        if ($line -match ('^\[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? (?:--|—) (?<rest>.+)$')) {
+        # Rows join the name and the description with &middot; now; older READMEs used a
+        # double hyphen or an em dash.
+        if ($line -match ('^\[\*\*(?<title>.+?)\*\*\]\(' + $ownerRepoUrl + '(?<repo>[^)/]+)\)(?: &#11088;(?<stars>\d+))? (?:--|—|&middot;) (?<rest>.+)$')) {
             $repo = $Matches.repo
             $rest = $Matches.rest
             $description = $rest -replace '\s*&nbsp;\[.*$', ''

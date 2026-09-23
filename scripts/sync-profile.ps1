@@ -204,7 +204,7 @@ $script:CategoryDefinitions = @(
         Slug = "powershell"
         DisplayName = "PowerShell"
         Title = "&#9889; PowerShell System Utilities"
-        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> -- {0} repos -- <i>Paste-and-run scripts for Windows admin work.</i></summary>'
+        Summary = '<summary><b>&#9889; PowerShell System Utilities</b> &middot; {0} repos &middot; <i>Paste-and-run scripts for Windows admin work.</i></summary>'
         Render = "code"
         DefaultInstallKind = "powershell"
     },
@@ -212,7 +212,7 @@ $script:CategoryDefinitions = @(
         Slug = "python"
         DisplayName = "Python"
         Title = "&#128013; Python Desktop Applications"
-        Summary = '<summary><b>&#128013; Python Desktop Applications</b> -- {0} repos -- <i>Desktop apps, creative tools, and automation scripts.</i></summary>'
+        Summary = '<summary><b>&#128013; Python Desktop Applications</b> &middot; {0} repos &middot; <i>Desktop apps, creative tools, and automation scripts.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
@@ -220,21 +220,21 @@ $script:CategoryDefinitions = @(
         Slug = "web"
         DisplayName = "Web Apps"
         Title = "&#127760; Web Applications"
-        Summary = '<summary><b>&#127760; Web Applications</b> -- {0} repos -- <i>Live web apps and dashboards you can open right now.</i></summary>'
+        Summary = '<summary><b>&#127760; Web Applications</b> &middot; {0} repos &middot; <i>Live web apps and dashboards you can open right now.</i></summary>'
         Render = "web-table"
     },
     [ordered]@{
         Slug = "extensions"
         DisplayName = "Extensions"
         Title = "&#129513; Browser Extensions & Userscripts"
-        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> -- {0} repos -- <i>One-click installs for Chrome and Firefox. Userscripts need Tampermonkey or similar.</i></summary>'
+        Summary = '<summary><b>&#129513; Browser Extensions & Userscripts</b> &middot; {0} repos &middot; <i>One-click installs for Chrome and Firefox. Userscripts need Tampermonkey or similar.</i></summary>'
         Render = "install-table"
     },
     [ordered]@{
         Slug = "android"
         DisplayName = "Android"
         Title = "&#128241; Android Applications"
-        Summary = '<summary><b>&#128241; Android Applications</b> -- {0} repos -- <i>APKs you can sideload and Android source projects.</i></summary>'
+        Summary = '<summary><b>&#128241; Android Applications</b> &middot; {0} repos &middot; <i>APKs you can sideload and Android source projects.</i></summary>'
         Render = "download-table"
         DefaultDownloadKind = "apk"
     },
@@ -242,14 +242,14 @@ $script:CategoryDefinitions = @(
         Slug = "security"
         DisplayName = "Security"
         Title = "&#128274; Security & Networking"
-        Summary = '<summary><b>&#128274; Security & Networking</b> -- {0} repos -- <i>Network audits, DNS control, and hardening scripts.</i></summary>'
+        Summary = '<summary><b>&#128274; Security & Networking</b> &middot; {0} repos &middot; <i>Network audits, DNS control, and hardening scripts.</i></summary>'
         Render = "download-table"
     },
     [ordered]@{
         Slug = "media"
         DisplayName = "Media"
         Title = "&#127916; Media & Conversion Tools"
-        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> -- {0} repos -- <i>Video, audio, and stream tools.</i></summary>'
+        Summary = '<summary><b>&#127916; Media & Conversion Tools</b> &middot; {0} repos &middot; <i>Video, audio, and stream tools.</i></summary>'
         Render = "code"
         DefaultInstallKind = "python"
     },
@@ -257,21 +257,21 @@ $script:CategoryDefinitions = @(
         Slug = "desktop"
         DisplayName = "Desktop"
         Title = "&#128421;&#65039; Native Desktop Applications"
-        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> -- {0} repos -- <i>Windows and cross-platform desktop apps.</i></summary>'
+        Summary = '<summary><b>&#128421;&#65039; Native Desktop Applications</b> &middot; {0} repos &middot; <i>Windows and cross-platform desktop apps.</i></summary>'
         Render = "desktop-table"
     },
     [ordered]@{
         Slug = "guides"
         DisplayName = "Guides"
         Title = "&#128218; Guides & Resources"
-        Summary = '<summary><b>&#128218; Guides & Resources</b> -- {0} repos -- <i>How-to guides, checklists, and references.</i></summary>'
+        Summary = '<summary><b>&#128218; Guides & Resources</b> &middot; {0} repos &middot; <i>How-to guides, checklists, and references.</i></summary>'
         Render = "simple-table"
     },
     [ordered]@{
         Slug = "misc"
         DisplayName = "Misc"
         Title = "&#128256; Misc & Forks"
-        Summary = '<summary><b>&#128256; Misc & Forks</b> -- {0} repos -- <i>Forks, side projects, and things that didn''t fit elsewhere.</i></summary>'
+        Summary = '<summary><b>&#128256; Misc & Forks</b> &middot; {0} repos &middot; <i>Forks, side projects, and things that didn''t fit elsewhere.</i></summary>'
         Render = "simple-table"
     }
 )
