@@ -22,6 +22,8 @@
 
 - Star counts under 2 are no longer shown beside a project name. A single star read as noise rather than a signal, and 85 rows still show their count. Rows keep sorting by the real number, and the cutoff is one constant, `$MinStarDisplay`, next to the tagline.
 
+- Moved the local validation guide out of the profile README. Its 70 lines of check lanes, compatibility runs and support-bundle commands sat at the end of a page most people open to find a tool. The README keeps a short section marked for contributors, with the one command to run and a link to the full guide, which now lives in `.github/CONTRIBUTING.md`. The README went from 687 lines to 632.
+
 ## 2026-09-20
 
 - Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.

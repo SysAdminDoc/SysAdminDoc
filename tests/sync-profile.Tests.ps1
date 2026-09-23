@@ -3270,21 +3270,36 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Match '-CheckOnly'
         $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
     }
-    It 'renders local validation bootstrap guidance' {
-        $script:rendered | Should -Match '<a id="local-validation"></a>'
-        $script:rendered | Should -Match 'Regenerate, lint, analyze, test, and smoke-check the profile feed locally'
-        $script:rendered | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
-        $script:rendered | Should -Match 'manual dependency and advisory review'
-        $script:rendered | Should -Match 'npm run review:dependencies'
-        $script:rendered | Should -Match 'package override drift'
-        $script:rendered | Should -Match 'npm ci'
-        $script:rendered | Should -Match 'PowerShell runtime'
-        $script:rendered | Should -Match 'warns below PowerShell 7\.6 LTS'
-        $script:rendered | Should -Match 'Pester 5\.9\.1'
-        $script:rendered | Should -Match 'PSScriptAnalyzer 1\.25\.0'
-        $script:rendered | Should -Match 'Invoke-Pester -Path tests -Output Detailed'
-        $script:rendered | Should -Match ([regex]::Escape('sync-profile.ps1 -Check -GraphQlPageSize 300'))
-        $script:rendered | Should -Match '-SkipBootstrap'
+    It 'renders a short, contributor-labelled local validation pointer' {
+        $section = [regex]::Match($script:rendered, '(?s)<a id="local-validation"></a>.*?</details>').Value
+        $section | Should -Not -BeNullOrEmpty
+        $section | Should -Match 'For contributors'
+        $section | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
+        $section | Should -Match ([regex]::Escape('](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/.github/CONTRIBUTING.md#local-validation)'))
+        # The lane-by-lane detail moved to CONTRIBUTING.md; a visitor does not scroll past it.
+        $section | Should -Not -Match 'package override drift|Pester 6 compatibility lane|Backstage'
+        ($section -split "`n").Count | Should -BeLessThan 20
+    }
+
+    It 'keeps the full local validation guide in CONTRIBUTING.md' {
+        $contributing = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/CONTRIBUTING.md') -Raw
+        $contributing | Should -Match '(?m)^## Local validation$'
+        $contributing | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
+        $contributing | Should -Match 'manual dependency and advisory review'
+        $contributing | Should -Match 'npm run review:dependencies'
+        $contributing | Should -Match 'package override drift'
+        $contributing | Should -Match 'npm ci'
+        $contributing | Should -Match 'warns below PowerShell 7\.6 LTS'
+        $contributing | Should -Match 'Pester 5\.9\.1'
+        $contributing | Should -Match 'PSScriptAnalyzer 1\.25\.0'
+        $contributing | Should -Match 'code coverage over every script and `setup\.ps1`'
+        $contributing | Should -Match ([regex]::Escape('sync-profile.ps1 -Check -GraphQlPageSize 300'))
+        $contributing | Should -Match 'min-release-age=1'
+        $contributing | Should -Match '-SkipBootstrap'
+    }
+
+    It 'keeps the committed README below 680 lines' {
+        @(Get-Content -LiteralPath (Join-Path $script:RepoRoot 'README.md')).Count | Should -BeLessThan 680
     }
     It 'renders upstream and license attribution in category rows' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
@@ -7687,8 +7702,9 @@ Describe 'Pester local validation command' {
         $validationScript | Should -Match 'PSModulePath'
         $validationScript | Should -Match 'ExcludeTag Integration'
         $validationScript | Should -Match 'Pester6CompatibilityVersion'
-        $script:SyncProfileScript | Should -Match 'Pester 6 compatibility lane'
-        $script:SyncProfileScript | Should -Match 'validate-local[.]ps1 -Pester6Compatibility'
+        $contributing = Get-Content -LiteralPath (Join-Path $script:RepoRoot '.github/CONTRIBUTING.md') -Raw
+        $contributing | Should -Match 'Pester 6 compatibility lane'
+        $contributing | Should -Match 'validate-local[.]ps1 -Pester6Compatibility'
         Test-Path -LiteralPath (Join-Path $script:RepoRoot 'scripts/new-support-bundle.ps1') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $script:RepoRoot '.github/workflows/tests.yml') | Should -BeFalse
     }
@@ -9219,7 +9235,8 @@ Describe 'Local dependency advisory review' -Tag 'Integration' {
         $script:DependencyReviewScriptPath = Join-Path $script:RepoRoot 'scripts/review-local-dependencies.ps1'
         $script:DependencyReviewScript = Get-Content -LiteralPath $script:DependencyReviewScriptPath -Raw
         $script:DependencyReviewPackage = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'package.json') | ConvertFrom-Json -AsHashtable
-        $script:DependencyReviewReadme = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'README.md')
+        # The dependency review is contributor documentation, kept in CONTRIBUTING.md.
+        $script:DependencyReviewReadme = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot '.github/CONTRIBUTING.md')
     }
 
     It 'documents a local dependency review command without hosted automation' {
