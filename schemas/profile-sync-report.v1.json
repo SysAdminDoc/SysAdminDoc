@@ -2981,10 +2981,12 @@
         "score",
         "maxScore",
         "provider",
-        "sourceUrl",
+        "command",
+        "scorecardVersion",
         "date",
         "analyzedRepo",
         "analyzedCommit",
+        "checks",
         "unavailableReason"
       ],
       "properties": {
@@ -3004,11 +3006,14 @@
         },
         "provider": {
           "type": "string",
-          "const": "securityscorecards-api"
+          "const": "scorecard-cli"
         },
-        "sourceUrl": {
+        "command": {
           "type": "string",
-          "format": "uri"
+          "minLength": 1
+        },
+        "scorecardVersion": {
+          "$ref": "#/$defs/nullableString"
         },
         "date": {
           "$ref": "#/$defs/nullableString"
@@ -3019,7 +3024,38 @@
         "analyzedCommit": {
           "$ref": "#/$defs/nullableCommitSha"
         },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/scorecardCheck"
+          }
+        },
         "unavailableReason": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "scorecardCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "score",
+        "reason"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -1
+        },
+        "reason": {
           "$ref": "#/$defs/nullableString"
         }
       }
@@ -3108,7 +3144,6 @@
         "codeqlSupportedLanguageDetected",
         "codeqlWorkflowPresent",
         "sarifUploadWorkflowPresent",
-        "scorecardSarifUploadPresent",
         "localControls",
         "hostedControls",
         "activeControls",
@@ -3137,9 +3172,6 @@
           "type": "boolean"
         },
         "sarifUploadWorkflowPresent": {
-          "type": "boolean"
-        },
-        "scorecardSarifUploadPresent": {
           "type": "boolean"
         },
         "localControls": {

@@ -515,6 +515,63 @@ Describe 'PR delivery checklist carries no recorded history' {
     }
 }
 
+Describe 'OpenSSF Scorecard runs locally' {
+    It 'reports a missing binary instead of failing' {
+        Mock Get-Command { $null } -ParameterFilter { $Name -eq 'scorecard' }
+
+        $run = Invoke-ScorecardCli
+
+        $run.ok | Should -BeFalse
+        $run.error | Should -Match 'scorecard binary not found'
+    }
+
+    It 'records the local run only when -RunScorecard asks for it' {
+        $savedOffline = $script:Offline
+        $savedRunScorecard = $script:RunScorecard
+        $script:Offline = $false
+        Mock Invoke-GhCli {
+            if ($Arguments[0] -eq 'auth' -and $Arguments[1] -eq 'status') {
+                return [ordered]@{ output = 'Logged in'; exitCode = 0; text = 'Logged in' }
+            }
+            [ordered]@{ output = 'not in this test'; exitCode = 1; text = 'not in this test' }
+        }
+        Mock Invoke-ScorecardCli {
+            [ordered]@{
+                ok = $true
+                error = $null
+                value = [pscustomobject]@{
+                    date = '2026-09-23T08:00:00Z'
+                    score = 6.1
+                    repo = [pscustomobject]@{ name = 'github.com/SysAdminDoc/SysAdminDoc'; commit = '0123456789abcdef0123456789abcdef01234567' }
+                    scorecard = [pscustomobject]@{ version = 'v5.2.1' }
+                    checks = @([pscustomobject]@{ name = 'Pinned-Dependencies'; score = 8; reason = 'dependencies are pinned' })
+                }
+            }
+        }
+        try {
+            $script:RunScorecard = $false
+            $notRun = (Get-RepositoryCommunityBaseline)['repositorySettings'].security.scorecardScore
+            $script:RunScorecard = $true
+            $ran = (Get-RepositoryCommunityBaseline)['repositorySettings'].security.scorecardScore
+        } finally {
+            $script:Offline = $savedOffline
+            $script:RunScorecard = $savedRunScorecard
+        }
+
+        $notRun.available | Should -BeFalse
+        $notRun.unavailableReason | Should -Match '-RunScorecard'
+        $ran.available | Should -BeTrue
+        $ran.score | Should -Be 6.1
+        $ran.checks[0].name | Should -Be 'Pinned-Dependencies'
+        Should -Invoke Invoke-ScorecardCli -Times 1 -Exactly
+    }
+
+    It 'never reads the hosted Scorecard API' {
+        $script:SyncProfileScript | Should -Not -Match 'api\.securityscorecards\.dev'
+        $script:SyncProfileScript | Should -Not -Match 'ossf/scorecard-action@'
+    }
+}
+
 Describe 'The suite runs the generator offline' {
     It 'reads the offline switch only through $script:Offline in the library' {
         $script:Offline | Should -BeTrue
@@ -1035,7 +1092,6 @@ Describe 'Safe outbound destination policy' {
                 'Test-HttpUrl',
                 'Get-ReleaseArtifactDownload',
                 'Get-PortfolioHttpDocument',
-                'Invoke-RestJsonSafe',
                 'Get-UserscriptContent')) {
             $functionBodies[$functionName] | Should -Match 'Invoke-SafeOutboundHttpRequest' -Because $functionName
         }
@@ -1219,7 +1275,6 @@ Describe 'Repository settings and community-health baseline' {
         $codeScanningEvidence = [ordered]@{
             codeqlWorkflowPresent = $false
             sarifUploadWorkflowPresent = $false
-            scorecardSarifUploadPresent = $false
             psScriptAnalyzerWorkflowPresent = $false
             actionlintWorkflowPresent = $false
             zizmorWorkflowPresent = $false
@@ -1244,6 +1299,12 @@ Describe 'Repository settings and community-health baseline' {
                 name = 'github.com/SysAdminDoc/SysAdminDoc'
                 commit = '0123456789abcdef0123456789abcdef01234567'
             }
+            scorecard = [pscustomobject]@{ version = 'v5.2.1' }
+            checks = @(
+                [pscustomobject]@{ name = 'Security-Policy'; score = 10; reason = 'security policy file detected' }
+                [pscustomobject]@{ name = 'Code-Review'; score = 0; reason = 'Found 0/30 approved changesets' }
+                [pscustomobject]@{ name = 'Fuzzing'; score = -1; reason = $null }
+            )
         }
 
         $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -BranchProtection $branchProtection -Rulesets @() -ActionsWorkflowPermissions $actionsWorkflowPermissions -Languages $languages -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence $codeScanningEvidence -ScorecardAlerts $scorecardAlerts -ScorecardScoreResult $scorecardScoreResult
@@ -1266,8 +1327,12 @@ Describe 'Repository settings and community-health baseline' {
         $scorecardScore.available | Should -BeTrue
         $scorecardScore.score | Should -Be 7.4
         $scorecardScore.maxScore | Should -Be 10.0
-        $scorecardScore.provider | Should -Be 'securityscorecards-api'
-        $scorecardScore.sourceUrl | Should -Be 'https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc'
+        $scorecardScore.provider | Should -Be 'scorecard-cli'
+        $scorecardScore.command | Should -Be 'scorecard --repo=github.com/SysAdminDoc/SysAdminDoc --format=json'
+        $scorecardScore.scorecardVersion | Should -Be 'v5.2.1'
+        @($scorecardScore.checks | ForEach-Object { $_.name }) | Should -Be @('Code-Review', 'Fuzzing', 'Security-Policy')
+        @($scorecardScore.checks | Where-Object { $_.name -eq 'Fuzzing' })[0].score | Should -Be -1
+        @($scorecardScore.checks | Where-Object { $_.name -eq 'Fuzzing' })[0].reason | Should -BeNullOrEmpty
         $scorecardScore.date | Should -Be '2026-06-11T10:08:14Z'
         $scorecardScore.analyzedRepo | Should -Be 'github.com/SysAdminDoc/SysAdminDoc'
         $scorecardScore.analyzedCommit | Should -Be '0123456789abcdef0123456789abcdef01234567'
@@ -1279,7 +1344,7 @@ Describe 'Repository settings and community-health baseline' {
         @($repoSettings.security.codeScanning.codeqlSupportedLanguages) | Should -HaveCount 0
         $repoSettings.security.codeScanning.codeqlWorkflowPresent | Should -BeFalse
         $repoSettings.security.codeScanning.sarifUploadWorkflowPresent | Should -BeFalse
-        $repoSettings.security.codeScanning.scorecardSarifUploadPresent | Should -BeFalse
+        $repoSettings.security.codeScanning.Contains('scorecardSarifUploadPresent') | Should -BeFalse -Because 'the Scorecard workflow grep was removed'
         $repoSettings.security.codeScanning.localControls | Should -Contain 'local-validation-bootstrap'
         $repoSettings.security.codeScanning.localControls | Should -Contain 'psscriptanalyzer'
         $repoSettings.security.codeScanning.localControls | Should -Contain 'pester'
@@ -1382,7 +1447,7 @@ Describe 'Repository settings and community-health baseline' {
             [ordered]@{ path = 'SECURITY.md'; required = $true; exists = $true }
         )
 
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -LocalFiles $localNoForms -CodeScanningLocalEvidence ([ordered]@{ sarifUploadWorkflowPresent = $true; scorecardSarifUploadPresent = $true })
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -LocalFiles $localNoForms -CodeScanningLocalEvidence ([ordered]@{ sarifUploadWorkflowPresent = $true })
         $community = $result.communityHealth
         $community.issueTemplateProviderState | Should -Be 'missing'
         $community.localIssueFormCount | Should -Be 0
@@ -1402,7 +1467,7 @@ Describe 'Repository settings and community-health baseline' {
                 code_of_conduct = [pscustomobject]@{}
             }
         }
-        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence ([ordered]@{ sarifUploadWorkflowPresent = $true; scorecardSarifUploadPresent = $true })
+        $result = Test-RepositoryCommunityBaseline -Repository $repository -CommunityProfile $community -LocalFiles $script:LocalCommunityFilesOk -CodeScanningLocalEvidence ([ordered]@{ sarifUploadWorkflowPresent = $true })
         $result.communityHealth.issueTemplateProviderState | Should -Be 'detected'
         ($result.communityHealth.info -join ' ') | Should -Not -Match 'issue form'
     }
@@ -1417,7 +1482,6 @@ Describe 'Repository settings and community-health baseline' {
         $codeScanningEvidence = [ordered]@{
             codeqlWorkflowPresent = $false
             sarifUploadWorkflowPresent = $true
-            scorecardSarifUploadPresent = $true
             psScriptAnalyzerWorkflowPresent = $true
             actionlintWorkflowPresent = $true
             zizmorWorkflowPresent = $true
@@ -1431,7 +1495,8 @@ Describe 'Repository settings and community-health baseline' {
         $repoSettings.security.dependabotSecurityPosture.recommendation | Should -Be 'disable-dependabot-per-repository-policy'
         $repoSettings.security.codeScanning.activeControls | Should -Contain 'dependabot-security-updates'
         $repoSettings.security.codeScanning.hostedControls | Should -Contain 'dependabot-security-updates'
-        $repoSettings.security.codeScanning.hostedControls | Should -Contain 'openssf-scorecard-sarif'
+        # Scorecard runs locally now; a workflow is no longer counted as a Scorecard control.
+        $repoSettings.security.codeScanning.hostedControls | Should -Not -Contain 'openssf-scorecard-sarif'
         $repoSettings.security.codeScanning.hostedControls | Should -Contain 'actionlint-workflow'
         ($repoSettings.warnings -join ' ') | Should -Not -Match 'Dependabot security updates are not enabled'
     }
@@ -1469,7 +1534,6 @@ Describe 'Repository settings and community-health baseline' {
         $codeScanningEvidence = [ordered]@{
             codeqlWorkflowPresent = $false
             sarifUploadWorkflowPresent = $true
-            scorecardSarifUploadPresent = $true
             psScriptAnalyzerWorkflowPresent = $true
             actionlintWorkflowPresent = $true
             zizmorWorkflowPresent = $true
@@ -1483,7 +1547,7 @@ Describe 'Repository settings and community-health baseline' {
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeTrue
         $codeScanning.codeqlSupportedLanguages | Should -Contain 'Python'
         $codeScanning.codeqlWorkflowPresent | Should -BeFalse
-        $codeScanning.hostedControls | Should -Contain 'openssf-scorecard-sarif'
+        $codeScanning.hostedControls | Should -Not -Contain 'openssf-scorecard-sarif'
         $codeScanning.hostedControls | Should -Contain 'actionlint-workflow'
         ($result['repositorySettings'].warnings -join ' ') | Should -Match 'CodeQL-supported languages detected'
     }
@@ -5825,7 +5889,7 @@ Describe 'Code scanning posture decision' {
         $codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
         $codeScanning.codeqlWorkflowPresent | Should -BeFalse
-        $codeScanning.scorecardSarifUploadPresent | Should -BeFalse
+        @($codeScanning.PSObject.Properties.Name) | Should -Not -Contain 'scorecardSarifUploadPresent'
         $codeScanning.localControls | Should -Contain 'local-validation-bootstrap'
         $codeScanning.localControls | Should -Contain 'psscriptanalyzer'
         $codeScanning.localControls | Should -Contain 'pester'
@@ -5859,8 +5923,8 @@ Describe 'Code scanning posture decision' {
         $codeScanning.scorecardAlertPosture.needsHostedRefreshCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.localActionableCount | Should -Be 0
         $codeScanning.scorecardAlertPosture.recommendation | Should -Be 'track-external-scorecard-governance-items'
-        $report.repositorySettings.security.scorecardScore.provider | Should -Be 'securityscorecards-api'
-        $report.repositorySettings.security.scorecardScore.sourceUrl | Should -Be 'https://api.securityscorecards.dev/projects/github.com/SysAdminDoc/SysAdminDoc'
+        $report.repositorySettings.security.scorecardScore.provider | Should -Be 'scorecard-cli'
+        $report.repositorySettings.security.scorecardScore.command | Should -Be 'scorecard --repo=github.com/SysAdminDoc/SysAdminDoc --format=json'
         if ($report.repositorySettings.security.scorecardScore.available) {
             $report.repositorySettings.security.scorecardScore.score | Should -BeGreaterOrEqual 0
             $report.repositorySettings.security.scorecardScore.score | Should -BeLessOrEqual 10

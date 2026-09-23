@@ -156,17 +156,11 @@ function Get-CodeScanningLocalEvidence {
 
     $hasCodeQlWorkflow = [regex]::IsMatch($workflowText, '(?i)github/codeql-action/(init|analyze)@|codeql\s+(database|analyze)')
     $hasSarifUpload = [regex]::IsMatch($workflowText, '(?i)github/codeql-action/upload-sarif@')
-    $hasScorecardSarif = (
-        [regex]::IsMatch($workflowText, '(?i)ossf/scorecard-action@') -and
-        [regex]::IsMatch($workflowText, '(?m)^\s*results_format:\s*sarif\s*$') -and
-        $hasSarifUpload
-    )
 
     return [ordered]@{
         workflowFilesInspected = @($workflowFiles | ForEach-Object { $_.Name })
         codeqlWorkflowPresent = [bool]$hasCodeQlWorkflow
         sarifUploadWorkflowPresent = [bool]$hasSarifUpload
-        scorecardSarifUploadPresent = [bool]$hasScorecardSarif
         psScriptAnalyzerWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)Invoke-ScriptAnalyzer|PSScriptAnalyzer')
         actionlintWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)\bactionlint\b')
         zizmorWorkflowPresent = [bool][regex]::IsMatch($workflowText, '(?i)\bzizmor\b')
@@ -346,8 +340,66 @@ function Test-SecurityPolicyLinkedReportingTarget {
     return [bool][regex]::IsMatch($text, '(?i)\bhttps?://|mailto:')
 }
 
-function Get-ScorecardScoreApiUrl {
-    return "https://api.securityscorecards.dev/projects/github.com/$Owner/$Owner"
+function Invoke-ScorecardCli {
+    <#
+    .SYNOPSIS
+    Runs the OpenSSF Scorecard CLI against the profile repository and returns its JSON.
+    .DESCRIPTION
+    Returns ok/value/error. Scorecard reads GitHub's API, so the token comes from gh and is
+    passed only in the child's environment; the process starts with no window. A missing
+    binary is an error result, not a failure, and the report then says why the score is
+    unavailable.
+    .PARAMETER TimeoutSeconds
+    Wall-clock limit for one Scorecard run.
+    #>
+    param([ValidateRange(10, 1800)][int]$TimeoutSeconds = 300)
+
+    $scorecard = Get-Command -Name scorecard -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $scorecard) {
+        return [ordered]@{ ok = $false; value = $null; error = "scorecard binary not found on PATH; install OpenSSF Scorecard v5 to use -RunScorecard" }
+    }
+    $token = Invoke-GhCli -Arguments @("auth", "token")
+    if ($token.exitCode -ne 0 -or [string]::IsNullOrWhiteSpace([string]$token.text)) {
+        return [ordered]@{ ok = $false; value = $null; error = "gh auth token unavailable; Scorecard needs a GitHub token" }
+    }
+
+    $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $scorecard.Source
+    [void]$startInfo.ArgumentList.Add("--repo=github.com/$Owner/$Owner")
+    [void]$startInfo.ArgumentList.Add("--format=json")
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.Environment["GITHUB_AUTH_TOKEN"] = ([string]$token.text).Trim()
+    $process = [System.Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    try {
+        [void]$process.Start()
+        $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+        $stderrTask = $process.StandardError.ReadToEndAsync()
+        if (-not $process.WaitForExit($TimeoutSeconds * 1000)) {
+            try {
+                $process.Kill($true)
+            } catch {
+                Write-Verbose "Could not stop the timed-out scorecard process: $($_.Exception.Message)"
+            }
+            return [ordered]@{ ok = $false; value = $null; error = "scorecard timed out after $TimeoutSeconds seconds" }
+        }
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) {
+            # One line, capped: the report is public, and only the reason matters.
+            $firstLine = @(([string]$stderrTask.Result) -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1)
+            $detail = if ($firstLine.Count -gt 0) { ([string]$firstLine[0]).Trim() } else { "no error output" }
+            if ($detail.Length -gt 200) { $detail = $detail.Substring(0, 200) }
+            return [ordered]@{ ok = $false; value = $null; error = "scorecard exited $($process.ExitCode): $detail" }
+        }
+        return [ordered]@{ ok = $true; value = ($stdoutTask.Result | ConvertFrom-Json); error = $null }
+    } catch {
+        return [ordered]@{ ok = $false; value = $null; error = "scorecard could not run: $($_.Exception.Message)" }
+    } finally {
+        $process.Dispose()
+    }
 }
 
 function Get-ScorecardScoreSnapshot {
@@ -356,7 +408,7 @@ function Get-ScorecardScoreSnapshot {
         [string]$UnavailableReason
     )
 
-    $sourceUrl = Get-ScorecardScoreApiUrl
+    $command = "scorecard --repo=github.com/$Owner/$Owner --format=json"
     $score = ConvertTo-NullableDouble (Get-MemberValue -Object $ScorecardScoreResult -Name "score")
     $resultRepo = Get-MemberValue -Object $ScorecardScoreResult -Name "repo"
     $missingReason = if ([string]::IsNullOrWhiteSpace($UnavailableReason)) { "scorecard score evidence was not supplied" } else { $UnavailableReason }
@@ -365,24 +417,42 @@ function Get-ScorecardScoreSnapshot {
             available = $false
             score = $null
             maxScore = 10
-            provider = "securityscorecards-api"
-            sourceUrl = $sourceUrl
+            provider = "scorecard-cli"
+            command = $command
+            scorecardVersion = $null
             date = $null
             analyzedRepo = $null
             analyzedCommit = $null
-            unavailableReason = if ($null -eq $ScorecardScoreResult -or -not [string]::IsNullOrWhiteSpace($UnavailableReason)) { $missingReason } else { "scorecard API result omitted a numeric score" }
+            checks = @()
+            unavailableReason = if ($null -eq $ScorecardScoreResult -or -not [string]::IsNullOrWhiteSpace($UnavailableReason)) { $missingReason } else { "scorecard result omitted a numeric score" }
         }
     }
+
+    # Per-check scores, in a stable order. Scorecard scores a check -1 when it cannot decide.
+    $checks = @(@(Get-JsonArrayItems (Get-MemberValue -Object $ScorecardScoreResult -Name "checks")) |
+        Where-Object { -not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $_ -Name "name")) } |
+        ForEach-Object {
+            $reason = [string](Get-MemberValue -Object $_ -Name "reason")
+            [ordered]@{
+                name = [string](Get-MemberValue -Object $_ -Name "name")
+                score = ConvertTo-NullableDouble (Get-MemberValue -Object $_ -Name "score")
+                reason = if ([string]::IsNullOrWhiteSpace($reason)) { $null } else { $reason }
+            }
+        } |
+        Sort-Object { ConvertTo-OrdinalSortKey $_.name })
+    $version = [string](Get-MemberValue -Object (Get-MemberValue -Object $ScorecardScoreResult -Name "scorecard") -Name "version")
 
     return [ordered]@{
         available = $true
         score = $score
         maxScore = 10
-        provider = "securityscorecards-api"
-        sourceUrl = $sourceUrl
+        provider = "scorecard-cli"
+        command = $command
+        scorecardVersion = if ([string]::IsNullOrWhiteSpace($version)) { $null } else { $version }
         date = ConvertTo-IsoText (Get-MemberValue -Object $ScorecardScoreResult -Name "date")
         analyzedRepo = [string](Get-MemberValue -Object $resultRepo -Name "name")
         analyzedCommit = [string](Get-MemberValue -Object $resultRepo -Name "commit")
+        checks = @($checks)
         unavailableReason = $null
     }
 }
@@ -1185,7 +1255,6 @@ function Test-RepositoryCommunityBaseline {
     $powerShellOnly = ($languageNames.Count -eq 1 -and $languageNames[0] -eq "PowerShell")
     $codeQlWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "codeqlWorkflowPresent")
     $sarifUploadWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "sarifUploadWorkflowPresent")
-    $scorecardSarifUploadPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "scorecardSarifUploadPresent")
     $psScriptAnalyzerWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "psScriptAnalyzerWorkflowPresent")
     $actionlintWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "actionlintWorkflowPresent")
     $zizmorWorkflowPresent = [bool](Get-MemberValue -Object $CodeScanningLocalEvidence -Name "zizmorWorkflowPresent")
@@ -1233,7 +1302,6 @@ function Test-RepositoryCommunityBaseline {
     if ($psScriptAnalyzerWorkflowPresent) { $hostedCodeScanningControls.Add("psscriptanalyzer-workflow") }
     if ($actionlintWorkflowPresent) { $hostedCodeScanningControls.Add("actionlint-workflow") }
     if ($zizmorWorkflowPresent) { $hostedCodeScanningControls.Add("zizmor-workflow") }
-    if ($scorecardSarifUploadPresent) { $hostedCodeScanningControls.Add("openssf-scorecard-sarif") }
     if ($sarifUploadWorkflowPresent) { $hostedCodeScanningControls.Add("sarif-upload-workflow") }
     if ($codeQlWorkflowPresent) { $hostedCodeScanningControls.Add("codeql-workflow") }
 
@@ -1322,7 +1390,6 @@ function Test-RepositoryCommunityBaseline {
                 codeqlSupportedLanguageDetected = [bool]$hasCodeqlSupportedLanguage
                 codeqlWorkflowPresent = $codeQlWorkflowPresent
                 sarifUploadWorkflowPresent = $sarifUploadWorkflowPresent
-                scorecardSarifUploadPresent = $scorecardSarifUploadPresent
                 localControls = @($localCodeScanningControls.ToArray())
                 hostedControls = @($hostedCodeScanningControls.ToArray())
                 activeControls = @($activeCodeScanningControls)
@@ -1424,7 +1491,13 @@ function Get-RepositoryCommunityBaseline {
     $actionsWorkflowPermissionsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/actions/permissions/workflow"
     $languagesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/languages"
     $scorecardAlertsResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/code-scanning/alerts?tool_name=Scorecard&state=open&per_page=100"
-    $scorecardScoreResult = Invoke-RestJsonSafe -Uri (Get-ScorecardScoreApiUrl)
+    # Scorecard runs locally when asked. The hosted API only held scans from a workflow this
+    # repository no longer has, so the score it returned was months out of date.
+    $scorecardScoreResult = if ($script:RunScorecard) {
+        Invoke-ScorecardCli
+    } else {
+        [ordered]@{ ok = $false; value = $null; error = "Scorecard was not run; pass -RunScorecard with the OpenSSF Scorecard v5 binary on PATH" }
+    }
     $dependabotSecurityUpdatesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/automated-security-fixes"
     $immutableReleasesResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/immutable-releases"
 

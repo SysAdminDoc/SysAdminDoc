@@ -30,6 +30,7 @@ param(
     [switch]$ProbePortfolio,
     [string]$PortfolioUrl = "https://portfolio.getparkerai.com/",
     [switch]$DraftMissingCatalogEntries,
+    [switch]$RunScorecard,
     [switch]$Offline
 )
 
@@ -63,6 +64,7 @@ $script:ReleaseVerificationMaxBytes = [int]$ReleaseVerificationMaxBytes
 # dot-sources this file that is the parameter bound in its BeforeAll ($false), so the suite's
 # $script:Offline = $true never reached the generator and "offline" tests called GitHub.
 $script:Offline = [bool]$Offline
+$script:RunScorecard = [bool]$RunScorecard
 
 if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) {
     $Check = $true
