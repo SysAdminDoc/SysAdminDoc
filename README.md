@@ -559,7 +559,7 @@ Suggested starting points: [**AI_Realism**](https://github.com/SysAdminDoc/AI_Re
 | [**AI_Realism**](https://github.com/SysAdminDoc/AI_Realism) | Field guide for ultra-realistic AI video generation |
 | [**android-debloat-list**](https://github.com/SysAdminDoc/android-debloat-list) | Curated Android debloat list with vulnerability notes. Companion to AppManagerNG<br/><sub>Upstream: [MuntashirAkon/android-debloat-list](https://github.com/MuntashirAkon/android-debloat-list); License: AGPL-3.0</sub> |
 | [**facebook-exit-guide**](https://github.com/SysAdminDoc/facebook-exit-guide) | Guide for leaving Facebook |
-| [**sysadmindoc.github.io**](https://github.com/SysAdminDoc/sysadmindoc.github.io) | Personal portfolio and project showcase site hosted on GitHub Pages |
+| [**sysadmindoc.github.io**](https://github.com/SysAdminDoc/sysadmindoc.github.io) | Personal portfolio and public project catalog: an Astro static site, self-hosted behind Caddy |
 
 </details>
 
