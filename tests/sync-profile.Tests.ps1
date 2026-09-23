@@ -317,6 +317,27 @@ Describe 'Sync report stays valid against its own schema for small catalogs' {
         $result.Report.schemaValidation.report.valid | Should -BeTrue -Because 'a dead link fails linkFailures, not the report schema'
     }
 
+    It 'still validates when the profile version file is malformed or incomplete' -ForEach @(
+        @{ Case = 'malformed'; Json = '{"version":"v4.10","date":"not-a-date"}'; Version = 'v4.10' }
+        @{ Case = 'missing version'; Json = '{"date":"2026-09-23"}'; Version = $null }
+    ) {
+        # docVersionConsistency reports what it found and fails the run itself; the report
+        # schema has to be able to carry the bad value, or one typo fails two checks.
+        $versionPath = Join-Path $TestDrive 'profile-version.json'
+        Set-Content -LiteralPath $versionPath -Value $Json -Encoding utf8
+        $savedVersionPath = $script:ProfileVersionPath
+        $script:ProfileVersionPath = $versionPath
+        try {
+            $result = script:Invoke-SmallCatalogState
+        } finally {
+            $script:ProfileVersionPath = $savedVersionPath
+        }
+
+        $result.Report.docVersionConsistency.passed | Should -BeFalse
+        $result.Report.docVersionConsistency.expectedVersion | Should -Be $Version
+        @($result.Report.schemaValidation.report.errors | ForEach-Object { '{0} {1}' -f $_.instanceLocation, $_.message }) | Should -BeNullOrEmpty
+    }
+
     It 'keeps a single license count a list' {
         $entry = New-TestEntry -Repo 'Licensed' -Category 'powershell'
         $meta = New-TestRepoMeta -Name 'Licensed' -LicenseInfo ([pscustomobject]@{ spdxId = 'MIT'; key = 'mit'; name = 'MIT License' })
