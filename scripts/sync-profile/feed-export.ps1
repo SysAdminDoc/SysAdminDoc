@@ -1417,7 +1417,12 @@ function Get-LicenseMetadata {
 }
 
 function ConvertTo-ProjectsSyncComparableJson {
-    param([string]$Json)
+    param(
+        [string]$Json,
+        # Multi-line output for drift diagnostics. Same serializer and mask, so two feeds
+        # compare equal indented exactly when they compare equal compressed.
+        [switch]$Indented
+    )
 
     if ([string]::IsNullOrWhiteSpace($Json)) {
         return ""
@@ -1454,6 +1459,9 @@ function ConvertTo-ProjectsSyncComparableJson {
                     }
                 }
             }
+        }
+        if ($Indented) {
+            return ConvertTo-Json -InputObject $payload -Depth 20
         }
         return ConvertTo-ComparableJson $payload
     } catch {

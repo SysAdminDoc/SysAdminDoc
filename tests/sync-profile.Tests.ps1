@@ -5673,6 +5673,7 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
                     inSync = $false
                     currentSha256 = ('c' * 64)
                     expectedSha256 = ('d' * 64)
+                    diffBasis = 'comparable-json-lines'
                     firstDiff = [pscustomobject]@{
                         line = 1
                         sectionMarker = $null
@@ -5719,6 +5720,7 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match ('a' * 64)
             $summary | Should -Match ('b' * 64)
             $summary | Should -Match '## Tool Catalog'
+            $summary | Should -Match '\| projects[.]json \| `c{64}` \| `d{64}` \| 1 \(masked JSON\) \|'
             $summary | Should -Match 'assets/profile/footer-dark[.]svg'
             $summary | Should -Match '\| assets/profile/stray[.]svg \| True \| `0{64}` \| not generated \| Delete the file; the generator does not produce it and -Write never deletes[.] \|'
             $summary | Should -Match '\| assets/profile/footer-dark[.]svg \| True \| `e{64}` \| `f{64}` \| Run the remediation command[.] \|'
@@ -5981,6 +5983,64 @@ Describe 'Artifact drift diagnostic line location' {
         $diagnostic.firstDiff.line | Should -Be 8
         $diagnostic.firstDiff.current | Should -Be 'stray trailing line'
         $diagnostic.firstDiff.expected | Should -BeNullOrEmpty
+        $diagnostic.diffBasis | Should -Be 'artifact-lines'
+    }
+
+    It 'names the enclosing section, not the changed table row or the row above it' {
+        $expected = @(
+            '### What''s here',
+            '<summary><b>Web Applications</b> -- 2 repos</summary>',
+            '| Project | Description | Live |',
+            '|:--------|:------------|:----:|',
+            '| [**Alpha**](https://github.com/o/Alpha) &#11088;3 | first | [Launch](https://o.github.io/Alpha/) |',
+            '| [**Beta**](https://github.com/o/Beta) &#11088;1 | second | [Launch](https://o.github.io/Beta/) |'
+        )
+        $current = @($expected)
+        $current[5] = '| [**Beta**](https://github.com/o/Beta) &#11088;2 | second | [Launch](https://o.github.io/Beta/) |'
+
+        $diagnostic = New-TextArtifactDiffDiagnostic -Artifact 'README.md' -Current ($current -join "`n") -Expected ($expected -join "`n") -InSync:$false
+
+        $diagnostic.firstDiff.line | Should -Be 6
+        $diagnostic.firstDiff.sectionMarker.line | Should -Be 2
+        $diagnostic.firstDiff.sectionMarker.text | Should -BeLike '<summary><b>Web Applications</b>*'
+    }
+
+    It 'windows a long line around the first differing column' {
+        $prefix = '[**LibreSpot**](https://github.com/o/LibreSpot) &#11088;9 -- ' + ('word ' * 30)
+        $expectedLine = $prefix + '[<kbd>Download</kbd>](https://github.com/o/LibreSpot/releases/latest) trailing text'
+        $currentLine = $prefix + '[<kbd>Download</kbd>](https://github.com/o/LibreSpot/releases/tag/v2) trailing text'
+        $prefix.Length | Should -BeGreaterThan 180 -Because 'the difference must sit past the unwindowed snippet'
+
+        $diagnostic = New-TextArtifactDiffDiagnostic -Artifact 'README.md' -Current $currentLine -Expected $expectedLine -InSync:$false
+
+        $diagnostic.firstDiff.line | Should -Be 1
+        $diagnostic.firstDiff.current | Should -Not -Be $diagnostic.firstDiff.expected
+        $diagnostic.firstDiff.current | Should -BeLike '...*releases/tag/v2*'
+        $diagnostic.firstDiff.expected | Should -BeLike '...*releases/latest*'
+    }
+
+    It 'locates feed drift in the masked comparable JSON and names the project it is in' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $expectedProjects = New-ProjectsExportJson -Catalog $cat -Repos @() -GeneratedAt '2026-09-01T00:00:00.0000000Z'
+        $payload = $expectedProjects | ConvertFrom-Json -DateKind String
+        $target = $payload.projects[1]
+        $target.description = 'Changed description for the drift test'
+        # A newer timestamp is volatile: masked by the verdict, so it must not be reported.
+        $payload.generatedAt = '2026-09-22T00:00:00.0000000Z'
+        $currentProjects = $payload | ConvertTo-Json -Depth 50 -Compress
+
+        $diagnostics = New-GeneratedArtifactDriftDiagnostics `
+            -CurrentReadme 'same' -ExpectedReadme 'same' `
+            -CurrentProjects $currentProjects -ExpectedProjects $expectedProjects `
+            -ReadmeInSync:$true -ProjectsInSync:$false -ProfileAssetsInSync:$true `
+            -AssetChecks @() -ExpectedAssets @{}
+
+        $diagnostics.projects.diffBasis | Should -Be 'comparable-json-lines'
+        $diagnostics.projects.firstDiff.current | Should -Match 'Changed description for the drift test'
+        $diagnostics.projects.firstDiff.expected | Should -Not -Match 'Changed description'
+        $diagnostics.projects.firstDiff.line | Should -BeGreaterThan 1
+        $diagnostics.projects.firstDiff.sectionMarker.text | Should -Be ('"id": "{0}",' -f $target.id)
+        $diagnostics.readme.diffBasis | Should -Be 'artifact-lines'
     }
 }
 
@@ -6009,7 +6069,10 @@ Describe 'Test-ProfileState projects sync gate' {
         $result.Report.artifactDriftDiagnostics.readme.firstDiff.current | Should -Be '# stale profile'
         $result.Report.artifactDriftDiagnostics.projects.currentSha256 | Should -Match '^[a-f0-9]{64}$'
         $result.Report.artifactDriftDiagnostics.projects.expectedSha256 | Should -Match '^[a-f0-9]{64}$'
-        $result.Report.artifactDriftDiagnostics.projects.firstDiff.line | Should -Be 1
+        # The feed is compared as masked, indented JSON: line 1 is the shared "{".
+        $result.Report.artifactDriftDiagnostics.projects.diffBasis | Should -Be 'comparable-json-lines'
+        $result.Report.artifactDriftDiagnostics.projects.firstDiff.line | Should -Be 2
+        $result.Report.artifactDriftDiagnostics.projects.firstDiff.current | Should -Match '"stale": true'
     }
 
     It 'passes when projects.json differs only by informational metadata drift' {

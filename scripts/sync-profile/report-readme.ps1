@@ -3,34 +3,48 @@
 # evidence and SVG contrast. Dot-sourced by scripts/sync-profile.ps1.
 
 function Get-CompactDiffSnippet {
-    param([AllowNull()][string]$Text)
+    param(
+        [AllowNull()][string]$Text,
+        # Column of the first difference. A long line is windowed around it, so two README
+        # rows that only differ past the first 177 characters do not read as identical.
+        [int]$Around = 0
+    )
 
     if ($null -eq $Text) {
         return $null
     }
 
-    $snippet = (($Text -replace "`t", " ") -replace '\s+', ' ').Trim()
+    $start = 0
+    if ($Text.Length -gt 180 -and $Around -gt 60) {
+        $start = [Math]::Min($Around - 60, $Text.Length - 177)
+    }
+    $snippet = (($Text.Substring($start) -replace "`t", " ") -replace '\s+', ' ').Trim()
+    $prefix = if ($start -gt 0) { "..." } else { "" }
     if ($snippet.Length -gt 180) {
-        return ($snippet.Substring(0, 177) + "...")
+        return ($prefix + $snippet.Substring(0, 177) + "...")
     }
 
-    return $snippet
+    return ($prefix + $snippet)
 }
 
 function Get-NearestDiffSectionMarker {
     param(
         [string[]]$Lines,
-        [int]$LineIndex
+        [int]$LineIndex,
+        # Headings and <summary> open README sections; "id" opens a project in the indented
+        # feed. Table rows are not sections: the changed row is already in the snippet.
+        [string]$MarkerPattern = '^(#{1,6}\s+|<summary\b)'
     )
 
-    if ($null -eq $Lines -or $Lines.Count -eq 0 -or $LineIndex -lt 0) {
+    if ($null -eq $Lines -or $Lines.Count -eq 0 -or $LineIndex -lt 1) {
         return $null
     }
 
-    $start = [Math]::Min($LineIndex, $Lines.Count - 1)
+    # Strictly above the changed line, so a changed heading points at the section it sits in.
+    $start = [Math]::Min($LineIndex - 1, $Lines.Count - 1)
     for ($i = $start; $i -ge 0; $i--) {
         $line = [string]$Lines[$i]
-        if ($line -match '^(#{1,6}\s+|<summary\b|\|\s*\[\*\*)') {
+        if ($line -match $MarkerPattern) {
             return [ordered]@{
                 line = [int]($i + 1)
                 text = Get-CompactDiffSnippet -Text $line
@@ -46,15 +60,28 @@ function New-TextArtifactDiffDiagnostic {
         [string]$Artifact,
         [AllowNull()][string]$Current,
         [AllowNull()][string]$Expected,
-        [bool]$InSync
+        [bool]$InSync,
+        # The feed is one long line whose volatile fields always differ, so its first
+        # difference is located in the masked comparable JSON, indented: the same form the
+        # sync verdict compares. Hashes always cover the artifact text itself.
+        [ValidateSet("artifact-lines", "comparable-json-lines")]
+        [string]$DiffBasis = "artifact-lines",
+        [AllowNull()][string]$CurrentDiffText,
+        [AllowNull()][string]$ExpectedDiffText
     )
 
     $currentNormalized = ConvertTo-NormalizedGeneratedText -Text $Current
     $expectedNormalized = ConvertTo-NormalizedGeneratedText -Text $Expected
+    $currentDiffSource = if ($PSBoundParameters.ContainsKey('CurrentDiffText')) { ConvertTo-NormalizedGeneratedText -Text $CurrentDiffText } else { $currentNormalized }
+    $expectedDiffSource = if ($PSBoundParameters.ContainsKey('ExpectedDiffText')) { ConvertTo-NormalizedGeneratedText -Text $ExpectedDiffText } else { $expectedNormalized }
+    $markerArguments = @{}
+    if ($DiffBasis -eq "comparable-json-lines") {
+        $markerArguments['MarkerPattern'] = '^\s*"(id|suppressedId)":\s'
+    }
     # No limit argument: in PowerShell 7 a negative -split limit counts pieces from the
     # right, so -1 returned the whole artifact as a single "line 1".
-    $currentLines = @($currentNormalized -split "`n")
-    $expectedLines = @($expectedNormalized -split "`n")
+    $currentLines = @($currentDiffSource -split "`n")
+    $expectedLines = @($expectedDiffSource -split "`n")
     $maxLineCount = [Math]::Max($currentLines.Count, $expectedLines.Count)
     $firstDiff = $null
 
@@ -64,11 +91,18 @@ function New-TextArtifactDiffDiagnostic {
             $expectedLine = if ($i -lt $expectedLines.Count) { [string]$expectedLines[$i] } else { $null }
             # -cne: the sync verdict is case-sensitive, so a case-only change is the difference.
             if ($currentLine -cne $expectedLine) {
+                $column = 0
+                if ($null -ne $currentLine -and $null -ne $expectedLine) {
+                    $shorter = [Math]::Min($currentLine.Length, $expectedLine.Length)
+                    while ($column -lt $shorter -and $currentLine[$column] -ceq $expectedLine[$column]) {
+                        $column++
+                    }
+                }
                 $firstDiff = [ordered]@{
                     line = [int]($i + 1)
-                    sectionMarker = Get-NearestDiffSectionMarker -Lines $expectedLines -LineIndex $i
-                    current = Get-CompactDiffSnippet -Text $currentLine
-                    expected = Get-CompactDiffSnippet -Text $expectedLine
+                    sectionMarker = Get-NearestDiffSectionMarker -Lines $expectedLines -LineIndex $i @markerArguments
+                    current = Get-CompactDiffSnippet -Text $currentLine -Around $column
+                    expected = Get-CompactDiffSnippet -Text $expectedLine -Around $column
                 }
                 break
             }
@@ -80,6 +114,7 @@ function New-TextArtifactDiffDiagnostic {
         inSync = [bool]$InSync
         currentSha256 = Get-StringSha256 -Text $currentNormalized
         expectedSha256 = Get-StringSha256 -Text $expectedNormalized
+        diffBasis = $DiffBasis
         firstDiff = $firstDiff
     }
 }
@@ -118,7 +153,10 @@ function New-GeneratedArtifactDriftDiagnostics {
     return [ordered]@{
         remediationCommand = "pwsh -NoLogo -NoProfile -File ./scripts/sync-profile.ps1 -Write"
         readme = New-TextArtifactDiffDiagnostic -Artifact "README.md" -Current $CurrentReadme -Expected $ExpectedReadme -InSync:$ReadmeInSync
-        projects = New-TextArtifactDiffDiagnostic -Artifact "projects.json" -Current $CurrentProjects -Expected $ExpectedProjects -InSync:$ProjectsInSync
+        projects = New-TextArtifactDiffDiagnostic -Artifact "projects.json" -Current $CurrentProjects -Expected $ExpectedProjects -InSync:$ProjectsInSync `
+            -DiffBasis "comparable-json-lines" `
+            -CurrentDiffText (ConvertTo-ProjectsSyncComparableJson -Json $CurrentProjects -Indented) `
+            -ExpectedDiffText (ConvertTo-ProjectsSyncComparableJson -Json $ExpectedProjects -Indented)
         assets = [ordered]@{
             inSync = [bool]$ProfileAssetsInSync
             affectedAssetCount = [int]$affectedAssets.Count

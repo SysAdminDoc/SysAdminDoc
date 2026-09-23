@@ -791,6 +791,9 @@ if ($artifactDriftDiagnostics -and ($report.readmeInSync -ne $true -or $report.p
         if ($diagnostic -and $diagnostic.inSync -ne $true) {
             $firstDiff = Get-ObjectPropertyOrDefault -Object $diagnostic -Name "firstDiff"
             $line = if ($firstDiff -and $null -ne $firstDiff.line) { [int]$firstDiff.line } else { 0 }
+            if ([string](Get-ObjectPropertyOrDefault -Object $diagnostic -Name "diffBasis" -Default "artifact-lines") -eq "comparable-json-lines") {
+                $line = "$line (masked JSON)"
+            }
             $section = ""
             if ($firstDiff -and $firstDiff.PSObject.Properties.Name -contains 'sectionMarker' -and $firstDiff.sectionMarker) {
                 $section = [string](Get-ObjectPropertyOrDefault -Object $firstDiff.sectionMarker -Name "text" -Default "")

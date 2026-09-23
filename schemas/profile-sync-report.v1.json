@@ -380,6 +380,7 @@
         "inSync",
         "currentSha256",
         "expectedSha256",
+        "diffBasis",
         "firstDiff"
       ],
       "properties": {
@@ -394,6 +395,13 @@
         },
         "expectedSha256": {
           "$ref": "#/$defs/sha256"
+        },
+        "diffBasis": {
+          "type": "string",
+          "enum": [
+            "artifact-lines",
+            "comparable-json-lines"
+          ]
         },
         "firstDiff": {
           "$ref": "#/$defs/nullableTextFirstDiff"
