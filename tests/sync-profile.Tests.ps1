@@ -310,12 +310,34 @@ Describe 'Public text is encoded for where it lands' {
     }
 
     It 'leaves ordinary accented, non-Latin and emphasized text alone' {
-        foreach ($text in @('Café naïve résumé', '日本語のツール', 'Инструмент', 'עברית and العربية', 'Power-user tool *(Kotlin)* `code`', 'Network_Security_Auditor')) {
+        foreach ($text in @('Café naïve résumé', '日本語のツール', 'Инструмент', 'עברית and العربية', 'Power-user tool *(Kotlin)*', 'Network_Security_Auditor')) {
             ConvertTo-MarkdownText $text | Should -Be $text
         }
     }
 
-    It 'cannot make a new row, link or HTML element from catalog text' {
+    It 'escapes backticks, so text never opens a code span' {
+        # A code span shows its escapes as written, so this would read C:\\Tools\\x.ps1.
+        ConvertTo-MarkdownText '`C:\Tools\x.ps1`' | Should -Be '\`C:\\Tools\\x.ps1\`'
+        ConvertTo-MarkdownText 'Runs `x` fast' | Should -Be 'Runs \`x\` fast'
+    }
+
+    It 'keeps the project link when a title and a description both carry a backtick' {
+        # A code span binds before a link, so an unescaped backtick in the title pairs with
+        # one in the description and swallows the ](url) between them.
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $tool = @($catalog.entries | Where-Object { $_.category -eq 'powershell' -and $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })[0]
+        $tool.title = 'Tick`Tool'
+        $tool.descriptionOverride = 'Runs `x` fast'
+
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        $readme | Should -Match ([regex]::Escape('[**Tick\`Tool**](https://github.com/SysAdminDoc/' + $tool.repo + ')'))
+        $readme | Should -Match ([regex]::Escape('Runs \`x\` fast'))
+    }
+
+    It 'cannot make a new row, Markdown link or HTML element from catalog text' {
+        # GitHub still links a bare URL in text on its own. That adds no row, cell or
+        # element, so it isn't what this guards against.
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $web = @($catalog.entries | Where-Object { $_.repo -eq 'WebTool' })[0]
         $web.title = 'Web](https://evil.example/) | <b>bold</b>'
@@ -331,7 +353,7 @@ Describe 'Public text is encoded for where it lands' {
         ([regex]::Matches($tableLines[2], '(?<!\\)\|')).Count | Should -Be 4
         # Escaped brackets are text; only an unescaped "](" could start a link.
         $readme | Should -Not -Match '(?<!\\)\]\(https://evil\.example'
-        # The header's own <b> and Ko-fi <img> are legitimate; the injected ones must not appear.
+        # The header's own <b> is legitimate; the injected elements must not appear.
         $readme | Should -Not -Match '<b>bold</b>|<img src=x'
         $readme | Should -Match ([regex]::Escape('&lt;b&gt;bold&lt;/b&gt;'))
     }

@@ -20,8 +20,12 @@ function ConvertTo-MarkdownText {
     isolate characters are dropped, an unpaired surrogate becomes U+FFFD, and backslash,
     pipe and square brackets are escaped, so a value cannot end a table cell, open a row
     or close a link label. & < and > become entities, so it cannot open an HTML element
-    or smuggle a control character in as "&#8238;". Emphasis, code spans and
-    ordinary accented or non-Latin text pass through unchanged.
+    or smuggle a control character in as "&#8238;". Backticks are escaped too: a code
+    span binds before a link, so a backtick in a title could pair with one in the
+    description and swallow the link between them, and the escapes above would show as
+    written inside one. Emphasis and ordinary accented or non-Latin text pass through
+    unchanged. GitHub still turns a bare URL or address in the text into a link of its
+    own; that adds no row, cell or element, and nothing here prevents it.
     .PARAMETER Text
     The untrusted text; $null renders as an empty string.
     #>
@@ -49,6 +53,7 @@ function ConvertTo-MarkdownText {
             '|' { [void]$builder.Append('\|') }
             '[' { [void]$builder.Append('\[') }
             ']' { [void]$builder.Append('\]') }
+            '`' { [void]$builder.Append('\`') }
             '&' { [void]$builder.Append('&amp;') }
             '<' { [void]$builder.Append('&lt;') }
             '>' { [void]$builder.Append('&gt;') }
