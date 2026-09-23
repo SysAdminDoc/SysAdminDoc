@@ -352,6 +352,50 @@ Describe 'Public text is encoded for where it lands' {
         ConvertTo-HtmlText 'Save $5 & "more"' -Attribute | Should -Be 'Save $5 &amp; &quot;more&quot;'
     }
 
+    It 'writes a bare URL the way GitHub will link it: <Case>' -ForEach @(
+        # Checked with the /markdown API on 2026-09-23: GitHub keeps escapes and entities
+        # inside an autolinked URL as written, so &amp; linked a=1&amp;b=2.
+        @{ Case = 'an ampersand'; Text = 'see https://x.invalid/a?b=1&c=2 now'; Expected = 'see https://x.invalid/a?b=1&c=2 now'; Links = 'https://x.invalid/a?b=1&c=2' }
+        @{ Case = 'a dollar sign'; Text = 'see https://x.invalid/?q=$y and $5'; Expected = 'see https://x.invalid/?q=$y and <span>$</span>5'; Links = 'https://x.invalid/?q=$y' }
+        @{ Case = 'characters an escape would break'; Text = 'see https://x.invalid/a|b\c[d]e`f>g end'; Expected = 'see https://x.invalid/a%7Cb%5Cc%5Bd%5De%60f%3Eg end'; Links = 'https://x.invalid/a%7Cb%5Cc%5Bd%5De%60f%3Eg' }
+        @{ Case = 'an entity GitHub trims off the end'; Text = 'see https://x.invalid/a&rlm; now'; Expected = 'see https://x.invalid/a&amp;rlm; now'; Links = 'https://x.invalid/a&amp;rlm' }
+        @{ Case = 'an entity inside'; Text = 'see https://x.invalid/a&#8238;b now'; Expected = 'see https://x.invalid/a&#8238;b now'; Links = 'https://x.invalid/a&#8238;b' }
+        @{ Case = 'trailing punctuation'; Text = 'see (https://x.invalid/a&b). Then'; Expected = 'see (https://x.invalid/a&b). Then'; Links = 'https://x.invalid/a&b' }
+        @{ Case = 'a www host'; Text = 'see www.x.invalid/a?b=1&c=2 now'; Expected = 'see www.x.invalid/a?b=1&c=2 now'; Links = '' }
+        @{ Case = 'no valid domain'; Text = 'see https://&rlm;x and https://_a.b_c/&x'; Expected = 'see https://&amp;rlm;x and https://_a.b_c/&amp;x'; Links = '' }
+        @{ Case = 'what comes before the scheme'; Text = 'xhttps://x.invalid/a&b and :www.x.invalid/&c'; Expected = 'xhttps://x.invalid/a&amp;b and :www.x.invalid/&amp;c'; Links = '' }
+        @{ Case = 'a scheme GitHub leaves alone'; Text = 'ftp://x.invalid/a&b'; Expected = 'ftp://x.invalid/a&amp;b'; Links = '' }
+    ) {
+        $encoded = ConvertTo-MarkdownText $Text
+
+        $encoded | Should -BeExactly $Expected
+        # The header reader follows GitHub's autolink rules, so it links what the catalog named.
+        (@(Get-ReadmeHeaderLinkReference -ExpectedReadme $encoded | ForEach-Object { $_.value }) -join ' ; ') | Should -BeExactly $Links
+    }
+
+    It 'encodes a URL in a link label like any other text' {
+        # GitHub doesn't autolink inside a link label and decodes entities there, so a raw
+        # &rlm; would come back as a bidi mark.
+        ConvertTo-MarkdownText 'Tool https://x.invalid/a&rlm;b' -LinkLabel | Should -BeExactly 'Tool https://x.invalid/a&amp;rlm;b'
+    }
+
+    It 'treats titles as link labels and descriptions as text wherever the README writes them' {
+        # Every place a title lands in a link label (the row, the category previews, the
+        # tool picks), and the row's description, where GitHub autolinks the URL.
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        foreach ($entry in @($catalog.entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })) {
+            $entry.title = 'Tool https://x.invalid/a&rlm;b'
+        }
+        $tool = @($catalog.entries | Where-Object { $_.category -eq 'powershell' -and $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })[0]
+        $tool.descriptionOverride = 'Docs at https://x.invalid/guide?a=1&b=2 here'
+
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        [regex]::Matches($readme, '&rlm;').Count | Should -Be 0 -Because 'no title may carry a raw entity into a link label'
+        [regex]::Matches($readme, [regex]::Escape('[**Tool https://x.invalid/a&amp;rlm;b**](')).Count | Should -BeGreaterThan 1
+        $readme | Should -Match ([regex]::Escape('Docs at https://x.invalid/guide?a=1&b=2 here'))
+    }
+
     It 'keeps dollar signs in a project row out of math' {
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $tool = @($catalog.entries | Where-Object { $_.category -eq 'powershell' -and $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })[0]
@@ -6023,11 +6067,18 @@ Describe 'Profile header comes from catalog data' {
         @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain $About
     }
 
-    It 'keeps a # at the end of the heading' {
+    It 'escapes only a closing run of # at the end of the heading: <Heading>' -ForEach @(
+        @{ Heading = 'Tools #'; Expected = '## Tools \#' }
+        @{ Heading = 'Tools ###'; Expected = '## Tools \###' }
+        @{ Heading = 'C#'; Expected = '## C#' }
+        @{ Heading = 'Docs at https://x.invalid/page#'; Expected = '## Docs at https://x.invalid/page#' }
+    ) {
+        # A run of # after a space is closing markup GitHub drops. One right after other text
+        # isn't, and an escape there would break an autolinked URL (checked with the API).
         $header = New-TestProfileHeader
-        $header.heading = 'Tools #'
+        $header.heading = $Heading
 
-        @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain '## Tools \#'
+        @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain $Expected
     }
 
     It 'renders no header link or button whose URL could leave its attribute' {

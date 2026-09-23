@@ -213,7 +213,7 @@ function Get-UpstreamAttribution {
     if (-not [string]::IsNullOrWhiteSpace($forkOf)) {
         $url = Get-UpstreamUrl -ForkOf $forkOf
         if ($url) {
-            $parts.Add("Upstream: [$(ConvertTo-MarkdownText $forkOf)]($url)")
+            $parts.Add("Upstream: [$(ConvertTo-MarkdownText $forkOf -LinkLabel)]($url)")
         } else {
             $parts.Add("Upstream: $(ConvertTo-MarkdownText $forkOf)")
         }

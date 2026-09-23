@@ -28,16 +28,82 @@ function ConvertTo-MarkdownText {
     stops that, while a span does. Emphasis and ordinary accented or non-Latin text pass
     through unchanged. GitHub still turns a bare URL or address in the text into a link of
     its own; that adds no row, cell or element, and nothing here prevents it.
+
+    That link is the one exception. GitHub keeps everything in an autolinked URL as
+    written, escapes and entities included, so an escape or entity there would change the
+    address (a=1&b=2 would link to a=1&amp;b=2) and a span would cut it short. Inside the
+    exact stretch GitHub links, & and $ stay as they are and the characters an escape
+    would break are percent-encoded, which is how GitHub writes the address anyway. The
+    tail it trims off stays outside: an entity-like &rlm; there is decoded, so it's encoded
+    like any other text.
     .PARAMETER Text
     The untrusted text; $null renders as an empty string.
+    .PARAMETER LinkLabel
+    The text is a link label. GitHub never autolinks inside one and decodes entities there,
+    so a URL in it is encoded like any other text.
     #>
-    param([AllowNull()][string]$Text)
+    param(
+        [AllowNull()][string]$Text,
+        [switch]$LinkLabel
+    )
 
     if ([string]::IsNullOrEmpty($Text)) {
         return ''
     }
     $oneLine = [regex]::Replace($Text, '\r\n|[\r\n\u0085\u2028\u2029]', ' ')
     $visible = [regex]::Replace($oneLine, '[\p{Cc}\u202A-\u202E\u2066-\u2069]', '')
+    # Where GitHub will autolink a bare URL: http(s) by the rules of the bare-URL pass in
+    # Get-ReadmeHeaderLinkReference, which reads the rendered header (keep the two in step),
+    # and a www. host after a space, * _ ~ or (, which GitHub links as http and the check
+    # never probes. The stretch found here never runs past the one GitHub finds in the
+    # encoded text: nothing written inside it is a space or a <, and nothing it trims is
+    # changed.
+    $inUrl = [bool[]]::new($visible.Length)
+    if (-not $LinkLabel) {
+        $urlStarts = @(
+            foreach ($scheme in [regex]::Matches($visible, '(?<![A-Za-z])[A-Za-z]+://')) {
+                if ($scheme.Value -in @('http://', 'https://')) {
+                    @{ Start = $scheme.Index; Domain = $scheme.Index + $scheme.Length }
+                }
+            }
+            foreach ($www in [regex]::Matches($visible, '(?<=^|[\s*_~(])www\.')) {
+                @{ Start = $www.Index; Domain = $www.Index }
+            }
+        )
+        foreach ($urlStart in $urlStarts) {
+            $domainStart = $urlStart.Domain
+            $domain = [regex]::Match($visible.Substring($domainStart), '^(?:[^\s!-/:-@\[-`{-~\p{P}]|[-._])+')
+            if (-not $domain.Success -or $domain.Value -match '_[^.]*(?:\.[^.]*)?\z') {
+                continue
+            }
+            $end = $domainStart + $domain.Length
+            while ($end -lt $visible.Length -and $visible[$end] -ne '<' -and " `t`n`r`f`v".IndexOf($visible[$end]) -lt 0) {
+                $end++
+            }
+            $url = $visible.Substring($urlStart.Start, $end - $urlStart.Start)
+            $opened = $url.Split('(').Count - 1
+            $closed = $url.Split(')').Count - 1
+            while ($url.Length -gt 0) {
+                $last = $url[$url.Length - 1]
+                if ($last -eq ')' -and $closed -gt $opened) {
+                    $closed--
+                } elseif ($last -eq ';') {
+                    $entity = [regex]::Match($url, '&[A-Za-z]+;\z')
+                    if ($entity.Success) {
+                        $url = $url.Substring(0, $entity.Index)
+                        continue
+                    }
+                } elseif ('?!.,:*_~''"'.IndexOf($last) -lt 0) {
+                    break
+                }
+                $url = $url.Substring(0, $url.Length - 1)
+            }
+            for ($position = $urlStart.Start; $position -lt $urlStart.Start + $url.Length; $position++) {
+                $inUrl[$position] = $true
+            }
+        }
+    }
+
     $builder = [System.Text.StringBuilder]::new($visible.Length + 16)
     for ($index = 0; $index -lt $visible.Length; $index++) {
         $character = $visible[$index]
@@ -48,6 +114,18 @@ function ConvertTo-MarkdownText {
         }
         if ([char]::IsSurrogate($character)) {
             [void]$builder.Append([char]0xFFFD)
+            continue
+        }
+        if ($inUrl[$index]) {
+            switch -CaseSensitive ([string]$character) {
+                '\' { [void]$builder.Append('%5C') }
+                '|' { [void]$builder.Append('%7C') }
+                '[' { [void]$builder.Append('%5B') }
+                ']' { [void]$builder.Append('%5D') }
+                '`' { [void]$builder.Append('%60') }
+                '>' { [void]$builder.Append('%3E') }
+                default { [void]$builder.Append($character) }
+            }
             continue
         }
         switch -CaseSensitive ([string]$character) {
@@ -106,7 +184,7 @@ function Get-ProjectLink {
         [object]$Meta
     )
 
-    return "[**$(ConvertTo-MarkdownText $Entry.title)**]($(Get-RepoUrl $Entry))$(Get-StarText $Meta)"
+    return "[**$(ConvertTo-MarkdownText $Entry.title -LinkLabel)**]($(Get-RepoUrl $Entry))$(Get-StarText $Meta)"
 }
 
 function Get-DownloadLabel {
@@ -271,7 +349,7 @@ function New-CategoryPreviewLine {
     }
 
     $links = foreach ($entry in $picks) {
-        "[**$(ConvertTo-MarkdownText $entry.title)**]($(Get-RepoUrl $entry))"
+        "[**$(ConvertTo-MarkdownText $entry.title -LinkLabel)**]($(Get-RepoUrl $entry))"
     }
 
     return "Suggested starting points: $($links -join ', ')."
@@ -474,7 +552,7 @@ function New-ToolCatalogCell {
         return "$heading<br/>$description<br/><sub>No public rows</sub>"
     }
 
-    $pickLinks = @($picks | ForEach-Object { "[**$(ConvertTo-MarkdownText $_.title)**]($(Get-RepoUrl $_))" })
+    $pickLinks = @($picks | ForEach-Object { "[**$(ConvertTo-MarkdownText $_.title -LinkLabel)**]($(Get-RepoUrl $_))" })
     $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
     $anchor = Get-CategoryAnchor $Slug
 
@@ -764,8 +842,10 @@ function New-ProfileChrome {
     $lines.Add('')
     $heading = [string](Get-MemberValue -Object $Header -Name 'heading')
     if (Test-VisibleText $heading) {
-        # A # at the end of an ATX heading is read as closing markup and dropped.
-        $lines.Add('## ' + ((ConvertTo-MarkdownText $heading).Trim() -replace '#$', '\#'))
+        # A run of # at the end of an ATX heading, after a space, is read as closing markup and
+        # dropped, so its first # is escaped. One right after other text (C#, a URL's #) isn't
+        # markup, and an escape there would break an autolinked URL.
+        $lines.Add('## ' + ((ConvertTo-MarkdownText $heading).Trim() -replace '(?<=^|[ \t])#+$', '\$0'))
         $lines.Add('')
     }
     $about = [string](Get-MemberValue -Object $Header -Name 'about')
