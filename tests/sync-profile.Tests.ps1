@@ -1446,6 +1446,26 @@ Describe 'Safe outbound destination policy' {
         $script:SafeOutboundSendCount | Should -Be 0
     }
 
+    It 'tells a non-public DNS answer apart from a URL that names a private address' {
+        # A DNS filter answers a blocked name with a sinkhole address; a URL that names a
+        # private address itself is the request pointing inward.
+        $resolver = { param($HostName) @('0.0.0.0') }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            $script:SafeOutboundSendCount++
+            return [ordered]@{ statusCode = 200; location = $null; error = $null; bytes = @(); text = $null; bytesRead = 0 }
+        }
+
+        $sinkhole = Invoke-SafeOutboundHttpRequest -Url 'https://filtered.example/asset.zip' -ResolveHostScript $resolver -SendRequestScript $sender
+        $literal = Invoke-SafeOutboundHttpRequest -Url 'https://10.0.0.1/asset.zip' -SendRequestScript $sender
+
+        $sinkhole.policyBlocked | Should -BeTrue
+        $sinkhole.dnsAnswerBlocked | Should -BeTrue
+        $literal.policyBlocked | Should -BeTrue
+        $literal.dnsAnswerBlocked | Should -BeFalse
+        $script:SafeOutboundSendCount | Should -Be 0
+    }
+
     It 'says when a body was bigger than the byte cap' {
         $resolver = { param($HostName) @('93.184.216.34') }
         $sender = {
@@ -3393,18 +3413,36 @@ Describe 'Report schema depth helpers' {
         $result.rows[0].reason | Should -Match "refused: $([regex]::Escape($Message))"
     }
 
-    It 'marks a download refused only when a safety check or the byte cap turned it down' {
-        $url = 'https://github.com/SysAdminDoc/Refused/releases/download/v1/Refused.zip'
-        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $false; statusCode = $null; error = 'destination resolves to a non-public address'; policyBlocked = $true; bytes = @(); text = $null; bytesRead = 0 } }
-        (Get-ReleaseArtifactDownload -Url $url -MaxBytes 1024).refused | Should -BeTrue
+    It 'marks a download refused only for <Case>' -ForEach @(
+        @{ Case = 'a redirect the safety check turned down'; Refused = $true; Answer = @{ ok = $false; statusCode = $null; error = 'only HTTPS destinations are allowed'; policyBlocked = $true; dnsAnswerBlocked = $false } }
+        @{ Case = 'a successful body over the byte cap'; Refused = $true; Answer = @{ ok = $false; statusCode = 200; error = 'response exceeds the configured byte cap'; policyBlocked = $false; byteCapExceeded = $true } }
+        @{ Case = 'nothing when DNS answers with a sinkhole address'; Refused = $false; Answer = @{ ok = $false; statusCode = $null; error = 'DNS returned a non-public address for objects.githubusercontent.com'; policyBlocked = $true; dnsAnswerBlocked = $true } }
+        @{ Case = 'nothing when an error page is over the byte cap'; Refused = $false; Answer = @{ ok = $false; statusCode = 503; error = 'response exceeds the configured byte cap'; policyBlocked = $false; byteCapExceeded = $true } }
+        @{ Case = 'nothing when the connection times out'; Refused = $false; Answer = @{ ok = $false; statusCode = $null; error = 'connection timed out'; policyBlocked = $false } }
+    ) {
+        $script:DownloadAnswer = $Answer
+        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ bytes = @(); text = $null; bytesRead = 0 } + $script:DownloadAnswer }
 
-        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $false; statusCode = 200; error = 'response exceeds the configured byte cap'; policyBlocked = $false; byteCapExceeded = $true; bytes = @(); text = $null; bytesRead = 4096 } }
-        (Get-ReleaseArtifactDownload -Url $url -MaxBytes 1024).refused | Should -BeTrue
+        (Get-ReleaseArtifactDownload -Url 'https://github.com/SysAdminDoc/Refused/releases/download/v1/Refused.zip' -MaxBytes 1024).refused | Should -Be $Refused
+    }
 
-        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $false; statusCode = $null; error = 'connection timed out'; policyBlocked = $false; bytes = @(); text = $null; bytesRead = 0 } }
-        (Get-ReleaseArtifactDownload -Url $url -MaxBytes 1024).refused | Should -BeFalse
-
+    It 'refuses a download from a host outside GitHub''s release hosts' {
         (Get-ReleaseArtifactDownload -Url 'https://downloads.example/Refused.zip' -MaxBytes 1024).refused | Should -BeTrue
+    }
+
+    It 'skips a checksum sidecar published over its cap instead of downloading it' {
+        $script:DownloadCalls = 0
+        $target = [ordered]@{
+            repo = 'BigSums'; assetName = 'BigSums.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/BigSums/releases/download/v1/BigSums.zip'; assetSize = 100
+            checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/BigSums/releases/download/v1/SHA256SUMS'; checksumSize = 300KB
+        }
+
+        $result = Test-ReleaseArtifactVerification -Targets @($target) -Enabled -MaxAssets 4 -MaxBytes 1MB -DownloadScript { $script:DownloadCalls++ }
+
+        $result.rows[0].status | Should -Be 'skipped'
+        $result.rows[0].reason | Should -Be 'checksum sidecar exceeds the sidecar cap'
+        $result.failureCount | Should -Be 0
+        $script:DownloadCalls | Should -Be 0
     }
 
     It 'derives verification targets only from capped asset classes with checksum candidates' {

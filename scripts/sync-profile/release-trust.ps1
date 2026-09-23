@@ -179,8 +179,12 @@ function Get-ReleaseArtifactDownload {
         [int]$MaxBytes
     )
 
-    # refused marks what the network can't explain: a URL, destination or redirect the
-    # safety checks turn down, or a body bigger than the cap the published size fit under.
+    # refused marks what the network can't explain: a host outside GitHub's release hosts,
+    # a redirect the safety checks turn down (to http, a loop, a bad Location, a literal
+    # private address), or a successful body bigger than the cap the published size fit
+    # under. A name that DNS answers with a non-public address is what a DNS filter's
+    # sinkhole looks like, and an error page over the cap says nothing about the artifact,
+    # so both stay unreachable.
     if (-not (Test-AllowedReleaseArtifactUrl -Url $Url)) {
         return [ordered]@{ ok = $false; refused = $true; bytes = @(); text = $null; error = "download URL is not an allowed HTTPS GitHub release host"; bytesRead = 0 }
     }
@@ -197,7 +201,10 @@ function Get-ReleaseArtifactDownload {
 
     return [ordered]@{
         ok = [bool]($download.ok -and $download.statusCode -ge 200 -and $download.statusCode -lt 300)
-        refused = [bool]((ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'policyBlocked')) -or (ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'byteCapExceeded')))
+        refused = [bool](
+            ((ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'policyBlocked')) -and -not (ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'dnsAnswerBlocked'))) -or
+            ((ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'byteCapExceeded')) -and [int](Get-MemberValue -Object $download -Name 'statusCode') -ge 200 -and [int](Get-MemberValue -Object $download -Name 'statusCode') -lt 300)
+        )
         bytes = @($download.bytes)
         text = $download.text
         error = if ($download.ok -and $download.statusCode -ge 200 -and $download.statusCode -lt 300) { $null } else { $download.error }
@@ -319,6 +326,9 @@ function Test-ReleaseArtifactVerification {
             "asset exceeds the configured byte cap"
         } elseif ([string]::IsNullOrWhiteSpace([string]$checksumName) -or [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $target -Name "checksumUrl"))) {
             "matching checksum sidecar is missing"
+        } elseif ($null -ne (Get-MemberValue -Object $target -Name "checksumSize") -and [int64](Get-MemberValue -Object $target -Name "checksumSize") -gt [Math]::Min($MaxBytes, 256KB)) {
+            # Its download would be refused at the sidecar cap; that's not a sign of tampering.
+            "checksum sidecar exceeds the sidecar cap"
         } else {
             $null
         }

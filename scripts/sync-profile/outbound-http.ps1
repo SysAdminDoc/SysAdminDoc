@@ -72,7 +72,10 @@ function Resolve-SafeOutboundDestination {
     $blockedResult = {
         param(
             [string]$Reason,
-            [bool]$PolicyBlocked = $true
+            [bool]$PolicyBlocked = $true,
+            # A name that DNS answered with a non-public address: what a DNS filter's sinkhole
+            # looks like, as opposed to a URL that names such an address itself.
+            [bool]$DnsAnswerBlocked = $false
         )
         return [ordered]@{
             ok = $false
@@ -81,6 +84,7 @@ function Resolve-SafeOutboundDestination {
             addresses = @()
             error = "Blocked outbound request: $Reason"
             policyBlocked = $PolicyBlocked
+            dnsAnswerBlocked = $DnsAnswerBlocked
         }
     }
 
@@ -139,7 +143,7 @@ function Resolve-SafeOutboundDestination {
         }
 
         if (-not (Test-PublicIPAddress -Address $address)) {
-            return & $blockedResult "DNS returned a non-public address for $hostName"
+            return & $blockedResult "DNS returned a non-public address for $hostName" $true ($null -eq $literalAddress)
         }
         $validatedAddresses.Add($address)
     }
@@ -365,6 +369,7 @@ function Invoke-SafeOutboundHttpRequest {
             return [ordered]@{
                 ok = $false; statusCode = $null; error = $destination.error; finalUrl = $currentUrl
                 redirectCount = $redirectCount; policyBlocked = [bool]$destination.policyBlocked; bytes = @(); text = $null; bytesRead = [int64]0
+                dnsAnswerBlocked = [bool](Get-MemberValue -Object $destination -Name 'dnsAnswerBlocked')
                 etag = $null; lastModified = $null; retryAfter = $null
             }
         }
