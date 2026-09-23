@@ -3853,6 +3853,48 @@ Describe 'Report schema depth helpers' {
         $script:DownloadCalls | Should -Be 0
     }
 
+    It 'counts release digests the same after a cache round trip' {
+        # A cache read returns the digests as an ordered dictionary, and both readers kept only
+        # a hashtable, so a run on cached metadata published zero digests for every release.
+        $repo = New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip', 'WinTool.exe')
+        Set-MemberValue -Object $repo.latestRelease -Name 'releaseAssetDigests' -Value @{ 'WinTool.zip' = 'sha256:' + ('a' * 64); 'WinTool.exe' = 'sha256:' + ('b' * 64) }
+        $saved = @{
+            CachePath = $script:CachePath; CacheEnabled = $script:CacheEnabled; MetadataSnapshotAt = $script:MetadataSnapshotAt
+            Provider = $script:RepositoryMetadataProvider; RequestedLimit = $script:RepositoryEnumerationRequestedLimit; Truncated = $script:RepositoryEnumerationTruncated
+        }
+        try {
+            $script:CachePath = Join-Path $TestDrive 'digest-round-trip-cache'
+            $script:CacheEnabled = $true
+            $script:MetadataSnapshotAt = (Get-Date).ToUniversalTime().ToString('o')
+            $script:RepositoryMetadataProvider = 'graphql'
+            $script:RepositoryEnumerationRequestedLimit = 25
+            $script:RepositoryEnumerationTruncated = $false
+            Reset-ValidationCacheState
+            Write-CompleteGenerationSnapshot -Repos @($repo) -ReleaseMetadataComplete:$true | Should -BeTrue
+            Reset-ValidationCacheState
+            $cachedRepos = @(Get-MemberValue -Object (Get-CompleteGenerationSnapshot) -Name 'repositories')
+        } finally {
+            $script:CachePath = $saved.CachePath
+            $script:CacheEnabled = $saved.CacheEnabled
+            $script:MetadataSnapshotAt = $saved.MetadataSnapshotAt
+            $script:RepositoryMetadataProvider = $saved.Provider
+            $script:RepositoryEnumerationRequestedLimit = $saved.RequestedLimit
+            $script:RepositoryEnumerationTruncated = $saved.Truncated
+            Reset-ValidationCacheState
+        }
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+
+        $liveFeed = New-ProjectsExportJson -Catalog $catalog -Repos @($repo) | ConvertFrom-Json
+        $cachedFeed = New-ProjectsExportJson -Catalog $catalog -Repos $cachedRepos | ConvertFrom-Json
+        $liveDrift = Test-ReleaseAssetDrift -Entries @($catalog.entries) -RepoLookup (ConvertTo-Lookup @($repo))
+        $cachedDrift = Test-ReleaseAssetDrift -Entries @($catalog.entries) -RepoLookup (ConvertTo-Lookup $cachedRepos)
+
+        @($liveFeed.projects | Where-Object { $_.repo -eq 'WinTool' })[0].releaseTrust.platformDigestCount | Should -Be 2
+        @($cachedFeed.projects | Where-Object { $_.repo -eq 'WinTool' })[0].releaseTrust.platformDigestCount | Should -Be 2
+        $cachedDrift.platformDigestCoverage.withDigestCount | Should -Be $liveDrift.platformDigestCoverage.withDigestCount
+        $cachedDrift.platformDigestCoverage.withDigestCount | Should -BeGreaterThan 0
+    }
+
     It 'derives verification targets only from capped asset classes with checksum candidates' {
         $entry = New-TestEntry -Repo 'VerifiedTool' -Category 'desktop'
         $repo = New-TestRepoMeta -Name 'VerifiedTool' -WithRelease -AssetNames @('VerifiedTool.zip', 'SHA256SUMS')

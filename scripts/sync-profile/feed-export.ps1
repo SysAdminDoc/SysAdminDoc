@@ -430,7 +430,9 @@ function New-ProjectsExportJson {
         }
         $licenseMetadata = Get-LicenseMetadata -Meta $meta
         $releaseAssetInspected = [bool](Test-ReleaseAssetMetadataInspected -Meta $meta)
-        $releaseDigests = if ($meta -and $meta.latestRelease) { $d = Get-MemberValue -Object $meta.latestRelease -Name "releaseAssetDigests"; if ($d -is [hashtable]) { $d } else { @{} } } else { @{} }
+        # Whatever shape the digests arrived in: a cached run reads them back as an ordered
+        # dictionary, and New-ReleaseTrust counts any of them.
+        $releaseDigests = if ($meta -and $meta.latestRelease) { Get-MemberValue -Object $meta.latestRelease -Name "releaseAssetDigests" } else { $null }
         $releaseTrust = New-ReleaseTrust `
             -AssetKinds $releaseAssetKinds `
             -AssetNames $releaseAssetNames `

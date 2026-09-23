@@ -2,6 +2,7 @@
 
 ## 2026-09-23
 
+- Release digests survive a run on cached metadata. Both places that count a release's asset digests kept them only when they came as a hashtable, and cached metadata brings them back as an ordered dictionary, so the runs earlier today that fell back to the cache published zero digests for every release (ZeusWatch v1.29.4 has 10) and the report's digest coverage fell from 144 to 0. Any dictionary or object counts now, and the feed and report show the digests again.
 - A branch with no classic protection reads as unprotected, not as unreadable. GitHub answers "Branch not protected" with a 404, and every 404 counted as an outage, so a repository that relies on rulesets could never show required checks as absent. Any other 404, a 403 or a network failure still reads as unread.
 - Required-check readiness agrees with its own checklist now. With enforcement on, readiness said ready because nothing blocked it, while the checklist said not ready because no check-run proof or merge drill was recorded. Ready needs both now. This repository has no workflows, so its report didn't change.
 - `forkOf` is held to the schema's length and non-blank rules too. An empty value or one longer than 140 characters passed `-Write` and then failed `-Check`.

@@ -529,9 +529,18 @@ function New-ReleaseTrust {
         [bool]$HasRelease,
         [bool]$AssetInspected,
         [object]$Immutable = $null,
-        [hashtable]$AssetDigests = @{}
+        # Name to digest. Live metadata holds a hashtable, cached metadata an ordered
+        # dictionary or an object; each counts the same.
+        [object]$AssetDigests = $null
     )
 
+    $digestCount = if ($AssetDigests -is [System.Collections.IDictionary]) {
+        $AssetDigests.Count
+    } elseif ($AssetDigests -is [System.Management.Automation.PSCustomObject]) {
+        @($AssetDigests.PSObject.Properties).Count
+    } else {
+        0
+    }
     $names = @($AssetNames | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
     $checksumAssets = @($names | Where-Object { $_ -match '(?i)(sha256|sha512|checksum|checksums|sums|\.sha256|\.sha512)' } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
     $signatureAssets = @($names | Where-Object { $_ -match '(?i)(\.sig$|\.asc$|signature|signatures)' } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
@@ -584,7 +593,7 @@ function New-ReleaseTrust {
         sourceOnlyRelease = $sourceOnlyRelease
         executableAssetKinds = @($executableAssetKinds)
         trustLevel = $trustLevel
-        platformDigestCount = if ($HasRelease) { [int]$AssetDigests.Count } else { 0 }
+        platformDigestCount = if ($HasRelease) { [int]$digestCount } else { 0 }
         releaseImmutable = if ($HasRelease -and $null -ne $Immutable) { [bool]$Immutable } else { $null }
         notesPublic = if ($HasRelease -and $AssetInspected) { "Metadata evidence only: derived from release asset filenames and GitHub release API asset digests; binaries were not downloaded or locally verified." } else { $null }
     }
@@ -682,7 +691,7 @@ function Test-ReleaseAssetDrift {
         $assetNames = if ($hasRelease) { @(Get-ReleaseAssetNamesFromMeta -Meta $meta) } else { @() }
         $assetInspected = (Test-ReleaseAssetMetadataInspected -Meta $meta)
         $releaseImmutable = if ($hasRelease) { Get-MemberValue -Object $meta.latestRelease -Name "immutable" } else { $null }
-        $releaseDigestsForDrift = if ($hasRelease) { $d = Get-MemberValue -Object $meta.latestRelease -Name "releaseAssetDigests"; if ($d -is [hashtable]) { $d } else { @{} } } else { @{} }
+        $releaseDigestsForDrift = if ($hasRelease) { Get-MemberValue -Object $meta.latestRelease -Name "releaseAssetDigests" } else { $null }
         $releaseTrust = New-ReleaseTrust -AssetKinds $assetKinds -AssetNames $assetNames -HasRelease $hasRelease -AssetInspected $assetInspected -Immutable $releaseImmutable -AssetDigests $releaseDigestsForDrift
         $trustLevel = [string]$releaseTrust.trustLevel
         if (-not $trustLevelCounts.ContainsKey($trustLevel)) {
