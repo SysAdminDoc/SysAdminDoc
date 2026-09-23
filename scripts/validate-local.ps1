@@ -580,7 +580,8 @@ function Assert-ScriptAnalyzerClean {
         "scripts/render-profile-smoke.ps1",
         "scripts/write-profile-sync-summary.ps1",
         "scripts/new-support-bundle.ps1",
-        "setup.ps1"
+        "setup.ps1",
+        "run.ps1"
     ) + $generatorLibrary
 
     $findings = foreach ($target in $targets) {
@@ -871,7 +872,7 @@ try {
 
     # Invoke-Pester -Path tests with a configuration object so JaCoCo code coverage
     # (coverage.xml, gitignored) is produced for every script under scripts/ and the
-    # public setup.ps1 bootstrap. Profiler-based coverage (UseBreakpoints = $false) keeps
+    # public setup.ps1 and run.ps1 scripts. Profiler-based coverage (UseBreakpoints = $false) keeps
     # the large generator scan fast.
     $coveragePath = Join-Path $repoRoot "coverage.xml"
     $pesterConfig = New-PesterConfiguration
@@ -883,6 +884,7 @@ try {
     $pesterConfig.CodeCoverage.Path = @(
         Join-Path $repoRoot "scripts"
         Join-Path $repoRoot "setup.ps1"
+        Join-Path $repoRoot "run.ps1"
     )
     $pesterConfig.CodeCoverage.OutputFormat = "JaCoCo"
     $pesterConfig.CodeCoverage.OutputPath = $coveragePath

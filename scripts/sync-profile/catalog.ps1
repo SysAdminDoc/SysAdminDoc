@@ -725,6 +725,14 @@ function Test-CatalogShape {
         if (-not [string]::IsNullOrWhiteSpace($entrypoint) -and $entrypoint -cnotmatch '^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\.(?:ps1|py|pyw)\z') {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "entrypoint"; value = $entrypoint; reason = "entrypoint must be a relative .ps1, .py or .pyw path of letters, digits, spaces and ._()+- only" })
         }
+        if (-not [string]::IsNullOrWhiteSpace($entrypoint)) {
+            # run.ps1 starts a .ps1 in PowerShell and a .py or .pyw with python, and
+            # projects.json carries installKind for anyone else reading the feed; both must agree.
+            $expectedKind = if ($entrypoint -like '*.ps1') { 'powershell' } else { 'python' }
+            if ([string]$entry.installKind -cne $expectedKind) {
+                $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be $expectedKind for the entrypoint $entrypoint" })
+            }
+        }
         $branch = [string]$entry.branch
         if (-not [string]::IsNullOrWhiteSpace($branch) -and $branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "branch"; value = $branch; reason = "branch must start with a letter or digit and use only letters, digits and ._/-" })

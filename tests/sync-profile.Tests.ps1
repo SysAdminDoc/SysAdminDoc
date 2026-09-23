@@ -396,6 +396,7 @@ Describe 'Catalog refuses deceptive or unsafe one-line text' {
         foreach ($entrypoint in @('app\main.py', 'flux-torrent\Launch-Flux.ps1', 'JDownloader 2 Ultimate Manager.ps1', 'gui.pyw')) {
             $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
             $entry.entrypoint = $entrypoint
+            $entry.installKind = if ($entrypoint -like '*.ps1') { 'powershell' } else { 'python' }
             $entry.branch = 'project-XT'
             @(script:Get-ShapeIssues -Entry $entry) | Should -BeNullOrEmpty -Because "$entrypoint is a real entrypoint"
         }
@@ -416,6 +417,120 @@ Describe 'Catalog refuses deceptive or unsafe one-line text' {
     It 'passes the committed catalog' {
         $shape = Test-CatalogShape -Catalog (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json'))
         @($shape.issues | ForEach-Object { '{0}.{1}: {2}' -f $_.repo, $_.field, $_.reason }) | Should -BeNullOrEmpty
+    }
+}
+
+Describe 'run.ps1 install dispatcher' {
+    BeforeAll {
+        $script:RunScriptPath = Join-Path $script:RepoRoot 'run.ps1'
+        . $script:RunScriptPath
+
+        function script:New-FakeFeed {
+            param([string]$Repo = 'WinTool', [string]$Branch = 'main', [string]$Entrypoint = 'WinTool.ps1')
+            [pscustomobject]@{
+                projects = @(
+                    [pscustomobject]@{ repo = 'NoEntry'; branch = 'main'; entrypoint = $null }
+                    [pscustomobject]@{ repo = $Repo; branch = $Branch; entrypoint = $Entrypoint }
+                )
+            }
+        }
+    }
+
+    BeforeEach {
+        $script:SavedTemp = $env:TEMP
+        $env:TEMP = Join-Path $TestDrive ('temp-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $env:TEMP | Out-Null
+        $script:ToolCalls = New-Object System.Collections.Generic.List[string]
+    }
+
+    AfterEach {
+        $env:TEMP = $script:SavedTemp
+    }
+
+    It 'is pure ASCII Windows PowerShell 5.1 syntax that only defines Start-Tool' {
+        $bytes = [System.IO.File]::ReadAllBytes($script:RunScriptPath)
+        @($bytes | Where-Object { $_ -gt 127 }) | Should -BeNullOrEmpty
+        $text = [System.IO.File]::ReadAllText($script:RunScriptPath)
+        $text | Should -Match '(?m)^#Requires -Version 5\.1\s*$'
+        $tokens = $null
+        $errors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($text, [ref]$tokens, [ref]$errors)
+        $errors | Should -BeNullOrEmpty
+        # Nothing but the function at the top level, so irm | iex has no side effect.
+        @($ast.EndBlock.Statements | ForEach-Object { $_.GetType().Name }) | Should -Be @('FunctionDefinitionAst')
+        $text | Should -Not -Match '\?\?|\?\.|ForEach-Object -Parallel|\s-AsHashtable'
+    }
+
+    It 'parses in Windows PowerShell 5.1 itself' {
+        $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+        if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
+            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
+            return
+        }
+        $check = "`$e = `$null; `$t = `$null; [void][System.Management.Automation.Language.Parser]::ParseFile('$($script:RunScriptPath)', [ref]`$t, [ref]`$e); `$e.Count"
+        $parseErrors = & $windowsPowerShell -NoProfile -NonInteractive -Command $check
+        $LASTEXITCODE | Should -Be 0
+        [int]$parseErrors | Should -Be 0
+    }
+
+    It 'clones, installs requirements and runs the entry script the feed names' {
+        Mock Invoke-RestMethod { New-FakeFeed }
+        function git {
+            $script:ToolCalls.Add('git ' + ($args -join ' '))
+            if ($args[0] -eq 'clone') {
+                $directory = [string]$args[-1]
+                New-Item -ItemType Directory -Path $directory | Out-Null
+                Set-Content -LiteralPath (Join-Path $directory 'requirements.txt') -Value 'rich' -Encoding utf8
+                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'ran.txt') -Value 'ran'" -Encoding utf8
+            }
+            $global:LASTEXITCODE = 0
+        }
+        function pip { $script:ToolCalls.Add('pip ' + ($args -join ' ')) }
+
+        Start-Tool WinTool
+
+        $directory = Join-Path $env:TEMP 'WinTool'
+        $script:ToolCalls[0] | Should -Be "git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $directory"
+        $script:ToolCalls[1] | Should -Be ('pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
+        Get-Content -LiteralPath (Join-Path $directory 'ran.txt') | Should -Be 'ran'
+        Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Uri -eq 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json' }
+    }
+
+    It 'updates an existing copy and runs a Python entry script with python' {
+        Mock Invoke-RestMethod { New-FakeFeed -Repo 'PyTool' -Branch 'master' -Entrypoint 'app\main.py' }
+        New-Item -ItemType Directory -Path (Join-Path $env:TEMP 'PyTool') | Out-Null
+        function git { $script:ToolCalls.Add('git ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
+        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')) }
+
+        Start-Tool PyTool
+
+        $directory = Join-Path $env:TEMP 'PyTool'
+        @($script:ToolCalls) | Should -Be @("git -C $directory pull -q", ('python ' + (Join-Path $directory 'app\main.py')))
+    }
+
+    It 'refuses <Case> before git or any script runs' -ForEach @(
+        @{ Case = 'an unsafe name'; Name = '..\WinTool'; Feed = @{} }
+        @{ Case = 'an entry script that expands code'; Name = 'WinTool'; Feed = @{ Entrypoint = 'run$(Remove-Item x).ps1' } }
+        @{ Case = 'an entry script outside the checkout'; Name = 'WinTool'; Feed = @{ Entrypoint = '..\outside.ps1' } }
+        @{ Case = 'a branch that looks like an option'; Name = 'WinTool'; Feed = @{ Branch = '--upload-pack=touch' } }
+        @{ Case = 'a project that is not in the feed'; Name = 'Missing'; Feed = @{} }
+    ) {
+        $script:FeedOverride = $Feed
+        Mock Invoke-RestMethod { New-FakeFeed @script:FeedOverride }
+        function git { $script:ToolCalls.Add('git') }
+
+        { Start-Tool $Name } | Should -Throw 'Start-Tool:*'
+        @($script:ToolCalls) | Should -BeNullOrEmpty
+    }
+
+    It 'requires installKind to match the entry script run.ps1 will start' {
+        $entry = New-TestEntry -Repo 'KindTool' -Category 'python'
+        $entry.entrypoint = 'KindTool.ps1'
+        $entry.installKind = 'python'
+
+        $issue = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'installKind' })
+        $issue | Should -HaveCount 1
+        $issue[0].reason | Should -Match 'installKind must be powershell'
     }
 }
 
@@ -10927,6 +11042,7 @@ Describe 'Local validation helpers (in-process)' {
         $validation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
         $validation | Should -Match 'Join-Path \$repoRoot "scripts"'
         $validation | Should -Match 'Join-Path \$repoRoot "setup\.ps1"'
+        $validation | Should -Match 'Join-Path \$repoRoot "run\.ps1"'
         $validation | Should -Match '\$uncoveredFiles = @\(Get-UncoveredCoverageFile -Coverage \$coverage\)'
         $validation | Should -Match 'Code coverage recorded no executed command in'
     }
