@@ -118,7 +118,8 @@ function ConvertTo-RedactedSupportText {
     $userPathPattern = '(?i)(?:[A-Z]:\\Users\\|/Users/|/home/)[^ \t\r\n"''<>]+'
     $result = [regex]::Replace($result, $userPathPattern, '<REDACTED_USER_PATH>')
 
-    $tokenPattern = '(?i)\b(?:ghp_|github_pat_|glpat-|xox[baprs]-|sk-)[A-Za-z0-9_-]+'
+    # gh[oprsu]_: gh auth token hands out gho_ for an OAuth login, not only ghp_.
+    $tokenPattern = '(?i)\b(?:gh[oprsu]_|github_pat_|glpat-|xox[baprs]-|sk-)[A-Za-z0-9_-]+'
     $result = [regex]::Replace($result, $tokenPattern, '<REDACTED_TOKEN>')
 
     $bearerPattern = '(?i)(\bBearer\s+)[A-Za-z0-9._~+/=-]+'

@@ -794,6 +794,49 @@ Describe 'OpenSSF Scorecard runs locally' {
         $run.error | Should -Match 'scorecard binary not found'
     }
 
+    It 'hands Scorecard only the token-shaped line of gh auth token' {
+        # A stand-in binary that echoes the token it was given; it runs with no window.
+        $fake = Join-Path $TestDrive 'scorecard-echo.cmd'
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', 'echo {"token":"%GITHUB_AUTH_TOKEN%"}')
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        # Invoke-GhCli merges stderr into text, so gh's warnings arrive with the token.
+        Mock Invoke-GhCli { [ordered]@{ output = @('warning: this token expires soon', 'gho_ABCDEFGHIJKLMNOPQRST1234'); exitCode = 0; text = "warning: this token expires soon`ngho_ABCDEFGHIJKLMNOPQRST1234" } }
+
+        $run = Invoke-ScorecardCli
+
+        $run.ok | Should -BeTrue
+        $run.value.token | Should -BeExactly 'gho_ABCDEFGHIJKLMNOPQRST1234'
+    }
+
+    It 'leaves Scorecard unavailable when gh prints no token' {
+        Mock Get-Command { [pscustomobject]@{ Source = (Join-Path $TestDrive 'never-started.exe') } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('You are not logged into any GitHub hosts.'); exitCode = 0; text = 'You are not logged into any GitHub hosts.' } }
+
+        $run = Invoke-ScorecardCli
+
+        $run.ok | Should -BeFalse
+        $run.error | Should -Match 'returned no GitHub token'
+    }
+
+    It 'takes tokens and account names out of the error it reports' {
+        $fake = Join-Path $TestDrive 'scorecard-fail.cmd'
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @(
+            '@echo off'
+            'echo cannot read C:\Users\someone\AppData\scorecard.log with gho_ABCDEFGHIJKLMNOPQRST1234 1>&2'
+            'exit /b 3'
+        )
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('gho_ZYXWVUTSRQPONMLKJIHG9876'); exitCode = 0; text = 'gho_ZYXWVUTSRQPONMLKJIHG9876' } }
+
+        $run = Invoke-ScorecardCli
+
+        $run.ok | Should -BeFalse
+        $run.error | Should -Match '^scorecard exited 3: '
+        $run.error | Should -Not -Match 'someone|gho_'
+        $run.error | Should -Match ([regex]::Escape('C:\Users\<user>\AppData'))
+        $run.error | Should -Match '<token>'
+    }
+
     It 'records the local run only when -RunScorecard asks for it' {
         $savedOffline = $script:Offline
         $savedRunScorecard = $script:RunScorecard
@@ -11658,6 +11701,14 @@ Describe 'Support bundle helpers (in-process)' {
         $redacted | Should -Match '<REDACTED_SECRET>'
         $redacted | Should -Match '<REDACTED_QUERY_VALUE>'
         $redacted | Should -Match '<REDACTED_VALUE>'
+    }
+
+    It 'redacts the token prefixes gh itself hands out' {
+        # gh auth token returns gho_ for an OAuth login; ghu_, ghs_ and ghr_ come from apps.
+        foreach ($token in @('gho_ABCDEFGHIJKLMNOPQRST1234', 'ghu_ABCDEFGHIJKLMNOPQRST1234', 'ghs_ABCDEFGHIJKLMNOPQRST1234', 'ghr_ABCDEFGHIJKLMNOPQRST1234')) {
+            $redacted = ConvertTo-RedactedSupportText -Text "token $token end"
+            $redacted | Should -Be 'token <REDACTED_TOKEN> end' -Because $token
+        }
     }
 
     It 'rejects an invalid caller redaction pattern' {

@@ -358,9 +358,14 @@ function Invoke-ScorecardCli {
     if (-not $scorecard) {
         return [ordered]@{ ok = $false; value = $null; error = "scorecard binary not found on PATH; install OpenSSF Scorecard v5 to use -RunScorecard" }
     }
-    $token = Invoke-GhCli -Arguments @("auth", "token")
-    if ($token.exitCode -ne 0 -or [string]::IsNullOrWhiteSpace([string]$token.text)) {
-        return [ordered]@{ ok = $false; value = $null; error = "gh auth token unavailable; Scorecard needs a GitHub token" }
+    # Invoke-GhCli merges stderr into its text, so a warning gh prints would ride along
+    # with the token; use only a line shaped like a GitHub token.
+    $tokenResult = Invoke-GhCli -Arguments @("auth", "token")
+    $token = @(([string]$tokenResult.text) -split "\r?\n" | ForEach-Object { $_.Trim() } | Where-Object {
+            $_ -cmatch '^(?:gh[oprsu]_[A-Za-z0-9]{20,255}|github_pat_[A-Za-z0-9_]{20,255})\z'
+        }) | Select-Object -First 1
+    if ($tokenResult.exitCode -ne 0 -or [string]::IsNullOrWhiteSpace([string]$token)) {
+        return [ordered]@{ ok = $false; value = $null; error = "gh auth token returned no GitHub token; Scorecard needs one" }
     }
 
     $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
@@ -371,9 +376,10 @@ function Invoke-ScorecardCli {
     $startInfo.RedirectStandardError = $true
     $startInfo.UseShellExecute = $false
     $startInfo.CreateNoWindow = $true
-    $startInfo.Environment["GITHUB_AUTH_TOKEN"] = ([string]$token.text).Trim()
+    $startInfo.Environment["GITHUB_AUTH_TOKEN"] = $token
     $process = [System.Diagnostics.Process]::new()
     $process.StartInfo = $startInfo
+    $failure = $null
     try {
         [void]$process.Start()
         $stdoutTask = $process.StandardOutput.ReadToEndAsync()
@@ -387,19 +393,23 @@ function Invoke-ScorecardCli {
             return [ordered]@{ ok = $false; value = $null; error = "scorecard timed out after $TimeoutSeconds seconds" }
         }
         $process.WaitForExit()
-        if ($process.ExitCode -ne 0) {
-            # One line, capped: the report is public, and only the reason matters.
-            $firstLine = @(([string]$stderrTask.Result) -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1)
-            $detail = if ($firstLine.Count -gt 0) { ([string]$firstLine[0]).Trim() } else { "no error output" }
-            if ($detail.Length -gt 200) { $detail = $detail.Substring(0, 200) }
-            return [ordered]@{ ok = $false; value = $null; error = "scorecard exited $($process.ExitCode): $detail" }
+        if ($process.ExitCode -eq 0) {
+            return [ordered]@{ ok = $true; value = ($stdoutTask.Result | ConvertFrom-Json); error = $null }
         }
-        return [ordered]@{ ok = $true; value = ($stdoutTask.Result | ConvertFrom-Json); error = $null }
+        # One line, capped: only the reason matters.
+        $firstLine = @(([string]$stderrTask.Result) -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1)
+        $detail = if ($firstLine.Count -gt 0) { ([string]$firstLine[0]).Trim() } else { "no error output" }
+        if ($detail.Length -gt 200) { $detail = $detail.Substring(0, 200) }
+        $failure = "scorecard exited $($process.ExitCode): $detail"
     } catch {
-        return [ordered]@{ ok = $false; value = $null; error = "scorecard could not run: $($_.Exception.Message)" }
+        $failure = "scorecard could not run: $($_.Exception.Message)"
     } finally {
         $process.Dispose()
     }
+    # The report is public: take tokens and account names out of whatever the tool said.
+    $failure = [regex]::Replace($failure, '(?i)\b(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+', '<token>')
+    $failure = [regex]::Replace($failure, '(?i)([A-Z]:\\Users\\|/Users/|/home/)[^\\/\s"''<>]+', '${1}<user>')
+    return [ordered]@{ ok = $false; value = $null; error = $failure }
 }
 
 function Get-ScorecardScoreSnapshot {
