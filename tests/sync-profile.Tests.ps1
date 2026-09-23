@@ -1160,6 +1160,46 @@ Describe 'Repository settings read empty live lists as empty' {
         $result['repositorySettings'].security.codeScanning.scorecardAlertPosture.available | Should -BeTrue
     }
 
+    It 'reads a protection 404 of <Case> as <Reading>' -ForEach @(
+        @{ Case = '"Branch not protected"'; Answer = 'gh: Branch not protected (HTTP 404)'; Reading = 'read, requiring nothing'; Available = $true; Status = 'not-enabled' }
+        @{ Case = 'any other kind'; Answer = 'gh: Not Found (HTTP 404)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation' }
+    ) {
+        # Every 404 used to read as unread, so a repository without classic protection could
+        # never show required checks as absent, only as unknown.
+        $script:ProtectionAnswer = $Answer
+        Mock Test-GitHubCliAuthenticated { $true }
+        Mock Invoke-GhCli {
+            $path = [string]$Arguments[1]
+            if ($path -like '*/protection') {
+                return [ordered]@{ output = $script:ProtectionAnswer; exitCode = 1; text = $script:ProtectionAnswer }
+            }
+            $text = if ($path -eq 'repos/SysAdminDoc/SysAdminDoc') { '{"name":"SysAdminDoc","default_branch":"main"}' }
+            elseif ($path -match '/rulesets$|/rules/branches/|/code-scanning/alerts') { '[[]]' }
+            else { '{}' }
+            [ordered]@{ output = $text; exitCode = 0; text = $text }
+        }
+        $savedOffline = $script:Offline
+        $savedCandidates = $script:RequiredStatusCheckCandidates
+        $script:Offline = $false
+        $script:RequiredStatusCheckCandidates = @([ordered]@{ name = 'validate'; workflow = '.github/workflows/validate.yml' })
+        try {
+            $result = Get-RepositoryCommunityBaseline
+        } finally {
+            $script:Offline = $savedOffline
+            $script:RequiredStatusCheckCandidates = $savedCandidates
+        }
+
+        $settings = $result['repositorySettings']
+        $settings.branchProtection.available | Should -Be $Available
+        $settings.requiredCheckReadiness.status | Should -Be $Status
+        if ($Available) {
+            $settings.branchProtection.requiredStatusChecks | Should -BeFalse
+            $settings.branchProtection.unavailableReason | Should -BeNullOrEmpty
+        } else {
+            $settings.branchProtection.unavailableReason | Should -Be 'not found'
+        }
+    }
+
     It 'reads protection and every page of rules for the default branch, <Case>' -ForEach @(
         @{ Case = 'master'; DefaultBranch = 'master'; Segment = 'master' }
         @{ Case = 'with a slash in it'; DefaultBranch = 'release/2.x'; Segment = 'release%2F2.x' }

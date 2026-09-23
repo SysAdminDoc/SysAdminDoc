@@ -1618,7 +1618,10 @@ function Get-RepositoryCommunityBaseline {
 
     $repositoryValue = if ($repositoryResult["ok"]) { $repositoryResult["value"] } else { $null }
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
-    $branchProtectionValue = if ($branchProtectionResult["ok"]) { $branchProtectionResult["value"] } else { $null }
+    # "Branch not protected" is GitHub saying there's no classic protection: read, and
+    # requiring nothing. Any other failure leaves protection unread.
+    $branchNotProtected = (-not $branchProtectionResult["ok"]) -and $branchProtectionResult["error"] -eq "branch not protected"
+    $branchProtectionValue = if ($branchProtectionResult["ok"]) { $branchProtectionResult["value"] } elseif ($branchNotProtected) { [pscustomobject]@{} } else { $null }
     # Assigned inside the branch: an if statement sends an array's items down the pipeline,
     # so "if (...) { @() }" hands $null to the assignment and an empty list read as missing.
     $rulesetsValue = @()
@@ -1661,7 +1664,7 @@ function Get-RepositoryCommunityBaseline {
         -DependabotSecurityUpdatesUnavailableReason $(if ($dependabotSecurityUpdatesResult["ok"]) { $null } else { $dependabotSecurityUpdatesResult["error"] }) `
         -RepositoryUnavailableReason $(if ($repositoryResult["ok"]) { $null } else { $repositoryResult["error"] }) `
         -CommunityUnavailableReason $(if ($communityResult["ok"]) { $null } else { $communityResult["error"] }) `
-        -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"]) { $null } else { $branchProtectionResult["error"] }) `
+        -BranchProtectionUnavailableReason $(if ($branchProtectionResult["ok"] -or $branchNotProtected) { $null } else { $branchProtectionResult["error"] }) `
         -RulesetsUnavailableReason $(if ($rulesetsResult["ok"]) { $null } else { $rulesetsResult["error"] }) `
         -BranchRulesUnavailableReason $(if ($branchRulesResult["ok"]) { $null } else { $branchRulesResult["error"] }) `
         -ActionsWorkflowPermissionsUnavailableReason $(if ($actionsWorkflowPermissionsResult["ok"]) { $null } else { $actionsWorkflowPermissionsResult["error"] }) `
