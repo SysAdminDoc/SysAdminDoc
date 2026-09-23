@@ -409,6 +409,10 @@ function New-ToolCatalogSection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("### What's here")
     $lines.Add("")
+    # One sentence for a visitor who arrives from a search result and has no idea what this
+    # page is. The count comes from the catalog so it cannot go stale.
+    $lines.Add("This is the index of the $(@($Entries).Count) free, open-source tools and apps I've published, sorted by where they run, for anyone who wants something that works on the setup they already have.")
+    $lines.Add("")
     $lines.Add("Pick a category to jump in. Each one has a few suggestions to start with.")
     $lines.Add("")
 

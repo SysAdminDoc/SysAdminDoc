@@ -3191,6 +3191,25 @@ $result = Test-ProfileState -Catalog $catalog -Repos @($repo) -ExpectedReadme $r
     }
 }
 
+Describe 'What-is-this sentence before the category grid' {
+    It 'explains the page and its audience in one sentence ahead of the grid' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $visible = @($cat.entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) }).Count
+
+        $readme = New-Readme -Catalog $cat -Repos @()
+        $section = $readme.Substring($readme.IndexOf("### What's here"))
+        $sentence = @($section -split "\r?\n" | Where-Object { $_ -like 'This is the index of *' })
+
+        $sentence | Should -HaveCount 1
+        $sentence[0] | Should -Match "^This is the index of the $visible free, open-source tools and apps I've published"
+        $sentence[0] | Should -Match 'for anyone who'
+        ($sentence[0] -split '(?<=[.!?])\s+').Count | Should -Be 1 -Because 'it is a single sentence'
+        $sentence[0] | Should -Not -Match ([regex]::Escape($ProfileTagline))
+        $sentence[0] | Should -Not -Match '[\u2013\u2014]'
+        $section.IndexOf($sentence[0]) | Should -BeLessThan $section.IndexOf('| PowerShell |') -Because 'it has to come before the grid'
+    }
+}
+
 Describe 'Star count display threshold' {
     It 'shows star counts at or above the threshold and hides lower ones' {
         $MinStarDisplay | Should -Be 2
