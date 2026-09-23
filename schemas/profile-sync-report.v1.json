@@ -4685,10 +4685,33 @@
           "type": "boolean"
         },
         "errors": {
-          "$ref": "#/$defs/stringArray"
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/schemaContractError"
+          }
         },
         "unsupportedKeywords": {
           "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "schemaContractError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instanceLocation",
+        "keywordLocation",
+        "message"
+      ],
+      "properties": {
+        "instanceLocation": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "keywordLocation": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "message": {
+          "type": "string"
         }
       }
     },

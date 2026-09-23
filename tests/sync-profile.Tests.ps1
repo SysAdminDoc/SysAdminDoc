@@ -4362,7 +4362,10 @@ Describe 'Feed JSON Schema contracts' {
         $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
 
         $result.valid | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match 'projects/0/repo|projects\[0\]\.repo|\$\.projects\[0\]\.repo'
+        $failure = @($result.errors | Where-Object { $_.instanceLocation -eq '/projects/0/repo' })
+        $failure | Should -HaveCount 1
+        $failure[0].keywordLocation | Should -Be '/properties/projects/items/$ref/properties/repo/type'
+        $failure[0].message | Should -Match 'null'
     }
 
     It 'rejects suppressed feed rows that expose project identifiers' {
@@ -4376,7 +4379,9 @@ Describe 'Feed JSON Schema contracts' {
             $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
 
             $result.valid | Should -BeFalse
-            ($result.errors -join "`n") | Should -Match "suppressed/0/$field|suppressed\[0\]\.$field|\$\.suppressed\[0\]\.$field"
+            $failure = @($result.errors | Where-Object { $_.instanceLocation -eq "/suppressed/0/$field" })
+            $failure | Should -HaveCount 1 -Because "$field must be refused on a suppressed row"
+            $failure[0].keywordLocation | Should -BeLike '/properties/suppressed/items/*additionalProperties'
         }
     }
 
@@ -4652,8 +4657,46 @@ Describe 'Feed JSON Schema contracts' {
         $result = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
 
         $result.valid | Should -BeFalse
-        ($result.errors -join "`n") | Should -Match 'releaseAssetDrift'
-        ($result.errors -join "`n") | Should -Match 'required|not present'
+        $failure = @($result.errors | Where-Object { $_.keywordLocation -eq '/required' })
+        $failure | Should -HaveCount 1
+        $failure[0].instanceLocation | Should -Be '' -Because 'a missing top-level section is a failure at the document root'
+        $failure[0].message | Should -Match 'releaseAssetDrift'
+    }
+
+    It 'reports every schema failure with its instance location, keyword location and message' {
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $payload = ConvertFrom-JsonPreservingArrays -Json (New-ProjectsExportJson -Catalog $cat -Repos @())
+        $projects = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'projects'))
+        Set-MemberValue -Object $projects[0] -Name 'repo' -Value 42
+        Set-MemberValue -Object $projects[1] -Name 'title' -Value $null
+        Set-MemberValue -Object $payload -Name 'undeclaredTopLevelField' -Value 'x'
+
+        $result = Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-projects.v1.json'
+
+        $result.valid | Should -BeFalse
+        @($result.errors).Count | Should -BeGreaterOrEqual 3
+        foreach ($schemaError in @($result.errors)) {
+            @($schemaError.Keys) | Should -Be @('instanceLocation', 'keywordLocation', 'message')
+            $schemaError.instanceLocation | Should -Match '^(/.*)?$'
+            $schemaError.keywordLocation | Should -Match '^/'
+            $schemaError.message | Should -Not -BeNullOrEmpty
+        }
+        $instances = @($result.errors | ForEach-Object instanceLocation)
+        $instances | Should -Contain '/projects/0/repo'
+        $instances | Should -Contain '/projects/1/title'
+        $instances | Should -Contain '/undeclaredTopLevelField'
+        # Stable order: sorted by instance, then keyword, so reruns produce the same report.
+        $instances | Should -Be @($instances | Sort-Object { ConvertTo-OrdinalSortKey $_ })
+    }
+
+    It 'reports a missing schema file as a structured error with no locations' {
+        $result = Test-JsonSchemaContract -Value @{} -SchemaPath (Join-Path $TestDrive 'no-such-schema.json')
+
+        $result.valid | Should -BeFalse
+        @($result.errors) | Should -HaveCount 1
+        $result.errors[0].instanceLocation | Should -BeNullOrEmpty
+        $result.errors[0].keywordLocation | Should -BeNullOrEmpty
+        $result.errors[0].message | Should -Match 'schema file not found'
     }
 
     It 'requires always-emitted nested profile sync report fields' {
@@ -4711,6 +4754,39 @@ Describe 'Feed JSON Schema contracts' {
         @($result.unsupportedKeywords).Count | Should -BeGreaterOrEqual 2
         ($result.unsupportedKeywords -join "`n") | Should -Match 'oneOf'
         ($result.unsupportedKeywords -join "`n") | Should -Match 'maxLength'
+    }
+
+    It 'walks composition branches, conditionals and nested definitions for unsupported keywords' {
+        $schema = ConvertFrom-JsonPreservingArrays -Json (@'
+{
+  "type": "object",
+  "properties": {
+    "a": { "anyOf": [ { "type": "string", "maxLength": 3 }, { "type": "null" } ] },
+    "b": { "$defs": { "inner": { "type": "integer", "multipleOf": 2 } }, "$ref": "#/properties/b/$defs/inner" },
+    "c": { "if": { "type": "string" }, "then": { "minProperties": 1 }, "else": true },
+    "d": { "type": "array", "prefixItems": [ { "type": "string", "exclusiveMaximum": 5 } ] },
+    "e": { "type": "object", "additionalProperties": { "type": "string", "uniqueItems": true } }
+  },
+  "$defs": { "outer": { "allOf": [ { "not": { "maxItems": 1 } } ] } }
+}
+'@)
+
+        $warnings = @(Test-SchemaKeywordCoverage -Schema $schema)
+
+        $expected = @(
+            "`$.properties.a uses schema keyword 'anyOf'",
+            "`$.properties.a.anyOf[0] uses schema keyword 'maxLength'",
+            "`$.properties.b.`$defs.inner uses schema keyword 'multipleOf'",
+            "`$.properties.c uses schema keyword 'if'",
+            "`$.properties.c.then uses schema keyword 'minProperties'",
+            "`$.properties.d.prefixItems[0] uses schema keyword 'exclusiveMaximum'",
+            "`$.properties.e.additionalProperties uses schema keyword 'uniqueItems'",
+            "`$defs.outer uses schema keyword 'allOf'",
+            "`$defs.outer.allOf[0].not uses schema keyword 'maxItems'"
+        )
+        foreach ($warning in $expected) {
+            @($warnings | Where-Object { $_.StartsWith($warning, [StringComparison]::Ordinal) }) | Should -HaveCount 1 -Because "the walker must reach: $warning"
+        }
     }
 }
 
@@ -7241,7 +7317,10 @@ Describe 'Root Markdown hygiene' {
 Describe 'PowerShell version baseline' {
     It 'requires PowerShell 7.4+ for native JSON Schema validation' {
         $script:SyncProfileScript | Should -Match '(?m)^#Requires -Version 7\.4'
-        $script:SyncProfileScript | Should -Match 'Test-Json -Json \$json -SchemaFile \$fullPath'
+        # The JsonSchema.Net engine ships with PowerShell 7.4+ (Test-Json wraps it); the
+        # generator calls it directly for per-keyword errors instead of a hand-rolled validator.
+        $script:SyncProfileScript | Should -Match 'Add-Type -AssemblyName JsonSchema\.Net'
+        $script:SyncProfileScript | Should -Match '\[Json\.Schema\.JsonSchema\]::FromFile\(\$SchemaPath\)'
         $script:SyncProfileScript | Should -Not -Match 'function Test-JsonSchemaNode'
     }
 

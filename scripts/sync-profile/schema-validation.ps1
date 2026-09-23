@@ -90,6 +90,10 @@ function Test-SchemaKeywordCoverage {
 
     if ($null -eq $RootSchema) { $RootSchema = $Schema }
     $warnings = New-Object System.Collections.Generic.List[string]
+    # true and false are complete schemas with no keywords to check.
+    if ($null -eq $Schema -or $Schema -is [bool]) {
+        return $warnings.ToArray()
+    }
 
     foreach ($name in @(Get-ObjectPropertyNames $Schema)) {
         if ($name -notin $script:SupportedSchemaKeywords) {
@@ -97,39 +101,118 @@ function Test-SchemaKeywordCoverage {
         }
     }
 
-    $properties = Get-MemberValue -Object $Schema -Name "properties"
-    if ($properties) {
-        foreach ($propName in @(Get-ObjectPropertyNames $properties)) {
-            $propSchema = Get-MemberValue -Object $properties -Name $propName
-            if ($propSchema) {
-                foreach ($w in @(Test-SchemaKeywordCoverage -Schema $propSchema -Path "$Path.properties.$propName" -RootSchema $RootSchema)) {
-                    $warnings.Add($w)
-                }
-            }
+    # Every place a subschema can sit is walked, so a keyword outside the allowlist cannot
+    # hide inside a composition branch, a conditional, or a definition nested below the root.
+    $children = [System.Collections.Generic.List[object]]::new()
+    foreach ($mapKeyword in @('properties', 'patternProperties', 'dependentSchemas', '$defs', 'definitions')) {
+        $map = Get-MemberValue -Object $Schema -Name $mapKeyword
+        if ($null -eq $map) { continue }
+        foreach ($childName in @(Get-ObjectPropertyNames $map)) {
+            $childPath = if ($Path -eq '$' -and $mapKeyword -in @('$defs', 'definitions')) { "$mapKeyword.$childName" } else { "$Path.$mapKeyword.$childName" }
+            $children.Add([pscustomobject]@{ Path = $childPath; Schema = Get-MemberValue -Object $map -Name $childName })
         }
     }
-
-    $items = Get-MemberValue -Object $Schema -Name "items"
-    if ($items) {
-        foreach ($w in @(Test-SchemaKeywordCoverage -Schema $items -Path "$Path.items" -RootSchema $RootSchema)) {
+    foreach ($listKeyword in @('allOf', 'anyOf', 'oneOf', 'prefixItems', 'items')) {
+        $value = Get-MemberValue -Object $Schema -Name $listKeyword
+        if ($null -eq $value -or -not (Test-JsonArrayWrapper $value)) { continue }
+        $list = @(Get-JsonArrayItems $value)
+        for ($index = 0; $index -lt $list.Count; $index++) {
+            $children.Add([pscustomobject]@{ Path = "$Path.$listKeyword[$index]"; Schema = $list[$index] })
+        }
+    }
+    foreach ($singleKeyword in @('items', 'additionalItems', 'additionalProperties', 'unevaluatedItems', 'unevaluatedProperties', 'contains', 'propertyNames', 'not', 'if', 'then', 'else')) {
+        $value = Get-MemberValue -Object $Schema -Name $singleKeyword
+        if ($null -eq $value -or (Test-JsonArrayWrapper $value)) { continue }
+        $children.Add([pscustomobject]@{ Path = "$Path.$singleKeyword"; Schema = $value })
+    }
+    foreach ($child in $children) {
+        foreach ($w in @(Test-SchemaKeywordCoverage -Schema $child.Schema -Path $child.Path -RootSchema $RootSchema)) {
             $warnings.Add($w)
         }
     }
 
-    $defs = Get-MemberValue -Object $Schema -Name '$defs'
-    if (-not $defs) { $defs = Get-MemberValue -Object $Schema -Name 'definitions' }
-    if ($defs -and $Path -eq '$') {
-        foreach ($defName in @(Get-ObjectPropertyNames $defs)) {
-            $defSchema = Get-MemberValue -Object $defs -Name $defName
-            if ($defSchema) {
-                foreach ($w in @(Test-SchemaKeywordCoverage -Schema $defSchema -Path "`$defs.$defName" -RootSchema $RootSchema)) {
-                    $warnings.Add($w)
-                }
-            }
-        }
+    return $warnings.ToArray()
+}
+
+function New-SchemaContractError {
+    <#
+    .SYNOPSIS
+    Builds one schema contract error in the JSON Schema output-format shape.
+    .PARAMETER Message
+    What failed.
+    .PARAMETER InstanceLocation
+    JSON Pointer to the failing value; empty for the document root, null when the error is
+    not about the document (for example an unreadable schema file).
+    .PARAMETER KeywordLocation
+    JSON Pointer through the schema to the keyword that failed, or null.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Message,
+        [AllowNull()][string]$InstanceLocation = $null,
+        [AllowNull()][string]$KeywordLocation = $null
+    )
+
+    return [ordered]@{
+        instanceLocation = $InstanceLocation
+        keywordLocation = $KeywordLocation
+        message = $Message
+    }
+}
+
+function Get-JsonSchemaEvaluationErrors {
+    <#
+    .SYNOPSIS
+    Evaluates JSON text against a schema file and returns every failing keyword.
+    .DESCRIPTION
+    Test-Json reduces a failure to one exception string. The JsonSchema.Net evaluator it
+    wraps can report each failing node, so this returns one error per failing keyword with
+    its instance and keyword locations, sorted so the report is stable between runs.
+    .PARAMETER SchemaPath
+    Absolute path of the schema file.
+    .PARAMETER Json
+    Document to evaluate.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$SchemaPath,
+        [Parameter(Mandatory)][string]$Json
+    )
+
+    if (-not ('Json.Schema.JsonSchema' -as [type])) {
+        Add-Type -AssemblyName JsonSchema.Net
+    }
+    $schema = [Json.Schema.JsonSchema]::FromFile($SchemaPath)
+    $options = [Json.Schema.EvaluationOptions]::new()
+    $options.OutputFormat = [Json.Schema.OutputFormat]::List
+    $evaluation = $schema.Evaluate([System.Text.Json.Nodes.JsonNode]::Parse($Json), $options)
+    if ($evaluation.IsValid) {
+        return @()
     }
 
-    return $warnings.ToArray()
+    $failures = foreach ($result in @(@($evaluation) + @($evaluation.Details))) {
+        if ($null -eq $result -or -not $result.HasErrors) { continue }
+        foreach ($entry in $result.Errors.GetEnumerator()) {
+            # JsonPointer enumerates its segments, so a [string] cast would join them with
+            # spaces; ToString() gives the pointer text.
+            $keywordLocation = $result.EvaluationPath.ToString()
+            # A false subschema reports its error with an empty keyword: the path already
+            # ends at the keyword that held it (for example /additionalProperties).
+            if (-not [string]::IsNullOrEmpty([string]$entry.Key)) {
+                $keywordLocation += '/' + (([string]$entry.Key -replace '~', '~0') -replace '/', '~1')
+            }
+            New-SchemaContractError -Message ([string]$entry.Value) -InstanceLocation $result.InstanceLocation.ToString() -KeywordLocation $keywordLocation
+        }
+    }
+    $sorted = @($failures | Sort-Object `
+            @{ Expression = { ConvertTo-OrdinalSortKey $_.instanceLocation } },
+            @{ Expression = { ConvertTo-OrdinalSortKey $_.keywordLocation } },
+            @{ Expression = { ConvertTo-OrdinalSortKey $_.message } })
+    if ($sorted.Count -eq 0) {
+        # Invalid with no failing node is not expected; never report a failure with no reason.
+        return @(New-SchemaContractError -Message 'The document does not match the schema, and the evaluator reported no failing keyword.' -InstanceLocation '')
+    }
+    return $sorted
 }
 
 function Test-JsonSchemaContract {
@@ -148,15 +231,15 @@ function Test-JsonSchemaContract {
     )
 
     $fullPath = if ([System.IO.Path]::IsPathRooted($SchemaPath)) { $SchemaPath } else { Join-Path $RepoRoot $SchemaPath }
-    $errors = New-Object System.Collections.Generic.List[string]
+    $errors = New-Object System.Collections.Generic.List[object]
     $schema = $null
     if (-not (Test-Path -LiteralPath $fullPath)) {
-        $errors.Add("schema file not found: $SchemaPath")
+        $errors.Add((New-SchemaContractError -Message "schema file not found: $SchemaPath"))
     } else {
         try {
             $schema = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $fullPath -Raw)
         } catch {
-            $errors.Add("schema file is unreadable: $($_.Exception.Message)")
+            $errors.Add((New-SchemaContractError -Message "schema file is unreadable: $($_.Exception.Message)"))
         }
     }
 
@@ -164,17 +247,18 @@ function Test-JsonSchemaContract {
     if ($schema) {
         $keywordWarnings = @(Test-SchemaKeywordCoverage -Schema $schema)
 
-        $testJsonCommand = Get-Command Test-Json -ErrorAction SilentlyContinue
-        if (-not $testJsonCommand -or -not $testJsonCommand.Parameters.ContainsKey("SchemaFile")) {
-            $errors.Add("Test-Json -SchemaFile is unavailable; PowerShell 7.4+ is required.")
+        if (-not (Test-NativeJsonSchemaAvailable)) {
+            $errors.Add((New-SchemaContractError -Message "Test-Json -SchemaFile is unavailable; PowerShell 7.4+ is required."))
         } else {
             try {
                 $validationValue = $null
                 ConvertTo-JsonSchemaValidationValue -Value $Value -Result ([ref]$validationValue)
                 $json = ConvertTo-Json -InputObject $validationValue -Depth 100
-                $null = Test-Json -Json $json -SchemaFile $fullPath -ErrorAction Stop
+                foreach ($schemaError in @(Get-JsonSchemaEvaluationErrors -SchemaPath (Resolve-Path -LiteralPath $fullPath).Path -Json $json)) {
+                    $errors.Add($schemaError)
+                }
             } catch {
-                $errors.Add($_.Exception.Message)
+                $errors.Add((New-SchemaContractError -Message $_.Exception.Message))
             }
         }
     }
@@ -211,14 +295,14 @@ function Test-FeedSchemaContracts {
     )
 
     $projectsPayload = $null
-    $projectsParseErrors = New-Object System.Collections.Generic.List[string]
+    $projectsParseErrors = New-Object System.Collections.Generic.List[object]
     try {
         if ([string]::IsNullOrWhiteSpace($ProjectsJson)) {
             throw "generated projects feed is empty"
         }
         $projectsPayload = ConvertFrom-JsonPreservingArrays -Json $ProjectsJson
     } catch {
-        $projectsParseErrors.Add("generated projects feed is unreadable: $($_.Exception.Message)")
+        $projectsParseErrors.Add((New-SchemaContractError -Message "generated projects feed is unreadable: $($_.Exception.Message)"))
     }
 
     $catalogResult = Test-JsonSchemaContract -Value $Catalog -SchemaPath $CatalogSchemaPath

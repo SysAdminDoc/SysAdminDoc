@@ -14,6 +14,8 @@
 
 - Every section of the sync report now says whether it can fail a run. Of the 55 sections, 22 are blocking and name the failure condition behind them, 28 are advisory on purpose (run metadata, opt-in probes, soft budgets, evidence from manual runs), and 5 are advisory because nobody has decided yet. Those five, covering userscript trust, license gaps, release asset drift, README heading levels and stale evidence, each carry the open question in `sectionEnforcement.pendingDecisions`, and the summary lists them. A new section with no declaration makes the report fail its own schema, so it can't ship silently.
 
+- Schema validation failures now say where they are. The check used to keep one exception string, which against a 7,400-line report schema rarely named the field. Each failure in `schemaValidation.catalog`, `.projects` and `.report` now carries `instanceLocation` (a JSON Pointer to the bad value), `keywordLocation` (the path through the schema to the rule that failed) and a message, in a stable order. The unsupported-keyword check also reaches into `anyOf`, `allOf`, `oneOf`, `not`, `if`/`then`/`else`, tuple items and definitions nested below the root, where it used to stop at plain properties.
+
 ## 2026-09-20
 
 - Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.
