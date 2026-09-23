@@ -572,8 +572,6 @@ function Get-RequiredCheckReadiness {
         }
     }
 
-    $routinePrDrillEvidence = Get-RoutineMaintenancePrDrillEvidence
-    $routinePrDeliveryProven = ((Get-MemberValue -Object $routinePrDrillEvidence -Name "status") -eq "passed")
     $requiredChecksEnabled = ($RequiredStatusChecks -eq $true -or $RulesetCount -gt 0)
     $blockers = New-Object System.Collections.Generic.List[string]
     if (-not $BranchProtectionAvailable -and -not [string]::IsNullOrWhiteSpace($BranchProtectionUnavailableReason)) {
@@ -588,8 +586,8 @@ function Get-RequiredCheckReadiness {
         $blockers.Add("No repository rulesets are configured.")
     }
 
-    if ($EnforceAdmins -eq $true -and -not $routinePrDeliveryProven) {
-        $blockers.Add("Protected main enforces admins; routine PR delivery is selected but still needs a live merge drill before enabling required checks.")
+    if ($EnforceAdmins -eq $true) {
+        $blockers.Add("Protected main enforces admins; a pull-request delivery path needs a live merge drill before required checks are enabled.")
     }
 
     $prDeliveryTransition = Get-PrDeliveryTransitionChecklist `
@@ -598,8 +596,7 @@ function Get-RequiredCheckReadiness {
         -EnforceAdmins $EnforceAdmins `
         -ActionsPullRequestCreationAllowed $ActionsPullRequestCreationAllowed `
         -BranchProtectionAvailable $BranchProtectionAvailable `
-        -RulesetsAvailable $RulesetsAvailable `
-        -RoutineMaintenancePrDrillEvidence $routinePrDrillEvidence
+        -RulesetsAvailable $RulesetsAvailable
 
     $status = if (-not $BranchProtectionAvailable -and -not $RulesetsAvailable) {
         "needs-live-validation"
@@ -751,118 +748,12 @@ function Test-RequiredCheckWorkflowCoverage {
     }
 }
 
-function Get-DirectMainMaintenancePolicy {
-    return [ordered]@{
-        status = "pr-delivery-proven"
-        allowed = $false
-        requiredBeforeEnforcement = $true
-        selectedPath = "pull-request-delivery"
-        recommendation = "keep-pr-delivery"
-        documentationPath = "decision:routine-maintenance-pr-delivery"
-        evidence = "No direct-main bypass actor is approved. Routine maintenance uses pull-request delivery; PR #14 proved routine PR delivery before enforcement, and PR #16 proved it under active required checks."
-        nextAction = "Keep routine maintenance on pull-request delivery unless a separate approved bypass is documented."
-    }
-}
-
 function Get-CandidateCheckExercisePlan {
     return $null
 }
 
 function Get-CandidateCheckExerciseEvidence {
     return $null
-}
-
-function Get-RoutineMaintenancePrDrillEvidence {
-    return [ordered]@{
-        available = $true
-        status = "passed"
-        evidenceStatus = "successful"
-        requiredBeforeEnforcement = $true
-        selectedPath = "pull-request-delivery"
-        pullRequestNumber = 14
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/14"
-        pullRequestState = "merged"
-        branch = "routine-pr-drill-evidence"
-        headSha = "65475b7b47fc1e33a96843a131108b2660b18d19"
-        mergeSha = "64e02f3b4b9737f77b4629052dabc9f449e261bb"
-        workflowRunIds = @(
-            27090770215,
-            27090770193,
-            27090770203
-        )
-        profileSyncRunId = 27090770215
-        testsRunId = 27090770193
-        workflowSecurityRunId = 27090770203
-        expectedCandidateCheckCount = @($RequiredStatusCheckCandidates).Count
-        observedCandidateCheckCount = 6
-        successfulCandidateCheckCount = 6
-        failedCandidateCheckCount = 0
-        successfulCandidateChecks = @(
-            "Check generated README",
-            "PSScriptAnalyzer",
-            "Pester (offline)",
-            "Markdownlint",
-            "Windows setup smoke",
-            "zizmor"
-        )
-        failedCandidateChecks = @()
-        mergeMethod = "rebase"
-        cleanupState = "merged-pr-and-deleted-branch"
-        evidenceSummary = "Routine maintenance PR #14 merged by rebase after all six candidate checks passed. GitHub deleted the routine-pr-drill-evidence branch after merge. Squash and merge-commit methods are disabled for this repository."
-        documentationPath = "decision:routine-maintenance-pr-delivery"
-        nextAction = "Required-check enforcement proof is now recorded by PR #16; keep future maintenance on PR delivery."
-    }
-}
-
-function Get-RequiredCheckEnforcementEvidence {
-    return [ordered]@{
-        available = $true
-        status = "passed"
-        evidenceStatus = "successful"
-        enforcementMechanism = "branch-protection"
-        strictRequiredStatusChecks = $true
-        pullRequestNumber = 16
-        pullRequestUrl = "https://github.com/SysAdminDoc/SysAdminDoc/pull/16"
-        pullRequestState = "merged"
-        branch = "record-required-check-enforcement"
-        headSha = "8575e324182b96527bb9b58420d5ff44e3c05c06"
-        mergeSha = "dc05296386af847d4e89803f1ed3ac966df49fb7"
-        mergedAt = "2026-06-07T11:58:25Z"
-        workflowRunIds = @(
-            27091837034,
-            27091837025,
-            27091837036
-        )
-        profileSyncRunId = 27091837034
-        testsRunId = 27091837025
-        workflowSecurityRunId = 27091837036
-        profileSyncArtifactId = 7463884699
-        renderedSmokeArtifactId = 7463884770
-        expectedCandidateCheckCount = @($RequiredStatusCheckCandidates).Count
-        observedCandidateCheckCount = 6
-        successfulCandidateCheckCount = 6
-        failedCandidateCheckCount = 0
-        skippedNonCandidateCheckCount = 3
-        successfulCandidateChecks = @(
-            "Check generated README",
-            "PSScriptAnalyzer",
-            "Pester (offline)",
-            "Markdownlint",
-            "Windows setup smoke",
-            "zizmor"
-        )
-        failedCandidateChecks = @()
-        skippedNonCandidateChecks = @(
-            "Open generated README PR",
-            "Preview generated README PR",
-            "Generated profile validation status"
-        )
-        mergeMethod = "rebase"
-        cleanupState = "merged-pr-and-deleted-branch"
-        evidenceSummary = "PR #16 was the first normal maintenance pull request after branch-protection required checks were enabled. GitHub required all six candidate checks, every candidate check passed on head SHA 8575e324182b96527bb9b58420d5ff44e3c05c06, and the pull request merged by rebase."
-        documentationPath = "decision:pr-delivery-transition-checklist"
-        nextAction = "Keep monitoring required checks on routine pull requests and re-query branch protection after check-name changes."
-    }
 }
 
 function Get-PrDeliveryTransitionChecklist {
@@ -872,17 +763,9 @@ function Get-PrDeliveryTransitionChecklist {
         [Nullable[bool]]$EnforceAdmins,
         [Nullable[bool]]$ActionsPullRequestCreationAllowed,
         [bool]$BranchProtectionAvailable,
-        [bool]$RulesetsAvailable,
-        [object]$RoutineMaintenancePrDrillEvidence,
-        [object]$RequiredCheckEnforcementEvidence
+        [bool]$RulesetsAvailable
     )
 
-    if ($null -eq $RoutineMaintenancePrDrillEvidence) {
-        $RoutineMaintenancePrDrillEvidence = Get-RoutineMaintenancePrDrillEvidence
-    }
-    if ($null -eq $RequiredCheckEnforcementEvidence) {
-        $RequiredCheckEnforcementEvidence = Get-RequiredCheckEnforcementEvidence
-    }
     if ((Get-MemberValue -Object $WorkflowCoverage -Name "status") -eq "not-applicable") {
         return [ordered]@{
             status = "not-applicable"
@@ -901,9 +784,6 @@ function Get-PrDeliveryTransitionChecklist {
             items = @()
         }
     }
-
-    $routinePrDrillPassed = ((Get-MemberValue -Object $RoutineMaintenancePrDrillEvidence -Name "status") -eq "passed")
-    $requiredCheckEnforcementPassed = ((Get-MemberValue -Object $RequiredCheckEnforcementEvidence -Name "status") -eq "passed")
 
     $items = New-Object System.Collections.Generic.List[object]
     $candidateCount = @($RequiredStatusCheckCandidates).Count
@@ -932,10 +812,6 @@ function Get-PrDeliveryTransitionChecklist {
 
     $deliveryStatus = if ($ActionsPullRequestCreationAllowed -eq $false) {
         "blocked"
-    } elseif ($routinePrDrillPassed) {
-        "ready"
-    } elseif ($EnforceAdmins -eq $true) {
-        "needs-live-validation"
     } else {
         "needs-live-validation"
     }
@@ -943,8 +819,6 @@ function Get-PrDeliveryTransitionChecklist {
         "Generated PR delivery is retired while hosted workflows are absent; repository Actions PR creation is not a local-validation requirement."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Generated PR delivery is retired while hosted workflows are absent; Actions PR creation permission evidence is not required."
-    } elseif ($routinePrDrillPassed) {
-        "Routine maintenance PR #14 merged by rebase after Check generated README, PSScriptAnalyzer, Pester (offline), Markdownlint, Windows setup smoke, and zizmor all passed. The proof branch was deleted after merge."
     } elseif ($EnforceAdmins -eq $true) {
         "Generated PR delivery is retired while hosted workflows are absent; routine maintenance must use local validation or a newly defined PR delivery path."
     } else {
@@ -954,8 +828,6 @@ function Get-PrDeliveryTransitionChecklist {
         "Keep generated helpers offline-only and validate generated artifacts locally."
     } elseif ($null -eq $ActionsPullRequestCreationAllowed) {
         "Keep generated helpers offline-only and validate generated artifacts locally."
-    } elseif ($routinePrDrillPassed) {
-        "Select and enable one required-check enforcement mechanism, then re-query branch protection or rulesets."
     } else {
         "Run a routine maintenance PR merge drill before enabling admin-enforced required-check protection."
     }
@@ -967,18 +839,14 @@ function Get-PrDeliveryTransitionChecklist {
                 -NextAction $deliveryNextAction))
 
     $enforcementStatus = if ($RequiredChecksEnabled) { "ready" } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) { "blocked" } else { "needs-live-validation" }
-    $enforcementEvidence = if ($RequiredChecksEnabled -and $requiredCheckEnforcementPassed) {
-        "Branch protection requires all six candidate checks, and PR #16 passed every required check before rebase merge."
-    } elseif ($RequiredChecksEnabled) {
+    $enforcementEvidence = if ($RequiredChecksEnabled) {
         "Required-check enforcement is already present."
     } elseif ($BranchProtectionAvailable -or $RulesetsAvailable) {
         "Live settings are readable and currently show no required-check enforcement."
     } else {
         "Live branch-protection and ruleset state must be validated before selecting an enforcement mechanism."
     }
-    $enforcementNextAction = if ($RequiredChecksEnabled -and $requiredCheckEnforcementPassed) {
-        "Keep monitoring required checks on routine pull requests and re-query branch protection after check-name changes."
-    } elseif ($RequiredChecksEnabled) {
+    $enforcementNextAction = if ($RequiredChecksEnabled) {
         "Keep monitoring required checks on routine pull requests and re-query branch protection after any check-name changes."
     } else {
         "After PR delivery is proven, enable one enforcement mechanism and re-query branch protection/rulesets."
@@ -1010,11 +878,14 @@ function Get-PrDeliveryTransitionChecklist {
         needsLiveValidationCount = $needsLiveValidationCount
         generatedPrDryRunEvidence = Get-GeneratedPrDryRunEvidence
         generatedPrWriteEvidence = Get-GeneratedPrWriteEvidence
-        directMainMaintenancePolicy = Get-DirectMainMaintenancePolicy
+        # These three were fixed records of this repository's 2026 PR drills (#14, #16) and
+        # reported "passed" on every run, for any owner, long after the workflows they
+        # describe were deleted. Nothing reads them live, so they stay null.
+        directMainMaintenancePolicy = $null
         candidateCheckExercisePlan = Get-CandidateCheckExercisePlan
         candidateCheckExerciseEvidence = Get-CandidateCheckExerciseEvidence
-        routineMaintenancePrDrillEvidence = $RoutineMaintenancePrDrillEvidence
-        requiredCheckEnforcementEvidence = $RequiredCheckEnforcementEvidence
+        routineMaintenancePrDrillEvidence = $null
+        requiredCheckEnforcementEvidence = $null
         items = @($items.ToArray())
     }
 }

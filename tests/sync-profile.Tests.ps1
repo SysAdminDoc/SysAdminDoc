@@ -349,6 +349,27 @@ Describe 'Sync report stays valid against its own schema for small catalogs' {
     }
 }
 
+Describe 'PR delivery checklist carries no recorded history' {
+    It 'reports a workflow-enabled repository without borrowing this repository''s PR drills' {
+        # Only reachable when workflows exist, which this repository no longer has. The
+        # checklist used to fill in PR #14 and #16 as passed evidence for any owner.
+        $transition = Get-PrDeliveryTransitionChecklist `
+            -WorkflowCoverage ([ordered]@{ status = 'ready'; workflowCount = 2; warningCount = 0 }) `
+            -RequiredChecksEnabled $true `
+            -EnforceAdmins $true `
+            -ActionsPullRequestCreationAllowed $true `
+            -BranchProtectionAvailable $true `
+            -RulesetsAvailable $true
+
+        $transition.routineMaintenancePrDrillEvidence | Should -BeNullOrEmpty
+        $transition.requiredCheckEnforcementEvidence | Should -BeNullOrEmpty
+        $transition.directMainMaintenancePolicy | Should -BeNullOrEmpty
+        ($transition | ConvertTo-Json -Depth 10) | Should -Not -Match 'PR #1[46]|pull/1[46]|27090770'
+        @($transition.items | Where-Object { $_.id -eq 'pr-delivery-or-bypass' })[0].status | Should -Be 'needs-live-validation'
+        $transition.readyForRequiredCheckEnforcement | Should -BeFalse
+    }
+}
+
 Describe 'The suite runs the generator offline' {
     It 'reads the offline switch only through $script:Offline in the library' {
         $script:Offline | Should -BeTrue
@@ -3540,7 +3561,6 @@ Describe 'Owner-bound output follows -Owner' {
             'SysAdminDoc\.Networking'                                           # namespace of the compiled HTTP handler
             'SysAdminDoc-setup'                                                 # files setup.ps1 itself writes
             'sysadmindoc-backstage-catalog\.v1'                                 # feed format identifier
-            'https://github\.com/SysAdminDoc/SysAdminDoc/pull/1[46]"'           # recorded evidence about this repository's own PRs
         )
         $offenders = foreach ($path in $script:SyncProfileSourcePaths) {
             $lineNumber = 0
