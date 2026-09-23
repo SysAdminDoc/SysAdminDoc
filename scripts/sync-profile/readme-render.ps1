@@ -210,7 +210,10 @@ function Get-ActionLink {
     $label = [string]$action["label"]
     # Live and userscript URLs come from the catalog. Percent-encode what would end or
     # break a Markdown link destination or its table cell; a well-formed URL is unchanged.
+    # Control characters too: -Write alone skips the catalog check, and a line break here
+    # would end the row.
     $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
+    $url = [regex]::Replace($url, '[\x00-\x1F\x7F]', { param($match) '%{0:X2}' -f [int][char]$match.Value })
     if ($action["kind"] -eq "release") {
         return "[<kbd>&#11015;&nbsp;$label</kbd>]($url)"
     }
@@ -263,10 +266,11 @@ function Get-ProfilePortfolioUrl {
     .SYNOPSIS
     Returns the canonical public portfolio origin used by generated profile links.
     .DESCRIPTION
-    Defaults to the -PortfolioUrl parameter, which is also the cross-surface probe
-    target, so published links and drift probes can never disagree. Falls back to
-    the owner's GitHub Pages origin when no portfolio URL is configured; pass
-    -PortfolioUrl '' to force the owner-derived fallback for another account.
+    Defaults to the -PortfolioUrl parameter or the catalog's portfolioUrl, whichever the
+    run resolved; the cross-surface probe is handed the same value, so published links
+    and drift probes can never disagree. Falls back to the owner's GitHub Pages origin
+    when neither is set, when -PortfolioUrl '' asks for it, and when the configured value
+    isn't a plain https URL that can sit in an href as written.
     #>
     # Script scope only: Test-ProfileState and Test-PortfolioCrossSurfaceDrift both
     # declare a local $PortfolioUrl parameter, and an unqualified lookup would bind
@@ -277,8 +281,12 @@ function Get-ProfilePortfolioUrl {
     if ($null -ne $portfolioVariable) { $configured = [string]$portfolioVariable.Value }
     if (-not [string]::IsNullOrWhiteSpace($configured)) {
         $url = $configured.Trim()
-        if (-not $url.EndsWith("/")) { $url += "/" }
-        return $url
+        # The same shape Test-CatalogShape holds the catalog value to; -Write alone and
+        # -PortfolioUrl skip that check, so a value that could leave its attribute isn't used.
+        if ($url -cmatch '^https://[!#-&(-;=?-\[\]-{}~]+\z') {
+            if (-not $url.EndsWith("/")) { $url += "/" }
+            return $url
+        }
     }
     return "https://$($Owner.ToLowerInvariant()).github.io/"
 }
@@ -761,9 +769,10 @@ function New-ProfileChrome {
     $safeUrlPattern = '^https://[!#-&(-;=?-\[\]-{}~]+\z'
     $links = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'links') | ForEach-Object {
         $url = [string](Get-MemberValue -Object $_ -Name 'url')
-        $text = [string](Get-MemberValue -Object $_ -Name 'text')
-        if ($url -cmatch $safeUrlPattern -and -not [string]::IsNullOrWhiteSpace($text)) {
-            '<a href="' + $url + '"><b>' + (ConvertTo-HtmlText $text) + ' &#8594;</b></a>'
+        # Blank once encoded: text that is only control or bidi characters says nothing.
+        $label = ConvertTo-HtmlText ([string](Get-MemberValue -Object $_ -Name 'text'))
+        if ($url -cmatch $safeUrlPattern -and -not [string]::IsNullOrWhiteSpace($label)) {
+            '<a href="' + $url + '"><b>' + $label + ' &#8594;</b></a>'
         }
     })
     if ($links.Count -gt 0) {

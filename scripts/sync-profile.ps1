@@ -404,6 +404,21 @@ if (-not $portfolioUrlGiven -and $catalogForRun) {
     $PortfolioUrl = [string](Get-MemberValue -Object $catalogForRun -Name 'portfolioUrl')
 }
 
+# -Write alone never reaches Test-ProfileState, where the catalog check runs, yet it is the
+# command the README tells editors to run. A catalog that fails the shape check stops here,
+# before anything is rendered or written; -Check reports the same issues in full.
+if ($catalogForRun -and $Write -and -not $Check) {
+    $writeShape = Test-CatalogShape -Catalog $catalogForRun
+    if (-not $writeShape.passed) {
+        foreach ($issue in @($writeShape.issues)) {
+            $issueRepo = if ([string]::IsNullOrWhiteSpace([string]$issue.repo)) { '' } else { "$($issue.repo) " }
+            Write-Warning ("Catalog issue: {0}{1}: {2}" -f $issueRepo, $issue.field, $issue.reason)
+        }
+        Write-Error 'The catalog failed its shape check, so nothing was written. Fix the issues above, or run -Check for the full report.'
+        exit 1
+    }
+}
+
 if ($catalogForRun -and ($Write -or $Check)) {
     $expected = New-Readme -Catalog $catalogForRun -Repos $repos
     $expectedProjects = New-ProjectsExportJson -Catalog $catalogForRun -Repos $repos -GeneratedAt $script:GenerationArtifactTimestamp
@@ -444,7 +459,8 @@ if ($catalogForRun -and ($Write -or $Check)) {
                 BackstageExport = $backstageExport
                 BackstageExportPath = $BackstageExportPath
                 ProbePortfolio = [bool]$ProbePortfolio
-                PortfolioUrl = $PortfolioUrl
+                # The address the footer links, so the probe checks what a visitor reaches.
+                PortfolioUrl = Get-ProfilePortfolioUrl
             }
             if ($Write) {
                 $profileStateParameters['CurrentReadme'] = $expected

@@ -5058,6 +5058,13 @@ Describe 'Catalog URLs and names cannot break a README row' {
         Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%7Cb%5Cc)'
     }
 
+    It 'percent-encodes a line break in an action link, as -Write alone renders it' {
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $entry.liveUrl = "https://example.test/a`r`n| [**Injected**](https://evil.example/) |"
+
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%0D%0A%7C%20[**Injected**]%28https://evil.example/%29%20%7C)'
+    }
+
     It 'gives language the one-line check' {
         $entry = New-TestEntry -Repo 'LangTool' -Category 'powershell'
         $entry.language = "C#`nEvil" + [char]0x202E
@@ -5179,6 +5186,20 @@ Describe 'Profile header comes from catalog data' {
         $result | Should -Not -Match 'tracker\.example|javascript:|onerror|fixture\.example\.test/blank/'
         $result | Should -Match ([regex]::Escape('<a href="https://fixture.example.test/kept/"><b>Kept &#8594;</b></a>'))
         [regex]::Matches($result, '<img\b').Count | Should -Be 0
+    }
+
+    It 'renders no header link whose text is blank once encoded' {
+        # A bidi override or a control character alone passes a whitespace test but encodes
+        # to nothing, which left an arrow-only link.
+        $header = New-TestProfileHeader
+        $header.links = @(
+            @{ text = [string][char]0x202E; url = 'https://fixture.example.test/bidi/' }
+            @{ text = [string][char]7; url = 'https://fixture.example.test/bell/' }
+        )
+
+        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+
+        $result | Should -Not -Match 'fixture\.example\.test/(bidi|bell)/'
     }
 
     It 'hands the schema gate a profileHeader that is <Case> as written' -ForEach @(
@@ -6888,6 +6909,86 @@ Describe 'Profile sync entrypoint' {
 }
 
 Describe 'Generation entrypoint modes' -Tag 'Integration' {
+    BeforeAll {
+        # A complete, fresh generation snapshot in its own cache, so an offline -Write can run.
+        function script:New-OfflineSnapshotCache {
+            param([string]$Path)
+            $saved = @{
+                CachePath = $script:CachePath; CacheEnabled = $script:CacheEnabled; MetadataSnapshotAt = $script:MetadataSnapshotAt
+                Provider = $script:RepositoryMetadataProvider; RequestedLimit = $script:RepositoryEnumerationRequestedLimit; Truncated = $script:RepositoryEnumerationTruncated
+            }
+            try {
+                $script:CachePath = $Path
+                $script:CacheEnabled = $true
+                $script:MetadataSnapshotAt = (Get-Date).ToUniversalTime().ToString('o')
+                $script:RepositoryMetadataProvider = 'graphql'
+                $script:RepositoryEnumerationRequestedLimit = 25
+                $script:RepositoryEnumerationTruncated = $false
+                Reset-ValidationCacheState
+                Write-CompleteGenerationSnapshot -Repos @((New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip'))) -ReleaseMetadataComplete:$true | Should -BeTrue
+            } finally {
+                $script:CachePath = $saved.CachePath
+                $script:CacheEnabled = $saved.CacheEnabled
+                $script:MetadataSnapshotAt = $saved.MetadataSnapshotAt
+                $script:RepositoryMetadataProvider = $saved.Provider
+                $script:RepositoryEnumerationRequestedLimit = $saved.RequestedLimit
+                $script:RepositoryEnumerationTruncated = $saved.Truncated
+                Reset-ValidationCacheState
+            }
+        }
+    }
+
+    It 'refuses to write from a catalog that fails its shape check' {
+        # -Write alone never reaches Test-ProfileState, so it runs the catalog check itself.
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $cachePath = Join-Path $TestDrive 'shape-cache'
+        script:New-OfflineSnapshotCache -Path $cachePath
+        $sourceCatalog = Join-Path $TestDrive 'shape-catalog.json'
+        $fixture = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json'))
+        [System.IO.File]::WriteAllText($sourceCatalog, $fixture.Replace('"liveUrl": "https://sysadmindoc.github.io/WebTool/"', '"liveUrl": "https://sysadmindoc.github.io/WebTool/\n| [**Injected**](https://evil.example/) | row |"'))
+        $readmePath = Join-Path $TestDrive 'shape-README.md'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+        $before = (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -CatalogPath $sourceCatalog -ReadmePath $readmePath `
+            -ProjectsPath (Join-Path $TestDrive 'shape-projects.json') -AssetsPath (Join-Path $TestDrive 'shape-assets') -CachePath $cachePath *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match 'Catalog issue: WebTool liveUrl'
+        ($output | Out-String) | Should -Match 'nothing was written'
+        (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash | Should -Be $before
+        Test-Path -LiteralPath (Join-Path $TestDrive 'shape-projects.json') | Should -BeFalse
+    }
+
+    It 'links the owner''s own address when -PortfolioUrl could leave its attribute' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $cachePath = Join-Path $TestDrive 'unsafe-portfolio-cache'
+        script:New-OfflineSnapshotCache -Path $cachePath
+        $readmePath = Join-Path $TestDrive 'unsafe-portfolio.md'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -PortfolioUrl 'https://portfolio.example.test/"><img src="https://tracker.example/p.png' `
+            -CatalogPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') -ReadmePath $readmePath `
+            -ProjectsPath (Join-Path $TestDrive 'unsafe-portfolio.json') -AssetsPath (Join-Path $TestDrive 'unsafe-portfolio-assets') -CachePath $cachePath *>&1
+
+        $LASTEXITCODE | Should -Be 0 -Because ($output | Out-String)
+        $written = [System.IO.File]::ReadAllText($readmePath)
+        $written | Should -Not -Match 'tracker\.example'
+        $written | Should -Match ([regex]::Escape('<a href="https://sysadmindoc.github.io/"><b>See everything</b></a>'))
+    }
+
+    It 'probes the portfolio address the footer links' {
+        # The run used to hand the probe its raw $PortfolioUrl, empty without catalog or switch.
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $reportPath = Join-Path $TestDrive 'probe-report.json'
+
+        $null = & pwsh -NoProfile -File $scriptPath -Check -Offline -SkipLinkValidation -ProbePortfolio -Owner 'OtherOwner' `
+            -CatalogPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') -ReportPath $reportPath -CachePath (Join-Path $TestDrive 'probe-cache') *>&1
+
+        $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+        $report.portfolioCrossSurfaceProbe.portfolioUrl | Should -Be 'https://otherowner.github.io/'
+    }
+
     It 'rejects a cold-cache offline write before changing any canonical target' {
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
         $readmePath = Join-Path $TestDrive 'README.md'
