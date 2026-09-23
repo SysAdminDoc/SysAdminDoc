@@ -7199,6 +7199,7 @@
         "elapsedMs",
         "readmeActionTargetCount",
         "readmeInstallSnippetTargetCount",
+        "readmeInstallDispatcherTargetCount",
         "readmeDownloadLinkTargetCount",
         "readmeUserscriptInstallTargetCount",
         "warningCountByHost",
@@ -7233,6 +7234,9 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "readmeInstallSnippetTargetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readmeInstallDispatcherTargetCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "readmeDownloadLinkTargetCount": {

@@ -267,11 +267,15 @@ function Get-ReadmeHeaderLinkReference {
         $references.Add([ordered]@{ kind = $Kind; value = $trimmed })
     }
 
+    # A backslash makes the next character plain text, so "\[x\](y)", which is how
+    # ConvertTo-MarkdownText writes brackets from catalog text, is not a link. Escapes are
+    # blanked out before looking for Markdown links; HTML attributes are read as written.
+    $markdownText = [regex]::Replace($header, '\\.', '  ')
     # Markdown images first so the link pattern does not claim them.
-    foreach ($match in [regex]::Matches($header, '!\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
+    foreach ($match in [regex]::Matches($markdownText, '!\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
         & $add "image" $match.Groups['url'].Value
     }
-    foreach ($match in [regex]::Matches($header, '(?<![!])\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
+    foreach ($match in [regex]::Matches($markdownText, '(?<![!])\[[^\]]*\]\(\s*(?<url>[^\s)]+)')) {
         & $add "link" $match.Groups['url'].Value
     }
     foreach ($match in [regex]::Matches($header, '(?i)\bhref\s*=\s*"(?<url>[^"]*)"')) {

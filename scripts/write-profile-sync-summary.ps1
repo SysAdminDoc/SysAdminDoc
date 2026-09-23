@@ -209,6 +209,7 @@ $linkFailureCount = Get-Count $report.linkValidationFailures
 $linkWarningCount = Get-Count $report.linkValidationWarnings
 $readmeActionTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeActionTargetCount') { [int]$linkSummary.readmeActionTargetCount } else { 0 }
 $readmeInstallSnippetTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeInstallSnippetTargetCount') { [int]$linkSummary.readmeInstallSnippetTargetCount } else { 0 }
+$readmeInstallDispatcherTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeInstallDispatcherTargetCount') { [int]$linkSummary.readmeInstallDispatcherTargetCount } else { 0 }
 $readmeDownloadLinkTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeDownloadLinkTargetCount') { [int]$linkSummary.readmeDownloadLinkTargetCount } else { 0 }
 $readmeUserscriptInstallTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeUserscriptInstallTargetCount') { [int]$linkSummary.readmeUserscriptInstallTargetCount } else { 0 }
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
@@ -673,6 +674,7 @@ $summary = @"
 | All link results from cache | $(if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'allResultsFromCache') { $linkSummary.allResultsFromCache } else { 'unknown' }) |
 | README action link targets | $readmeActionTargetCount |
 | README install snippet targets | $readmeInstallSnippetTargetCount |
+| README install dispatcher targets | $readmeInstallDispatcherTargetCount |
 | README download link targets | $readmeDownloadLinkTargetCount |
 | README userscript install targets | $readmeUserscriptInstallTargetCount |
 | Link failures | $linkFailureCount |

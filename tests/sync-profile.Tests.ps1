@@ -3066,7 +3066,8 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 | [**ScriptTool**](https://github.com/SysAdminDoc/ScriptTool) | Browser helper | [Install](https://raw.githubusercontent.com/SysAdminDoc/ScriptTool/main/ScriptTool.user.js) |
 '@
         $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
-        $winTool.entrypoint = 'Tools\Win Tool.ps1'; $winTool.branch = 'main'
+        # Not main, so a hard-coded branch couldn't pass: six tools really are on master.
+        $winTool.entrypoint = 'Tools\Win Tool.ps1'; $winTool.branch = 'master'
         $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @($winTool))
 
         # The "<Name>" placeholder in the setup section's example resolves to nothing.
@@ -3074,7 +3075,7 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
         ($targets | ForEach-Object { $_.type } | Sort-Object) -join ',' |
             Should -Be 'readme-download,readme-install-dispatcher,readme-install-entrypoint,readme-userscript-install'
         ($targets | Where-Object { $_.type -eq 'readme-install-entrypoint' }).url |
-            Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/Tools/Win%20Tool.ps1'
+            Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/master/Tools/Win%20Tool.ps1'
         ($targets | Where-Object { $_.type -eq 'readme-install-dispatcher' }).url |
             Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1'
         ($targets | Where-Object { $_.type -eq 'readme-download' }).repo | Should -Be 'MobileTool'
@@ -9919,6 +9920,40 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         Should -Invoke Test-LinkTargets -Times 1 -Exactly
     }
 
+    It 'counts every README action target by type, the dispatcher included' {
+        # Not a condition of its own: the link summary's per-type counts have to add up to its
+        # total. Same seams as the live-probe case above, with every probe passing.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $visible = @($catalog.entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })
+        $repos = @($visible | ForEach-Object {
+            if ($_.repo -eq 'ReleaseTool') { $script:ReachabilityRepos[0] } else { New-TestRepoMeta -Name ([string]$_.repo) }
+        })
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
+        $script:RealUserscriptTrust = ${function:Test-UserscriptInstallTrust}
+        Mock Test-UserscriptInstallTrust { & $script:RealUserscriptTrust -Entries $Entries -Skip }
+        Mock Invoke-GhCli { [ordered]@{ output = 'gh unavailable in this test'; exitCode = 1; text = 'gh unavailable in this test' } }
+        Mock Test-LinkTargets {
+            [ordered]@{
+                failures = @(); warnings = @(); targetCount = 1; liveProbedCount = 1; cacheServedCount = 0; oldestCacheEntryAgeHours = $null
+                allResultsFromCache = $false; throttleLimit = 1; elapsedMs = 0; warningCountByHost = @(); headerHostWarnings = @(); deferredRetries = @()
+            }
+        }
+
+        $savedOffline = $script:Offline
+        $script:Offline = $false
+        try {
+            $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ SkipLinkValidation = $false }
+        } finally {
+            $script:Offline = $savedOffline
+        }
+
+        $summary = $result.Report.linkValidationSummary
+        $summary.readmeInstallDispatcherTargetCount | Should -Be 1
+        $summary.readmeInstallSnippetTargetCount | Should -BeGreaterThan 0
+        ($summary.readmeInstallSnippetTargetCount + $summary.readmeInstallDispatcherTargetCount + $summary.readmeDownloadLinkTargetCount + $summary.readmeUserscriptInstallTargetCount) |
+            Should -Be $summary.readmeActionTargetCount
+    }
+
     It 'fires releaseArtifactVerification only when the switch is set' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
@@ -10618,6 +10653,25 @@ Describe 'Hand-authored header links and anchors are validated' {
 
         $cta | Should -Not -BeNullOrEmpty
         $cta.fatalOnFailure | Should -BeTrue
+    }
+
+    It 'reads no link or anchor from escaped brackets, as catalog text renders them' {
+        $header = New-TestProfileHeader
+        $header.about = 'Jump to [the tools](#tools) or read [the docs](https://docs.invalid/guide).'
+        $readme = Update-Header -Header $header -CategorySlugs @('powershell')
+        $readme | Should -Match ([regex]::Escape('\[the tools\](#tools)'))
+
+        @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme | Where-Object { $_.url -like '*docs.invalid*' }) | Should -BeNullOrEmpty
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | Where-Object { $_.fragment -eq 'tools' }) | Should -BeNullOrEmpty
+    }
+
+    It 'still reads a Markdown link and anchor that are not escaped' {
+        $readme = 'See [the guide](https://real.example/guide) or [below](#no-such-anchor), not \[this\](https://escaped.example/).'
+
+        $targets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme)
+        @($targets | Where-Object { $_.url -eq 'https://real.example/guide' }) | Should -HaveCount 1
+        @($targets | Where-Object { $_.url -like '*escaped.example*' }) | Should -BeNullOrEmpty
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | Where-Object { $_.fragment -eq 'no-such-anchor' }) | Should -HaveCount 1
     }
 
     It 'fails on an unknown dead call to action in the header' {
