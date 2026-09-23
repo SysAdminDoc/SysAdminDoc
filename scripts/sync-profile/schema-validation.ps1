@@ -219,7 +219,29 @@ function Get-JsonSchemaEvaluationErrors {
                 if (-not [string]::IsNullOrEmpty([string]$entry.Key)) {
                     $keywordLocation += '/' + (([string]$entry.Key -replace '~', '~0') -replace '/', '~1')
                 }
-                $failures.Add((New-SchemaContractError -Message ([string]$entry.Value) -InstanceLocation $instancePath -KeywordLocation $keywordLocation))
+                # The evaluator writes values JSON-encoded. A const failure reads Expected, then
+                # the value's JSON text escaped a second time, so its quotes, & and < arrive as
+                # backslash-u escapes. Unescape it once, parse it, and show it as written; a
+                # string in plain quotes, anything else as JSON without HTML-style escapes.
+                # Names in other messages (required) carry those escapes one level deep.
+                $message = [string]$entry.Value
+                if ($message -match '^Expected "(?<value>.*)"\z') {
+                    try {
+                        $valueJson = [System.Text.Json.JsonDocument]::Parse('"' + $Matches['value'] + '"').RootElement.GetString()
+                        $valueElement = [System.Text.Json.JsonDocument]::Parse($valueJson).RootElement
+                        $message = if ($valueElement.ValueKind -eq [System.Text.Json.JsonValueKind]::String) {
+                            'Expected "' + $valueElement.GetString() + '"'
+                        } else {
+                            $relaxed = [System.Text.Json.JsonSerializerOptions]::new()
+                            $relaxed.Encoder = [System.Text.Encodings.Web.JavaScriptEncoder]::UnsafeRelaxedJsonEscaping
+                            'Expected ' + [System.Text.Json.JsonSerializer]::Serialize($valueElement, [System.Text.Json.JsonElement], $relaxed)
+                        }
+                    } catch [System.Text.Json.JsonException] {
+                        Write-Verbose "Schema message kept as the evaluator wrote it: $($_.Exception.Message)"
+                    }
+                }
+                $message = [regex]::Replace($message, '(?<!\\)\\u([0-9A-Fa-f]{4})', { param($match) [string][char][Convert]::ToInt32($match.Groups[1].Value, 16) })
+                $failures.Add((New-SchemaContractError -Message $message -InstanceLocation $instancePath -KeywordLocation $keywordLocation))
             }
         } elseif ($invalidChildren.Count -eq 0) {
             # Failing with no message and no failing child: a "not" whose subschema passed.

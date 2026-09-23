@@ -6947,6 +6947,38 @@ Describe 'Feed JSON Schema contracts' {
         }
     }
 
+    It 'prints schema values as written, without JSON escapes' {
+        # A const failure used to show the value's JSON text escaped twice, every quote, & and
+        # < as a backslash-u escape, and required listed names the same way.
+        $cafe = 'caf' + [char]0xE9
+        $schemaPath = Join-Path $TestDrive 'plain-messages.json'
+        $schema = [ordered]@{
+            type = 'object'
+            required = @('needed', $cafe)
+            properties = [ordered]@{
+                url = @{ const = 'https://example.test/a?b=1&c=<d> "quoted" ' + $cafe }
+                count = @{ const = 42 }
+                kind = @{ enum = @('one', 'two') }
+                name = @{ type = 'string'; pattern = '^[a-z]+$' }
+            }
+        }
+        [System.IO.File]::WriteAllText($schemaPath, ($schema | ConvertTo-Json -Depth 10))
+
+        $result = Test-JsonSchemaContract -Value ([ordered]@{ url = 'x'; count = 1; kind = 'three'; name = 'ABC' }) -SchemaPath $schemaPath
+        $byKeyword = @{}
+        foreach ($schemaError in @($result.errors)) { $byKeyword[$schemaError.keywordLocation] = $schemaError }
+
+        $byKeyword['/properties/url/const'].message | Should -BeExactly ('Expected "https://example.test/a?b=1&c=<d> "quoted" ' + $cafe + '"')
+        $byKeyword['/properties/url/const'].instanceLocation | Should -Be '/url'
+        $byKeyword['/properties/count/const'].message | Should -BeExactly 'Expected 42'
+        $byKeyword['/required'].message | Should -Match ([regex]::Escape($cafe))
+        @($byKeyword.Keys) | Should -Contain '/properties/kind/enum'
+        @($byKeyword.Keys) | Should -Contain '/properties/name/pattern'
+        foreach ($schemaError in @($result.errors)) {
+            $schemaError.message | Should -Not -Match '\\u[0-9A-Fa-f]{4}'
+        }
+    }
+
     It 'requires always-emitted nested profile sync report fields' {
         $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
 
