@@ -31,6 +31,26 @@ BeforeAll {
     # dot-source above also bound a local $Offline parameter ($false) in this scope, which is
     # what plain $Offline reads used to find.
     $script:Offline = $true
+    # Nothing in the suite may start the real gh: mocks and function stubs stand in for it
+    # in process, and child runs go offline. A gh.cmd first on PATH records any call that
+    # gets past them (its first argument only; the rest can hold & for cmd to misread), and
+    # a Describe near the end fails on it. gh --version is a local query the support bundle
+    # records, so the trap answers it without logging.
+    $script:GhTrapDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ('sysadmindoc-gh-trap-' + [guid]::NewGuid().ToString('N'))
+    $null = New-Item -ItemType Directory -Path $script:GhTrapDirectory
+    $script:GhTrapLog = Join-Path $script:GhTrapDirectory 'calls.log'
+    [System.IO.File]::WriteAllText((Join-Path $script:GhTrapDirectory 'gh.cmd'), (@(
+                '@echo off'
+                'if "%~1"=="--version" goto version'
+                "echo %1>>`"$script:GhTrapLog`""
+                'echo gh is trapped in the test suite 1>&2'
+                'exit /b 1'
+                ':version'
+                'echo gh version 0.0.0 test suite trap'
+                'exit /b 0'
+            ) -join "`r`n") + "`r`n")
+    $script:PathBeforeGhTrap = $env:PATH
+    $env:PATH = $script:GhTrapDirectory + [System.IO.Path]::PathSeparator + $env:PATH
 
     function Get-MarkdownTrailingWhitespaceViolations {
         param(
@@ -166,6 +186,8 @@ BeforeAll {
 
 AfterAll {
     Remove-Item -LiteralPath Env:SYSADMINDOC_TEST_SEAM -ErrorAction SilentlyContinue
+    $env:PATH = $script:PathBeforeGhTrap
+    Remove-Item -LiteralPath $script:GhTrapDirectory -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 Describe 'Function library loads via the dot-source test seam' {
@@ -13279,6 +13301,21 @@ Describe 'Setup bootstrapper helpers (in-process)' {
 
     It 'prints status lines without failing' {
         { & { Write-Step 'step'; Write-Ok 'ok'; Write-Skip 'skip'; Write-Warn2 'warn' } 6>$null } | Should -Not -Throw
+    }
+}
+
+Describe 'No test starts the real gh' {
+    It 'puts the trap first on PATH' {
+        (Get-Command gh -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source | Should -Be (Join-Path $script:GhTrapDirectory 'gh.cmd')
+    }
+
+    It 'left the gh trap untouched' {
+        # A call here means a test reached for GitHub without a mock, a stub or -Offline.
+        # (A review once took a stubbed gh's rate-limit warning for a live call; this is
+        # the check that tells the two apart.)
+        $calls = if (Test-Path -LiteralPath $script:GhTrapLog) { @(Get-Content -LiteralPath $script:GhTrapLog) } else { @() }
+
+        $calls | Should -BeNullOrEmpty -Because 'the suite stays offline'
     }
 }
 
