@@ -362,7 +362,8 @@ function Invoke-ScorecardCli {
     # with the token; use only a line shaped like a GitHub token.
     $tokenResult = Invoke-GhCli -Arguments @("auth", "token")
     $token = @(([string]$tokenResult.text) -split "\r?\n" | ForEach-Object { $_.Trim() } | Where-Object {
-            $_ -cmatch '^(?:gh[oprsu]_[A-Za-z0-9]{20,255}|github_pat_[A-Za-z0-9_]{20,255})\z'
+            # gh's own prefixes, fine-grained tokens, and the 40-hex tokens issued before 2021.
+            $_ -cmatch '^(?:gh[oprsu]_[A-Za-z0-9]{20,255}|github_pat_[A-Za-z0-9_]{20,255}|[0-9a-f]{40})\z'
         }) | Select-Object -First 1
     if ($tokenResult.exitCode -ne 0 -or [string]::IsNullOrWhiteSpace([string]$token)) {
         return [ordered]@{ ok = $false; value = $null; error = "gh auth token returned no GitHub token; Scorecard needs one" }
@@ -406,9 +407,12 @@ function Invoke-ScorecardCli {
     } finally {
         $process.Dispose()
     }
-    # The report is public: take tokens and account names out of whatever the tool said.
-    $failure = [regex]::Replace($failure, '(?i)\b(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+', '<token>')
-    $failure = [regex]::Replace($failure, '(?i)([A-Z]:\\Users\\|/Users/|/home/)[^\\/\s"''<>]+', '${1}<user>')
+    # The report is public: take tokens and account names out of whatever the tool said. The
+    # account is everything after Users or home up to the next separator or quote, so a name
+    # with a space goes too, in plain, doubled-backslash (Go-quoted), forward-slash and UNC
+    # paths alike.
+    $failure = [regex]::Replace($failure, '(?i)\b(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|\b[0-9a-f]{40}\b', '<token>')
+    $failure = [regex]::Replace($failure, '(?i)((?:\\{1,2}|/)(?:Users|home)(?:\\{1,2}|/))[^\\/"''<>\r\n]+', '${1}<user>')
     return [ordered]@{ ok = $false; value = $null; error = $failure }
 }
 

@@ -1009,6 +1009,36 @@ Describe 'OpenSSF Scorecard runs locally' {
         $run.error | Should -Match '<token>'
     }
 
+    It 'takes the whole account name out of <Case>' -ForEach @(
+        @{ Case = 'a path with a space in it'; Line = 'cannot read C:\Users\John Smith\AppData\scorecard.log'; Kept = 'C:\Users\<user>\AppData' }
+        @{ Case = 'a Go-quoted path'; Line = 'open "C:\\Users\\someone\\scorecard.log": access denied'; Kept = 'C:\\Users\\<user>\\scorecard.log' }
+        @{ Case = 'a UNC path'; Line = 'share \\fileserver\c$\Users\someone\cache failed'; Kept = '\Users\<user>\cache' }
+        @{ Case = 'a forward-slash path'; Line = 'cannot read /home/someone/.cache/scorecard'; Kept = '/home/<user>/.cache' }
+        @{ Case = 'a legacy 40-hex token'; Line = 'token 0123456789abcdef0123456789abcdef01234567 rejected'; Kept = 'token <token> rejected' }
+    ) {
+        $fake = Join-Path $TestDrive 'scorecard-fail-forms.cmd'
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', "echo $Line 1>&2", 'exit /b 3')
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('gho_ZYXWVUTSRQPONMLKJIHG9876'); exitCode = 0; text = 'gho_ZYXWVUTSRQPONMLKJIHG9876' } }
+
+        $run = Invoke-ScorecardCli
+
+        $run.error | Should -Not -Match 'John|Smith|someone|0123456789abcdef'
+        $run.error | Should -Match ([regex]::Escape($Kept))
+    }
+
+    It 'accepts a legacy 40-hex token from gh auth token' {
+        $fake = Join-Path $TestDrive 'scorecard-echo-legacy.cmd'
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', 'echo {"token":"%GITHUB_AUTH_TOKEN%"}')
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('0123456789abcdef0123456789abcdef01234567'); exitCode = 0; text = '0123456789abcdef0123456789abcdef01234567' } }
+
+        $run = Invoke-ScorecardCli
+
+        $run.ok | Should -BeTrue
+        $run.value.token | Should -BeExactly '0123456789abcdef0123456789abcdef01234567'
+    }
+
     It 'records the local run only when -RunScorecard asks for it' {
         $savedOffline = $script:Offline
         $savedRunScorecard = $script:RunScorecard
