@@ -3259,7 +3259,7 @@ Describe 'Star count display threshold' {
         Get-StarText ([pscustomobject]@{ stargazerCount = 5 }) | Should -Be ' &#11088;5'
     }
 
-    It 'renders README rows with the threshold applied and keeps star order' {
+    It 'renders README rows with the threshold applied' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $oneStar = New-TestRepoMeta -Name 'WinTool'
         $oneStar.stargazerCount = 1
@@ -3271,6 +3271,30 @@ Describe 'Star count display threshold' {
         $readme | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) -- '
         $readme | Should -Not -Match 'WinTool\) &#11088;1'
         $readme | Should -Match '\[\*\*PyTool\*\*\]\(https://github\.com/SysAdminDoc/PyTool\) &#11088;3'
+    }
+
+    It 'orders a category by the real star count, including counts it hides' {
+        $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'powershell' } | Select-Object -First 1
+        $entries = @(
+            (New-TestEntry -Repo 'Alpha' -Category 'powershell')
+            (New-TestEntry -Repo 'Mu' -Category 'powershell')
+            (New-TestEntry -Repo 'Zeta' -Category 'powershell')
+        )
+        $lookup = @{}
+        foreach ($stars in @(@('Alpha', 0), @('Mu', 1), @('Zeta', 3))) {
+            $meta = New-TestRepoMeta -Name $stars[0]
+            $meta.stargazerCount = $stars[1]
+            $lookup[$stars[0].ToLowerInvariant()] = $meta
+        }
+
+        $section = New-CategorySection -Entries $entries -RepoLookup $lookup -Definition $definition
+        $rows = @([regex]::Matches($section, '(?m)^\[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? -- ') | ForEach-Object { $_.Groups[1].Value })
+
+        # Mu's single star is not shown, and it still ranks above Alpha's zero; alphabetical
+        # order would put Alpha first.
+        $rows | Should -Be @('Zeta', 'Mu', 'Alpha')
+        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 -- '
+        $section | Should -Not -Match '&#11088;1'
     }
 }
 
@@ -9951,6 +9975,38 @@ Describe 'Dependency review helpers (in-process)' {
         (ConvertTo-NpmAuditReview -RawJson '{"metadata":{"dependencies":{"total":5}}}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
     }
 
+    It 'compares each npm override with the version the lockfile resolved' {
+        $packageJson = @{ overrides = [ordered]@{ 'markdown-it' = '14.3.0'; 'left-pad' = '1.3.0'; 'js-yaml' = '5.2.2' } }
+        $packageLock = @{
+            packages = @{
+                'node_modules/js-yaml' = @{ version = '5.2.2' }
+                'node_modules/markdown-it' = @{ version = '14.1.0' }
+            }
+        }
+
+        $review = Get-PackageOverrideReview -PackageJson $packageJson -PackageLock $packageLock
+
+        $review.count | Should -Be 3
+        $review.driftCount | Should -Be 2
+        @($review.rows | ForEach-Object { $_.package }) | Should -Be @('js-yaml', 'left-pad', 'markdown-it')
+        $byName = @{}
+        foreach ($row in $review.rows) { $byName[$row.package] = $row }
+        $byName['js-yaml'].status | Should -Be 'aligned'
+        $byName['markdown-it'].status | Should -Be 'lock-drift'
+        $byName['markdown-it'].overrideVersion | Should -Be '14.3.0'
+        $byName['markdown-it'].lockedVersion | Should -Be '14.1.0'
+        $byName['left-pad'].status | Should -Be 'missing-lock-entry'
+        $byName['left-pad'].lockedVersion | Should -Be ''
+    }
+
+    It 'treats a package without overrides as nothing to review' {
+        $review = Get-PackageOverrideReview -PackageJson @{ name = 'x' } -PackageLock @{ packages = @{} }
+
+        $review.count | Should -Be 0
+        $review.driftCount | Should -Be 0
+        @($review.rows) | Should -HaveCount 0
+    }
+
     It 'keeps missing and unparseable audit output apart' {
         $empty = ConvertTo-NpmAuditReview -RawJson '' -ExitCode $null -Source 'local'
         $empty.status | Should -Be 'unavailable'
@@ -10055,6 +10111,45 @@ Describe 'Support bundle helpers (in-process)' {
         $limited | Should -Not -Match ([string][char]0xFFFD)
         $limited.StartsWith('a' * 1023) | Should -BeTrue
         Limit-SupportText -Text 'short' -MaxBytes 1024 | Should -Be 'short'
+    }
+
+    It 'writes the bundle JSON with its redaction contract and evidence in order' {
+        $evidence = @(
+            [pscustomobject]@{ name = 'validation output'; status = 'included'; bytes = 29; content = 'ran in <REDACTED_USER_PATH>'; redacted = $true }
+            [pscustomobject]@{ name = 'setup transcript'; status = 'not-provided'; bytes = 0; content = 'No setup transcript was supplied.'; redacted = $true }
+        )
+
+        $raw = Get-SupportBundleJson -ValidationStatus 'passed' -ToolVersions @{ pwsh = '7.6.6'; git = $null } -Evidence $evidence -IncludeContent $true
+        $bundle = $raw | ConvertFrom-Json
+
+        $bundle.schemaVersion | Should -Be 'sysadmindoc-support-bundle.v1'
+        $bundle.validationStatus | Should -Be 'passed'
+        $raw | Should -Match '"generatedAt":\s*"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{7}(Z|\+00:00)"'
+        $bundle.redaction.applied | Should -BeTrue
+        $bundle.redaction.userPaths | Should -Be '<REDACTED_USER_PATH>'
+        $bundle.redaction.tokens | Should -Be '<REDACTED_TOKEN>'
+        $bundle.redaction.secrets | Should -Be '<REDACTED_SECRET>'
+        $bundle.redaction.callerValues | Should -Be '<REDACTED_VALUE>'
+        $bundle.redaction.queryValues | Should -Be '<REDACTED_QUERY_VALUE>'
+        $bundle.toolVersions.pwsh | Should -Be '7.6.6'
+        @($bundle.evidence | ForEach-Object { $_.name }) | Should -Be @('validation output', 'setup transcript')
+        $bundle.evidence[0].content | Should -Be 'ran in <REDACTED_USER_PATH>'
+        $bundle.evidence[0].bytes | Should -Be 29
+        $bundle.evidence[1].status | Should -Be 'not-provided'
+    }
+
+    It 'leaves evidence content out when asked and keeps a single item a list' {
+        $one = [pscustomobject]@{ name = 'validation output'; status = 'included'; bytes = 5; content = 'SECRET-LOOKING TEXT'; redacted = $true }
+
+        $raw = Get-SupportBundleJson -ValidationStatus 'failed' -ToolVersions @{} -Evidence @($one) -IncludeContent $false
+        $bundle = $raw | ConvertFrom-Json
+
+        $bundle.validationStatus | Should -Be 'failed'
+        $raw | Should -Match '"evidence":\s*\['
+        $raw | Should -Not -Match 'SECRET-LOOKING TEXT'
+        @($bundle.evidence) | Should -HaveCount 1
+        $bundle.evidence[0].PSObject.Properties.Name | Should -Not -Contain 'content'
+        $bundle.evidence[0].redacted | Should -BeTrue
     }
 }
 
