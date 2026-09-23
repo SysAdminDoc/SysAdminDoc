@@ -6929,6 +6929,24 @@ Describe 'Feed JSON Schema contracts' {
         $result.errors[1].keywordLocation | Should -Be '/properties/c/type'
     }
 
+    It 'lets both schemas accept every metadata provider the generator records' {
+        # The enums held graphql and rest-fallback only, so a run that fell back to cached
+        # metadata (cache-fallback) failed its own schema check and wrote nothing.
+        $sources = @('scripts/sync-profile.ps1') + @(Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot 'scripts/sync-profile') -Filter '*.ps1' | ForEach-Object { 'scripts/sync-profile/' + $_.Name })
+        $providers = @(foreach ($source in $sources) {
+            [regex]::Matches([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $source)), 'RepositoryMetadataProvider = [''"](?<value>[^''"]+)[''"]') | ForEach-Object { $_.Groups['value'].Value }
+        }) | Sort-Object -Unique
+
+        $providers | Should -Contain 'cache-fallback' -Because 'the scan has to find the cache fallback'
+        foreach ($schemaPath in 'schemas/profile-projects.v1.json', 'schemas/profile-sync-report.v1.json') {
+            $schemaText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $schemaPath))
+            $enum = [regex]::Match($schemaText, '"metadataProvider":\s*\{\s*"type":\s*"string",\s*"enum":\s*\[(?<values>[^\]]*)\]')
+            $enum.Success | Should -BeTrue -Because "$schemaPath declares the provider enum"
+            $allowed = @([regex]::Matches($enum.Groups['values'].Value, '"(?<v>[^"]+)"') | ForEach-Object { $_.Groups['v'].Value })
+            @($providers | Where-Object { $allowed -notcontains $_ }) | Should -BeNullOrEmpty -Because "$schemaPath must accept every provider"
+        }
+    }
+
     It 'requires always-emitted nested profile sync report fields' {
         $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
 
