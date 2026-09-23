@@ -213,7 +213,8 @@ function Get-ActionLink {
     # Control characters too, since a line break here would end the row. The catalog check
     # refuses all of these before -Write or -Check renders, but the renderer doesn't lean on it.
     $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
-    $url = [regex]::Replace($url, '[\x00-\x1F\x7F]', { param($match) '%{0:X2}' -f [int][char]$match.Value })
+    # C1 controls (0x80-0x9F) too, as their UTF-8 bytes: U+0085 is a line break to some readers.
+    $url = [regex]::Replace($url, '[\x00-\x1F\x7F-\x9F]', { param($match) -join ([System.Text.Encoding]::UTF8.GetBytes($match.Value) | ForEach-Object { '%{0:X2}' -f $_ }) })
     if ($action["kind"] -eq "release") {
         return "[<kbd>&#11015;&nbsp;$label</kbd>]($url)"
     }

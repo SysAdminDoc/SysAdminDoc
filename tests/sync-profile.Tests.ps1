@@ -5421,6 +5421,14 @@ Describe 'Catalog URLs and names cannot break a README row' {
         Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%0D%0A%7C%20[**Injected**]%28https://evil.example/%29%20%7C)'
     }
 
+    It 'percent-encodes a C1 control in an action link as its UTF-8 bytes' {
+        # Only C0 and DEL were encoded, so U+0085, a line break to some readers, went in raw.
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $entry.liveUrl = 'https://example.test/a' + [char]0x85 + 'b' + [char]0x9B + 'c' + [char]0x7F
+
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%C2%85b%C2%9Bc%7F)'
+    }
+
     It 'gives language the one-line check' {
         $entry = New-TestEntry -Repo 'LangTool' -Category 'powershell'
         $entry.language = "C#`nEvil" + [char]0x202E
