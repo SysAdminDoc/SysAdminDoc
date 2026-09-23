@@ -712,7 +712,7 @@ function Test-CatalogShape {
         # The title is every row's link text, so it can't be blank. The row's other text may be
         # left out (null), but when it's given it has to say something a reader can see.
         foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'language', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
-            $nonBlank = ($field -eq 'title') -or ($field -in @('descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense') -and $null -ne $entry[$field])
+            $nonBlank = ($field -eq 'title') -or ($field -in @('descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense', 'forkOf') -and $null -ne $entry[$field])
             $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field]; nonBlank = $nonBlank })
         }
         # The action link's destination in the README table row. Plain http passes here
@@ -812,11 +812,11 @@ function Test-CatalogShape {
         }
         if ($null -ne $problem) {
             $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $problem.codePoint; reason = "$($publicText.field) $($problem.reason)" })
-        } elseif ($publicText.field -eq 'forkOf' -and $text -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z') {
+        } elseif ($publicText.field -eq 'forkOf' -and ($text.Length -gt 140 -or $text -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z')) {
             # The fork attribution links https://github.com/<forkOf> from the README row, so it
-            # takes the schema's owner/repo shape too; -Write alone never runs the schema. Only
-            # text that passed the checks above gets here, so the value is safe to show.
-            $issues.Add([ordered]@{ repo = $publicText.repo; field = 'forkOf'; value = $text; reason = "forkOf must be owner/repo: an account name of letters, digits and hyphens, a slash, then a repository name" })
+            # takes the schema's owner/repo shape and length too; -Write alone never runs the
+            # schema. Only text that passed the checks above gets here, so it's safe to show.
+            $issues.Add([ordered]@{ repo = $publicText.repo; field = 'forkOf'; value = $text; reason = "forkOf must be owner/repo, at most 140 characters: an account name of letters, digits and hyphens, a slash, then a repository name" })
         }
     }
 

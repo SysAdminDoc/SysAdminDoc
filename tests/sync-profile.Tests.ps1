@@ -5637,6 +5637,12 @@ Describe 'Catalog URLs and names cannot break a README row' {
         @{ ForkOf = 'upstream-owner/WebTool/tree'; Valid = $false }
         @{ ForkOf = 'upstream_owner/WebTool'; Valid = $false }
         @{ ForkOf = 'upstream-owner/Web.Tool_2'; Valid = $true }
+        # The schema's length and non-blank rules as well as its pattern.
+        @{ ForkOf = ''; Valid = $false }
+        @{ ForkOf = '   '; Valid = $false }
+        @{ ForkOf = [string][char]0x00A0; Valid = $false }
+        @{ ForkOf = 'o/' + ('r' * 138); Valid = $true }
+        @{ ForkOf = 'o/' + ('r' * 139); Valid = $false }
     ) {
         # -Write alone runs only the shape check, and the fork link lands in a table cell.
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
