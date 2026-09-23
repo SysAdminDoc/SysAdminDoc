@@ -744,7 +744,7 @@ function Test-CatalogShape {
         # takes the schema's owner/repo shape here too; -Write alone never runs the schema.
         $forkOf = [string]$entry.forkOf
         if (-not [string]::IsNullOrWhiteSpace($forkOf) -and $forkOf -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z') {
-            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "forkOf"; value = ([regex]::Replace($forkOf, '[\p{Cc}  ]', ' ')); reason = "forkOf must be owner/repo: an account name of letters, digits and hyphens, a slash, then a repository name" })
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "forkOf"; value = ([regex]::Replace($forkOf, '[\p{Cc}\u2028\u2029]', ' ')); reason = "forkOf must be owner/repo: an account name of letters, digits and hyphens, a slash, then a repository name" })
         }
     }
 
