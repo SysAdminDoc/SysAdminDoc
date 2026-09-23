@@ -3191,6 +3191,31 @@ $result = Test-ProfileState -Catalog $catalog -Repos @($repo) -ExpectedReadme $r
     }
 }
 
+Describe 'Profile footer contact route' {
+    It 'links to the portfolio contact section and publishes no address itself' {
+        $footer = New-ProfileFooter
+
+        # The origin comes from the resolver: tests see the owner fallback, a real run the
+        # configured -PortfolioUrl (https://portfolio.getparkerai.com/).
+        $footer | Should -Match ([regex]::Escape('<a href="' + (Get-ProfilePortfolioUrl) + '#connect">Get in touch</a>'))
+        $footer | Should -Match 'See everything'
+        $footer | Should -Not -Match 'mailto:'
+        [regex]::Matches($footer, '<img\b').Count | Should -Be 0
+    }
+
+    It 'renders the contact link at the end of the generated README' {
+        $readme = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+
+        $readme.TrimEnd() | Should -Match '#connect">Get in touch</a></p>$'
+    }
+
+    It 'publishes the portfolio contact link in the committed README' {
+        $committed = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Raw
+
+        $committed | Should -Match ([regex]::Escape('<a href="https://portfolio.getparkerai.com/#connect">Get in touch</a>'))
+    }
+}
+
 Describe 'What-is-this sentence before the category grid' {
     It 'explains the page and its audience in one sentence ahead of the grid' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

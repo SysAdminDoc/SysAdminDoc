@@ -26,6 +26,8 @@
 
 - Added one sentence above the category grid for visitors who land from a search result: what the page is, how many projects it lists, and who it's for. The count comes from the catalog, so it stays right as projects come and go.
 
+- Added a "Get in touch" link to the profile footer. Before this, Ko-fi was the only way to reach me from the profile. The link opens the contact section of the portfolio, which has email and LinkedIn, so the README itself doesn't publish an address.
+
 ## 2026-09-20
 
 - Fixed overlapping profile sync runs racing the same validation cache file. Each run now holds one repository lock before it inspects journals or publishes artifacts, so another invocation waits instead of invalidating a staged target.

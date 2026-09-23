@@ -662,11 +662,13 @@ function New-ProfileChrome {
 }
 
 function New-ProfileFooter {
-    # Minimal, text-only footer: no SVG/image chrome.
+    # Minimal, text-only footer: no SVG/image chrome. The contact link opens the portfolio's
+    # contact section, which carries email and LinkedIn, so the README publishes no address.
+    $portfolioUrl = Get-ProfilePortfolioUrl
     return @(
         '---'
         ''
-        ('<p align="center"><a href="' + (Get-ProfilePortfolioUrl) + '"><b>See everything</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">All repos</a></p>')
+        ('<p align="center"><a href="' + $portfolioUrl + '"><b>See everything</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">All repos</a> &middot; <a href="' + $portfolioUrl + '#connect">Get in touch</a></p>')
     ) -join [Environment]::NewLine
 }
 

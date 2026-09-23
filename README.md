@@ -631,4 +631,4 @@ It lints, analyzes, tests and re-checks the generated profile. Every lane, switc
 
 ---
 
-<p align="center"><a href="https://portfolio.getparkerai.com/"><b>See everything</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">All repos</a></p>
+<p align="center"><a href="https://portfolio.getparkerai.com/"><b>See everything</b></a> &middot; <a href="https://github.com/SysAdminDoc?tab=repositories">All repos</a> &middot; <a href="https://portfolio.getparkerai.com/#connect">Get in touch</a></p>
