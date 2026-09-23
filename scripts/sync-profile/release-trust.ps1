@@ -181,10 +181,10 @@ function Get-ReleaseArtifactDownload {
 
     # refused marks what the network can't explain: a host outside GitHub's release hosts,
     # a redirect the safety checks turn down (to http, a loop, a bad Location, a literal
-    # private address), or a successful body bigger than the cap the published size fit
-    # under. A name that DNS answers with a non-public address is what a DNS filter's
-    # sinkhole looks like, and an error page over the cap says nothing about the artifact,
-    # so both stay unreachable.
+    # private address), or a successful body bigger than its cap, which for an asset is its
+    # published size. A name that DNS answers with a non-public address is what a DNS
+    # filter's sinkhole looks like, and an error page over the cap says nothing about the
+    # artifact, so both stay unreachable.
     if (-not (Test-AllowedReleaseArtifactUrl -Url $Url)) {
         return [ordered]@{ ok = $false; refused = $true; bytes = @(); text = $null; error = "download URL is not an allowed HTTPS GitHub release host"; bytesRead = 0 }
     }
@@ -205,6 +205,7 @@ function Get-ReleaseArtifactDownload {
             ((ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'policyBlocked')) -and -not (ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'dnsAnswerBlocked'))) -or
             ((ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'byteCapExceeded')) -and [int](Get-MemberValue -Object $download -Name 'statusCode') -ge 200 -and [int](Get-MemberValue -Object $download -Name 'statusCode') -lt 300)
         )
+        byteCapExceeded = [bool](ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'byteCapExceeded'))
         bytes = @($download.bytes)
         text = $download.text
         error = if ($download.ok -and $download.statusCode -ge 200 -and $download.statusCode -lt 300) { $null } else { $download.error }
@@ -375,15 +376,23 @@ function Test-ReleaseArtifactVerification {
             $reason = "outside this week's rotation slice"
         } else {
             $checkedCount++
-            $assetDownload = if ($DownloadScript) { & $DownloadScript $target "asset" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "assetUrl")) -MaxBytes $MaxBytes }
+            # Capped at the size the release lists (never 0, which the reader refuses): a
+            # longer body can't be the asset, so it's refused, not hashed.
+            $publishedSize = [int64](Get-MemberValue -Object $target -Name "assetSize")
+            $assetCap = [int][Math]::Max(1, [Math]::Min([int64]$MaxBytes, $publishedSize))
+            $assetDownload = if ($DownloadScript) { & $DownloadScript $target "asset" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "assetUrl")) -MaxBytes $assetCap }
             # A download that fails says nothing about the artifact, and in an unattended run
             # it is usually the network; it warns. A refused one does say something: the
             # safety check turned the host or a redirect down, or the body was bigger than
-            # the published size allowed. Those fail the run, like bytes that disagree with
-            # their published checksum.
+            # the published size. Those fail the run, like bytes that disagree with their
+            # published checksum.
             if (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "refused")) {
                 $status = "failed"
-                $reason = "asset download refused: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
+                $reason = if (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "byteCapExceeded")) {
+                    "asset download refused: the body is bigger than the $publishedSize bytes the release lists"
+                } else {
+                    "asset download refused: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
+                }
             } elseif (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "ok"))) {
                 $status = "unreachable"
                 $reason = "asset download failed: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
@@ -456,7 +465,7 @@ function Test-ReleaseArtifactVerification {
         }
         rows = @($rows.ToArray())
         errors = @()
-        note = "Opt-in: one slice of the eligible GitHub release assets per UTC week, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch, a body bigger than its published size allowed, or a host or redirect the outbound safety check refused fails the run; an asset that can't be reached is a warning. Default releaseTrust remains metadata-only."
+        note = "Opt-in: one slice of the eligible GitHub release assets per UTC week, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch, a body bigger than its published size, or a host or redirect the outbound safety check refused fails the run; an asset that can't be reached is a warning. Default releaseTrust remains metadata-only."
     }
 }
 

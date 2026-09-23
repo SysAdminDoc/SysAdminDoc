@@ -3566,6 +3566,34 @@ Describe 'Report schema depth helpers' {
         (Get-ReleaseArtifactDownload -Url 'https://github.com/SysAdminDoc/Refused/releases/download/v1/Refused.zip' -MaxBytes 1024).refused | Should -Be $Refused
     }
 
+    It 'caps an asset at its published size and refuses a body that is <Case>' -ForEach @(
+        @{ Case = 'longer'; Served = 4000; Status = 'failed'; Reason = 'asset download refused: the body is bigger than the 100 bytes the release lists' }
+        @{ Case = 'the listed length'; Served = 100; Status = 'verified'; Reason = $null }
+        @{ Case = 'shorter'; Served = 60; Status = 'failed'; Reason = 'SHA-256 mismatch' }
+    ) {
+        # The cap was the configured one, so a 4,000-byte body for a 100-byte asset was
+        # hashed, and read verified when a sidecar matched the body that was served.
+        $script:PublishedBody = [byte[]]::new(100)
+        $script:ServedBody = [byte[]]::new($Served)
+        Mock Invoke-SafeOutboundHttpRequest {
+            $body = if ($Url -like '*SHA256SUMS') { [System.Text.Encoding]::UTF8.GetBytes((Get-ReleaseArtifactSha256 -Bytes $script:PublishedBody) + '  Sized.zip') } else { $script:ServedBody }
+            if ($body.Length -gt $MaxBytes) {
+                return [ordered]@{ ok = $false; statusCode = 200; bytes = @(); text = $null; bytesRead = [int64]$body.Length; error = 'response exceeds the configured byte cap'; byteCapExceeded = $true; policyBlocked = $false; dnsAnswerBlocked = $false }
+            }
+            [ordered]@{ ok = $true; statusCode = 200; bytes = $body; text = [System.Text.Encoding]::UTF8.GetString($body); bytesRead = [int64]$body.Length; error = $null; byteCapExceeded = $false; policyBlocked = $false; dnsAnswerBlocked = $false }
+        }
+        $target = [ordered]@{
+            repo = 'Sized'; assetName = 'Sized.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/Sized/releases/download/v1/Sized.zip'; assetSize = 100
+            checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/Sized/releases/download/v1/SHA256SUMS'; checksumSize = 80
+        }
+
+        $result = Test-ReleaseArtifactVerification -Targets @($target) -Enabled -MaxAssets 4 -MaxBytes 1MB
+
+        $result.rows[0].status | Should -Be $Status
+        if ($Reason) { $result.rows[0].reason | Should -BeExactly $Reason }
+        Should -Invoke Invoke-SafeOutboundHttpRequest -Times 1 -Exactly -ParameterFilter { $Url -like '*Sized.zip' -and $MaxBytes -eq 100 }
+    }
+
     It 'refuses a download from a host outside GitHub''s release hosts' {
         (Get-ReleaseArtifactDownload -Url 'https://downloads.example/Refused.zip' -MaxBytes 1024).refused | Should -BeTrue
     }
