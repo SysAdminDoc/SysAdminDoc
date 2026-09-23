@@ -343,6 +343,25 @@ Describe 'Public text is encoded for where it lands' {
         ConvertTo-MarkdownText 'Runs `x` fast' | Should -Be 'Runs \`x\` fast'
     }
 
+    It 'puts each dollar sign in a span, and leaves an attribute''s alone' {
+        # GitHub finds math after rendering, so \$ and &#36; still made $x$ a formula
+        # (checked with the /markdown API); a span keeps each dollar sign apart. An
+        # attribute value is never math, and a span there would show as written.
+        ConvertTo-MarkdownText '$x$ and $$y$$' | Should -Be '<span>$</span>x<span>$</span> and <span>$</span><span>$</span>y<span>$</span><span>$</span>'
+        ConvertTo-HtmlText 'Save $5 & more' | Should -Be 'Save <span>$</span>5 &amp; more'
+        ConvertTo-HtmlText 'Save $5 & "more"' -Attribute | Should -Be 'Save $5 &amp; &quot;more&quot;'
+    }
+
+    It 'keeps dollar signs in a project row out of math' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $tool = @($catalog.entries | Where-Object { $_.category -eq 'powershell' -and $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })[0]
+        $tool.descriptionOverride = 'Costs $5, or $$x^2$$ a month'
+
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        $readme | Should -Match ([regex]::Escape('Costs <span>$</span>5, or <span>$</span><span>$</span>x^2<span>$</span><span>$</span> a month'))
+    }
+
     It 'keeps the project link when a title and a description both carry a backtick' {
         # A code span binds before a link, so an unescaped backtick in the title pairs with
         # one in the description and swallows the ](url) between them.
@@ -5892,6 +5911,27 @@ Describe 'Profile header comes from catalog data' {
         $result | Should -Match ([regex]::Escape('<b>Read &quot;more&quot; &lt;now&gt; &#8594;</b>'))
         $result | Should -Match ([regex]::Escape('alt="Buy &quot;me&quot; a &lt;coffee&gt;"'))
         $result | Should -Not -Match '<script>|<scripts>|<now>|<coffee>'
+    }
+
+    It 'keeps every dollar sign in the header out of math' {
+        # GitHub pairs dollar signs into math inside HTML blocks too, so each one sits in a
+        # span; the alt is an attribute, which is never math, so it keeps its $.
+        $header = New-TestProfileHeader
+        $header.tagline = 'Tools for $0'
+        $header.languages = @('$shell')
+        $header.heading = 'Hi $name'
+        $header.about = '$$x^2$$ is math on GitHub'
+        $header.links = @(@{ text = 'Save $5'; url = 'https://fixture.example.test/about/' })
+        $header.support.imageAlt = 'Give $3'
+
+        $result = (Update-Header -Header $header -CategorySlugs @('powershell')) -replace "`r`n", "`n"
+
+        $result | Should -Match ([regex]::Escape('<b>Tools for <span>$</span>0</b><br/><sub><span>$</span>shell</sub>'))
+        $result | Should -Match ([regex]::Escape('## Hi <span>$</span>name'))
+        $result | Should -Match ('(?m)^' + [regex]::Escape('<span>$</span><span>$</span>x^2<span>$</span><span>$</span> is math on GitHub') + '$')
+        $result | Should -Match ([regex]::Escape('<b>Save <span>$</span>5 &#8594;</b>'))
+        $result | Should -Match ([regex]::Escape('alt="Give $3"'))
+        ([regex]::Matches($result, '\$').Count - [regex]::Matches($result, '<span>\$</span>').Count) | Should -Be 1 -Because 'only the alt''s dollar sign stands alone'
     }
 
     It 'keeps the about text a paragraph when it starts with <Case>' -ForEach @(

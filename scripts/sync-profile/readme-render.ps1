@@ -23,9 +23,11 @@ function ConvertTo-MarkdownText {
     or smuggle a control character in as "&#8238;". Backticks are escaped too: a code
     span binds before a link, so a backtick in a title could pair with one in the
     description and swallow the link between them, and the escapes above would show as
-    written inside one. Emphasis and ordinary accented or non-Latin text pass through
-    unchanged. GitHub still turns a bare URL or address in the text into a link of its
-    own; that adds no row, cell or element, and nothing here prevents it.
+    written inside one. A dollar sign goes inside a span: GitHub pairs dollar signs into
+    math after rendering, so $x$ or $$x$$ would become a formula, and neither \$ nor &#36;
+    stops that, while a span does. Emphasis and ordinary accented or non-Latin text pass
+    through unchanged. GitHub still turns a bare URL or address in the text into a link of
+    its own; that adds no row, cell or element, and nothing here prevents it.
     .PARAMETER Text
     The untrusted text; $null renders as an empty string.
     #>
@@ -57,6 +59,7 @@ function ConvertTo-MarkdownText {
             '&' { [void]$builder.Append('&amp;') }
             '<' { [void]$builder.Append('&lt;') }
             '>' { [void]$builder.Append('&gt;') }
+            '$' { [void]$builder.Append('<span>$</span>') }
             default { [void]$builder.Append($character) }
         }
     }
@@ -71,18 +74,30 @@ function ConvertTo-HtmlText {
     GitHub shows the inside of an HTML block as written, so the Markdown escapes from
     ConvertTo-MarkdownText would appear as backslashes there. Line breaks become spaces,
     because a blank line would end the block, control and bidi characters are dropped
-    the same way, and WebUtility.HtmlEncode turns & < > " and ' into entities.
+    the same way, and WebUtility.HtmlEncode turns & < > " and ' into entities. GitHub
+    finds math inside HTML blocks too, so a dollar sign in element text goes inside a
+    span, as in ConvertTo-MarkdownText.
     .PARAMETER Text
     The untrusted text; $null renders as an empty string.
+    .PARAMETER Attribute
+    The text is an attribute value. GitHub doesn't look for math there, and a span would
+    show as written, so a dollar sign stays as it is.
     #>
-    param([AllowNull()][string]$Text)
+    param(
+        [AllowNull()][string]$Text,
+        [switch]$Attribute
+    )
 
     if ([string]::IsNullOrEmpty($Text)) {
         return ''
     }
     $oneLine = [regex]::Replace($Text, '\r\n|[\r\n\u0085\u2028\u2029]', ' ')
     $visible = [regex]::Replace($oneLine, '[\p{Cc}\u202A-\u202E\u2066-\u2069]', '')
-    return [System.Net.WebUtility]::HtmlEncode($visible)
+    $encoded = [System.Net.WebUtility]::HtmlEncode($visible)
+    if ($Attribute) {
+        return $encoded
+    }
+    return $encoded.Replace('$', '<span>$</span>')
 }
 
 function Get-ProjectLink {
@@ -808,7 +823,7 @@ function New-ProfileChrome {
     if ($supportUrl -cmatch $safeUrlPattern -and $supportImageUrl -cmatch $safeUrlPattern -and (Test-VisibleText $supportAlt)) {
         $lines.Add('<p align="center">')
         $lines.Add('  <a href="' + $supportUrl + '">')
-        $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText $supportAlt) + '" />')
+        $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText $supportAlt -Attribute) + '" />')
         $lines.Add('  </a>')
         $lines.Add('</p>')
         $lines.Add('')
