@@ -18,7 +18,7 @@ I do technical support for a medical imaging company during the day, and I build
 
 ### What's here
 
-This is the index of the 191 free, open-source tools and apps I've published, sorted by where they run, for anyone who wants something that works on the setup they already have.
+This is the index of the 191 public projects I've published, mostly tools and apps, sorted by where they run, for anyone who wants something that works on the setup they already have.
 
 Pick a category to jump in. Each one has a few suggestions to start with.
 

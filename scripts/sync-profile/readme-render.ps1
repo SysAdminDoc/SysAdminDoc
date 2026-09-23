@@ -413,7 +413,9 @@ function New-ToolCatalogSection {
     $lines.Add("")
     # One sentence for a visitor who arrives from a search result and has no idea what this
     # page is. The count comes from the catalog so it cannot go stale.
-    $lines.Add("This is the index of the $(@($Entries).Count) free, open-source tools and apps I've published, sorted by where they run, for anyone who wants something that works on the setup they already have.")
+    # "Public projects", not "open-source tools": the count includes guides, and a few repos
+    # carry source-available licenses that GitHub reports as "Other".
+    $lines.Add("This is the index of the $(@($Entries).Count) public projects I've published, mostly tools and apps, sorted by where they run, for anyone who wants something that works on the setup they already have.")
     $lines.Add("")
     $lines.Add("Pick a category to jump in. Each one has a few suggestions to start with.")
     $lines.Add("")

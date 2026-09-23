@@ -3325,7 +3325,7 @@ Describe 'What-is-this sentence before the category grid' {
         $sentence = @($section -split "\r?\n" | Where-Object { $_ -like 'This is the index of *' })
 
         $sentence | Should -HaveCount 1
-        $sentence[0] | Should -Match "^This is the index of the $visible free, open-source tools and apps I've published"
+        $sentence[0] | Should -Match "^This is the index of the $visible public projects I've published"
         $sentence[0] | Should -Match 'for anyone who'
         ($sentence[0] -split '(?<=[.!?])\s+').Count | Should -Be 1 -Because 'it is a single sentence'
         $sentence[0] | Should -Not -Match ([regex]::Escape($ProfileTagline))
