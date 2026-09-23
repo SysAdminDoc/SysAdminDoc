@@ -179,8 +179,10 @@ function Get-ReleaseArtifactDownload {
         [int]$MaxBytes
     )
 
+    # refused marks what the network can't explain: a URL, destination or redirect the
+    # safety checks turn down, or a body bigger than the cap the published size fit under.
     if (-not (Test-AllowedReleaseArtifactUrl -Url $Url)) {
-        return [ordered]@{ ok = $false; bytes = @(); text = $null; error = "download URL is not an allowed HTTPS GitHub release host"; bytesRead = 0 }
+        return [ordered]@{ ok = $false; refused = $true; bytes = @(); text = $null; error = "download URL is not an allowed HTTPS GitHub release host"; bytesRead = 0 }
     }
 
     $download = Invoke-SafeOutboundHttpRequest `
@@ -195,6 +197,7 @@ function Get-ReleaseArtifactDownload {
 
     return [ordered]@{
         ok = [bool]($download.ok -and $download.statusCode -ge 200 -and $download.statusCode -lt 300)
+        refused = [bool]((ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'policyBlocked')) -or (ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'byteCapExceeded')))
         bytes = @($download.bytes)
         text = $download.text
         error = if ($download.ok -and $download.statusCode -ge 200 -and $download.statusCode -lt 300) { $null } else { $download.error }
@@ -364,9 +367,14 @@ function Test-ReleaseArtifactVerification {
             $checkedCount++
             $assetDownload = if ($DownloadScript) { & $DownloadScript $target "asset" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "assetUrl")) -MaxBytes $MaxBytes }
             # A download that fails says nothing about the artifact, and in an unattended run
-            # it is usually the network; it warns. Only bytes that disagree with their
-            # published checksum fail the run.
-            if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "ok"))) {
+            # it is usually the network; it warns. A refused one does say something: the
+            # safety check turned the host or a redirect down, or the body was bigger than
+            # the published size allowed. Those fail the run, like bytes that disagree with
+            # their published checksum.
+            if (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "refused")) {
+                $status = "failed"
+                $reason = "asset download refused: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
+            } elseif (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $assetDownload -Name "ok"))) {
                 $status = "unreachable"
                 $reason = "asset download failed: $([string](Get-MemberValue -Object $assetDownload -Name "error"))"
             } else {
@@ -375,7 +383,10 @@ function Test-ReleaseArtifactVerification {
                 $assetBytes = [int64]$assetBytesValue.Length
                 $downloadedBytes += $assetBytes
                 $checksumDownload = if ($DownloadScript) { & $DownloadScript $target "checksum" } else { Get-ReleaseArtifactDownload -Url ([string](Get-MemberValue -Object $target -Name "checksumUrl")) -MaxBytes ([Math]::Min($MaxBytes, 256KB)) }
-                if (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "ok"))) {
+                if (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "refused")) {
+                    $status = "failed"
+                    $reason = "checksum sidecar download refused: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
+                } elseif (-not (ConvertTo-BooleanValue (Get-MemberValue -Object $checksumDownload -Name "ok"))) {
                     $status = "unreachable"
                     $reason = "checksum sidecar download failed: $([string](Get-MemberValue -Object $checksumDownload -Name "error"))"
                 } else {
@@ -435,7 +446,7 @@ function Test-ReleaseArtifactVerification {
         }
         rows = @($rows.ToArray())
         errors = @()
-        note = "Opt-in: one slice of the eligible GitHub release assets per UTC week, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch fails the run; an asset that cannot be downloaded is a warning. Default releaseTrust remains metadata-only."
+        note = "Opt-in: one slice of the eligible GitHub release assets per UTC week, capped by count and bytes, compared with matching SHA-256 sidecars. A checksum mismatch, a body bigger than its published size allowed, or a host or redirect the outbound safety check refused fails the run; an asset that can't be reached is a warning. Default releaseTrust remains metadata-only."
     }
 }
 

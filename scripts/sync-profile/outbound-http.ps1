@@ -279,7 +279,7 @@ function Invoke-SafeOutboundHttpHop {
                 return [ordered]@{
                     statusCode = $statusCode; location = $location; etag = $etag; lastModified = $lastModified
                     retryAfter = $retryAfter; bytes = @(); text = $null; bytesRead = [int64]$contentLength
-                    error = 'response exceeds the configured byte cap'
+                    error = 'response exceeds the configured byte cap'; byteCapExceeded = $true
                 }
             }
 
@@ -291,7 +291,7 @@ function Invoke-SafeOutboundHttpHop {
                     return [ordered]@{
                         statusCode = $statusCode; location = $location; etag = $etag; lastModified = $lastModified
                         retryAfter = $retryAfter; bytes = @(); text = $null; bytesRead = [int64]($memory.Length + $read)
-                        error = 'response exceeds the configured byte cap'
+                        error = 'response exceeds the configured byte cap'; byteCapExceeded = $true
                     }
                 }
                 $memory.Write($buffer, 0, $read)
@@ -391,6 +391,7 @@ function Invoke-SafeOutboundHttpRequest {
             return [ordered]@{
                 ok = $false; statusCode = Get-MemberValue -Object $hop -Name 'statusCode'; error = $hopError
                 finalUrl = $currentUrl; redirectCount = $redirectCount; policyBlocked = $false
+                byteCapExceeded = [bool](Get-MemberValue -Object $hop -Name 'byteCapExceeded')
                 bytes = @(Get-MemberValue -Object $hop -Name 'bytes'); text = Get-MemberValue -Object $hop -Name 'text'
                 bytesRead = [int64](Get-MemberValue -Object $hop -Name 'bytesRead')
                 etag = Get-MemberValue -Object $hop -Name 'etag'

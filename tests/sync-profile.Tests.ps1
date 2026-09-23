@@ -1231,6 +1231,20 @@ Describe 'Safe outbound destination policy' {
         $script:SafeOutboundSendCount | Should -Be 0
     }
 
+    It 'says when a body was bigger than the byte cap' {
+        $resolver = { param($HostName) @('93.184.216.34') }
+        $sender = {
+            param($Uri, $Method, $Addresses, $TimeoutSec, $MaxBytes, $ReadBody, $UserAgent, $Accept, $Headers)
+            return [ordered]@{ statusCode = 200; location = $null; error = 'response exceeds the configured byte cap'; byteCapExceeded = $true; bytes = @(); text = $null; bytesRead = 4096 }
+        }
+
+        $result = Invoke-SafeOutboundHttpRequest -Url 'https://public.example/big' -ReadBody -MaxBytes 1024 -ResolveHostScript $resolver -SendRequestScript $sender
+
+        $result.ok | Should -BeFalse
+        $result.byteCapExceeded | Should -BeTrue
+        $result.policyBlocked | Should -BeFalse
+    }
+
     It 'blocks a public redirect to a private DNS answer before the protected request' {
         $resolver = {
             param($HostName)
@@ -3132,6 +3146,49 @@ Describe 'Report schema depth helpers' {
         $both.status | Should -Be 'failed'
         $both.failureCount | Should -Be 1
         $both.unreachableCount | Should -Be 1
+    }
+
+    It 'fails on <Case>, which the network can''t explain' -ForEach @(
+        @{ Case = 'an asset bigger than its published size allowed'; Kind = 'asset'; Message = 'response exceeds the configured byte cap' }
+        @{ Case = 'an asset redirect the safety check refused'; Kind = 'asset'; Message = 'destination resolves to a non-public address' }
+        @{ Case = 'a checksum sidecar bigger than the sidecar cap'; Kind = 'checksum'; Message = 'response exceeds the configured byte cap' }
+    ) {
+        $payload = [System.Text.Encoding]::UTF8.GetBytes('release payload')
+        $target = [ordered]@{
+            repo = 'Refused'; assetName = 'Refused.zip'; assetKind = 'zip'; assetUrl = 'https://github.com/SysAdminDoc/Refused/releases/download/v1/Refused.zip'; assetSize = $payload.Length
+            checksumAssetName = 'SHA256SUMS'; checksumUrl = 'https://github.com/SysAdminDoc/Refused/releases/download/v1/SHA256SUMS'; checksumSize = 80
+        }
+        $script:RefusedKind = $Kind
+        $script:RefusedMessage = $Message
+        $download = {
+            param($target, $kind)
+            if ($kind -eq $script:RefusedKind) {
+                return [ordered]@{ ok = $false; refused = $true; bytes = @(); text = $null; error = $script:RefusedMessage; bytesRead = 0 }
+            }
+            $text = if ($kind -eq 'checksum') { (Get-ReleaseArtifactSha256 -Bytes $payload) + "  $($target.assetName)" } else { $null }
+            [ordered]@{ ok = $true; refused = $false; bytes = if ($kind -eq 'asset') { $payload } else { [System.Text.Encoding]::UTF8.GetBytes([string]$text) }; text = $text; error = $null; bytesRead = 0 }
+        }
+
+        $result = Test-ReleaseArtifactVerification -Targets @($target) -Enabled -MaxAssets 4 -MaxBytes 1024 -DownloadScript $download
+
+        $result.status | Should -Be 'failed'
+        $result.failureCount | Should -Be 1
+        $result.unreachableCount | Should -Be 0
+        $result.rows[0].reason | Should -Match "refused: $([regex]::Escape($Message))"
+    }
+
+    It 'marks a download refused only when a safety check or the byte cap turned it down' {
+        $url = 'https://github.com/SysAdminDoc/Refused/releases/download/v1/Refused.zip'
+        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $false; statusCode = $null; error = 'destination resolves to a non-public address'; policyBlocked = $true; bytes = @(); text = $null; bytesRead = 0 } }
+        (Get-ReleaseArtifactDownload -Url $url -MaxBytes 1024).refused | Should -BeTrue
+
+        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $false; statusCode = 200; error = 'response exceeds the configured byte cap'; policyBlocked = $false; byteCapExceeded = $true; bytes = @(); text = $null; bytesRead = 4096 } }
+        (Get-ReleaseArtifactDownload -Url $url -MaxBytes 1024).refused | Should -BeTrue
+
+        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $false; statusCode = $null; error = 'connection timed out'; policyBlocked = $false; bytes = @(); text = $null; bytesRead = 0 } }
+        (Get-ReleaseArtifactDownload -Url $url -MaxBytes 1024).refused | Should -BeFalse
+
+        (Get-ReleaseArtifactDownload -Url 'https://downloads.example/Refused.zip' -MaxBytes 1024).refused | Should -BeTrue
     }
 
     It 'derives verification targets only from capped asset classes with checksum candidates' {
