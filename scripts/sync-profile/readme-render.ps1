@@ -731,11 +731,13 @@ function New-ProfileChrome {
         [object]$Header
     )
 
+    # Text a reader can't see (NBSP, zero-width or bidi characters alone) counts as missing
+    # throughout, so it can't draw an empty heading, an empty language slot or an arrow-only link.
     $tagline = [string](Get-MemberValue -Object $Header -Name 'tagline')
-    if ([string]::IsNullOrWhiteSpace($tagline)) {
+    if (-not (Test-VisibleText $tagline)) {
         $tagline = "Public projects by $Owner"
     }
-    $languages = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'languages') | ForEach-Object { ConvertTo-HtmlText ([string]$_) })
+    $languages = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'languages') | Where-Object { Test-VisibleText ([string]$_) } | ForEach-Object { ConvertTo-HtmlText ([string]$_) })
     $taglineLine = '<p align="center"><b>' + (ConvertTo-HtmlText $tagline) + '</b>'
     if ($languages.Count -gt 0) {
         $taglineLine += '<br/><sub>' + ($languages -join ' &middot; ') + '</sub>'
@@ -745,13 +747,13 @@ function New-ProfileChrome {
     $lines.Add($taglineLine + '</p>')
     $lines.Add('')
     $heading = [string](Get-MemberValue -Object $Header -Name 'heading')
-    if (-not [string]::IsNullOrWhiteSpace($heading)) {
+    if (Test-VisibleText $heading) {
         # A # at the end of an ATX heading is read as closing markup and dropped.
         $lines.Add('## ' + ((ConvertTo-MarkdownText $heading).Trim() -replace '#$', '\#'))
         $lines.Add('')
     }
     $about = [string](Get-MemberValue -Object $Header -Name 'about')
-    if (-not [string]::IsNullOrWhiteSpace($about)) {
+    if (Test-VisibleText $about) {
         # The about text is a paragraph on its own line, so its first characters could open
         # a heading, list, rule or fence, and leading spaces a code block. Backticks, < and
         # > are already escaped or entities by now, and tabs dropped. Only a marker that
@@ -773,10 +775,10 @@ function New-ProfileChrome {
     $safeUrlPattern = '^https://[!#-&(-;=?-\[\]-{}~]+\z'
     $links = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'links') | ForEach-Object {
         $url = [string](Get-MemberValue -Object $_ -Name 'url')
-        # Blank once encoded: text that is only control or bidi characters says nothing.
-        $label = ConvertTo-HtmlText ([string](Get-MemberValue -Object $_ -Name 'text'))
-        if ($url -cmatch $safeUrlPattern -and -not [string]::IsNullOrWhiteSpace($label)) {
-            '<a href="' + $url + '"><b>' + $label + ' &#8594;</b></a>'
+        # Checked before encoding: a lone NBSP encodes to &#160;, which no longer looks blank.
+        $text = [string](Get-MemberValue -Object $_ -Name 'text')
+        if ($url -cmatch $safeUrlPattern -and (Test-VisibleText $text)) {
+            '<a href="' + $url + '"><b>' + (ConvertTo-HtmlText $text) + ' &#8594;</b></a>'
         }
     })
     if ($links.Count -gt 0) {

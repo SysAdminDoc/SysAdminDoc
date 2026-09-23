@@ -5536,6 +5536,69 @@ Describe 'Profile header comes from catalog data' {
             Should -Be @('profileHeader.links[0].text', 'profileHeader.links[1].text', 'profileHeader.support.imageAlt', 'profileHeader.tagline')
     }
 
+    It 'counts <Case> as visible text: <Visible>' -ForEach @(
+        @{ Case = 'nothing'; Text = $null; Visible = $false }
+        @{ Case = 'spaces'; Text = '   '; Visible = $false }
+        @{ Case = 'a lone NBSP'; Text = [string][char]0x00A0; Visible = $false }
+        @{ Case = 'a zero-width space'; Text = [string][char]0x200B; Visible = $false }
+        @{ Case = 'a left-to-right mark'; Text = [string][char]0x200E; Visible = $false }
+        @{ Case = 'a right-to-left mark'; Text = [string][char]0x200F; Visible = $false }
+        @{ Case = 'a word joiner'; Text = [string][char]0x2060; Visible = $false }
+        @{ Case = 'a byte order mark'; Text = [string][char]0xFEFF; Visible = $false }
+        @{ Case = 'a variation selector'; Text = [string][char]0xFE0F; Visible = $false }
+        @{ Case = 'a mix of them'; Text = [string][char]0x00A0 + [char]0x200B + [char]0x202E + "`t"; Visible = $false }
+        @{ Case = 'a word'; Text = 'Tools'; Visible = $true }
+        @{ Case = 'a word behind an NBSP'; Text = [string][char]0x00A0 + 'Tools'; Visible = $true }
+        @{ Case = 'an emoji'; Text = [char]::ConvertFromUtf32(0x1F527); Visible = $true }
+    ) {
+        Test-VisibleText $Text | Should -Be $Visible
+    }
+
+    It 'draws no header part whose text is only <Case>' -ForEach @(
+        @{ Case = 'an NBSP'; Blank = [string][char]0x00A0 }
+        @{ Case = 'a zero-width space'; Blank = [string][char]0x200B }
+        @{ Case = 'a left-to-right mark'; Blank = [string][char]0x200E }
+        @{ Case = 'a byte order mark'; Blank = [string][char]0xFEFF }
+    ) {
+        # The link guard tested the encoded label, and HtmlEncode turns an NBSP into &#160;.
+        $header = New-TestProfileHeader
+        $header.tagline = $Blank
+        $header.languages = @('PowerShell', $Blank)
+        $header.heading = $Blank
+        $header.about = $Blank
+        $header.links = @(@{ text = $Blank; url = 'https://fixture.example.test/blank/' })
+
+        $result = (Update-Header -Header $header -CategorySlugs @('powershell')) -replace "`r`n", "`n"
+
+        $result | Should -Match '^<p align="center"><b>Public projects by [^<]+</b><br/><sub>PowerShell</sub></p>\n'
+        $result | Should -Not -Match '(?m)^## '
+        $result | Should -Not -Match 'fixture\.example\.test/blank/'
+        $result | Should -Not -Match ([regex]::Escape($Blank))
+        $result | Should -Not -Match '&#160;|&#8203;|&#8206;|&#65279;'
+    }
+
+    It 'refuses header text and titles that are only <Case>' -ForEach @(
+        @{ Case = 'an NBSP'; Blank = [string][char]0x00A0 }
+        @{ Case = 'a zero-width space'; Blank = [string][char]0x200B }
+        @{ Case = 'a left-to-right mark'; Blank = [string][char]0x200E }
+        @{ Case = 'a byte order mark'; Blank = [string][char]0xFEFF }
+    ) {
+        $header = New-TestProfileHeader
+        $header.tagline = $Blank
+        $header.languages = @($Blank)
+        $header.heading = $Blank
+        $header.about = $Blank
+        $header.links = @(@{ text = $Blank; url = 'https://fixture.example.test/about/' })
+        $header.support.imageAlt = $Blank
+        $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
+        $entry.title = $Blank
+
+        $result = Test-CatalogShape -Catalog @{ entries = @($entry); profileHeader = $header }
+
+        @($result.issues | Where-Object { $_.reason -match 'must not be blank or only invisible characters' } | ForEach-Object { $_.field } | Sort-Object) |
+            Should -Be @('profileHeader.about', 'profileHeader.heading', 'profileHeader.languages[0]', 'profileHeader.links[0].text', 'profileHeader.support.imageAlt', 'profileHeader.tagline', 'title')
+    }
+
     It 'renders a neutral header for another owner with no header data' {
         $Owner = 'FixtureOwner'
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

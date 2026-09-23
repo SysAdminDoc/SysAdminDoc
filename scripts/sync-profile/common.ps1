@@ -34,6 +34,26 @@ function Test-SafeGitHubName {
     return $Name -cmatch '^[A-Za-z0-9._-]+\z'
 }
 
+function Test-VisibleText {
+    <#
+    .SYNOPSIS
+    Returns true when text has at least one character a reader would see.
+    .DESCRIPTION
+    Whitespace, NBSP and the other separators, control characters, format characters
+    (zero-width space, bidi marks and controls, word joiner, byte order mark) and
+    variation selectors render as nothing. IsNullOrWhiteSpace counts most of them as
+    text, so a label made only of them would draw an empty link or heading.
+    .PARAMETER Text
+    The candidate text; $null and empty are not visible.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param([AllowNull()][string]$Text)
+
+    if ([string]::IsNullOrEmpty($Text)) { return $false }
+    return $Text -match '[^\s\p{Z}\p{Cc}\p{Cf}\p{IsVariationSelectors}]'
+}
+
 function ConvertTo-IsoText {
     param([object]$Value)
 

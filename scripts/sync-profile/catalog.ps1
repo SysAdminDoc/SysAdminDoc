@@ -707,8 +707,9 @@ function Test-CatalogShape {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "downloadKind"; value = $downloadKind; reason = "unknown downloadKind" })
         }
 
+        # The title is every row's link text, so it can't be blank; the rest may be empty.
         foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'language', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
-            $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field] })
+            $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field]; nonBlank = ($field -eq 'title') })
         }
         # The action link's destination in the README table row. Plain http passes here
         # because Test-CatalogUrlSchemes already fails it under its own condition.
@@ -755,6 +756,7 @@ function Test-CatalogShape {
 
     # nonBlank marks text that must say something when present: a blank tagline would fall
     # back to the neutral one unnoticed, and a blank link text or alt renders an empty label.
+    # Blank means nothing a reader can see (Test-VisibleText), so NBSP or zero-width text too.
     $header = Get-MemberValue -Object $Catalog -Name 'profileHeader'
     if ($null -ne $header) {
         foreach ($field in @('tagline', 'heading', 'about')) {
@@ -787,8 +789,8 @@ function Test-CatalogShape {
     # issue is the offending code point, never the text itself.
     foreach ($publicText in $publicTexts) {
         $text = [string]$publicText.text
-        if ($publicText['nonBlank'] -and [string]::IsNullOrWhiteSpace($text)) {
-            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $null; reason = "$($publicText.field) must not be blank" })
+        if ($publicText['nonBlank'] -and -not (Test-VisibleText $text)) {
+            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $null; reason = "$($publicText.field) must not be blank or only invisible characters" })
             continue
         }
         if ([string]::IsNullOrEmpty($text)) {
