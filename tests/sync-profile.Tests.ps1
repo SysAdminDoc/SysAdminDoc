@@ -3422,6 +3422,28 @@ Describe 'Empty category sections are not rendered' {
         [string]::IsNullOrEmpty($section) | Should -BeTrue
     }
 
+    It 'links only to category sections that are rendered' {
+        # The fixture has no Android, Security, Desktop or Guides rows.
+        $readme = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+        $rendered = @([regex]::Matches($readme, '(?m)^<a id="(?<id>[^"]+)"></a>') | ForEach-Object { $_.Groups['id'].Value })
+        $linked = @([regex]::Matches($readme, '\(#(?<id>[a-z0-9-]+)\)|href="#(?<id>[a-z0-9-]+)"') | ForEach-Object { $_.Groups['id'].Value } | Select-Object -Unique)
+
+        $rendered | Should -Not -Contain 'android-applications'
+        @($linked | Where-Object { $_ -notin $rendered }) | Should -BeNullOrEmpty -Because 'every in-page link needs a section to land on'
+        $readme | Should -Match '<sub>No public rows</sub>\s*\|'
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
+        $readme | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
+    }
+
+    It 'keeps the header contract when a catalog has no PowerShell rows' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $catalog.entries = @($catalog.entries | Where-Object { $_.category -ne 'powershell' })
+        $readme = New-Readme -Catalog $catalog -Repos @()
+
+        $readme | Should -Not -Match 'powershell-system-utilities'
+        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeTrue
+    }
+
     It 'renders a section when the category has at least one entry' {
         $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'powershell' } | Select-Object -First 1
         $entries = @((New-TestEntry -Repo 'OnlyPowerShell' -Category 'powershell'))

@@ -256,9 +256,12 @@ function Test-ReadmeExperience {
     $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern) + '.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
     $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
     $taglinePrefix = '<p align="center"><b>' + $ProfileTagline + '</b>'
+    # Any category nav link: the header links only categories that rendered, so a catalog
+    # with no PowerShell rows has no PowerShell link and is still a valid header.
+    $categoryNavPattern = '<a href="#(?:' + (@($CategoryDefinitions | ForEach-Object { [regex]::Escape((Get-CategoryAnchor $_.Slug)) }) -join '|') + ')">'
     $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglinePrefix, [StringComparison]::Ordinal) -and
         $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>See everything') -and
-        $ExpectedReadme.Contains('<a href="#powershell-system-utilities">PowerShell</a>') -and
+        [regex]::IsMatch($ExpectedReadme, $categoryNavPattern) -and
         -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and
         -not $ExpectedReadme.Contains('assets/profile/header-light.svg')
     $hasRichProfileHeader = $ExpectedReadme.Contains("assets/profile/header-dark.svg") -and

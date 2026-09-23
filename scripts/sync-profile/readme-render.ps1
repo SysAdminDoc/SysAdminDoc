@@ -377,13 +377,6 @@ function New-ToolCatalogCell {
                     @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } } |
         Select-Object -First 3)
 
-    $pickLinks = @($picks | ForEach-Object { "[**$($_.title)**]($(Get-RepoUrl $_))" })
-    if ($pickLinks.Count -eq 0) {
-        $pickLinks = @("No public rows")
-    }
-
-    $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
-    $anchor = Get-CategoryAnchor $Slug
     $description = Get-ToolCatalogDescription -Slug $Slug
     $icon = Get-CategoryIcon -Slug $Slug
     $heading = if ([string]::IsNullOrWhiteSpace($icon)) {
@@ -391,6 +384,15 @@ function New-ToolCatalogCell {
     } else {
         "$icon **$($definition.DisplayName)**"
     }
+    if ($picks.Count -eq 0) {
+        # An empty category renders no section (New-CategorySection), so a Browse button
+        # here would point at an anchor that does not exist.
+        return "$heading<br/>$description<br/><sub>No public rows</sub>"
+    }
+
+    $pickLinks = @($picks | ForEach-Object { "[**$($_.title)**]($(Get-RepoUrl $_))" })
+    $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
+    $anchor = Get-CategoryAnchor $Slug
 
     return "$heading<br/>$description<br/><sub>$($pickLinks -join '<br/>')</sub><br/>[<kbd>$actionLabel &#8594;</kbd>](#$anchor)"
 }
@@ -635,6 +637,12 @@ function New-ProfileChrome {
     # profile-header contract in Test-ReadmeExperience (README must start with the tagline
     # paragraph, carry the support-lead intro and portfolio links, and expose plain
     # category nav anchors with no profile-asset header image).
+    param(
+        # Categories that rendered a section. The nav links only to these: an empty category
+        # renders no section, so its anchor would be dead. Omitted, every category is linked.
+        [string[]]$CategorySlugs
+    )
+
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add($ProfileTaglineHtml)
     $lines.Add('')
@@ -645,13 +653,18 @@ function New-ProfileChrome {
     $lines.Add('<p align="center"><a href="https://portfolio.getparkerai.com/healthcare-it/"><b>More about what I do &#8594;</b></a></p>')
     $lines.Add('')
     $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
+    if ($PSBoundParameters.ContainsKey('CategorySlugs')) {
+        $navSlugs = @($navSlugs | Where-Object { $CategorySlugs -ccontains $_ })
+    }
     $categoryLinks = @($navSlugs | ForEach-Object {
         $slug = [string]$_
         $displayName = Get-ProfileNavLabel -Slug $slug
         "<a href=`"#$((Get-CategoryAnchor $slug))`">$displayName</a>"
     })
-    $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
-    $lines.Add('')
+    if ($categoryLinks.Count -gt 0) {
+        $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
+        $lines.Add('')
+    }
     $lines.Add('<p align="center">')
     $lines.Add('  <a href="https://ko-fi.com/X8K126YVER">')
     $lines.Add('    <img height="36" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" alt="Buy me a coffee on Ko-fi" />')
@@ -673,7 +686,9 @@ function New-ProfileFooter {
 }
 
 function Update-Header {
-    return (New-ProfileChrome).TrimEnd()
+    param([string[]]$CategorySlugs)
+
+    return (New-ProfileChrome @PSBoundParameters).TrimEnd()
 }
 
 function New-Readme {
@@ -709,8 +724,18 @@ function New-Readme {
     if ($start -lt 0) {
         throw "README marker not found: generated catalog notice, ### Start Here, or ### Featured Projects"
     }
+    $categorySections = New-Object System.Collections.Generic.List[string]
+    $renderedSlugs = New-Object System.Collections.Generic.List[string]
+    foreach ($definition in $CategoryDefinitions) {
+        $section = New-CategorySection -Entries $entries -RepoLookup $repoLookup -Definition $definition
+        if ([string]::IsNullOrEmpty($section)) {
+            continue
+        }
+        $categorySections.Add($section)
+        $renderedSlugs.Add([string]$definition.Slug)
+    }
     $footer = New-ProfileFooter
-    $header = Update-Header
+    $header = Update-Header -CategorySlugs $renderedSlugs.ToArray()
     $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
 
     $blocks = New-Object System.Collections.Generic.List[string]
@@ -723,11 +748,7 @@ function New-Readme {
     $blocks.Add((New-ToolCatalogSection -Entries $entries -RepoLookup $repoLookup))
     $blocks.Add("")
 
-    foreach ($definition in $CategoryDefinitions) {
-        $section = New-CategorySection -Entries $entries -RepoLookup $repoLookup -Definition $definition
-        if ([string]::IsNullOrEmpty($section)) {
-            continue
-        }
+    foreach ($section in $categorySections) {
         $blocks.Add($section)
         $blocks.Add("")
     }
