@@ -1016,8 +1016,9 @@ function Get-PublicSafeGhError {
         return "gh api failed without output"
     }
     # The protection endpoint's 404 for a branch with no classic protection is an answer,
-    # not a missing resource, and callers read it as one.
-    if ($Output -match 'Branch not protected') {
+    # not a missing resource, and callers read it as one. Only a 404 says so: the same words
+    # with another status, or none, are a failure like any other.
+    if ($Output -match 'Branch not protected' -and (Get-GhApiHttpStatus -Output $Output) -eq 404) {
         return "branch not protected"
     }
     if (Test-GhApiNotFound -Output $Output) {

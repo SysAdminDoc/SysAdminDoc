@@ -1151,6 +1151,25 @@ Describe 'PR delivery checklist carries no recorded history' {
         $readiness.status | Should -Be 'needs-live-validation'
     }
 
+    It 'is ready for enforcement only with nothing blocking and a ready checklist: <Case>' -ForEach @(
+        @{ Case = 'checks required, checklist ready'; RequiredStatusChecks = $true; ChecklistReady = $true; Ready = $true }
+        @{ Case = 'checks required, checklist not ready'; RequiredStatusChecks = $true; ChecklistReady = $false; Ready = $false }
+        @{ Case = 'checks not required, checklist ready'; RequiredStatusChecks = $false; ChecklistReady = $true; Ready = $false }
+    ) {
+        # No real checklist can be ready yet (nothing records check-run proof or a merge
+        # drill), so the matrix above never sees readiness true and a constant $false passed
+        # it. A stand-in checklist pins how the two combine.
+        Mock Test-RequiredCheckWorkflowCoverage { [ordered]@{ status = 'ready'; workflowCount = 1; candidateCheckCount = 1; warningCount = 0; warnings = @(); workflows = @() } }
+        $script:ChecklistReady = $ChecklistReady
+        Mock Get-PrDeliveryTransitionChecklist { [ordered]@{ status = $(if ($script:ChecklistReady) { 'ready' } else { 'needs-live-validation' }); readyForRequiredCheckEnforcement = $script:ChecklistReady; items = @() } }
+
+        $readiness = Get-RequiredCheckReadiness -BranchProtectionAvailable:$true -RulesetsAvailable:$true `
+            -RequiredStatusChecks $RequiredStatusChecks -EnforceAdmins $false -ActionsPullRequestCreationAllowed $true -RulesetCount 0 `
+            -RulesetRequiresStatusChecks $false -BranchProtectionUnavailableReason '' -RulesetsUnavailableReason ''
+
+        $readiness.readyForEnforcement | Should -Be $Ready
+    }
+
     It 'reads left-out ruleset lists as unread, not as read and empty' {
         # -Rulesets and -BranchRules defaulted to @(), so a caller that left them out got
         # "readable, no rules" and a not-enabled verdict it never checked.
@@ -1253,12 +1272,16 @@ Describe 'Repository settings read empty live lists as empty' {
         $result['repositorySettings'].security.codeScanning.scorecardAlertPosture.available | Should -BeTrue
     }
 
-    It 'reads a protection 404 of <Case> as <Reading>' -ForEach @(
-        @{ Case = '"Branch not protected"'; Answer = 'gh: Branch not protected (HTTP 404)'; Reading = 'read, requiring nothing'; Available = $true; Status = 'not-enabled' }
-        @{ Case = 'any other kind'; Answer = 'gh: Not Found (HTTP 404)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation' }
+    It 'reads a protection answer of <Case> as <Reading>' -ForEach @(
+        @{ Case = '"Branch not protected" with 404'; Answer = 'gh: Branch not protected (HTTP 404)'; Reading = 'read, requiring nothing'; Available = $true; Status = 'not-enabled'; Reason = $null }
+        @{ Case = 'any other 404'; Answer = 'gh: Not Found (HTTP 404)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'not found' }
+        @{ Case = '"Branch not protected" with 403'; Answer = 'gh: Branch not protected (HTTP 403)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'Branch not protected (HTTP 403)' }
+        @{ Case = '"Branch not protected" with 500'; Answer = 'gh: Branch not protected (HTTP 500)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'Branch not protected (HTTP 500)' }
+        @{ Case = '"Branch not protected" with no status'; Answer = 'gh: Branch not protected'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'Branch not protected' }
     ) {
         # Every 404 used to read as unread, so a repository without classic protection could
-        # never show required checks as absent, only as unknown.
+        # never show required checks as absent, only as unknown. Then the words alone were
+        # enough, so a 403 or 500 carrying them read as protection turned off.
         $script:ProtectionAnswer = $Answer
         Mock Test-GitHubCliAuthenticated { $true }
         Mock Invoke-GhCli {
@@ -1289,14 +1312,18 @@ Describe 'Repository settings read empty live lists as empty' {
             $settings.branchProtection.requiredStatusChecks | Should -BeFalse
             $settings.branchProtection.unavailableReason | Should -BeNullOrEmpty
         } else {
-            $settings.branchProtection.unavailableReason | Should -Be 'not found'
+            $settings.branchProtection.unavailableReason | Should -BeExactly $Reason
         }
     }
 
     It 'reads protection and every page of rules for the default branch, <Case>' -ForEach @(
         @{ Case = 'master'; DefaultBranch = 'master'; Segment = 'master' }
         @{ Case = 'with a slash in it'; DefaultBranch = 'release/2.x'; Segment = 'release%2F2.x' }
-        @{ Case = 'falling back to main for an unexpected name'; DefaultBranch = 'bad name'; Segment = 'main' }
+        # Names git allows that the old pattern refused, so it read main's settings instead.
+        @{ Case = 'with a plus in it'; DefaultBranch = 'main+dev'; Segment = 'main%2Bdev' }
+        @{ Case = 'with an at sign in it'; DefaultBranch = 'dev@2'; Segment = 'dev%402' }
+        @{ Case = 'falling back to main for a name no branch can have'; DefaultBranch = 'bad name'; Segment = 'main' }
+        @{ Case = 'falling back to main for a path step'; DefaultBranch = '..'; Segment = 'main' }
     ) {
         # Both endpoints named main whatever the default branch was, and only the first page
         # of rules and rulesets was read.
@@ -6147,6 +6174,8 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'a left-to-right mark'; Text = [string][char]0x200E; Visible = $false }
         @{ Case = 'a right-to-left mark'; Text = [string][char]0x200F; Visible = $false }
         @{ Case = 'a word joiner'; Text = [string][char]0x2060; Visible = $false }
+        # Unassigned, so not a format character, but default-ignorable like its neighbours.
+        @{ Case = 'U+2065 among the invisible operators'; Text = [string][char]0x2065; Visible = $false }
         @{ Case = 'a byte order mark'; Text = [string][char]0xFEFF; Visible = $false }
         @{ Case = 'a variation selector'; Text = [string][char]0xFE0F; Visible = $false }
         @{ Case = 'a mix of them'; Text = [string][char]0x00A0 + [char]0x200B + [char]0x202E + "`t"; Visible = $false }

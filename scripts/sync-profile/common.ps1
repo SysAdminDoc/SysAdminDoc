@@ -45,7 +45,8 @@ function Test-VisibleText {
     prepended concatenation marks, which draw a glyph; whitespace and other separators
     except U+1680, which draws a line; the other default-ignorable code points (variation
     selectors, Hangul fillers, the grapheme joiner, Khmer inherent vowels, Mongolian
-    variation selectors); and the braille blank. IsNullOrWhiteSpace counts most of these as
+    variation selectors, and U+2065, the one unassigned code point among the invisible
+    operators); and the braille blank. IsNullOrWhiteSpace counts most of these as
     text, so a label made only of them would draw an empty link or heading.
     .PARAMETER Text
     The candidate text; $null and empty are not visible.
@@ -66,7 +67,7 @@ function Test-VisibleText {
             'ParagraphSeparator' { $true }
             default {
                 $code -eq 0x034F -or ($code -ge 0x115F -and $code -le 0x1160) -or ($code -ge 0x17B4 -and $code -le 0x17B5) -or
-                ($code -ge 0x180B -and $code -le 0x180F) -or $code -eq 0x2800 -or $code -eq 0x3164 -or ($code -ge 0xFE00 -and $code -le 0xFE0F) -or
+                ($code -ge 0x180B -and $code -le 0x180F) -or $code -eq 0x2065 -or $code -eq 0x2800 -or $code -eq 0x3164 -or ($code -ge 0xFE00 -and $code -le 0xFE0F) -or
                 $code -eq 0xFFA0 -or ($code -ge 0xFFF0 -and $code -le 0xFFF8) -or ($code -ge 0xE0000 -and $code -le 0xE0FFF)
             }
         }

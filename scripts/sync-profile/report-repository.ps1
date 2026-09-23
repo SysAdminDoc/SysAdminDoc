@@ -1599,10 +1599,12 @@ function Get-RepositoryCommunityBaseline {
     }
 
     $repositoryResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner"
-    # Protection and rules belong to the default branch, which isn't always main. A name of
-    # an unexpected shape, or an unreadable repository answer, falls back to main.
+    # Protection and rules belong to the default branch, which isn't always main. Any name git
+    # allows goes into the path escaped, main+dev and dev@2 included. An unreadable repository
+    # answer, or a name no branch can have (blank, holding a space or control character, or
+    # a bare . or .. that would be a path step even escaped), falls back to main.
     $defaultBranch = if ($repositoryResult["ok"]) { [string](Get-MemberValue -Object $repositoryResult["value"] -Name "default_branch") } else { "" }
-    if ($defaultBranch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') { $defaultBranch = "main" }
+    if ([string]::IsNullOrEmpty($defaultBranch) -or $defaultBranch -match '[\s\p{Cc}]' -or $defaultBranch -in @('.', '..')) { $defaultBranch = "main" }
     $branchSegment = [uri]::EscapeDataString($defaultBranch)
     $communityResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/community/profile"
     $branchProtectionResult = Invoke-GhApiJsonSafe -Path "repos/$Owner/$Owner/branches/$branchSegment/protection"
@@ -1625,7 +1627,9 @@ function Get-RepositoryCommunityBaseline {
     $communityValue = if ($communityResult["ok"]) { $communityResult["value"] } else { $null }
     # "Branch not protected" is GitHub saying there's no classic protection: read, and
     # requiring nothing. Any other failure leaves protection unread.
-    $branchNotProtected = (-not $branchProtectionResult["ok"]) -and $branchProtectionResult["error"] -eq "branch not protected"
+    # Case-sensitive: that lower-case text is only ever Get-PublicSafeGhError's reading of a
+    # 404, while gh's own first line, which it passes on otherwise, is capitalized.
+    $branchNotProtected = (-not $branchProtectionResult["ok"]) -and $branchProtectionResult["error"] -ceq "branch not protected"
     $branchProtectionValue = if ($branchProtectionResult["ok"]) { $branchProtectionResult["value"] } elseif ($branchNotProtected) { [pscustomobject]@{} } else { $null }
     # Assigned inside the branch: an if statement sends an array's items down the pipeline,
     # so "if (...) { @() }" hands $null to the assignment and an empty list read as missing.
