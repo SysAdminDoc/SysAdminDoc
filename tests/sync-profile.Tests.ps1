@@ -5372,11 +5372,12 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $payload = ConvertFrom-JsonPreservingArrays -Json ([System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json')))
         Set-MemberValue -Object @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'entries'))[0] -Name 'forkOf' -Value $ForkOf
 
-        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'forkOf' -and $_.reason -match 'owner/repo' })
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'forkOf' })
         $schemaErrors = @((Test-JsonSchemaContract -Value $payload -SchemaPath 'schemas/profile-catalog.v1.json').errors |
             Where-Object { $_.instanceLocation -eq '/entries/0/forkOf' })
 
-        $issues.Count -eq 0 | Should -Be $Valid
+        # One issue per bad value: a line break is the one-line rule's, the rest the shape's.
+        $issues | Should -HaveCount $(if ($Valid) { 0 } else { 1 })
         # The same verdict as the schema's own pattern.
         $schemaErrors.Count -eq 0 | Should -Be $Valid
     }
