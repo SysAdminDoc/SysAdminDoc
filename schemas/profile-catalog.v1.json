@@ -88,7 +88,8 @@
         },
         "title": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 100
         },
         "category": {
           "type": "string",
@@ -117,10 +118,20 @@
           "minimum": 0
         },
         "branch": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
         },
         "entrypoint": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200,
+          "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\\.(?:ps1|py|pyw)$"
         },
         "installKind": {
           "type": [
@@ -175,7 +186,11 @@
           }
         },
         "descriptionOverride": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
         },
         "featured": {
           "type": "boolean"
@@ -191,25 +206,46 @@
           "type": "boolean"
         },
         "currentlyBuildingText": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
         },
         "allowPublicMedical": {
           "type": "boolean"
         },
         "forkOf": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 140,
+          "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
         },
         "upstreamLicense": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 120
         },
         "aliasOf": {
           "$ref": "#/$defs/nullableString"
         },
         "suppressionReason": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
         },
         "readmeReviewNote": {
-          "$ref": "#/$defs/nullableString"
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 400
         },
         "notes": {
           "$ref": "#/$defs/nullableString"

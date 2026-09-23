@@ -195,15 +195,15 @@ function Get-UpstreamAttribution {
     if (-not [string]::IsNullOrWhiteSpace($forkOf)) {
         $url = Get-UpstreamUrl -ForkOf $forkOf
         if ($url) {
-            $parts.Add("Upstream: [$forkOf]($url)")
+            $parts.Add("Upstream: [$(ConvertTo-MarkdownText $forkOf)]($url)")
         } else {
-            $parts.Add("Upstream: $forkOf")
+            $parts.Add("Upstream: $(ConvertTo-MarkdownText $forkOf)")
         }
     }
 
     $upstreamLicense = [string]$Entry.upstreamLicense
     if (-not [string]::IsNullOrWhiteSpace($upstreamLicense)) {
-        $parts.Add("License: $upstreamLicense")
+        $parts.Add("License: $(ConvertTo-MarkdownText $upstreamLicense)")
     }
 
     if ($parts.Count -eq 0) {
@@ -219,7 +219,8 @@ function Get-DisplayDescription {
         [object]$Meta
     )
 
-    return "$(Get-Description $Entry $Meta)$(Get-UpstreamAttribution $Entry)"
+    # README only: projects.json carries the raw Get-Description text.
+    return "$(ConvertTo-MarkdownText (Get-Description $Entry $Meta))$(Get-UpstreamAttribution $Entry)"
 }
 
 function Get-Branch {
@@ -682,6 +683,49 @@ function Test-CatalogShape {
         $downloadKind = [string]$entry.downloadKind
         if (-not [string]::IsNullOrWhiteSpace($downloadKind) -and -not $allowedDownloadKinds.Contains($downloadKind)) {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "downloadKind"; value = $downloadKind; reason = "unknown downloadKind" })
+        }
+
+        # Public one-line text: nothing that breaks a line, hides as a control character,
+        # reorders what a reader sees (bidi embedding, override or isolate), or is half of a
+        # surrogate pair. The README encoder would drop these, so the catalog refuses them
+        # rather than publishing text that differs from what was written. The value in the
+        # issue is the offending code point, never the text itself.
+        foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
+            $text = [string]$entry[$field]
+            if ([string]::IsNullOrEmpty($text)) {
+                continue
+            }
+            $problem = $null
+            for ($index = 0; $index -lt $text.Length -and $null -eq $problem; $index++) {
+                $character = $text[$index]
+                $code = [int]$character
+                if ([char]::IsHighSurrogate($character) -and $index + 1 -lt $text.Length -and [char]::IsLowSurrogate($text[$index + 1])) {
+                    $index++
+                } elseif ([char]::IsSurrogate($character)) {
+                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains an unpaired surrogate" }
+                } elseif ($code -eq 0x0A -or $code -eq 0x0D -or $code -eq 0x85 -or $code -eq 0x2028 -or $code -eq 0x2029) {
+                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "must be one line" }
+                } elseif ([char]::IsControl($character)) {
+                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains a control character" }
+                } elseif (($code -ge 0x202A -and $code -le 0x202E) -or ($code -ge 0x2066 -and $code -le 0x2069)) {
+                    $problem = [ordered]@{ codePoint = ('U+{0:X4}' -f $code); reason = "contains a bidi embedding, override or isolate character" }
+                }
+            }
+            if ($null -ne $problem) {
+                $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; value = $problem.codePoint; reason = "$field $($problem.reason)" })
+            }
+        }
+
+        # entrypoint and branch are pasted into the install one-liners: & "$d\<entrypoint>" and
+        # git clone -b <branch>. A $ or backtick would expand inside the double quotes and a
+        # quote, semicolon or space would end the argument, so both take a strict shape.
+        $entrypoint = [string]$entry.entrypoint
+        if (-not [string]::IsNullOrWhiteSpace($entrypoint) -and $entrypoint -cnotmatch '^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\.(?:ps1|py|pyw)$') {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "entrypoint"; value = $entrypoint; reason = "entrypoint must be a relative .ps1, .py or .pyw path of letters, digits, spaces and ._()+- only" })
+        }
+        $branch = [string]$entry.branch
+        if (-not [string]::IsNullOrWhiteSpace($branch) -and $branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*$') {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "branch"; value = $branch; reason = "branch must start with a letter or digit and use only letters, digits and ._/-" })
         }
     }
 

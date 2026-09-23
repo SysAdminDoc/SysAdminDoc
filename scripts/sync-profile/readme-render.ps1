@@ -11,13 +11,60 @@ function Get-StarText {
     return ""
 }
 
+function ConvertTo-MarkdownText {
+    <#
+    .SYNOPSIS
+    Encodes catalog or GitHub text for README prose, table cells and link labels.
+    .DESCRIPTION
+    Line breaks become spaces, control characters and bidi embedding, override and
+    isolate characters are dropped, an unpaired surrogate becomes U+FFFD, and backslash,
+    pipe and square brackets are escaped, so a value cannot end a table cell, open a row
+    or close a link label. & < and > become entities, so it cannot open an HTML element
+    or smuggle a control character in as "&#8238;". Emphasis, code spans and
+    ordinary accented or non-Latin text pass through unchanged.
+    .PARAMETER Text
+    The untrusted text; $null renders as an empty string.
+    #>
+    param([AllowNull()][string]$Text)
+
+    if ([string]::IsNullOrEmpty($Text)) {
+        return ''
+    }
+    $oneLine = [regex]::Replace($Text, '\r\n|[\r\n\u0085\u2028\u2029]', ' ')
+    $visible = [regex]::Replace($oneLine, '[\p{Cc}\u202A-\u202E\u2066-\u2069]', '')
+    $builder = [System.Text.StringBuilder]::new($visible.Length + 16)
+    for ($index = 0; $index -lt $visible.Length; $index++) {
+        $character = $visible[$index]
+        if ([char]::IsHighSurrogate($character) -and $index + 1 -lt $visible.Length -and [char]::IsLowSurrogate($visible[$index + 1])) {
+            [void]$builder.Append($character).Append($visible[$index + 1])
+            $index++
+            continue
+        }
+        if ([char]::IsSurrogate($character)) {
+            [void]$builder.Append([char]0xFFFD)
+            continue
+        }
+        switch -CaseSensitive ([string]$character) {
+            '\' { [void]$builder.Append('\\') }
+            '|' { [void]$builder.Append('\|') }
+            '[' { [void]$builder.Append('\[') }
+            ']' { [void]$builder.Append('\]') }
+            '&' { [void]$builder.Append('&amp;') }
+            '<' { [void]$builder.Append('&lt;') }
+            '>' { [void]$builder.Append('&gt;') }
+            default { [void]$builder.Append($character) }
+        }
+    }
+    return $builder.ToString()
+}
+
 function Get-ProjectLink {
     param(
         [hashtable]$Entry,
         [object]$Meta
     )
 
-    return "[**$($Entry.title)**]($(Get-RepoUrl $Entry))$(Get-StarText $Meta)"
+    return "[**$(ConvertTo-MarkdownText $Entry.title)**]($(Get-RepoUrl $Entry))$(Get-StarText $Meta)"
 }
 
 function Get-DownloadLabel {
@@ -134,7 +181,9 @@ function Get-ActionLink {
 
     $action = Get-PrimaryAction $Entry $Meta $Category
     $label = [string]$action["label"]
-    $url = [string]$action["url"]
+    # Live and userscript URLs come from the catalog. Percent-encode what would end or
+    # break a Markdown link destination; a well-formed URL is unchanged.
+    $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E')
     if ($action["kind"] -eq "release") {
         return "[<kbd>&#11015;&nbsp;$label</kbd>]($url)"
     }
@@ -192,7 +241,7 @@ function New-CategoryPreviewLine {
     }
 
     $links = foreach ($entry in $picks) {
-        "[**$($entry.title)**]($(Get-RepoUrl $entry))"
+        "[**$(ConvertTo-MarkdownText $entry.title)**]($(Get-RepoUrl $entry))"
     }
 
     return "Suggested starting points: $($links -join ', ')."
@@ -390,7 +439,7 @@ function New-ToolCatalogCell {
         return "$heading<br/>$description<br/><sub>No public rows</sub>"
     }
 
-    $pickLinks = @($picks | ForEach-Object { "[**$($_.title)**]($(Get-RepoUrl $_))" })
+    $pickLinks = @($picks | ForEach-Object { "[**$(ConvertTo-MarkdownText $_.title)**]($(Get-RepoUrl $_))" })
     $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
     $anchor = Get-CategoryAnchor $Slug
 
@@ -598,7 +647,7 @@ function New-CategorySection {
                 } else {
                     ""
                 }
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $language | $(Get-ActionLink $entry $meta $Definition.Slug) |")
+                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(ConvertTo-MarkdownText $language) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
             }
             $lines.Add("")
         }

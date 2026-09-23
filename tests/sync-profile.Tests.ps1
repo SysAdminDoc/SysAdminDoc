@@ -274,6 +274,149 @@ Describe 'Function library loads via the dot-source test seam' {
     }
 }
 
+Describe 'Public text is encoded for where it lands' {
+    It 'escapes what would break a cell, a link label or open HTML' {
+        ConvertTo-MarkdownText 'a | b' | Should -Be 'a \| b'
+        ConvertTo-MarkdownText 'C:\tools' | Should -Be 'C:\\tools'
+        ConvertTo-MarkdownText 'Evil](https://evil.example)' | Should -Be 'Evil\](https://evil.example)'
+        ConvertTo-MarkdownText '<script>alert(1)</script>' | Should -Be '&lt;script&gt;alert(1)&lt;/script&gt;'
+        ConvertTo-MarkdownText 'R&D &#8238;' | Should -Be 'R&amp;D &amp;#8238;'
+        ConvertTo-MarkdownText "one`r`ntwo`nthree" | Should -Be 'one two three'
+        ConvertTo-MarkdownText $null | Should -Be ''
+    }
+
+    It 'drops control and bidi characters and repairs lone surrogates' {
+        $rlo = [string][char]0x202E
+        $isolate = [string][char]0x2066
+        ConvertTo-MarkdownText ("safe" + $rlo + "txt.exe") | Should -Be 'safetxt.exe'
+        ConvertTo-MarkdownText ("a" + $isolate + "b" + [char]0 + "c") | Should -Be 'abc'
+        # U+0085 is a line break (NEL), so it becomes a space like CR and LF.
+        ConvertTo-MarkdownText ("a" + [char]0x85 + "b") | Should -Be 'a b'
+        ConvertTo-MarkdownText ("x" + [char]0xD800 + "y") | Should -Be ("x" + [char]0xFFFD + "y")
+        $emoji = [char]::ConvertFromUtf32(0x1F600)
+        ConvertTo-MarkdownText "ok $emoji" | Should -Be "ok $emoji"
+    }
+
+    It 'leaves ordinary accented, non-Latin and emphasized text alone' {
+        foreach ($text in @('Café naïve résumé', '日本語のツール', 'Инструмент', 'עברית and العربية', 'Power-user tool *(Kotlin)* `code`', 'Network_Security_Auditor')) {
+            ConvertTo-MarkdownText $text | Should -Be $text
+        }
+    }
+
+    It 'cannot make a new row, link or HTML element from catalog text' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $web = @($catalog.entries | Where-Object { $_.repo -eq 'WebTool' })[0]
+        $web.title = 'Web](https://evil.example/) | <b>bold</b>'
+        $web.descriptionOverride = "desc | cell`n| injected | row | <img src=x onerror=alert(1)> [x](https://evil.example/)"
+
+        $readme = New-Readme -Catalog $catalog -Repos @()
+        $section = [regex]::Match($readme, '(?s)<a id="web-applications"></a>.*?</details>').Value
+        # Every line of the table, whatever it starts with: header, separator, one row.
+        $tableLines = @($section -split "\r?\n" | Where-Object { $_.StartsWith('|') })
+
+        $tableLines | Should -HaveCount 3 -Because 'one catalog row renders one table row'
+        # The only unescaped pipes in that row are the four cell borders.
+        ([regex]::Matches($tableLines[2], '(?<!\\)\|')).Count | Should -Be 4
+        # Escaped brackets are text; only an unescaped "](" could start a link.
+        $readme | Should -Not -Match '(?<!\\)\]\(https://evil\.example'
+        # The header's own <b> and Ko-fi <img> are legitimate; the injected ones must not appear.
+        $readme | Should -Not -Match '<b>bold</b>|<img src=x'
+        $readme | Should -Match ([regex]::Escape('&lt;b&gt;bold&lt;/b&gt;'))
+    }
+
+    It 'keeps the feed text raw and valid JSON' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $web = @($catalog.entries | Where-Object { $_.repo -eq 'WebTool' })[0]
+        $raw = 'Tool | "quoted" \ back <tag> & more, Café 日本語'
+        $web.descriptionOverride = $raw
+
+        $feed = New-ProjectsExportJson -Catalog $catalog -Repos @() | ConvertFrom-Json
+
+        @($feed.projects | Where-Object { $_.repo -eq 'WebTool' })[0].description | Should -Be $raw
+    }
+
+    It 'percent-encodes characters that would break a catalog link destination' {
+        $entry = New-TestEntry -Repo 'LiveTool' -Category 'web'
+        $entry.liveUrl = 'https://example.test/app (beta)/<x>'
+
+        Get-ActionLink $entry $null 'web' | Should -Be '[Launch](https://example.test/app%20%28beta%29/%3Cx%3E)'
+    }
+}
+
+Describe 'Catalog refuses deceptive or unsafe one-line text' {
+    BeforeAll {
+        function script:Get-ShapeIssues {
+            param([hashtable]$Entry)
+            @((Test-CatalogShape -Catalog @{ entries = @($Entry) }).issues)
+        }
+    }
+
+    It 'flags <Case> in <Field>' -ForEach @(
+        @{ Case = 'a line break'; Field = 'descriptionOverride'; Value = "one`ntwo"; Reason = 'must be one line'; CodePoint = 'U+000A' }
+        @{ Case = 'a tab'; Field = 'title'; Value = "Tab`tTool"; Reason = 'control character'; CodePoint = 'U+0009' }
+        @{ Case = 'a C1 control'; Field = 'upstreamLicense'; Value = ('MIT' + [char]0x9B); Reason = 'control character'; CodePoint = 'U+009B' }
+        @{ Case = 'a bidi override'; Field = 'title'; Value = ('Safe' + [char]0x202E + 'exe.txt'); Reason = 'bidi'; CodePoint = 'U+202E' }
+        @{ Case = 'a bidi isolate'; Field = 'currentlyBuildingText'; Value = ('x' + [char]0x2068 + 'y'); Reason = 'bidi'; CodePoint = 'U+2068' }
+        @{ Case = 'a lone surrogate'; Field = 'forkOf'; Value = ('owner/re' + [char]0xDC00 + 'po'); Reason = 'unpaired surrogate'; CodePoint = 'U+DC00' }
+    ) {
+        $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
+        $entry[$Field] = $Value
+
+        $issue = @(script:Get-ShapeIssues -Entry $entry | Where-Object { $_.field -eq $Field })
+        $issue | Should -HaveCount 1
+        $issue[0].reason | Should -Match $Reason
+        $issue[0].value | Should -Be $CodePoint -Because 'the report records the code point, not the text'
+    }
+
+    It 'accepts accented, non-Latin and emoji text' {
+        $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
+        $entry.title = 'Outil café'
+        $entry.descriptionOverride = ('日本語 · עברית · Инструмент ' + [char]::ConvertFromUtf32(0x1F680))
+
+        @(script:Get-ShapeIssues -Entry $entry) | Should -BeNullOrEmpty
+    }
+
+    It 'keeps install-command values to a safe shape' -ForEach @(
+        @{ Field = 'entrypoint'; Value = 'run$(Remove-Item x).ps1' }
+        @{ Field = 'entrypoint'; Value = 'tool.ps1"; Remove-Item x; "' }
+        @{ Field = 'entrypoint'; Value = '..\outside.ps1' }
+        @{ Field = 'entrypoint'; Value = 'notes.txt' }
+        @{ Field = 'branch'; Value = 'main; Remove-Item x' }
+        @{ Field = 'branch'; Value = '--upload-pack=touch' }
+    ) {
+        $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
+        $entry[$Field] = $Value
+
+        @(script:Get-ShapeIssues -Entry $entry | Where-Object { $_.field -eq $Field }) | Should -HaveCount 1
+    }
+
+    It 'accepts the install-command values the catalog uses today' {
+        foreach ($entrypoint in @('app\main.py', 'flux-torrent\Launch-Flux.ps1', 'JDownloader 2 Ultimate Manager.ps1', 'gui.pyw')) {
+            $entry = New-TestEntry -Repo 'ShapeTool' -Category 'powershell'
+            $entry.entrypoint = $entrypoint
+            $entry.branch = 'project-XT'
+            @(script:Get-ShapeIssues -Entry $entry) | Should -BeNullOrEmpty -Because "$entrypoint is a real entrypoint"
+        }
+    }
+
+    It 'holds public text to the schema length limits' {
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $catalog.entries[0].title = 'T' * 101
+        $catalog.entries[1].descriptionOverride = 'D' * 301
+
+        $result = Test-FeedSchemaContracts -Catalog $catalog -ProjectsJson (New-ProjectsExportJson -Catalog $catalog -Repos @())
+
+        $result.catalog.valid | Should -BeFalse
+        @($result.catalog.errors | ForEach-Object { $_.instanceLocation }) | Should -Contain '/entries/0/title'
+        @($result.catalog.errors | ForEach-Object { $_.instanceLocation }) | Should -Contain '/entries/1/descriptionOverride'
+    }
+
+    It 'passes the committed catalog' {
+        $shape = Test-CatalogShape -Catalog (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json'))
+        @($shape.issues | ForEach-Object { '{0}.{1}: {2}' -f $_.repo, $_.field, $_.reason }) | Should -BeNullOrEmpty
+    }
+}
+
 Describe 'Sync report stays valid against its own schema for small catalogs' {
     BeforeAll {
         $script:SmallCatalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
@@ -5374,7 +5517,7 @@ Describe 'Feed JSON Schema contracts' {
         $unsupportedSchema = @{
             type = 'object'
             oneOf = @(@{ type = 'string' })
-            maxLength = 10
+            maxProperties = 10
         } | ConvertTo-Json -Depth 5 -Compress
         Set-Content -LiteralPath $schemaPath -Value $unsupportedSchema -Encoding utf8
 
@@ -5382,7 +5525,7 @@ Describe 'Feed JSON Schema contracts' {
 
         @($result.unsupportedKeywords).Count | Should -BeGreaterOrEqual 2
         ($result.unsupportedKeywords -join "`n") | Should -Match 'oneOf'
-        ($result.unsupportedKeywords -join "`n") | Should -Match 'maxLength'
+        ($result.unsupportedKeywords -join "`n") | Should -Match 'maxProperties'
     }
 
     It 'walks composition branches, conditionals and nested definitions for unsupported keywords' {
@@ -5390,12 +5533,12 @@ Describe 'Feed JSON Schema contracts' {
 {
   "type": "object",
   "properties": {
-    "a": { "anyOf": [ { "type": "string", "maxLength": 3 }, { "type": "null" } ] },
+    "a": { "anyOf": [ { "type": "string", "maxProperties": 3 }, { "type": "null" } ] },
     "b": { "$defs": { "inner": { "type": "integer", "multipleOf": 2 } }, "$ref": "#/properties/b/$defs/inner" },
     "c": { "if": { "type": "string" }, "then": { "minProperties": 1 }, "else": true },
     "d": { "type": "array", "prefixItems": [ { "type": "string", "exclusiveMaximum": 5 } ] },
     "e": { "type": "object", "additionalProperties": { "type": "string", "uniqueItems": true } },
-    "f": { "dependencies": { "x": { "maxLength": 1 }, "y": [ "z" ] }, "contentSchema": { "minProperties": 1 } }
+    "f": { "dependencies": { "x": { "maxProperties": 1 }, "y": [ "z" ] }, "contentSchema": { "minProperties": 1 } }
   },
   "$defs": { "outer": { "allOf": [ { "not": { "maxItems": 1 } } ] } }
 }
@@ -5405,7 +5548,7 @@ Describe 'Feed JSON Schema contracts' {
 
         $expected = @(
             "`$.properties.a uses schema keyword 'anyOf'",
-            "`$.properties.a.anyOf[0] uses schema keyword 'maxLength'",
+            "`$.properties.a.anyOf[0] uses schema keyword 'maxProperties'",
             "`$.properties.b.`$defs.inner uses schema keyword 'multipleOf'",
             "`$.properties.c uses schema keyword 'if'",
             "`$.properties.c.then uses schema keyword 'minProperties'",
@@ -5413,7 +5556,7 @@ Describe 'Feed JSON Schema contracts' {
             "`$.properties.e.additionalProperties uses schema keyword 'uniqueItems'",
             "`$defs.outer uses schema keyword 'allOf'",
             "`$defs.outer.allOf[0].not uses schema keyword 'maxItems'",
-            "`$.properties.f.dependencies.x uses schema keyword 'maxLength'",
+            "`$.properties.f.dependencies.x uses schema keyword 'maxProperties'",
             "`$.properties.f.contentSchema uses schema keyword 'minProperties'"
         )
         foreach ($warning in $expected) {
