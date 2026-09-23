@@ -628,13 +628,15 @@ function Test-CatalogShape {
     param([hashtable]$Catalog)
 
     $issues = New-Object System.Collections.Generic.List[object]
-    $allowedCategories = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    # Case-sensitive like the schema's enums: -Write copies the value into projects.json as
+    # written, so "PowerShell" or "APK" would publish a feed the schema refuses.
+    $allowedCategories = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     foreach ($definition in $CategoryDefinitions) {
         [void]$allowedCategories.Add([string]$definition.Slug)
     }
     [void]$allowedCategories.Add("suppressed")
 
-    $allowedDownloadKinds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $allowedDownloadKinds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     foreach ($kind in @("apk", "crx", "crx-xpi", "download", "exe", "repo", "userscript", "zip", "zip-xpi")) {
         [void]$allowedDownloadKinds.Add($kind)
     }
@@ -740,6 +742,9 @@ function Test-CatalogShape {
             if ([string]$entry.installKind -cne $expectedKind) {
                 $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be $expectedKind for the entrypoint $entrypoint" })
             }
+        } elseif (-not [string]::IsNullOrEmpty([string]$entry.installKind) -and [string]$entry.installKind -cnotin @('powershell', 'python')) {
+            # Without an entry script nothing else checks it, and the feed carries it as written.
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be powershell, python or left out" })
         }
         $branch = [string]$entry.branch
         if (-not [string]::IsNullOrWhiteSpace($branch) -and $branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') {

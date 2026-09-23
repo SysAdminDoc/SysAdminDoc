@@ -5712,6 +5712,24 @@ Describe 'Catalog URLs and names cannot break a README row' {
         Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%C2%85b%C2%9Bc%7F)'
     }
 
+    It 'holds <Field> to the schema''s case: <Value>' -ForEach @(
+        @{ Field = 'category'; Value = 'PowerShell'; Valid = $false }
+        @{ Field = 'category'; Value = 'misc'; Valid = $true }
+        @{ Field = 'downloadKind'; Value = 'APK'; Valid = $false }
+        @{ Field = 'downloadKind'; Value = 'apk'; Valid = $true }
+        @{ Field = 'installKind'; Value = 'PowerShell'; Valid = $false }
+        @{ Field = 'installKind'; Value = 'python'; Valid = $true }
+    ) {
+        # These compared case-insensitively (installKind not at all without an entry script),
+        # and -Write copied the value into projects.json as written, past the schema's enum.
+        $entry = New-TestEntry -Repo 'CaseTool' -Category 'misc'
+        $entry[$Field] = $Value
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq $Field })
+
+        $issues.Count -eq 0 | Should -Be $Valid
+    }
+
     It 'gives language the one-line check' {
         $entry = New-TestEntry -Repo 'LangTool' -Category 'powershell'
         $entry.language = "C#`nEvil" + [char]0x202E
