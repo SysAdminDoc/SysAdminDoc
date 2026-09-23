@@ -3443,6 +3443,36 @@ Describe 'Owner-bound output follows -Owner' {
         $row[0].liveUrl | Should -Be 'https://fixture.example.test/'
     }
 
+    It 'seeds every legacy row shape from a README written for another owner' {
+        $Owner = 'FixtureOwner'
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
+        $catalog.entries = @($catalog.entries) + @(
+            (New-TestEntry -Repo 'OwnerCode' -Category 'powershell' -Description 'A code row')
+            (New-TestEntry -Repo 'OwnerMisc' -Category 'misc' -Description 'A two-column row')
+        )
+        # Render before pointing $ReadmePath at the copy: New-Readme reads $ReadmePath too.
+        $rendered = New-Readme -Catalog $catalog -Repos @()
+        # The featured table shapes are no longer rendered, but the legacy parser still reads them.
+        $featured = @(
+            '| [**FeatStars**](https://github.com/FixtureOwner/FeatStars) | &#11088;5 | Featured with stars |'
+            '| [**FeatAction**](https://github.com/FixtureOwner/FeatAction) | PowerShell | &#11088;3 | Featured with an action | [Repo](https://github.com/FixtureOwner/FeatAction) |'
+        ) -join "`n"
+        $ReadmePath = Join-Path $TestDrive 'legacy-owner-readme.md'
+        Set-Content -LiteralPath $ReadmePath -Value ($featured + "`n`n" + $rendered) -Encoding utf8
+
+        $seeded = New-CatalogFromReadme -Repos @()
+        $byRepo = @{}
+        foreach ($entry in @($seeded.entries)) { $byRepo[[string]$entry.repo] = $entry }
+
+        # One repo per row shape: featured with stars, featured with an action, a code row,
+        # a table row with a trailing cell, and a two-column table row.
+        $byRepo['FeatStars'].featured | Should -BeTrue
+        $byRepo['FeatAction'].featured | Should -BeTrue
+        $byRepo['OwnerCode'].category | Should -Be 'powershell'
+        $byRepo['FixtureTool'].category | Should -Be 'web'
+        $byRepo['OwnerMisc'].category | Should -Be 'misc'
+    }
+
     It 'names the default owner in the generator only where it is not the owner' {
         # Any other literal would put the default owner into a run made with -Owner.
         $allowed = @(
@@ -3458,7 +3488,13 @@ Describe 'Owner-bound output follows -Owner' {
             $lineNumber = 0
             foreach ($line in [System.IO.File]::ReadAllLines($path)) {
                 $lineNumber++
-                if ($line -match 'sysadmindoc' -and -not @($allowed | Where-Object { $line -match $_ })) {
+                # Strip each allowed token instead of excusing the whole line, so an owner
+                # literal sitting next to an allowed one is still caught.
+                $remainder = $line
+                foreach ($pattern in $allowed) {
+                    $remainder = [regex]::Replace($remainder, $pattern, '', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+                }
+                if ($remainder -match 'sysadmindoc') {
                     '{0}:{1}: {2}' -f [System.IO.Path]::GetFileName($path), $lineNumber, $line.Trim()
                 }
             }
