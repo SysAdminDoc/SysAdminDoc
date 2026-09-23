@@ -794,10 +794,11 @@ function Get-GeneratedPrCredentialDecision {
         }
     }
     $settingText = if ($null -eq $settingAllowsGeneratedPr) { "whether GitHub Actions may create pull requests couldn't be read" } else { "GitHub Actions may not create pull requests" }
+    # Neither path is chosen yet, so neither is recorded as selected or rejected.
     return [ordered]@{
         status = "needs-decision"
-        selectedPath = "manual-local-validation"
-        rejectedPath = "hosted-generated-pr-delivery"
+        selectedPath = "undecided"
+        rejectedPath = "undecided"
         rationale = "Candidate workflows exist, but $settingText, so generated pull requests need that setting or a dedicated credential; until then maintenance PRs are opened by hand."
         requiresRepositorySetting = $true
         requiresNewSecret = $false

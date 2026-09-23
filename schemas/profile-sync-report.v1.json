@@ -3466,14 +3466,16 @@
           "type": "string",
           "enum": [
             "enable-actions-pr-creation",
-            "manual-local-validation"
+            "manual-local-validation",
+            "undecided"
           ]
         },
         "rejectedPath": {
           "type": "string",
           "enum": [
             "approved-github-app-or-pat-token",
-            "hosted-generated-pr-delivery"
+            "hosted-generated-pr-delivery",
+            "undecided"
           ]
         },
         "rationale": {

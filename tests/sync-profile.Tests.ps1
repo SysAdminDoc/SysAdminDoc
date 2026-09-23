@@ -1027,6 +1027,35 @@ Describe 'PR delivery checklist carries no recorded history' {
         $rulesWarnings | Should -HaveCount $(if ($Rules -eq 'unreadable') { 1 } else { 0 })
     }
 
+    It 'records neither generated-PR path while the decision is open, with the setting <Setting>' -ForEach @(
+        @{ Setting = 'off'; Allowed = $false }
+        @{ Setting = 'unreadable'; Allowed = $null }
+    ) {
+        # It used to record the local-only choice as made: manual validation selected and
+        # hosted delivery rejected, beside decisionDocumentPath decision:pending.
+        $decision = Get-GeneratedPrCredentialDecision -ActionsPullRequestCreationAllowed $Allowed -WorkflowsPresent $true
+        # The report schema has to accept the value: find the decision object wherever it sits.
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json -AsHashtable
+        $stack = [System.Collections.Generic.Stack[object]]::new()
+        $stack.Push($schema)
+        $decisionSchema = $null
+        while ($stack.Count -gt 0 -and $null -eq $decisionSchema) {
+            $node = $stack.Pop()
+            if ($node -is [System.Collections.IDictionary]) {
+                if ($node.Contains('generatedPrCredentialDecision')) { $decisionSchema = $node['generatedPrCredentialDecision'] }
+                foreach ($value in $node.Values) { $stack.Push($value) }
+            } elseif ($node -is [System.Collections.IList]) {
+                foreach ($value in $node) { $stack.Push($value) }
+            }
+        }
+
+        $decision.status | Should -Be 'needs-decision'
+        $decision.selectedPath | Should -Be 'undecided'
+        $decision.rejectedPath | Should -Be 'undecided'
+        @($decisionSchema['properties']['selectedPath']['enum']) | Should -Contain 'undecided'
+        @($decisionSchema['properties']['rejectedPath']['enum']) | Should -Contain 'undecided'
+    }
+
     It 'describes a repository with workflows without the local-only posture' -ForEach @(
         @{ Setting = $false; Status = 'needs-decision' }
         @{ Setting = $true; Status = 'setting-enabled' }
