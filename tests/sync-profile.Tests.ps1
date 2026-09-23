@@ -10165,6 +10165,21 @@ Describe 'Dependency review helpers (in-process)' {
         (ConvertTo-NpmAuditReview -RawJson '{}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
         (ConvertTo-NpmAuditReview -RawJson '[]' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
         (ConvertTo-NpmAuditReview -RawJson '{"metadata":{"dependencies":{"total":5}}}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+        # A counts block with no counts in it is not a clean audit either.
+        (ConvertTo-NpmAuditReview -RawJson '{"metadata":{"vulnerabilities":{}}}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+        (ConvertTo-NpmAuditReview -RawJson '{"metadata":{"vulnerabilities":{"total":null}}}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+        (ConvertTo-NpmAuditReview -RawJson '{"metadata":{"vulnerabilities":{"unexpected":1}}}' -ExitCode 0 -Source 'file').status | Should -Be 'unavailable'
+    }
+
+    It 'finds vulnerabilities that only the severities or the advisory map report' {
+        # Older npm and other package managers report severities without a total.
+        $noTotal = ConvertTo-NpmAuditReview -RawJson '{"metadata":{"vulnerabilities":{"info":0,"low":0,"moderate":0,"high":2,"critical":0}}}' -ExitCode 1 -Source 'file'
+        $noTotal.status | Should -Be 'vulnerabilities-found'
+        $noTotal.severityCounts.high | Should -Be 2
+
+        # A per-package advisory entry outranks a zero tally.
+        $listed = ConvertTo-NpmAuditReview -RawJson '{"auditReportVersion":2,"vulnerabilities":{"left-pad":{"severity":"high"}},"metadata":{"vulnerabilities":{"info":0,"low":0,"moderate":0,"high":0,"critical":0,"total":0}}}' -ExitCode 1 -Source 'file'
+        $listed.status | Should -Be 'vulnerabilities-found'
     }
 
     It 'compares each npm override with the version the lockfile resolved' {

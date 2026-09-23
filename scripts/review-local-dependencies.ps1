@@ -102,11 +102,14 @@ function ConvertTo-NpmAuditReview {
 
     $metadata = Get-MapValue -Map $audit -Key "metadata" -Default $null
     $vulnerabilities = Get-MapValue -Map $metadata -Key "vulnerabilities" -Default $null
+    $countKeys = @("info", "low", "moderate", "high", "critical", "total")
+    $reportedCountKeys = @($countKeys | Where-Object { $null -ne (Get-MapValue -Map $vulnerabilities -Key $_) })
     # A failed audit (registry unreachable, audit endpoint error) still prints JSON: an error
     # object with no advisory counts. With loglevel=silent, or from a saved -NpmAuditJsonPath
     # file, nothing else marks the failure, and reading the missing counts as zero would
-    # report an audit that never ran as clean.
-    if ($null -ne (Get-MapValue -Map $audit -Key "error") -or $vulnerabilities -isnot [System.Collections.IDictionary]) {
+    # report an audit that never ran as clean. The same goes for a counts block with no
+    # counts in it.
+    if ($null -ne (Get-MapValue -Map $audit -Key "error") -or $reportedCountKeys.Count -eq 0) {
         $npmMessage = [string](Get-MapValue -Map $audit -Key "message" -Default "")
         if ([string]::IsNullOrWhiteSpace($npmMessage)) {
             $npmMessage = [string](Get-MapValue -Map (Get-MapValue -Map $audit -Key "error") -Key "summary" -Default "")
@@ -138,7 +141,12 @@ function ConvertTo-NpmAuditReview {
         peerOptional = ConvertTo-Count (Get-MapValue -Map $dependencies -Key "peerOptional" -Default 0)
         total = ConvertTo-Count (Get-MapValue -Map $dependencies -Key "total" -Default 0)
     }
-    $status = if ($severityCounts.total -eq 0) { "clean" } else { "vulnerabilities-found" }
+    # npm 7+ always reports total, but older shapes carry the severities only, and a report
+    # whose per-package advisory map lists anything is not clean whatever the tallies say.
+    $severitySum = $severityCounts.info + $severityCounts.low + $severityCounts.moderate + $severityCounts.high + $severityCounts.critical
+    $advisories = Get-MapValue -Map $audit -Key "vulnerabilities" -Default $null
+    $advisoryCount = if ($advisories -is [System.Collections.IDictionary]) { $advisories.Count } else { 0 }
+    $status = if ($severityCounts.total -eq 0 -and $severitySum -eq 0 -and $advisoryCount -eq 0) { "clean" } else { "vulnerabilities-found" }
 
     return [ordered]@{
         status = $status
