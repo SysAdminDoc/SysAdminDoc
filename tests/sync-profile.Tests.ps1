@@ -5730,6 +5730,30 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $issues.Count -eq 0 | Should -Be $Valid
     }
 
+    It 'refuses <Case> in public text' -ForEach @(
+        @{ Case = 'an em dash'; Text = 'Fast' + [char]0x2014 + 'and small'; Dash = 'U+2014' }
+        @{ Case = 'an en dash'; Text = 'Pages 1' + [char]0x2013 + '2'; Dash = 'U+2013' }
+        @{ Case = 'a spaced double hyphen'; Text = 'Fast -- and small'; Dash = ' -- ' }
+        @{ Case = 'nothing for a hyphenated word'; Text = 'A well-known tool'; Dash = $null }
+        @{ Case = 'nothing for an option'; Text = 'Run it with --help first'; Dash = $null }
+        @{ Case = 'nothing for a range written out'; Text = 'Pages 1 to 2'; Dash = $null }
+    ) {
+        # The separator change took " -- " out of the generated rows, but catalog text could
+        # still carry any dash into the README.
+        $entry = New-TestEntry -Repo 'DashTool' -Category 'misc'
+        $entry.descriptionOverride = $Text
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'descriptionOverride' })
+
+        if ($Dash) {
+            $issues | Should -HaveCount 1
+            $issues[0].value | Should -Be $Dash
+            $issues[0].reason | Should -Match 'joins clauses with a dash'
+        } else {
+            $issues | Should -BeNullOrEmpty
+        }
+    }
+
     It 'gives language the one-line check' {
         $entry = New-TestEntry -Repo 'LangTool' -Category 'powershell'
         $entry.language = "C#`nEvil" + [char]0x202E

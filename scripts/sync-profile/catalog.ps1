@@ -822,6 +822,12 @@ function Test-CatalogShape {
             # takes the schema's owner/repo shape and length too; -Write alone never runs the
             # schema. Only text that passed the checks above gets here, so it's safe to show.
             $issues.Add([ordered]@{ repo = $publicText.repo; field = 'forkOf'; value = $text; reason = "forkOf must be owner/repo, at most 140 characters: an account name of letters, digits and hyphens, a slash, then a repository name" })
+        } elseif ($text.IndexOfAny([char[]]@([char]0x2014, [char]0x2013)) -ge 0 -or $text.Contains(' -- ')) {
+            # The README is public writing, and its style joins clauses with commas, periods or
+            # parentheses, never an em dash, an en dash or a spaced double hyphen. A hyphen in a
+            # word, or --help, is fine.
+            $dash = if ($text.Contains([string][char]0x2014)) { 'U+2014' } elseif ($text.Contains([string][char]0x2013)) { 'U+2013' } else { ' -- ' }
+            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $dash; reason = "$($publicText.field) joins clauses with a dash; use a comma, a period or parentheses" })
         }
     }
 
