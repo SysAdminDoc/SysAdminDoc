@@ -738,18 +738,33 @@ function New-ProfileChrome {
     $lines.Add('')
     $heading = [string](Get-MemberValue -Object $Header -Name 'heading')
     if (-not [string]::IsNullOrWhiteSpace($heading)) {
-        $lines.Add('## ' + (ConvertTo-MarkdownText $heading))
+        # A # at the end of an ATX heading is read as closing markup and dropped.
+        $lines.Add('## ' + ((ConvertTo-MarkdownText $heading).Trim() -replace '#$', '\#'))
         $lines.Add('')
     }
     $about = [string](Get-MemberValue -Object $Header -Name 'about')
     if (-not [string]::IsNullOrWhiteSpace($about)) {
-        $lines.Add((ConvertTo-MarkdownText $about))
+        # The about text is a paragraph on its own line, so its first characters could open
+        # a heading, list, rule or fence, and leading spaces a code block. Backticks, < and
+        # > are already escaped or entities by now.
+        $aboutText = (ConvertTo-MarkdownText $about).TrimStart()
+        if ($aboutText -match '^[#+*=_~-]') {
+            $aboutText = '\' + $aboutText
+        } elseif ($aboutText -match '^(\d{1,9})([.)])') {
+            $aboutText = $Matches[1] + '\' + $Matches[2] + $aboutText.Substring($Matches[0].Length)
+        }
+        $lines.Add($aboutText)
         $lines.Add('')
     }
-    # Test-CatalogShape holds every URL to an https shape with no quote, angle bracket or
-    # space, so it can sit in an attribute as written.
+    # Test-CatalogShape refuses any other URL, but only under -Check. -Write alone renders
+    # this too, so a URL that could leave its attribute, or isn't https, isn't rendered.
+    $safeUrlPattern = '^https://[!#-&(-;=?-\[\]-{}~]+\z'
     $links = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'links') | ForEach-Object {
-        '<a href="' + [string](Get-MemberValue -Object $_ -Name 'url') + '"><b>' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $_ -Name 'text'))) + ' &#8594;</b></a>'
+        $url = [string](Get-MemberValue -Object $_ -Name 'url')
+        $text = [string](Get-MemberValue -Object $_ -Name 'text')
+        if ($url -cmatch $safeUrlPattern -and -not [string]::IsNullOrWhiteSpace($text)) {
+            '<a href="' + $url + '"><b>' + (ConvertTo-HtmlText $text) + ' &#8594;</b></a>'
+        }
     })
     if ($links.Count -gt 0) {
         $lines.Add('<p align="center">' + ($links -join ' &middot; ') + '</p>')
@@ -771,7 +786,7 @@ function New-ProfileChrome {
     $support = Get-MemberValue -Object $Header -Name 'support'
     $supportUrl = [string](Get-MemberValue -Object $support -Name 'url')
     $supportImageUrl = [string](Get-MemberValue -Object $support -Name 'imageUrl')
-    if (-not [string]::IsNullOrWhiteSpace($supportUrl) -and -not [string]::IsNullOrWhiteSpace($supportImageUrl)) {
+    if ($supportUrl -cmatch $safeUrlPattern -and $supportImageUrl -cmatch $safeUrlPattern) {
         $lines.Add('<p align="center">')
         $lines.Add('  <a href="' + $supportUrl + '">')
         $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $support -Name 'imageAlt'))) + '" />')

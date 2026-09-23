@@ -5043,6 +5043,75 @@ Describe 'Profile header comes from catalog data' {
         $result | Should -Not -Match '<script>|<scripts>|<now>|<coffee>'
     }
 
+    It 'keeps the about text a paragraph when it starts with <Case>' -ForEach @(
+        @{ Case = 'a backtick fence'; About = '```is how I start every code block.'; Expected = '\`\`\`is how I start every code block.' }
+        @{ Case = 'a tilde fence'; About = '~~~ opens a fence too'; Expected = '\~~~ opens a fence too' }
+        @{ Case = 'a heading marker'; About = '# not a heading'; Expected = '\# not a heading' }
+        @{ Case = 'a rule'; About = '---'; Expected = '\---' }
+        @{ Case = 'a list marker'; About = '- not a list'; Expected = '\- not a list' }
+        @{ Case = 'four spaces'; About = '    not a code block'; Expected = 'not a code block' }
+        @{ Case = 'an ordered list marker'; About = '1. not an ordered list'; Expected = '1\. not an ordered list' }
+        @{ Case = 'a quote marker'; About = '> not a quote'; Expected = '&gt; not a quote' }
+    ) {
+        $header = New-TestProfileHeader
+        $header.about = $About
+
+        $lines = @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n')
+
+        $lines | Should -Contain $Expected
+    }
+
+    It 'keeps a # at the end of the heading' {
+        $header = New-TestProfileHeader
+        $header.heading = 'Tools #'
+
+        @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain '## Tools \#'
+    }
+
+    It 'renders no header link or button whose URL could leave its attribute' {
+        # -Write alone renders without the catalog check, so the renderer can't rely on it.
+        $header = New-TestProfileHeader
+        $header.links = @(
+            @{ text = 'About'; url = 'https://x.test/"><img src="https://tracker.example/p.png' }
+            @{ text = 'Script'; url = 'javascript:alert(1)' }
+            @{ text = ' '; url = 'https://fixture.example.test/blank/' }
+            @{ text = 'Kept'; url = 'https://fixture.example.test/kept/' }
+        )
+        $header.support.imageUrl = 'https://support.example.test/b.png" onerror="x'
+
+        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+
+        $result | Should -Not -Match 'tracker\.example|javascript:|onerror|fixture\.example\.test/blank/'
+        $result | Should -Match ([regex]::Escape('<a href="https://fixture.example.test/kept/"><b>Kept &#8594;</b></a>'))
+        [regex]::Matches($result, '<img\b').Count | Should -Be 0
+    }
+
+    It 'hands the schema gate a profileHeader that is <Case> as written' -ForEach @(
+        @{ Case = 'a one-item list'; Json = '[{"tagline":"From an array"}]' }
+        @{ Case = 'null'; Json = 'null' }
+    ) {
+        $raw = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'fixtures/catalog.json'))
+        $path = Join-Path $TestDrive 'header-shape.json'
+        [System.IO.File]::WriteAllText($path, $raw.Replace('"entries":', ('"profileHeader": ' + $Json + ', "entries":')))
+
+        $result = Test-JsonSchemaContract -Value (Get-Catalog -Path $path) -SchemaPath 'schemas/profile-catalog.v1.json'
+
+        $result.valid | Should -BeFalse
+        @($result.errors | Where-Object { $_.instanceLocation -eq '/profileHeader' }) | Should -Not -BeNullOrEmpty
+    }
+
+    It 'refuses blank header text and a missing link text or image alt' {
+        $header = New-TestProfileHeader
+        $header.tagline = '   '
+        $header.links = @(@{ text = ' '; url = 'https://fixture.example.test/about/' }, @{ url = 'https://fixture.example.test/other/' })
+        $header.support.Remove('imageAlt')
+
+        $result = Test-CatalogShape -Catalog @{ entries = @(New-TestEntry -Repo 'ShapeTool' -Category 'powershell'); profileHeader = $header }
+
+        @($result.issues | Where-Object { $_.reason -match 'must not be blank' } | ForEach-Object { $_.field } | Sort-Object) |
+            Should -Be @('profileHeader.links[0].text', 'profileHeader.links[1].text', 'profileHeader.support.imageAlt', 'profileHeader.tagline')
+    }
+
     It 'renders a neutral header for another owner with no header data' {
         $Owner = 'FixtureOwner'
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')

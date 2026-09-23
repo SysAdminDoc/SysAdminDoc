@@ -135,10 +135,12 @@ function Get-Catalog {
         generatedAt = $catalog.generatedAt
     }
     # Optional: the README header's personal text and links. Absent, the header is neutral,
-    # and the key stays absent so the normalized catalog still matches the schema.
-    $profileHeader = Get-MemberValue -Object $catalog -Name 'profileHeader'
-    if ($null -ne $profileHeader) {
-        $normalized['profileHeader'] = $profileHeader
+    # and the key stays absent so the normalized catalog still matches the schema. Present,
+    # it is copied as written, null or array included, so the schema gate sees what the
+    # file says; a function return would unroll a one-item array into its item.
+    $profileHeaderProperty = $catalog.PSObject.Properties['profileHeader']
+    if ($null -ne $profileHeaderProperty) {
+        $normalized['profileHeader'] = $profileHeaderProperty.Value
     }
     $normalized['entries'] = @($entries)
     return $normalized
@@ -732,25 +734,27 @@ function Test-CatalogShape {
     }
 
     # The README header's text and links, when the catalog has a profileHeader block.
+    # nonBlank marks text that must say something when present: a blank tagline would fall
+    # back to the neutral one unnoticed, and a blank link text or alt renders an empty label.
     $header = Get-MemberValue -Object $Catalog -Name 'profileHeader'
     if ($null -ne $header) {
         foreach ($field in @('tagline', 'heading', 'about')) {
-            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.$field"; text = [string](Get-MemberValue -Object $header -Name $field) })
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.$field"; text = [string](Get-MemberValue -Object $header -Name $field); nonBlank = (Test-MemberExists -Object $header -Name $field) })
         }
         $index = 0
         foreach ($language in @(Get-JsonArrayItems (Get-MemberValue -Object $header -Name 'languages'))) {
-            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.languages[$index]"; text = [string]$language })
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.languages[$index]"; text = [string]$language; nonBlank = $true })
             $index++
         }
         $index = 0
         foreach ($link in @(Get-JsonArrayItems (Get-MemberValue -Object $header -Name 'links'))) {
-            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.links[$index].text"; text = [string](Get-MemberValue -Object $link -Name 'text') })
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.links[$index].text"; text = [string](Get-MemberValue -Object $link -Name 'text'); nonBlank = $true })
             $publicUrls.Add([ordered]@{ repo = $null; field = "profileHeader.links[$index].url"; url = [string](Get-MemberValue -Object $link -Name 'url'); scheme = 'https' })
             $index++
         }
         $support = Get-MemberValue -Object $header -Name 'support'
         if ($null -ne $support) {
-            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.support.imageAlt"; text = [string](Get-MemberValue -Object $support -Name 'imageAlt') })
+            $publicTexts.Add([ordered]@{ repo = $null; field = "profileHeader.support.imageAlt"; text = [string](Get-MemberValue -Object $support -Name 'imageAlt'); nonBlank = $true })
             foreach ($field in @('url', 'imageUrl')) {
                 $publicUrls.Add([ordered]@{ repo = $null; field = "profileHeader.support.$field"; url = [string](Get-MemberValue -Object $support -Name $field); scheme = 'https' })
             }
@@ -764,6 +768,10 @@ function Test-CatalogShape {
     # issue is the offending code point, never the text itself.
     foreach ($publicText in $publicTexts) {
         $text = [string]$publicText.text
+        if ($publicText['nonBlank'] -and [string]::IsNullOrWhiteSpace($text)) {
+            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $null; reason = "$($publicText.field) must not be blank" })
+            continue
+        }
         if ([string]::IsNullOrEmpty($text)) {
             continue
         }
