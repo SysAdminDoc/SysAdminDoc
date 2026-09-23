@@ -452,6 +452,15 @@ Describe 'Catalog refuses deceptive or unsafe one-line text' {
         $shape = Test-CatalogShape -Catalog (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json'))
         @($shape.issues | ForEach-Object { '{0}.{1}: {2}' -f $_.repo, $_.field, $_.reason }) | Should -BeNullOrEmpty
     }
+
+    It 'keeps the committed feed''s generator hash in step with the generator' {
+        # A generator change committed without regenerating leaves projects.json naming the old
+        # generator, and -Check fails on it. validate-local skips the profile check, so the
+        # suite has to notice.
+        $feed = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'projects.json') -Raw | ConvertFrom-Json
+
+        $feed.provenance.generatorSha256 | Should -Be (New-ProjectsProvenance -Repos @()).generatorSha256 -Because 'a generator change needs scripts/sync-profile.ps1 -Write -Check -GraphQlPageSize 300 in the same commit'
+    }
 }
 
 Describe 'run.ps1 install dispatcher' {
