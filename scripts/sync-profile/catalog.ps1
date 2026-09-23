@@ -617,6 +617,44 @@ function Test-SeedCatalogGuard {
     }
 }
 
+function ConvertTo-VisibleIssueText {
+    <#
+    .SYNOPSIS
+    Writes each character a reader couldn't see, or that would break or reorder the line, as its code point.
+    .DESCRIPTION
+    Catalog check issues reach the committed report and the console as written, so a
+    control, format or other invisible character in one would hide, reorder or split what
+    it says. Each such character, and each half of a broken surrogate pair, is written as
+    {U+XXXX}: Win{U+200B}Tool. Plain spaces and everything visible stay as they are.
+    Invisible means what Test-VisibleText says, so the two can't disagree.
+    .PARAMETER Text
+    The issue text; $null and empty come back as they are.
+    #>
+    param([AllowNull()][string]$Text)
+
+    if ([string]::IsNullOrEmpty($Text)) {
+        return $Text
+    }
+    $builder = [System.Text.StringBuilder]::new($Text.Length + 8)
+    for ($index = 0; $index -lt $Text.Length; $index++) {
+        $character = $Text[$index]
+        if ([char]::IsHighSurrogate($character) -and $index + 1 -lt $Text.Length -and [char]::IsLowSurrogate($Text[$index + 1])) {
+            $pair = $Text.Substring($index, 2)
+            $index++
+            if (Test-VisibleText $pair) {
+                [void]$builder.Append($pair)
+            } else {
+                [void]$builder.AppendFormat('{{U+{0:X}}}', [char]::ConvertToUtf32($pair, 0))
+            }
+        } elseif ([char]::IsSurrogate($character) -or ($character -ne ' ' -and -not (Test-VisibleText ([string]$character)))) {
+            [void]$builder.AppendFormat('{{U+{0:X4}}}', [int]$character)
+        } else {
+            [void]$builder.Append($character)
+        }
+    }
+    return $builder.ToString()
+}
+
 function Test-CatalogShape {
     <#
     .SYNOPSIS
@@ -735,14 +773,17 @@ function Test-CatalogShape {
         if (-not [string]::IsNullOrWhiteSpace($entrypoint) -and $entrypoint -cnotmatch '^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\.(?:ps1|py|pyw)\z') {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "entrypoint"; value = $entrypoint; reason = "entrypoint must be a relative .ps1, .py or .pyw path of letters, digits, spaces and ._()+- only" })
         }
+        # Ordinal, like the sets above: PowerShell's -ceq and -cnotin compare by culture, which
+        # skips zero-width and other ignorable characters, so "py<ZWSP>thon" equals "python"
+        # there and would be published as written.
         if (-not [string]::IsNullOrWhiteSpace($entrypoint)) {
             # run.ps1 starts a .ps1 in PowerShell and a .py or .pyw with python, and
             # projects.json carries installKind for anyone else reading the feed; both must agree.
             $expectedKind = if ($entrypoint -like '*.ps1') { 'powershell' } else { 'python' }
-            if ([string]$entry.installKind -cne $expectedKind) {
+            if (-not [string]::Equals([string]$entry.installKind, $expectedKind, [StringComparison]::Ordinal)) {
                 $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be $expectedKind for the entrypoint $entrypoint" })
             }
-        } elseif (-not [string]::IsNullOrEmpty([string]$entry.installKind) -and [string]$entry.installKind -cnotin @('powershell', 'python')) {
+        } elseif (-not [string]::IsNullOrEmpty([string]$entry.installKind) -and -not ([string]::Equals([string]$entry.installKind, 'powershell', [StringComparison]::Ordinal) -or [string]::Equals([string]$entry.installKind, 'python', [StringComparison]::Ordinal))) {
             # Without an entry script nothing else checks it, and the feed carries it as written.
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be powershell, python or left out" })
         }
@@ -789,7 +830,7 @@ function Test-CatalogShape {
     # reorders what a reader sees (bidi embedding, override or isolate), or is half of a
     # surrogate pair. The README encoders would drop these, so the catalog refuses them
     # rather than publishing text that differs from what was written. The value in the
-    # issue is the offending code point, never the text itself.
+    # issue is the offending code point.
     foreach ($publicText in $publicTexts) {
         $text = [string]$publicText.text
         if ($publicText['nonBlank'] -and -not (Test-VisibleText $text)) {
@@ -820,7 +861,7 @@ function Test-CatalogShape {
         } elseif ($publicText.field -eq 'forkOf' -and ($text.Length -gt 140 -or $text -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z')) {
             # The fork attribution links https://github.com/<forkOf> from the README row, so it
             # takes the schema's owner/repo shape and length too; -Write alone never runs the
-            # schema. Only text that passed the checks above gets here, so it's safe to show.
+            # schema. The issue shows the text with any invisible character as its code point.
             $issues.Add([ordered]@{ repo = $publicText.repo; field = 'forkOf'; value = $text; reason = "forkOf must be owner/repo, at most 140 characters: an account name of letters, digits and hyphens, a slash, then a repository name" })
         } elseif ($text.IndexOfAny([char[]]@([char]0x2014, [char]0x2013)) -ge 0 -or $text.Contains(' -- ')) {
             # The README is public writing, and its style joins clauses with commas, periods or
@@ -833,13 +874,25 @@ function Test-CatalogShape {
 
     # Catalog URLs land in README link destinations, table cells and HTML attributes as
     # written, so a line break, space, quote, angle bracket, backslash or pipe could end
-    # the attribute or tag, or split the table row. The value in the issue is the URL
-    # with any line break shown as a space, so the issue itself stays one line. Header
+    # the attribute or tag, or split the table row. The issue shows the URL with any line
+    # break or other invisible character as its code point, so it stays one line. Header
     # URLs have no scheme check of their own, so they must be https here.
     foreach ($publicUrl in $publicUrls) {
         if ([string]$publicUrl.url -cnotmatch ('^' + $publicUrl.scheme + '://[!#-&(-;=?-\[\]-{}~]+\z')) {
             $schemeText = if ($publicUrl.scheme -eq 'https') { 'an https' } else { 'an http or https' }
-            $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = ([regex]::Replace([string]$publicUrl.url, '[\p{Cc}\u2028\u2029]', ' ')); reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
+            $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = [string]$publicUrl.url; reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
+        }
+    }
+
+    # Issue text reaches the report and the console as written, so every character in it a
+    # reader couldn't see, or that would break or reorder the line, is shown by its code
+    # point: the repo, the value and a reason that quotes one. Done here, once, so no issue
+    # added above can skip it.
+    foreach ($issue in $issues) {
+        foreach ($key in @('repo', 'value', 'reason')) {
+            if ($null -ne $issue[$key]) {
+                $issue[$key] = ConvertTo-VisibleIssueText ([string]$issue[$key])
+            }
         }
     }
 

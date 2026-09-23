@@ -5895,6 +5895,57 @@ Describe 'Catalog URLs and names cannot break a README row' {
         }
     }
 
+    It 'writes each character a reader could not see in an issue as its code point' {
+        $text = 'Win' + [char]0x200B + 'Tool' + [char]0x202E + ' a' + [char]0x00A0 + 'b' + "`t" + [char]::ConvertFromUtf32(0xE0041) + [char]0xD800 + ' ok ' + [char]::ConvertFromUtf32(0x1F600) + [char]0x2065
+
+        ConvertTo-VisibleIssueText $text | Should -BeExactly ('Win{U+200B}Tool{U+202E} a{U+00A0}b{U+0009}{U+E0041}{U+D800} ok ' + [char]::ConvertFromUtf32(0x1F600) + '{U+2065}')
+        ConvertTo-VisibleIssueText 'plain text stays' | Should -BeExactly 'plain text stays'
+    }
+
+    It 'shows invisible characters in the <Field> issue by code point' -ForEach @(
+        @{ Field = 'repo'; Value = 'Win' + [char]0x200B + [char]0x202E + 'Tool' }
+        @{ Field = 'id'; Value = 'abc' + [char]0x200B + 'def' }
+        @{ Field = 'aliases'; Value = 'Old' + [char]0x200B + 'Name' }
+        @{ Field = 'aliasOf'; Value = 'Up' + [char]0x200B + 'stream' }
+        @{ Field = 'category'; Value = 'mi' + [char]0x200B + 'sc' }
+        @{ Field = 'downloadKind'; Value = 'zi' + [char]0x200B + 'p' }
+        @{ Field = 'entrypoint'; Value = 'too' + [char]0x200B + 'l.ps1' }
+        @{ Field = 'installKind'; Value = 'power' + [char]0x200B + 'shell'; Entrypoint = 'tool.ps1' }
+        @{ Field = 'installKind'; Value = 'py' + [char]0x200B + 'thon' }
+        @{ Field = 'branch'; Value = 'ma' + [char]0x200B + 'in' }
+        @{ Field = 'forkOf'; Value = 'owner/re' + [char]0x200B + 'po' }
+        @{ Field = 'liveUrl'; Value = 'https://x.invalid/a' + [char]0x200B + [char]0x202E }
+    ) {
+        # These issue values carried the text as written, so a zero-width space, a bidi mark
+        # or an override went into the report, where it hides or reorders what it says.
+        $entry = New-TestEntry -Repo 'CleanTool' -Category 'misc'
+        if ($Field -eq 'aliases') { $entry.aliases = @($Value) } else { $entry[$Field] = $Value }
+        if ($_.ContainsKey('Entrypoint')) { $entry.entrypoint = $_.Entrypoint }
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues)
+
+        (@($issues | Where-Object { $_.field -eq $Field } | ForEach-Object { $_.value }) -join ' ') | Should -Match '\{U\+200B\}'
+        foreach ($issue in $issues) {
+            foreach ($key in 'repo', 'value', 'reason') {
+                if ($null -ne $issue[$key]) {
+                    ConvertTo-VisibleIssueText ([string]$issue[$key]) | Should -BeExactly ([string]$issue[$key]) -Because "the $($issue.field) issue's $key holds nothing a reader can't see"
+                }
+            }
+        }
+    }
+
+    It 'shows invisible characters in a reason that quotes a name' {
+        $name = 'Dup' + [char]0x200B + 'Tool'
+        $first = New-TestEntry -Repo $name -Category 'misc'
+        $second = New-TestEntry -Repo $name -Category 'misc'
+
+        $duplicate = @((Test-CatalogShape -Catalog @{ entries = @($first, $second) }).issues | Where-Object { $_.reason -like 'duplicate repo*' })
+
+        $duplicate | Should -HaveCount 1
+        $duplicate[0].reason | Should -BeExactly 'duplicate repo also appears as Dup{U+200B}Tool'
+        $duplicate[0].repo | Should -BeExactly 'Dup{U+200B}Tool'
+    }
+
     It 'gives language the one-line check' {
         $entry = New-TestEntry -Repo 'LangTool' -Category 'powershell'
         $entry.language = "C#`nEvil" + [char]0x202E
