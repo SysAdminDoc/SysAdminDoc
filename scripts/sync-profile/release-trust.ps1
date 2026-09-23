@@ -180,8 +180,9 @@ function Get-ReleaseArtifactDownload {
     )
 
     # refused marks what the network can't explain: a host outside GitHub's release hosts,
-    # a redirect the safety checks turn down (to http, a loop, a bad Location, a literal
-    # private address), or a successful body bigger than its cap, which for an asset is its
+    # at the start or at the end of the redirects, a redirect the safety checks turn down
+    # (to http, a loop, a bad Location, a literal private address), or a successful body
+    # bigger than its cap, which for an asset is its
     # published size. A name that DNS answers with a non-public address is what a DNS
     # filter's sinkhole looks like, and an error page over the cap says nothing about the
     # artifact, so both stay unreachable.
@@ -198,6 +199,17 @@ function Get-ReleaseArtifactDownload {
         -MaxBytes $MaxBytes `
         -UserAgent 'SysAdminDoc-release-verifier' `
         -Accept '*/*'
+
+    # Only the first URL's host was checked, so a redirect could hand over a body from any
+    # public host. A chain that ended off GitHub's release hosts is refused, not hashed,
+    # whatever came back; a safety-check refusal keeps its own reason.
+    $finalUrl = [string](Get-MemberValue -Object $download -Name 'finalUrl')
+    $policyBlocked = ConvertTo-BooleanValue (Get-MemberValue -Object $download -Name 'policyBlocked')
+    if (-not $policyBlocked -and -not [string]::IsNullOrWhiteSpace($finalUrl) -and -not (Test-AllowedReleaseArtifactUrl -Url $finalUrl)) {
+        $finalUri = $null
+        $finalHost = if ([System.Uri]::TryCreate($finalUrl, [System.UriKind]::Absolute, [ref]$finalUri)) { $finalUri.Host } else { $finalUrl }
+        return [ordered]@{ ok = $false; refused = $true; byteCapExceeded = $false; bytes = @(); text = $null; error = "redirected to $finalHost, outside GitHub's release hosts"; bytesRead = [int64]$download.bytesRead }
+    }
 
     return [ordered]@{
         ok = [bool]($download.ok -and $download.statusCode -ge 200 -and $download.statusCode -lt 300)

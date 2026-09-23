@@ -3711,6 +3711,36 @@ Describe 'Report schema depth helpers' {
         Should -Invoke Invoke-SafeOutboundHttpRequest -Times 1 -Exactly -ParameterFilter { $Url -like '*Sized.zip' -and $MaxBytes -eq 100 }
     }
 
+    It 'refuses a download whose redirects end at <Case>' -ForEach @(
+        @{ Case = 'a public host outside GitHub''s release hosts'; FinalUrl = 'https://downloads.example/Refused.zip'; Refused = $true }
+        @{ Case = 'nothing when they end on a release host'; FinalUrl = 'https://objects.githubusercontent.com/github-production-release-asset/Refused.zip'; Refused = $false }
+    ) {
+        # Only the first URL's host was checked, so a body from anywhere was hashed.
+        $script:FinalUrlAnswer = $FinalUrl
+        Mock Invoke-SafeOutboundHttpRequest { [ordered]@{ ok = $true; statusCode = 200; error = $null; finalUrl = $script:FinalUrlAnswer; redirectCount = 1; policyBlocked = $false; bytes = @([byte]1); text = 'x'; bytesRead = 1 } }
+
+        $download = Get-ReleaseArtifactDownload -Url 'https://github.com/SysAdminDoc/Refused/releases/download/v1/Refused.zip' -MaxBytes 1024
+
+        $download.refused | Should -Be $Refused
+        if ($Refused) {
+            $download.ok | Should -BeFalse
+            $download.error | Should -Be 'redirected to downloads.example, outside GitHub''s release hosts'
+        } else {
+            $download.ok | Should -BeTrue
+        }
+    }
+
+    It 'says a literal private address was named, not looked up' {
+        # The refusal said DNS returned the address when no lookup had happened.
+        $literal = Resolve-SafeOutboundDestination -Url 'https://10.0.0.1/asset.zip'
+        $answered = Resolve-SafeOutboundDestination -Url 'https://sinkholed.example/asset.zip' -ResolveHostScript { param($HostName) @('0.0.0.0') }
+
+        $literal.error | Should -Be 'Blocked outbound request: the URL names a non-public address, 10.0.0.1'
+        $literal.dnsAnswerBlocked | Should -BeFalse
+        $answered.error | Should -Be 'Blocked outbound request: DNS returned a non-public address for sinkholed.example'
+        $answered.dnsAnswerBlocked | Should -BeTrue
+    }
+
     It 'refuses a download from a host outside GitHub''s release hosts' {
         (Get-ReleaseArtifactDownload -Url 'https://downloads.example/Refused.zip' -MaxBytes 1024).refused | Should -BeTrue
     }

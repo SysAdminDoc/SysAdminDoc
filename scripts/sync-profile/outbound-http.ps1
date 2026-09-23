@@ -143,7 +143,11 @@ function Resolve-SafeOutboundDestination {
         }
 
         if (-not (Test-PublicIPAddress -Address $address)) {
-            return & $blockedResult "DNS returned a non-public address for $hostName" $true ($null -eq $literalAddress)
+            # Say which it was: no lookup happens for a URL that names an address itself.
+            if ($null -ne $literalAddress) {
+                return & $blockedResult "the URL names a non-public address, $hostName"
+            }
+            return & $blockedResult "DNS returned a non-public address for $hostName" $true $true
         }
         $validatedAddresses.Add($address)
     }
