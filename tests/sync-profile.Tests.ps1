@@ -2434,11 +2434,14 @@ Describe 'Repository metadata enrichment' {
 
     It 'fetches latest releases through bounded REST enrichment when GraphQL omits them' {
         $oldOffline = $script:Offline
+        $oldCachePath = $script:CachePath
         $ownerVariable = Get-Variable -Name Owner -Scope Script -ErrorAction SilentlyContinue
         $hadOwner = ($null -ne $ownerVariable)
         $oldOwner = if ($hadOwner) { $ownerVariable.Value } else { $null }
         $script:Offline = $false
         $script:Owner = 'SysAdminDoc'
+        # Online release fetches write the validation cache; keep that out of the repo.
+        $script:CachePath = Join-Path $TestDrive 'release-enrichment-cache'
 
         function gh {
             param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
@@ -2492,6 +2495,7 @@ Describe 'Repository metadata enrichment' {
             $state.noRelease404Count | Should -Be 1
         } finally {
             $script:Offline = $oldOffline
+            $script:CachePath = $oldCachePath
             if ($hadOwner) {
                 $script:Owner = $oldOwner
             } else {
@@ -8479,6 +8483,8 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
                 CurrentProjects = $Baseline.ExpectedProjects
                 CurrentAssets = $Baseline.ExpectedAssets
                 SkipLinkValidation = $true
+                # A missing smoke artifact, so a local rendered-smoke run cannot change the result.
+                SmokeReportPath = (Join-Path $TestDrive 'no-smoke-run.json')
             }
             foreach ($key in $Override.Keys) { $parameters[$key] = $Override[$key] }
             Test-ProfileState @parameters
@@ -8496,14 +8502,25 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         $script:ReachabilityBaselineFired = @()
 
         function script:Assert-ConditionNewlyFired {
-            param([object]$Result, [string]$Condition)
+            # -AlsoFires names conditions the plant fires by its nature (a duplicate catalog
+            # row is also a duplicate feed row); they must fire too, so the list stays exact.
+            param([object]$Result, [string]$Condition, [string[]]$AlsoFires = @())
             $Result.Failed | Should -BeTrue -Because "planting a $Condition violation must fail the run"
             [bool]$Result.FailureConditions[$Condition] | Should -BeTrue -Because "$Condition must report the violation it exists to catch"
             $script:ReachabilityBaselineFired | Should -Not -Contain $Condition -Because "$Condition must be green before the plant, or the case proves nothing"
+            foreach ($expected in $AlsoFires) {
+                [bool]$Result.FailureConditions[$expected] | Should -BeTrue -Because "planting $Condition is expected to fire $expected as well"
+            }
             $unexpected = @(script:Get-FiredConditions -Result $Result |
-                Where-Object { $_ -ne $Condition -and $_ -notin $script:ReachabilityBaselineFired })
+                Where-Object { $_ -ne $Condition -and $_ -notin $AlsoFires -and $_ -notin $script:ReachabilityBaselineFired })
             $unexpected | Should -BeNullOrEmpty -Because "planting $Condition must not flip anything else; also fired: $($unexpected -join ', ')"
         }
+
+        # The runtime check reflects the PowerShell running the suite, so an older host past
+        # its support window would start every case red. Pin it to a supported version and
+        # date; the runtimeSecurity case feeds the same real check an unsupported one.
+        $script:RealRuntimeSecurity = ${function:Test-PowerShellRuntimeSecurity}
+        Mock Test-PowerShellRuntimeSecurity { & $script:RealRuntimeSecurity -Version ([version]'7.6.6') -Now ([datetimeoffset]'2026-09-23T00:00:00Z') }
 
         $script:ReachabilityBaseline = script:New-ReachabilityBaseline -Catalog (Get-Catalog -Path $script:ReachabilityCatalogPath)
         $script:ReachabilityBaselineFired = @(script:Get-FiredConditions -Result (script:Invoke-ReachabilityState -Baseline $script:ReachabilityBaseline))
@@ -8558,20 +8575,30 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['catalogShape'] | Should -BeTrue
+        # A duplicate catalog row is also a duplicate feed row: same repo name, same id.
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'catalogShape' -AlsoFires @('portfolioCompatibility', 'stableEntityIds')
         @($result.Report.catalogShape.issues | Where-Object { $_.reason -match 'duplicate' }).Count | Should -BeGreaterThan 0
+    }
+
+    It 'fires catalogShape alone on a title with a bidi override' {
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $catalog.entries[0].title = 'Win' + [char]0x202E + 'Tool'
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'catalogShape'
+        @($result.Report.catalogShape.issues | Where-Object { $_.value -eq 'U+202E' }).Count | Should -Be 1
     }
 
     It 'fires missingPublic when a live repo has no catalog row' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
-        $repos = @((New-TestRepoMeta -Name 'UncatalogedTool' -Language 'PowerShell'))
+        $repos = @($script:ReachabilityRepos + (New-TestRepoMeta -Name 'UncatalogedTool' -Language 'PowerShell'))
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['missingPublic'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'missingPublic'
         @($result.Report.missingPublicRepos).Count | Should -BeGreaterThan 0
     }
 
@@ -8582,8 +8609,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['urlSchemeViolations'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'urlSchemeViolations'
     }
 
     It 'fires orphanedSuppressed when a suppressed row states no reason' {
@@ -8595,8 +8621,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['orphanedSuppressed'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'orphanedSuppressed'
     }
 
     It 'fires linkFailures on a dead local anchor with no network access' {
@@ -8629,8 +8654,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['catalogFeedAccounting'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'catalogFeedAccounting'
     }
 
     It 'fires readmeExperience when the header contract breaks' {
@@ -8643,8 +8667,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
             CurrentReadme = $broken
         }
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['readmeExperience'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'readmeExperience'
     }
 
     It 'fires medicalViolations on an unflagged medical-imaging row' {
@@ -8656,14 +8679,12 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         $medical = New-TestEntry -Repo 'Dicom-Bridge' -Category 'desktop'
         $medical.allowPublicMedical = $false
         $catalog.entries = @($catalog.entries + $medical)
-        $repos = @((New-TestRepoMeta -Name 'Dicom-Bridge' -Language 'C#'))
+        $repos = @($script:ReachabilityRepos + (New-TestRepoMeta -Name 'Dicom-Bridge' -Language 'C#'))
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['medicalViolations'] | Should -BeTrue
-        $script:ReachabilityBaselineFired | Should -Not -Contain 'medicalViolations'
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'medicalViolations'
         @($result.Report.medicalPrivacyViolations | Where-Object { $_.repo -eq 'Dicom-Bridge' }).Count | Should -Be 1
     }
 
@@ -8679,10 +8700,8 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
             CurrentProjects = ($payload | ConvertTo-Json -Depth 20)
         }
 
-        $result.Failed | Should -BeTrue
-        [bool]$result.FailureConditions['metadataDrift'] | Should -BeTrue
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'metadataDrift' -AlsoFires @('projectsExportInSync')
         $result.Report.metadataDriftSummary.fatalCount | Should -BeGreaterThan 0
-        $script:ReachabilityBaselineFired | Should -Not -Contain 'metadataDrift'
     }
 
     It 'fires privateViolations when a cataloged repo turns private' {
@@ -8815,9 +8834,8 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
     }
 
     It 'fires runtimeSecurity on a PowerShell below the generator floor' {
-        # The real check, fed a version the suite is not running on.
-        $script:RealRuntimeSecurity = ${function:Test-PowerShellRuntimeSecurity}
-        Mock Test-PowerShellRuntimeSecurity { & $script:RealRuntimeSecurity -Version ([version]'7.2.0') }
+        # The real check (captured before the Describe-level pin), fed an unsupported version.
+        Mock Test-PowerShellRuntimeSecurity { & $script:RealRuntimeSecurity -Version ([version]'7.2.0') -Now ([datetimeoffset]'2026-09-23T00:00:00Z') }
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
 
@@ -8825,6 +8843,101 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
         script:Assert-ConditionNewlyFired -Result $result -Condition 'runtimeSecurity'
         $result.Report.runtimeSecurity.status | Should -Be 'fail'
+    }
+
+    It 'fires releaseArtifactVerification on a release asset that fails its checksum' {
+        # Downloads are the seam: the real verifier runs, fed bytes that disagree with the
+        # published SHA-256.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $release = New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -AssetNames @('ReleaseTool.zip', 'SHA256SUMS')
+        Set-MemberValue -Object $release.latestRelease -Name 'releaseAssets' -Value @(
+            [pscustomobject]@{ name = 'ReleaseTool.zip'; browserDownloadUrl = 'https://github.com/SysAdminDoc/ReleaseTool/releases/download/v1.0.0/ReleaseTool.zip'; size = 15 },
+            [pscustomobject]@{ name = 'SHA256SUMS'; browserDownloadUrl = 'https://github.com/SysAdminDoc/ReleaseTool/releases/download/v1.0.0/SHA256SUMS'; size = 90 }
+        )
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos @($release)
+        Mock Get-ReleaseArtifactDownload {
+            if ($Url -like '*SHA256SUMS') {
+                $text = ('0' * 64) + '  ReleaseTool.zip'
+                return [ordered]@{ ok = $true; bytes = [System.Text.Encoding]::UTF8.GetBytes($text); text = $text; error = $null; bytesRead = $text.Length }
+            }
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes('release payload')
+            [ordered]@{ ok = $true; bytes = $bytes; text = $null; error = $null; bytesRead = $bytes.Length }
+        }
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ VerifyReleaseArtifacts = $true }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'releaseArtifactVerification'
+        $result.Report.releaseArtifactVerification.failureCount | Should -Be 1
+        Should -Invoke Get-ReleaseArtifactDownload -Times 2 -Exactly
+    }
+
+    It 'fires schemaValidation when only the report breaks its schema' {
+        # The other schemaValidation case breaks the feed. This one leaves catalog and feed
+        # valid and points the report check at a copy of its schema that demands one more
+        # field, so only the report half of schemaValidation can fail.
+        $schema = Get-Content -LiteralPath $script:ReportSchemaPath -Raw | ConvertFrom-Json -AsHashtable
+        $schema['$id'] = 'https://example.test/schemas/profile-sync-report.planted.json'
+        $schema['required'] = @($schema['required']) + 'fieldThatNoReportHas'
+        $plantedSchemaPath = Join-Path $TestDrive 'profile-sync-report.planted.json'
+        $schema | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $plantedSchemaPath -Encoding utf8
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog
+
+        $savedSchemaPath = $script:ReportSchemaPath
+        $script:ReportSchemaPath = $plantedSchemaPath
+        try {
+            $result = script:Invoke-ReachabilityState -Baseline $baseline
+        } finally {
+            $script:ReportSchemaPath = $savedSchemaPath
+        }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'schemaValidation'
+        $result.Report.schemaValidation.projects.valid | Should -BeTrue
+        $result.Report.schemaValidation.report.valid | Should -BeFalse
+    }
+
+    It 'fires linkFailures when a live link probe reports a dead target' {
+        # Probes run in parallel runspaces a mock cannot reach, so the seam is Test-LinkTargets.
+        # It answers with one fatal failure, which proves live probe failures, not only dead
+        # anchors, reach the condition. Every visible row has metadata so no gh lookup runs,
+        # gh itself fails, and userscript trust stays in its skip mode.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $visible = @($catalog.entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) })
+        $repos = @($visible | ForEach-Object {
+            if ($_.repo -eq 'ReleaseTool') { $script:ReachabilityRepos[0] } else { New-TestRepoMeta -Name ([string]$_.repo) }
+        })
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos $repos
+        $script:RealUserscriptTrust = ${function:Test-UserscriptInstallTrust}
+        Mock Test-UserscriptInstallTrust { & $script:RealUserscriptTrust -Entries $Entries -Skip }
+        Mock Invoke-GhCli { [ordered]@{ output = 'gh unavailable in this test'; exitCode = 1; text = 'gh unavailable in this test' } }
+        Mock Test-LinkTargets {
+            [ordered]@{
+                failures = @([ordered]@{ repo = 'WinTool'; type = 'repo'; url = 'https://github.com/SysAdminDoc/WinTool'; host = 'github.com'; status = 404; error = 'HTTP 404' })
+                warnings = @()
+                targetCount = 1
+                liveProbedCount = 1
+                cacheServedCount = 0
+                oldestCacheEntryAgeHours = $null
+                allResultsFromCache = $false
+                throttleLimit = 1
+                elapsedMs = 0
+                warningCountByHost = @()
+                headerHostWarnings = @()
+                deferredRetries = @()
+            }
+        }
+
+        $savedOffline = $script:Offline
+        $script:Offline = $false
+        try {
+            $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{ SkipLinkValidation = $false }
+        } finally {
+            $script:Offline = $savedOffline
+        }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'linkFailures'
+        @($result.Report.linkValidationFailures | Where-Object { $_.type -eq 'repo' -and $_.status -eq 404 }).Count | Should -Be 1
+        Should -Invoke Test-LinkTargets -Times 1 -Exactly
     }
 
     It 'fires releaseArtifactVerification only when the switch is set' {
@@ -10877,6 +10990,9 @@ Describe 'Rendered smoke helpers (in-process)' {
         # Loads the helpers only: the seam stops before the output directory is created or a
         # browser starts. Invoke-RenderedSmoke is never called here.
         . (Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1') -OutputDir (Join-Path $TestDrive 'never-created')
+        # That dot-source ran the generator's entry again, which reset $script:Offline from
+        # its own -Offline parameter ($false); put the suite back offline.
+        $script:Offline = $true
     }
 
     It 'loads without creating the output directory' {
