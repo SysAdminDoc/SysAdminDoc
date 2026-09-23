@@ -7677,8 +7677,9 @@ Describe 'Report section enforcement declarations' {
     }
 
     It 'declares an enforcement for every report section and for nothing else' {
-        # The report schema's required list is the full set of top-level sections.
-        $sections = @($script:EnforcementSchema.required | Where-Object { $_ -ne 'sectionEnforcement' } | Sort-Object)
+        # The report schema's required list is the full set of top-level sections,
+        # sectionEnforcement included.
+        $sections = @($script:EnforcementSchema.required | Sort-Object)
         $declared = @($script:ReportSectionEnforcement.Keys | Sort-Object)
 
         $sections.Count | Should -BeGreaterThan 50
@@ -7719,9 +7720,22 @@ Describe 'Report section enforcement declarations' {
         $allowed | Should -Not -Contain 'undeclared'
     }
 
+    It 'fails the report schema when a section is recorded as undeclared' {
+        $report = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw)
+        $sections = Get-MemberValue -Object (Get-MemberValue -Object $report -Name 'sectionEnforcement') -Name 'sections'
+        Set-MemberValue -Object $sections -Name 'brandNewSection' -Value 'undeclared'
+
+        $result = Test-JsonSchemaContract -Value $report -SchemaPath 'schemas/profile-sync-report.v1.json'
+
+        $result.valid | Should -BeFalse -Because 'schemaValidation is blocking, so this is what fails the run'
+        $failure = @($result.errors | Where-Object { $_.instanceLocation -eq '/sectionEnforcement/sections/brandNewSection' })
+        $failure | Should -HaveCount 1
+        $failure[0].keywordLocation | Should -BeLike '*/sections/additionalProperties/enum'
+    }
+
     It 'publishes the declarations in the committed report' {
         $report = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') -Raw | ConvertFrom-Json
-        $reportSections = @($report.PSObject.Properties.Name | Where-Object { $_ -ne 'sectionEnforcement' } | Sort-Object)
+        $reportSections = @($report.PSObject.Properties.Name | Sort-Object)
         $published = @($report.sectionEnforcement.sections.PSObject.Properties.Name | Sort-Object)
 
         $published | Should -Be $reportSections

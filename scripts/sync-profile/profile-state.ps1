@@ -64,6 +64,7 @@ $script:ReportSectionEnforcement = [ordered]@{
     rootMarkdownHygiene = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'A documentation-contract reminder; stray root Markdown is gitignored and never published.' }
     profileAssetsAccessibility = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Contrast of generated SVGs. None are generated, and any stray file already fails profileAssetsInSync.' }
     readmeExperienceChecks = [ordered]@{ enforcement = 'blocking'; failureCondition = 'readmeExperience' }
+    sectionEnforcement = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Declares the enforcement of every section, itself included; an undeclared section fails the report schema instead.' }
 }
 
 function New-ReportSectionEnforcement {
@@ -590,7 +591,8 @@ function Test-ProfileState {
         profileAssetsAccessibility = $profileAssetsAccessibility
         readmeExperienceChecks = $experienceChecks
     }
-    $report.sectionEnforcement = New-ReportSectionEnforcement -Sections @($report.Keys)
+    # Listed before it exists, so the declaration block covers itself too.
+    $report.sectionEnforcement = New-ReportSectionEnforcement -Sections (@($report.Keys) + 'sectionEnforcement')
     # Compact report sections to keep the committed JSON below the 70 % soft-limit.
     # The live PS objects are still fully populated for downstream use within this
     # function; only the serialised report copy is stripped here.
