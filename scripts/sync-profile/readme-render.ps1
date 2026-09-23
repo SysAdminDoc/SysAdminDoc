@@ -184,7 +184,7 @@ function New-CategoryPreviewLine {
     $picks = @($Items |
         Sort-Object @{ Expression = { if ($_.featured -eq $true) { 0 } else { 1 } } },
                     @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { [int]$_.order } } },
-                    repo |
+                    @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } } |
         Select-Object -First 3)
 
     if ($picks.Count -eq 0) {
@@ -369,12 +369,12 @@ function New-ToolCatalogCell {
         $key = ([string]$_.repo).ToLowerInvariant()
         $m = if ($lookup -and $lookup.ContainsKey($key)) { $lookup[$key] } else { $null }
         if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
-    }; Descending = $true }, repo)
+    }; Descending = $true }, @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } })
 
     $picks = @($items |
         Sort-Object @{ Expression = { if ($_.featured -eq $true) { 0 } else { 1 } } },
                     @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { [int]$_.order } } },
-                    repo |
+                    @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } } |
         Select-Object -First 3)
 
     $pickLinks = @($picks | ForEach-Object { "[**$($_.title)**]($(Get-RepoUrl $_))" })
@@ -565,7 +565,7 @@ function New-CategorySection {
         $key = ([string]$_.repo).ToLowerInvariant()
         $m = if ($RepoLookup -and $RepoLookup.ContainsKey($key)) { $RepoLookup[$key] } else { $null }
         if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
-    }; Descending = $true }, repo)
+    }; Descending = $true }, @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } })
     # Skip categories with no visible entries so an empty <details> shell is never rendered.
     if ($items.Count -eq 0) {
         return ""

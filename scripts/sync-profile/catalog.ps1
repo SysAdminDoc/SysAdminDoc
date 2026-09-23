@@ -283,7 +283,7 @@ function Get-ProjectAliases {
         $aliases.Add([string]$Entry.repo)
     }
 
-    return @($aliases.ToArray() | Sort-Object)
+    return @($aliases.ToArray() | Sort-Object { ConvertTo-OrdinalSortKey $_ })
 }
 
 function Get-StableProjectEntityId {

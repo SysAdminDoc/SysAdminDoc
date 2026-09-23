@@ -235,7 +235,7 @@ function New-BackstageCatalogExport {
     $privateSkippedCount = 0
     $missingMetadataCount = 0
 
-    foreach ($entry in @($Catalog.entries | Sort-Object category, @{ Expression = { [int]$_.order } }, repo)) {
+    foreach ($entry in @($Catalog.entries | Sort-Object @{ Expression = { ConvertTo-OrdinalSortKey $_.category } }, @{ Expression = { [int]$_.order } }, @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } })) {
         $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
         if ($isSuppressed -or $entry.includeInPortfolio -eq $false) {
             $suppressedCount++
@@ -283,7 +283,7 @@ function New-BackstageCatalogExport {
                 name = Get-BackstageEntityName -Entry $entry
                 title = [string]$entry.title
                 description = Get-Description -Entry $entry -Meta $meta
-                tags = @($tags | Sort-Object)
+                tags = @($tags | Sort-Object { ConvertTo-OrdinalSortKey $_ })
                 links = $links.ToArray()
             }
             spec = [ordered]@{
@@ -397,7 +397,7 @@ function New-ProjectsExportJson {
     )
 
     $repoLookup = ConvertTo-Lookup $Repos
-    $entries = @($Catalog.entries | Sort-Object category, @{ Expression = { [int]$_.order } }, repo)
+    $entries = @($Catalog.entries | Sort-Object @{ Expression = { ConvertTo-OrdinalSortKey $_.category } }, @{ Expression = { [int]$_.order } }, @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } })
     $projects = New-Object System.Collections.Generic.List[object]
     $suppressed = New-Object System.Collections.Generic.List[object]
     $suppressedIndex = 0
@@ -417,7 +417,7 @@ function New-ProjectsExportJson {
         $primaryAction = Get-PrimaryAction $entry $meta $entry.category
         $topics = @()
         if ($meta -and $meta.repositoryTopics) {
-            $topics = @($meta.repositoryTopics | ForEach-Object { $_.name } | Sort-Object)
+            $topics = @($meta.repositoryTopics | ForEach-Object { $_.name } | Sort-Object { ConvertTo-OrdinalSortKey $_ })
         }
         $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
         $releaseAssetKinds = @()
@@ -808,7 +808,7 @@ function Test-PortfolioFeedCompatibility {
     $actionKinds = @($projects | ForEach-Object {
             $primaryAction = Get-MemberValue -Object $_ -Name "primaryAction"
             [string](Get-MemberValue -Object $primaryAction -Name "kind")
-        } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+        } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object { ConvertTo-OrdinalSortKey $_ } -Unique)
     foreach ($kind in $actionKinds) {
         $primaryActionKindCounts.Add([ordered]@{
             kind = $kind

@@ -2916,6 +2916,157 @@ Describe 'Offline generation with an empty repository set' {
     }
 }
 
+Describe 'Generation determinism across culture, time zone and input order' {
+    BeforeAll {
+        # Culture is per thread, but the local time zone comes from the OS. The zone is
+        # swapped through TimeZoneInfo's private cache and restored with ClearCachedData.
+        # A renamed field throws here rather than leaving the zone unchanged and the
+        # comparison meaningless.
+        function script:Set-DeterminismTimeZone {
+            param([string]$Id)
+
+            [TimeZoneInfo]::ClearCachedData()
+            if ([string]::IsNullOrWhiteSpace($Id)) {
+                return
+            }
+            $cachedField = [TimeZoneInfo].GetField('s_cachedData', [Reflection.BindingFlags]'NonPublic,Static')
+            if ($null -eq $cachedField) { throw 'TimeZoneInfo.s_cachedData not found; the determinism time-zone seam needs updating.' }
+            $cached = $cachedField.GetValue($null)
+            $localField = $cached.GetType().GetField('_localTimeZone', [Reflection.BindingFlags]'NonPublic,Instance')
+            if ($null -eq $localField) { throw 'TimeZoneInfo cached _localTimeZone not found; the determinism time-zone seam needs updating.' }
+            $zone = [TimeZoneInfo]::FindSystemTimeZoneById($Id)
+            $localField.SetValue($cached, $zone)
+            if ([TimeZoneInfo]::Local.Id -ne $zone.Id) { throw "Local time zone did not switch to $Id." }
+        }
+
+        # Repository metadata as gh returns it: JSON text parsed inside each run, so date
+        # parsing happens under that run's culture and zone. Star counts cycle through
+        # three values so most rows tie and fall through to the name ordering, which is
+        # where locale-sensitive comparison showed up (IRL_Streamer before iOSIconPack).
+        $script:DeterminismCatalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $index = 0
+        $script:DeterminismRepoJson = @(foreach ($entry in @($script:DeterminismCatalog.entries | Where-Object {
+                        [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) -and [string]::IsNullOrWhiteSpace([string]$_.aliasOf)
+                    })) {
+                $index++
+                [ordered]@{
+                    name = [string]$entry.repo
+                    description = "Fixture description for $($entry.repo)"
+                    stargazerCount = $index % 3
+                    primaryLanguage = [ordered]@{ name = 'PowerShell' }
+                    repositoryTopics = @([ordered]@{ name = 'utility' }, [ordered]@{ name = 'Ideas' }, [ordered]@{ name = 'iot' })
+                    defaultBranchRef = [ordered]@{ name = 'main'; target = [ordered]@{ oid = ('{0:x40}' -f $index) } }
+                    latestRelease = $null
+                    licenseInfo = [ordered]@{ spdxId = 'MIT'; key = 'mit'; name = 'MIT License' }
+                    isFork = $false
+                    parent = $null
+                    visibility = 'PUBLIC'
+                    isPrivate = $false
+                    isArchived = $false
+                    pushedAt = '2026-06-04T00:00:00Z'
+                    url = "https://github.com/SysAdminDoc/$($entry.repo)"
+                    branchTipSha = ('{0:x40}' -f $index)
+                    branchTipFetchedAt = '2026-06-04T00:00:00Z'
+                    branchTipStatus = 'fresh'
+                    branchTipWarning = $null
+                } | ConvertTo-Json -Depth 10 -Compress
+            })
+
+        function script:Invoke-DeterministicGeneration {
+            param(
+                [hashtable]$Catalog,
+                [string[]]$RepoJson,
+                [string]$Culture = 'en-US',
+                [string]$TimeZoneId = 'UTC'
+            )
+
+            $oldCulture = [cultureinfo]::CurrentCulture
+            $oldUiCulture = [cultureinfo]::CurrentUICulture
+            $oldSnapshotAt = $script:MetadataSnapshotAt
+            try {
+                [cultureinfo]::CurrentCulture = $Culture
+                [cultureinfo]::CurrentUICulture = $Culture
+                script:Set-DeterminismTimeZone -Id $TimeZoneId
+                $script:MetadataSnapshotAt = '2026-08-23T12:00:00.0000000Z'
+                $repos = @($RepoJson | ForEach-Object { $_ | ConvertFrom-Json })
+                $artifacts = [ordered]@{
+                    culture = [cultureinfo]::CurrentCulture.Name
+                    timeZone = [TimeZoneInfo]::Local.Id
+                    readme = New-Readme -Catalog $Catalog -Repos $repos
+                    projects = New-ProjectsExportJson -Catalog $Catalog -Repos $repos -GeneratedAt '2026-08-23T12:00:01.0000000Z'
+                    backstage = New-BackstageCatalogExportJson -Catalog $Catalog -Repos $repos
+                }
+                return $artifacts
+            } finally {
+                [cultureinfo]::CurrentCulture = $oldCulture
+                [cultureinfo]::CurrentUICulture = $oldUiCulture
+                $script:MetadataSnapshotAt = $oldSnapshotAt
+                script:Set-DeterminismTimeZone -Id $null
+            }
+        }
+
+        function script:Assert-SameGeneration {
+            param([System.Collections.IDictionary]$Actual, [string]$Because)
+            foreach ($artifact in @('readme', 'projects', 'backstage')) {
+                $Actual[$artifact] | Should -BeExactly $script:DeterminismBaseline[$artifact] -Because "$artifact must not change $Because"
+            }
+        }
+
+        $script:DeterminismBaseline = script:Invoke-DeterministicGeneration -Catalog $script:DeterminismCatalog -RepoJson $script:DeterminismRepoJson
+    }
+
+    It 'records the baseline under en-US in UTC' {
+        $script:DeterminismBaseline.culture | Should -Be 'en-US'
+        $script:DeterminismBaseline.timeZone | Should -Be ([TimeZoneInfo]::FindSystemTimeZoneById('UTC').Id)
+        $script:DeterminismBaseline.readme | Should -Match 'iOSIconPack'
+        $script:DeterminismBaseline.readme | Should -Match 'IRL_Streamer'
+    }
+
+    It 'renders byte-identical README, feed and Backstage output under tr-TR' {
+        $turkish = script:Invoke-DeterministicGeneration -Catalog $script:DeterminismCatalog -RepoJson $script:DeterminismRepoJson -Culture 'tr-TR'
+
+        $turkish.culture | Should -Be 'tr-TR'
+        script:Assert-SameGeneration -Actual $turkish -Because 'when the process culture is tr-TR'
+    }
+
+    It 'renders byte-identical README, feed and Backstage output in America/New_York' {
+        $eastern = script:Invoke-DeterministicGeneration -Catalog $script:DeterminismCatalog -RepoJson $script:DeterminismRepoJson -TimeZoneId 'America/New_York'
+
+        $eastern.timeZone | Should -Be ([TimeZoneInfo]::FindSystemTimeZoneById('America/New_York').Id)
+        script:Assert-SameGeneration -Actual $eastern -Because 'when the local time zone is America/New_York'
+    }
+
+    It 'renders byte-identical output for 20 shuffled catalog and repository orders' -Tag 'Integration' {
+        $random = [Random]::new(20260922)
+        for ($shuffle = 1; $shuffle -le 20; $shuffle++) {
+            $catalog = @{}
+            foreach ($key in $script:DeterminismCatalog.Keys) { $catalog[$key] = $script:DeterminismCatalog[$key] }
+            $catalog.entries = @($script:DeterminismCatalog.entries | Sort-Object { $random.Next() })
+            $repoJson = @($script:DeterminismRepoJson | Sort-Object { $random.Next() })
+
+            $shuffled = script:Invoke-DeterministicGeneration -Catalog $catalog -RepoJson $repoJson
+
+            script:Assert-SameGeneration -Actual $shuffled -Because "for shuffle $shuffle"
+        }
+    }
+
+    It 'orders identifiers by OrdinalIgnoreCase whatever the culture' {
+        $names = @('IRL_Streamer', 'iOSIconPack', 'IconForge', 'improve-repo', 'IMDb_Enhanced', 'Images', 'ImgConverter')
+        $expected = [string[]]$names.Clone()
+        [Array]::Sort($expected, [StringComparer]::OrdinalIgnoreCase)
+        $oldCulture = [cultureinfo]::CurrentCulture
+        try {
+            foreach ($culture in @('en-US', 'tr-TR', 'da-DK', 'lt-LT')) {
+                [cultureinfo]::CurrentCulture = $culture
+                @($names | Sort-Object { ConvertTo-OrdinalSortKey $_ }) | Should -Be $expected -Because "order under $culture"
+            }
+        } finally {
+            [cultureinfo]::CurrentCulture = $oldCulture
+        }
+        ConvertTo-OrdinalSortKey $null | Should -Be ''
+    }
+}
+
 Describe 'Empty category sections are not rendered' {
     It 'returns an empty string for a category with no visible entries' {
         $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'security' } | Select-Object -First 1

@@ -45,6 +45,33 @@ function ConvertTo-IsoText {
     return [string]$Value
 }
 
+function ConvertTo-OrdinalSortKey {
+    <#
+    .SYNOPSIS
+    Returns a Sort-Object key that orders strings case-insensitively by code unit under any culture.
+    .DESCRIPTION
+    Sort-Object compares strings with the current culture, so generated order moved with the
+    machine locale: under tr-TR a dotless capital I sorts before a dotted small i, and
+    IRL_Streamer jumped ahead of iOSIconPack. Each UTF-16 code unit of the invariant
+    upper-cased value becomes five decimal digits. Digits collate the same way in every
+    culture, so sorting the keys gives the OrdinalIgnoreCase order of the values.
+    .PARAMETER Value
+    Identifier to order: a repository name, category slug, topic, tag or action kind.
+    #>
+    [CmdletBinding()]
+    param([AllowNull()][string]$Value)
+
+    if ([string]::IsNullOrEmpty($Value)) {
+        return ''
+    }
+    $upper = $Value.ToUpperInvariant()
+    $builder = [System.Text.StringBuilder]::new($upper.Length * 5)
+    foreach ($codeUnit in $upper.ToCharArray()) {
+        [void]$builder.Append(([int]$codeUnit).ToString('D5', [System.Globalization.CultureInfo]::InvariantCulture))
+    }
+    return $builder.ToString()
+}
+
 function ConvertTo-DateTimeOffsetOrNull {
     param([object]$Value)
 
