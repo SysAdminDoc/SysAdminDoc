@@ -55,19 +55,33 @@ BeforeAll {
     # Should -Be and -BeExactly compare by culture, which skips zero-width, bidi and other
     # ignorable characters: 'ab' | Should -BeExactly "a<ZWJ>b" passes. -BeOrdinal compares
     # code unit by code unit, keeps $null apart from '', and shows a mismatch as code points.
-    Add-ShouldOperator -Name BeOrdinal -Test {
+    # It takes what's piped in as a whole (one item is that item, none is $null), so a list
+    # has to match a list item by item and doesn't pass because each item matches alone.
+    Add-ShouldOperator -Name BeOrdinal -SupportsArrayInput -Test {
         param($ActualValue, $ExpectedValue, [switch]$Negate, [string]$Because)
-        $succeeded = if ($null -eq $ActualValue -or $null -eq $ExpectedValue) {
-            $null -eq $ActualValue -and $null -eq $ExpectedValue
+        $asList = { param($Value) if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) { , @($Value) } else { $null } }
+        $actualItems = & $asList $ActualValue
+        if ($null -ne $actualItems -and $actualItems.Count -le 1) { $ActualValue = if ($actualItems.Count -eq 1) { $actualItems[0] } else { $null }; $actualItems = $null }
+        $expectedItems = & $asList $ExpectedValue
+        $same = {
+            param($Left, $Right)
+            if ($null -eq $Left -or $null -eq $Right) { return ($null -eq $Left -and $null -eq $Right) }
+            [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
+        }
+        $succeeded = if ($null -ne $actualItems -or $null -ne $expectedItems) {
+            $null -ne $actualItems -and $null -ne $expectedItems -and $actualItems.Count -eq $expectedItems.Count -and
+            @(for ($index = 0; $index -lt $actualItems.Count; $index++) { if (-not (& $same $actualItems[$index] $expectedItems[$index])) { $index } }).Count -eq 0
         } else {
-            [string]::Equals([string]$ActualValue, [string]$ExpectedValue, [StringComparison]::Ordinal)
+            & $same $ActualValue $ExpectedValue
         }
         if ($Negate) { $succeeded = -not $succeeded }
         $show = {
             param($Value)
             if ($null -eq $Value) { return '$null' }
+            if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) { return '@(' + ((@($Value) | ForEach-Object { & $show $_ }) -join ', ') + ')' }
             "'" + ((([string]$Value).ToCharArray() | ForEach-Object { if ([int]$_ -lt 0x20 -or [int]$_ -gt 0x7E) { '{U+' + ('{0:X4}' -f [int]$_) + '}' } else { [string]$_ } }) -join '') + "'"
         }
+        if ($null -ne $actualItems) { $ActualValue = $actualItems }
         $failure = if ($succeeded) { $null } elseif ($Negate) { "Expected anything but $(& $show $ExpectedValue), compared ordinally." } else { "Expected $(& $show $ExpectedValue), compared ordinally, but got $(& $show $ActualValue)." }
         if ($failure -and $Because) { $failure += " Because $Because" }
         [pscustomobject]@{ Succeeded = $succeeded; FailureMessage = $failure }
@@ -351,7 +365,7 @@ Describe 'Public text is encoded for where it lands' {
         ConvertTo-MarkdownText ("a" + [char]0x85 + "b") | Should -BeOrdinal 'a b'
         ConvertTo-MarkdownText ("x" + [char]0xD800 + "y") | Should -BeOrdinal ("x" + [char]0xFFFD + "y")
         $emoji = [char]::ConvertFromUtf32(0x1F600)
-        ConvertTo-MarkdownText "ok $emoji" | Should -Be "ok $emoji"
+        ConvertTo-MarkdownText "ok $emoji" | Should -BeOrdinal "ok $emoji"
     }
 
     It 'leaves ordinary accented, non-Latin and emphasized text alone' {
@@ -771,7 +785,7 @@ Start-Tool WinTool
         }
 
         Start-Tool wintool
-        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\ran.txt') | Should -Be 'ran'
+        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\ran.txt') | Should -BeOrdinal 'ran'
     }
 
     It 'treats a python that can''t report its version as missing' {
@@ -1406,9 +1420,9 @@ Describe 'Repository settings read empty live lists as empty' {
             $script:Offline = $savedOffline
         }
 
-        $script:GhCalls | Should -Contain "api repos/SysAdminDoc/SysAdminDoc/branches/$Segment/protection"
-        $script:GhCalls | Should -Contain "api repos/SysAdminDoc/SysAdminDoc/rules/branches/$Segment --paginate --slurp"
-        $script:GhCalls | Should -Contain 'api repos/SysAdminDoc/SysAdminDoc/rulesets --paginate --slurp'
+        @($script:GhCalls).Contains("api repos/SysAdminDoc/SysAdminDoc/branches/$Segment/protection") | Should -BeTrue -Because ($script:GhCalls -join '; ')
+        @($script:GhCalls).Contains("api repos/SysAdminDoc/SysAdminDoc/rules/branches/$Segment --paginate --slurp") | Should -BeTrue -Because ($script:GhCalls -join '; ')
+        @($script:GhCalls).Contains('api repos/SysAdminDoc/SysAdminDoc/rulesets --paginate --slurp') | Should -BeTrue -Because ($script:GhCalls -join '; ')
         $rulesets = $result['repositorySettings'].rulesets
         $rulesets.count | Should -Be 2
         $rulesets.requiresStatusChecks | Should -BeTrue -Because 'the required-check rule is on the second page'
@@ -3189,7 +3203,7 @@ Describe 'Validation cache' {
             $cacheFile = Get-ValidationCacheFilePath -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey)
             $cacheEnvelope = Read-ValidationCacheEntry -Bucket metadata -Key (Get-CompleteGenerationSnapshotCacheKey)
 
-            $snapshot.owner | Should -Be 'SysAdminDoc'
+            $snapshot.owner | Should -BeOrdinal 'SysAdminDoc'
             $snapshot.sourceComplete | Should -BeTrue
             $snapshot.sourceCompleteness.repositoryEnumeration | Should -BeTrue
             $snapshot.sourceCompleteness.releases | Should -BeTrue
@@ -3200,9 +3214,9 @@ Describe 'Validation cache' {
             $snapshot.repositoryEnumeration.truncated | Should -BeFalse
             $snapshot.repositories | Should -HaveCount 1
             $snapshot.releases | Should -HaveCount 1
-            $snapshot.releases[0].latestRelease.tagName | Should -Be 'v1.0.0'
+            $snapshot.releases[0].latestRelease.tagName | Should -BeOrdinal 'v1.0.0'
             $cacheEnvelope.fetchedAt | Should -Not -BeNullOrEmpty
-            $cacheEnvelope.value.fetchedAt | Should -Be '2026-08-23T12:00:00.0000000Z'
+            $cacheEnvelope.value.fetchedAt | Should -BeOrdinal '2026-08-23T12:00:00.0000000Z'
             $cacheEnvelope.value.generationTimestamp | Should -Not -BeNullOrEmpty
 
             $snapshot.owner = 'DifferentOwner'
@@ -5964,7 +5978,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/a' + [char]0x85 + 'b' + [char]0x9B + 'c' + [char]0x7F
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%C2%85b%C2%9Bc%7F)'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '[Launch](https://example.test/a%C2%85b%C2%9Bc%7F)'
     }
 
     It 'holds <Field> to the schema''s case: <Value>' -ForEach @(
@@ -6013,7 +6027,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $text = 'Win' + [char]0x200B + 'Tool' + [char]0x202E + ' a' + [char]0x00A0 + 'b' + "`t" + [char]::ConvertFromUtf32(0xE0041) + [char]0xD800 + ' ok ' + [char]::ConvertFromUtf32(0x1F600) + [char]0x2065
 
         ConvertTo-VisibleIssueText $text | Should -BeExactly ('Win{U+200B}Tool{U+202E} a{U+00A0}b{U+0009}{U+E0041}{U+D800} ok ' + [char]::ConvertFromUtf32(0x1F600) + '{U+2065}')
-        ConvertTo-VisibleIssueText 'plain text stays' | Should -BeExactly 'plain text stays'
+        ConvertTo-VisibleIssueText 'plain text stays' | Should -BeOrdinal 'plain text stays'
     }
 
     It 'shows invisible characters in the <Field> issue by code point' -ForEach @(
@@ -6056,8 +6070,8 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $duplicate = @((Test-CatalogShape -Catalog @{ entries = @($first, $second) }).issues | Where-Object { $_.reason -like 'duplicate repo*' })
 
         $duplicate | Should -HaveCount 1
-        $duplicate[0].reason | Should -BeExactly 'duplicate repo also appears as Dup{U+200B}Tool'
-        $duplicate[0].repo | Should -BeExactly 'Dup{U+200B}Tool'
+        $duplicate[0].reason | Should -BeOrdinal 'duplicate repo also appears as Dup{U+200B}Tool'
+        $duplicate[0].repo | Should -BeOrdinal 'Dup{U+200B}Tool'
     }
 
     It 'gives language the one-line check' {
@@ -6067,7 +6081,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'language' })
 
         $issues | Should -HaveCount 1
-        $issues[0].value | Should -Be 'U+000A'
+        $issues[0].value | Should -BeOrdinal 'U+000A'
     }
 
     It 'ends repository names and ids at the true end of text' {
@@ -6394,8 +6408,8 @@ Describe 'Profile header comes from catalog data' {
         $meta = New-TestRepoMeta -Name 'RowTool'
         Set-MemberValue -Object $meta -Name 'description' -Value 'From GitHub'
 
-        Get-Description $entry $meta | Should -Be 'From GitHub'
-        Get-UpstreamAttribution $entry | Should -Be '<br/><sub>Upstream: [upstream-owner/RowTool](https://github.com/upstream-owner/RowTool)</sub>'
+        Get-Description $entry $meta | Should -BeOrdinal 'From GitHub'
+        Get-UpstreamAttribution $entry | Should -BeOrdinal '<br/><sub>Upstream: [upstream-owner/RowTool](https://github.com/upstream-owner/RowTool)</sub>'
     }
 
     It 'draws no support button whose image has no alt a reader can see' {
@@ -7917,8 +7931,8 @@ Describe 'Feed JSON Schema contracts' {
         foreach ($schemaError in @($result.errors)) { $byKeyword[$schemaError.keywordLocation] = [string]$schemaError.message }
 
         $byKeyword['/properties/literal/const'] | Should -BeExactly ('Expected "' + $bs + 'u0041"')
-        (ConvertFrom-Json -InputObject ($byKeyword['/properties/escape/const'] -replace '^Expected ', '')).s | Should -BeExactly ('a' + [char]27 + 'b')
-        $byKeyword['/properties/list/const'] | Should -BeExactly 'Expected [1,"two","<3>"]'
+        (ConvertFrom-Json -InputObject ($byKeyword['/properties/escape/const'] -replace '^Expected ', '')).s | Should -BeOrdinal ('a' + [char]27 + 'b')
+        $byKeyword['/properties/list/const'] | Should -BeOrdinal 'Expected [1,"two","<3>"]'
         $names = ConvertFrom-Json -InputObject ($byKeyword['/required'] -replace '^Required properties ', '' -replace ' are not present$', '')
         @($names) | Should -Be @('q"uote', ('back' + $bs + 'slash'), "nl`nx")
     }
@@ -14631,21 +14645,77 @@ Describe 'Rendered smoke helpers (in-process)' {
 
 Describe 'Assertions on invisible characters compare them exactly' {
     BeforeAll {
-        # True when the text builds a character a reader can't see, with [char]0x..,
-        # [char]::ConvertFromUtf32(0x..) or "`u{..}"; a lone surrogate counts.
+        # True when the text builds a character a reader can't see: with [char]0x.. or
+        # [char]<decimal>, [char]::ConvertFromUtf32 of either, "`u{..}", or written into the
+        # source as it is; a lone surrogate counts.
         function script:Test-BuildsInvisibleCharacter {
             param([string]$Text)
-            foreach ($match in [regex]::Matches($Text, '\[char\]\s*0x(?<hex>[0-9A-Fa-f]{1,6})\b|ConvertFromUtf32\(\s*0x(?<hex>[0-9A-Fa-f]{1,6})\s*\)|`u\{(?<hex>[0-9A-Fa-f]{1,6})\}')) {
-                $codePoint = [Convert]::ToInt32($match.Groups['hex'].Value, 16)
+            foreach ($match in [regex]::Matches($Text, '\[char\]\s*(?:0x(?<hex>[0-9A-Fa-f]{1,6})|(?<dec>\d{1,7}))(?![0-9A-Za-z])|ConvertFromUtf32\(\s*(?:0x(?<hex>[0-9A-Fa-f]{1,6})|(?<dec>\d{1,7}))\s*\)|`u\{(?<hex>[0-9A-Fa-f]{1,6})\}')) {
+                $codePoint = if ($match.Groups['hex'].Success) { [Convert]::ToInt32($match.Groups['hex'].Value, 16) } else { [int]$match.Groups['dec'].Value }
                 if ($codePoint -ge 0xD800 -and $codePoint -le 0xDFFF) { return $true }
                 if ($codePoint -le 0x10FFFF -and -not (Test-VisibleText ([char]::ConvertFromUtf32($codePoint)))) { return $true }
+            }
+            foreach ($rune in $Text.EnumerateRunes()) {
+                if ($rune.Value -gt 0x7E -and -not (Test-VisibleText $rune.ToString())) { return $true }
             }
             return $false
         }
 
-        # Every Should -Be, -BeExactly or -Contain (and their -EQ and -CEQ aliases) whose
-        # expected value is built from an invisible character: in the argument itself, in the
-        # test's -ForEach data under the variable's name, or in an assignment to it in the test.
+        # Where an assertion's expected value can come from: its test (body and -ForEach data),
+        # each Describe or Context around it (data, BeforeAll and BeforeEach) and the file's own
+        # BeforeAll.
+        function script:Get-AssertionContext {
+            param($Should)
+            $isSetup = { param($node) $node -is [System.Management.Automation.Language.CommandAst] -and @('beforeall', 'beforeeach').Contains(([string]$node.GetCommandName()).ToLowerInvariant()) }
+            for ($node = $Should.Parent; $null -ne $node; $node = $node.Parent) {
+                if ($node -is [System.Management.Automation.Language.CommandAst]) {
+                    $command = ([string]$node.GetCommandName()).ToLowerInvariant()
+                    if ('it'.Equals($command)) { $node }
+                    elseif (@('describe', 'context').Contains($command)) {
+                        @($node.CommandElements | Where-Object { $_ -isnot [System.Management.Automation.Language.ScriptBlockExpressionAst] })
+                        @($node.FindAll($isSetup, $true))
+                    }
+                }
+                if ($null -eq $node.Parent) { @($node.FindAll($isSetup, $false)) }
+            }
+        }
+
+        # True when the expression is built from an invisible character, directly or through
+        # what the names it reads are given in its context: an assignment, or a hashtable or
+        # -ForEach entry of that name ($Expected, $_.Expected), three steps deep.
+        function script:Test-ExpressionBuildsInvisible {
+            param($Expression, [object[]]$Contexts, [int]$Depth = 0)
+            if ($null -eq $Expression -or $Depth -gt 3) { return $false }
+            if (script:Test-BuildsInvisibleCharacter $Expression.Extent.Text) { return $true }
+            $names = @($Expression.FindAll({ param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -or ($node -is [System.Management.Automation.Language.MemberExpressionAst] -and $node.Member -is [System.Management.Automation.Language.StringConstantExpressionAst]) }, $true) | ForEach-Object {
+                    if ($_ -is [System.Management.Automation.Language.VariableExpressionAst]) { $_.VariablePath.UserPath -replace '^(?i:script|local|private|global):', '' } else { $_.Member.Value }
+                } | Select-Object -Unique)
+            foreach ($name in $names) {
+                if (@('_', 'psitem', 'true', 'false', 'null').Contains($name.ToLowerInvariant())) { continue }
+                foreach ($context in $Contexts) {
+                    foreach ($assignment in $context.FindAll({ param($node) $node -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
+                        $left = $assignment.Left
+                        while ($left -is [System.Management.Automation.Language.AttributedExpressionAst]) { $left = $left.Child }
+                        if ($left -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                            [string]::Equals(($left.VariablePath.UserPath -replace '^(?i:script|local|private|global):', ''), $name, [StringComparison]::OrdinalIgnoreCase) -and
+                            (script:Test-ExpressionBuildsInvisible -Expression $assignment.Right -Contexts $Contexts -Depth ($Depth + 1))) { return $true }
+                    }
+                    foreach ($table in $context.FindAll({ param($node) $node -is [System.Management.Automation.Language.HashtableAst] }, $true)) {
+                        foreach ($pair in $table.KeyValuePairs) {
+                            if ([string]::Equals($pair.Item1.Extent.Text.Trim([char[]]"'`""), $name, [StringComparison]::OrdinalIgnoreCase) -and
+                                (script:Test-ExpressionBuildsInvisible -Expression $pair.Item2 -Contexts $Contexts -Depth ($Depth + 1))) { return $true }
+                        }
+                    }
+                }
+            }
+            return $false
+        }
+
+        # Every Should -Be, -BeExactly, -Contain, -BeIn, -BeLike or -BeLikeExactly (and the -EQ
+        # and -CEQ aliases, and -ExpectedValue after any of them) that compares by culture where
+        # an invisible character can be: an expected value built from one, or a string written
+        # out as the expected value in a test that builds one anywhere, which the actual value
+        # may then hold. A value from a helper's return is left to review.
         function script:Find-CultureComparedInvisible {
             param($Ast)
             $shoulds = $Ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($node.GetCommandName(), 'Should', [StringComparison]::OrdinalIgnoreCase) }, $true)
@@ -14654,26 +14724,22 @@ Describe 'Assertions on invisible characters compare them exactly' {
                 for ($index = 1; $index -lt $elements.Count; $index++) {
                     $element = $elements[$index]
                     if ($element -isnot [System.Management.Automation.Language.CommandParameterAst] -or
-                        -not @('be', 'beexactly', 'contain', 'eq', 'ceq').Contains($element.ParameterName.ToLowerInvariant())) { continue }
+                        -not @('be', 'beexactly', 'contain', 'eq', 'ceq', 'bein', 'belike', 'belikeexactly').Contains($element.ParameterName.ToLowerInvariant())) { continue }
                     $expected = if ($null -ne $element.Argument) { $element.Argument } elseif ($index + 1 -lt $elements.Count) { $elements[$index + 1] } else { $null }
-                    if ($null -eq $expected) { continue }
-                    $built = script:Test-BuildsInvisibleCharacter $expected.Extent.Text
-                    if (-not $built -and $expected -is [System.Management.Automation.Language.VariableExpressionAst]) {
-                        $name = $expected.VariablePath.UserPath
-                        $test = $should.Parent
-                        while ($null -ne $test -and -not ($test -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($test.GetCommandName(), 'It', [StringComparison]::OrdinalIgnoreCase))) { $test = $test.Parent }
-                        if ($null -ne $test) {
-                            foreach ($table in $test.FindAll({ param($node) $node -is [System.Management.Automation.Language.HashtableAst] }, $true)) {
-                                foreach ($pair in $table.KeyValuePairs) {
-                                    if ([string]::Equals($pair.Item1.Extent.Text.Trim([char[]]"'`""), $name, [StringComparison]::OrdinalIgnoreCase) -and (script:Test-BuildsInvisibleCharacter $pair.Item2.Extent.Text)) { $built = $true }
-                                }
-                            }
-                            foreach ($assignment in $test.FindAll({ param($node) $node -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
-                                if ($assignment.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
-                                    [string]::Equals($assignment.Left.VariablePath.UserPath, $name, [StringComparison]::OrdinalIgnoreCase) -and
-                                    (script:Test-BuildsInvisibleCharacter $assignment.Right.Extent.Text)) { $built = $true }
-                            }
-                        }
+                    if ($expected -is [System.Management.Automation.Language.CommandParameterAst] -and [string]::Equals($expected.ParameterName, 'ExpectedValue', [StringComparison]::OrdinalIgnoreCase)) {
+                        $at = [array]::IndexOf($elements, $expected)
+                        $expected = if ($null -ne $expected.Argument) { $expected.Argument } elseif ($at + 1 -lt $elements.Count) { $elements[$at + 1] } else { $null }
+                    }
+                    if ($null -eq $expected -or $expected -is [System.Management.Automation.Language.CommandParameterAst]) { continue }
+                    $contexts = @(script:Get-AssertionContext -Should $should)
+                    $built = script:Test-ExpressionBuildsInvisible -Expression $expected -Contexts $contexts
+                    if (-not $built) {
+                        $plain = $expected
+                        while ($plain -is [System.Management.Automation.Language.ParenExpressionAst] -and $plain.Pipeline -is [System.Management.Automation.Language.PipelineAst] -and
+                            @($plain.Pipeline.PipelineElements).Count -eq 1 -and $plain.Pipeline.PipelineElements[0] -is [System.Management.Automation.Language.CommandExpressionAst]) { $plain = $plain.Pipeline.PipelineElements[0].Expression }
+                        $isText = ($plain -is [System.Management.Automation.Language.StringConstantExpressionAst] -and $plain.StringConstantType -ne 'BareWord') -or $plain -is [System.Management.Automation.Language.ExpandableStringExpressionAst]
+                        $test = $contexts | Where-Object { $_ -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($_.GetCommandName(), 'It', [StringComparison]::OrdinalIgnoreCase) } | Select-Object -First 1
+                        $built = $isText -and $null -ne $test -and (script:Test-BuildsInvisibleCharacter $test.Extent.Text)
                     }
                     if ($built) { 'line {0}: {1}' -f $should.Extent.StartLineNumber, (($should.Parent.Extent.Text -split "`n")[0].Trim()) }
                 }
@@ -14698,6 +14764,18 @@ Describe 'Assertions on invisible characters compare them exactly' {
         @{ Case = 'a lone surrogate'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]0xD800) }"; Found = $true }
         @{ Case = 'not a visible character'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]0x00E9) }"; Found = $false }
         @{ Case = 'not an ordinal compare'; Code = "It 'x' { 'a' | Should -BeOrdinal ('a' + [char]0x200B) }"; Found = $false }
+        # Review G6: none of these was found.
+        @{ Case = 'a decimal code point'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]8203) }"; Found = $true }
+        @{ Case = 'a character written in as it is'; Code = "It 'x' { 'a' | Should -Be 'a" + [char]0x200B + "' }"; Found = $true }
+        @{ Case = '-BeIn'; Code = "It 'x' { 'a' | Should -BeIn @('a' + [char]0x200B) }"; Found = $true }
+        @{ Case = '-BeLike'; Code = "It 'x' { 'a' | Should -BeLike ('a' + [char]0x200B) }"; Found = $true }
+        @{ Case = '-ExpectedValue'; Code = "It 'x' { 'a' | Should -Be -ExpectedValue ('a' + [char]0x200B) }"; Found = $true }
+        @{ Case = 'a variable built from another'; Code = "It 'x' { `$rlo = [string][char]0x202E; `$e = 'a' + `$rlo; 'a' | Should -Be `$e }"; Found = $true }
+        @{ Case = 'a value from BeforeAll'; Code = "Describe 'd' { BeforeAll { `$script:Hidden = [string][char]0x200B }; It 'x' { 'a' | Should -Be `$script:Hidden } }"; Found = $true }
+        @{ Case = 'a member of the pipeline item'; Code = "It 'x' { @(@{ Expected = 'a' + [char]0x200B }) | ForEach-Object { 'a' | Should -Be `$_.Expected } }"; Found = $true }
+        @{ Case = 'Describe-level data'; Code = "Describe 'd' -ForEach @(@{ Expected = 'a' + [char]0x200B }) { It 'x' { 'a' | Should -Be `$Expected } }"; Found = $true }
+        @{ Case = 'the actual side only'; Code = "It 'x' { `$v = 'a' + [char]0x200B; `$v | Should -Be 'a' }"; Found = $true }
+        @{ Case = 'not a test with nothing invisible'; Code = "It 'x' { 'a' | Should -Be 'a' }"; Found = $false }
     ) {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
 
@@ -14713,5 +14791,15 @@ Describe 'Assertions on invisible characters compare them exactly' {
         'ab' | Should -Not -BeOrdinal $joined
         { '' | Should -BeOrdinal $null } | Should -Throw
         $null | Should -BeOrdinal $null
+    }
+
+    It 'compares a list with -BeOrdinal as a whole' {
+        # Review G6: each item was compared on its own, so @('a', 'a') passed as 'a'.
+        { @('a', 'a') | Should -BeOrdinal 'a' } | Should -Throw -ExpectedMessage "*Expected 'a', compared ordinally, but got @('a', 'a')*"
+        @('a', 'b') | Should -BeOrdinal @('a', 'b')
+        { @('a', 'b') | Should -BeOrdinal @('a', ('b' + [char]0x200B)) } | Should -Throw
+        { @('a', 'b') | Should -BeOrdinal @('a') } | Should -Throw
+        @('a') | Should -BeOrdinal 'a'
+        @() | Should -BeOrdinal $null
     }
 }
