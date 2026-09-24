@@ -241,7 +241,9 @@ function Test-ProfileState {
             continue
         }
 
-        if ($meta.visibility -ne "PUBLIC" -or $meta.isPrivate) {
+        # Ordinal, ignoring case as -ne did: -ne compares by culture, which skips zero-width
+        # and other ignorable characters, so a hidden one would pass as PUBLIC.
+        if (-not [string]::Equals([string]$meta.visibility, 'PUBLIC', [StringComparison]::OrdinalIgnoreCase) -or $meta.isPrivate) {
             $privateViolations += [ordered]@{
                 repo = $entry.repo
                 visibility = $meta.visibility

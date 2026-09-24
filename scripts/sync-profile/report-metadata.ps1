@@ -421,7 +421,7 @@ function Test-PublicMetadataHygieneRow {
     }
 
     $visibility = [string](Get-MemberValue -Object $Repo -Name "visibility")
-    if (-not [string]::IsNullOrWhiteSpace($visibility) -and $visibility.ToUpperInvariant() -ne "PUBLIC") {
+    if (-not [string]::IsNullOrWhiteSpace($visibility) -and -not 'PUBLIC'.Equals($visibility.ToUpperInvariant())) {
         return $false
     }
 

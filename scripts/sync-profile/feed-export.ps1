@@ -168,7 +168,9 @@ function Get-BranchTipActionEvidence {
     return [ordered]@{
         sha = if ($branchTipSha -match '^[a-f0-9]{40}$') { $branchTipSha.ToLowerInvariant() } else { $null }
         fetchedAt = if ([string]::IsNullOrWhiteSpace($branchTipFetchedAt)) { $null } else { $branchTipFetchedAt }
-        status = if ($branchTipStatus -in @("fresh", "stale", "unreachable", "missing")) { $branchTipStatus } else { "unreachable" }
+        # Ordinal: the value is published as written, and -in compares by culture, which skips
+        # zero-width and other ignorable characters.
+        status = if (@("fresh", "stale", "unreachable", "missing").Contains($branchTipStatus)) { $branchTipStatus } else { "unreachable" }
         warning = if ([string]::IsNullOrWhiteSpace($branchTipWarning)) { $null } else { $branchTipWarning }
     }
 }
@@ -247,7 +249,7 @@ function New-BackstageCatalogExport {
             $missingMetadataCount++
             continue
         }
-        if ((Get-MemberValue -Object $meta -Name 'isPrivate') -eq $true -or [string](Get-MemberValue -Object $meta -Name 'visibility') -ne 'PUBLIC') {
+        if ((Get-MemberValue -Object $meta -Name 'isPrivate') -eq $true -or -not [string]::Equals([string](Get-MemberValue -Object $meta -Name 'visibility'), 'PUBLIC', [StringComparison]::OrdinalIgnoreCase)) {
             $privateSkippedCount++
             continue
         }

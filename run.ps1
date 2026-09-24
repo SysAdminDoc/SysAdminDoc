@@ -51,7 +51,10 @@ function Start-Tool {
     }
 
     $feed = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$profileOwner/$profileOwner/main/projects.json" -ErrorAction Stop
-    $project = @($feed.projects | Where-Object { [string]$_.repo -eq $Name -and -not [string]::IsNullOrWhiteSpace([string]$_.entrypoint) }) | Select-Object -First 1
+    # Ordinal, ignoring case like GitHub's names: -eq compares by culture, which skips
+    # zero-width and other invisible characters, so a feed row with one hidden in its name
+    # would match.
+    $project = @($feed.projects | Where-Object { [string]::Equals([string]$_.repo, $Name, [System.StringComparison]::OrdinalIgnoreCase) -and -not [string]::IsNullOrWhiteSpace([string]$_.entrypoint) }) | Select-Object -First 1
     if (-not $project) {
         throw "Start-Tool: $Name is not a project you can run from the $profileOwner profile. Check the name on https://github.com/$profileOwner."
     }

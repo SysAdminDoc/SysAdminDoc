@@ -11,7 +11,8 @@ function ConvertTo-BooleanValue {
     if ($Value -is [bool]) {
         return [bool]$Value
     }
-    return ([string]$Value).ToLowerInvariant() -eq "true"
+    # Ordinal: -eq compares by culture and would take "true" with an invisible character in it.
+    return "true".Equals(([string]$Value).ToLowerInvariant())
 }
 
 function Test-SafeGitHubName {

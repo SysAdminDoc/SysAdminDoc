@@ -313,7 +313,7 @@ function Publish-ArtifactPublicationTransaction {
     )
 
     $state = [string](Get-MemberValue -Object $Transaction -Name 'state')
-    if ($state -notin @('ready', 'publishing')) {
+    if (-not @('ready', 'publishing').Contains($state)) {
         throw "Cannot publish transaction in state '$state'."
     }
 
@@ -424,7 +424,7 @@ function Repair-ArtifactPublicationTransactions {
         Set-MemberValue -Object $transaction -Name 'journalPath' -Value $journalPath
         $rows = @(Get-JsonArrayItems (Get-MemberValue -Object $transaction -Name 'artifacts'))
         $state = [string](Get-MemberValue -Object $transaction -Name 'state')
-        $keepNew = $state -eq 'committed'
+        $keepNew = 'committed'.Equals($state)
         if ($keepNew) {
             foreach ($row in $rows) {
                 $targetPath = [string](Get-MemberValue -Object $row -Name 'targetPath')
@@ -538,7 +538,7 @@ function Add-ValidationCacheCounter {
     $state = Get-ValidationCacheState
     $bucketState = $state[$Bucket]
     $bucketState[$Counter] = [int]$bucketState[$Counter] + 1
-    if ($Counter -eq 'fallbackHitCount') {
+    if ('fallbackHitCount'.Equals($Counter)) {
         $bucketState['usedForFallback'] = $true
         if (-not [string]::IsNullOrWhiteSpace($FallbackReason)) {
             $bucketState['lastFallbackReason'] = $FallbackReason
@@ -746,7 +746,7 @@ function New-CompleteGenerationSnapshot {
     $repositoryEnumerationComplete = [bool](
         $repoRows.Count -gt 0 -and
         -not [bool]$script:RepositoryEnumerationTruncated -and
-        $provider -in @('graphql', 'rest-fallback')
+        @('graphql', 'rest-fallback').Contains($provider)
     )
     $releaseRows = @(
         foreach ($repo in $repoRows) {
@@ -832,7 +832,7 @@ function Test-CompleteGenerationSnapshot {
     if ($repositories.Count -eq 0 -or
         [int](Get-MemberValue -Object $enumeration -Name 'returnedCount') -ne $repositories.Count -or
         (ConvertTo-BooleanValue (Get-MemberValue -Object $enumeration -Name 'truncated')) -or
-        $provider -cnotin @('graphql', 'rest-fallback') -or
+        -not @('graphql', 'rest-fallback').Contains($provider) -or
         $releases.Count -ne $repositories.Count) {
         return $false
     }
@@ -876,10 +876,11 @@ function Test-CompleteGenerationSnapshot {
             (Get-MemberValue -Object $repository -Name 'isPrivate') -isnot [bool] -or
             (Get-MemberValue -Object $repository -Name 'isArchived') -isnot [bool] -or
             (ConvertTo-BooleanValue (Get-MemberValue -Object $repository -Name 'isPrivate')) -or
-            [string](Get-MemberValue -Object $repository -Name 'visibility') -ne 'PUBLIC' -or
+            -not [string]::Equals([string](Get-MemberValue -Object $repository -Name 'visibility'), 'PUBLIC', [StringComparison]::OrdinalIgnoreCase) -or
             [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $repository -Name 'url')) -or
-            # Case-sensitive, like the schemas' enums: a restored value is published as written.
-            [string](Get-MemberValue -Object $repository -Name 'branchTipStatus') -cnotin @('fresh', 'stale', 'missing', 'unreachable')) {
+            # Ordinal, like the schemas' enums: a restored value is published as written, and
+            # -cnotin compares by culture, which skips zero-width and other ignorable characters.
+            -not @('fresh', 'stale', 'missing', 'unreachable').Contains([string](Get-MemberValue -Object $repository -Name 'branchTipStatus'))) {
             return $false
         }
     }

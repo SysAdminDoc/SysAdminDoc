@@ -102,11 +102,14 @@ function Test-AllowedReleaseArtifactUrl {
     try {
         $uri = [Uri]$Url
         if ($uri.Scheme -ne "https") { return $false }
-        return $uri.Host.ToLowerInvariant() -in @(
+        # Ordinal on the host as written: -in compares by culture, which skips zero-width and
+        # other ignorable characters, so an allowed host with one hidden in it passed.
+        # GitHub's release links never carry one, so refusing it costs nothing.
+        return @(
             "github.com",
             "objects.githubusercontent.com",
             "release-assets.githubusercontent.com"
-        )
+        ).Contains($uri.Host.ToLowerInvariant())
     } catch {
         return $false
     }

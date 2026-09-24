@@ -721,6 +721,30 @@ Start-Tool WinTool
         Should -Invoke Invoke-RestMethod -Times $(if ($Tool -eq 'git') { 0 } else { 1 }) -Exactly
     }
 
+    It 'matches a feed row by its exact name, whatever the case' {
+        # -eq compared by culture, which skips an invisible character, so a row named
+        # Win<U+200B>Tool answered Start-Tool WinTool. Case still doesn't matter, as on GitHub.
+        Mock Invoke-RestMethod { New-FakeFeed -Repo ('Win' + [char]0x200B + 'Tool') }
+        function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
+
+        { Start-Tool WinTool } | Should -Throw '*is not a project you can run*'
+        @($script:ToolCalls) | Should -BeNullOrEmpty
+
+        Mock Invoke-RestMethod { New-FakeFeed -Repo 'WinTool' }
+        function git {
+            $script:ToolCalls.Add('git ' + $args[0])
+            if ($args[0] -eq 'clone') {
+                $directory = [string]$args[-1]
+                New-Item -ItemType Directory -Path $directory | Out-Null
+                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'ran.txt') -Value 'ran'" -Encoding utf8
+            }
+            $global:LASTEXITCODE = 0
+        }
+
+        Start-Tool wintool
+        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\ran.txt') | Should -Be 'ran'
+    }
+
     It 'treats a python that can''t report its version as missing' {
         # On a machine without Python, the python on PATH is often the Store's stand-in,
         # which prints "Python was not found" and exits 9009.
@@ -1278,6 +1302,8 @@ Describe 'Repository settings read empty live lists as empty' {
         @{ Case = '"Branch not protected" with 403'; Answer = 'gh: Branch not protected (HTTP 403)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'Branch not protected (HTTP 403)' }
         @{ Case = '"Branch not protected" with 500'; Answer = 'gh: Branch not protected (HTTP 500)'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'Branch not protected (HTTP 500)' }
         @{ Case = '"Branch not protected" with no status'; Answer = 'gh: Branch not protected'; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'Branch not protected' }
+        # -ceq compared by culture, so the reading's own text with an invisible character in it matched.
+        @{ Case = 'the reading''s text with a hidden character'; Answer = 'gh: branch not protected' + [char]0x200B; Reading = 'unread'; Available = $false; Status = 'needs-live-validation'; Reason = 'branch not protected' + [char]0x200B }
     ) {
         # Every 404 used to read as unread, so a repository without classic protection could
         # never show required checks as absent, only as unknown. Then the words alone were
@@ -1324,6 +1350,8 @@ Describe 'Repository settings read empty live lists as empty' {
         @{ Case = 'with an at sign in it'; DefaultBranch = 'dev@2'; Segment = 'dev%402' }
         @{ Case = 'falling back to main for a name no branch can have'; DefaultBranch = 'bad name'; Segment = 'main' }
         @{ Case = 'falling back to main for a path step'; DefaultBranch = '..'; Segment = 'main' }
+        # Not a path step once escaped, so it's read by its own name; -in by culture took it for "..".
+        @{ Case = 'with a hidden character after two dots'; DefaultBranch = '..' + [char]0x200B; Segment = '..%E2%80%8B' }
     ) {
         # Both endpoints named main whatever the default branch was, and only the first page
         # of rules and rulesets was read.
@@ -3127,6 +3155,18 @@ Describe 'Validation cache' {
             $snapshot.repositories[0].branchTipStatus = $tipStatus.ToUpperInvariant()
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
             $snapshot.repositories[0].branchTipStatus = $tipStatus
+            # -cnotin and -ne compared by culture, which skips an invisible character, so each of
+            # these passed the restore check and would have been published or trusted as written.
+            $snapshot.repositoryEnumeration.provider = 'graph' + [char]0x200B + 'ql'
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.repositoryEnumeration.provider = 'graphql'
+            $snapshot.repositories[0].branchTipStatus = $tipStatus + [char]0x200B
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.repositories[0].branchTipStatus = $tipStatus
+            $visibility = $snapshot.repositories[0].visibility
+            $snapshot.repositories[0].visibility = 'PUB' + [char]0x200B + 'LIC'
+            Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
+            $snapshot.repositories[0].visibility = $visibility
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeTrue -Because 'the snapshot passes once both are back in the schemas'' case'
             $snapshot.releases[0].repo = 'DifferentRepo'
             Test-CompleteGenerationSnapshot -Snapshot $snapshot | Should -BeFalse
@@ -7092,7 +7132,73 @@ Describe 'New-ProjectsExportJson feed' {
     }
 }
 
+Describe 'Outside data is compared ordinally' {
+    # PowerShell's -eq, -ceq, -in, -cnotin, -contains and switch compare strings by invariant
+    # culture, which skips zero-width and other ignorable characters: ("py" + U+200B +
+    # "thon") -ceq "python" is True, so a check built on them passes the hidden character on.
+    It 'has no culture-sensitive comparison with a literal in <File>' -ForEach @(
+        @{ File = 'scripts/sync-profile/catalog.ps1' }
+        @{ File = 'scripts/sync-profile/artifact-store.ps1' }
+        @{ File = 'run.ps1' }
+    ) {
+        # These decide what the catalog, the cache and the feed may publish or start.
+        $operators = @('Ieq', 'Ceq', 'Ine', 'Cne', 'Iin', 'Cin', 'Inotin', 'Cnotin', 'Icontains', 'Ccontains', 'Inotcontains', 'Cnotcontains')
+        $tokens = $null
+        $parseErrors = $null
+        $tree = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RepoRoot $File), [ref]$tokens, [ref]$parseErrors)
+        $isLiteral = {
+            param($node)
+            $node -is [System.Management.Automation.Language.StringConstantExpressionAst] -or
+            (($node -is [System.Management.Automation.Language.ArrayLiteralAst] -or $node -is [System.Management.Automation.Language.ArrayExpressionAst]) -and
+                $null -ne $node.Find({ param($inner) $inner -is [System.Management.Automation.Language.StringConstantExpressionAst] }, $true))
+        }
+        $patternFlags = [System.Management.Automation.Language.SwitchFlags]::Regex -bor [System.Management.Automation.Language.SwitchFlags]::Wildcard
+
+        $cultureComparisons = @($tree.FindAll({
+                    param($node)
+                    ($node -is [System.Management.Automation.Language.BinaryExpressionAst] -and $operators -contains $node.Operator.ToString() -and ((& $isLiteral $node.Left) -or (& $isLiteral $node.Right))) -or
+                    ($node -is [System.Management.Automation.Language.SwitchStatementAst] -and -not ($node.Flags -band $patternFlags))
+                }, $true) | ForEach-Object { 'line {0}: {1}' -f $_.Extent.StartLineNumber, ($_.Extent.Text -split "`n")[0].Trim() })
+
+        $parseErrors | Should -BeNullOrEmpty
+        $cultureComparisons | Should -BeNullOrEmpty
+    }
+
+    It 'takes <Case> as a different value' -ForEach @(
+        @{ Case = 'a "true" with a zero-width space'; Check = { ConvertTo-BooleanValue ('true' + [char]0x200B) }; Expected = $false }
+        @{ Case = 'an allowed release host with a zero-width space'; Check = { Test-AllowedReleaseArtifactUrl ('https://github.com' + [char]0x200B + '/o/r/releases/download/v1/a.zip') }; Expected = $false }
+        @{ Case = 'a branch tip status with a zero-width space'; Check = { (Get-BranchTipActionEvidence -Entry @{ repo = 'TipTool'; entrypoint = 'tool.ps1' } -Meta @{ branchTipSha = ('a' * 40); branchTipFetchedAt = '2026-09-23T00:00:00Z'; branchTipStatus = 'fresh' + [char]0x200B; branchTipWarning = $null }).status }; Expected = 'unreachable' }
+        @{ Case = 'a public visibility with a zero-width space'; Check = { Test-PublicMetadataHygieneRow -Repo @{ isPrivate = $false; visibility = 'PUB' + [char]0x200B + 'LIC' } -RepoName 'HygieneTool' -Category 'misc' }; Expected = $false }
+    ) {
+        & $Check | Should -Be $Expected
+    }
+
+    It 'still takes the plain values: <Case>' -ForEach @(
+        @{ Case = 'true, in any case'; Check = { ConvertTo-BooleanValue 'TRUE' }; Expected = $true }
+        @{ Case = 'an allowed release host'; Check = { Test-AllowedReleaseArtifactUrl 'https://github.com/o/r/releases/download/v1/a.zip' }; Expected = $true }
+        @{ Case = 'a fresh branch tip'; Check = { (Get-BranchTipActionEvidence -Entry @{ repo = 'TipTool'; entrypoint = 'tool.ps1' } -Meta @{ branchTipSha = ('a' * 40); branchTipFetchedAt = '2026-09-23T00:00:00Z'; branchTipStatus = 'fresh'; branchTipWarning = $null }).status }; Expected = 'fresh' }
+        @{ Case = 'a public visibility in lower case'; Check = { Test-PublicMetadataHygieneRow -Repo @{ isPrivate = $false; visibility = 'public' } -RepoName 'HygieneTool' -Category 'misc' }; Expected = $true }
+    ) {
+        & $Check | Should -Be $Expected
+    }
+}
+
 Describe 'Backstage catalog export' {
+    It 'skips a row whose visibility only looks public' {
+        # The gate compared with -ne, by culture, so PUBLIC with a zero-width space passed.
+        $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $hiddenEntry = New-TestEntry -Repo 'HiddenVisibilityTool' -Category 'misc' -Description 'Fixture row'
+        $cat.entries = @($cat.entries) + @($hiddenEntry)
+        $hiddenMeta = New-TestRepoMeta -Name 'HiddenVisibilityTool' -Description 'Fixture metadata'
+        $hiddenMeta.isPrivate = $false
+        $hiddenMeta.visibility = 'PUB' + [char]0x200B + 'LIC'
+
+        $export = New-BackstageCatalogExport -Catalog $cat -Repos @((New-TestRepoMeta -Name 'WinTool' -Description 'Public fixture metadata'), $hiddenMeta)
+
+        $export.summary.privateSkippedCount | Should -Be 1
+        $export.json | Should -Not -Match 'HiddenVisibilityTool'
+    }
+
     It 'emits public Component descriptors and omits suppressed or private rows' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $privateEntry = New-TestEntry -Repo 'PrivateTool' -Category 'misc' -Description 'Private fixture row'
@@ -11265,6 +11371,20 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         $private.visibility = 'PRIVATE'
         $private.isPrivate = $true
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos @($script:ReachabilityRepos + $private)
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'privateViolations'
+        @($result.Report.privateVisibilityViolations | Where-Object { $_.repo -eq 'WinTool' }).Count | Should -Be 1
+    }
+
+    It 'fires privateViolations when a repo''s visibility only looks public' {
+        # The gate compared with -ne, by culture, so PUBLIC with a zero-width space passed it.
+        $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
+        $hidden = New-TestRepoMeta -Name 'WinTool'
+        $hidden.visibility = 'PUB' + [char]0x200B + 'LIC'
+        $hidden.isPrivate = $false
+        $baseline = script:New-ReachabilityBaseline -Catalog $catalog -Repos @($script:ReachabilityRepos + $hidden)
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline
 

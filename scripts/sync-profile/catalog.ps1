@@ -422,13 +422,13 @@ function Get-SuppressionReasonCode {
 function Get-PublicSuppressionReason {
     param([string]$ReasonCode)
 
-    switch ($ReasonCode) {
-        "private-or-sensitive" { return "Private or sensitive project omitted from the public feed." }
-        "duplicate-or-superseded" { return "Duplicate or superseded project omitted from the public feed." }
-        "placeholder" { return "Placeholder project omitted from the public feed." }
-        "not-visitor-facing" { return "Project omitted because it is not visitor-facing." }
-        default { return "Project omitted from the public feed." }
-    }
+    # Ordinal, like every comparison in this file: a switch compares by culture, which skips
+    # zero-width and other ignorable characters.
+    if ('private-or-sensitive'.Equals($ReasonCode)) { return "Private or sensitive project omitted from the public feed." }
+    if ('duplicate-or-superseded'.Equals($ReasonCode)) { return "Duplicate or superseded project omitted from the public feed." }
+    if ('placeholder'.Equals($ReasonCode)) { return "Placeholder project omitted from the public feed." }
+    if ('not-visitor-facing'.Equals($ReasonCode)) { return "Project omitted because it is not visitor-facing." }
+    return "Project omitted from the public feed."
 }
 
 function New-CatalogFromReadme {
@@ -482,7 +482,7 @@ function New-CatalogFromReadme {
         }
 
         if ($inCode) {
-            if ($line -eq '```') {
+            if ('```'.Equals($line)) {
                 $inCode = $false
                 if ($lastRepo -and $entries.Contains($lastRepo)) {
                     $code = ($codeLines -join " ")
@@ -491,7 +491,7 @@ function New-CatalogFromReadme {
                     }
                     if ($code -match '(?<runner>python|&)\s+"\$d\\(?<entry>[^"]+)"') {
                         $entries[$lastRepo].entrypoint = $Matches.entry
-                        $entries[$lastRepo].installKind = if ($Matches.runner -eq "&") { "powershell" } else { "python" }
+                        $entries[$lastRepo].installKind = if ('&'.Equals($Matches.runner)) { "powershell" } else { "python" }
                     }
                 }
                 $codeLines.Clear()
@@ -501,7 +501,7 @@ function New-CatalogFromReadme {
             continue
         }
 
-        if ($line -eq '```powershell') {
+        if ([string]::Equals($line, '```powershell', [StringComparison]::OrdinalIgnoreCase)) {
             $inCode = $true
             continue
         }
@@ -539,7 +539,7 @@ function New-CatalogFromReadme {
             $entries[$repo].order = $order[$category]
             $entries[$repo].descriptionOverride = $Matches.description
 
-            if ($category -eq "web" -and $tail -match '\[Launch\]\((?<url>[^)]+)\)') {
+            if ('web'.Equals($category) -and $tail -match '\[Launch\]\((?<url>[^)]+)\)') {
                 $entries[$repo].liveUrl = $Matches.url
             } elseif ($tail -match '\[Install\]\((?<url>[^)]+)\)') {
                 $entries[$repo].userscriptUrl = $Matches.url
@@ -556,7 +556,7 @@ function New-CatalogFromReadme {
                 $entries[$repo].downloadKind = "repo"
             }
 
-            if ($category -eq "desktop") {
+            if ('desktop'.Equals($category)) {
                 $cells = $tail -split '\s\|\s'
                 if ($cells.Count -ge 2) {
                     $entries[$repo].language = $cells[0]
@@ -646,7 +646,7 @@ function ConvertTo-VisibleIssueText {
             } else {
                 [void]$builder.AppendFormat('{{U+{0:X}}}', [char]::ConvertToUtf32($pair, 0))
             }
-        } elseif ([char]::IsSurrogate($character) -or ($character -ne ' ' -and -not (Test-VisibleText ([string]$character)))) {
+        } elseif ([char]::IsSurrogate($character) -or ([int]$character -ne 0x20 -and -not (Test-VisibleText ([string]$character)))) {
             [void]$builder.AppendFormat('{{U+{0:X4}}}', [int]$character)
         } else {
             [void]$builder.Append($character)
@@ -752,7 +752,7 @@ function Test-CatalogShape {
         # The title is every row's link text, so it can't be blank. The row's other text may be
         # left out (null), but when it's given it has to say something a reader can see.
         foreach ($field in @('title', 'descriptionOverride', 'currentlyBuildingText', 'language', 'forkOf', 'upstreamLicense', 'readmeReviewNote', 'suppressionReason')) {
-            $nonBlank = ($field -eq 'title') -or ($field -in @('descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense', 'forkOf') -and $null -ne $entry[$field])
+            $nonBlank = 'title'.Equals($field) -or (@('descriptionOverride', 'currentlyBuildingText', 'language', 'upstreamLicense', 'forkOf').Contains($field) -and $null -ne $entry[$field])
             $publicTexts.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = $field; text = [string]$entry[$field]; nonBlank = $nonBlank })
         }
         # The action link's destination in the README table row. Plain http passes here
@@ -858,7 +858,7 @@ function Test-CatalogShape {
         }
         if ($null -ne $problem) {
             $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $problem.codePoint; reason = "$($publicText.field) $($problem.reason)" })
-        } elseif ($publicText.field -eq 'forkOf' -and ($text.Length -gt 140 -or $text -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z')) {
+        } elseif ('forkOf'.Equals($publicText.field) -and ($text.Length -gt 140 -or $text -cnotmatch '^[A-Za-z0-9-]+/(?!\.\.?\z)[A-Za-z0-9._-]+\z')) {
             # The fork attribution links https://github.com/<forkOf> from the README row, so it
             # takes the schema's owner/repo shape and length too; -Write alone never runs the
             # schema. The issue shows the text with any invisible character as its code point.
@@ -879,7 +879,7 @@ function Test-CatalogShape {
     # URLs have no scheme check of their own, so they must be https here.
     foreach ($publicUrl in $publicUrls) {
         if ([string]$publicUrl.url -cnotmatch ('^' + $publicUrl.scheme + '://[!#-&(-;=?-\[\]-{}~]+\z')) {
-            $schemeText = if ($publicUrl.scheme -eq 'https') { 'an https' } else { 'an http or https' }
+            $schemeText = if ('https'.Equals($publicUrl.scheme)) { 'an https' } else { 'an http or https' }
             $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = [string]$publicUrl.url; reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
         }
     }
@@ -945,12 +945,10 @@ function Get-InferredCatalogCategory {
         }
     }
 
-    switch ($language) {
-        "powershell" { return "powershell" }
-        "python" { return "python" }
-        "kotlin" { return "android" }
-        default { return $null }
-    }
+    if ('powershell'.Equals($language)) { return "powershell" }
+    if ('python'.Equals($language)) { return "python" }
+    if ('kotlin'.Equals($language)) { return "android" }
+    return $null
 }
 
 function New-CatalogEntryStub {
