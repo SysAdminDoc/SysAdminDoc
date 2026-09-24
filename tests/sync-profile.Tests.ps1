@@ -52,6 +52,27 @@ BeforeAll {
     $script:PathBeforeGhTrap = $env:PATH
     $env:PATH = $script:GhTrapDirectory + [System.IO.Path]::PathSeparator + $env:PATH
 
+    # Should -Be and -BeExactly compare by culture, which skips zero-width, bidi and other
+    # ignorable characters: 'ab' | Should -BeExactly "a<ZWJ>b" passes. -BeOrdinal compares
+    # code unit by code unit, keeps $null apart from '', and shows a mismatch as code points.
+    Add-ShouldOperator -Name BeOrdinal -Test {
+        param($ActualValue, $ExpectedValue, [switch]$Negate, [string]$Because)
+        $succeeded = if ($null -eq $ActualValue -or $null -eq $ExpectedValue) {
+            $null -eq $ActualValue -and $null -eq $ExpectedValue
+        } else {
+            [string]::Equals([string]$ActualValue, [string]$ExpectedValue, [StringComparison]::Ordinal)
+        }
+        if ($Negate) { $succeeded = -not $succeeded }
+        $show = {
+            param($Value)
+            if ($null -eq $Value) { return '$null' }
+            "'" + ((([string]$Value).ToCharArray() | ForEach-Object { if ([int]$_ -lt 0x20 -or [int]$_ -gt 0x7E) { '{U+' + ('{0:X4}' -f [int]$_) + '}' } else { [string]$_ } }) -join '') + "'"
+        }
+        $failure = if ($succeeded) { $null } elseif ($Negate) { "Expected anything but $(& $show $ExpectedValue), compared ordinally." } else { "Expected $(& $show $ExpectedValue), compared ordinally, but got $(& $show $ActualValue)." }
+        if ($failure -and $Because) { $failure += " Because $Because" }
+        [pscustomobject]@{ Succeeded = $succeeded; FailureMessage = $failure }
+    }
+
     function Get-MarkdownTrailingWhitespaceViolations {
         param(
             [Parameter(Mandatory)]
@@ -322,11 +343,13 @@ Describe 'Public text is encoded for where it lands' {
     It 'drops control and bidi characters and repairs lone surrogates' {
         $rlo = [string][char]0x202E
         $isolate = [string][char]0x2066
-        ConvertTo-MarkdownText ("safe" + $rlo + "txt.exe") | Should -Be 'safetxt.exe'
-        ConvertTo-MarkdownText ("a" + $isolate + "b" + [char]0 + "c") | Should -Be 'abc'
+        # Ordinal: -Be compares by culture and skips a bidi control, so it passed with the
+        # override still in the text.
+        ConvertTo-MarkdownText ("safe" + $rlo + "txt.exe") | Should -BeOrdinal 'safetxt.exe'
+        ConvertTo-MarkdownText ("a" + $isolate + "b" + [char]0 + "c") | Should -BeOrdinal 'abc'
         # U+0085 is a line break (NEL), so it becomes a space like CR and LF.
-        ConvertTo-MarkdownText ("a" + [char]0x85 + "b") | Should -Be 'a b'
-        ConvertTo-MarkdownText ("x" + [char]0xD800 + "y") | Should -Be ("x" + [char]0xFFFD + "y")
+        ConvertTo-MarkdownText ("a" + [char]0x85 + "b") | Should -BeOrdinal 'a b'
+        ConvertTo-MarkdownText ("x" + [char]0xD800 + "y") | Should -BeOrdinal ("x" + [char]0xFFFD + "y")
         $emoji = [char]::ConvertFromUtf32(0x1F600)
         ConvertTo-MarkdownText "ok $emoji" | Should -Be "ok $emoji"
     }
@@ -1344,7 +1367,8 @@ Describe 'Repository settings read empty live lists as empty' {
             $settings.branchProtection.requiredStatusChecks | Should -BeFalse
             $settings.branchProtection.unavailableReason | Should -BeNullOrEmpty
         } else {
-            $settings.branchProtection.unavailableReason | Should -BeExactly $Reason
+            # Ordinal: one reason ends in a zero-width space that -BeExactly would skip.
+            $settings.branchProtection.unavailableReason | Should -BeOrdinal $Reason
         }
     }
 
@@ -6478,7 +6502,8 @@ Describe 'Profile header comes from catalog data' {
         if ($null -eq $ExpectedOwner) {
             $experience.installDispatcherOwner | Should -BeNullOrEmpty
         } else {
-            $experience.installDispatcherOwner | Should -BeExactly $ExpectedOwner
+            # Ordinal: one owner holds a zero-width space that -BeExactly would skip.
+            $experience.installDispatcherOwner | Should -BeOrdinal $ExpectedOwner
         }
         $experience.installDispatcherMatchesOwner | Should -Be $MatchesOwner
     }
@@ -12880,8 +12905,7 @@ Describe 'Hand-authored header links and anchors are validated' {
 
         # Ordinal: Should -BeExactly compares by culture, so a slug that lost or kept a
         # zero-width character would still pass.
-        [string]::Equals($slug, $Expected, [StringComparison]::Ordinal) |
-            Should -BeTrue -Because ('the slug was ' + (($slug.ToCharArray() | ForEach-Object { 'U+{0:X4}' -f [int]$_ }) -join ' '))
+        $slug | Should -BeOrdinal $Expected
     }
 
     It 'finds the id GitHub gives a repeated heading and one with a closing run of #' {
@@ -14396,5 +14420,92 @@ Describe 'Rendered smoke helpers (in-process)' {
         } finally {
             Remove-Item -LiteralPath $own -Recurse -Force -ErrorAction SilentlyContinue
         }
+    }
+}
+
+Describe 'Assertions on invisible characters compare them exactly' {
+    BeforeAll {
+        # True when the text builds a character a reader can't see, with [char]0x..,
+        # [char]::ConvertFromUtf32(0x..) or "`u{..}"; a lone surrogate counts.
+        function script:Test-BuildsInvisibleCharacter {
+            param([string]$Text)
+            foreach ($match in [regex]::Matches($Text, '\[char\]\s*0x(?<hex>[0-9A-Fa-f]{1,6})\b|ConvertFromUtf32\(\s*0x(?<hex>[0-9A-Fa-f]{1,6})\s*\)|`u\{(?<hex>[0-9A-Fa-f]{1,6})\}')) {
+                $codePoint = [Convert]::ToInt32($match.Groups['hex'].Value, 16)
+                if ($codePoint -ge 0xD800 -and $codePoint -le 0xDFFF) { return $true }
+                if ($codePoint -le 0x10FFFF -and -not (Test-VisibleText ([char]::ConvertFromUtf32($codePoint)))) { return $true }
+            }
+            return $false
+        }
+
+        # Every Should -Be, -BeExactly or -Contain (and their -EQ and -CEQ aliases) whose
+        # expected value is built from an invisible character: in the argument itself, in the
+        # test's -ForEach data under the variable's name, or in an assignment to it in the test.
+        function script:Find-CultureComparedInvisible {
+            param($Ast)
+            $shoulds = $Ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($node.GetCommandName(), 'Should', [StringComparison]::OrdinalIgnoreCase) }, $true)
+            foreach ($should in $shoulds) {
+                $elements = @($should.CommandElements)
+                for ($index = 1; $index -lt $elements.Count; $index++) {
+                    $element = $elements[$index]
+                    if ($element -isnot [System.Management.Automation.Language.CommandParameterAst] -or
+                        -not @('be', 'beexactly', 'contain', 'eq', 'ceq').Contains($element.ParameterName.ToLowerInvariant())) { continue }
+                    $expected = if ($null -ne $element.Argument) { $element.Argument } elseif ($index + 1 -lt $elements.Count) { $elements[$index + 1] } else { $null }
+                    if ($null -eq $expected) { continue }
+                    $built = script:Test-BuildsInvisibleCharacter $expected.Extent.Text
+                    if (-not $built -and $expected -is [System.Management.Automation.Language.VariableExpressionAst]) {
+                        $name = $expected.VariablePath.UserPath
+                        $test = $should.Parent
+                        while ($null -ne $test -and -not ($test -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($test.GetCommandName(), 'It', [StringComparison]::OrdinalIgnoreCase))) { $test = $test.Parent }
+                        if ($null -ne $test) {
+                            foreach ($table in $test.FindAll({ param($node) $node -is [System.Management.Automation.Language.HashtableAst] }, $true)) {
+                                foreach ($pair in $table.KeyValuePairs) {
+                                    if ([string]::Equals($pair.Item1.Extent.Text.Trim([char[]]"'`""), $name, [StringComparison]::OrdinalIgnoreCase) -and (script:Test-BuildsInvisibleCharacter $pair.Item2.Extent.Text)) { $built = $true }
+                                }
+                            }
+                            foreach ($assignment in $test.FindAll({ param($node) $node -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
+                                if ($assignment.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                                    [string]::Equals($assignment.Left.VariablePath.UserPath, $name, [StringComparison]::OrdinalIgnoreCase) -and
+                                    (script:Test-BuildsInvisibleCharacter $assignment.Right.Extent.Text)) { $built = $true }
+                            }
+                        }
+                    }
+                    if ($built) { 'line {0}: {1}' -f $should.Extent.StartLineNumber, (($should.Parent.Extent.Text -split "`n")[0].Trim()) }
+                }
+            }
+        }
+    }
+
+    It 'compares every expected value built from an invisible character ordinally' {
+        # Should -Be and -BeExactly compare by culture and skip zero-width, bidi and other
+        # ignorable characters, so each of these could pass on a value that lost the very
+        # character the test is about. -BeOrdinal doesn't skip them.
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$null, [ref]$null)
+
+        @(script:Find-CultureComparedInvisible -Ast $ast) | Should -BeNullOrEmpty
+    }
+
+    It 'finds a culture-compared invisible expected value in <Case>' -ForEach @(
+        @{ Case = 'the argument'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]0x200B) }"; Found = $true }
+        @{ Case = 'a -ForEach value'; Code = "It 'x' -ForEach @(@{ Expected = 'a' + [char]0x200D }) { 'a' | Should -BeExactly `$Expected }"; Found = $true }
+        @{ Case = 'an assignment in the test'; Code = "It 'x' { `$e = [string][char]0x202E; @('a') | Should -Contain `$e }"; Found = $true }
+        @{ Case = 'a Unicode escape'; Code = "It 'x' { 'a' | Should -EQ ""a``u{200B}"" }"; Found = $true }
+        @{ Case = 'a lone surrogate'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]0xD800) }"; Found = $true }
+        @{ Case = 'not a visible character'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]0x00E9) }"; Found = $false }
+        @{ Case = 'not an ordinal compare'; Code = "It 'x' { 'a' | Should -BeOrdinal ('a' + [char]0x200B) }"; Found = $false }
+    ) {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+
+        (@(script:Find-CultureComparedInvisible -Ast $ast).Count -gt 0) | Should -Be $Found
+    }
+
+    It 'fails -BeOrdinal on a character -BeExactly skips, and keeps $null apart from empty' {
+        $joined = 'a' + [char]0x200D + 'b'
+        ('ab' -ceq $joined) | Should -BeTrue -Because 'the culture compare -BeExactly uses skips the joiner, which is why -BeOrdinal exists'
+
+        { 'ab' | Should -BeOrdinal $joined } | Should -Throw -ExpectedMessage "*Expected 'a{U+200D}b', compared ordinally, but got 'ab'*"
+        $joined | Should -BeOrdinal $joined
+        'ab' | Should -Not -BeOrdinal $joined
+        { '' | Should -BeOrdinal $null } | Should -Throw
+        $null | Should -BeOrdinal $null
     }
 }
