@@ -12213,6 +12213,35 @@ Describe 'PowerShell module packages are verified before import' {
         }
     }
 
+    It 'holds the lock file to its own schema' {
+        # The schema required one expectedSigner string while the file, validate-local.ps1 and
+        # these tests use the expectedSigners list, and nothing validated the file against it.
+        $lock = ConvertFrom-JsonPreservingArrays -Json (Get-Content -LiteralPath $script:ModuleLockPath -Raw)
+
+        $result = Test-JsonSchemaContract -Value $lock -SchemaPath 'schemas/powershell-module-lock.v1.json'
+
+        $result.valid | Should -BeTrue -Because (@($result.errors | ConvertTo-Json -Compress -Depth 4) -join '; ')
+    }
+
+    It 'judges a lock record by what the bootstrap needs: <Case>' -ForEach @(
+        @{ Case = 'an unsigned module with no signers'; Valid = $true; Change = { param($m) $m.signed = $false; $m.expectedSigners = @() } }
+        @{ Case = 'a single expectedSigner string'; Valid = $false; Change = { param($m) $m.Remove('expectedSigners'); $m.expectedSigner = 'CN=x' } }
+        @{ Case = 'a signed module with no signers'; Valid = $false; Change = { param($m) $m.expectedSigners = @() } }
+        @{ Case = 'a blank signer'; Valid = $false; Change = { param($m) $m.expectedSigners = @(' ') } }
+    ) {
+        $module = [ordered]@{
+            name = 'Pester'; version = '5.9.1'
+            packageUrl = 'https://www.powershellgallery.com/api/v2/package/Pester/5.9.1'
+            nupkgSha256 = ('a' * 64); signed = $true; expectedSigners = @('CN=x'); lane = 'default'
+        }
+        $lock = [ordered]@{ '$schema' = 'x'; note = 'n'; reviewedAt = '2026-09-24'; packageSource = 'https://www.powershellgallery.com/api/v2/package'; modules = @($module) }
+        (Test-JsonSchemaContract -Value $lock -SchemaPath 'schemas/powershell-module-lock.v1.json').valid | Should -BeTrue -Because 'the record passes before the change'
+
+        & $Change $module
+
+        (Test-JsonSchemaContract -Value $lock -SchemaPath 'schemas/powershell-module-lock.v1.json').valid | Should -Be $Valid
+    }
+
     It 'refuses a module version with no reviewed record' {
         { Get-ModuleLockEntry -RepoRoot $script:RepoRoot -Name 'Pester' -Version '9.9.9' } |
             Should -Throw -ExpectedMessage '*No reviewed lock record*'

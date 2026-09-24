@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/powershell-module-lock.v1.json",
   "title": "SysAdminDoc PowerShell module lock",
-  "description": "Reviewed PowerShell Gallery package bytes and expected Authenticode signers for every module the local validation lane imports. An exact version pin does not detect a changed same-version package, so validate-local.ps1 verifies the nupkg SHA-256 before extraction and the signer before import.",
+  "description": "Reviewed PowerShell Gallery package bytes and expected Authenticode signers for every module the local validation lane imports. An exact version pin does not detect a changed same-version package, so validate-local.ps1 verifies the nupkg SHA-256 before extraction and every signed file against the expected signers before import.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -39,9 +39,23 @@
           "packageUrl",
           "nupkgSha256",
           "signed",
-          "expectedSigner",
+          "expectedSigners",
           "lane"
         ],
+        "if": {
+          "properties": {
+            "signed": {
+              "const": true
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "expectedSigners": {
+              "minItems": 1
+            }
+          }
+        },
         "properties": {
           "name": {
             "type": "string",
@@ -62,9 +76,15 @@
           "signed": {
             "type": "boolean"
           },
-          "expectedSigner": {
-            "type": "string",
-            "description": "Exact Authenticode certificate subject, compared case-sensitively. Preserve non-ASCII characters verbatim; a transliterated subject is a different signer."
+          "expectedSigners": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "Every Authenticode certificate subject a signed file in the package may carry; a module can bundle third-party signed assemblies. Each is compared exactly and case-sensitively. Preserve non-ASCII characters verbatim; a transliterated subject is a different signer.",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
           },
           "lane": {
             "type": "string",
