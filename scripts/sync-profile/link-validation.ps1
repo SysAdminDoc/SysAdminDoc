@@ -292,13 +292,22 @@ function Get-ReadmeHeaderLinkReference {
     $inHtml = $false
     $htmlEnd = $null
     $inParagraph = $false
+    # The column an open paragraph's container starts at: 0 at the top, a list item's content
+    # column inside one. A line indented less isn't inside that container.
+    $paragraphIndent = 0
     $inList = $false
+    $listContentIndent = 0
     $fence = $null
     foreach ($line in ($header -split '\r?\n')) {
         $blank = [string]::IsNullOrWhiteSpace($line)
+        $lineIndent = 0
+        foreach ($character in [regex]::Match($line, '^[ \t]*').Value.ToCharArray()) {
+            $lineIndent = if ([int]$character -eq 9) { $lineIndent + 4 - ($lineIndent % 4) } else { $lineIndent + 1 }
+        }
         # A fenced code block shows its lines as written, to the closing fence or the end, so
         # nothing in it is a tag, a link or a URL; they're left out of both texts. So is an
-        # indented code block, which can't interrupt a paragraph or sit inside a list item.
+        # indented code block, which can't interrupt a paragraph; inside a list item it's
+        # indented four past the item's content ("- item" then six spaces).
         if ($null -ne $fence) {
             $close = [regex]::Match($line, '^ {0,3}(?<run>`{3,}|~{3,})[ \t]*\z')
             if ($close.Success -and $close.Groups['run'].Value[0] -eq $fence[0] -and $close.Groups['run'].Value.Length -ge $fence.Length) {
@@ -317,7 +326,7 @@ function Get-ReadmeHeaderLinkReference {
                 $markdownLines.Add('')
                 continue
             }
-            if (-not $blank -and -not $inParagraph -and -not $inList -and $line -match '^(?: {4}|\t)') {
+            if (-not $blank -and -not $inParagraph -and $lineIndent -ge (4 + $(if ($inList) { $listContentIndent } else { 0 }))) {
                 $htmlLines.Add('')
                 $markdownLines.Add('')
                 continue
@@ -331,7 +340,10 @@ function Get-ReadmeHeaderLinkReference {
                     break
                 }
             }
-            if (-not $inHtml -and -not $inParagraph -and $line -match $completeTagLine) {
+            # A lone tag can't interrupt a paragraph from inside the paragraph's container, but
+            # it can from outside one: after "- item", "  <a ...>" continues the item's
+            # paragraph while an unindented "<a ...>" starts an HTML block, as on GitHub.
+            if (-not $inHtml -and -not ($inParagraph -and $lineIndent -ge $paragraphIndent) -and $line -match $completeTagLine) {
                 $inHtml = $true
                 $htmlEnd = $null
             }
@@ -346,17 +358,31 @@ function Get-ReadmeHeaderLinkReference {
             continue
         }
         $inHtml = $false
-        # A heading, a rule, a setext underline, a quote line or a list item leaves no open
-        # paragraph for the next line to join (GitHub starts an HTML block after each);
-        # other text opens or continues one. Indented lines after a list item stay in it.
-        $isListItem = $line -match '^ {0,3}(?:[-+*]|[0-9]{1,9}[.)])(?:[ \t]|\z)'
-        $closesParagraph = $isListItem -or
-            $line -match '^ {0,3}(?:#{1,6}(?:[ \t]|\z)|>|(?:\*[ \t]*){3,}\z|(?:-[ \t]*){3,}\z|(?:_[ \t]*){3,}\z)' -or
+        # A heading, a rule, a setext underline or a quote line leaves no open paragraph for
+        # the next line to join (GitHub starts an HTML block after each); other text opens or
+        # continues one. A list item with text opens a paragraph in the item, at the item's
+        # content column (after the marker and up to four spaces, or one when more follow).
+        # Indented lines after a list item stay in it.
+        $listItem = [regex]::Match($line, '^(?<lead> {0,3})(?<marker>[-+*]|[0-9]{1,9}[.)])(?<gap>[ \t]*)(?<rest>.*)\z')
+        $isListItem = $listItem.Success -and ($listItem.Groups['gap'].Length -gt 0 -or $listItem.Groups['rest'].Length -eq 0)
+        $closesParagraph = $line -match '^ {0,3}(?:#{1,6}(?:[ \t]|\z)|>|(?:\*[ \t]*){3,}\z|(?:-[ \t]*){3,}\z|(?:_[ \t]*){3,}\z)' -or
             ($inParagraph -and $line -match '^ {0,3}(?:=+|-+)[ \t]*\z')
         if (-not $blank) {
             $inList = $isListItem -or ($inList -and $line -match '^(?: {2,}|\t)')
         }
-        $inParagraph = -not $blank -and -not $closesParagraph
+        if ($isListItem -and -not $closesParagraph) {
+            $rest = $listItem.Groups['rest'].Value
+            $gap = $listItem.Groups['gap'].Length
+            $listContentIndent = $listItem.Groups['lead'].Length + $listItem.Groups['marker'].Length + $(if ($rest.Length -eq 0 -or $gap -gt 4) { 1 } else { $gap })
+            $paragraphIndent = $listContentIndent
+            $inParagraph = $rest.Length -gt 0 -and $rest -notmatch '^(?:#{1,6}(?:[ \t]|\z)|>|<)'
+        } else {
+            $opensParagraph = -not $blank -and -not $closesParagraph -and -not $isListItem
+            if ($opensParagraph -and -not $inParagraph) {
+                $paragraphIndent = if ($inList -and $lineIndent -ge $listContentIndent) { $listContentIndent } else { 0 }
+            }
+            $inParagraph = $opensParagraph
+        }
         $htmlLines.Add('')
         $markdownLines.Add($line)
     }
@@ -384,10 +410,11 @@ function Get-ReadmeHeaderLinkReference {
         & $blankOut $span.Index $span.Length
     }
 
-    # An autolink in angle brackets links what's inside it, where escapes don't apply.
+    # An autolink in angle brackets links what's inside it, where escapes don't apply but
+    # entities are decoded (&amp; is &).
     $unescaped = '(?<=(?:^|[^\\])(?:\\\\)*)'
     foreach ($autolink in [regex]::Matches([string]::new($plain), $unescaped + '<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>')) {
-        & $add "link" $autolink.Groups['url'].Value.Replace('\', '%5C')
+        & $add "link" ([System.Net.WebUtility]::HtmlDecode($autolink.Groups['url'].Value)).Replace('\', '%5C')
         & $blankOut $autolink.Index $autolink.Length
     }
 
@@ -554,9 +581,17 @@ function Test-ReadmeHeaderAnchor {
     # The README is written with CRLF on Windows; GitHub ends a line at CR, LF or CRLF, and
     # the fence and heading patterns below end theirs at LF.
     $text = [regex]::Replace($ExpectedReadme, '\r\n?', "`n")
-    $withoutFences = [regex]::Replace($text, '(?ms)^ {0,3}(?<fence>`{3,}|~{3,})(?:.*?^ {0,3}\k<fence>[`~]*[ \t]*$|.*\z)', '')
-    $tagText = [regex]::Replace($withoutFences, '<!--[\s\S]*?-->', '')
-    $tagText = [regex]::Replace($tagText, '(?<!`)(?<ticks>`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])+?(?<!`)\k<ticks>(?!`)', '')
+    # A fence runs to a closing run of its own character at least as long, or to the end. A
+    # backtick fence's info string can't hold a backtick (then the line isn't a fence), and
+    # ```~ doesn't close one.
+    $fencePattern = '(?ms)^ {0,3}(?<fence>(?<char>`)`{2,}(?=[^`\n]*$)|(?<char>~)~{2,})(?:.*?^ {0,3}\k<fence>\k<char>*[ \t]*$|.*\z)'
+    $withoutFences = [regex]::Replace($text, $fencePattern, '')
+    # Escapes, code spans and comments are read in one pass from the left, so whichever
+    # starts first wins: a comment inside a code span is code, a backtick inside a comment
+    # opens nothing, and an escaped backtick doesn't open a span. An escaped character keeps
+    # its backslash but not itself, so an escaped < starts no tag.
+    $inlineScan = '(?<escape>\\[!-/:-@\[-`{-~])|(?<code>(?<!`)(?<ticks>`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])+?(?<!`)\k<ticks>(?!`))|(?<comment><!--[\s\S]*?-->)'
+    $tagText = [regex]::Replace($withoutFences, $inlineScan, { param($match) if ($match.Groups['escape'].Success) { '\' + [char]0xE000 } else { '' } })
     foreach ($tag in [regex]::Matches($tagText, "(?<=(?:^|[^\\])(?:\\\\)*)<(?<name>[A-Za-z][A-Za-z0-9-]*)(?<attributes>(?:$attribute)*)\s*/?>")) {
         foreach ($pair in [regex]::Matches($tag.Groups['attributes'].Value, $attributeCapture)) {
             $name = $pair.Groups['name'].Value
@@ -573,8 +608,8 @@ function Test-ReadmeHeaderAnchor {
     # Markdown (fenced blocks, HTML comments) is blanked to spaces rather than cut, so the
     # offsets of the three forms line up.
     $blankOut = { param($match) [regex]::Replace($match.Value, '[^\n]', ' ') }
-    $headingText = [regex]::Replace($text, '(?ms)^ {0,3}(?<fence>`{3,}|~{3,})(?:.*?^ {0,3}\k<fence>[`~]*[ \t]*$|.*\z)', $blankOut)
-    $headingText = [regex]::Replace($headingText, '<!--[\s\S]*?-->', $blankOut)
+    $headingText = [regex]::Replace($text, $fencePattern, $blankOut)
+    $headingText = [regex]::Replace($headingText, $inlineScan, { param($match) if ($match.Groups['comment'].Success) { & $blankOut $match } else { $match.Value } })
     $headings = [System.Collections.Generic.List[object]]::new()
     # Line by line: a line opening with < starts an HTML block that runs to the next blank
     # line, and nothing in it is a heading. ATX: its text is on its own line (a bare # is an
@@ -614,7 +649,7 @@ function Test-ReadmeHeaderAnchor {
     }
     # Raw <h1> to <h6>, in an HTML block or inline in a paragraph, but not in a code span or
     # behind an escaped <. One with its own id keeps that as well (read with the tags above).
-    $htmlHeadingText = [regex]::Replace($headingText, '(?<!`)(?<ticks>`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])+?(?<!`)\k<ticks>(?!`)', $blankOut)
+    $htmlHeadingText = [regex]::Replace($headingText, $inlineScan, { param($match) if ($match.Groups['escape'].Success) { '\' + [char]0xE000 } else { & $blankOut $match } })
     foreach ($match in [regex]::Matches($htmlHeadingText, '(?i)(?<=(?:^|[^\\])(?:\\\\)*)<(?<level>h[1-6])(?=[\s/>])[^>]*>(?<inner>[\s\S]*?)</\k<level>\s*>')) {
         $headings.Add([pscustomobject]@{ Offset = $match.Index; Text = $match.Groups['inner'].Value })
     }

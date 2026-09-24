@@ -12803,6 +12803,12 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'indented code'; Text = "para`n`n    https://indent.invalid/x"; Expected = @() }
         @{ Case = 'a fenced block'; Text = "text`n```````nhttps://fence.invalid/x`n`n<a href=`"https://fence2.invalid/`">x</a>`n```````nafter https://afterfence.invalid/y"; Expected = @('link https://afterfence.invalid/y') }
         @{ Case = 'indented text in a list item'; Text = "- item`n`n    https://listcont.invalid/x"; Expected = @('link https://listcont.invalid/x') }
+        # Review G5, each checked with the API.
+        @{ Case = 'an angle autolink with an entity'; Text = 'Go <https://ab.invalid/?a=1&amp;b=2> now'; Expected = @('link https://ab.invalid/?a=1&b=2') }
+        @{ Case = 'an indented tag in a list item'; Text = "- item`n  <a href=`"https://li.invalid/`">`nhttps://lazy.invalid/x"; Expected = @('link https://li.invalid/', 'link https://lazy.invalid/x') }
+        @{ Case = 'indented code in a list item'; Text = "- item`n`n      https://deep.invalid/x"; Expected = @() }
+        @{ Case = 'indented code in an ordered item'; Text = "1. item`n`n       https://deep2.invalid/x"; Expected = @() }
+        @{ Case = 'text six spaces into an ordered item'; Text = "1. item`n`n      https://six.invalid/x"; Expected = @('link https://six.invalid/x') }
     ) {
         $references = @(Get-ReadmeHeaderLinkReference -ExpectedReadme $Text | ForEach-Object { $_.kind + ' ' + $_.value })
 
@@ -12829,6 +12835,22 @@ Describe 'Hand-authored header links and anchors are validated' {
         $readme = $Text + "`n`n" + '<p align="center"><a href="#ghost">A</a></p>'
 
         (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'ghost'
+    }
+
+    It 'reads an anchor as GitHub does with <Case>' -ForEach @(
+        # Review G5, each checked with the API. The link comes first so a fence that runs to
+        # the end can't take it too.
+        @{ Case = 'escaped backticks around it'; Text = 'See \`x <a id="real"></a> y\` here.'; Present = $true }
+        @{ Case = 'an escaped backtick before a code span'; Text = 'a \` <a id="real"></a> `x`'; Present = $true }
+        @{ Case = 'comment markers in code spans around it'; Text = 'See `<!--` <a id="real"></a> `-->` here.'; Present = $true }
+        @{ Case = 'a comment that starts inside a code span'; Text = 'See ` <!-- ` --> ` <a id="real"></a> ` here.'; Present = $false }
+        @{ Case = 'a backtick in a fence''s info string'; Text = ('```a`b' + "`n" + '<a id="real"></a>' + "`n" + '```'); Present = $true }
+        @{ Case = 'a fence after a line that only looks like one'; Text = ('```a`b' + "`nx`n" + '```' + "`n`n" + '<a id="real"></a>'); Present = $false }
+        @{ Case = 'a closing run of mixed characters'; Text = ('```' + "`nx`n" + '```~' + "`n`n" + '<a id="real"></a>'); Present = $false }
+    ) {
+        $readme = '<p align="center"><a href="#real">x</a></p>' + "`n`n" + $Text + "`n"
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme).Count -eq 0) | Should -Be $Present
     }
 
     It 'takes an anchor from an id on any element' {
