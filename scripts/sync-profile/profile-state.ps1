@@ -471,6 +471,19 @@ function Test-ProfileState {
         -MaxBytes $ReleaseVerificationMaxBytes `
         -PreviousRotation (Get-MemberValue -Object (Get-MemberValue -Object $committedReportForFreshness -Name 'releaseArtifactVerification') -Name 'rotation')
     $userscriptInstallTrust = Test-UserscriptInstallTrust -Entries $included -Skip:($script:Offline -or $SkipLinkValidation)
+    # The report keeps a full row only for a userscript with a warning or a fatal and names
+    # the clean ones, as the other sections list only their problems: fourteen rows of
+    # passing evidence took the report past its size budget. The counts cover every row.
+    $userscriptReportSection = [ordered]@{}
+    foreach ($key in $userscriptInstallTrust.Keys) {
+        if ('rows'.Equals($key)) {
+            $userscriptReportSection.rows = @($userscriptInstallTrust.rows | Where-Object { [int]$_.warningCount -gt 0 -or [int]$_.fatalCount -gt 0 })
+            $userscriptReportSection.passingRepos = @($userscriptInstallTrust.rows | Where-Object { [int]$_.warningCount -eq 0 -and [int]$_.fatalCount -eq 0 } | ForEach-Object { [string]$_.repo })
+        } else {
+            $userscriptReportSection[$key] = $userscriptInstallTrust[$key]
+        }
+    }
+    $userscriptReportSection.note = [string]$userscriptInstallTrust.note + ' Rows cover the userscripts with a warning or fatal; passingRepos names the rest.'
     $catalogFeedAccounting = Test-CatalogFeedAccounting -Catalog $Catalog -ProjectsJson $ExpectedProjects
     $portfolioCompatibility = Test-PortfolioFeedCompatibility -ProjectsJson $ExpectedProjects
     $portfolioCrossSurfaceProbe = Test-PortfolioCrossSurfaceDrift `
@@ -559,7 +572,7 @@ function Test-ProfileState {
         branchTipProvenance = $branchTipProvenance
         backstageCatalogExport = $backstageCatalogExport
         releaseArtifactVerification = $releaseArtifactVerification
-        userscriptInstallTrust = $userscriptInstallTrust
+        userscriptInstallTrust = $userscriptReportSection
         catalogFeedAccounting = $catalogFeedAccounting
         portfolioCompatibility = $portfolioCompatibility
         portfolioCrossSurfaceProbe = $portfolioCrossSurfaceProbe

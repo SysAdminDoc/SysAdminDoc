@@ -2247,6 +2247,7 @@
         "warningCount",
         "fatalCount",
         "rows",
+        "passingRepos",
         "note"
       ],
       "properties": {
@@ -2318,8 +2319,17 @@
         },
         "rows": {
           "type": "array",
+          "description": "Full rows for the userscripts with a warning or a fatal only.",
           "items": {
             "$ref": "#/$defs/userscriptTrustRow"
+          }
+        },
+        "passingRepos": {
+          "type": "array",
+          "description": "The userscripts checked with no warning or fatal, by repository name.",
+          "items": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "note": {

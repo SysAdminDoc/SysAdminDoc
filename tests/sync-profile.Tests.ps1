@@ -11766,6 +11766,40 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
             Should -Be $summary.readmeActionTargetCount
     }
 
+    It 'writes a full userscript row only for a script with a warning or a fatal' {
+        # Not a condition either. Fourteen rows of passing evidence took the report past its
+        # size budget, so the clean scripts are named instead; the counts still cover both.
+        $baseline = script:New-ReachabilityBaseline -Catalog (Get-Catalog -Path $script:ReachabilityCatalogPath)
+        $clean = New-TestEntry -Repo 'CleanScript' -Category 'extensions'
+        $clean.downloadKind = 'userscript'
+        $clean.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/CleanScript/main/CleanScript.user.js'
+        $broad = New-TestEntry -Repo 'BroadScript' -Category 'extensions'
+        $broad.downloadKind = 'userscript'
+        $broad.userscriptUrl = 'https://raw.githubusercontent.com/SysAdminDoc/BroadScript/main/BroadScript.user.js'
+        $script:TrimEntries = @($clean, $broad)
+        $script:TrimContent = @{
+            $clean.userscriptUrl = "// ==UserScript==`n// @name Clean Script`n// @version 1.0.0`n// @match https://example.com/*`n// @updateURL $($clean.userscriptUrl)`n// @downloadURL $($clean.userscriptUrl)`n// ==/UserScript=="
+            $broad.userscriptUrl = "// ==UserScript==`n// @name Broad Script`n// @version 1.0.0`n// @match *://*/*`n// @updateURL $($broad.userscriptUrl)`n// @downloadURL $($broad.userscriptUrl)`n// ==/UserScript=="
+        }
+        $script:TrimProbes = @{
+            $clean.userscriptUrl = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+            $broad.userscriptUrl = [ordered]@{ ok = $true; status = 200; error = $null; fatal = $false }
+        }
+        $script:RealUserscriptTrust = ${function:Test-UserscriptInstallTrust}
+        Mock Test-UserscriptInstallTrust { & $script:RealUserscriptTrust -Entries $script:TrimEntries -ContentByUrl $script:TrimContent -ProbeByUrl $script:TrimProbes }
+
+        $result = script:Invoke-ReachabilityState -Baseline $baseline
+
+        $section = $result.Report.userscriptInstallTrust
+        @($section.rows | ForEach-Object { $_.repo }) | Should -Be @('BroadScript')
+        @($section.rows[0].warnings | ForEach-Object { $_.kind }) | Should -Contain 'scope-broad'
+        @($section.passingRepos) | Should -Be @('CleanScript')
+        $section.checkedCount | Should -Be 2
+        $section.releaseChannelKeepBranchCount | Should -Be 2
+        $section.warningCount | Should -Be 1
+        $result.Report.schemaValidation.report.valid | Should -BeTrue
+    }
+
     It 'fires releaseArtifactVerification only when the switch is set' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
