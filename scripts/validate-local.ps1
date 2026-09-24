@@ -182,13 +182,23 @@ function Get-CheckoutFileState {
                 $pending.Push($child)
             }
             foreach ($file in [System.IO.Directory]::EnumerateFiles($directory, '*', $options)) {
-                $stream = [System.IO.File]::Open($file, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                $relative = [System.IO.Path]::GetRelativePath($root, $file) -replace '\\', '/'
+                try {
+                    $stream = [System.IO.File]::Open($file, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete)
+                } catch [System.IO.IOException], [System.UnauthorizedAccessException] {
+                    # Held open by a process that shares no reading (a lock, a writer mid-save):
+                    # named, not thrown, so the lane still reports every other change, and a
+                    # file that reads differently afterwards still shows as changed.
+                    Write-Warning "Checkout file $relative couldn't be read for the snapshot: $($_.Exception.Message)"
+                    $state[$relative] = 'unreadable'
+                    continue
+                }
                 try {
                     $hash = [System.Convert]::ToHexString($sha256.ComputeHash($stream))
                 } finally {
                     $stream.Dispose()
                 }
-                $state[([System.IO.Path]::GetRelativePath($root, $file) -replace '\\', '/')] = $hash
+                $state[$relative] = $hash
             }
         }
     } finally {

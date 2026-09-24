@@ -194,6 +194,8 @@ function Get-JsonSchemaEvaluationErrors {
     $schema = [Json.Schema.JsonSchema]::FromFile($SchemaPath)
     $options = [Json.Schema.EvaluationOptions]::new()
     $options.OutputFormat = [Json.Schema.OutputFormat]::Hierarchical
+    # Off by default, so a date-time of "yesterday" or a uri of "not a uri" passed.
+    $options.RequireFormatValidation = $true
     $evaluation = $schema.Evaluate([System.Text.Json.Nodes.JsonNode]::Parse($Json), $options)
     if ($evaluation.IsValid) {
         return @()

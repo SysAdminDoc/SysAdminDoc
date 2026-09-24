@@ -1476,6 +1476,13 @@ Describe 'OpenSSF Scorecard runs locally' {
         # Uppercase hex beside a legacy token (percent-encoding, a word) hid it.
         @{ Case = 'a token after %3D'; Line = 'GET https://x.test/?access_token%3D0123456789abcdef0123456789abcdef01234567 failed'; Expected = 'GET https://x.test/?access_token%3D<token> failed'; Gone = '0123456789abcdef' }
         @{ Case = 'a token followed by a capital'; Line = 'token 0123456789abcdef0123456789abcdef01234567Expired'; Expected = 'token <token>Expired'; Gone = '0123456789abcdef' }
+        # Review of a899860: macOS paths ignore case, and a slash can arrive percent-encoded or
+        # escaped twice, so these leaked; and URLs were only recognised in lower case.
+        @{ Case = 'an upper-case /USERS/'; Line = 'stat /USERS/bob/x failed'; Expected = 'stat /USERS/<user>/x failed'; Gone = 'bob' }
+        @{ Case = 'percent-encoded slashes'; Line = 'open %2FUsers%2Fbob%2Fx failed'; Expected = 'open %2FUsers%2F<user>%2Fx failed'; Gone = 'bob' }
+        @{ Case = 'slashes escaped twice'; Line = '{"p":"\\/home\\/bob\\/x"} failed'; Expected = '{"p":"\\/home\\/<user>\\/x"} failed'; Gone = 'bob' }
+        @{ Case = 'an upper-case URL scheme'; Line = 'GET HTTPS://example.com/Users/docs failed'; Expected = 'GET HTTPS://example.com/Users/docs failed'; Gone = '<user>' }
+        @{ Case = 'a URL with a drive-like segment'; Line = 'GET https://x.test/a:/Users/docs failed'; Expected = 'GET https://x.test/a:/Users/docs failed'; Gone = '<user>' }
     ) {
         # The account redaction ran to the next separator or quote, which took the reason
         # after a name at the end of a path, and stopped at an apostrophe inside one.
@@ -7625,6 +7632,20 @@ Describe 'Feed JSON Schema contracts' {
         $result.errors[1].keywordLocation | Should -Be '/properties/c/type'
     }
 
+    It 'holds a string to its schema format' {
+        # JsonSchema.Net skips format unless asked, so a date-time of "yesterday" and a uri of
+        # "not a uri" passed every schema check.
+        $schemaPath = Join-Path $TestDrive 'formats.json'
+        Set-Content -LiteralPath $schemaPath -Encoding utf8 -Value '{"type":"object","properties":{"at":{"type":"string","format":"date-time"},"link":{"type":"string","format":"uri"}}}'
+
+        $bad = Test-JsonSchemaContract -Value ([ordered]@{ at = 'yesterday'; link = 'not a uri' }) -SchemaPath $schemaPath
+        $good = Test-JsonSchemaContract -Value ([ordered]@{ at = '2026-09-24T10:00:00Z'; link = 'https://example.test/' }) -SchemaPath $schemaPath
+
+        $bad.valid | Should -BeFalse
+        (@($bad.errors | ForEach-Object keywordLocation | Sort-Object) -join ' ; ') | Should -Be '/properties/at/format ; /properties/link/format'
+        $good.valid | Should -BeTrue
+    }
+
     It 'lets both schemas accept every metadata provider the generator records' {
         # The enums held graphql and rest-fallback only, so a run that fell back to cached
         # metadata (cache-fallback) failed its own schema check and wrote nothing. The scan
@@ -13705,6 +13726,30 @@ Describe 'Local validation helpers (in-process)' {
         Compare-CheckoutFileState -Before $before -After $after -Allowed @('coverage.xml') |
             Should -Be @('added .cache/run.lock', 'changed reports/profile-sync-report.json', 'removed README.md')
         Compare-CheckoutFileState -Before $before -After $before | Should -BeNullOrEmpty
+    }
+
+    It 'names a checkout file it cannot read instead of stopping' {
+        # A file held open without read sharing made File.Open throw, so the lane died on the
+        # exception instead of reporting what the run changed.
+        $root = Join-Path $TestDrive 'checkout-state-locked'
+        New-Item -ItemType Directory -Path $root -Force | Out-Null
+        $locked = Join-Path $root 'locked.txt'
+        Set-Content -LiteralPath $locked -Value 'held'
+        Set-Content -LiteralPath (Join-Path $root 'other.txt') -Value 'other'
+        $holder = [System.IO.File]::Open($locked, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+        try {
+            $state = Get-CheckoutFileState -RepoRoot $root -WarningVariable warnings 3>$null
+        } finally {
+            $holder.Dispose()
+        }
+
+        $state['locked.txt'] | Should -Be 'unreadable'
+        $state['other.txt'] | Should -Match '^[0-9A-F]{64}$'
+        @($warnings) | Should -HaveCount 1
+        [string]$warnings[0] | Should -Match 'locked\.txt'
+        # Readable again with other bytes, it shows as changed.
+        Set-Content -LiteralPath $locked -Value 'changed'
+        (@(Compare-CheckoutFileState -Before $state -After (Get-CheckoutFileState -RepoRoot $root)) -join ' ; ') | Should -Be 'changed locked.txt'
     }
 
     It 'sees a same-size rewrite with its time put back, a case-only rename and a new directory, and walks no junction' {

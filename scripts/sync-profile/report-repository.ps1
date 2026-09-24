@@ -412,16 +412,23 @@ function Invoke-ScorecardCli {
     # digits, the shape of the tokens issued before 2021. Only lowercase hex bounds the run:
     # percent-encoding writes uppercase, so %3D or a word like Expired can sit right against one.
     $failure = [regex]::Replace($failure, '(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|(?<![0-9a-f])[0-9a-f]{40,}(?![0-9a-f])', '<token>')
-    # Windows accounts, after \Users\ with any run of backslashes (Go and JSON double them) or
-    # after C:/Users/. The name runs to a character Windows doesn't allow in one, so spaces and
-    # apostrophes stay inside it ("John Smith", "O'Brien") and ": Access is denied." survives.
-    $failure = [regex]::Replace($failure, '(?i)((?:\\+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:\\+|/+))[^\\/"<>:|?*\[\];=,+\r\n]+', '${1}<user>')
-    # macOS and Linux accounts, after /Users/ or /home/ as written (so an API URL's /users/
-    # stays), wherever the path sits: /mnt/c/Users, /var/home, //server/Users. URLs, plain or
-    # with JSON's \/ slashes, match first and come back as they were. These names hold no space.
-    $failure = [regex]::Replace($failure, '(?<url>https?:(?:\\?/){2}[^\s"''<>]*)|(?<prefix>(?:\\?/)(?:Users|home)(?:\\?/))[^\\/\s"''<>:]+', {
+    # Account names, in one pass so a URL is recognised first and comes back whole: any scheme
+    # case, with plain, JSON-escaped (\/) or percent-encoded (%2F) slashes.
+    # - Windows, after \Users\ with any run of backslashes (Go and JSON double them) or after
+    #   C:/Users/. The name runs to a character Windows doesn't allow in one, so spaces and
+    #   apostrophes stay inside it ("John Smith", "O'Brien") and ": Access is denied." survives.
+    # - macOS and Linux, after /Users/ or /home/ in any case (macOS paths ignore it), wherever
+    #   the path sits (/mnt/c/Users, /var/home, //server/Users), and with a slash written as
+    #   \/, \\/ or %2F. These names hold no space.
+    $failure = [regex]::Replace($failure, '(?<url>(?i:https?):(?:\\*/|%2[Ff]){2}[^\s"''<>]*)|(?<windows>(?i)(?:\\+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:\\+|/+))[^\\/"<>:|?*\[\];=,+\r\n]+|(?<posix>(?:\\*/|%2[Ff])(?i:Users|home)(?:\\*/|%2[Ff]))[^\\/\s"''<>:%]+', {
             param($match)
-            if ($match.Groups['url'].Success) { $match.Value } else { $match.Groups['prefix'].Value + '<user>' }
+            if ($match.Groups['url'].Success) {
+                $match.Value
+            } elseif ($match.Groups['windows'].Success) {
+                $match.Groups['windows'].Value + '<user>'
+            } else {
+                $match.Groups['posix'].Value + '<user>'
+            }
         })
     if ($failure.Length -gt 240) { $failure = $failure.Substring(0, 240) }
     return [ordered]@{ ok = $false; value = $null; error = $failure }
