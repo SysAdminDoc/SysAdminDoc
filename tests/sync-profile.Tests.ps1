@@ -13136,6 +13136,8 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'indented code in a list item'; Text = "- item`n`n      https://deep.invalid/x"; Expected = @() }
         @{ Case = 'indented code in an ordered item'; Text = "1. item`n`n       https://deep2.invalid/x"; Expected = @() }
         @{ Case = 'text six spaces into an ordered item'; Text = "1. item`n`n      https://six.invalid/x"; Expected = @('link https://six.invalid/x') }
+        # Review G7: text five or more spaces after the marker is indented code.
+        @{ Case = 'code on a list item line'; Text = "-      https://code.invalid/x"; Expected = @() }
     ) {
         $references = @(Get-ReadmeHeaderLinkReference -ExpectedReadme $Text | ForEach-Object { $_.kind + ' ' + $_.value })
 
@@ -13351,6 +13353,39 @@ Describe 'Hand-authored header links and anchors are validated' {
         $readme = '<p align="center"><a href="#' + $Id + '">x</a></p>' + "`n`n" + $Text + "`n"
 
         @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
+    }
+
+    It 'reads headings beside HTML and inside containers as GitHub does: <Case>' -ForEach @(
+        # Review G7, each rendered with GitHub's /markdown API: Ids are the headings it shows,
+        # Absent the ones it doesn't. A line opening with an inline tag was taken for an HTML
+        # block, blocks that end at a closing marker ended at a blank line, and container and
+        # indentation rules were missed.
+        @{ Case = 'an inline image before a heading'; Text = "<img src=`"x`"> Title`n## Next"; Ids = @('next'); Absent = @('title') }
+        @{ Case = 'inline bold before a heading'; Text = "<b>bold</b> text`n## Heading"; Ids = @('heading'); Absent = @('bold-text') }
+        @{ Case = 'inline bold as a setext heading'; Text = "<b>bold</b> text`n==="; Ids = @('bold-text'); Absent = @() }
+        @{ Case = 'an inline link before a heading'; Text = "<a href=`"https://x.invalid/`">link</a>`n## After Link"; Ids = @('after-link'); Absent = @('link') }
+        @{ Case = 'an inline span before a heading'; Text = "<span>x</span>`n## Y Head"; Ids = @('y-head'); Absent = @('x') }
+        @{ Case = 'a less-than before a heading'; Text = "< 5 is less`n## Less"; Ids = @('less'); Absent = @() }
+        @{ Case = 'an autolink before a heading'; Text = "<https://x.invalid/>`n## Auto"; Ids = @('auto'); Absent = @() }
+        @{ Case = 'a span inside a setext paragraph'; Text = "para`n<span>x</span>`n==="; Ids = @('parax'); Absent = @('para') }
+        @{ Case = 'a lone tag inside a setext paragraph'; Text = "para`n<span>`n==="; Ids = @('para'); Absent = @() }
+        @{ Case = 'a heading inside pre'; Text = "<pre>`n`n## InPre`n</pre>"; Ids = @(); Absent = @('inpre') }
+        @{ Case = 'a heading inside script'; Text = "<script>`n`n## InScript`n</script>"; Ids = @(); Absent = @('inscript') }
+        @{ Case = 'a heading inside CDATA'; Text = "<![CDATA[`n`n## InCdata`n]]>"; Ids = @(); Absent = @('incdata') }
+        @{ Case = 'indented code on a list item line'; Text = "-     ## Deep"; Ids = @(); Absent = @('deep') }
+        @{ Case = 'a heading three spaces into a quote'; Text = ">    ## Quoted4"; Ids = @('quoted4'); Absent = @() }
+        @{ Case = 'a quote in a list item'; Text = "- > ## ListQuote"; Ids = @('listquote'); Absent = @() }
+        @{ Case = 'a raw heading in indented code'; Text = "para`n`n    <h2>Indented</h2>"; Ids = @(); Absent = @('indented') }
+        @{ Case = 'a > in a raw heading attribute'; Text = "<h2 title=`"a>b`">Gt</h2>"; Ids = @('gt'); Absent = @('bgt') }
+        @{ Case = 'a raw heading inside an ATX heading'; Text = "## Outer <h3>Inner</h3>"; Ids = @('outer-', 'inner'); Absent = @('outer-inner') }
+        @{ Case = 'a raw heading inside a setext heading'; Text = "text <h2>a</h2>`n==="; Ids = @('text-', 'a'); Absent = @('text-a') }
+    ) {
+        $links = (@($Ids) + @($Absent) | ForEach-Object { '<a href="#' + $_ + '">x</a>' }) -join ' '
+        $readme = '<p align="center">' + $links + '</p>' + "`n`n" + $Text + "`n"
+
+        $missing = @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment })
+
+        (@($missing | Sort-Object) -join ' ; ') | Should -BeOrdinal (@($Absent | Sort-Object) -join ' ; ')
     }
 
     It 'finds no heading id in <Case>' -ForEach @(

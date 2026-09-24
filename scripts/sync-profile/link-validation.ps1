@@ -375,8 +375,11 @@ function Get-ReadmeHeaderLinkReference {
             $gap = $listItem.Groups['gap'].Length
             $listContentIndent = $listItem.Groups['lead'].Length + $listItem.Groups['marker'].Length + $(if ($rest.Length -eq 0 -or $gap -gt 4) { 1 } else { $gap })
             $paragraphIndent = $listContentIndent
-            $inParagraph = $rest.Length -gt 0 -and $rest -notmatch '^(?:#{1,6}(?:[ \t]|\z)|>|<)'
+            # Text five or more spaces after the marker is indented code in the item, shown as written.
+            $itemCode = $rest.Length -gt 0 -and $gap -gt 4
+            $inParagraph = $rest.Length -gt 0 -and -not $itemCode -and $rest -notmatch '^(?:#{1,6}(?:[ \t]|\z)|>|<)'
         } else {
+            $itemCode = $false
             $opensParagraph = -not $blank -and -not $closesParagraph -and -not $isListItem
             if ($opensParagraph -and -not $inParagraph) {
                 $paragraphIndent = if ($inList -and $lineIndent -ge $listContentIndent) { $listContentIndent } else { 0 }
@@ -384,7 +387,7 @@ function Get-ReadmeHeaderLinkReference {
             $inParagraph = $opensParagraph
         }
         $htmlLines.Add('')
-        $markdownLines.Add($line)
+        $markdownLines.Add($(if ($itemCode) { '' } else { $line }))
     }
     $htmlText = $htmlLines -join "`n"
     $markdownText = $markdownLines -join "`n"
@@ -611,46 +614,83 @@ function Test-ReadmeHeaderAnchor {
     $headingText = [regex]::Replace($text, $fencePattern, $blankOut)
     $headingText = [regex]::Replace($headingText, $inlineScan, { param($match) if ($match.Groups['comment'].Success) { & $blankOut $match } else { $match.Value } })
     $headings = [System.Collections.Generic.List[object]]::new()
-    # Line by line: a line opening with < starts an HTML block that runs to the next blank
-    # line, and nothing in it is a heading. ATX: its text is on its own line (a bare # is an
-    # empty heading, and the line after it a paragraph), a closing run of # isn't part of
-    # it, and it can sit in a quote or a list item. Setext: the paragraph above a line of = or
-    # -, its lines joined without a space ("Two line" over "setext heading" gives
-    # two-linesetext-heading); a line of - after a blank line, a list item or a quote is a
-    # rule instead. A heading in a list item's indented continuation lines isn't read, so a
-    # link to one is reported missing.
-    $atxPattern = '^ {0,3}(?:>[ \t]?)*(?:(?:[-+*]|\d{1,9}[.)])[ \t]+)?#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$'
+    # Line by line, as CommonMark reads blocks. An HTML block starts at a line opening with a
+    # form that starts one: <pre>, <script>, <style> or <textarea> (it ends at the closing
+    # tag), a comment, <?, a declaration or CDATA (each ends at its closing marker), a
+    # block-level tag (it ends at a blank line), or a lone complete tag that doesn't continue a
+    # paragraph (it ends at a blank line). Nothing in one is a heading. Any other line opening
+    # with < (an inline tag, an autolink, "< 5") is paragraph text. ATX: its text is on its
+    # own line (a bare # is an empty heading, and the line after it a paragraph), a closing
+    # run of # isn't part of it, and it can sit behind quote and list markers in any order, up
+    # to three spaces in; a list marker followed by five spaces opens indented code instead.
+    # Setext: the paragraph above a line of = or -, its lines joined without a space ("Two
+    # line" over "setext heading" gives two-linesetext-heading); a line of - after a blank
+    # line, a list item or a quote is a rule instead. A raw <h1> to <h6> in a heading's text
+    # closes it, as the HTML parser does, so "## Outer <h3>Inner</h3>" gives outer- and inner.
+    # Not read: a heading in a list item's indented continuation lines, and a fence inside a
+    # list item or quote, which need a real Markdown parser.
+    $blockTags = 'address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul'
+    $htmlBlockStarts = @(
+        @{ Start = '(?i)^ {0,3}<(?:pre|script|style|textarea)(?:[\s>]|$)'; End = '(?i)</(?:pre|script|style|textarea)>' }
+        @{ Start = '^ {0,3}<!--'; End = '-->' }
+        @{ Start = '^ {0,3}<\?'; End = '\?>' }
+        @{ Start = '^ {0,3}<!\[CDATA\['; End = '\]\]>' }
+        @{ Start = '^ {0,3}<![A-Za-z]'; End = '>' }
+        @{ Start = "(?i)^ {0,3}</?(?:$blockTags)(?:[\s>]|/>|$)"; End = $null }
+    )
+    $completeTagLine = "^ {0,3}(?:<[A-Za-z][A-Za-z0-9-]*(?:$attribute)*\s*/?>|</[A-Za-z][A-Za-z0-9-]*\s*>)\s*$"
+    $container = '(?: {0,3}(?:>[ ]?|(?:[-+*]|\d{1,9}[.)])(?: {1,4}(?! )|\t)))*'
+    $atxPattern = '^' + $container + ' {0,3}#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$'
+    $rawHeadingOpen = "(?i)<h[1-6](?:$attribute)*\s*/?>"
     $paragraph = [System.Collections.Generic.List[string]]::new()
     $paragraphStart = 0
     $inHtml = $false
+    $htmlEnd = $null
+    $codeLines = [System.Collections.Generic.List[object]]::new()
     $offset = 0
     foreach ($line in ($headingText -split "`n")) {
         $isBlank = [string]::IsNullOrWhiteSpace($line)
+        $blockStart = $null
+        if (-not $inHtml -and -not $isBlank) {
+            foreach ($start in $htmlBlockStarts) {
+                if ($line -match $start.Start) { $blockStart = $start; break }
+            }
+        }
         if ($inHtml) {
-            $inHtml = -not $isBlank
+            $inHtml = if ($null -ne $htmlEnd) { $line -notmatch $htmlEnd } else { -not $isBlank }
         } elseif ($isBlank) {
             $paragraph.Clear()
         } elseif ($paragraph.Count -gt 0 -and $line -match '^ {0,3}(?:=+|-+)[ \t]*$') {
-            $headings.Add([pscustomobject]@{ Offset = $paragraphStart; Text = (@($paragraph | ForEach-Object { $_.Trim() }) -join "`n") })
+            $setext = @($paragraph | ForEach-Object { $_.Trim() }) -join "`n"
+            $headings.Add([pscustomobject]@{ Offset = $paragraphStart; Text = [regex]::Split($setext, $rawHeadingOpen)[0] })
             $paragraph.Clear()
-        } elseif ($line -match '^ {0,3}<') {
+        } elseif ($null -ne $blockStart -or ($paragraph.Count -eq 0 -and $line -match $completeTagLine)) {
             $paragraph.Clear()
-            $inHtml = $true
+            $htmlEnd = if ($null -ne $blockStart) { $blockStart.End } else { $null }
+            # A block that ends at a marker can end on the line it starts.
+            $inHtml = -not ($null -ne $htmlEnd -and $line -match $htmlEnd)
         } elseif (($atx = [regex]::Match($line, $atxPattern)).Success) {
-            $headings.Add([pscustomobject]@{ Offset = $offset + $atx.Index; Text = $atx.Groups['text'].Value })
+            $headings.Add([pscustomobject]@{ Offset = $offset + $atx.Index; Text = [regex]::Split($atx.Groups['text'].Value, $rawHeadingOpen)[0] })
             $paragraph.Clear()
         } elseif ($line -match '^ {0,3}(?:#{1,6}(?:[ \t]|$)|>|(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)|(?:\*[ \t]*){3,}$|(?:_[ \t]*){3,}$|(?:-[ \t]*){3,}$)') {
             $paragraph.Clear()
         } elseif ($paragraph.Count -gt 0 -or $line -notmatch '^(?: {4}|\t)') {
             if ($paragraph.Count -eq 0) { $paragraphStart = $offset }
             $paragraph.Add($line)
+        } else {
+            # Indented code: shown as written, so a raw heading tag in it is text.
+            $codeLines.Add(@($offset, $line.Length))
         }
         $offset += $line.Length + 1
     }
-    # Raw <h1> to <h6>, in an HTML block or inline in a paragraph, but not in a code span or
-    # behind an escaped <. One with its own id keeps that as well (read with the tags above).
+    # Raw <h1> to <h6>, in an HTML block or inline in a paragraph, but not in a code span,
+    # indented code or behind an escaped <. One with its own id keeps that as well (read with
+    # the tags above). Attribute values are quoted, so a > inside one doesn't end the tag.
     $htmlHeadingText = [regex]::Replace($headingText, $inlineScan, { param($match) if ($match.Groups['escape'].Success) { '\' + [char]0xE000 } else { & $blankOut $match } })
-    foreach ($match in [regex]::Matches($htmlHeadingText, '(?i)(?<=(?:^|[^\\])(?:\\\\)*)<(?<level>h[1-6])(?=[\s/>])[^>]*>(?<inner>[\s\S]*?)</\k<level>\s*>')) {
+    foreach ($codeLine in $codeLines) {
+        $htmlHeadingText = $htmlHeadingText.Remove($codeLine[0], $codeLine[1]).Insert($codeLine[0], ' ' * $codeLine[1])
+    }
+    foreach ($match in [regex]::Matches($htmlHeadingText, "(?i)(?<=(?:^|[^\\])(?:\\\\)*)<(?<level>h[1-6])(?:$attribute)*\s*>(?<inner>[\s\S]*?)</\k<level>\s*>")) {
         $headings.Add([pscustomobject]@{ Offset = $match.Index; Text = $match.Groups['inner'].Value })
     }
     # A repeated slug gets -1, -2 and so on, skipping any id an earlier heading already took
