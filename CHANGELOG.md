@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- The suite's guards caught up with another round of review. The check that keeps test runs out of the checkout refuses `pwsh '-Command'` and `/c`, a table passed on under another name, `Set-Item variable:`, `[ref]`, and a later write in a `-Process:` block. The invisible-character check finds values built in a `Describe`'s `BeforeAll`, double casts, `Rune` and data set inside an `if`.
 - The test suite's `-BeOrdinal` check no longer calls any two hashtables equal. A value with no text of its own now matches only itself.
 - A heading with a raw heading tag inside a code span or behind a backslash, like ``## A `<h3>` B``, is found again. The header link check had started cutting the heading at that tag and reported the link to it as broken.
 - Header links to headings that mix `*` and `_` emphasis get GitHub's id. The slug reader now pairs emphasis the way CommonMark does, so `*a _b* c_` keeps both underscores as GitHub shows them. It had been reading underscores alone and got 9 of 23 such headings wrong.
