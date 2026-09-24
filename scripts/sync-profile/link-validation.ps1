@@ -697,49 +697,64 @@ function ConvertTo-GitHubHeadingAnchor {
 
     # GitHub slugs the rendered heading text, so the Markdown goes first. Every rule here was
     # read off the ids of headings rendered on github.com, or off GitHub's rendering of the
-    # heading's text (2026-09-24). Escapes and code spans are read in one pass from the left,
-    # so an escaped backtick opens no span and a backslash in a span stays as written; each
-    # waits behind a placeholder (a noncharacter and an index) until the markup around it is
-    # gone, so emphasis can wrap a code span. A code span keeps its text, losing one space at
-    # each end unless it's only spaces. Then an image drops out, a link (brackets nested one
-    # deep) or autolink (URL or email) leaves its text, raw HTML (tags, comments and the
-    # like) goes, an underscore that opens or closes emphasis goes while one inside a word
-    # stays (a_b_c), and entities are decoded.
-    $escapeMark = [string][char]0xFDD0
-    $codeMark = [string][char]0xFDD1
+    # heading's text (2026-09-24). Escapes, code spans, autolinks and raw HTML are read in one
+    # pass from the left, so whichever starts first wins: an escaped backtick opens no span,
+    # and a backslash in a span or an underscore in an autolink stays as written. Each escape,
+    # span and autolink waits behind a placeholder (a noncharacter, its index in digits and
+    # another noncharacter) until the markup around it is gone, so emphasis can wrap it, and
+    # a tag or comment leaves a mark that counts as punctuation until then, so <b>a</b>_b_
+    # still pairs its underscores. A code span keeps its text, losing one space at each end
+    # unless it's only spaces. Then an image drops out, a link (brackets nested two deep)
+    # leaves its text, an underscore that opens or closes emphasis goes while one inside a
+    # word stays (a_b_c), and entities are decoded. A noncharacter in the heading itself
+    # would pass for a placeholder, and GitHub drops it from the slug anyway, so it goes first.
+    $mark = [string][char]0xFDD0
+    $markEnd = [string][char]0xFDD1
+    $gone = [string][char]0xFDD2
     $held = [System.Collections.Generic.List[string]]::new()
-    $value = [regex]::Replace([string]$Text, '(?<escape>\\[!-/:-@\[-`{-~])|(?<!`)(?<ticks>`+)(?!`)(?<code>.+?)(?<!`)\k<ticks>(?!`)', {
+    $hold = { param([string]$Item) $held.Add($Item); $mark + [string]($held.Count - 1) + $markEnd }
+    $value = [regex]::Replace([string]$Text, '[' + [char]0xFDD0 + '-' + [char]0xFDEF + ']', '')
+    $attribute = '\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\s*=\s*(?:[^\s"''=<>`]+|''[^'']*''|"[^"]*"))?'
+    $inline = '(?<escape>\\[!-/:-@\[-`{-~])|(?<!`)(?<ticks>`+)(?!`)(?<code>.+?)(?<!`)\k<ticks>(?!`)' +
+        '|<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>' +
+        '|<(?<url>[A-Za-z0-9.!#$%&''*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)>' +
+        '|<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<![A-Za-z][^>]*>|</?[A-Za-z][A-Za-z0-9-]*(?:' + $attribute + ')*\s*/?>'
+    $value = [regex]::Replace($value, $inline, {
             param($match)
-            if ($match.Groups['escape'].Success) {
-                $held.Add($match.Value.Substring(1))
-                return $escapeMark + [char](0xE000 + $held.Count - 1)
+            if ($match.Groups['escape'].Success) { return (& $hold $match.Value.Substring(1)) }
+            if ($match.Groups['code'].Success) {
+                $code = $match.Groups['code'].Value
+                if ($code.Length -ge 2 -and $code.StartsWith(' ') -and $code.EndsWith(' ') -and $code.Trim(' ').Length -gt 0) { $code = $code.Substring(1, $code.Length - 2) }
+                return (& $hold $code)
             }
-            $code = $match.Groups['code'].Value
-            if ($code.Length -ge 2 -and $code.StartsWith(' ') -and $code.EndsWith(' ') -and $code.Trim(' ').Length -gt 0) { $code = $code.Substring(1, $code.Length - 2) }
-            $held.Add($code)
-            return $codeMark + [char](0xE000 + $held.Count - 1)
+            if ($match.Groups['url'].Success) { return (& $hold $match.Groups['url'].Value) }
+            return $gone
         })
-    $bracketed = '(?:[^\[\]]|\[[^\[\]]*\])*'
+    $bracketed = '(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*'
     $value = [regex]::Replace($value, '!\[' + $bracketed + '\]\([^)]*\)', '')
     $value = [regex]::Replace($value, '\[(?<text>' + $bracketed + ')\]\([^)]*\)', '${text}')
-    $value = [regex]::Replace($value, '<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>', '${url}')
-    $value = [regex]::Replace($value, '<(?<mail>[A-Za-z0-9.!#$%&''*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)>', '${mail}')
-    $value = [regex]::Replace($value, '<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<![A-Za-z][^>]*>|</?[A-Za-z][^>]*>', '')
-    # A whole underscore run opens emphasis after a non-word character and before a character
-    # that's neither space nor underscore, and a whole run closes it the other way round; the
-    # span holds no other opener, so _a_b _c_ keeps its first underscore and ____ stays as it
-    # is. Runs of different lengths use the shorter one: __a_ is _a and _a__ is a_.
+    # An underscore run opens emphasis when what's before it is the start, a space or
+    # punctuation and what follows isn't a space, and closes it the other way round: the
+    # rule GitHub follows, where a symbol such as the euro sign or an emoji is no punctuation,
+    # so a_b_c and euro_a_ keep their underscores. Whole runs only, the span holds no other
+    # opener (so _a_b _c_ keeps its first underscore and ____ stays as it is), and runs of
+    # different lengths use the shorter one: __a_ is _a and _a__ is a_. Each pass takes the
+    # innermost pairs, so nesting deeper than 64 (no real heading) keeps its underscores rather
+    # than taking a pass per level of a long crafted line.
+    $punctuation = '\p{P}!-/:-@\[-`{-~' + $mark + $markEnd + $gone
+    $opener = '(?<=^|[\s' + $punctuation + '])(?<!_)_+(?=[^\s_])'
+    $passes = 0
     do {
+        $passes++
         $before = $value
-        $value = [regex]::Replace($value, '(?<![\p{L}\p{N}_])(?<open>_+)(?=[^\s_])(?<text>(?:(?!(?<![\p{L}\p{N}_])_+(?=[^\s_]))[\s\S])+?)(?<=[^\s_])(?<close>_+)(?![\p{L}\p{N}_])', {
+        $value = [regex]::Replace($value, '(?<=^|[\s' + $punctuation + '])(?<!_)(?<open>_+)(?=[^\s_])(?<text>(?:(?!' + $opener + ')[\s\S])+?)(?<=[^\s_])(?<close>_+)(?!_)(?=$|[\s' + $punctuation + '])', {
                 param($match)
                 $used = [Math]::Min($match.Groups['open'].Length, $match.Groups['close'].Length)
                 ('_' * ($match.Groups['open'].Length - $used)) + $match.Groups['text'].Value + ('_' * ($match.Groups['close'].Length - $used))
             })
-    } while (-not [string]::Equals($value, $before, [StringComparison]::Ordinal))
-    $value = [System.Net.WebUtility]::HtmlDecode($value)
-    $placeholder = '[' + $escapeMark + $codeMark + '](?<index>[' + [char]0xE000 + '-' + [char]0xF8FF + '])'
-    $rendered = [regex]::Replace($value, $placeholder, { param($match) $held[[int][char]$match.Groups['index'].Value - 0xE000] })
+    } while ($passes -lt 64 -and -not [string]::Equals($value, $before, [StringComparison]::Ordinal))
+    $value = [System.Net.WebUtility]::HtmlDecode($value.Replace($gone, ''))
+    $rendered = [regex]::Replace($value, $mark + '(?<index>[0-9]+)' + $markEnd, { param($match) $held[[int]$match.Groups['index'].Value] })
 
     # Lower case, with U+0130 (dotted capital I) in full, i and a combining dot as GitHub has
     # it, where .NET gives a bare i. Then keep what GitHub's word class keeps: letters, marks,

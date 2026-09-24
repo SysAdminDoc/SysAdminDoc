@@ -13306,8 +13306,33 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'a code span of only spaces'; Text = '`   `'; Expected = '---' }
         @{ Case = 'a code span as link text'; Text = '[`]`](https://x.invalid/)'; Expected = '' }
         @{ Case = 'private use characters'; Text = 'a' + [char]0xE05F + 'b' + [char]0xE02D + 'c'; Expected = 'abc' }
+        # Review G7: each of these slugged unlike GitHub's rendered text, or threw.
+        @{ Case = 'emphasis after a tag'; Text = '<b>a</b>_b_'; Expected = 'ab' }
+        @{ Case = 'emphasis after a comment'; Text = 'a<!-- c -->_b_'; Expected = 'ab' }
+        @{ Case = 'emphasis after a line break tag'; Text = 'a<br>_b_'; Expected = 'ab' }
+        @{ Case = 'underscores in a URL autolink'; Text = '<https://x.invalid/?q=_a_>'; Expected = 'httpsxinvalidq_a_' }
+        @{ Case = 'underscores in an email autolink'; Text = '<_a_@example.com>'; Expected = '_a_examplecom' }
+        @{ Case = 'underscores after a currency sign'; Text = [string][char]0x20AC + '_a_'; Expected = '_a_' }
+        @{ Case = 'underscores after an emoji'; Text = [char]::ConvertFromUtf32(0x1F600) + '_a_'; Expected = '_a_' }
+        @{ Case = 'underscores before an emoji'; Text = '_a_' + [char]::ConvertFromUtf32(0x1F600); Expected = '_a_' }
+        @{ Case = 'brackets two deep in link text'; Text = '[a [b [c]]](https://x.invalid/)'; Expected = 'a-b-c' }
+        @{ Case = 'a > in a quoted attribute'; Text = '<a href="x>y">z</a>'; Expected = 'z' }
+        @{ Case = 'a noncharacter before a private use character'; Text = [string][char]0xFDD0 + [char]0xE000; Expected = '' }
+        @{ Case = 'another noncharacter before a code span'; Text = [string][char]0xFDD1 + [char]0xE000 + '`x`'; Expected = 'x' }
+        @{ Case = '6401 escaped underscores'; Text = '\_' * 6401; Expected = '_' * 6401 }
+        @{ Case = 'noncharacters spelling a placeholder'; Text = [string][char]0xFDD0 + '0' + [char]0xFDD1 + ' `x`'; Expected = '0-x' }
+        @{ Case = 'an underscore after a symbol inside emphasis'; Text = '_a ' + [char]0x20AC + '_b c_'; Expected = 'a-_b-c' }
     ) {
         ConvertTo-GitHubHeadingAnchor -Text $Text | Should -BeOrdinal $Expected
+    }
+
+    It 'slugs a long line of nested underscores quickly' {
+        # Review G7: 12 KB of nesting took a pass per level, 2.4 seconds.
+        $watch = [System.Diagnostics.Stopwatch]::StartNew()
+
+        $null = ConvertTo-GitHubHeadingAnchor -Text (('_a ' * 2000) + ('b_ ' * 2000))
+
+        $watch.Elapsed.TotalSeconds | Should -BeLessThan 1
     }
 
     It 'finds the id github.com gives a heading written as <Case>' -ForEach @(
