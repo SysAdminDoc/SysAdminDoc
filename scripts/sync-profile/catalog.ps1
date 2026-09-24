@@ -878,7 +878,7 @@ function Test-CatalogShape {
     # break or other invisible character as its code point, so it stays one line. Header
     # URLs have no scheme check of their own, so they must be https here.
     foreach ($publicUrl in $publicUrls) {
-        if ([string]$publicUrl.url -cnotmatch ('^' + $publicUrl.scheme + '://[!#-&(-;=?-\[\]-{}~]+\z')) {
+        if ([string]$publicUrl.url -cnotmatch ('^(?i:' + $publicUrl.scheme + ')://[!#-&(-;=?-\[\]-{}~]+\z')) {
             $schemeText = if ('https'.Equals($publicUrl.scheme)) { 'an https' } else { 'an http or https' }
             $issues.Add([ordered]@{ repo = $publicUrl.repo; field = $publicUrl.field; value = [string]$publicUrl.url; reason = "$($publicUrl.field) must be $schemeText URL of printable ASCII with no space, quote, angle bracket, backslash or pipe" })
         }

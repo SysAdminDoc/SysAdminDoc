@@ -351,21 +351,21 @@
     },
     "sha256": {
       "type": "string",
-      "pattern": "^[a-f0-9]{64}$"
+      "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
     },
     "nullableSha256": {
       "type": [
         "string",
         "null"
       ],
-      "pattern": "^[a-f0-9]{64}$"
+      "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
     },
     "nullableCommitSha": {
       "type": [
         "string",
         "null"
       ],
-      "pattern": "^[a-f0-9]{40}$"
+      "pattern": "^[a-f0-9]{40}(?![\\s\\S])"
     },
     "stringArray": {
       "type": "array",
@@ -770,7 +770,7 @@
       "properties": {
         "catalogId": {
           "type": "string",
-          "pattern": "^catalog-[0-9]{3}$"
+          "pattern": "^catalog-[0-9]{3}(?![\\s\\S])"
         },
         "category": {
           "type": "string"
@@ -1985,7 +1985,7 @@
             "string",
             "null"
           ],
-          "pattern": "^[a-f0-9]{40}$"
+          "pattern": "^[a-f0-9]{40}(?![\\s\\S])"
         },
         "branchTipFetchedAt": {
           "type": [
@@ -4298,7 +4298,7 @@
         },
         "headSha": {
           "type": "string",
-          "pattern": "^[a-f0-9]{40}$"
+          "pattern": "^[a-f0-9]{40}(?![\\s\\S])"
         },
         "runId": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -4432,7 +4432,7 @@
         },
         "headSha": {
           "type": "string",
-          "pattern": "^[a-f0-9]{40}$"
+          "pattern": "^[a-f0-9]{40}(?![\\s\\S])"
         },
         "runId": {
           "$ref": "#/$defs/nonNegativeInteger"

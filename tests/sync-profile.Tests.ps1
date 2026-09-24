@@ -6434,6 +6434,74 @@ Describe 'Profile header comes from catalog data' {
         $experience.passed | Should -BeTrue
     }
 
+    It 'reads run.ps1''s owner from its syntax tree: <Case>' -ForEach @(
+        @{ Case = 'double quotes'; Script = "function Start-Tool {`n    `$profileOwner = `"SysAdminDoc`"`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
+        @{ Case = 'a block comment naming someone else first'; Script = "<#`n    `$profileOwner = 'Someone'`n#>`nfunction Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
+        @{ Case = 'two assignments'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n    `$profileOwner = 'Someone'`n}"; ExpectedOwner = $null; MatchesOwner = $false }
+        @{ Case = 'a computed value'; Script = "function Start-Tool {`n    `$profileOwner = `"`$env:OWNER`"`n}"; ExpectedOwner = $null; MatchesOwner = $false }
+        @{ Case = 'a name with a hidden character'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdmin" + [char]0x200B + "Doc'`n}"; ExpectedOwner = 'SysAdmin' + [char]0x200B + 'Doc'; MatchesOwner = $false }
+    ) {
+        # The regex took the first $profileOwner = '...' it found, a block comment's included,
+        # a double-quoted one gave no owner at all, and -eq matched a name with a hidden
+        # character in it.
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        $readme = New-Readme -Catalog $catalog -Repos @()
+        $root = Join-Path $TestDrive ('run-owner-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $root | Out-Null
+        Set-Content -LiteralPath (Join-Path $root 'run.ps1') -Value $Script -Encoding utf8
+        # A local $RepoRoot shadows the generator's for this block only; the generator reads it
+        # from the scope that calls it, so a $script: one would lose to the dot-sourced copy.
+        $RepoRoot = $root
+
+        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
+
+        if ($null -eq $ExpectedOwner) {
+            $experience.installDispatcherOwner | Should -BeNullOrEmpty
+        } else {
+            $experience.installDispatcherOwner | Should -BeExactly $ExpectedOwner
+        }
+        $experience.installDispatcherMatchesOwner | Should -Be $MatchesOwner
+    }
+
+    It 'takes a URL whose scheme is written in capitals' {
+        # The scheme check accepted HTTPS:// but the shape check, the catalog schema and the
+        # renderer wanted lower case, so it failed with a reason that didn't fit.
+        $entry = New-TestEntry -Repo 'CapsTool' -Category 'web'
+        $entry.liveUrl = 'HTTPS://example.test/app/'
+        $header = New-TestProfileHeader
+        $header.links = @(@{ text = 'Caps link'; url = 'HTTPS://example.test/about/' })
+
+        @((Test-CatalogShape -Catalog @{ entries = @($entry); profileHeader = $header }).issues | Where-Object { $_.field -like '*url*' -or $_.field -like '*Url*' }) | Should -BeNullOrEmpty
+        (Update-Header -Header $header -CategorySlugs @('powershell')) | Should -Match ([regex]::Escape('<a href="HTTPS://example.test/about/"><b>Caps link'))
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        @($catalog.entries)[0].liveUrl = 'HTTPS://example.test/app/'
+        (Test-JsonSchemaContract -Value $catalog -SchemaPath 'schemas/profile-catalog.v1.json').valid | Should -BeTrue
+    }
+
+    It 'refuses an aliasOf that isn''t a repository name in the catalog schema' {
+        # aliasOf had no pattern, so "WinTool" with a line break after it passed the schema.
+        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+        (Test-JsonSchemaContract -Value $catalog -SchemaPath 'schemas/profile-catalog.v1.json').valid | Should -BeTrue -Because 'the fixture passes as it is'
+        @($catalog.entries)[0].aliasOf = "WinTool`n"
+
+        $result = Test-JsonSchemaContract -Value $catalog -SchemaPath 'schemas/profile-catalog.v1.json'
+
+        $result.valid | Should -BeFalse
+        @($result.errors | ForEach-Object instanceLocation) | Should -Contain '/entries/0/aliasOf'
+    }
+
+    It 'ends every schema pattern at the true end of text' {
+        # JsonSchema.Net runs patterns as .NET regexes, where $ also matches before a final
+        # line break, so "<40 hex digits>" plus a newline passed a branchTipSha of ^...$.
+        $offenders = foreach ($schemaFile in Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot 'schemas') -Filter '*.json') {
+            foreach ($match in [regex]::Matches([System.IO.File]::ReadAllText($schemaFile.FullName), '"pattern": "(?<value>(?:\\.|[^"\\])*)"')) {
+                if ($match.Groups['value'].Value -match '(?<!\\)\$\z') { '{0}: {1}' -f $schemaFile.Name, $match.Groups['value'].Value }
+            }
+        }
+
+        @($offenders) | Should -BeNullOrEmpty
+    }
+
     It 'refuses a portfolioUrl that isn''t a plain https URL' {
         $result = Test-CatalogShape -Catalog @{ entries = @(New-TestEntry -Repo 'ShapeTool' -Category 'powershell'); portfolioUrl = 'http://portfolio.example.test/"x' }
 
@@ -8600,12 +8668,16 @@ Describe 'Source files carry no invisible characters' {
         # built from the code points so this file holds none of the characters itself.
         $codes = @(0x85, 0x2028, 0x2029) + @(0x202A..0x202E) + @(0x2066..0x2069)
         $pattern = '[' + (($codes | ForEach-Object { [string][char]92 + 'u' + $_.ToString('X4') }) -join '') + ']'
+        # Every PowerShell file: scripts and tests at any depth, and the root's own, settings
+        # data (.psd1) and modules (.psm1) included.
+        $powershellFile = { $_.Extension -in @('.ps1', '.psd1', '.psm1') }
         $files = @(
-            foreach ($directory in @('scripts', 'scripts/sync-profile', 'tests')) {
-                Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot $directory) -Filter '*.ps1' -File
+            foreach ($directory in @('scripts', 'tests')) {
+                Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot $directory) -File -Recurse | Where-Object $powershellFile
             }
-            Get-Item -LiteralPath (Join-Path $script:RepoRoot 'run.ps1'), (Join-Path $script:RepoRoot 'setup.ps1')
+            Get-ChildItem -LiteralPath $script:RepoRoot -File | Where-Object $powershellFile
         )
+        @($files | ForEach-Object Name) | Should -Contain 'PSScriptAnalyzerSettings.psd1'
 
         $offenders = foreach ($file in $files) {
             $text = [System.IO.File]::ReadAllText($file.FullName)

@@ -76,14 +76,14 @@
     },
     "sha256": {
       "type": "string",
-      "pattern": "^[a-f0-9]{64}$"
+      "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
     },
     "nullableCommitSha": {
       "type": [
         "string",
         "null"
       ],
-      "pattern": "^[a-f0-9]{40}$"
+      "pattern": "^[a-f0-9]{40}(?![\\s\\S])"
     },
     "nullableBoolean": {
       "type": [
@@ -304,7 +304,7 @@
           "minItems": 1,
           "items": {
             "type": "string",
-            "pattern": "^[a-z][a-z0-9-]*:[a-z0-9][a-z0-9-]*$"
+            "pattern": "^[a-z][a-z0-9-]*:[a-z0-9][a-z0-9-]*(?![\\s\\S])"
           }
         }
       }
@@ -426,7 +426,7 @@
       "properties": {
         "suppressedId": {
           "type": "string",
-          "pattern": "^suppressed-[0-9]{3}$"
+          "pattern": "^suppressed-[0-9]{3}(?![\\s\\S])"
         },
         "suppressed": {
           "type": "boolean",
@@ -653,7 +653,7 @@
         },
         "branchTipSha": {
           "$ref": "#/$defs/nullableString",
-          "pattern": "^[a-f0-9]{40}$"
+          "pattern": "^[a-f0-9]{40}(?![\\s\\S])"
         },
         "branchTipFetchedAt": {
           "type": [

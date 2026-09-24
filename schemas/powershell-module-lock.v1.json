@@ -21,7 +21,7 @@
     },
     "reviewedAt": {
       "type": "string",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
     },
     "packageSource": {
       "type": "string",
@@ -45,11 +45,11 @@
         "properties": {
           "name": {
             "type": "string",
-            "pattern": "^[A-Za-z0-9._-]+$"
+            "pattern": "^[A-Za-z0-9._-]+(?![\\s\\S])"
           },
           "version": {
             "type": "string",
-            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?![\\s\\S])"
           },
           "packageUrl": {
             "type": "string",
@@ -57,7 +57,7 @@
           },
           "nupkgSha256": {
             "type": "string",
-            "pattern": "^[a-f0-9]{64}$"
+            "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
           },
           "signed": {
             "type": "boolean"

@@ -377,7 +377,7 @@ function Get-ProfilePortfolioUrl {
         $url = $configured.Trim()
         # The same shape Test-CatalogShape holds the catalog value to; -PortfolioUrl skips
         # that check, so a value that could leave its attribute isn't used.
-        if ($url -cmatch '^https://[!#-&(-;=?-\[\]-{}~]+\z') {
+        if ($url -cmatch '^(?i:https)://[!#-&(-;=?-\[\]-{}~]+\z') {
             if (-not $url.EndsWith("/")) { $url += "/" }
             return $url
         }
@@ -868,7 +868,7 @@ function New-ProfileChrome {
     }
     # Test-CatalogShape refuses any other URL before anything is written, but the renderer
     # doesn't lean on it: a URL that could leave its attribute, or isn't https, isn't rendered.
-    $safeUrlPattern = '^https://[!#-&(-;=?-\[\]-{}~]+\z'
+    $safeUrlPattern = '^(?i:https)://[!#-&(-;=?-\[\]-{}~]+\z'
     $links = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'links') | ForEach-Object {
         $url = [string](Get-MemberValue -Object $_ -Name 'url')
         # Checked before encoding: a lone NBSP encodes to &#160;, which no longer looks blank.

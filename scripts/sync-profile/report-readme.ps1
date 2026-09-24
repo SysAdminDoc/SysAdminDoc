@@ -269,10 +269,27 @@ function Test-ReadmeExperience {
     $runScriptPath = Join-Path $RepoRoot 'run.ps1'
     $installDispatcherOwner = $null
     if (Test-Path -LiteralPath $runScriptPath) {
-        $ownerMatch = [regex]::Match([System.IO.File]::ReadAllText($runScriptPath), '(?m)^\s*\$profileOwner = ''(?<owner>[^'']+)''')
-        if ($ownerMatch.Success) { $installDispatcherOwner = $ownerMatch.Groups['owner'].Value }
+        # From the syntax tree, so a comment can't name the owner and either quoting works: the
+        # one assignment to $profileOwner, when its value is a constant string. Two of them, or
+        # a computed value, leave the owner unknown and the check failing.
+        $tokens = $null
+        $parseErrors = $null
+        $runScriptTree = [System.Management.Automation.Language.Parser]::ParseFile($runScriptPath, [ref]$tokens, [ref]$parseErrors)
+        $ownerAssignments = @($runScriptTree.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and
+                    $node.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                    $node.Left.VariablePath.UserPath -eq 'profileOwner'
+                }, $true))
+        if ($ownerAssignments.Count -eq 1 -and
+            $ownerAssignments[0].Right -is [System.Management.Automation.Language.CommandExpressionAst] -and
+            $ownerAssignments[0].Right.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
+            $installDispatcherOwner = $ownerAssignments[0].Right.Expression.Value
+        }
     }
-    $installDispatcherMatchesOwner = $installLineCount -eq 0 -or ($null -ne $installDispatcherOwner -and $installDispatcherOwner -eq $Owner)
+    # Ordinal, ignoring case like GitHub's names: -eq compares by culture and skips an
+    # invisible character.
+    $installDispatcherMatchesOwner = $installLineCount -eq 0 -or ($null -ne $installDispatcherOwner -and [string]::Equals($installDispatcherOwner, $Owner, [StringComparison]::OrdinalIgnoreCase))
     $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
         (-not $ExpectedReadme.Contains("**Currently Building**")) -or
         $ExpectedReadme.Contains("| Project | Focus | Action |")

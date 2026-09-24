@@ -230,7 +230,8 @@
           "maxLength": 120
         },
         "aliasOf": {
-          "$ref": "#/$defs/nullableString"
+          "$ref": "#/$defs/nullableString",
+          "pattern": "^[A-Za-z0-9._-]+(?![\\s\\S])"
         },
         "suppressionReason": {
           "type": [
@@ -254,7 +255,7 @@
     "publicHttpsUrl": {
       "type": "string",
       "maxLength": 2048,
-      "pattern": "^https://[!#-&(-;=?-\\[\\]-{}~]+(?![\\s\\S])"
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]://[!#-&(-;=?-\\[\\]-{}~]+(?![\\s\\S])"
     },
     "nullableCatalogUrl": {
       "type": [
@@ -262,7 +263,7 @@
         "null"
       ],
       "maxLength": 2048,
-      "pattern": "^https?://[!#-&(-;=?-\\[\\]-{}~]+(?![\\s\\S])"
+      "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://[!#-&(-;=?-\\[\\]-{}~]+(?![\\s\\S])"
     },
     "profileHeader": {
       "type": "object",
