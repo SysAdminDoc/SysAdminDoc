@@ -773,26 +773,78 @@ function ConvertTo-GitHubHeadingAnchor {
     $bracketed = '(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*'
     $value = [regex]::Replace($value, '!\[' + $bracketed + '\]\([^)]*\)', '')
     $value = [regex]::Replace($value, '\[(?<text>' + $bracketed + ')\]\([^)]*\)', '${text}')
-    # An underscore run opens emphasis when what's before it is the start, a space or
-    # punctuation and what follows isn't a space, and closes it the other way round: the
-    # rule GitHub follows, where a symbol such as the euro sign or an emoji is no punctuation,
-    # so a_b_c and euro_a_ keep their underscores. Whole runs only, the span holds no other
-    # opener (so _a_b _c_ keeps its first underscore and ____ stays as it is), and runs of
-    # different lengths use the shorter one: __a_ is _a and _a__ is a_. Each pass takes the
-    # innermost pairs, so nesting deeper than 64 (no real heading) keeps its underscores rather
-    # than taking a pass per level of a long crafted line.
+    # Emphasis, read with CommonMark's delimiter stack. Each run of * or _ is sorted by what
+    # flanks it: it can open when what follows isn't a space, and isn't punctuation unless a
+    # space or punctuation comes before; it can close the mirror way. A run of _ that could do
+    # both opens only after punctuation and closes only before it, so a_b_c keeps its
+    # underscores. GitHub counts a symbol such as the euro sign or an emoji as neither space
+    # nor punctuation, so euro_a_ keeps them too. Then, left to right, each run that can close
+    # pairs with the nearest open run of the same character below it (unless one of the two
+    # could both open and close and their lengths add up to a multiple of three while they
+    # aren't both multiples), one character from each at a time (strong or plain emphasis,
+    # the text is the same), and the runs between the pair stop counting. What's left of a run
+    # is text. The *s never reach the
+    # slug, but they decide which underscores pair: *a _b* c_ keeps both of its underscores.
+    # Each run is looked at a bounded number of times, so a long crafted line stays fast.
     $punctuation = '\p{P}!-/:-@\[-`{-~' + $mark + $markEnd + $gone
-    $opener = '(?<=^|[\s' + $punctuation + '])(?<!_)_+(?=[^\s_])'
-    $passes = 0
-    do {
-        $passes++
-        $before = $value
-        $value = [regex]::Replace($value, '(?<=^|[\s' + $punctuation + '])(?<!_)(?<open>_+)(?=[^\s_])(?<text>(?:(?!' + $opener + ')[\s\S])+?)(?<=[^\s_])(?<close>_+)(?!_)(?=$|[\s' + $punctuation + '])', {
-                param($match)
-                $used = [Math]::Min($match.Groups['open'].Length, $match.Groups['close'].Length)
-                ('_' * ($match.Groups['open'].Length - $used)) + $match.Groups['text'].Value + ('_' * ($match.Groups['close'].Length - $used))
-            })
-    } while ($passes -lt 64 -and -not [string]::Equals($value, $before, [StringComparison]::Ordinal))
+    $isPunctuation = [regex]::new('^[' + $punctuation + ']$')
+    $runs = @(foreach ($match in [regex]::Matches($value, '\*+|_+')) {
+            $before = if ($match.Index -gt 0) { [string]$value[$match.Index - 1] } else { ' ' }
+            $after = if ($match.Index + $match.Length -lt $value.Length) { [string]$value[$match.Index + $match.Length] } else { ' ' }
+            $spaceBefore = [string]::IsNullOrWhiteSpace($before)
+            $spaceAfter = [string]::IsNullOrWhiteSpace($after)
+            $punctuationBefore = $isPunctuation.IsMatch($before)
+            $punctuationAfter = $isPunctuation.IsMatch($after)
+            $leftFlanking = -not $spaceAfter -and (-not $punctuationAfter -or $spaceBefore -or $punctuationBefore)
+            $rightFlanking = -not $spaceBefore -and (-not $punctuationBefore -or $spaceAfter -or $punctuationAfter)
+            $star = $match.Value[0] -eq [char]'*'
+            [pscustomobject]@{
+                Index = $match.Index
+                Length = $match.Length
+                Left = $match.Length
+                Character = $match.Value[0]
+                CanOpen = $leftFlanking -and ($star -or -not $rightFlanking -or $punctuationBefore)
+                CanClose = $rightFlanking -and ($star -or -not $leftFlanking -or $punctuationAfter)
+            }
+        })
+    # Open runs by index, and for each kind of closer the index below which no opener fits it.
+    $stack = [System.Collections.Generic.List[int]]::new()
+    $bottom = @{}
+    for ($current = 0; $current -lt $runs.Count; $current++) {
+        $closer = $runs[$current]
+        if ($closer.CanClose) {
+            $kind = [string]$closer.Character + [string]($closer.Length % 3) + [string]$closer.CanOpen
+            while ($closer.Left -gt 0) {
+                $floor = if ($bottom.ContainsKey($kind)) { $bottom[$kind] } else { -1 }
+                $at = -1
+                for ($position = $stack.Count - 1; $position -ge 0 -and $stack[$position] -gt $floor; $position--) {
+                    $candidate = $runs[$stack[$position]]
+                    if ($candidate.Character -ne $closer.Character) { continue }
+                    $total = $candidate.Length + $closer.Length
+                    if (($candidate.CanClose -or $closer.CanOpen) -and $total % 3 -eq 0 -and -not ($candidate.Length % 3 -eq 0 -and $closer.Length % 3 -eq 0)) { continue }
+                    $at = $position
+                    break
+                }
+                if ($at -lt 0) {
+                    $bottom[$kind] = $current - 1
+                    break
+                }
+                $opener = $runs[$stack[$at]]
+                $opener.Left--
+                $closer.Left--
+                $stack.RemoveRange($at + 1, $stack.Count - $at - 1)
+                if ($opener.Left -eq 0) { $stack.RemoveAt($at) }
+            }
+        }
+        if ($closer.CanOpen -and $closer.Left -gt 0) { $stack.Add($current) }
+    }
+    $emphasis = [System.Text.StringBuilder]::new()
+    $from = 0
+    foreach ($run in $runs) {
+        [void]$emphasis.Append($value, $from, $run.Index - $from).Append($run.Character, $run.Left)
+        $from = $run.Index + $run.Length
+    }
+    $value = $emphasis.Append($value, $from, $value.Length - $from).ToString()
     $value = [System.Net.WebUtility]::HtmlDecode($value.Replace($gone, ''))
     $rendered = [regex]::Replace($value, $mark + '(?<index>[0-9]+)' + $markEnd, { param($match) $held[[int]$match.Groups['index'].Value] })
 

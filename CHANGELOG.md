@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- Header links to headings that mix `*` and `_` emphasis get GitHub's id. The slug reader now pairs emphasis the way CommonMark does, so `*a _b* c_` keeps both underscores as GitHub shows them. It had been reading underscores alone and got 9 of 23 such headings wrong.
 - The rendered smoke check passes on the live profile again. Since the page's sections were renamed on 2026-09-17 it had been looking for old words (a heading called "What" and a tagline the intro no longer has) and failed every viewport. It now reads the tagline, the grid heading, the section titles, the nav labels and the footer link from what the generator writes, so a rename can't leave it behind.
 - The rendered smoke check starts the browser `CHROME_PATH` points at, for machines where the only browser it may run is a Playwright Chromium. If the variable names a file that isn't there, the check stops rather than falling back to another browser.
 - The suite's own guards got stricter. The check that keeps test runs out of the checkout now refuses `+=` writes, a later write in a loop around the run, a `..` held in a variable, `Start-Process pwsh` with arguments and `pwsh -Command`, and a new test fails if anything in the test file writes to `$TestDrive`. The invisible-character check finds `[char](0x200B)`, `[Convert]::ToChar` and case data built in a `Describe` body, and `-BeOrdinal` treats a one-item list as its item on both sides.

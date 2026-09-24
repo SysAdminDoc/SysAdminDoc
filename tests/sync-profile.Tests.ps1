@@ -13462,6 +13462,15 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = '6401 escaped underscores'; Text = '\_' * 6401; Expected = '_' * 6401 }
         @{ Case = 'noncharacters spelling a placeholder'; Text = [string][char]0xFDD0 + '0' + [char]0xFDD1 + ' `x`'; Expected = '0-x' }
         @{ Case = 'an underscore after a symbol inside emphasis'; Text = '_a ' + [char]0x20AC + '_b c_'; Expected = 'a-_b-c' }
+        # Asterisk and underscore emphasis interleaving, which needs the delimiter stack; each
+        # id is GitHub's rendered text put through the character rules.
+        @{ Case = 'asterisks closing before the underscores do'; Text = '*a _b* c_'; Expected = 'a-_b-c_' }
+        @{ Case = 'strong asterisks closing first'; Text = '**a _b** c_'; Expected = 'a-_b-c_' }
+        @{ Case = 'underscores inside asterisks, crossed'; Text = '*_a*_'; Expected = '_a_' }
+        @{ Case = 'an underscore pair cut by asterisks'; Text = '*a* _b_ *c _d* e_'; Expected = 'a-b-c-_d-e_' }
+        @{ Case = 'underscores closing before the asterisks do'; Text = '_a *b_ c*'; Expected = 'a-b-c' }
+        @{ Case = 'runs between punctuation whose lengths add up to three'; Text = '._.a__.b'; Expected = '_a__b' }
+        @{ Case = 'a run that could open or close, lengths adding up to three'; Text = '.__._ b.'; Expected = '___-b' }
     ) {
         ConvertTo-GitHubHeadingAnchor -Text $Text | Should -BeOrdinal $Expected
     }
