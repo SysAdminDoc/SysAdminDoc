@@ -292,8 +292,37 @@ function Get-ReadmeHeaderLinkReference {
     $inHtml = $false
     $htmlEnd = $null
     $inParagraph = $false
+    $inList = $false
+    $fence = $null
     foreach ($line in ($header -split '\r?\n')) {
         $blank = [string]::IsNullOrWhiteSpace($line)
+        # A fenced code block shows its lines as written, to the closing fence or the end, so
+        # nothing in it is a tag, a link or a URL; they're left out of both texts. So is an
+        # indented code block, which can't interrupt a paragraph or sit inside a list item.
+        if ($null -ne $fence) {
+            $close = [regex]::Match($line, '^ {0,3}(?<run>`{3,}|~{3,})[ \t]*\z')
+            if ($close.Success -and $close.Groups['run'].Value[0] -eq $fence[0] -and $close.Groups['run'].Value.Length -ge $fence.Length) {
+                $fence = $null
+            }
+            $htmlLines.Add('')
+            $markdownLines.Add('')
+            continue
+        }
+        if (-not $inHtml) {
+            $open = [regex]::Match($line, '^ {0,3}(?<run>`{3,}|~{3,})(?<info>.*)\z')
+            if ($open.Success -and -not ($open.Groups['run'].Value[0] -eq '`' -and $open.Groups['info'].Value.Contains('`'))) {
+                $fence = $open.Groups['run'].Value
+                $inParagraph = $false
+                $htmlLines.Add('')
+                $markdownLines.Add('')
+                continue
+            }
+            if (-not $blank -and -not $inParagraph -and -not $inList -and $line -match '^(?: {4}|\t)') {
+                $htmlLines.Add('')
+                $markdownLines.Add('')
+                continue
+            }
+        }
         if (-not $inHtml -and -not $blank) {
             foreach ($start in $htmlBlockStarts) {
                 if ($line -match $start.Start) {
@@ -317,8 +346,17 @@ function Get-ReadmeHeaderLinkReference {
             continue
         }
         $inHtml = $false
-        # An ATX heading is a block of its own; any other text line opens or continues a paragraph.
-        $inParagraph = -not $blank -and $line -notmatch '^ {0,3}#{1,6}(?:[ \t]|\z)'
+        # A heading, a rule, a setext underline, a quote line or a list item leaves no open
+        # paragraph for the next line to join (GitHub starts an HTML block after each);
+        # other text opens or continues one. Indented lines after a list item stay in it.
+        $isListItem = $line -match '^ {0,3}(?:[-+*]|[0-9]{1,9}[.)])(?:[ \t]|\z)'
+        $closesParagraph = $isListItem -or
+            $line -match '^ {0,3}(?:#{1,6}(?:[ \t]|\z)|>|(?:\*[ \t]*){3,}\z|(?:-[ \t]*){3,}\z|(?:_[ \t]*){3,}\z)' -or
+            ($inParagraph -and $line -match '^ {0,3}(?:=+|-+)[ \t]*\z')
+        if (-not $blank) {
+            $inList = $isListItem -or ($inList -and $line -match '^(?: {2,}|\t)')
+        }
+        $inParagraph = -not $blank -and -not $closesParagraph
         $htmlLines.Add('')
         $markdownLines.Add($line)
     }
@@ -346,14 +384,27 @@ function Get-ReadmeHeaderLinkReference {
         & $blankOut $span.Index $span.Length
     }
 
-    # Tags: everything in an HTML block, and in Markdown text a complete tag whose < isn't
-    # escaped. Attribute values are HTML, so entities are decoded. GitHub keeps href on
-    # <a>, src on <img> and srcset on a <picture>'s <source> (a theme image); it strips
-    # srcset from <img>.
-    $tagPattern = "(?i)<(?<name>a|img|source)(?<attributes>(?:$attribute)*)\s*/?>"
+    # An autolink in angle brackets links what's inside it, where escapes don't apply.
+    $unescaped = '(?<=(?:^|[^\\])(?:\\\\)*)'
+    foreach ($autolink in [regex]::Matches([string]::new($plain), $unescaped + '<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>')) {
+        & $add "link" $autolink.Groups['url'].Value.Replace('\', '%5C')
+        & $blankOut $autolink.Index $autolink.Length
+    }
+
+    # Raw HTML: everything in an HTML block, and in Markdown text any complete tag, comment,
+    # <?...?>, <!...> or CDATA whose < isn't escaped. It shows no Markdown and no autolink,
+    # and a tag inside a comment is no tag. Of the tags, GitHub keeps href on <a>, src on
+    # <img> and srcset on a <picture>'s <source> (a theme image), stripping srcset from
+    # <img>. Attribute values are HTML, so entities are decoded.
+    $rawHtml = "(?i)<(?:[A-Za-z][A-Za-z0-9-]*(?:$attribute)*\s*/?>|/[A-Za-z][A-Za-z0-9-]*\s*>|!--[\s\S]*?-->|\?[\s\S]*?\?>|!\[CDATA\[[\s\S]*?\]\]>|![A-Za-z][^>]*>)"
+    $tagPattern = "(?i)^<(?<name>a|img|source)(?<attributes>(?:$attribute)*)\s*/?>\z"
     $attributeCapture = '\s+(?<name>[A-Za-z_:][A-Za-z0-9_.:-]*)(?:\s*=\s*(?:(?<value>[^\s"''=<>`]+)|''(?<value>[^'']*)''|"(?<value>[^"]*)"))?'
-    $inlineTags = [regex]::Matches([string]::new($plain), '(?<=(?:^|[^\\])(?:\\\\)*)' + $tagPattern)
-    foreach ($tag in @([regex]::Matches($htmlText, $tagPattern)) + @($inlineTags)) {
+    $inlineTags = [regex]::Matches([string]::new($plain), $unescaped + $rawHtml)
+    $readableTags = foreach ($token in @([regex]::Matches($htmlText, $rawHtml)) + @($inlineTags)) {
+        $tag = [regex]::Match($token.Value, $tagPattern)
+        if ($tag.Success) { $tag }
+    }
+    foreach ($tag in @($readableTags)) {
         $tagName = $tag.Groups['name'].Value.ToLowerInvariant()
         foreach ($pair in [regex]::Matches($tag.Groups['attributes'].Value, $attributeCapture)) {
             $name = $pair.Groups['name'].Value.ToLowerInvariant()
@@ -494,14 +545,22 @@ function Test-ReadmeHeaderAnchor {
     }
 
     $anchors = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    # Only a real tag names an anchor, an <a> by its id and any tag by its name, so the
-    # words name="x" in a paragraph can't make a missing anchor look present.
+    # Only a real tag names an anchor, by its id or its name (GitHub keeps both, as
+    # user-content-<value>, on any element), so the words name="x" in a paragraph can't make
+    # a missing anchor look present. Neither can a tag GitHub shows as text or drops: one in
+    # a fenced code block, a code span or an HTML comment, or one whose < is escaped.
     $attribute = '\s+[A-Za-z_:][A-Za-z0-9_.:-]*(?:\s*=\s*(?:[^\s"''=<>`]+|''[^'']*''|"[^"]*"))?'
     $attributeCapture = '\s+(?<name>[A-Za-z_:][A-Za-z0-9_.:-]*)(?:\s*=\s*(?:(?<value>[^\s"''=<>`]+)|''(?<value>[^'']*)''|"(?<value>[^"]*)"))?'
-    foreach ($tag in [regex]::Matches($ExpectedReadme, "<(?<name>[A-Za-z][A-Za-z0-9-]*)(?<attributes>(?:$attribute)*)\s*/?>")) {
+    # The README is written with CRLF on Windows; GitHub ends a line at CR, LF or CRLF, and
+    # the fence and heading patterns below end theirs at LF.
+    $text = [regex]::Replace($ExpectedReadme, '\r\n?', "`n")
+    $withoutFences = [regex]::Replace($text, '(?ms)^ {0,3}(?<fence>`{3,}|~{3,})(?:.*?^ {0,3}\k<fence>[`~]*[ \t]*$|.*\z)', '')
+    $tagText = [regex]::Replace($withoutFences, '<!--[\s\S]*?-->', '')
+    $tagText = [regex]::Replace($tagText, '(?<!`)(?<ticks>`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])+?(?<!`)\k<ticks>(?!`)', '')
+    foreach ($tag in [regex]::Matches($tagText, "(?<=(?:^|[^\\])(?:\\\\)*)<(?<name>[A-Za-z][A-Za-z0-9-]*)(?<attributes>(?:$attribute)*)\s*/?>")) {
         foreach ($pair in [regex]::Matches($tag.Groups['attributes'].Value, $attributeCapture)) {
             $name = $pair.Groups['name'].Value
-            if ($name -eq 'name' -or ($name -eq 'id' -and $tag.Groups['name'].Value -eq 'a')) {
+            if ($name -eq 'name' -or $name -eq 'id') {
                 $id = [System.Net.WebUtility]::HtmlDecode($pair.Groups['value'].Value)
                 if (-not [string]::IsNullOrWhiteSpace($id)) {
                     $null = $anchors.Add($id)
@@ -509,7 +568,9 @@ function Test-ReadmeHeaderAnchor {
             }
         }
     }
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?m)^\s{0,3}#{1,6}\s+(?<text>.+?)\s*$')) {
+    # A heading line in a fenced code block is code, not a heading. A heading's text is on
+    # its own line: a bare # is an empty heading, and the line after it is a paragraph.
+    foreach ($match in [regex]::Matches($withoutFences, '(?m)^ {0,3}#{1,6}[ \t]+(?<text>.+?)[ \t]*$')) {
         $slug = ConvertTo-GitHubHeadingAnchor -Text $match.Groups['text'].Value
         if (-not [string]::IsNullOrWhiteSpace($slug)) {
             $null = $anchors.Add($slug)

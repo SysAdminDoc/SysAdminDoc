@@ -12496,6 +12496,17 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'a theme picture'; Text = '<picture><source media="(prefers-color-scheme: dark)" srcset="https://s4.invalid/dark.png"><img src="https://s5.invalid/light.png" srcset="https://s6.invalid/x.png 2x"></picture>'; Expected = @('image https://s4.invalid/dark.png', 'image https://s5.invalid/light.png') }
         @{ Case = 'a URL after a lone tag line'; Text = "<a href=`"https://seven.invalid/`">`nhttps://after.invalid/x"; Expected = @('link https://seven.invalid/') }
         @{ Case = 'a URL after a comment'; Text = "<!-- https://comment.invalid/ -->`nhttps://aftercomment.invalid/z"; Expected = @('link https://aftercomment.invalid/z') }
+        # Review G3 of 7aebf68, each checked against the API on 2026-09-24.
+        @{ Case = 'an angle autolink'; Text = 'Go <https://ab.invalid/> now'; Expected = @('link https://ab.invalid/') }
+        @{ Case = 'a URL in another tag''s attribute'; Text = 'See <span title="https://t.invalid/x">now</span>'; Expected = @() }
+        @{ Case = 'a tag and a URL in a comment'; Text = 'See <!-- <a href="https://cm.invalid/"> https://cm2.invalid/ --> now'; Expected = @() }
+        @{ Case = 'a lone tag after a rule'; Text = "---`n<a href=`"https://seven2.invalid/`">`nhttps://after2.invalid/x"; Expected = @('link https://seven2.invalid/') }
+        @{ Case = 'a lone tag after a quote'; Text = "> quote`n<a href=`"https://seven3.invalid/`">`nhttps://after3.invalid/x"; Expected = @('link https://seven3.invalid/') }
+        @{ Case = 'a lone tag after a list item'; Text = "- item`n<a href=`"https://seven4.invalid/`">`nhttps://after4.invalid/x"; Expected = @('link https://seven4.invalid/') }
+        @{ Case = 'a lone tag after a setext heading'; Text = "Title`n===`n<a href=`"https://seven5.invalid/`">`nhttps://after5.invalid/x"; Expected = @('link https://seven5.invalid/') }
+        @{ Case = 'indented code'; Text = "para`n`n    https://indent.invalid/x"; Expected = @() }
+        @{ Case = 'a fenced block'; Text = "text`n```````nhttps://fence.invalid/x`n`n<a href=`"https://fence2.invalid/`">x</a>`n```````nafter https://afterfence.invalid/y"; Expected = @('link https://afterfence.invalid/y') }
+        @{ Case = 'indented text in a list item'; Text = "- item`n`n    https://listcont.invalid/x"; Expected = @('link https://listcont.invalid/x') }
     ) {
         $references = @(Get-ReadmeHeaderLinkReference -ExpectedReadme $Text | ForEach-Object { $_.kind + ' ' + $_.value })
 
@@ -12508,6 +12519,35 @@ Describe 'Hand-authored header links and anchors are validated' {
         $readme = 'See name="ghost" here. <a name="real"></a>' + "`n`n" + '<p align="center"><a href="#ghost">A</a> &middot; <a href="#real">B</a></p>'
 
         (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'ghost'
+    }
+
+    It 'takes no anchor from a tag GitHub shows as text or drops: <Case>' -ForEach @(
+        @{ Case = 'a code span'; Text = 'See `<a name="ghost"></a>` here.' }
+        @{ Case = 'an HTML comment'; Text = 'See <!-- <a name="ghost"></a> --> here.' }
+        @{ Case = 'an escaped tag'; Text = 'See \<a name="ghost"></a> here.' }
+        @{ Case = 'a fenced block'; Text = "text`n```````n<a name=`"ghost`"></a>`n``````" }
+        @{ Case = 'a heading line in a fenced block'; Text = "text`n``````powershell`n# Ghost`n``````" }
+        @{ Case = 'the line after an empty heading'; Text = "#`nghost" }
+    ) {
+        # Review G3: each of these counted as an anchor, so a link to a missing one passed.
+        $readme = $Text + "`n`n" + '<p align="center"><a href="#ghost">A</a></p>'
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'ghost'
+    }
+
+    It 'takes an anchor from an id on any element' {
+        # GitHub keeps id on a div or a p (as user-content-<id>), so #top reaches it.
+        $readme = '<div id="top"></div>' + "`n`n" + '<p align="center"><a href="#top">Top</a></p>'
+
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
+    }
+
+    It 'takes anchors after a fenced block in CRLF text' {
+        # The generated README has CRLF line endings; the closing fence didn't match before
+        # its CR, so the first fence ran to the end and hid every anchor after it.
+        $readme = "``````powershell`r`nirm x`r`n```````r`n`r`n<a id=`"after`"></a>`r`n`r`n## Later`r`n`r`n" + '<p align="center"><a href="#after">A</a> <a href="#later">B</a></p>'
+
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
     }
 
     It 'fails on an unknown dead call to action in the header' {
