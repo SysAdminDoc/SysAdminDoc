@@ -13545,10 +13545,25 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'underscores closing before the asterisks do'; Text = '_a *b_ c*'; Expected = 'a-b-c' }
         @{ Case = 'runs between punctuation whose lengths add up to three'; Text = '._.a__.b'; Expected = '_a__b' }
         @{ Case = 'a run that could open or close, lengths adding up to three'; Text = '.__._ b.'; Expected = '___-b' }
+        # Character references HTML5 names beyond the few .NET decodes, and numeric ones out of range.
+        @{ Case = 'a named reference for punctuation'; Text = 'A &colon; B'; Expected = 'a--b' }
+        @{ Case = 'a named reference for a letter'; Text = '&ell; units'; Expected = [string][char]0x2113 + '-units' }
+        @{ Case = 'a named reference for a tab'; Text = 'Tab&Tab;Here'; Expected = 'tabhere' }
+        @{ Case = 'an escaped ampersand before a name'; Text = 'x &amp;colon; y'; Expected = 'x-colon-y' }
+        @{ Case = 'a name HTML5 doesn''t have'; Text = '&notanentity; z'; Expected = 'notanentity-z' }
+        @{ Case = 'a reference past the last code point'; Text = 'a &#1234567; b'; Expected = 'a--b' }
+        @{ Case = 'references to the placeholder noncharacters'; Text = '&#xFDD0;1&#xFDD1; x'; Expected = '1-x' }
     ) {
         ConvertTo-GitHubHeadingAnchor -Text $Text | Should -BeOrdinal $Expected
     }
 
+    It 'reads every HTML5 named reference that ends in a semicolon' {
+        # From html.spec.whatwg.org/entities.json, whose hash the file records.
+        $table = [System.Text.Json.JsonDocument]::Parse([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'data/html-entities.json'))).RootElement
+
+        @($table.GetProperty('entities').EnumerateObject()).Count | Should -Be 2125
+        $table.GetProperty('sourceSha256').GetString() | Should -Match '^[0-9a-f]{64}$'
+    }
     It 'slugs a long line of nested underscores quickly' {
         # Review G7: 12 KB of nesting took a pass per level, 2.4 seconds.
         $watch = [System.Diagnostics.Stopwatch]::StartNew()

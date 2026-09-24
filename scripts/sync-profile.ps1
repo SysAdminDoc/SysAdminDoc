@@ -83,6 +83,9 @@ $script:GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/prof
 # The heading over the category grid. The rendered smoke looks for it on the page and reads
 # it from here, so a rename can't leave the smoke looking for the old words.
 $script:ToolCatalogHeading = "What's here"
+# HTML5's named character references (data/html-entities.json), read the first time a heading
+# needs one.
+$script:HtmlEntityTable = $null
 $script:MetadataGeneratedAtStaleDays = 7
 $script:SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
 $script:LinkValidationThrottle = 16

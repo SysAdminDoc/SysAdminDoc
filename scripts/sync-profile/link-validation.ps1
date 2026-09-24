@@ -950,7 +950,27 @@ function ConvertTo-GitHubHeadingAnchor {
         $from = $run.Index + $run.Length
     }
     $value = $emphasis.Append($value, $from, $value.Length - $from).ToString()
-    $value = [System.Net.WebUtility]::HtmlDecode($value.Replace($gone, ''))
+    # Character references as CommonMark reads them, in one pass so a decoded & starts no new
+    # one: a decimal (up to seven digits) or hex (up to six) code point, with U+FFFD for 0, a
+    # surrogate, a noncharacter the placeholders use or anything past U+10FFFF, and any of
+    # HTML5's named references with its semicolon (&colon;, &ell;). Anything else stays.
+    if ($null -eq $script:HtmlEntityTable) {
+        $table = [System.Collections.Generic.Dictionary[string, string]]::new([StringComparer]::Ordinal)
+        $entities = [System.Text.Json.JsonDocument]::Parse([System.IO.File]::ReadAllText((Join-Path $PSScriptRoot '../../data/html-entities.json')))
+        foreach ($entity in $entities.RootElement.GetProperty('entities').EnumerateObject()) { $table[$entity.Name] = $entity.Value.GetString() }
+        $script:HtmlEntityTable = $table
+    }
+    $value = [regex]::Replace($value.Replace($gone, ''), '&(?:#(?<decimal>[0-9]{1,7})|#[Xx](?<hex>[0-9A-Fa-f]{1,6})|(?<name>[A-Za-z][A-Za-z0-9]{1,31}));', {
+            param($match)
+            if ($match.Groups['name'].Success) {
+                $decoded = $null
+                if ($script:HtmlEntityTable.TryGetValue($match.Groups['name'].Value, [ref]$decoded)) { return $decoded }
+                return $match.Value
+            }
+            $codePoint = if ($match.Groups['hex'].Success) { [Convert]::ToInt32($match.Groups['hex'].Value, 16) } else { [int]$match.Groups['decimal'].Value }
+            if ($codePoint -eq 0 -or ($codePoint -ge 0xD800 -and $codePoint -le 0xDFFF) -or ($codePoint -ge 0xFDD0 -and $codePoint -le 0xFDEF) -or $codePoint -gt 0x10FFFF) { return [string][char]0xFFFD }
+            [char]::ConvertFromUtf32($codePoint)
+        })
     $rendered = [regex]::Replace($value, $mark + '(?<index>[0-9]+)' + $markEnd, { param($match) $held[[int]$match.Groups['index'].Value] })
 
     # Lower case, with U+0130 (dotted capital I) in full, i and a combining dot as GitHub has

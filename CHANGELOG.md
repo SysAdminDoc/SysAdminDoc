@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- Heading links decode every HTML5 named character reference as GitHub does, so `&colon;` drops out of the id and `&ell;` becomes the letter it names. The 2,125 names live in `data/html-entities.json`, taken from the WHATWG list with its hash recorded.
 - The header link check reads headings inside quotes and list items the way GitHub does. A fence inside an item or a quote is code now, a heading at a list item's content column counts, and a setext heading in an item is found. An unclosed fence in a list item used to hide the rest of the file from the check.
 - A `CHROME_PATH` of only spaces stops the rendered smoke check instead of letting it search for another browser.
 - The `-SeedCatalog` warning about `Start-Tool` install lines names every entry it means, once each, instead of the first five.
