@@ -7670,15 +7670,19 @@ Describe 'Feed JSON Schema contracts' {
                 $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Test-CompleteGenerationSnapshot'
             }, $true)
             if ($null -ne $snapshotCheck) {
+                # The allow-list is an array's Contains, which compares with String.Equals: exact,
+                # like the enums. -cnotin compared by culture and skipped an invisible character.
                 $providerTest = @($snapshotCheck.FindAll({
                     param($node)
-                    $node -is [System.Management.Automation.Language.BinaryExpressionAst] -and
-                    $node.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
-                    $node.Left.VariablePath.UserPath -eq 'provider'
+                    $node -is [System.Management.Automation.Language.InvokeMemberExpressionAst] -and
+                    $node.Member.Value -eq 'Contains' -and
+                    @($node.Arguments).Count -eq 1 -and
+                    $node.Arguments[0] -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                    $node.Arguments[0].VariablePath.UserPath -eq 'provider'
                 }, $true))
                 $providerTest | Should -HaveCount 1 -Because 'the snapshot check tests the provider once'
-                $providerTest[0].Operator | Should -Be ([System.Management.Automation.Language.TokenKind]::Cnotin) -Because 'the allow-list has to be case-sensitive, like the enums'
-                $allowList = @($providerTest[0].Right.FindAll({ param($node) $node -is [System.Management.Automation.Language.StringConstantExpressionAst] }, $true) | ForEach-Object { $_.Value })
+                $providerTest[0].Expression | Should -BeOfType ([System.Management.Automation.Language.ArrayExpressionAst]) -Because 'the allow-list is a literal array'
+                $allowList = @($providerTest[0].Expression.FindAll({ param($node) $node -is [System.Management.Automation.Language.StringConstantExpressionAst] }, $true) | ForEach-Object { $_.Value })
             }
         }
 
