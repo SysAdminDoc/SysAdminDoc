@@ -13526,6 +13526,10 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'a > in a raw heading attribute'; Text = "<h2 title=`"a>b`">Gt</h2>"; Ids = @('gt'); Absent = @('bgt') }
         @{ Case = 'a raw heading inside an ATX heading'; Text = "## Outer <h3>Inner</h3>"; Ids = @('outer-', 'inner'); Absent = @('outer-inner') }
         @{ Case = 'a raw heading inside a setext heading'; Text = "text <h2>a</h2>`n==="; Ids = @('text-', 'a'); Absent = @('text-a') }
+        # Review G8: the cut at a raw heading tag didn't skip code spans and escapes.
+        @{ Case = 'a raw heading tag in a code span'; Text = '## A `<h3>` B'; Ids = @('a-h3-b'); Absent = @('a-') }
+        @{ Case = 'an escaped raw heading tag'; Text = '## A \<h3> B'; Ids = @('a-h3-b'); Absent = @('a-') }
+        @{ Case = 'a raw heading tag in a code span of a setext heading'; Text = 'A `<h3>` B' + "`n==="; Ids = @('a-h3-b'); Absent = @('a-') }
     ) {
         $links = (@($Ids) + @($Absent) | ForEach-Object { '<a href="#' + $_ + '">x</a>' }) -join ' '
         $readme = '<p align="center">' + $links + '</p>' + "`n`n" + $Text + "`n"

@@ -642,6 +642,15 @@ function Test-ReadmeHeaderAnchor {
     $container = '(?: {0,3}(?:>[ ]?|(?:[-+*]|\d{1,9}[.)])(?: {1,4}(?! )|\t)))*'
     $atxPattern = '^' + $container + ' {0,3}#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$'
     $rawHeadingOpen = "(?i)<h[1-6](?:$attribute)*\s*/?>"
+    # That raw heading tag closes the heading, but not one in a code span or behind an
+    # escaped <, which is text: the tag is looked for with those blanked, and the heading cut
+    # where it starts.
+    $cutAtRawHeading = {
+        param([string]$Heading)
+        $masked = [regex]::Replace($Heading, $inlineScan, { param($match) if ($match.Groups['escape'].Success) { '\' + [char]0xE000 } else { & $blankOut $match } })
+        $open = [regex]::Match($masked, $rawHeadingOpen)
+        if ($open.Success) { $Heading.Substring(0, $open.Index) } else { $Heading }
+    }
     $paragraph = [System.Collections.Generic.List[string]]::new()
     $paragraphStart = 0
     $inHtml = $false
@@ -662,7 +671,7 @@ function Test-ReadmeHeaderAnchor {
             $paragraph.Clear()
         } elseif ($paragraph.Count -gt 0 -and $line -match '^ {0,3}(?:=+|-+)[ \t]*$') {
             $setext = @($paragraph | ForEach-Object { $_.Trim() }) -join "`n"
-            $headings.Add([pscustomobject]@{ Offset = $paragraphStart; Text = [regex]::Split($setext, $rawHeadingOpen)[0] })
+            $headings.Add([pscustomobject]@{ Offset = $paragraphStart; Text = & $cutAtRawHeading $setext })
             $paragraph.Clear()
         } elseif ($null -ne $blockStart -or ($paragraph.Count -eq 0 -and $line -match $completeTagLine)) {
             $paragraph.Clear()
@@ -670,7 +679,7 @@ function Test-ReadmeHeaderAnchor {
             # A block that ends at a marker can end on the line it starts.
             $inHtml = -not ($null -ne $htmlEnd -and $line -match $htmlEnd)
         } elseif (($atx = [regex]::Match($line, $atxPattern)).Success) {
-            $headings.Add([pscustomobject]@{ Offset = $offset + $atx.Index; Text = [regex]::Split($atx.Groups['text'].Value, $rawHeadingOpen)[0] })
+            $headings.Add([pscustomobject]@{ Offset = $offset + $atx.Index; Text = & $cutAtRawHeading $atx.Groups['text'].Value })
             $paragraph.Clear()
         } elseif ($line -match '^ {0,3}(?:#{1,6}(?:[ \t]|$)|>|(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)|(?:\*[ \t]*){3,}$|(?:_[ \t]*){3,}$|(?:-[ \t]*){3,}$)') {
             $paragraph.Clear()
