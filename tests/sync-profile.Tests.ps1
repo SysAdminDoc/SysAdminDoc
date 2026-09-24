@@ -12908,6 +12908,52 @@ Describe 'Hand-authored header links and anchors are validated' {
         $slug | Should -BeOrdinal $Expected
     }
 
+    It 'finds the id github.com gives a heading written as <Case>' -ForEach @(
+        # Read off a page rendered on github.com on 2026-09-24. Only ATX headings were read,
+        # so a link to any of these was reported missing.
+        @{ Case = 'a setext heading'; Text = "Setext One`n=========="; Id = 'setext-one' }
+        @{ Case = 'a setext heading with dashes'; Text = "Setext Two`n---"; Id = 'setext-two' }
+        @{ Case = 'a two-line setext heading'; Text = "Two line`nsetext heading`n=="; Id = 'two-linesetext-heading' }
+        @{ Case = 'an indented setext underline'; Text = "Paragraph`n  ==="; Id = 'paragraph' }
+        @{ Case = 'a raw HTML heading'; Text = '<h2>Raw Html</h2>'; Id = 'raw-html' }
+        @{ Case = 'a raw HTML heading with its own id'; Text = '<h3 id="given">Raw With Id</h3>'; Id = 'raw-with-id' }
+        @{ Case = 'a raw HTML heading inside a paragraph'; Text = 'Text before <h4>Inline Raw</h4> after'; Id = 'inline-raw' }
+        @{ Case = 'an ATX heading in a quote'; Text = '> ## Quoted Heading'; Id = 'quoted-heading' }
+        @{ Case = 'an ATX heading in a list item'; Text = '- ## Listed Heading'; Id = 'listed-heading' }
+    ) {
+        $readme = '<p align="center"><a href="#' + $Id + '">x</a></p>' + "`n`n" + $Text + "`n"
+
+        @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
+    }
+
+    It 'finds no heading id in <Case>' -ForEach @(
+        @{ Case = 'a rule after a blank line'; Text = "Para`n`n---"; Id = 'para' }
+        @{ Case = 'a rule after a list item'; Text = "- item`n---"; Id = 'item' }
+        @{ Case = 'an ATX line inside an HTML block'; Text = "<div>`n## Hidden`n</div>"; Id = 'hidden' }
+        @{ Case = 'a raw heading in a code span'; Text = 'See `<h2>Code</h2>` here'; Id = 'code' }
+        @{ Case = 'a raw heading in an HTML comment'; Text = '<!-- <h2>Gone</h2> -->'; Id = 'gone' }
+        @{ Case = 'a hash with no space'; Text = '#5 not a heading'; Id = '5-not-a-heading' }
+    ) {
+        $readme = '<p align="center"><a href="#' + $Id + '">x</a></p>' + "`n`n" + $Text + "`n"
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be $Id
+    }
+
+    It 'numbers headings of every form together, in document order' {
+        # github.com gave the ATX Same "same" and the setext one after it "same-1".
+        $readme = '<p align="center"><a href="#same">a</a> <a href="#same-1">b</a> <a href="#same-2">c</a> <a href="#same-3">d</a></p>' +
+            "`n`n## Same`n`nSame`n====`n`n<h2>Same</h2>`n"
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'same-3'
+
+        # A raw Same-1 between two ATX Sames takes same-1 first, so the second Same is same-2;
+        # read out of order, it would be same-1 and the raw one same-1-1.
+        $readme = '<p align="center"><a href="#same-2">a</a> <a href="#same-1-1">b</a></p>' +
+            "`n`n## Same`n`n<h2>Same-1</h2>`n`n## Same`n"
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'same-1-1'
+    }
+
     It 'finds the id GitHub gives a repeated heading and one with a closing run of #' {
         # github.com numbered these same, same-1, same-2 and, since same-1 was taken,
         # same-1-1; the closing ## isn't part of the text.

@@ -568,13 +568,61 @@ function Test-ReadmeHeaderAnchor {
             }
         }
     }
-    # A heading line in a fenced code block is code, not a heading. A heading's text is on
-    # its own line: a bare # is an empty heading, and the line after it is a paragraph. A
-    # closing run of # isn't part of the text. A repeated slug gets -1, -2 and so on, skipping
-    # any id an earlier heading already took (Same, Same, Same-1 give same, same-1, same-1-1).
+    # GitHub gives every heading it renders an id, in three forms, and numbers them in
+    # document order, so they're gathered with their offsets first. What it doesn't render as
+    # Markdown (fenced blocks, HTML comments) is blanked to spaces rather than cut, so the
+    # offsets of the three forms line up.
+    $blankOut = { param($match) [regex]::Replace($match.Value, '[^\n]', ' ') }
+    $headingText = [regex]::Replace($text, '(?ms)^ {0,3}(?<fence>`{3,}|~{3,})(?:.*?^ {0,3}\k<fence>[`~]*[ \t]*$|.*\z)', $blankOut)
+    $headingText = [regex]::Replace($headingText, '<!--[\s\S]*?-->', $blankOut)
+    $headings = [System.Collections.Generic.List[object]]::new()
+    # Line by line: a line opening with < starts an HTML block that runs to the next blank
+    # line, and nothing in it is a heading. ATX: its text is on its own line (a bare # is an
+    # empty heading, and the line after it a paragraph), a closing run of # isn't part of
+    # it, and it can sit in a quote or a list item. Setext: the paragraph above a line of = or
+    # -, its lines joined without a space ("Two line" over "setext heading" gives
+    # two-linesetext-heading); a line of - after a blank line, a list item or a quote is a
+    # rule instead. A heading in a list item's indented continuation lines isn't read, so a
+    # link to one is reported missing.
+    $atxPattern = '^ {0,3}(?:>[ \t]?)*(?:(?:[-+*]|\d{1,9}[.)])[ \t]+)?#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$'
+    $paragraph = [System.Collections.Generic.List[string]]::new()
+    $paragraphStart = 0
+    $inHtml = $false
+    $offset = 0
+    foreach ($line in ($headingText -split "`n")) {
+        $isBlank = [string]::IsNullOrWhiteSpace($line)
+        if ($inHtml) {
+            $inHtml = -not $isBlank
+        } elseif ($isBlank) {
+            $paragraph.Clear()
+        } elseif ($paragraph.Count -gt 0 -and $line -match '^ {0,3}(?:=+|-+)[ \t]*$') {
+            $headings.Add([pscustomobject]@{ Offset = $paragraphStart; Text = (@($paragraph | ForEach-Object { $_.Trim() }) -join "`n") })
+            $paragraph.Clear()
+        } elseif ($line -match '^ {0,3}<') {
+            $paragraph.Clear()
+            $inHtml = $true
+        } elseif (($atx = [regex]::Match($line, $atxPattern)).Success) {
+            $headings.Add([pscustomobject]@{ Offset = $offset + $atx.Index; Text = $atx.Groups['text'].Value })
+            $paragraph.Clear()
+        } elseif ($line -match '^ {0,3}(?:#{1,6}(?:[ \t]|$)|>|(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)|(?:\*[ \t]*){3,}$|(?:_[ \t]*){3,}$|(?:-[ \t]*){3,}$)') {
+            $paragraph.Clear()
+        } elseif ($paragraph.Count -gt 0 -or $line -notmatch '^(?: {4}|\t)') {
+            if ($paragraph.Count -eq 0) { $paragraphStart = $offset }
+            $paragraph.Add($line)
+        }
+        $offset += $line.Length + 1
+    }
+    # Raw <h1> to <h6>, in an HTML block or inline in a paragraph, but not in a code span or
+    # behind an escaped <. One with its own id keeps that as well (read with the tags above).
+    $htmlHeadingText = [regex]::Replace($headingText, '(?<!`)(?<ticks>`+)(?!`)(?:(?!\n[ \t]*\n)[\s\S])+?(?<!`)\k<ticks>(?!`)', $blankOut)
+    foreach ($match in [regex]::Matches($htmlHeadingText, '(?i)(?<=(?:^|[^\\])(?:\\\\)*)<(?<level>h[1-6])(?=[\s/>])[^>]*>(?<inner>[\s\S]*?)</\k<level>\s*>')) {
+        $headings.Add([pscustomobject]@{ Offset = $match.Index; Text = $match.Groups['inner'].Value })
+    }
+    # A repeated slug gets -1, -2 and so on, skipping any id an earlier heading already took
+    # (Same, Same, Same-1 give same, same-1, same-1-1).
     $headingIds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($match in [regex]::Matches($withoutFences, '(?m)^ {0,3}#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$')) {
-        $slug = ConvertTo-GitHubHeadingAnchor -Text $match.Groups['text'].Value
+    foreach ($heading in @($headings | Sort-Object Offset)) {
+        $slug = ConvertTo-GitHubHeadingAnchor -Text $heading.Text
         if (-not [string]::IsNullOrWhiteSpace($slug)) {
             $id = $slug
             for ($suffix = 1; $headingIds.Contains($id); $suffix++) { $id = "$slug-$suffix" }
