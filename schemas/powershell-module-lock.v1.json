@@ -79,11 +79,11 @@
           "expectedSigners": {
             "type": "array",
             "uniqueItems": true,
-            "description": "Every Authenticode certificate subject a signed file in the package may carry; a module can bundle third-party signed assemblies. Each is compared exactly and case-sensitively. Preserve non-ASCII characters verbatim; a transliterated subject is a different signer.",
+            "description": "Every Authenticode certificate subject a signed file in the package may carry; a module can bundle third-party signed assemblies. Each is compared exactly and case-sensitively, and has to hold something other than whitespace as .NET counts it (NBSP and the other Unicode spaces included; a pattern's \\s is ASCII only here). Preserve non-ASCII characters verbatim; a transliterated subject is a different signer.",
             "items": {
               "type": "string",
               "minLength": 1,
-              "pattern": "\\S"
+              "pattern": "[^\u0009-\u000D\u0020\u0085\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]"
             }
           },
           "lane": {

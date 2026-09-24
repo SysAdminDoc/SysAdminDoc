@@ -422,9 +422,12 @@ function Invoke-ScorecardCli {
     # - macOS and Linux, after /Users/ or /home/ in any case (macOS paths ignore it), wherever
     #   the path sits (/mnt/c/Users, /var/home, //server/Users), and with a slash written as
     #   \/, \\/ or %2F. These names hold no space.
-    # Either name keeps its percent-encoded bytes (john%20smith, j%C3%B6rg); only an encoded
-    # slash or backslash ends it.
-    $failure = [regex]::Replace($failure, '(?<url>(?i:https?)(?::|%3[Aa])(?:\\*/|%2[Ff]){2}[^\s"''<>]*)|(?<windows>(?i)(?:(?:\\|%5C)+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:(?:\\|%5C)+|/+))(?:[^\\/"<>:|?*\[\];=,+\r\n%]|%(?!5[Cc]|2[Ff]))+|(?<posix>(?:\\*/|%2[Ff])(?i:Users|home)(?:\\*/|%2[Ff]))(?:[^\\/\s"''<>:%]|%(?!2[Ff]|5[Cc]))+', {
+    # Either name keeps its percent-encoded bytes (john%20smith, j%C3%B6rg); an encoded slash,
+    # backslash, colon, quote or angle bracket ends it, as the plain one would, so the reason
+    # after it survives. After C:%5CUsers the separator may be %2F too. A run of separators is
+    # tried only from its first character: from every one of 50 KB of backslashes the match
+    # would scan the rest and fail, which took 44 seconds.
+    $failure = [regex]::Replace($failure, '(?<url>(?i:https?)(?::|%3[Aa])(?:\\*/|%2[Ff]){2}[^\s"''<>]*)|(?<windows>(?i)(?<!\\|%5C)(?:(?:\\|%5C)+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:(?:\\|%5C|%2F)+|/+))(?:[^\\/"<>:|?*\[\];=,+\r\n%]|%(?!5[Cc]|2[Ff]|3[AaCcEeFf]|22|7[Cc]|2[Aa]))+|(?<posix>(?<!\\)(?:\\*/|%2[Ff])(?i:Users|home)(?:\\*/|%2[Ff]))(?:[^\\/\s"''<>:%]|%(?!2[Ff]|5[Cc]|3[AaCcEe]|22))+', {
             param($match)
             if ($match.Groups['url'].Success) {
                 $match.Value

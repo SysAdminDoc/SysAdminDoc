@@ -1520,6 +1520,11 @@ Describe 'OpenSSF Scorecard runs locally' {
         @{ Case = 'an encoded apostrophe in the name'; Line = 'open %2FUsers%2FO%27Brien%2Fx failed'; Expected = 'open %2FUsers%2F<user>%2Fx failed'; Gone = 'Brien' }
         @{ Case = 'encoded backslashes'; Line = 'open C:%5CUsers%5Cbob%5Cx failed'; Expected = 'open C:%5CUsers%5C<user>%5Cx failed'; Gone = 'bob' }
         @{ Case = 'a fully encoded URL'; Line = 'GET https%3A%2F%2Fexample.com%2FUsers%2Fdocs failed'; Expected = 'GET https%3A%2F%2Fexample.com%2FUsers%2Fdocs failed'; Gone = '<user>' }
+        # Review G5: the name ran on through an encoded colon and took the reason with it, and
+        # a %5C path with a %2F after Users wasn't redacted.
+        @{ Case = 'an encoded colon after the name'; Line = 'open %2FUsers%2Fbob%3A%20denied'; Expected = 'open %2FUsers%2F<user>%3A%20denied'; Gone = 'bob' }
+        @{ Case = 'an encoded quote after a Windows name'; Line = 'open C:%5CUsers%5Cbob%22 failed'; Expected = 'open C:%5CUsers%5C<user>%22 failed'; Gone = 'bob' }
+        @{ Case = 'mixed encoded separators'; Line = 'open C:%5CUsers%2Fbob%5Cx failed'; Expected = 'open C:%5CUsers%2F<user>%5Cx failed'; Gone = 'bob' }
     ) {
         # The account redaction ran to the next separator or quote, which took the reason
         # after a name at the end of a path, and stopped at an apostrophe inside one.
@@ -1533,6 +1538,28 @@ Describe 'OpenSSF Scorecard runs locally' {
 
         $Expected | Should -Not -Match $Gone -Because 'the expected line must itself hold nothing private'
         $run.error | Should -BeExactly ('scorecard exited 3: ' + $Expected)
+    }
+
+    It 'redacts a long run of <Case> in linear time' -ForEach @(
+        @{ Case = 'backslashes'; Unit = '\' }
+        @{ Case = 'doubled backslashes'; Unit = '\\' }
+        @{ Case = 'encoded backslashes'; Unit = '%5C' }
+    ) {
+        # Review G5: the %5C separator took 50 KB of backslashes from 0.9 to 44 seconds, the
+        # match scanning the rest of the run from every backslash in it.
+        $text = ($Unit * [int](50KB / $Unit.Length)) + ' done'
+        $fake = Join-Path $TestDrive 'scorecard-fail-run.cmd'
+        [System.IO.File]::WriteAllText((Join-Path $TestDrive 'run.txt'), $text)
+        Set-Content -LiteralPath $fake -Encoding ascii -Value @('@echo off', 'type "%~dp0run.txt" 1>&2', 'exit /b 3')
+        Mock Get-Command { [pscustomobject]@{ Source = $fake } } -ParameterFilter { $Name -eq 'scorecard' }
+        Mock Invoke-GhCli { [ordered]@{ output = @('gho_ZYXWVUTSRQPONMLKJIHG9876'); exitCode = 0; text = 'gho_ZYXWVUTSRQPONMLKJIHG9876' } }
+
+        $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
+        $run = Invoke-ScorecardCli
+        $elapsed.Stop()
+
+        $run.error | Should -Match '^scorecard exited 3: '
+        $elapsed.Elapsed.TotalSeconds | Should -BeLessThan 5 -Because 'the redaction has to stay linear in the length of the line'
     }
 
     It 'takes out a token the length cap would have cut, then caps the line' {
@@ -12455,6 +12482,12 @@ Describe 'PowerShell module packages are verified before import' {
         @{ Case = 'a single expectedSigner string'; Valid = $false; Change = { param($m) $m.Remove('expectedSigners'); $m.expectedSigner = 'CN=x' } }
         @{ Case = 'a signed module with no signers'; Valid = $false; Change = { param($m) $m.expectedSigners = @() } }
         @{ Case = 'a blank signer'; Valid = $false; Change = { param($m) $m.expectedSigners = @(' ') } }
+        # Review G5: the schema's \S is ASCII only, so these passed it while the bootstrap,
+        # which asks .NET whether a signer is whitespace, refused them.
+        @{ Case = 'a signer of only NBSP'; Valid = $false; Change = { param($m) $m.expectedSigners = @([string][char]0xA0) } }
+        @{ Case = 'a signer of only an em space'; Valid = $false; Change = { param($m) $m.expectedSigners = @([string][char]0x2003) } }
+        @{ Case = 'a signer of only ideographic spaces'; Valid = $false; Change = { param($m) $m.expectedSigners = @(([string][char]0x3000) * 2) } }
+        @{ Case = 'a signer with an NBSP inside it'; Valid = $true; Change = { param($m) $m.expectedSigners = @('CN=a' + [char]0xA0 + 'b') } }
     ) {
         $module = [ordered]@{
             name = 'Pester'; version = '5.9.1'
