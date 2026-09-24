@@ -546,22 +546,26 @@ function New-CatalogFromReadme {
             $entries[$repo].order = $order[$category]
             $entries[$repo].descriptionOverride = $Matches.description
 
-            if ('web'.Equals($category) -and $tail -match '\[Launch\]\((?<url>[^)]+)\)') {
-                $entries[$repo].liveUrl = $Matches.url
-            } elseif ($tail -match '\[Install\]\((?<url>[^)]+)\)') {
-                $entries[$repo].userscriptUrl = $Matches.url
+            # The action is an <a href="..." aria-label="..."> tag with the short word as its
+            # text (its href's & written &amp;); an older README wrote a Markdown link.
+            if ('web'.Equals($category) -and $tail -match '\[Launch\]\((?<url>[^)]+)\)|<a href="(?<url>[^"]+)"[^>]*>Launch</a>') {
+                $entries[$repo].liveUrl = [System.Net.WebUtility]::HtmlDecode($Matches.url)
+            } elseif ($tail -match '\[Install\]\((?<url>[^)]+)\)|<a href="(?<url>[^"]+)"[^>]*>Install</a>') {
+                $entries[$repo].userscriptUrl = [System.Net.WebUtility]::HtmlDecode($Matches.url)
                 $entries[$repo].downloadKind = "userscript"
             } elseif ($tail -match 'releases/latest') {
-                # The labels New-Readme writes for each kind. XPI alone isn't a catalog kind, so
-                # it seeds as a plain download.
-                if ($tail -match 'CRX/XPI') { $entries[$repo].downloadKind = "crx-xpi" }
-                elseif ($tail -match 'ZIP/XPI') { $entries[$repo].downloadKind = "zip-xpi" }
-                elseif ($tail -match 'CRX') { $entries[$repo].downloadKind = "crx" }
-                elseif ($tail -match 'APK') { $entries[$repo].downloadKind = "apk" }
-                elseif ($tail -match 'EXE') { $entries[$repo].downloadKind = "exe" }
-                elseif ($tail -match 'ZIP') { $entries[$repo].downloadKind = "zip" }
+                # The labels New-Readme writes for each kind, read off the button so a name in
+                # the link's aria-label can't be taken for one. XPI alone isn't a catalog kind,
+                # so it seeds as a plain download.
+                $kindLabel = if ($tail -match '<kbd>&#11015;&nbsp;(?<kind>[^<]+)</kbd>') { $Matches.kind } else { $tail }
+                if ($kindLabel -match 'CRX/XPI') { $entries[$repo].downloadKind = "crx-xpi" }
+                elseif ($kindLabel -match 'ZIP/XPI') { $entries[$repo].downloadKind = "zip-xpi" }
+                elseif ($kindLabel -match 'CRX') { $entries[$repo].downloadKind = "crx" }
+                elseif ($kindLabel -match 'APK') { $entries[$repo].downloadKind = "apk" }
+                elseif ($kindLabel -match 'EXE') { $entries[$repo].downloadKind = "exe" }
+                elseif ($kindLabel -match 'ZIP') { $entries[$repo].downloadKind = "zip" }
                 else { $entries[$repo].downloadKind = "download" }
-            } elseif ($tail -match '\[Repo\]') {
+            } elseif ($tail -match '\[Repo\]|>Repo</a>') {
                 $entries[$repo].downloadKind = "repo"
             }
 

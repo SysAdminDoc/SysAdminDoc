@@ -892,6 +892,7 @@ function New-RenderedProfileSmokeSummary {
             uniqueActionableLinkLabelCount = 0
             emptyLinkLabelCount = 0
             nonActionableLinkCount = 0
+            ambiguousCrossDestinationLinkLabelCount = 0
             linkLabelSanityPassed = $null
             desktopPassedCount = 0
             desktopFailedCount = 0
@@ -942,6 +943,7 @@ function New-RenderedProfileSmokeSummary {
     $uniqueActionableLinkLabelCount = 0
     $emptyLinkLabelCount = 0
     $nonActionableLinkCount = 0
+    $ambiguousCrossDestinationLinkLabelCount = 0
     $linkLabelSanityPassed = $null
     $desktopPassedCount = 0
     $desktopFailedCount = 0
@@ -996,6 +998,8 @@ function New-RenderedProfileSmokeSummary {
             $uniqueActionableLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "uniqueActionableLinkLabelCount")
             $emptyLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "emptyLinkLabelCount")
             $nonActionableLinkCount += [int](Get-MemberValue -Object $viewport -Name "nonActionableLinkCount")
+            # Names that lead to more than one place, summed over the viewports; zero means none in any.
+            $ambiguousCrossDestinationLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "ambiguousCrossDestinationLinkLabelCount")
             $viewportLinkLabelSanity = Get-MemberValue -Object $viewport -Name "linkLabelSanityPassed"
             if ($null -ne $viewportLinkLabelSanity) {
                 $linkLabelSanityPassed = if ($null -eq $linkLabelSanityPassed) { [bool]$viewportLinkLabelSanity } else { [bool]$linkLabelSanityPassed -and [bool]$viewportLinkLabelSanity }
@@ -1159,6 +1163,7 @@ function New-RenderedProfileSmokeSummary {
         uniqueActionableLinkLabelCount = [int]$uniqueActionableLinkLabelCount
         emptyLinkLabelCount = [int]$emptyLinkLabelCount
         nonActionableLinkCount = [int]$nonActionableLinkCount
+        ambiguousCrossDestinationLinkLabelCount = [int]$ambiguousCrossDestinationLinkLabelCount
         linkLabelSanityPassed = $linkLabelSanityPassed
         desktopPassedCount = [int]$desktopPassedCount
         desktopFailedCount = [int]$desktopFailedCount

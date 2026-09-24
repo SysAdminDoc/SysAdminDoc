@@ -6034,6 +6034,7 @@
         "uniqueActionableLinkLabelCount",
         "emptyLinkLabelCount",
         "nonActionableLinkCount",
+        "ambiguousCrossDestinationLinkLabelCount",
         "linkLabelSanityPassed",
         "desktopPassedCount",
         "desktopFailedCount",
@@ -6156,6 +6157,10 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "nonActionableLinkCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "ambiguousCrossDestinationLinkLabelCount": {
+          "description": "Accessible link names that lead to more than one place, summed over the viewports.",
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "linkLabelSanityPassed": {

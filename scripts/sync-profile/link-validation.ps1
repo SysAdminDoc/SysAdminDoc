@@ -846,12 +846,14 @@ function Get-ReadmeActionLinkValidationTargets {
         Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-entrypoint" -Url $rawUrl -Repo ([string]$entry.repo)
     }
 
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\]\((?<url>https://github\.com/[^)\s]+/releases/latest)\)')) {
-        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-download" -Url $match.Groups['url'].Value
+    # Row actions are <a href="..." aria-label="..."> tags now (the href's & written &amp;);
+    # an older README's Markdown links are still read.
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\]\((?<url>https://github\.com/[^)\s]+/releases/latest)\)|<a href="(?<url>https://github\.com/[^"\s]+/releases/latest)"')) {
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-download" -Url ([System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value))
     }
 
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\[Install\]\((?<url>https://raw\.githubusercontent\.com/[^)\s]+)\)')) {
-        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-userscript-install" -Url $match.Groups['url'].Value
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\[Install\]\((?<url>https://raw\.githubusercontent\.com/[^)\s]+)\)|<a href="(?<url>https://raw\.githubusercontent\.com/[^"\s]+)" aria-label="Install ')) {
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-userscript-install" -Url ([System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value))
     }
 
     return $targets.ToArray()

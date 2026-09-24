@@ -324,11 +324,24 @@ function Get-ActionLink {
     $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
     # C1 controls (0x80-0x9F) too, as their UTF-8 bytes: U+0085 is a line break to some readers.
     $url = [regex]::Replace($url, '[\x00-\x1F\x7F-\x9F]', { param($match) -join ([System.Text.Encoding]::UTF8.GetBytes($match.Value) | ForEach-Object { '%{0:X2}' -f $_ }) })
-    if ($action["kind"] -eq "release") {
-        return "[<kbd>&#11015;&nbsp;$label</kbd>]($url)"
+    # Every row's action says Download, Launch, Install or Repo, so a screen reader listing the
+    # links heard the same few names for 190 different places. The link is written as HTML so
+    # it can carry a name that says whose it is (GitHub keeps aria-label), while it still
+    # shows the short word. Both values are attributes now: the quote and ampersand are
+    # encoded, and a pipe too, which would split the table cell. The name comes from catalog
+    # text, so brackets and backticks are encoded as well: in the attribute they read the
+    # same, and if the tag were ever taken for text they couldn't start a link or a code span.
+    $title = [string]$Entry.title
+    if ([string]::IsNullOrWhiteSpace($title)) { $title = [string]$Entry.repo }
+    $name = switch ([string]$action["kind"]) {
+        "release" { if ([string]::Equals($label, 'Download', [StringComparison]::Ordinal)) { "Download $title" } else { "Download $title ($label)" } }
+        "repo" { "$title repository" }
+        default { "$label $title" }
     }
-
-    return "[$label]($url)"
+    $href = $url.Replace('&', '&amp;').Replace('"', '%22')
+    $ariaLabel = [System.Net.WebUtility]::HtmlEncode($name).Replace('|', '&#124;').Replace('[', '&#91;').Replace(']', '&#93;').Replace('`', '&#96;')
+    $text = if ($action["kind"] -eq "release") { "<kbd>&#11015;&nbsp;$([System.Net.WebUtility]::HtmlEncode($label))</kbd>" } else { [System.Net.WebUtility]::HtmlEncode($label) }
+    return "<a href=`"$href`" aria-label=`"$ariaLabel`">$text</a>"
 }
 
 function Get-InstallSnippet {
@@ -571,8 +584,11 @@ function New-ToolCatalogCell {
     $pickLinks = @($picks | ForEach-Object { "[**$(ConvertTo-MarkdownText $_.title -LinkLabel)**]($(Get-RepoUrl $_))" })
     $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
     $anchor = Get-CategoryAnchor $Slug
+    # Several cards say Browse or Download, so each button is named for its category, as the
+    # row actions are for their projects.
+    $buttonName = [System.Net.WebUtility]::HtmlEncode("$actionLabel $($definition.DisplayName)").Replace('|', '&#124;').Replace('[', '&#91;').Replace(']', '&#93;')
 
-    return "$heading<br/>$description<br/><sub>$($pickLinks -join '<br/>')</sub><br/>[<kbd>$actionLabel &#8594;</kbd>](#$anchor)"
+    return "$heading<br/>$description<br/><sub>$($pickLinks -join '<br/>')</sub><br/><a href=`"#$anchor`" aria-label=`"$buttonName`"><kbd>$actionLabel &#8594;</kbd></a>"
 }
 
 function New-ToolCatalogSection {

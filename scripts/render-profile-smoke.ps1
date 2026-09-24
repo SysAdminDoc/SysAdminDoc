@@ -377,6 +377,14 @@ function Invoke-RenderedSmoke {
   const actionableLinkLabels = linkRows.filter((row) => row.actionable && row.label).map((row) => row.label);
   const unique = (values) => Array.from(new Set(values));
   const linkLabelIssues = linkRows.filter((row) => !row.label || !row.actionable).slice(0, 10);
+  // One accessible name for links that go to different places: a screen reader listing
+  // links can't tell them apart.
+  const destinationsByLabel = new Map();
+  linkRows.filter((row) => row.actionable && row.label).forEach((row) => {
+    if (!destinationsByLabel.has(row.label)) destinationsByLabel.set(row.label, new Set());
+    destinationsByLabel.get(row.label).add(row.rawHref);
+  });
+  const ambiguousLabels = Array.from(destinationsByLabel.entries()).filter(([, hrefs]) => hrefs.size > 1);
   return {
     title: document.title,
     url: location.href,
@@ -402,6 +410,8 @@ function Invoke-RenderedSmoke {
     nonActionableLinkCount: linkRows.filter((row) => !row.actionable).length,
     linkLabelSanityPassed: linkRows.every((row) => row.label && row.actionable),
     linkLabelIssues,
+    ambiguousCrossDestinationLinkLabelCount: ambiguousLabels.length,
+    ambiguousCrossDestinationLinkLabelSamples: ambiguousLabels.slice(0, 10).map(([label, hrefs]) => ({ label, destinationCount: hrefs.size })),
     portfolioLinkText: text.includes("See everything") || text.includes("View full portfolio") || text.includes("View my full portfolio"),
     sections: sectionResults,
     componentPresence,
@@ -493,6 +503,8 @@ function Invoke-RenderedSmoke {
         nonActionableLinkCount = [int]$result.nonActionableLinkCount
         linkLabelSanityPassed = [bool]$result.linkLabelSanityPassed
         linkLabelIssues = @($result.linkLabelIssues)
+        ambiguousCrossDestinationLinkLabelCount = [int]$result.ambiguousCrossDestinationLinkLabelCount
+        ambiguousCrossDestinationLinkLabelSamples = @($result.ambiguousCrossDestinationLinkLabelSamples)
         failedImages = $failedImages
     }
 }

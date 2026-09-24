@@ -497,11 +497,87 @@ Describe 'Public text is encoded for where it lands' {
         @($feed.projects | Where-Object { $_.repo -eq 'WebTool' })[0].description | Should -Be $raw
     }
 
+    It 'names each row action after its project: <Case>' -ForEach @(
+        # 884 duplicate labels across four viewports: Download, Launch, Install and Repo were
+        # the whole accessible name of links going to 190 places.
+        @{ Case = 'a live app'; Field = 'liveUrl'; Url = 'https://example.test/app'; Kind = $null; Name = 'Launch Web Tool' }
+        @{ Case = 'a userscript'; Field = 'userscriptUrl'; Url = 'https://raw.githubusercontent.com/o/r/main/x.user.js'; Kind = $null; Name = 'Install Web Tool' }
+        @{ Case = 'a repository'; Field = $null; Url = $null; Kind = 'repo'; Name = 'Web Tool repository' }
+    ) {
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'misc'
+        $entry.title = 'Web Tool'
+        if ($Field) { $entry[$Field] = $Url }
+        if ($Kind) { $entry.downloadKind = $Kind }
+
+        Get-ActionLink -Entry $entry -Meta $null -Category 'misc' | Should -Match ('^<a href="[^"]+" aria-label="' + [regex]::Escape($Name) + '">')
+    }
+
+    It 'names each category card''s button after its category' {
+        # Three cards said Browse and three Download, each pointing somewhere else.
+        $entry = New-TestEntry -Repo 'SecTool' -Category 'security'
+
+        $cell = New-ToolCatalogCell -Slug 'security' -Entries @($entry) -RepoLookup @{}
+
+        $cell | Should -Match '<a href="#security--networking" aria-label="Browse Security"><kbd>Browse &#8594;</kbd></a>'
+    }
+
+    It 'names a release action with its kind unless it is a plain download' {
+        $apk = New-TestEntry -Repo 'A' -Category 'android'; $apk.downloadKind = 'apk'
+        $plain = New-TestEntry -Repo 'B' -Category 'misc'
+
+        Get-ActionLink -Entry $apk -Meta (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')) -Category 'android' | Should -Match 'aria-label="Download A \(APK\)"'
+        Get-ActionLink -Entry $plain -Meta (New-TestRepoMeta -Name 'B' -WithRelease -AssetNames @('B.zip')) -Category 'misc' | Should -Match 'aria-label="Download B"'
+    }
+
+    It 'keeps catalog text in an action name an attribute value and nothing more' {
+        $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
+        $entry.title = 'Tool "q" & <b>x</b> | [y](https://evil.example/) `z`'
+        $entry.liveUrl = 'https://example.test/a?b=1&c="d"'
+
+        $link = Get-ActionLink -Entry $entry -Meta $null -Category 'web'
+
+        $link | Should -BeOrdinal ('<a href="https://example.test/a?b=1&amp;c=%22d%22" aria-label="Launch Tool &quot;q&quot; &amp; &lt;b&gt;x&lt;/b&gt; &#124; &#91;y&#93;(https://evil.example/) &#96;z&#96;">Launch</a>')
+    }
+
+    It 'reads the release and userscript targets back from the anchor tag form' {
+        $readme = @(
+            '| [**A**](https://github.com/o/A) | a | <a href="https://github.com/o/A/releases/latest" aria-label="Download A"><kbd>&#11015;&nbsp;Download</kbd></a> |'
+            '| [**S**](https://github.com/o/S) | s | <a href="https://raw.githubusercontent.com/o/S/main/s.user.js?x=1&amp;y=2" aria-label="Install S">Install</a> |'
+        ) -join "`n"
+
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @() -RepoLookup @{})
+
+        @($targets | Where-Object { $_.type -eq 'readme-download' } | ForEach-Object { $_.url }) | Should -BeOrdinal 'https://github.com/o/A/releases/latest'
+        @($targets | Where-Object { $_.type -eq 'readme-userscript-install' } | ForEach-Object { $_.url }) | Should -BeOrdinal 'https://raw.githubusercontent.com/o/S/main/s.user.js?x=1&y=2'
+    }
+
+    It 'seeds action URLs and kinds back from the anchor tag form' {
+        # The kind comes from the button, so a title naming another kind can't decide it.
+        $ReadmePath = Join-Path $TestDrive 'seed-anchor-form.md'
+        $lines = @(
+            '<summary><b>&#129513; Browser Extensions & Userscripts</b></summary>'
+            ''
+            '| [**CRX/XPI Helper**](https://github.com/SysAdminDoc/CrxHelper) | An APK-free add-on | <a href="https://github.com/SysAdminDoc/CrxHelper/releases/latest" aria-label="Download CRX/XPI Helper (ZIP/XPI)"><kbd>&#11015;&nbsp;ZIP/XPI</kbd></a> |'
+            '| [**Script**](https://github.com/SysAdminDoc/Script) | A script | <a href="https://raw.githubusercontent.com/SysAdminDoc/Script/main/s.user.js?a=1&amp;b=2" aria-label="Install Script">Install</a> |'
+            '| [**Source**](https://github.com/SysAdminDoc/Source) | Source only | <a href="https://github.com/SysAdminDoc/Source" aria-label="Source repository">Repo</a> |'
+        )
+        [System.IO.File]::WriteAllText($ReadmePath, ($lines -join "`n") + "`n")
+
+        $seeded = @(New-CatalogFromReadme -Repos @() 3>$null) | Select-Object -Last 1
+        $byRepo = @{}
+        foreach ($entry in @($seeded.entries)) { $byRepo[[string]$entry.repo] = $entry }
+
+        $byRepo['CrxHelper'].downloadKind | Should -BeOrdinal 'zip-xpi'
+        $byRepo['Script'].downloadKind | Should -BeOrdinal 'userscript'
+        $byRepo['Script'].userscriptUrl | Should -BeOrdinal 'https://raw.githubusercontent.com/SysAdminDoc/Script/main/s.user.js?a=1&b=2'
+        $byRepo['Source'].downloadKind | Should -BeOrdinal 'repo'
+    }
+
     It 'percent-encodes characters that would break a catalog link destination' {
         $entry = New-TestEntry -Repo 'LiveTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/app (beta)/<x>'
 
-        Get-ActionLink $entry $null 'web' | Should -Be '[Launch](https://example.test/app%20%28beta%29/%3Cx%3E)'
+        Get-ActionLink $entry $null 'web' | Should -BeOrdinal '<a href="https://example.test/app%20%28beta%29/%3Cx%3E" aria-label="Launch LiveTool">Launch</a>'
     }
 }
 
@@ -1903,7 +1979,7 @@ Describe 'URL and metadata helpers' {
         $meta = New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')
 
         Get-ActionLink -Entry $apk -Meta $meta -Category 'android' |
-            Should -Be '[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/A/releases/latest)'
+            Should -BeOrdinal '<a href="https://github.com/SysAdminDoc/A/releases/latest" aria-label="Download A (APK)"><kbd>&#11015;&nbsp;APK</kbd></a>'
     }
 }
 
@@ -5751,6 +5827,21 @@ Write-Host ok
         ($summary.warnings -join ' ') | Should -Match 'keyboard/focus sanity'
     }
 
+    It 'sums link names that lead to more than one place over the viewports' {
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-06-06T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $true
+            viewports = @(
+                [pscustomobject]@{ name = 'desktop'; passed = $true; linkLabelCount = 3; ambiguousCrossDestinationLinkLabelCount = 2 },
+                [pscustomobject]@{ name = 'mobile'; passed = $true; linkLabelCount = 3; ambiguousCrossDestinationLinkLabelCount = 1 }
+            )
+        }
+
+        (New-RenderedProfileSmokeSummary -SmokeReport $smoke).ambiguousCrossDestinationLinkLabelCount | Should -Be 3
+        (New-RenderedProfileSmokeSummary -SmokeReport $null).ambiguousCrossDestinationLinkLabelCount | Should -Be 0
+    }
+
     It 'warns about table overflow only when the page itself overflows horizontally' {
         $makeViewport = {
             param([bool]$PageOverflow)
@@ -6087,14 +6178,14 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/a|b\c'
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%7Cb%5Cc)'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '<a href="https://example.test/a%7Cb%5Cc" aria-label="Launch WebTool">Launch</a>'
     }
 
     It 'percent-encodes a line break in an action link, whatever the catalog check said' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = "https://example.test/a`r`n| [**Injected**](https://evil.example/) |"
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -Be '[Launch](https://example.test/a%0D%0A%7C%20[**Injected**]%28https://evil.example/%29%20%7C)'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '<a href="https://example.test/a%0D%0A%7C%20[**Injected**]%28https://evil.example/%29%20%7C" aria-label="Launch WebTool">Launch</a>'
     }
 
     It 'percent-encodes a C1 control in an action link as its UTF-8 bytes' {
@@ -6102,7 +6193,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/a' + [char]0x85 + 'b' + [char]0x9B + 'c' + [char]0x7F
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '[Launch](https://example.test/a%C2%85b%C2%9Bc%7F)'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '<a href="https://example.test/a%C2%85b%C2%9Bc%7F" aria-label="Launch WebTool">Launch</a>'
     }
 
     It 'holds <Field> to the schema''s case: <Value>' -ForEach @(
@@ -7714,6 +7805,7 @@ Describe 'Feed JSON Schema contracts' {
                 'uniqueActionableLinkLabelCount',
                 'emptyLinkLabelCount',
                 'nonActionableLinkCount',
+                'ambiguousCrossDestinationLinkLabelCount',
                 'linkLabelSanityPassed',
                 'desktopPassedCount',
                 'desktopFailedCount',
