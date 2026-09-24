@@ -13604,6 +13604,23 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'a raw heading tag in a code span'; Text = '## A `<h3>` B'; Ids = @('a-h3-b'); Absent = @('a-') }
         @{ Case = 'an escaped raw heading tag'; Text = '## A \<h3> B'; Ids = @('a-h3-b'); Absent = @('a-') }
         @{ Case = 'a raw heading tag in a code span of a setext heading'; Text = 'A `<h3>` B' + "`n==="; Ids = @('a-h3-b'); Absent = @('a-') }
+        # Read inside the containers a line continues, each checked with GitHub's rendering.
+        @{ Case = 'a heading at a list item''s content column'; Text = "1.  item`n`n    ## Deep Col"; Ids = @('deep-col'); Absent = @() }
+        @{ Case = 'code four columns past a list item''s text'; Text = "- item`n`n      ## Code Col"; Ids = @(); Absent = @('code-col') }
+        @{ Case = 'a fence in a quote'; Text = '> ```' + "`n> ## QFenced`n" + '> ```' + "`n`n## After Q"; Ids = @('after-q'); Absent = @('qfenced') }
+        @{ Case = 'a fence in a list item'; Text = '- ```' + "`n  ## Fenced`n" + '  ```' + "`n`n## After I"; Ids = @('after-i'); Absent = @('fenced') }
+        @{ Case = 'a tilde fence in a quote'; Text = "> ~~~`n> ## Tilde`n> ~~~"; Ids = @(); Absent = @('tilde') }
+        @{ Case = 'a closing fence shorter than its opening'; Text = '- ````' + "`n  ## In Long`n" + '  ```' + "`n" + '  ````' + "`n## Out L"; Ids = @('out-l'); Absent = @('in-long') }
+        @{ Case = 'a setext heading in a list item'; Text = "- a`n  ---"; Ids = @('a'); Absent = @() }
+        @{ Case = 'a rule under a quote'; Text = "> a`n---"; Ids = @(); Absent = @('a') }
+        @{ Case = 'a lazy line in a quote'; Text = "> quote`nlazy line`n## Head L"; Ids = @('head-l'); Absent = @() }
+        @{ Case = 'a heading after an unclosed comment in a paragraph'; Text = "text <!--`n## Visible C`n-->"; Ids = @('visible-c'); Absent = @() }
+        @{ Case = 'a lazy line before an underline'; Text = "> a`nb`n==="; Ids = @(); Absent = @('b', 'a-b') }
+        @{ Case = 'a fence closed by its list item'; Text = '- ```' + "`n  code`n## Out"; Ids = @('out'); Absent = @() }
+        @{ Case = 'a tab after a list marker'; Text = "-`t## Tab H"; Ids = @('tab-h'); Absent = @() }
+        @{ Case = 'a raw heading after a fence holding a backtick'; Text = '```' + "`n" + '`' + "`n" + '```' + "`n<h2>Raw</h2> " + '`'; Ids = @('raw'); Absent = @() }
+        @{ Case = 'a raw heading after a tilde fence holding a backtick'; Text = "~~~`n" + '`' + "`n~~~`n<h2>Raw</h2> " + '`'; Ids = @('raw'); Absent = @() }
+        @{ Case = 'a heading in a list item three spaces past its marker'; Text = "-   item`n`n      ## Wide"; Ids = @('wide'); Absent = @() }
     ) {
         $links = (@($Ids) + @($Absent) | ForEach-Object { '<a href="#' + $_ + '">x</a>' }) -join ' '
         $readme = '<p align="center">' + $links + '</p>' + "`n`n" + $Text + "`n"

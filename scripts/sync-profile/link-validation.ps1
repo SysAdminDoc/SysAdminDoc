@@ -614,27 +614,33 @@ function Test-ReadmeHeaderAnchor {
     }
     # GitHub gives every heading it renders an id, in three forms, and numbers them in
     # document order, so they're gathered with their offsets first. What it doesn't render as
-    # Markdown (fenced blocks, HTML comments) is blanked to spaces rather than cut, so the
-    # offsets of the three forms line up.
+    # Markdown (code, HTML comments) is found as the lines are read and blanked to spaces for
+    # the raw heading scan, rather than cut, so the offsets of the three forms line up.
     $blankOut = { param($match) [regex]::Replace($match.Value, '[^\n]', ' ') }
-    $headingText = [regex]::Replace($text, $fencePattern, $blankOut)
-    $headingText = [regex]::Replace($headingText, $inlineScan, { param($match) if ($match.Groups['comment'].Success) { & $blankOut $match } else { $match.Value } })
+    $headingText = $text
     $headings = [System.Collections.Generic.List[object]]::new()
-    # Line by line, as CommonMark reads blocks. An HTML block starts at a line opening with a
-    # form that starts one: <pre>, <script>, <style> or <textarea> (it ends at the closing
-    # tag), a comment, <?, a declaration or CDATA (each ends at its closing marker), a
-    # block-level tag (it ends at a blank line), or a lone complete tag that doesn't continue a
-    # paragraph (it ends at a blank line). Nothing in one is a heading. Any other line opening
-    # with < (an inline tag, an autolink, "< 5") is paragraph text. ATX: its text is on its
-    # own line (a bare # is an empty heading, and the line after it a paragraph), a closing
-    # run of # isn't part of it, and it can sit behind quote and list markers in any order, up
-    # to three spaces in; a list marker followed by five spaces opens indented code instead.
-    # Setext: the paragraph above a line of = or -, its lines joined without a space ("Two
-    # line" over "setext heading" gives two-linesetext-heading); a line of - after a blank
-    # line, a list item or a quote is a rule instead. A raw <h1> to <h6> in a heading's text
-    # closes it, as the HTML parser does, so "## Outer <h3>Inner</h3>" gives outer- and inner.
-    # Not read: a heading in a list item's indented continuation lines, and a fence inside a
-    # list item or quote, which need a real Markdown parser.
+    # Line by line, as CommonMark reads blocks. Each line first continues the containers
+    # open around it: a quote by its > (and a space after it), a list item by indentation up
+    # to its content column (a blank line continues an item, not a quote). A container the
+    # line doesn't continue closes with everything in it, a fence opened there included,
+    # unless the line is paragraph text, which can carry on a paragraph lazily. New > and
+    # list markers then open containers; a list marker followed by five columns or more
+    # opens an item whose text is indented code. Tabs before the text count to the next
+    # multiple of four columns. What's left is read as a block, relative to its container:
+    # a fence of three backticks or tildes (until a closing one as long, or its container
+    # closes), indented code (four columns in, not inside a paragraph), an HTML block, a
+    # setext underline, an ATX heading, or paragraph text.
+    # An HTML block starts at a line opening with a form that starts one: <pre>, <script>,
+    # <style> or <textarea> (it ends at the closing tag), a comment, <?, a declaration or
+    # CDATA (each ends at its closing marker), a block-level tag (it ends at a blank line), or
+    # a lone complete tag that doesn't continue a paragraph (it ends at a blank line). Nothing
+    # in one is a heading. Any other line opening with < (an inline tag, an autolink, "< 5")
+    # is paragraph text. ATX: its text is on its own line (a bare # is an empty heading, and
+    # the line after it a paragraph), and a closing run of # isn't part of it. Setext: the
+    # paragraph above a line of = or -, its lines joined without a space ("Two line" over
+    # "setext heading" gives two-linesetext-heading); a line of - that only lazily reaches a
+    # paragraph is a rule instead. A raw <h1> to <h6> in a heading's text closes it, as the
+    # HTML parser does, so "## Outer <h3>Inner</h3>" gives outer- and inner.
     $blockTags = 'address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul'
     $htmlBlockStarts = @(
         @{ Start = '(?i)^ {0,3}<(?:pre|script|style|textarea)(?:[\s>]|$)'; End = '(?i)</(?:pre|script|style|textarea)>' }
@@ -645,8 +651,10 @@ function Test-ReadmeHeaderAnchor {
         @{ Start = "(?i)^ {0,3}</?(?:$blockTags)(?:[\s>]|/>|$)"; End = $null }
     )
     $completeTagLine = "^ {0,3}(?:<[A-Za-z][A-Za-z0-9-]*(?:$attribute)*\s*/?>|</[A-Za-z][A-Za-z0-9-]*\s*>)\s*$"
-    $container = '(?: {0,3}(?:>[ ]?|(?:[-+*]|\d{1,9}[.)])(?: {1,4}(?! )|\t)))*'
-    $atxPattern = '^' + $container + ' {0,3}#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$'
+    $atxPattern = '^ {0,3}#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$'
+    $thematicBreak = '^ {0,3}(?:(?:\*[ \t]*){3,}|(?:_[ \t]*){3,}|(?:-[ \t]*){3,})$'
+    # What can't carry on a paragraph lazily, since it starts a block of its own.
+    $interrupts = '^ {0,3}(?:#{1,6}(?:[ \t]|$)|>|(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)|`{3,}|~{3,})'
     $rawHeadingOpen = "(?i)<h[1-6](?:$attribute)*\s*/?>"
     # That raw heading tag closes the heading, but not one in a code span or behind an
     # escaped <, which is text: the tag is looked for with those blanked, and the heading cut
@@ -657,54 +665,135 @@ function Test-ReadmeHeaderAnchor {
         $open = [regex]::Match($masked, $rawHeadingOpen)
         if ($open.Success) { $Heading.Substring(0, $open.Index) } else { $Heading }
     }
+    # Open containers, outermost first: a quote, or a list item's content column.
+    $containers = [System.Collections.Generic.List[object]]::new()
+    $fence = $null
     $paragraph = [System.Collections.Generic.List[string]]::new()
     $paragraphStart = 0
     $inHtml = $false
     $htmlEnd = $null
+    $htmlDepth = 0
     $codeLines = [System.Collections.Generic.List[object]]::new()
     $offset = 0
-    foreach ($line in ($headingText -split "`n")) {
-        $isBlank = [string]::IsNullOrWhiteSpace($line)
+    foreach ($rawLine in ($headingText -split "`n")) {
+        # Tabs among the leading spaces and markers become spaces to the next multiple of four.
+        $lead = [regex]::Match($rawLine, '^[ \t>*+0-9.)-]*').Value
+        $column = 0
+        $spaced = -join @(foreach ($character in $lead.ToCharArray()) {
+                if ($character -eq [char]9) {
+                    $width = 4 - ($column % 4)
+                    $column += $width
+                    ' ' * $width
+                } else {
+                    $column++
+                    [string]$character
+                }
+            })
+        $rest = $spaced + $rawLine.Substring($lead.Length)
+
+        $continued = 0
+        foreach ($open in $containers) {
+            if ($open.Quote) {
+                $quote = [regex]::Match($rest, '^ {0,3}> ?')
+                if (-not $quote.Success) { break }
+                $rest = $rest.Substring($quote.Length)
+            } elseif ([string]::IsNullOrWhiteSpace($rest)) {
+                $rest = ''
+            } elseif ($rest.Length - $rest.TrimStart(' ').Length -ge $open.Indent) {
+                $rest = $rest.Substring($open.Indent)
+            } else {
+                break
+            }
+            $continued++
+        }
+        if ($continued -lt $containers.Count) {
+            $lazy = $paragraph.Count -gt 0 -and $null -eq $fence -and -not $inHtml -and -not [string]::IsNullOrWhiteSpace($rest) -and
+                $rest -notmatch $interrupts -and $rest -notmatch $thematicBreak -and @($htmlBlockStarts | Where-Object { $rest -match $_.Start }).Count -eq 0
+            if ($lazy) {
+                $paragraph.Add($rest)
+                $offset += $rawLine.Length + 1
+                continue
+            }
+            $containers.RemoveRange($continued, $containers.Count - $continued)
+            $paragraph.Clear()
+            if ($null -ne $fence -and $fence.Depth -gt $continued) { $fence = $null }
+            if ($inHtml -and $htmlDepth -gt $continued) { $inHtml = $false }
+        }
+
+        if ($null -ne $fence) {
+            if ($rest -match $fence.Close) { $fence = $null }
+            $codeLines.Add(@($offset, $rawLine.Length))
+            $offset += $rawLine.Length + 1
+            continue
+        }
+
+        if (-not $inHtml) {
+            while ($rest -notmatch $thematicBreak) {
+                $quote = [regex]::Match($rest, '^ {0,3}> ?')
+                if ($quote.Success) {
+                    $containers.Add(@{ Quote = $true })
+                    $paragraph.Clear()
+                    $rest = $rest.Substring($quote.Length)
+                    continue
+                }
+                $item = [regex]::Match($rest, '^(?<lead> {0,3})(?<marker>[-+*]|[0-9]{1,9}[.)])(?<gap> *)(?<text>.*)$')
+                if (-not $item.Success -or ($item.Groups['gap'].Length -eq 0 -and $item.Groups['text'].Length -gt 0)) { break }
+                $gap = $item.Groups['gap'].Length
+                $indent = $item.Groups['lead'].Length + $item.Groups['marker'].Length + $(if ($item.Groups['text'].Length -eq 0 -or $gap -gt 4) { 1 } else { $gap })
+                $containers.Add(@{ Quote = $false; Indent = $indent })
+                $paragraph.Clear()
+                $rest = if ($item.Groups['text'].Length -eq 0) { '' } else { $rest.Substring($indent) }
+            }
+        }
+
+        $isBlank = [string]::IsNullOrWhiteSpace($rest)
         $blockStart = $null
         if (-not $inHtml -and -not $isBlank) {
             foreach ($start in $htmlBlockStarts) {
-                if ($line -match $start.Start) { $blockStart = $start; break }
+                if ($rest -match $start.Start) { $blockStart = $start; break }
             }
         }
         if ($inHtml) {
-            $inHtml = if ($null -ne $htmlEnd) { $line -notmatch $htmlEnd } else { -not $isBlank }
+            $inHtml = if ($null -ne $htmlEnd) { $rest -notmatch $htmlEnd } else { -not $isBlank }
         } elseif ($isBlank) {
             $paragraph.Clear()
-        } elseif ($paragraph.Count -gt 0 -and $line -match '^ {0,3}(?:=+|-+)[ \t]*$') {
+        } elseif (($opening = [regex]::Match($rest, '^ {0,3}(?<run>`{3,}(?=[^`]*$)|~{3,})')).Success) {
+            $run = $opening.Groups['run'].Value
+            $fence = @{ Close = '^ {0,3}' + [regex]::Escape($run.Substring(0, 1)) + '{' + $run.Length + ',}[ \t]*$'; Depth = $containers.Count }
+            $paragraph.Clear()
+            $codeLines.Add(@($offset, $rawLine.Length))
+        } elseif ($paragraph.Count -gt 0 -and $rest -match '^ {0,3}(?:=+|-+)[ \t]*$') {
             $setext = @($paragraph | ForEach-Object { $_.Trim() }) -join "`n"
             $headings.Add([pscustomobject]@{ Offset = $paragraphStart; Text = & $cutAtRawHeading $setext })
             $paragraph.Clear()
-        } elseif ($null -ne $blockStart -or ($paragraph.Count -eq 0 -and $line -match $completeTagLine)) {
+        } elseif ($null -ne $blockStart -or ($paragraph.Count -eq 0 -and $rest -match $completeTagLine)) {
             $paragraph.Clear()
             $htmlEnd = if ($null -ne $blockStart) { $blockStart.End } else { $null }
+            $htmlDepth = $containers.Count
             # A block that ends at a marker can end on the line it starts.
-            $inHtml = -not ($null -ne $htmlEnd -and $line -match $htmlEnd)
-        } elseif (($atx = [regex]::Match($line, $atxPattern)).Success) {
-            $headings.Add([pscustomobject]@{ Offset = $offset + $atx.Index; Text = & $cutAtRawHeading $atx.Groups['text'].Value })
+            $inHtml = -not ($null -ne $htmlEnd -and $rest -match $htmlEnd)
+        } elseif (($atx = [regex]::Match($rest, $atxPattern)).Success) {
+            $headings.Add([pscustomobject]@{ Offset = $offset; Text = & $cutAtRawHeading $atx.Groups['text'].Value })
             $paragraph.Clear()
-        } elseif ($line -match '^ {0,3}(?:#{1,6}(?:[ \t]|$)|>|(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)|(?:\*[ \t]*){3,}$|(?:_[ \t]*){3,}$|(?:-[ \t]*){3,}$)') {
+        } elseif ($rest -match '^ {0,3}#{1,6}(?:[ \t]|$)' -or $rest -match $thematicBreak) {
             $paragraph.Clear()
-        } elseif ($paragraph.Count -gt 0 -or $line -notmatch '^(?: {4}|\t)') {
+        } elseif ($paragraph.Count -gt 0 -or $rest -notmatch '^ {4}') {
             if ($paragraph.Count -eq 0) { $paragraphStart = $offset }
-            $paragraph.Add($line)
+            $paragraph.Add($rest)
         } else {
             # Indented code: shown as written, so a raw heading tag in it is text.
-            $codeLines.Add(@($offset, $line.Length))
+            $codeLines.Add(@($offset, $rawLine.Length))
         }
-        $offset += $line.Length + 1
+        $offset += $rawLine.Length + 1
     }
     # Raw <h1> to <h6>, in an HTML block or inline in a paragraph, but not in a code span,
     # indented code or behind an escaped <. One with its own id keeps that as well (read with
     # the tags above). Attribute values are quoted, so a > inside one doesn't end the tag.
-    $htmlHeadingText = [regex]::Replace($headingText, $inlineScan, { param($match) if ($match.Groups['escape'].Success) { '\' + [char]0xE000 } else { & $blankOut $match } })
+    $htmlHeadingText = $headingText
     foreach ($codeLine in $codeLines) {
         $htmlHeadingText = $htmlHeadingText.Remove($codeLine[0], $codeLine[1]).Insert($codeLine[0], ' ' * $codeLine[1])
     }
+    $htmlHeadingText = [regex]::Replace($htmlHeadingText, $inlineScan, { param($match) if ($match.Groups['escape'].Success) { '\' + [char]0xE000 } else { & $blankOut $match } })
     foreach ($match in [regex]::Matches($htmlHeadingText, "(?i)(?<=(?:^|[^\\])(?:\\\\)*)<(?<level>h[1-6])(?:$attribute)*\s*>(?<inner>[\s\S]*?)</\k<level>\s*>")) {
         $headings.Add([pscustomobject]@{ Offset = $match.Index; Text = $match.Groups['inner'].Value })
     }
