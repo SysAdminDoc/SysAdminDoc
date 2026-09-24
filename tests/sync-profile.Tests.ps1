@@ -1489,6 +1489,13 @@ Describe 'OpenSSF Scorecard runs locally' {
         @{ Case = 'slashes escaped twice'; Line = '{"p":"\\/home\\/bob\\/x"} failed'; Expected = '{"p":"\\/home\\/<user>\\/x"} failed'; Gone = 'bob' }
         @{ Case = 'an upper-case URL scheme'; Line = 'GET HTTPS://example.com/Users/docs failed'; Expected = 'GET HTTPS://example.com/Users/docs failed'; Gone = '<user>' }
         @{ Case = 'a URL with a drive-like segment'; Line = 'GET https://x.test/a:/Users/docs failed'; Expected = 'GET https://x.test/a:/Users/docs failed'; Gone = '<user>' }
+        # Review G4: an encoded byte inside the name ended it and the rest leaked, an encoded
+        # backslash wasn't a separator, and an encoded colon hid a URL.
+        @{ Case = 'an encoded space in the name'; Line = 'open %2FUsers%2Fjohn%20smith%2Fx failed'; Expected = 'open %2FUsers%2F<user>%2Fx failed'; Gone = 'john|smith' }
+        @{ Case = 'encoded UTF-8 in the name'; Line = 'open %2Fhome%2Fj%C3%B6rg%2Fx failed'; Expected = 'open %2Fhome%2F<user>%2Fx failed'; Gone = '%C3|rg' }
+        @{ Case = 'an encoded apostrophe in the name'; Line = 'open %2FUsers%2FO%27Brien%2Fx failed'; Expected = 'open %2FUsers%2F<user>%2Fx failed'; Gone = 'Brien' }
+        @{ Case = 'encoded backslashes'; Line = 'open C:%5CUsers%5Cbob%5Cx failed'; Expected = 'open C:%5CUsers%5C<user>%5Cx failed'; Gone = 'bob' }
+        @{ Case = 'a fully encoded URL'; Line = 'GET https%3A%2F%2Fexample.com%2FUsers%2Fdocs failed'; Expected = 'GET https%3A%2F%2Fexample.com%2FUsers%2Fdocs failed'; Gone = '<user>' }
     ) {
         # The account redaction ran to the next separator or quote, which took the reason
         # after a name at the end of a path, and stopped at an apostrophe inside one.

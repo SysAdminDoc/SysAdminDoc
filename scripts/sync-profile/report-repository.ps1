@@ -413,14 +413,18 @@ function Invoke-ScorecardCli {
     # percent-encoding writes uppercase, so %3D or a word like Expired can sit right against one.
     $failure = [regex]::Replace($failure, '(?:gh[oprsu]_|github_pat_)[A-Za-z0-9_]+|(?<![0-9a-f])[0-9a-f]{40,}(?![0-9a-f])', '<token>')
     # Account names, in one pass so a URL is recognised first and comes back whole: any scheme
-    # case, with plain, JSON-escaped (\/) or percent-encoded (%2F) slashes.
-    # - Windows, after \Users\ with any run of backslashes (Go and JSON double them) or after
-    #   C:/Users/. The name runs to a character Windows doesn't allow in one, so spaces and
-    #   apostrophes stay inside it ("John Smith", "O'Brien") and ": Access is denied." survives.
+    # case, with plain, JSON-escaped (\/) or percent-encoded (%2F) slashes and a plain or
+    # percent-encoded (%3A) colon.
+    # - Windows, after \Users\ with any run of backslashes (Go and JSON double them) or %5C, or
+    #   after C:/Users/. The name runs to a character Windows doesn't allow in one, so spaces
+    #   and apostrophes stay inside it ("John Smith", "O'Brien") and ": Access is denied."
+    #   survives.
     # - macOS and Linux, after /Users/ or /home/ in any case (macOS paths ignore it), wherever
     #   the path sits (/mnt/c/Users, /var/home, //server/Users), and with a slash written as
     #   \/, \\/ or %2F. These names hold no space.
-    $failure = [regex]::Replace($failure, '(?<url>(?i:https?):(?:\\*/|%2[Ff]){2}[^\s"''<>]*)|(?<windows>(?i)(?:\\+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:\\+|/+))[^\\/"<>:|?*\[\];=,+\r\n]+|(?<posix>(?:\\*/|%2[Ff])(?i:Users|home)(?:\\*/|%2[Ff]))[^\\/\s"''<>:%]+', {
+    # Either name keeps its percent-encoded bytes (john%20smith, j%C3%B6rg); only an encoded
+    # slash or backslash ends it.
+    $failure = [regex]::Replace($failure, '(?<url>(?i:https?)(?::|%3[Aa])(?:\\*/|%2[Ff]){2}[^\s"''<>]*)|(?<windows>(?i)(?:(?:\\|%5C)+|(?<=\b[A-Za-z]:)/+)(?:Users|home)(?:(?:\\|%5C)+|/+))(?:[^\\/"<>:|?*\[\];=,+\r\n%]|%(?!5[Cc]|2[Ff]))+|(?<posix>(?:\\*/|%2[Ff])(?i:Users|home)(?:\\*/|%2[Ff]))(?:[^\\/\s"''<>:%]|%(?!2[Ff]|5[Cc]))+', {
             param($match)
             if ($match.Groups['url'].Success) {
                 $match.Value
