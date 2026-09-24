@@ -12963,6 +12963,26 @@ Describe 'Hand-authored header links and anchors are validated' {
         $slug | Should -BeOrdinal $Expected
     }
 
+    It 'slugs the text GitHub renders for a heading with <Case>' -ForEach @(
+        # Review G6: GitHub's rendered text of each heading (gh api markdown), put through the
+        # character rules above. Each of these slugged differently.
+        @{ Case = 'an underscore that opens nothing'; Text = '_a_b _c_'; Expected = '_a_b-c' }
+        @{ Case = 'emphasis around a code span'; Text = '_a `b`_'; Expected = 'a-b' }
+        @{ Case = 'an escaped backtick before emphasis'; Text = '\`_x_`'; Expected = 'x' }
+        @{ Case = 'only underscores'; Text = '____'; Expected = '____' }
+        @{ Case = 'a longer opening run'; Text = '__a_'; Expected = '_a' }
+        @{ Case = 'a longer closing run'; Text = '_a__'; Expected = 'a_' }
+        @{ Case = 'three underscores each side'; Text = '___a___'; Expected = 'a' }
+        @{ Case = 'brackets inside link text'; Text = '[a [b] c](https://x.invalid/)'; Expected = 'a-b-c' }
+        @{ Case = 'an email autolink'; Text = '<user@example.com>'; Expected = 'userexamplecom' }
+        @{ Case = 'an HTML comment'; Text = 'Title <!-- note --> end'; Expected = 'title--end' }
+        @{ Case = 'a code span of only spaces'; Text = '`   `'; Expected = '---' }
+        @{ Case = 'a code span as link text'; Text = '[`]`](https://x.invalid/)'; Expected = '' }
+        @{ Case = 'private use characters'; Text = 'a' + [char]0xE05F + 'b' + [char]0xE02D + 'c'; Expected = 'abc' }
+    ) {
+        ConvertTo-GitHubHeadingAnchor -Text $Text | Should -BeOrdinal $Expected
+    }
+
     It 'finds the id github.com gives a heading written as <Case>' -ForEach @(
         # Read off a page rendered on github.com on 2026-09-24. Only ATX headings were read,
         # so a link to any of these was reported missing.

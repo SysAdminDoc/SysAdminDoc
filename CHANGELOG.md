@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- Heading anchors follow GitHub's rendering in more cases: emphasis around a code span, underscores that don't pair, brackets inside link text, email autolinks and HTML comments. A code span of only spaces, and runs of underscores of different lengths, also slug as GitHub shows them. A private-use character in a heading no longer turns into an underscore.
 - The header link and anchor checks read a few more things the way GitHub renders them. That covers entities in `<https://...>` links, a tag or code block indented inside a list item, escaped backticks, a comment that starts inside a code span, and code fences whose opening line holds a backtick or whose closing line mixes characters.
 - Scorecard error redaction runs in linear time again. The encoded-backslash support added yesterday made 50 KB of backslashes take 44 seconds, and it now takes a few milliseconds. An encoded colon, quote or angle bracket ends an account name, so the reason after it survives, and `C:%5CUsers%2Fbob` is redacted. The module lock schema refuses a signer made only of NBSP or other Unicode spaces, as the bootstrap does.
 - The README anchor check reads every heading github.com gives an id. That now covers setext headings (a line of `=` or `-` under a paragraph), raw `<h1>` to `<h6>` tags, and headings inside a quote or a list item, all numbered together in document order. It used to read only `#` headings at the start of a line, so a correct link to any other kind was reported missing.

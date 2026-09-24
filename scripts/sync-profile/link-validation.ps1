@@ -696,34 +696,50 @@ function ConvertTo-GitHubHeadingAnchor {
     param([string]$Text)
 
     # GitHub slugs the rendered heading text, so the Markdown goes first. Every rule here was
-    # read off the ids of headings rendered on github.com (2026-09-24). A code span's text is
-    # kept as written. Elsewhere a backslash escape is the character itself, an image drops
-    # out, a link or autolink leaves its text, a tag goes, an entity is decoded, and an
-    # underscore that opens or closes emphasis goes while one inside a word stays (a_b_c).
-    $rendered = [System.Text.StringBuilder]::new()
-    $segments = [regex]::Split([string]$Text, '(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)')
-    for ($index = 0; $index -lt $segments.Count; $index++) {
-        if ($index % 3 -eq 1) { continue }
-        if ($index % 3 -eq 2) {
-            $code = $segments[$index]
-            if ($code.Length -gt 2 -and $code.StartsWith(' ') -and $code.EndsWith(' ')) { $code = $code.Substring(1, $code.Length - 2) }
-            [void]$rendered.Append($code)
-            continue
-        }
-        # Escaped characters wait in the private use area until the markup is gone.
-        $part = [regex]::Replace($segments[$index], '\\(?<char>[!-/:-@\[-`{-~])', { param($m) [string][char](0xE000 + [int][char]$m.Groups['char'].Value) })
-        $part = [regex]::Replace($part, '!\[[^\]]*\]\([^)]*\)', '')
-        $part = [regex]::Replace($part, '\[(?<text>[^\]]*)\]\([^)]*\)', '${text}')
-        $part = [regex]::Replace($part, '<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>', '${url}')
-        $part = [regex]::Replace($part, '</?[A-Za-z][^>]*>', '')
-        do {
-            $before = $part
-            $part = [regex]::Replace($part, '(?<![\p{L}\p{N}_])(?<run>_+)(?=\S)(?<text>.+?)(?<=\S)\k<run>(?![\p{L}\p{N}_])', '${text}')
-        } while (-not [string]::Equals($part, $before, [StringComparison]::Ordinal))
-        $part = [System.Net.WebUtility]::HtmlDecode($part)
-        $part = [regex]::Replace($part, '[\uE021-\uE07E]', { param($m) [string][char]([int][char]$m.Value - 0xE000) })
-        [void]$rendered.Append($part)
-    }
+    # read off the ids of headings rendered on github.com, or off GitHub's rendering of the
+    # heading's text (2026-09-24). Escapes and code spans are read in one pass from the left,
+    # so an escaped backtick opens no span and a backslash in a span stays as written; each
+    # waits behind a placeholder (a noncharacter and an index) until the markup around it is
+    # gone, so emphasis can wrap a code span. A code span keeps its text, losing one space at
+    # each end unless it's only spaces. Then an image drops out, a link (brackets nested one
+    # deep) or autolink (URL or email) leaves its text, raw HTML (tags, comments and the
+    # like) goes, an underscore that opens or closes emphasis goes while one inside a word
+    # stays (a_b_c), and entities are decoded.
+    $escapeMark = [string][char]0xFDD0
+    $codeMark = [string][char]0xFDD1
+    $held = [System.Collections.Generic.List[string]]::new()
+    $value = [regex]::Replace([string]$Text, '(?<escape>\\[!-/:-@\[-`{-~])|(?<!`)(?<ticks>`+)(?!`)(?<code>.+?)(?<!`)\k<ticks>(?!`)', {
+            param($match)
+            if ($match.Groups['escape'].Success) {
+                $held.Add($match.Value.Substring(1))
+                return $escapeMark + [char](0xE000 + $held.Count - 1)
+            }
+            $code = $match.Groups['code'].Value
+            if ($code.Length -ge 2 -and $code.StartsWith(' ') -and $code.EndsWith(' ') -and $code.Trim(' ').Length -gt 0) { $code = $code.Substring(1, $code.Length - 2) }
+            $held.Add($code)
+            return $codeMark + [char](0xE000 + $held.Count - 1)
+        })
+    $bracketed = '(?:[^\[\]]|\[[^\[\]]*\])*'
+    $value = [regex]::Replace($value, '!\[' + $bracketed + '\]\([^)]*\)', '')
+    $value = [regex]::Replace($value, '\[(?<text>' + $bracketed + ')\]\([^)]*\)', '${text}')
+    $value = [regex]::Replace($value, '<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>', '${url}')
+    $value = [regex]::Replace($value, '<(?<mail>[A-Za-z0-9.!#$%&''*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)>', '${mail}')
+    $value = [regex]::Replace($value, '<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<![A-Za-z][^>]*>|</?[A-Za-z][^>]*>', '')
+    # A whole underscore run opens emphasis after a non-word character and before a character
+    # that's neither space nor underscore, and a whole run closes it the other way round; the
+    # span holds no other opener, so _a_b _c_ keeps its first underscore and ____ stays as it
+    # is. Runs of different lengths use the shorter one: __a_ is _a and _a__ is a_.
+    do {
+        $before = $value
+        $value = [regex]::Replace($value, '(?<![\p{L}\p{N}_])(?<open>_+)(?=[^\s_])(?<text>(?:(?!(?<![\p{L}\p{N}_])_+(?=[^\s_]))[\s\S])+?)(?<=[^\s_])(?<close>_+)(?![\p{L}\p{N}_])', {
+                param($match)
+                $used = [Math]::Min($match.Groups['open'].Length, $match.Groups['close'].Length)
+                ('_' * ($match.Groups['open'].Length - $used)) + $match.Groups['text'].Value + ('_' * ($match.Groups['close'].Length - $used))
+            })
+    } while (-not [string]::Equals($value, $before, [StringComparison]::Ordinal))
+    $value = [System.Net.WebUtility]::HtmlDecode($value)
+    $placeholder = '[' + $escapeMark + $codeMark + '](?<index>[' + [char]0xE000 + '-' + [char]0xF8FF + '])'
+    $rendered = [regex]::Replace($value, $placeholder, { param($match) $held[[int][char]$match.Groups['index'].Value - 0xE000] })
 
     # Lower case, with U+0130 (dotted capital I) in full, i and a combining dot as GitHub has
     # it, where .NET gives a bare i. Then keep what GitHub's word class keeps: letters, marks,
