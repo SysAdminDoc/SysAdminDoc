@@ -6136,6 +6136,23 @@ Describe 'README separators' {
         $warnings[0] | Should -Match 'projects\.json'
     }
 
+    It 'names every entry a Start-Tool line leaves without an entry script, each once' {
+        # Review G8: the warning named five of the 62 entries, and a row with two Start-Tool
+        # blocks was counted and named twice.
+        $readme = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
+        $block = [regex]::Match($readme, '(?m)^```powershell\r?\n[^`]*?Start-Tool [^`]*?```\r?\n')
+        $block.Success | Should -BeTrue -Because 'the committed README has to hold a Start-Tool block for this to test anything'
+        $ReadmePath = Join-Path $TestDrive 'seed-twice.md'
+        [System.IO.File]::WriteAllText($ReadmePath, $readme.Insert($block.Index + $block.Length, $block.Value))
+
+        $warning = @(New-CatalogFromReadme -Repos @() 3>&1 | Where-Object { $_ -is [System.Management.Automation.WarningRecord] })[0].Message
+        $named = @(($warning -split 'catalog: ', 2)[1] -split ', ')
+
+        $named.Count | Should -BeGreaterThan 5
+        @($named | Select-Object -Unique).Count | Should -Be $named.Count
+        $warning.StartsWith("$($named.Count) entries ", [StringComparison]::Ordinal) | Should -BeTrue
+    }
+
     It 'seeds a catalog from the committed README that passes the shape check' {
         # Review of 5149e12: a ZIP/XPI download seeded as xpi, which isn't a catalog kind, so
         # -SeedCatalog -ForceSeedCatalog -Write on the committed README wrote a catalog that

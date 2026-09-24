@@ -498,7 +498,8 @@ function New-CatalogFromReadme {
                         $entries[$lastRepo].entrypoint = $Matches.entry
                         $entries[$lastRepo].installKind = if ('&'.Equals($Matches.runner)) { "powershell" } else { "python" }
                     } elseif ($code -match '\bStart-Tool\s+\S') {
-                        $startToolRepos.Add($lastRepo)
+                        # A row can carry more than one install block; it's one entry.
+                        if (-not $startToolRepos.Contains($lastRepo)) { $startToolRepos.Add($lastRepo) }
                     }
                 }
                 $codeLines.Clear()
@@ -613,9 +614,9 @@ function New-CatalogFromReadme {
 
     if ($startToolRepos.Count -gt 0) {
         $noBranch = @($startToolRepos | Where-Object { -not $entries[$_].branch }).Count
-        Write-Warning ("$($startToolRepos.Count) install lines are Start-Tool <Name>, which carries no entry script and no branch, so those entries were seeded without an entrypoint" +
+        Write-Warning ("$($startToolRepos.Count) entries install with Start-Tool <Name>, which carries no entry script and no branch, so they were seeded without an entrypoint" +
             $(if ($noBranch -gt 0) { " and $noBranch without a branch (no repository metadata gave a default one)" } else { " and with each repository's default branch" }) +
-            ". Copy entrypoint, installKind and branch for them from projects.json before relying on this catalog: $(@($startToolRepos | Select-Object -First 5) -join ', ')$(if ($startToolRepos.Count -gt 5) { ', ...' })")
+            ". Copy entrypoint, installKind and branch for them from projects.json before relying on this catalog: $($startToolRepos -join ', ')")
     }
 
     return [ordered]@{
