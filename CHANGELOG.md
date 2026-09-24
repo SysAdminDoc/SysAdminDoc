@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- Catalog text can't carry any kind of dash into the README. A spaced single hyphen, two hyphens between words, three in a row, hyphens spaced with NBSP and the rarer dash characters are all refused now, not just em and en dashes. A hyphenated word, `--help`, a range and the minus sign are still fine.
 - The guard for culture-compared invisible characters follows expected values through variables, `BeforeAll` blocks and Describe data. It also covers `-BeIn`, `-BeLike` and decimal code points, and flags a plain string compared in a test that builds an invisible character. `-BeOrdinal` compares a list as a whole. Seventeen more assertions compare ordinally as a result.
 - The test guards that keep child runs out of the checkout catch more writes they can't follow. That covers a table key written another way, a property, a write inside an `if` branch, `Set-Variable` with a computed name, `-OutVariable`, a reassigned `$TestDrive` and a `..` in the path. The culture test's generator run now writes its assets to the test drive instead of the checkout's default.
 - Heading anchors follow GitHub's rendering in more cases: emphasis around a code span, underscores that don't pair, brackets inside link text, email autolinks and HTML comments. A code span of only spaces, and runs of underscores of different lengths, also slug as GitHub shows them. A private-use character in a heading no longer turns into an underscore.

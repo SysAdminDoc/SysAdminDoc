@@ -6006,6 +6006,18 @@ Describe 'Catalog URLs and names cannot break a README row' {
         @{ Case = 'nothing for a hyphenated word'; Text = 'A well-known tool'; Dash = $null }
         @{ Case = 'nothing for an option'; Text = 'Run it with --help first'; Dash = $null }
         @{ Case = 'nothing for a range written out'; Text = 'Pages 1 to 2'; Dash = $null }
+        # Review G2 of fb91747: each of these passed.
+        @{ Case = 'a spaced single hyphen'; Text = 'Fast - and small'; Dash = ' - ' }
+        @{ Case = 'a double hyphen between words'; Text = 'Fast--and small'; Dash = '--' }
+        @{ Case = 'three hyphens'; Text = 'Fast --- and small'; Dash = '---' }
+        @{ Case = 'a double hyphen spaced with NBSP'; Text = 'Fast' + [char]0xA0 + '--' + [char]0xA0 + 'and small'; Dash = '{U+00A0}--{U+00A0}' }
+        @{ Case = 'a horizontal bar'; Text = 'Fast' + [char]0x2015 + 'and small'; Dash = 'U+2015' }
+        @{ Case = 'a two-em dash'; Text = 'Fast' + [char]0x2E3A + 'and small'; Dash = 'U+2E3A' }
+        @{ Case = 'a three-em dash'; Text = 'Fast' + [char]0x2E3B + 'and small'; Dash = 'U+2E3B' }
+        @{ Case = 'a small em dash'; Text = 'Fast' + [char]0xFE58 + 'and small'; Dash = 'U+FE58' }
+        @{ Case = 'nothing for a minus sign'; Text = 'Returns x ' + [char]0x2212 + ' 1'; Dash = $null }
+        @{ Case = 'nothing for a range with a hyphen'; Text = 'Pages 1-2'; Dash = $null }
+        @{ Case = 'nothing for a negative number'; Text = 'Offsets down to -5'; Dash = $null }
     ) {
         # The separator change took " -- " out of the generated rows, but catalog text could
         # still carry any dash into the README.

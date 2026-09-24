@@ -831,6 +831,8 @@ function Test-CatalogShape {
     # surrogate pair. The README encoders would drop these, so the catalog refuses them
     # rather than publishing text that differs from what was written. The value in the
     # issue is the offending code point.
+    $dashCharacters = -join @(0x2012, 0x2013, 0x2014, 0x2015, 0x2E3A, 0x2E3B, 0xFE31, 0xFE32, 0xFE58 | ForEach-Object { [char]$_ })
+    $dashPattern = '[' + $dashCharacters + ']|\s--?\s|(?<=\w)--(?=\w)|-{3,}'
     foreach ($publicText in $publicTexts) {
         $text = [string]$publicText.text
         if ($publicText['nonBlank'] -and -not (Test-VisibleText $text)) {
@@ -863,12 +865,15 @@ function Test-CatalogShape {
             # takes the schema's owner/repo shape and length too; -Write alone never runs the
             # schema. The issue shows the text with any invisible character as its code point.
             $issues.Add([ordered]@{ repo = $publicText.repo; field = 'forkOf'; value = $text; reason = "forkOf must be owner/repo, at most 140 characters: an account name of letters, digits and hyphens, a slash, then a repository name" })
-        } elseif ($text.IndexOfAny([char[]]@([char]0x2014, [char]0x2013)) -ge 0 -or $text.Contains(' -- ')) {
+        } elseif (($dash = [regex]::Match($text, $dashPattern)).Success) {
             # The README is public writing, and its style joins clauses with commas, periods or
-            # parentheses, never an em dash, an en dash or a spaced double hyphen. A hyphen in a
-            # word, or --help, is fine.
-            $dash = if ($text.Contains([string][char]0x2014)) { 'U+2014' } elseif ($text.Contains([string][char]0x2013)) { 'U+2013' } else { ' -- ' }
-            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $dash; reason = "$($publicText.field) joins clauses with a dash; use a comma, a period or parentheses" })
+            # parentheses, never a dash: no dash character (figure, en, em, horizontal bar, the
+            # two- and three-em dashes and their small and vertical forms), and no hyphen used
+            # as one, which is one or two hyphens with space (NBSP too) on both sides, two
+            # hyphens between words or three in a row. A hyphen in a word, --help, a range
+            # (1-5, or 1 to 5) and the minus sign U+2212 are fine.
+            $value = if ($dash.Length -eq 1) { 'U+{0:X4}' -f [int]$dash.Value[0] } else { $dash.Value }
+            $issues.Add([ordered]@{ repo = $publicText.repo; field = $publicText.field; value = $value; reason = "$($publicText.field) joins clauses with a dash; use a comma, a period or parentheses" })
         }
     }
 
