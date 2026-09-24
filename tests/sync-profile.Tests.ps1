@@ -5926,6 +5926,73 @@ Describe 'README separators' {
             @($seeded.entries | ForEach-Object { [string]$_.repo }) | Should -Contain 'WinTool' -Because "rows use $variant"
         }
     }
+
+    It 'seeds a catalog from a fixed legacy README with each row separator and a long install block' {
+        # The row test above renders and parses with the same code, so it can't show the parser
+        # still reads what older READMEs actually held: rows joined with " -- ", an em dash or
+        # &middot;, and the clone-and-run block that named the branch and entry script.
+        $ReadmePath = Join-Path $TestDrive 'legacy-fixed.md'
+        $lines = @(
+            '<summary><b>&#9889; PowerShell System Utilities</b></summary>'
+            ''
+            '[**HyphenTool**](https://github.com/SysAdminDoc/HyphenTool) &#11088;3 -- Joined with two hyphens'
+            ('[**DashTool**](https://github.com/SysAdminDoc/DashTool) &#11088;2 ' + [char]0x2014 + ' Joined with an em dash')
+            '[**DotTool**](https://github.com/SysAdminDoc/DotTool) &middot; Joined with a middot'
+            '```powershell'
+            '$d = "$env:TEMP\DotTool"; git clone -q --depth 1 -b develop https://github.com/SysAdminDoc/DotTool $d; & "$d\Start-DotTool.ps1"'
+            '```'
+            ''
+            '| [**ZipXpiTool**](https://github.com/SysAdminDoc/ZipXpiTool) | An extension | [<kbd>ZIP/XPI</kbd>](https://github.com/SysAdminDoc/ZipXpiTool/releases/latest) |'
+            '| [**XpiTool**](https://github.com/SysAdminDoc/XpiTool) | An add-on | [<kbd>XPI</kbd>](https://github.com/SysAdminDoc/XpiTool/releases/latest) |'
+        )
+        [System.IO.File]::WriteAllText($ReadmePath, ($lines -join "`n") + "`n")
+
+        $seeded = @(New-CatalogFromReadme -Repos @() 3>$null) | Select-Object -Last 1
+        $byRepo = @{}
+        foreach ($entry in @($seeded.entries)) { $byRepo[[string]$entry.repo] = $entry }
+
+        (@($byRepo.Keys | Sort-Object) -join ',') | Should -BeOrdinal 'DashTool,DotTool,HyphenTool,XpiTool,ZipXpiTool'
+        # A ZIP/XPI release seeded as xpi, which isn't a catalog kind; a bare XPI is a download.
+        $byRepo['ZipXpiTool'].downloadKind | Should -BeOrdinal 'zip-xpi'
+        $byRepo['XpiTool'].downloadKind | Should -BeOrdinal 'download'
+        $byRepo['HyphenTool'].descriptionOverride | Should -BeOrdinal 'Joined with two hyphens'
+        $byRepo['DashTool'].descriptionOverride | Should -BeOrdinal 'Joined with an em dash'
+        $byRepo['DotTool'].descriptionOverride | Should -BeOrdinal 'Joined with a middot'
+        $byRepo['DotTool'].category | Should -BeOrdinal 'powershell'
+        $byRepo['DotTool'].branch | Should -BeOrdinal 'develop'
+        $byRepo['DotTool'].entrypoint | Should -BeOrdinal 'Start-DotTool.ps1'
+        $byRepo['DotTool'].installKind | Should -BeOrdinal 'powershell'
+    }
+
+    It 'says what a README of Start-Tool install lines can''t give back' {
+        # Review of f4e88e5: Start-Tool <Name> names the tool and nothing else, so seeding from
+        # today's README recovered no entry script and no branch, and said nothing about it.
+        $rendered = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+        $ReadmePath = Join-Path $TestDrive 'seed-start-tool.md'
+        [System.IO.File]::WriteAllText($ReadmePath, $rendered)
+        $rendered | Should -Match 'Start-Tool ' -Because 'the fixture README has to hold Start-Tool lines for this to test anything'
+
+        $output = @(New-CatalogFromReadme -Repos @() 3>&1)
+        $warnings = @($output | Where-Object { $_ -is [System.Management.Automation.WarningRecord] } | ForEach-Object { $_.Message })
+
+        $warnings | Should -HaveCount 1
+        $warnings[0] | Should -Match 'Start-Tool'
+        $warnings[0] | Should -Match 'entry script'
+        $warnings[0] | Should -Match 'branch'
+        $warnings[0] | Should -Match 'projects\.json'
+    }
+
+    It 'seeds a catalog from the committed README that passes the shape check' {
+        # Review of 5149e12: a ZIP/XPI download seeded as xpi, which isn't a catalog kind, so
+        # -SeedCatalog -ForceSeedCatalog -Write on the committed README wrote a catalog that
+        # failed its own check.
+        $ReadmePath = Join-Path $script:RepoRoot 'README.md'
+
+        $seeded = @(New-CatalogFromReadme -Repos @() 3>$null) | Select-Object -Last 1
+
+        @($seeded.entries).Count | Should -BeGreaterThan 100
+        @((Test-CatalogShape -Catalog $seeded).issues | ForEach-Object { '{0} {1}: {2}' -f $_.repo, $_.field, $_.reason }) | Should -BeNullOrEmpty
+    }
 }
 
 Describe 'Catalog URLs and names cannot break a README row' {

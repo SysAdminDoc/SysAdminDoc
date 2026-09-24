@@ -444,6 +444,9 @@ function New-CatalogFromReadme {
     $lastRepo = $null
     $inCode = $false
     $codeLines = New-Object System.Collections.Generic.List[string]
+    # Install blocks written as Start-Tool <Name>: they name the tool and nothing else, so
+    # the entry's branch and entry script can't be read back from them.
+    $startToolRepos = New-Object System.Collections.Generic.List[string]
 
     $ownerRepoUrl = Get-OwnerRepoUrlPattern
     $featuredRank = 1
@@ -492,6 +495,8 @@ function New-CatalogFromReadme {
                     if ($code -match '(?<runner>python|&)\s+"\$d\\(?<entry>[^"]+)"') {
                         $entries[$lastRepo].entrypoint = $Matches.entry
                         $entries[$lastRepo].installKind = if ('&'.Equals($Matches.runner)) { "powershell" } else { "python" }
+                    } elseif ($code -match '\bStart-Tool\s+\S') {
+                        $startToolRepos.Add($lastRepo)
                     }
                 }
                 $codeLines.Clear()
@@ -545,9 +550,11 @@ function New-CatalogFromReadme {
                 $entries[$repo].userscriptUrl = $Matches.url
                 $entries[$repo].downloadKind = "userscript"
             } elseif ($tail -match 'releases/latest') {
+                # The labels New-Readme writes for each kind. XPI alone isn't a catalog kind, so
+                # it seeds as a plain download.
                 if ($tail -match 'CRX/XPI') { $entries[$repo].downloadKind = "crx-xpi" }
+                elseif ($tail -match 'ZIP/XPI') { $entries[$repo].downloadKind = "zip-xpi" }
                 elseif ($tail -match 'CRX') { $entries[$repo].downloadKind = "crx" }
-                elseif ($tail -match 'XPI') { $entries[$repo].downloadKind = "xpi" }
                 elseif ($tail -match 'APK') { $entries[$repo].downloadKind = "apk" }
                 elseif ($tail -match 'EXE') { $entries[$repo].downloadKind = "exe" }
                 elseif ($tail -match 'ZIP') { $entries[$repo].downloadKind = "zip" }
@@ -596,6 +603,13 @@ function New-CatalogFromReadme {
         if ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name -and -not $entry.language) {
             $entry.language = [string]$meta.primaryLanguage.name
         }
+    }
+
+    if ($startToolRepos.Count -gt 0) {
+        $noBranch = @($startToolRepos | Where-Object { -not $entries[$_].branch }).Count
+        Write-Warning ("$($startToolRepos.Count) install lines are Start-Tool <Name>, which carries no entry script and no branch, so those entries were seeded without an entrypoint" +
+            $(if ($noBranch -gt 0) { " and $noBranch without a branch (no repository metadata gave a default one)" } else { " and with each repository's default branch" }) +
+            ". Copy entrypoint, installKind and branch for them from projects.json before relying on this catalog: $(@($startToolRepos | Select-Object -First 5) -join ', ')$(if ($startToolRepos.Count -gt 5) { ', ...' })")
     }
 
     return [ordered]@{
