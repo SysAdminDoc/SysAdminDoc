@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026-09-24
+
+- A bare URL in the README header ended its link where GitHub's would only if the text after it was plain. When the rest of the word held a character the encoder escapes, such as `&`, `<` or `|`, the escaped form joined the link on GitHub. The encoder now puts an empty `<span>` after the URL in that case, so the link stops at the same place it would in the raw text.
 ## 2026-09-23
 
 - The README check reads `run.ps1`'s owner from its syntax tree. It took the first matching line, one inside a comment included, and found no owner in a double-quoted assignment. Every schema pattern now ends at the true end of text, so a value with a line break after it no longer passes, and `aliasOf` is held to the repository-name pattern. A URL whose scheme is written in capitals passes every check instead of failing one of them.

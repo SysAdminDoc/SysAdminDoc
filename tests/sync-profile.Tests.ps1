@@ -358,7 +358,13 @@ Describe 'Public text is encoded for where it lands' {
         @{ Case = 'an ampersand'; Text = 'see https://x.invalid/a?b=1&c=2 now'; Expected = 'see https://x.invalid/a?b=1&c=2 now'; Links = 'https://x.invalid/a?b=1&c=2' }
         @{ Case = 'a dollar sign'; Text = 'see https://x.invalid/?q=$y and $5'; Expected = 'see https://x.invalid/?q=$y and <span>$</span>5'; Links = 'https://x.invalid/?q=$y' }
         @{ Case = 'characters an escape would break'; Text = 'see https://x.invalid/a|b\c[d]e`f>g end'; Expected = 'see https://x.invalid/a%7Cb%5Cc%5Bd%5De%60f%3Eg end'; Links = 'https://x.invalid/a%7Cb%5Cc%5Bd%5De%60f%3Eg' }
-        @{ Case = 'an entity GitHub trims off the end'; Text = 'see https://x.invalid/a&rlm; now'; Expected = 'see https://x.invalid/a&amp;rlm; now'; Links = 'https://x.invalid/a&amp;rlm' }
+        # GitHub trims an entity-like &rlm; off a raw URL, but reads on through &amp;rlm;, so
+        # without the empty span the link ran to https://x.invalid/a&amp;rlm.
+        @{ Case = 'an entity GitHub trims off the end'; Text = 'see https://x.invalid/a&rlm; now'; Expected = 'see https://x.invalid/a<span></span>&amp;rlm; now'; Links = 'https://x.invalid/a' }
+        @{ Case = 'a < after the URL'; Text = 'see https://x.invalid/a<b&c now'; Expected = 'see https://x.invalid/a<span></span>&lt;b&amp;c now'; Links = 'https://x.invalid/a' }
+        @{ Case = 'a pipe after trimmed punctuation'; Text = 'see https://x.invalid/a.|b now'; Expected = 'see https://x.invalid/a.%7Cb now'; Links = 'https://x.invalid/a.%7Cb' }
+        @{ Case = 'a pipe after a closing bracket'; Text = 'see (https://x.invalid/a)|b now'; Expected = 'see (https://x.invalid/a)%7Cb now'; Links = 'https://x.invalid/a)%7Cb' }
+        @{ Case = 'an entity after a trailing bracket'; Text = 'see (https://x.invalid/a)&rlm; now'; Expected = 'see (https://x.invalid/a<span></span>)&amp;rlm; now'; Links = 'https://x.invalid/a' }
         @{ Case = 'an entity inside'; Text = 'see https://x.invalid/a&#8238;b now'; Expected = 'see https://x.invalid/a&#8238;b now'; Links = 'https://x.invalid/a&#8238;b' }
         @{ Case = 'trailing punctuation'; Text = 'see (https://x.invalid/a&b). Then'; Expected = 'see (https://x.invalid/a&b). Then'; Links = 'https://x.invalid/a&b' }
         @{ Case = 'a www host'; Text = 'see www.x.invalid/a?b=1&c=2 now'; Expected = 'see www.x.invalid/a?b=1&c=2 now'; Links = '' }

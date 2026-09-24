@@ -35,7 +35,10 @@ function ConvertTo-MarkdownText {
     exact stretch GitHub links, & and $ stay as they are and the characters an escape
     would break are percent-encoded, which is how GitHub writes the address anyway. The
     tail it trims off stays outside: an entity-like &rlm; there is decoded, so it's encoded
-    like any other text.
+    like any other text. Encoded, though, that tail could carry the link on: GitHub runs a
+    link to a space or <, and &amp;, &lt; and the backslash escapes hold neither. So when the
+    rest of the word holds a character the encoding rewrites that way, an empty
+    <span></span> right after the URL ends the link where the raw text's would end.
     .PARAMETER Text
     The untrusted text; $null renders as an empty string.
     .PARAMETER LinkLabel
@@ -55,10 +58,10 @@ function ConvertTo-MarkdownText {
     # Where GitHub will autolink a bare URL: http(s) by the rules of the bare-URL pass in
     # Get-ReadmeHeaderLinkReference, which reads the rendered header (keep the two in step),
     # and a www. host after a space, * _ ~ or (, which GitHub links as http and the check
-    # never probes. The stretch found here never runs past the one GitHub finds in the
-    # encoded text: nothing written inside it is a space or a <, and nothing it trims is
-    # changed.
+    # never probes. Nothing written inside the stretch is a space or a <, so GitHub can't end
+    # the link sooner; the boundary below stops it going further.
     $inUrl = [bool[]]::new($visible.Length)
+    $boundary = [bool[]]::new($visible.Length + 1)
     if (-not $LinkLabel) {
         $urlStarts = @(
             foreach ($scheme in [regex]::Matches($visible, '(?<![A-Za-z])[A-Za-z]+://')) {
@@ -101,12 +104,25 @@ function ConvertTo-MarkdownText {
             for ($position = $urlStart.Start; $position -lt $urlStart.Start + $url.Length; $position++) {
                 $inUrl[$position] = $true
             }
+            # The rest of the word, which GitHub reads on into once the encoding has turned a
+            # & < > | [ ] \ or ` in it into text with no space or < to stop at.
+            $after = $urlStart.Start + $url.Length
+            $wordEnd = $after
+            while ($wordEnd -lt $visible.Length -and " `t`n`r`f`v".IndexOf($visible[$wordEnd]) -lt 0) {
+                $wordEnd++
+            }
+            if ($visible.Substring($after, $wordEnd - $after).IndexOfAny([char[]]'&<>|[]\`') -ge 0) {
+                $boundary[$after] = $true
+            }
         }
     }
 
     $builder = [System.Text.StringBuilder]::new($visible.Length + 16)
     for ($index = 0; $index -lt $visible.Length; $index++) {
         $character = $visible[$index]
+        if ($boundary[$index]) {
+            [void]$builder.Append('<span></span>')
+        }
         if ([char]::IsHighSurrogate($character) -and $index + 1 -lt $visible.Length -and [char]::IsLowSurrogate($visible[$index + 1])) {
             [void]$builder.Append($character).Append($visible[$index + 1])
             $index++
