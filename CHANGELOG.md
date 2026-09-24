@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- Listed Hushfacebook, a new public Morphe patch bundle for Facebook, with the Android projects. It has no release yet, so its row links to the repo. Until it was in the catalog the sync check refused to publish anything.
 - Every project's action link and every category button has a name of its own for screen readers, like "Download ZeusWatch" or "Browse Security". Before this, a screen reader listing links heard "Download", "Launch" or "Repo" for dozens of different places. The links still show the short word. The rendered smoke check now counts link names that lead to more than one place, and the README has none.
 - Catalog entries can carry a `reviewBy` date. An entry with one is left out of the age checks until that day and reported as overdue after it. Without one, the stale check now warns after 186 days without a push and suggests archiving after a year (it used to wait a year and two). Before this the check never fired for an actively maintained portfolio.
 - `-SeedCatalog` says what the README's `Start-Tool` install lines can't give back. They carry no entry script and no branch, so the warning names the entries seeded without them and points at `projects.json` for the values. A `ZIP/XPI` download now seeds as `zip-xpi`, so a catalog seeded from the committed README passes the shape check.

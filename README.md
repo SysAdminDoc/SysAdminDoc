@@ -18,7 +18,7 @@ I do technical support for a medical imaging company during the day, and I build
 
 ### What's here
 
-This is the index of the 191 public projects I've published, mostly tools and apps, sorted by where they run, for anyone who wants something that works on the setup they already have.
+This is the index of the 192 public projects I've published, mostly tools and apps, sorted by where they run, for anyone who wants something that works on the setup they already have.
 
 Pick a category to jump in. Each one has a few suggestions to start with.
 
@@ -384,7 +384,7 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 |:--------|:------------|:-------:|
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;14 | Premium YouTube enhancement extension. 150+ features for Chrome &amp; Firefox | <a href="https://github.com/SysAdminDoc/Astra-Deck/releases/latest" aria-label="Download Astra-Deck (ZIP/XPI)"><kbd>&#11015;&nbsp;ZIP/XPI</kbd></a> |
 | [**YoutubeAdblock**](https://github.com/SysAdminDoc/YoutubeAdblock) &#11088;14 | Undetectable YouTube ad blocker with proxy engine | <a href="https://raw.githubusercontent.com/SysAdminDoc/YoutubeAdblock/main/YoutubeAdblock.user.js" aria-label="Install YoutubeAdblock">Install</a> |
-| [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;7 | Open-source Chrome MV3 userscript manager. Monaco editor, 35+ GM APIs | <a href="https://github.com/SysAdminDoc/ScriptVault/releases/latest" aria-label="Download ScriptVault (ZIP)"><kbd>&#11015;&nbsp;ZIP</kbd></a> |
+| [**ScriptVault**](https://github.com/SysAdminDoc/ScriptVault) &#11088;8 | Open-source Chrome MV3 userscript manager. Monaco editor, 35+ GM APIs | <a href="https://github.com/SysAdminDoc/ScriptVault/releases/latest" aria-label="Download ScriptVault (ZIP)"><kbd>&#11015;&nbsp;ZIP</kbd></a> |
 | [**UserScript-Finder**](https://github.com/SysAdminDoc/UserScript-Finder) &#11088;6 | Discover userscripts for any website | <a href="https://raw.githubusercontent.com/SysAdminDoc/UserScript-Finder/main/UserScript-Finder.user.js" aria-label="Install UserScript-Finder">Install</a> |
 | [**uBlockVanced**](https://github.com/SysAdminDoc/uBlockVanced) &#11088;4 | uBlock Origin with Catppuccin Mocha and Element Forge panel<br/><sub>Upstream: [gorhill/uBlock](https://github.com/gorhill/uBlock); License: GPL-3.0</sub> | <a href="https://github.com/SysAdminDoc/uBlockVanced/releases/latest" aria-label="Download uBlockVanced (CRX)"><kbd>&#11015;&nbsp;CRX</kbd></a> |
 | [**MediaDL**](https://github.com/SysAdminDoc/MediaDL) &#11088;3 | Media downloader userscript | <a href="https://raw.githubusercontent.com/SysAdminDoc/MediaDL/main/MediaDL.user.js" aria-label="Install MediaDL">Install</a> |
@@ -417,17 +417,17 @@ Suggested starting points: [**Astra-Deck**](https://github.com/SysAdminDoc/Astra
 
 <a id="android-applications"></a>
 <details>
-<summary><b>&#128241; Android Applications</b> &middot; 25 repos &middot; <i>APKs you can sideload and Android source projects.</i></summary>
+<summary><b>&#128241; Android Applications</b> &middot; 26 repos &middot; <i>APKs you can sideload and Android source projects.</i></summary>
 <br/>
 
 Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch), [**ClearCut**](https://github.com/SysAdminDoc/ClearCut), [**HostShield**](https://github.com/SysAdminDoc/HostShield).
 
 | Project | Description | Download |
 |:--------|:------------|:--------:|
-| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;94 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | <a href="https://github.com/SysAdminDoc/AppManagerNG" aria-label="AppManagerNG repository">Repo</a> |
+| [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;95 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub> | <a href="https://github.com/SysAdminDoc/AppManagerNG" aria-label="AppManagerNG repository">Repo</a> |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;93 | FOSS Tasker alternative for Android | <a href="https://github.com/SysAdminDoc/OpenTasker" aria-label="OpenTasker repository">Repo</a> |
-| [**hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;69 | Morphe patch bundle for TikTok. Fewer accidental taps, less noise, more control over the feed and downloads. | <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest" aria-label="Download hushfeed"><kbd>&#11015;&nbsp;Download</kbd></a> |
-| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;51 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3 | <a href="https://github.com/SysAdminDoc/ClearCut/releases/latest" aria-label="Download ClearCut (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
+| [**hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;70 | Morphe patch bundle for TikTok. Fewer accidental taps, less noise, more control over the feed and downloads. | <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest" aria-label="Download hushfeed"><kbd>&#11015;&nbsp;Download</kbd></a> |
+| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;53 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3 | <a href="https://github.com/SysAdminDoc/ClearCut/releases/latest" aria-label="Download ClearCut (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;35 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration | <a href="https://github.com/SysAdminDoc/Aura/releases/latest" aria-label="Download Aura (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;29 | Full-featured file manager with root access, archive support, cloud storage | <a href="https://github.com/SysAdminDoc/FileExplorer" aria-label="FileExplorer repository">Repo</a> |
 | [**AlarmClockXtreme**](https://github.com/SysAdminDoc/AlarmClockXtreme) &#11088;27 | Feature-rich alarm clock with dismiss challenges | <a href="https://github.com/SysAdminDoc/AlarmClockXtreme/releases/latest" aria-label="Download AlarmClockXtreme (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
@@ -445,6 +445,7 @@ Suggested starting points: [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWa
 | [**one-ui-home-clone**](https://github.com/SysAdminDoc/one-ui-home-clone) &#11088;3 | Samsung One UI 7 parity launcher. Compose, clone not a port | <a href="https://github.com/SysAdminDoc/one-ui-home-clone/releases/latest" aria-label="Download one-ui-home-clone (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
 | [**GuitarTuner**](https://github.com/SysAdminDoc/GuitarTuner) | Offline Android acoustic guitar tuner with automatic string detection and local-only microphone processing | <a href="https://github.com/SysAdminDoc/GuitarTuner" aria-label="GuitarTuner repository">Repo</a> |
 | [**BillMinder**](https://github.com/SysAdminDoc/BillMinder) | Bill tracker with alarm-style reminders | <a href="https://github.com/SysAdminDoc/BillMinder/releases/latest" aria-label="Download BillMinder (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
+| [**Hushfacebook**](https://github.com/SysAdminDoc/Hushfacebook) | Morphe patch bundle for Facebook. Clears ads, Reels and Stories clutter out of the feed. | <a href="https://github.com/SysAdminDoc/Hushfacebook" aria-label="Hushfacebook repository">Repo</a> |
 | [**IRL Streamer**](https://github.com/SysAdminDoc/IRL_Streamer) | Android live-streaming console with camera, mic, and RTMP/RTMPS broadcast | <a href="https://github.com/SysAdminDoc/IRL_Streamer/releases/latest" aria-label="Download IRL Streamer (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
 | [**NoNo**](https://github.com/SysAdminDoc/NoNo) | Local-first Android notification rule manager with redacted metadata | <a href="https://github.com/SysAdminDoc/NoNo/releases/latest" aria-label="Download NoNo (APK)"><kbd>&#11015;&nbsp;APK</kbd></a> |
 | [**PatchDock**](https://github.com/SysAdminDoc/PatchDock) | Android patch manager | <a href="https://github.com/SysAdminDoc/PatchDock" aria-label="PatchDock repository">Repo</a> |
@@ -473,7 +474,7 @@ Suggested starting points: [**BetterNext**](https://github.com/SysAdminDoc/Bette
 
 Suggested starting points: [**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover), [**VideoCrush**](https://github.com/SysAdminDoc/VideoCrush), [**AlphaCut**](https://github.com/SysAdminDoc/AlphaCut).
 
-[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;83 &middot; Remove hardcoded subtitles from video &nbsp;<a href="https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest" aria-label="Download VideoSubtitleRemover"><kbd>&#11015;&nbsp;Download</kbd></a>
+[**VideoSubtitleRemover**](https://github.com/SysAdminDoc/VideoSubtitleRemover) &#11088;84 &middot; Remove hardcoded subtitles from video &nbsp;<a href="https://github.com/SysAdminDoc/VideoSubtitleRemover/releases/latest" aria-label="Download VideoSubtitleRemover"><kbd>&#11015;&nbsp;Download</kbd></a>
 ```powershell
 irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool VideoSubtitleRemover
 ```
@@ -522,11 +523,11 @@ Suggested starting points: [**MyPortfolio**](https://github.com/SysAdminDoc/MyPo
 | [**OpenNetLimit**](https://github.com/SysAdminDoc/OpenNetLimit) &#11088;6 | Per-application bandwidth limiter and network monitor for Windows | C# | <a href="https://github.com/SysAdminDoc/OpenNetLimit" aria-label="OpenNetLimit repository">Repo</a> |
 | [**PartitionPilot**](https://github.com/SysAdminDoc/PartitionPilot) &#11088;4 | Windows disk partition manager. WPF disk map, SMART health, maintenance, and image workflows | C# | <a href="https://github.com/SysAdminDoc/PartitionPilot" aria-label="PartitionPilot repository">Repo</a> |
 | [**LocalChromeStore**](https://github.com/SysAdminDoc/LocalChromeStore) &#11088;3 | Personal Chromium extension store sourced from GitHub releases. One-click install/uninstall | C# | <a href="https://github.com/SysAdminDoc/LocalChromeStore/releases/latest" aria-label="Download LocalChromeStore (ZIP)"><kbd>&#11015;&nbsp;ZIP</kbd></a> |
+| [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore) &#11088;3 | Private catalog for Windows desktop apps. MSI/Inno/NSIS/ZIP from GitHub releases | C# | <a href="https://github.com/SysAdminDoc/LocalDesktopStore/releases/latest" aria-label="Download LocalDesktopStore (ZIP)"><kbd>&#11015;&nbsp;ZIP</kbd></a> |
 | [**AndroidEmulatorPlus**](https://github.com/SysAdminDoc/AndroidEmulatorPlus) &#11088;2 | Install Android SDK, manage AVDs, root with Magisk, migrate apps | C# | <a href="https://github.com/SysAdminDoc/AndroidEmulatorPlus" aria-label="AndroidEmulatorPlus repository">Repo</a> |
 | [**Devicer**](https://github.com/SysAdminDoc/Devicer) &#11088;2 | Unified Windows toolkit for rooted Android. Identify, ROM search, partition backup, boot.img patch, flashing | C# | <a href="https://github.com/SysAdminDoc/Devicer" aria-label="Devicer repository">Repo</a> |
 | [**HostsGuard**](https://github.com/SysAdminDoc/HostsGuard) &#11088;2 | Real-time network privacy manager. DNS monitoring, hosts file management, firewall rules | C# | <a href="https://github.com/SysAdminDoc/HostsGuard/releases/latest" aria-label="Download HostsGuard (EXE)"><kbd>&#11015;&nbsp;EXE</kbd></a> |
 | [**Images**](https://github.com/SysAdminDoc/Images) &#11088;2 | Dark-mode Windows 7 Classic Photo Viewer with live inline rename-while-viewing | C# | <a href="https://github.com/SysAdminDoc/Images/releases/latest" aria-label="Download Images (ZIP)"><kbd>&#11015;&nbsp;ZIP</kbd></a> |
-| [**LocalDesktopStore**](https://github.com/SysAdminDoc/LocalDesktopStore) &#11088;2 | Private catalog for Windows desktop apps. MSI/Inno/NSIS/ZIP from GitHub releases | C# | <a href="https://github.com/SysAdminDoc/LocalDesktopStore/releases/latest" aria-label="Download LocalDesktopStore (ZIP)"><kbd>&#11015;&nbsp;ZIP</kbd></a> |
 | [**OpenRadar**](https://github.com/SysAdminDoc/OpenRadar) &#11088;2 | Desktop weather radar for Windows. Decodes NEXRAD Level II, MRMS, GOES and GFS locally in Rust | TypeScript | <a href="https://github.com/SysAdminDoc/OpenRadar/releases/latest" aria-label="Download OpenRadar (EXE)"><kbd>&#11015;&nbsp;EXE</kbd></a> |
 | [**qBittorrent-Vanced**](https://github.com/SysAdminDoc/qBittorrent-Vanced) &#11088;2 | Customized BitTorrent client with dark theme<br/><sub>Upstream: [c0re100/qBittorrent-Enhanced-Edition](https://github.com/c0re100/qBittorrent-Enhanced-Edition); License: GPL-2.0-or-later / GPL-3.0-or-later assets</sub> | C++ | <a href="https://github.com/SysAdminDoc/qBittorrent-Vanced/releases/latest" aria-label="Download qBittorrent-Vanced (EXE)"><kbd>&#11015;&nbsp;EXE</kbd></a> |
 | [**Cataclysm**](https://github.com/SysAdminDoc/Cataclysm) | 3D-globe desktop simulator for tsunamis from asteroid impacts, nuclear bursts, earthquakes, and landslides | TypeScript | <a href="https://github.com/SysAdminDoc/Cataclysm/releases/latest" aria-label="Download Cataclysm (EXE)"><kbd>&#11015;&nbsp;EXE</kbd></a> |
