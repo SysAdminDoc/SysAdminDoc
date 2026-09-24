@@ -25,6 +25,15 @@ if ([string]::IsNullOrWhiteSpace($Url)) {
 }
 
 function Find-ChromeExecutable {
+    # CHROME_PATH names the browser outright (a Playwright Chromium, say). One that points
+    # nowhere is an error, not a reason to start whatever browser the search below finds.
+    if (-not [string]::IsNullOrWhiteSpace($env:CHROME_PATH)) {
+        if (-not (Test-Path -LiteralPath $env:CHROME_PATH -PathType Leaf)) {
+            throw "CHROME_PATH is set to '$env:CHROME_PATH', which isn't a file."
+        }
+        return $env:CHROME_PATH
+    }
+
     $commands = @("google-chrome", "google-chrome-stable", "chromium", "chromium-browser")
     foreach ($command in $commands) {
         # Restrict to Application so a same-named alias/function/script shim cannot resolve to

@@ -15053,6 +15053,22 @@ Describe 'Rendered smoke helpers (in-process)' {
         Test-Path -LiteralPath (Join-Path $currentDirectory 'reports') | Should -BeFalse
     }
 
+    It 'starts the browser CHROME_PATH names, and refuses one that is not there' {
+        $saved = $env:CHROME_PATH
+        $browser = Join-Path $TestDrive 'browser.exe'
+        Set-Content -LiteralPath $browser -Value ''
+        try {
+            $env:CHROME_PATH = $browser
+            Find-ChromeExecutable | Should -Be $browser
+            $env:CHROME_PATH = Join-Path $TestDrive 'missing.exe'
+            { Find-ChromeExecutable } | Should -Throw -ExpectedMessage "*CHROME_PATH is set to*missing.exe*"
+            $env:CHROME_PATH = $TestDrive
+            { Find-ChromeExecutable } | Should -Throw -ExpectedMessage "*CHROME_PATH is set to*"
+        } finally {
+            $env:CHROME_PATH = $saved
+        }
+    }
+
     It 'removes only its own temporary browser profile directories' {
         $foreign = Join-Path $TestDrive 'not-a-smoke-profile'
         New-Item -ItemType Directory -Path $foreign | Out-Null
