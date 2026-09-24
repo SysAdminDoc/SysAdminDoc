@@ -68,6 +68,10 @@ BeforeAll {
         $same = {
             param($Left, $Right)
             if ($null -eq $Left -or $null -eq $Right) { return ($null -eq $Left -and $null -eq $Right) }
+            # A value whose text is only its type's name (a hashtable, a plain object) has no
+            # text to compare, so it's the same only as itself.
+            $noText = { param($Item) $Item -isnot [string] -and [string]::Equals([string]$Item, $Item.GetType().FullName, [StringComparison]::Ordinal) }
+            if ((& $noText $Left) -or (& $noText $Right)) { return [object]::ReferenceEquals($Left, $Right) }
             [string]::Equals([string]$Left, [string]$Right, [StringComparison]::Ordinal)
         }
         $succeeded = if ($null -ne $actualItems -or $null -ne $expectedItems) {
@@ -15337,5 +15341,16 @@ Describe 'Assertions on invisible characters compare them exactly' {
         { '' | Should -BeOrdinal @() } | Should -Throw
         $table = @{ a = 1 }
         { $table | Should -BeOrdinal 'x' } | Should -Throw -ExpectedMessage "*Expected 'x', compared ordinally, but got 'System.Collections.Hashtable'*"
+    }
+
+    It 'compares a value with no text of its own only with itself' {
+        # Review G8: every hashtable reads System.Collections.Hashtable, so any two passed.
+        $table = @{ a = 1 }
+        $table | Should -BeOrdinal $table
+        { @{ a = 1 } | Should -BeOrdinal @{ a = 2 } } | Should -Throw
+        @{ a = 1 } | Should -Not -BeOrdinal @{ a = 2 }
+        { @(@{ a = 1 }, @{ a = 2 }) | Should -BeOrdinal @(@{ b = 3 }, @{ b = 4 }) } | Should -Throw
+        { [object]::new() | Should -BeOrdinal ([object]::new()) } | Should -Throw
+        'System.String' | Should -BeOrdinal ('System.' + 'String')
     }
 }
