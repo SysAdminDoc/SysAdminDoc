@@ -55,14 +55,16 @@ BeforeAll {
     # Should -Be and -BeExactly compare by culture, which skips zero-width, bidi and other
     # ignorable characters: 'ab' | Should -BeExactly "a<ZWJ>b" passes. -BeOrdinal compares
     # code unit by code unit, keeps $null apart from '', and shows a mismatch as code points.
-    # It takes what's piped in as a whole (one item is that item, none is $null), so a list
-    # has to match a list item by item and doesn't pass because each item matches alone.
+    # It takes what's piped in as a whole, so a list has to match a list item by item and
+    # doesn't pass because each item matches alone. On either side one item is that item and
+    # none is $null, and a hashtable is one value.
     Add-ShouldOperator -Name BeOrdinal -SupportsArrayInput -Test {
         param($ActualValue, $ExpectedValue, [switch]$Negate, [string]$Because)
         $asList = { param($Value) if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) { , @($Value) } else { $null } }
         $actualItems = & $asList $ActualValue
         if ($null -ne $actualItems -and $actualItems.Count -le 1) { $ActualValue = if ($actualItems.Count -eq 1) { $actualItems[0] } else { $null }; $actualItems = $null }
         $expectedItems = & $asList $ExpectedValue
+        if ($null -ne $expectedItems -and $expectedItems.Count -le 1) { $ExpectedValue = if ($expectedItems.Count -eq 1) { $expectedItems[0] } else { $null }; $expectedItems = $null }
         $same = {
             param($Left, $Right)
             if ($null -eq $Left -or $null -eq $Right) { return ($null -eq $Left -and $null -eq $Right) }
@@ -78,7 +80,7 @@ BeforeAll {
         $show = {
             param($Value)
             if ($null -eq $Value) { return '$null' }
-            if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) { return '@(' + ((@($Value) | ForEach-Object { & $show $_ }) -join ', ') + ')' }
+            if ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string] -and $Value -isnot [System.Collections.IDictionary]) { return '@(' + ((@($Value) | ForEach-Object { & $show $_ }) -join ', ') + ')' }
             "'" + ((([string]$Value).ToCharArray() | ForEach-Object { if ([int]$_ -lt 0x20 -or [int]$_ -gt 0x7E) { '{U+' + ('{0:X4}' -f [int]$_) + '}' } else { [string]$_ } }) -join '') + "'"
         }
         if ($null -ne $actualItems) { $ActualValue = $actualItems }
@@ -9046,7 +9048,34 @@ Describe 'Child script runs stay out of the checkout' {
             param($Value, [int]$Before, [int]$Depth = 0)
             if ($null -eq $Value -or $Depth -gt 6) { return $false }
             # A .. segment can climb out of the test drive ("$TestDrive\..\..\repos").
-            if ($Value.Extent.Text -match '(?:^|[\\/''"\s])\.\.(?:[\\/''"\s]|$)') { return $false }
+            $climb = '(?:^|[\\/''"\s])\.\.(?:[\\/''"\s]|$)'
+            if ($Value.Extent.Text -match $climb) { return $false }
+            # So can one held in a variable the path reads ($up = '..\..'; Join-Path $TestDrive
+            # $up): any write to it in its script block counts, a foreach's list included,
+            # followed three deep.
+            if ($Depth -eq 0) {
+                $holdsClimb = {
+                    param($Ast, [int]$Steps)
+                    foreach ($held in @($Ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] }, $true))) {
+                        $heldName = (script:Get-VariableName $held) -replace '^(?i:script|global):', ''
+                        $isHeld = { param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals(((script:Get-VariableName $node) -replace '^(?i:script|global):', ''), $heldName, [StringComparison]::OrdinalIgnoreCase) }
+                        $block = $held.Parent
+                        while ($null -ne $block -and $block -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $block = $block.Parent }
+                        if ($null -eq $block) { continue }
+                        $writes = $block.FindAll({
+                                param($node)
+                                ($node -is [System.Management.Automation.Language.AssignmentStatementAst] -and @($node.Left.FindAll($isHeld, $true)).Count -gt 0) -or
+                                    ($node -is [System.Management.Automation.Language.ForEachStatementAst] -and (& $isHeld $node.Variable))
+                            }, $true)
+                        foreach ($write in $writes) {
+                            $source = if ($write -is [System.Management.Automation.Language.ForEachStatementAst]) { $write.Condition } else { $write.Right }
+                            if ($source.Extent.Text -match $climb -or ($Steps -lt 3 -and (& $holdsClimb $source ($Steps + 1)))) { return $true }
+                        }
+                    }
+                    $false
+                }
+                if (& $holdsClimb $Value 0) { return $false }
+            }
             switch ($Value.GetType().Name) {
                 'VariableExpressionAst' {
                     # Ordinal: -eq compares by culture and skips an invisible character, and
@@ -9097,54 +9126,100 @@ Describe 'Child script runs stay out of the checkout' {
         }
 
         # The last write to a variable or indexed value before the run, in the script block the
-        # run sits in, as { Offset; Value }, where Value is the syntax tree written or $null when
-        # the guard can't follow the write; nothing when there's no write at all. A plain
-        # assignment, typed or not, is followed. These aren't: a write in a nested script block
-        # (ForEach-Object runs its block in the caller's scope, & { } in a child scope) or in a
-        # branch, loop, try or trap the run isn't in (it may not happen), a multiple assignment,
-        # a foreach variable, Set-Variable and its kin (by name, or given a name that isn't
-        # written out), an -OutVariable style parameter, and for an indexed value a write to a
-        # computed key, a property or the whole table. Keys compare by value, so $h['c'] is
-        # $h["c"].
+        # run sits in (or the one -Scope names), as { Offset; Value }, where Value is the syntax
+        # tree written or $null when the guard can't follow the write; nothing when there's no
+        # write at all. A plain assignment, typed or not, is followed. These aren't: a write in
+        # a nested script block (ForEach-Object runs its block in the caller's scope, & { } in a
+        # child scope) or in a branch, loop, try or trap the run isn't in (it may not happen), a
+        # write after the run in a loop that holds it (the next pass sees it), a compound
+        # assignment ($c += ...), a multiple assignment, a foreach variable, a write to the same
+        # name in another scope ($script:c for $c at the top of the file), Set-Variable and its
+        # kin (by name, or given
+        # a name that isn't written out), an -OutVariable style parameter, and for an indexed
+        # value a write to a computed key, a key that differs only in case (a hashtable may or
+        # may not tell them apart), a property, the whole table or a method that changes it
+        # ($h.Remove('c')). Keys compare by value, so $h['c'] is $h["c"].
         function script:Get-LastWrite {
-            param($Target, [int]$Before)
-            $scope = $Target.Parent
-            while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
+            param($Target, [int]$Before, $Scope)
+            if ($null -eq $scope) {
+                $scope = $Target.Parent
+                while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
+            }
             $variable = if ($Target -is [System.Management.Automation.Language.IndexExpressionAst]) { $Target.Target } else { $Target }
             if ($null -eq $scope -or $variable -isnot [System.Management.Automation.Language.VariableExpressionAst]) { return [pscustomobject]@{ Offset = 0; Value = $null } }
             $name = script:Get-VariableName $variable
-            $isName = { param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals((script:Get-VariableName $node), $name, [StringComparison]::OrdinalIgnoreCase) }
+            $unscoped = $name -replace '^(?i:script|global):', ''
+            # $script:c is $c at the top of the file, and a search of the whole file has to see
+            # a write in any scope; inside a test a local write hides one to $script:c.
+            $isName = if ($null -eq $scope.Parent) {
+                { param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals(((script:Get-VariableName $node) -replace '^(?i:script|global):', ''), $unscoped, [StringComparison]::OrdinalIgnoreCase) }
+            } else {
+                { param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals((script:Get-VariableName $node), $name, [StringComparison]::OrdinalIgnoreCase) }
+            }
             $keyOf = { param($index) if ($index -is [System.Management.Automation.Language.ConstantExpressionAst]) { [string]$index.Value } else { $null } }
             $targetKey = if ($Target -is [System.Management.Automation.Language.IndexExpressionAst]) { & $keyOf $Target.Index } else { $null }
-            $branches = @('IfStatementAst', 'SwitchStatementAst', 'TryStatementAst', 'TrapStatementAst', 'ForStatementAst', 'ForEachStatementAst', 'WhileStatementAst', 'DoWhileStatementAst', 'DoUntilStatementAst')
+            $loops = @('ForStatementAst', 'ForEachStatementAst', 'WhileStatementAst', 'DoWhileStatementAst', 'DoUntilStatementAst')
+            $branches = @('IfStatementAst', 'SwitchStatementAst', 'TryStatementAst', 'TrapStatementAst') + $loops
             $outVariables = @('outvariable', 'ov', 'errorvariable', 'ev', 'warningvariable', 'wv', 'informationvariable', 'iv', 'pipelinevariable', 'pv')
-            $writes = foreach ($node in $scope.FindAll({ param($node) $node.Extent.EndOffset -le $Before -or $node -is [System.Management.Automation.Language.ForEachStatementAst] }, $true)) {
+            $tableMethods = @('add', 'clear', 'insert', 'remove', 'removeat', 'set_item', 'tryadd')
+            $holdsRun = { param($outer) $Target.Extent.StartOffset -ge $outer.Extent.StartOffset -and $Target.Extent.EndOffset -le $outer.Extent.EndOffset }
+            # ForEach-Object and Where-Object run their block once per item, so a run in one is
+            # in a loop.
+            $caller = if ($scope.Parent -is [System.Management.Automation.Language.ScriptBlockExpressionAst]) { $scope.Parent.Parent } else { $null }
+            $scopeLoops = $caller -is [System.Management.Automation.Language.CommandAst] -and @('foreach-object', '%', 'foreach', 'where-object', 'where', '?').Contains(([string]$caller.GetCommandName()).ToLowerInvariant())
+            $candidates = $scope.FindAll({
+                    param($node)
+                    $node -is [System.Management.Automation.Language.AssignmentStatementAst] -or $node -is [System.Management.Automation.Language.ForEachStatementAst] -or
+                        $node -is [System.Management.Automation.Language.CommandAst] -or $node -is [System.Management.Automation.Language.InvokeMemberExpressionAst]
+                }, $true)
+            $writes = foreach ($node in $candidates) {
+                # A foreach sets its variable as it starts; anything else writes once it's done.
+                # A write after the run counts only in a loop that holds the run, and as though
+                # made where the loop's body starts over, so a write in the body before the run
+                # still comes after it.
+                $after = if ($node -is [System.Management.Automation.Language.ForEachStatementAst]) { $node.Extent.StartOffset -ge $Before } else { $node.Extent.EndOffset -gt $Before }
+                if ($after) {
+                    $restart = $null
+                    for ($outer = $node.Parent; $null -eq $restart -and $null -ne $outer -and -not [object]::ReferenceEquals($outer, $scope); $outer = $outer.Parent) {
+                        if ($loops.Contains($outer.GetType().Name) -and (& $holdsRun $outer)) { $restart = $outer.Body.Extent.StartOffset }
+                    }
+                    if ($null -eq $restart -and $scopeLoops) { $restart = $scope.Extent.StartOffset }
+                    if ($null -eq $restart) { continue }
+                }
                 $traced = $null
                 $untraceable = $false
-                if ($node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Extent.EndOffset -le $Before) {
+                if ($node -is [System.Management.Automation.Language.AssignmentStatementAst]) {
                     $left = $node.Left
                     while ($left -is [System.Management.Automation.Language.AttributedExpressionAst]) { $left = $left.Child }
-                    if ($Target -is [System.Management.Automation.Language.IndexExpressionAst]) {
-                        if ($left -is [System.Management.Automation.Language.IndexExpressionAst] -and (& $isName $left.Target)) {
-                            # Constant keys compare by value; two computed ones by how they're
-                            # written ($readmes[$case] in a loop); a mix can't be followed.
-                            $key = & $keyOf $left.Index
-                            if ($null -eq $key -and $null -eq $targetKey) {
-                                if ([string]::Equals($left.Index.Extent.Text, $Target.Index.Extent.Text, [StringComparison]::Ordinal)) { $traced = $node.Right } else { $untraceable = $true }
-                            } elseif ($null -eq $key -or $null -eq $targetKey) { $untraceable = $true }
-                            elseif ([string]::Equals($key, $targetKey, [StringComparison]::Ordinal)) { $traced = $node.Right }
-                        } elseif (($left -is [System.Management.Automation.Language.MemberExpressionAst] -and (& $isName $left.Expression)) -or (& $isName $left)) {
+                    $written = if ($left -is [System.Management.Automation.Language.IndexExpressionAst]) { $left.Target } elseif ($left -is [System.Management.Automation.Language.MemberExpressionAst]) { $left.Expression } else { $left }
+                    if ($left -is [System.Management.Automation.Language.ArrayLiteralAst]) {
+                        if (@($left.Elements | Where-Object {
+                                    $element = $_
+                                    while ($element -is [System.Management.Automation.Language.AttributedExpressionAst]) { $element = $element.Child }
+                                    & $isName $element
+                                }).Count -gt 0) { $untraceable = $true }
+                    } elseif (& $isName $written) {
+                        if ($node.Operator -ne [System.Management.Automation.Language.TokenKind]::Equals -or -not [string]::Equals((script:Get-VariableName $written), $name, [StringComparison]::OrdinalIgnoreCase)) {
                             $untraceable = $true
-                        }
-                    } elseif (& $isName $left) { $traced = $node.Right }
-                    if ($left -is [System.Management.Automation.Language.ArrayLiteralAst] -and @($left.Elements | Where-Object {
-                                $element = $_
-                                while ($element -is [System.Management.Automation.Language.AttributedExpressionAst]) { $element = $element.Child }
-                                & $isName $element
-                            }).Count -gt 0) { $untraceable = $true }
-                } elseif ($node -is [System.Management.Automation.Language.ForEachStatementAst] -and $node.Extent.StartOffset -lt $Before -and (& $isName $node.Variable)) {
-                    $untraceable = $true
-                } elseif ($node -is [System.Management.Automation.Language.CommandAst]) {
+                        } elseif ($Target -is [System.Management.Automation.Language.IndexExpressionAst]) {
+                            if ($left -is [System.Management.Automation.Language.IndexExpressionAst]) {
+                                # Two computed keys compare by how they're written ($readmes[$case]
+                                # in a loop); a mix of computed and constant can't be followed.
+                                $key = & $keyOf $left.Index
+                                if ($null -eq $key -and $null -eq $targetKey) {
+                                    if ([string]::Equals($left.Index.Extent.Text, $Target.Index.Extent.Text, [StringComparison]::Ordinal)) { $traced = $node.Right } else { $untraceable = $true }
+                                } elseif ($null -eq $key -or $null -eq $targetKey) { $untraceable = $true }
+                                elseif ([string]::Equals($key, $targetKey, [StringComparison]::Ordinal)) { $traced = $node.Right }
+                                elseif ([string]::Equals($key, $targetKey, [StringComparison]::OrdinalIgnoreCase)) { $untraceable = $true }
+                            } else { $untraceable = $true }
+                        } elseif ([object]::ReferenceEquals($left, $written)) { $traced = $node.Right }
+                    }
+                } elseif ($node -is [System.Management.Automation.Language.ForEachStatementAst]) {
+                    if (& $isName $node.Variable) { $untraceable = $true }
+                } elseif ($node -is [System.Management.Automation.Language.InvokeMemberExpressionAst]) {
+                    if ($Target -is [System.Management.Automation.Language.IndexExpressionAst] -and (& $isName $node.Expression) -and
+                        ($node.Member -isnot [System.Management.Automation.Language.StringConstantExpressionAst] -or $tableMethods.Contains($node.Member.Value.ToLowerInvariant()))) { $untraceable = $true }
+                } else {
                     $elements = @($node.CommandElements)
                     if (@('set-variable', 'new-variable', 'clear-variable', 'remove-variable', 'sv', 'nv', 'clv', 'rv', 'set').Contains(([string]$node.GetCommandName()).ToLowerInvariant())) {
                         # The name: -Name's value or the first positional argument. One not
@@ -9152,9 +9227,20 @@ Describe 'Child script runs stay out of the checkout' {
                         $given = script:Get-ParameterValue -Command $node -Name 'Name'
                         if ($null -eq $given -and $elements.Count -gt 1 -and $elements[1] -isnot [System.Management.Automation.Language.CommandParameterAst]) { $given = $elements[1] }
                         $givenNames = if ($given -is [System.Management.Automation.Language.ArrayLiteralAst]) { @($given.Elements) } else { @($given) }
-                        foreach ($givenName in $givenNames) {
+                        # A foreach variable stands for the names its list spells out.
+                        $givenNames = foreach ($givenName in $givenNames) {
+                            $spelled = @($givenName)
+                            for ($loop = $node.Parent; $givenName -is [System.Management.Automation.Language.VariableExpressionAst] -and $null -ne $loop; $loop = $loop.Parent) {
+                                if ($loop -is [System.Management.Automation.Language.ForEachStatementAst] -and [string]::Equals((script:Get-VariableName $loop.Variable), (script:Get-VariableName $givenName), [StringComparison]::OrdinalIgnoreCase)) {
+                                    $spelled = @($loop.Condition.FindAll({ param($item) $item -is [System.Management.Automation.Language.ExpressionAst] -and $item -isnot [System.Management.Automation.Language.ArrayExpressionAst] -and $item -isnot [System.Management.Automation.Language.ArrayLiteralAst] }, $true))
+                                    break
+                                }
+                            }
+                            $spelled
+                        }
+                        foreach ($givenName in @($givenNames)) {
                             if ($givenName -isnot [System.Management.Automation.Language.StringConstantExpressionAst] -or
-                                [string]::Equals(($givenName.Value -replace '^(?i:local|private):', ''), $name, [StringComparison]::OrdinalIgnoreCase)) { $untraceable = $true }
+                                [string]::Equals(($givenName.Value -replace '^(?i:local|private|script|global):', ''), $unscoped, [StringComparison]::OrdinalIgnoreCase)) { $untraceable = $true }
                         }
                     }
                     for ($index = 1; $index -lt $elements.Count; $index++) {
@@ -9162,16 +9248,17 @@ Describe 'Child script runs stay out of the checkout' {
                         if ($parameter -isnot [System.Management.Automation.Language.CommandParameterAst] -or -not $outVariables.Contains($parameter.ParameterName.ToLowerInvariant())) { continue }
                         $given = if ($null -ne $parameter.Argument) { $parameter.Argument } elseif ($index + 1 -lt $elements.Count) { $elements[$index + 1] } else { $null }
                         if ($given -isnot [System.Management.Automation.Language.StringConstantExpressionAst] -or
-                            [string]::Equals($given.Value.TrimStart('+'), $name, [StringComparison]::OrdinalIgnoreCase)) { $untraceable = $true }
+                            [string]::Equals($given.Value.TrimStart('+'), $unscoped, [StringComparison]::OrdinalIgnoreCase)) { $untraceable = $true }
                     }
                 }
                 if ($null -eq $traced -and -not $untraceable) { continue }
+                if ($after) { $untraceable = $true }
                 $owningBlock = $node.Parent
                 while ($null -ne $owningBlock -and $owningBlock -isnot [System.Management.Automation.Language.ScriptBlockAst]) {
-                    if ($branches.Contains($owningBlock.GetType().Name) -and -not ($Target.Extent.StartOffset -ge $owningBlock.Extent.StartOffset -and $Target.Extent.EndOffset -le $owningBlock.Extent.EndOffset)) { $untraceable = $true }
+                    if ($branches.Contains($owningBlock.GetType().Name) -and -not (& $holdsRun $owningBlock)) { $untraceable = $true }
                     $owningBlock = $owningBlock.Parent
                 }
-                [pscustomobject]@{ Offset = $node.Extent.StartOffset; Value = if ($untraceable -or -not [object]::ReferenceEquals($owningBlock, $scope)) { $null } else { $traced } }
+                [pscustomobject]@{ Offset = $(if ($after) { $restart } else { $node.Extent.StartOffset }); Value = if ($untraceable -or -not [object]::ReferenceEquals($owningBlock, $scope)) { $null } else { $traced } }
             }
             @($writes | Sort-Object Offset) | Select-Object -Last 1
         }
@@ -9231,33 +9318,41 @@ Describe 'Child script runs stay out of the checkout' {
             $required
         }
 
-        # The switches of the scripts the suite runs and of pwsh itself: they take no value, so
-        # an argument after one is positional.
+        # The switches of the scripts the suite runs (the common ones included) and of pwsh
+        # itself: they take no value, so an argument after one is positional.
         $script:ChildSwitchNames = @(@(foreach ($relative in @('scripts/sync-profile.ps1', 'scripts/review-local-dependencies.ps1')) {
                     $scriptAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $script:RepoRoot $relative), [ref]$null, [ref]$null)
                     foreach ($parameter in @($scriptAst.ParamBlock.Parameters)) {
                         if ($parameter.StaticType -eq [switch]) { $parameter.Name.VariablePath.UserPath }
                     }
-                }) + @('NoProfile', 'NonInteractive', 'NoLogo', 'NoExit', 'Interactive', 'Login', 'Sta', 'Mta'))
+                }) + @('Verbose', 'Debug', 'WhatIf', 'Confirm') + @('NoProfile', 'NonInteractive', 'NoLogo', 'NoExit', 'Interactive', 'Login', 'Sta', 'Mta'))
 
         # A pwsh run, or a computed command that may be one, whose arguments the guards can't
-        # read: a splat; for pwsh, anything but a constant where no parameter takes it (a
-        # variable, an array, a member, an index or an expression in parentheses); and
-        # Start-Process pwsh with an argument list, which the guards can't read at all. A
-        # computed command's positional arguments are left to the snapshot: & $script:Real
-        # $x is how the suite calls a saved function, so they can't all be refused.
+        # read: a splat; for pwsh, -Command or -EncodedCommand before -File (code, not a script
+        # path), and anything but a constant where no parameter takes it (a variable, an array,
+        # a member, an index or an expression in parentheses); and Start-Process pwsh with any
+        # argument, which reaches pwsh as a list the guards can't read. A computed command's
+        # positional arguments are left to the snapshot: & $script:Real $x is how the suite
+        # calls a saved function, so they can't all be refused.
         function script:Test-HiddenChildArgument {
             param($Command)
             $elements = @($Command.CommandElements)
             if ([string]::Equals($Command.GetCommandName(), 'Start-Process', [StringComparison]::OrdinalIgnoreCase)) {
                 $file = script:Get-ParameterValue -Command $Command -Name 'FilePath'
                 if ($null -eq $file -and $elements.Count -gt 1 -and $elements[1] -isnot [System.Management.Automation.Language.CommandParameterAst]) { $file = $elements[1] }
-                return ($null -ne $file -and $file.Extent.Text -match 'pwsh' -and $null -ne (script:Get-ParameterValue -Command $Command -Name 'ArgumentList'))
+                $rest = @($elements | Select-Object -Skip 1 | Where-Object { -not [object]::ReferenceEquals($_, $file) -and -not ($_ -is [System.Management.Automation.Language.CommandParameterAst] -and [string]::Equals($_.ParameterName, 'FilePath', [StringComparison]::OrdinalIgnoreCase)) })
+                return ($null -ne $file -and $file.Extent.Text -match 'pwsh' -and $rest.Count -gt 0)
             }
             $isPwsh = $elements[0].Extent.Text -match 'pwsh'
             if (-not $isPwsh -and $elements[0] -is [System.Management.Automation.Language.StringConstantExpressionAst]) { return $false }
             if (@($elements | Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] -and $_.Splatted }).Count -gt 0) { return $true }
             if (-not $isPwsh) { return $false }
+            # pwsh takes any prefix that's unique, and -e, -ec and -cwa as well.
+            foreach ($element in $elements) {
+                if ($element -isnot [System.Management.Automation.Language.CommandParameterAst] -or $element.ParameterName.Length -eq 0) { continue }
+                if ('File'.StartsWith($element.ParameterName, [StringComparison]::OrdinalIgnoreCase)) { break }
+                if (@(@('Command', 'CommandWithArgs', 'EncodedCommand', 'ec', 'cwa') | Where-Object { $_.StartsWith($element.ParameterName, [StringComparison]::OrdinalIgnoreCase) }).Count -gt 0) { return $true }
+            }
             for ($index = 1; $index -lt $elements.Count; $index++) {
                 $previous = $elements[$index - 1]
                 $takenByParameter = $previous -is [System.Management.Automation.Language.CommandParameterAst] -and $null -eq $previous.Argument -and
@@ -9340,6 +9435,15 @@ Describe 'Child script runs stay out of the checkout' {
         @{ Case = 'an index'; Code = '& pwsh -File x.ps1 $a[0]'; Hidden = $true }
         @{ Case = 'Start-Process pwsh with an argument list'; Code = 'Start-Process pwsh -ArgumentList $arguments'; Hidden = $true }
         @{ Case = 'not Start-Process of another program'; Code = 'Start-Process notepad -ArgumentList $arguments'; Hidden = $false }
+        # Review G7: none of these was flagged.
+        @{ Case = 'Start-Process pwsh with one string argument'; Code = 'Start-Process pwsh ''-File x.ps1 -CachePath c'''; Hidden = $true }
+        @{ Case = 'Start-Process pwsh with -Args'; Code = 'Start-Process -FilePath pwsh -Args ''-File x.ps1'''; Hidden = $true }
+        @{ Case = 'a common switch before a variable'; Code = '& pwsh -NoProfile -File $scriptPath -Verbose $arguments'; Hidden = $true }
+        @{ Case = 'pwsh -Command'; Code = '& pwsh -NoProfile -Command "& x.ps1 -CachePath c"'; Hidden = $true }
+        @{ Case = 'pwsh -c'; Code = '& pwsh -c ''x.ps1'''; Hidden = $true }
+        @{ Case = 'pwsh -EncodedCommand'; Code = '& pwsh -NoProfile -EncodedCommand $encoded'; Hidden = $true }
+        @{ Case = 'not Start-Process pwsh alone'; Code = 'Start-Process -FilePath pwsh'; Hidden = $false }
+        @{ Case = 'not a script parameter after -File'; Code = '& pwsh -NoProfile -File x.ps1 -Co ''x'''; Hidden = $false }
     ) {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
         $command = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true))[0]
@@ -9429,11 +9533,47 @@ Describe 'Child script runs stay out of the checkout' {
         @{ Case = 'not a reassigned TestDrive'; Code = '$TestDrive = $script:RepoRoot; & pwsh -File x.ps1 -CachePath $TestDrive'; Safe = $false }
         @{ Case = 'not a .. segment in Join-Path'; Code = '& pwsh -File x.ps1 -CachePath (Join-Path $TestDrive "..\..\repos\x")'; Safe = $false }
         @{ Case = 'not a .. segment in a string'; Code = '& pwsh -File x.ps1 -CachePath "$TestDrive\..\.."'; Safe = $false }
+        # Review G7: each of these passed as safe.
+        @{ Case = 'not a compound assignment'; Code = '$c = $script:RepoRoot; $c += "$TestDrive\c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a write later in a loop that holds the run'; Code = '$c = Join-Path $TestDrive "c"; foreach ($i in 1..2) { & pwsh -File x.ps1 -CachePath $c; $c = Join-Path $script:RepoRoot "c" }'; Safe = $false }
+        @{ Case = 'not a write later in a ForEach-Object block'; Code = '1..2 | ForEach-Object { & pwsh -File x.ps1 -CachePath $TestDrive; $TestDrive = $script:RepoRoot }'; Safe = $false }
+        @{ Case = 'a write in the loop before the run'; Code = 'foreach ($i in 1..2) { $c = Join-Path $TestDrive "c"; & pwsh -File x.ps1 -CachePath $c; $c = Join-Path $script:RepoRoot "c" }'; Safe = $true }
+        @{ Case = 'not a key rewritten in another case'; Code = '$h = @{}; $h["c"] = Join-Path $TestDrive "c"; $h["C"] = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $h["c"]'; Safe = $false }
+        @{ Case = 'not a key removed and added again'; Code = '$h = @{}; $h["c"] = Join-Path $TestDrive "c"; $h.Remove("c"); $h.Add("c", $script:RepoRoot); & pwsh -File x.ps1 -CachePath $h["c"]'; Safe = $false }
+        @{ Case = 'not a .. held in a variable'; Code = '$up = "..\..\repos"; & pwsh -File x.ps1 -CachePath (Join-Path $TestDrive $up)'; Safe = $false }
+        @{ Case = 'not a .. held two variables deep'; Code = '$up = "..\.."; $child = "x\$up"; & pwsh -File x.ps1 -CachePath "$TestDrive\$child"'; Safe = $false }
+        @{ Case = 'not a .. in a foreach list'; Code = 'foreach ($child in @("c", "..\..")) { & pwsh -File x.ps1 -CachePath (Join-Path $TestDrive $child) }'; Safe = $false }
+        @{ Case = 'a foreach list without one'; Code = 'foreach ($child in @("c", "d")) { & pwsh -File x.ps1 -CachePath (Join-Path $TestDrive $child) }'; Safe = $true }
+        @{ Case = 'not a write to the name in another scope'; Code = '$c = Join-Path $TestDrive "c"; $script:c = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
     ) {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
         $run = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] -and $node.CommandElements[0].Extent.Text -eq 'pwsh' }, $true))[0]
 
         @(script:Get-UnsafeOutputPath -Command $run -Required @('CachePath') -Optional @()).Count -eq 0 | Should -Be $Safe
+    }
+
+    It 'never writes to $TestDrive, so a path traced to it stays in the test drive' {
+        # The checks above read writes in the run's own block; one anywhere else (a BeforeAll,
+        # $script:TestDrive) would move every run they pass.
+        $driveRead = @($script:TestFileAst.FindAll({ param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals($node.VariablePath.UserPath, 'TestDrive', [StringComparison]::OrdinalIgnoreCase) }, $true))[0]
+
+        script:Get-LastWrite -Target $driveRead -Before ([int]::MaxValue) -Scope $script:TestFileAst | Should -BeNullOrEmpty
+    }
+
+    It 'finds a write to $TestDrive anywhere in the file: <Case>' -ForEach @(
+        # Review G7: a write in a BeforeAll passed.
+        @{ Case = 'a BeforeAll'; Code = 'Describe "d" { BeforeAll { $TestDrive = $script:RepoRoot }; It "x" { & pwsh -File x.ps1 -CachePath $TestDrive } }'; Found = $true }
+        @{ Case = 'another scope'; Code = 'BeforeAll { $script:TestDrive = $script:RepoRoot }; It "x" { & pwsh -File x.ps1 -CachePath $TestDrive }'; Found = $true }
+        @{ Case = 'Set-Variable'; Code = 'BeforeAll { Set-Variable -Name TestDrive -Value $script:RepoRoot }; It "x" { & pwsh -File x.ps1 -CachePath $TestDrive }'; Found = $true }
+        @{ Case = 'not a file that only reads it'; Code = 'It "x" { & pwsh -File x.ps1 -CachePath $TestDrive }'; Found = $false }
+        @{ Case = 'a foreach over names that spells it out'; Code = 'AfterAll { foreach ($name in @("A", "TestDrive")) { Remove-Variable -Name $name -Scope Script } }; It "x" { & pwsh -File x.ps1 -CachePath $TestDrive }'; Found = $true }
+        @{ Case = 'not a foreach over other names'; Code = 'AfterAll { foreach ($name in @("A", "B")) { Remove-Variable -Name $name -Scope Script } }; It "x" { & pwsh -File x.ps1 -CachePath $TestDrive }'; Found = $false }
+        @{ Case = 'a foreach over names it can''t read'; Code = 'AfterAll { foreach ($name in $names) { Remove-Variable -Name $name -Scope Script } }; It "x" { & pwsh -File x.ps1 -CachePath $TestDrive }'; Found = $true }
+    ) {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+        $driveRead = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals($node.VariablePath.UserPath, 'TestDrive', [StringComparison]::OrdinalIgnoreCase) }, $true))[-1]
+
+        ($null -ne (script:Get-LastWrite -Target $driveRead -Before ([int]::MaxValue) -Scope $ast)) | Should -Be $Found
     }
 }
 
@@ -14934,11 +15074,13 @@ Describe 'Rendered smoke helpers (in-process)' {
 Describe 'Assertions on invisible characters compare them exactly' {
     BeforeAll {
         # True when the text builds a character a reader can't see: with [char]0x.. or
-        # [char]<decimal>, [char]::ConvertFromUtf32 of either, "`u{..}", or written into the
-        # source as it is; a lone surrogate counts.
+        # [char]<decimal> (in parentheses or cast to [int] first too), [char]::ConvertFromUtf32
+        # or [Convert]::ToChar of either, "`u{..}", or written into the source as it is; a lone
+        # surrogate counts.
         function script:Test-BuildsInvisibleCharacter {
             param([string]$Text)
-            foreach ($match in [regex]::Matches($Text, '\[char\]\s*(?:0x(?<hex>[0-9A-Fa-f]{1,6})|(?<dec>\d{1,7}))(?![0-9A-Za-z])|ConvertFromUtf32\(\s*(?:0x(?<hex>[0-9A-Fa-f]{1,6})|(?<dec>\d{1,7}))\s*\)|`u\{(?<hex>[0-9A-Fa-f]{1,6})\}')) {
+            $number = '(?:\[int\]\s*)?(?:0x(?<hex>[0-9A-Fa-f]{1,6})|(?<dec>\d{1,7}))'
+            foreach ($match in [regex]::Matches($Text, '(?i)\[char\]\s*(?:\(\s*)?' + $number + '(?![0-9A-Za-z])|(?:ConvertFromUtf32|ToChar)\(\s*' + $number + '\s*\)|`u\{(?<hex>[0-9A-Fa-f]{1,6})\}')) {
                 $codePoint = if ($match.Groups['hex'].Success) { [Convert]::ToInt32($match.Groups['hex'].Value, 16) } else { [int]$match.Groups['dec'].Value }
                 if ($codePoint -ge 0xD800 -and $codePoint -le 0xDFFF) { return $true }
                 if ($codePoint -le 0x10FFFF -and -not (Test-VisibleText ([char]::ConvertFromUtf32($codePoint)))) { return $true }
@@ -14950,11 +15092,13 @@ Describe 'Assertions on invisible characters compare them exactly' {
         }
 
         # Where an assertion's expected value can come from: its test (body and -ForEach data),
-        # each Describe or Context around it (data, BeforeAll and BeforeEach) and the file's own
-        # BeforeAll.
+        # each Describe or Context around it (data, BeforeDiscovery, BeforeAll, BeforeEach and
+        # the assignments in its own body, which run at discovery and can build -ForEach data)
+        # and the file's own setup and assignments.
         function script:Get-AssertionContext {
             param($Should)
-            $isSetup = { param($node) $node -is [System.Management.Automation.Language.CommandAst] -and @('beforeall', 'beforeeach').Contains(([string]$node.GetCommandName()).ToLowerInvariant()) }
+            $isSetup = { param($node) $node -is [System.Management.Automation.Language.CommandAst] -and @('beforediscovery', 'beforeall', 'beforeeach').Contains(([string]$node.GetCommandName()).ToLowerInvariant()) }
+            $assignments = { param($Block) @($Block.EndBlock.Statements | Where-Object { $_ -is [System.Management.Automation.Language.AssignmentStatementAst] }) }
             for ($node = $Should.Parent; $null -ne $node; $node = $node.Parent) {
                 if ($node -is [System.Management.Automation.Language.CommandAst]) {
                     $command = ([string]$node.GetCommandName()).ToLowerInvariant()
@@ -14962,9 +15106,13 @@ Describe 'Assertions on invisible characters compare them exactly' {
                     elseif (@('describe', 'context').Contains($command)) {
                         @($node.CommandElements | Where-Object { $_ -isnot [System.Management.Automation.Language.ScriptBlockExpressionAst] })
                         @($node.FindAll($isSetup, $true))
+                        foreach ($body in @($node.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.ScriptBlockExpressionAst] })) { & $assignments $body.ScriptBlock }
                     }
                 }
-                if ($null -eq $node.Parent) { @($node.FindAll($isSetup, $false)) }
+                if ($null -eq $node.Parent) {
+                    @($node.FindAll($isSetup, $false))
+                    & $assignments $node
+                }
             }
         }
 
@@ -15000,37 +15148,50 @@ Describe 'Assertions on invisible characters compare them exactly' {
         }
 
         # Every Should -Be, -BeExactly, -Contain, -BeIn, -BeLike or -BeLikeExactly (and the -EQ
-        # and -CEQ aliases, and -ExpectedValue after any of them) that compares by culture where
-        # an invisible character can be: an expected value built from one, or a string written
-        # out as the expected value in a test that builds one anywhere, which the actual value
-        # may then hold. A value from a helper's return is left to review.
+        # and -CEQ aliases) that compares by culture where an invisible character can be: an
+        # expected value built from one, or a string written out as the expected value in a
+        # test that builds one anywhere, which the actual value may then hold. The expected
+        # value is -ExpectedValue's, wherever it's written, or else the first argument no
+        # parameter takes (-Because and -ActualValue take one, -Not and the operators don't). A
+        # value from a helper's return is left to review.
         function script:Find-CultureComparedInvisible {
             param($Ast)
             $shoulds = $Ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($node.GetCommandName(), 'Should', [StringComparison]::OrdinalIgnoreCase) }, $true)
             foreach ($should in $shoulds) {
                 $elements = @($should.CommandElements)
+                $compares = $false
+                $expected = $null
+                $positional = $null
                 for ($index = 1; $index -lt $elements.Count; $index++) {
                     $element = $elements[$index]
-                    if ($element -isnot [System.Management.Automation.Language.CommandParameterAst] -or
-                        -not @('be', 'beexactly', 'contain', 'eq', 'ceq', 'bein', 'belike', 'belikeexactly').Contains($element.ParameterName.ToLowerInvariant())) { continue }
-                    $expected = if ($null -ne $element.Argument) { $element.Argument } elseif ($index + 1 -lt $elements.Count) { $elements[$index + 1] } else { $null }
-                    if ($expected -is [System.Management.Automation.Language.CommandParameterAst] -and [string]::Equals($expected.ParameterName, 'ExpectedValue', [StringComparison]::OrdinalIgnoreCase)) {
-                        $at = [array]::IndexOf($elements, $expected)
-                        $expected = if ($null -ne $expected.Argument) { $expected.Argument } elseif ($at + 1 -lt $elements.Count) { $elements[$at + 1] } else { $null }
+                    if ($element -isnot [System.Management.Automation.Language.CommandParameterAst]) {
+                        if ($null -eq $positional) { $positional = $element }
+                        continue
                     }
-                    if ($null -eq $expected -or $expected -is [System.Management.Automation.Language.CommandParameterAst]) { continue }
-                    $contexts = @(script:Get-AssertionContext -Should $should)
-                    $built = script:Test-ExpressionBuildsInvisible -Expression $expected -Contexts $contexts
-                    if (-not $built) {
-                        $plain = $expected
-                        while ($plain -is [System.Management.Automation.Language.ParenExpressionAst] -and $plain.Pipeline -is [System.Management.Automation.Language.PipelineAst] -and
-                            @($plain.Pipeline.PipelineElements).Count -eq 1 -and $plain.Pipeline.PipelineElements[0] -is [System.Management.Automation.Language.CommandExpressionAst]) { $plain = $plain.Pipeline.PipelineElements[0].Expression }
-                        $isText = ($plain -is [System.Management.Automation.Language.StringConstantExpressionAst] -and $plain.StringConstantType -ne 'BareWord') -or $plain -is [System.Management.Automation.Language.ExpandableStringExpressionAst]
-                        $test = $contexts | Where-Object { $_ -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($_.GetCommandName(), 'It', [StringComparison]::OrdinalIgnoreCase) } | Select-Object -First 1
-                        $built = $isText -and $null -ne $test -and (script:Test-BuildsInvisibleCharacter $test.Extent.Text)
+                    $parameter = $element.ParameterName.ToLowerInvariant()
+                    if (@('be', 'beexactly', 'contain', 'eq', 'ceq', 'bein', 'belike', 'belikeexactly').Contains($parameter)) { $compares = $true }
+                    elseif (@('expectedvalue', 'because', 'actualvalue').Contains($parameter)) {
+                        $value = $element.Argument
+                        if ($null -eq $value -and $index + 1 -lt $elements.Count) {
+                            $index++
+                            $value = $elements[$index]
+                        }
+                        if ('expectedvalue'.Equals($parameter)) { $expected = $value }
                     }
-                    if ($built) { 'line {0}: {1}' -f $should.Extent.StartLineNumber, (($should.Parent.Extent.Text -split "`n")[0].Trim()) }
                 }
+                if ($null -eq $expected) { $expected = $positional }
+                if (-not $compares -or $null -eq $expected -or $expected -is [System.Management.Automation.Language.CommandParameterAst]) { continue }
+                $contexts = @(script:Get-AssertionContext -Should $should)
+                $built = script:Test-ExpressionBuildsInvisible -Expression $expected -Contexts $contexts
+                if (-not $built) {
+                    $plain = $expected
+                    while ($plain -is [System.Management.Automation.Language.ParenExpressionAst] -and $plain.Pipeline -is [System.Management.Automation.Language.PipelineAst] -and
+                        @($plain.Pipeline.PipelineElements).Count -eq 1 -and $plain.Pipeline.PipelineElements[0] -is [System.Management.Automation.Language.CommandExpressionAst]) { $plain = $plain.Pipeline.PipelineElements[0].Expression }
+                    $isText = ($plain -is [System.Management.Automation.Language.StringConstantExpressionAst] -and $plain.StringConstantType -ne 'BareWord') -or $plain -is [System.Management.Automation.Language.ExpandableStringExpressionAst]
+                    $test = $contexts | Where-Object { $_ -is [System.Management.Automation.Language.CommandAst] -and [string]::Equals($_.GetCommandName(), 'It', [StringComparison]::OrdinalIgnoreCase) } | Select-Object -First 1
+                    $built = $isText -and $null -ne $test -and (script:Test-BuildsInvisibleCharacter $test.Extent.Text)
+                }
+                if ($built) { 'line {0}: {1}' -f $should.Extent.StartLineNumber, (($should.Parent.Extent.Text -split "`n")[0].Trim()) }
             }
         }
     }
@@ -15064,6 +15225,16 @@ Describe 'Assertions on invisible characters compare them exactly' {
         @{ Case = 'Describe-level data'; Code = "Describe 'd' -ForEach @(@{ Expected = 'a' + [char]0x200B }) { It 'x' { 'a' | Should -Be `$Expected } }"; Found = $true }
         @{ Case = 'the actual side only'; Code = "It 'x' { `$v = 'a' + [char]0x200B; `$v | Should -Be 'a' }"; Found = $true }
         @{ Case = 'not a test with nothing invisible'; Code = "It 'x' { 'a' | Should -Be 'a' }"; Found = $false }
+        # Review G7: none of these was found.
+        @{ Case = '-ExpectedValue before the operator'; Code = "It 'x' { 'a' | Should -ExpectedValue ('a' + [char]0x200B) -Be }"; Found = $true }
+        @{ Case = '-Because between the operator and the value'; Code = "It 'x' { 'a' | Should -Be -Because 'r' ('a' + [char]0x200B) }"; Found = $true }
+        @{ Case = 'a code point in parentheses'; Code = "It 'x' { 'a' | Should -Be ('a' + [char](0x200B)) }"; Found = $true }
+        @{ Case = '[Convert]::ToChar'; Code = "It 'x' { 'a' | Should -Be ('a' + [Convert]::ToChar(8203)) }"; Found = $true }
+        @{ Case = 'ConvertFromUtf32 of an [int]'; Code = "It 'x' { 'a' | Should -Be ('a' + [char]::ConvertFromUtf32([int]0x200B)) }"; Found = $true }
+        @{ Case = 'data built in a Describe body'; Code = "Describe 'd' { `$cases = @(@{ Expected = 'a' + [char]0x200B }); It 'x' -ForEach `$cases { 'a' | Should -Be `$Expected } }"; Found = $true }
+        @{ Case = 'data built in BeforeDiscovery'; Code = "BeforeDiscovery { `$cases = @(@{ Expected = 'a' + [char]0x200B }) }; Describe 'd' { It 'x' -ForEach `$cases { 'a' | Should -Be `$Expected } }"; Found = $true }
+        @{ Case = 'not a visible character in parentheses'; Code = "It 'x' { 'a' | Should -Be ('a' + [char](0x00E9)) }"; Found = $false }
+        @{ Case = 'not a value given only to -Because'; Code = "It 'x' { `$x = 'a'; 'a' | Should -Be -Because ('a' + [char]0x200B) `$x }"; Found = $false }
     ) {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
 
@@ -15089,5 +15260,17 @@ Describe 'Assertions on invisible characters compare them exactly' {
         { @('a', 'b') | Should -BeOrdinal @('a') } | Should -Throw
         @('a') | Should -BeOrdinal 'a'
         @() | Should -BeOrdinal $null
+    }
+
+    It 'reads a one-item or empty expected list as -BeOrdinal reads the actual one' {
+        # Review G7: the actual side was unwrapped and the expected one wasn't, so each of the
+        # first three failed and the negation passed; a hashtable recursed until the stack ran out.
+        @('a') | Should -BeOrdinal @('a')
+        @() | Should -BeOrdinal @()
+        'a' | Should -BeOrdinal @('a')
+        { @('a') | Should -Not -BeOrdinal @('a') } | Should -Throw -ExpectedMessage "*Expected anything but 'a', compared ordinally.*"
+        { '' | Should -BeOrdinal @() } | Should -Throw
+        $table = @{ a = 1 }
+        { $table | Should -BeOrdinal 'x' } | Should -Throw -ExpectedMessage "*Expected 'x', compared ordinally, but got 'System.Collections.Hashtable'*"
     }
 }

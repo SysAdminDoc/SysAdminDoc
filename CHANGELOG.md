@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- The suite's own guards got stricter. The check that keeps test runs out of the checkout now refuses `+=` writes, a later write in a loop around the run, a `..` held in a variable, `Start-Process pwsh` with arguments and `pwsh -Command`, and a new test fails if anything in the test file writes to `$TestDrive`. The invisible-character check finds `[char](0x200B)`, `[Convert]::ToChar` and case data built in a `Describe` body, and `-BeOrdinal` treats a one-item list as its item on both sides.
 - The header link check finds the headings GitHub shows next to inline HTML and inside quotes and list items. A line that opens with an inline tag, an autolink or a plain `<` no longer hides the heading after it, and a heading inside `<pre>`, `<script>` or CDATA isn't counted. A raw `<h3>` inside a heading line ends that heading the way a browser does. Text five spaces after a list marker is code, so a URL there isn't checked as a link.
 - Header links to README headings now get the ids GitHub gives headings that mix emphasis with tags, autolinks or symbols. A tag or comment no longer hides the underscores around it, text inside an autolink isn't read as emphasis, and an underscore after a symbol like € doesn't open emphasis. A heading that nests underscores deeply is read in about a tenth of a second instead of more than two.
 - Listed Hushfacebook, a new public Morphe patch bundle for Facebook, with the Android projects. It has no release yet, so its row links to the repo. Until it was in the catalog the sync check refused to publish anything.
