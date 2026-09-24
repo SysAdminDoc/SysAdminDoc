@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- The README check finds `run.ps1`'s owner when the assignment has a `[string]` cast or the value sits in parentheses. It used to report no owner for either. A variable whose name hides an invisible character no longer counts as a second owner assignment.
 - The PowerShell module lock passes its own schema. The schema asked for one `expectedSigner` string, but the file and the bootstrap use an `expectedSigners` list, and nothing checked the file against it. A test does now, and a signed record has to name at least one signer.
 - Scorecard error redaction keeps a percent-encoded account name whole. A `%20` or `%C3%B6` inside the name used to end it, so `%2FUsers%2Fjohn%20smith` published `%20smith`. An encoded backslash (`C:%5CUsers%5Cbob`) now counts as a separator, and a URL whose colon is encoded is recognised and left alone.
 - The header link check reads hand-written Markdown the way GitHub renders it. It reads `<https://...>` autolinks, ignores tags and URLs inside HTML comments or in another tag's attribute, and skips fenced and indented code. A lone tag after a rule, a quote, a list item or a setext heading starts an HTML block, as it does on GitHub. Anchors come only from real tags, with an `id` on any element counting, and a heading line inside a fenced block no longer does. All 46 comparison samples match GitHub's own rendering.

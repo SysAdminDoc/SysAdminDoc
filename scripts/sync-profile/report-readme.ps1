@@ -271,20 +271,41 @@ function Test-ReadmeExperience {
     if (Test-Path -LiteralPath $runScriptPath) {
         # From the syntax tree, so a comment can't name the owner and either quoting works: the
         # one assignment to $profileOwner, when its value is a constant string. Two of them, or
-        # a computed value, leave the owner unknown and the check failing.
+        # a computed value, leave the owner unknown and the check failing. The variable may
+        # carry a [string] cast or validation attributes and the value may sit in parentheses;
+        # a cast to another type would change the value, so it leaves the owner unknown too.
         $tokens = $null
         $parseErrors = $null
         $runScriptTree = [System.Management.Automation.Language.Parser]::ParseFile($runScriptPath, [ref]$tokens, [ref]$parseErrors)
         $ownerAssignments = @($runScriptTree.FindAll({
                     param($node)
-                    $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and
-                    $node.Left -is [System.Management.Automation.Language.VariableExpressionAst] -and
-                    $node.Left.VariablePath.UserPath -eq 'profileOwner'
+                    if ($node -isnot [System.Management.Automation.Language.AssignmentStatementAst]) { return $false }
+                    $target = $node.Left
+                    while ($target -is [System.Management.Automation.Language.AttributedExpressionAst]) { $target = $target.Child }
+                    # Ordinal: -eq compares by culture and skips an invisible character, which
+                    # PowerShell keeps in a variable's name.
+                    $target -is [System.Management.Automation.Language.VariableExpressionAst] -and
+                    [string]::Equals($target.VariablePath.UserPath, 'profileOwner', [StringComparison]::OrdinalIgnoreCase)
                 }, $true))
-        if ($ownerAssignments.Count -eq 1 -and
-            $ownerAssignments[0].Right -is [System.Management.Automation.Language.CommandExpressionAst] -and
-            $ownerAssignments[0].Right.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
-            $installDispatcherOwner = $ownerAssignments[0].Right.Expression.Value
+        if ($ownerAssignments.Count -eq 1) {
+            $castsToString = $true
+            $target = $ownerAssignments[0].Left
+            while ($target -is [System.Management.Automation.Language.AttributedExpressionAst]) {
+                if ($target -is [System.Management.Automation.Language.ConvertExpressionAst] -and -not [string].Equals($target.StaticType)) { $castsToString = $false }
+                $target = $target.Child
+            }
+            $value = $ownerAssignments[0].Right
+            while ($value -is [System.Management.Automation.Language.CommandExpressionAst] -and
+                $value.Expression -is [System.Management.Automation.Language.ParenExpressionAst] -and
+                $value.Expression.Pipeline -is [System.Management.Automation.Language.PipelineAst] -and
+                $value.Expression.Pipeline.PipelineElements.Count -eq 1) {
+                $value = $value.Expression.Pipeline.PipelineElements[0]
+            }
+            if ($castsToString -and
+                $value -is [System.Management.Automation.Language.CommandExpressionAst] -and
+                $value.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
+                $installDispatcherOwner = $value.Expression.Value
+            }
         }
     }
     # Ordinal, ignoring case like GitHub's names: -eq compares by culture and skips an

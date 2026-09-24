@@ -6453,6 +6453,13 @@ Describe 'Profile header comes from catalog data' {
         @{ Case = 'two assignments'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n    `$profileOwner = 'Someone'`n}"; ExpectedOwner = $null; MatchesOwner = $false }
         @{ Case = 'a computed value'; Script = "function Start-Tool {`n    `$profileOwner = `"`$env:OWNER`"`n}"; ExpectedOwner = $null; MatchesOwner = $false }
         @{ Case = 'a name with a hidden character'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdmin" + [char]0x200B + "Doc'`n}"; ExpectedOwner = 'SysAdmin' + [char]0x200B + 'Doc'; MatchesOwner = $false }
+        # Review G4: these two gave no owner, and a variable whose name hid a character
+        # counted as a second assignment to $profileOwner.
+        @{ Case = 'a [string] cast'; Script = "function Start-Tool {`n    [string]`$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
+        @{ Case = 'a value in parentheses'; Script = "function Start-Tool {`n    `$profileOwner = (('SysAdminDoc'))`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
+        @{ Case = 'a validation attribute and a cast'; Script = "function Start-Tool {`n    [ValidateNotNullOrEmpty()][string]`$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
+        @{ Case = 'a cast to another type'; Script = "function Start-Tool {`n    [char[]]`$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = $null; MatchesOwner = $false }
+        @{ Case = 'another variable with a hidden character'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n    `${profile" + [char]0x200B + "Owner} = 'Someone'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
     ) {
         # The regex took the first $profileOwner = '...' it found, a block comment's included,
         # a double-quoted one gave no owner at all, and -eq matched a name with a hidden
