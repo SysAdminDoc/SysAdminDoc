@@ -13327,6 +13327,9 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'text six spaces into an ordered item'; Text = "1. item`n`n      https://six.invalid/x"; Expected = @('link https://six.invalid/x') }
         # Review G7: text five or more spaces after the marker is indented code.
         @{ Case = 'code on a list item line'; Text = "-      https://code.invalid/x"; Expected = @() }
+        # Review G8: a tab runs to the next multiple of four columns.
+        @{ Case = 'code two tabs after a list marker'; Text = "-`t`thttps://tabs.invalid/x"; Expected = @() }
+        @{ Case = 'text a tab after a list marker'; Text = "-`thttps://tab.invalid/x"; Expected = @('link https://tab.invalid/x') }
     ) {
         $references = @(Get-ReadmeHeaderLinkReference -ExpectedReadme $Text | ForEach-Object { $_.kind + ' ' + $_.value })
 
@@ -13507,6 +13510,9 @@ Describe 'Hand-authored header links and anchors are validated' {
         @{ Case = 'underscores after an emoji'; Text = [char]::ConvertFromUtf32(0x1F600) + '_a_'; Expected = '_a_' }
         @{ Case = 'underscores before an emoji'; Text = '_a_' + [char]::ConvertFromUtf32(0x1F600); Expected = '_a_' }
         @{ Case = 'brackets two deep in link text'; Text = '[a [b [c]]](https://x.invalid/)'; Expected = 'a-b-c' }
+        # Review G8: GitHub reads link text nested deeper too (checked in a gist).
+        @{ Case = 'brackets four deep in link text'; Text = '[a [b [c [d]]]](https://x.invalid/)'; Expected = 'a-b-c-d' }
+        @{ Case = 'an unbalanced bracket in link text'; Text = '[a [b](https://x.invalid/)'; Expected = 'a-b' }
         @{ Case = 'a > in a quoted attribute'; Text = '<a href="x>y">z</a>'; Expected = 'z' }
         @{ Case = 'a noncharacter before a private use character'; Text = [string][char]0xFDD0 + [char]0xE000; Expected = '' }
         @{ Case = 'another noncharacter before a code span'; Text = [string][char]0xFDD1 + [char]0xE000 + '`x`'; Expected = 'x' }

@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- The header link check reads a list marker followed by tabs the way GitHub does, so a URL two tabs in is code and isn't checked. Link text in a heading can nest brackets to any depth.
 - The suite's guards caught up with another round of review. The check that keeps test runs out of the checkout refuses `pwsh '-Command'` and `/c`, a table passed on under another name, `Set-Item variable:`, `[ref]`, and a later write in a `-Process:` block. The invisible-character check finds values built in a `Describe`'s `BeforeAll`, double casts, `Rune` and data set inside an `if`.
 - The test suite's `-BeOrdinal` check no longer calls any two hashtables equal. A value with no text of its own now matches only itself.
 - A heading with a raw heading tag inside a code span or behind a backslash, like ``## A `<h3>` B``, is found again. The header link check had started cutting the heading at that tag and reported the link to it as broken.

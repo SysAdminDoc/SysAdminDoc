@@ -372,10 +372,16 @@ function Get-ReadmeHeaderLinkReference {
         }
         if ($isListItem -and -not $closesParagraph) {
             $rest = $listItem.Groups['rest'].Value
-            $gap = $listItem.Groups['gap'].Length
+            # The gap in columns, where a tab runs to the next multiple of four.
+            $column = $listItem.Groups['lead'].Length + $listItem.Groups['marker'].Length
+            $markerEnd = $column
+            foreach ($character in $listItem.Groups['gap'].Value.ToCharArray()) {
+                $column = if ($character -eq [char]9) { $column + 4 - ($column % 4) } else { $column + 1 }
+            }
+            $gap = $column - $markerEnd
             $listContentIndent = $listItem.Groups['lead'].Length + $listItem.Groups['marker'].Length + $(if ($rest.Length -eq 0 -or $gap -gt 4) { 1 } else { $gap })
             $paragraphIndent = $listContentIndent
-            # Text five or more spaces after the marker is indented code in the item, shown as written.
+            # Text five or more columns after the marker is indented code in the item, shown as written.
             $itemCode = $rest.Length -gt 0 -and $gap -gt 4
             $inParagraph = $rest.Length -gt 0 -and -not $itemCode -and $rest -notmatch '^(?:#{1,6}(?:[ \t]|\z)|>|<)'
         } else {
@@ -753,7 +759,7 @@ function ConvertTo-GitHubHeadingAnchor {
     # another noncharacter) until the markup around it is gone, so emphasis can wrap it, and
     # a tag or comment leaves a mark that counts as punctuation until then, so <b>a</b>_b_
     # still pairs its underscores. A code span keeps its text, losing one space at each end
-    # unless it's only spaces. Then an image drops out, a link (brackets nested two deep)
+    # unless it's only spaces. Then an image drops out, a link (brackets nested to any depth)
     # leaves its text, an underscore that opens or closes emphasis goes while one inside a
     # word stays (a_b_c), and entities are decoded. A noncharacter in the heading itself
     # would pass for a placeholder, and GitHub drops it from the slug anyway, so it goes first.
@@ -779,7 +785,8 @@ function ConvertTo-GitHubHeadingAnchor {
             if ($match.Groups['url'].Success) { return (& $hold $match.Groups['url'].Value) }
             return $gone
         })
-    $bracketed = '(?:[^\[\]]|\[(?:[^\[\]]|\[[^\[\]]*\])*\])*'
+    # Brackets to any depth: a balancing group lets a ] through only after its [.
+    $bracketed = '(?:[^\[\]]|(?<depth>\[)|(?<-depth>\]))*'
     $value = [regex]::Replace($value, '!\[' + $bracketed + '\]\([^)]*\)', '')
     $value = [regex]::Replace($value, '\[(?<text>' + $bracketed + ')\]\([^)]*\)', '${text}')
     # Emphasis, read with CommonMark's delimiter stack. Each run of * or _ is sorted by what
