@@ -53,6 +53,7 @@ function New-CatalogEntry {
         aliasOf = $null
         suppressionReason = $null
         readmeReviewNote = $null
+        reviewBy = $null
         notes = $null
     }
 }
@@ -101,6 +102,7 @@ function ConvertTo-EntryHashtable {
     Set-IfMissing $hash "aliasOf" $null
     Set-IfMissing $hash "suppressionReason" $null
     Set-IfMissing $hash "readmeReviewNote" $null
+    Set-IfMissing $hash "reviewBy" $null
     Set-IfMissing $hash "notes" $null
 
     if ($null -eq $hash.aliases) { $hash.aliases = @() }
@@ -800,6 +802,13 @@ function Test-CatalogShape {
         } elseif (-not [string]::IsNullOrEmpty([string]$entry.installKind) -and -not ([string]::Equals([string]$entry.installKind, 'powershell', [StringComparison]::Ordinal) -or [string]::Equals([string]$entry.installKind, 'python', [StringComparison]::Ordinal))) {
             # Without an entry script nothing else checks it, and the feed carries it as written.
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be powershell, python or left out" })
+        }
+        # A date the entry is next due for review, so the stale-project check can hold a quiet
+        # but finished project to a promise instead of to how long ago it was pushed.
+        $reviewBy = $entry.reviewBy
+        $reviewByDate = [datetime]::MinValue
+        if ($null -ne $reviewBy -and -not ($reviewBy -is [string] -and [datetime]::TryParseExact($reviewBy, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$reviewByDate))) {
+            $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "reviewBy"; value = [string]$reviewBy; reason = "reviewBy must be a date written as YYYY-MM-DD, or left out" })
         }
         $branch = [string]$entry.branch
         if (-not [string]::IsNullOrWhiteSpace($branch) -and $branch -cnotmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*\z') {

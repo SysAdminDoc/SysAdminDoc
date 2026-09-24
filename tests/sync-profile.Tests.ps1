@@ -4384,7 +4384,7 @@ Describe 'Report schema depth helpers' {
         $suppressedDuplicate.suppressionReason = 'Renamed duplicate profile entry.'
         $repos = @(
             (New-TestRepoMeta -Name 'CurrentTool' -PushedAt '2026-06-01T00:00:00Z'),
-            (New-TestRepoMeta -Name 'StaleTool' -PushedAt '2025-01-01T00:00:00Z'),
+            (New-TestRepoMeta -Name 'StaleTool' -PushedAt '2025-10-01T00:00:00Z'),
             (New-TestRepoMeta -Name 'OldReleaseTool' -WithRelease -PushedAt '2026-06-01T00:00:00Z' -ReleasePublishedAt '2024-01-01T00:00:00Z'),
             (New-TestRepoMeta -Name 'ArchiveCandidate' -PushedAt '2023-01-01T00:00:00Z')
         )
@@ -4396,9 +4396,9 @@ Describe 'Report schema depth helpers' {
             -Now ([datetimeoffset]'2026-06-06T00:00:00Z')
 
         $result.checkedProjectCount | Should -Be 4
-        $result.staleAfterDays | Should -Be 365
+        $result.staleAfterDays | Should -Be 186
         $result.releaseStaleAfterDays | Should -Be 540
-        $result.archiveAfterDays | Should -Be 730
+        $result.archiveAfterDays | Should -Be 365
         $result.staleProjectCount | Should -Be 3
         $result.archiveReviewCount | Should -Be 1
         $result.noReleaseCount | Should -Be 3
@@ -4413,6 +4413,63 @@ Describe 'Report schema depth helpers' {
         ($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) | Should -Contain 'private-or-sensitive'
         ($result.suppressionReasonCounts | ForEach-Object { $_.reasonCode }) | Should -Contain 'duplicate-or-superseded'
         ($result | ConvertTo-Json -Depth 20) | Should -Not -Match 'AHiddenPrivate|MHiddenVisitor|ZHiddenDuplicate'
+    }
+
+    It 'judges an entry with a review-by date by that date alone' {
+        # The age thresholds couldn't fire for an actively maintained portfolio, so the report
+        # had no signal; a promised review date gives it one. The overdue entry was pushed
+        # days ago, and the scheduled one years ago.
+        $overdue = New-TestEntry -Repo 'OverdueTool' -Category 'powershell'
+        $overdue.reviewBy = '2026-05-01'
+        $scheduled = New-TestEntry -Repo 'ScheduledTool' -Category 'python'
+        $scheduled.reviewBy = '2026-12-31'
+        $current = New-TestEntry -Repo 'CurrentTool' -Category 'desktop'
+        $lookup = ConvertTo-Lookup @(
+            (New-TestRepoMeta -Name 'OverdueTool' -PushedAt '2026-06-01T00:00:00Z'),
+            (New-TestRepoMeta -Name 'ScheduledTool' -PushedAt '2020-01-01T00:00:00Z'),
+            (New-TestRepoMeta -Name 'CurrentTool' -PushedAt '2026-06-01T00:00:00Z')
+        )
+
+        $result = Test-StaleProjectReview -Entries @($overdue, $scheduled, $current) -RepoLookup $lookup -Now ([datetimeoffset]'2026-06-06T00:00:00Z')
+
+        $result.warningCount | Should -Be 1
+        $result.reviewByCount | Should -Be 2
+        $result.reviewOverdueCount | Should -Be 1
+        $result.reviewScheduledCount | Should -Be 1
+        @($result.rows | ForEach-Object { $_.repo }) | Should -BeOrdinal 'OverdueTool'
+        @($result.rows[0].signals) | Should -BeOrdinal 'review-overdue'
+        $result.rows[0].reviewBy | Should -BeOrdinal '2026-05-01'
+        $result.rows[0].status | Should -BeOrdinal 'stale-review'
+    }
+
+    It 'counts a review-by date as due, not overdue, on the day itself' {
+        $entry = New-TestEntry -Repo 'DueTool' -Category 'powershell'
+        $entry.reviewBy = '2026-06-06'
+        $lookup = ConvertTo-Lookup @((New-TestRepoMeta -Name 'DueTool' -PushedAt '2020-01-01T00:00:00Z'))
+
+        $result = Test-StaleProjectReview -Entries @($entry) -RepoLookup $lookup -Now ([datetimeoffset]'2026-06-06T12:00:00Z')
+
+        $result.warningCount | Should -Be 0
+        $result.reviewScheduledCount | Should -Be 1
+    }
+
+    It 'takes reviewBy only as a YYYY-MM-DD date: <Case>' -ForEach @(
+        @{ Case = 'a date'; Value = '2026-06-01'; Valid = $true }
+        @{ Case = 'left out'; Value = $null; Valid = $true }
+        @{ Case = 'not a real date'; Value = '2026-13-01'; Valid = $false }
+        @{ Case = 'slashes'; Value = '2026/06/01'; Valid = $false }
+        @{ Case = 'a trailing space'; Value = '2026-06-01 '; Valid = $false }
+        @{ Case = 'a number'; Value = 20260601; Valid = $false }
+    ) {
+        $entry = New-TestEntry -Repo 'DateTool' -Category 'powershell'
+        $entry.reviewBy = $Value
+
+        $issues = @((Test-CatalogShape -Catalog @{ entries = @($entry) }).issues | Where-Object { $_.field -eq 'reviewBy' })
+        $schema = Test-JsonSchemaContract -Value (ConvertFrom-JsonPreservingArrays -Json (@{ entries = @($entry) } | ConvertTo-Json -Depth 10)) -SchemaPath 'schemas/profile-catalog.v1.json'
+        $schemaIssues = @($schema.errors | Where-Object { [string]$_.instanceLocation -match 'reviewBy' })
+
+        $issues.Count -eq 0 | Should -Be $Valid
+        $schemaIssues.Count -eq 0 | Should -Be $Valid
     }
 
     It 'normalizes C++ language topic hints to cpp' {

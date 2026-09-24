@@ -247,6 +247,15 @@
           ],
           "maxLength": 400
         },
+        "reviewBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The date this entry is next due for review, as YYYY-MM-DD. Until then the stale-project check leaves the entry alone; after it the entry is reported as overdue.",
+          "format": "date",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])"
+        },
         "notes": {
           "$ref": "#/$defs/nullableString"
         }

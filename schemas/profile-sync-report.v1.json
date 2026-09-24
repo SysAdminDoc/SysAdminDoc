@@ -1433,6 +1433,9 @@
         "archiveReviewCount",
         "noReleaseCount",
         "suppressedCount",
+        "reviewByCount",
+        "reviewOverdueCount",
+        "reviewScheduledCount",
         "warningCount",
         "statusCounts",
         "suppressionReasonCounts",
@@ -1441,6 +1444,15 @@
       ],
       "properties": {
         "checkedProjectCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "reviewByCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "reviewOverdueCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "reviewScheduledCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "staleAfterDays": {
@@ -1529,7 +1541,8 @@
         "latestReleaseAgeDays",
         "primaryAction",
         "featured",
-        "currentlyBuilding"
+        "currentlyBuilding",
+        "reviewBy"
       ],
       "properties": {
         "repo": {
@@ -1544,6 +1557,9 @@
             "stale-review",
             "archive-review"
           ]
+        },
+        "reviewBy": {
+          "$ref": "#/$defs/nullableString"
         },
         "signals": {
           "$ref": "#/$defs/stringArray"

@@ -1008,6 +1008,9 @@ function Test-StaleProjectReview {
     $suppressedCount = 0
     $noReleaseCount = 0
     $archiveReviewCount = 0
+    $reviewByCount = 0
+    $reviewOverdueCount = 0
+    $reviewScheduledCount = 0
 
     foreach ($entry in @($Entries | Sort-Object category, repo)) {
         $isSuppressed = -not [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)
@@ -1042,29 +1045,45 @@ function Test-StaleProjectReview {
         $latestReleasePublishedAt = if ($release) { ConvertTo-IsoText (Get-MemberValue -Object $release -Name "publishedAt") } else { $null }
         $latestReleaseAgeDays = Get-AgeDays -Value $latestReleasePublishedAt -Now $Now
 
-        if (-not $meta) {
+        # A review-by date takes over from the age thresholds: until that day the entry is left
+        # alone (a finished tool can be quiet on purpose), and after it the entry is overdue
+        # however recently it was pushed.
+        $reviewBy = $null
+        $reviewByDate = [datetime]::MinValue
+        if ($entry.reviewBy -is [string] -and [datetime]::TryParseExact($entry.reviewBy, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None, [ref]$reviewByDate)) {
+            $reviewBy = [string]$entry.reviewBy
+            $reviewByCount++
+        }
+        if ($null -ne $reviewBy -and $Now.Date -gt $reviewByDate.Date) {
+            $signals.Add("review-overdue")
+            $reviewOverdueCount++
+        } elseif ($null -ne $reviewBy) {
+            $reviewScheduledCount++
+        } elseif (-not $meta) {
             $signals.Add("metadata-unavailable")
         }
-        if ($null -eq $pushedAtAgeDays) {
+        # With a review-by date the date decides, and none of the age signals apply.
+        $byAge = $null -eq $reviewBy
+        if ($byAge -and $null -eq $pushedAtAgeDays) {
             $signals.Add("pushedAt-missing")
-        } elseif ($pushedAtAgeDays -gt $StaleAfterDays) {
+        } elseif ($byAge -and $pushedAtAgeDays -gt $StaleAfterDays) {
             $signals.Add("pushedAt-stale")
         }
         if ($release) {
-            if ($null -eq $latestReleaseAgeDays) {
+            if ($byAge -and $null -eq $latestReleaseAgeDays) {
                 $signals.Add("release-date-missing")
-            } elseif ($latestReleaseAgeDays -gt $ReleaseStaleAfterDays) {
+            } elseif ($byAge -and $latestReleaseAgeDays -gt $ReleaseStaleAfterDays) {
                 $signals.Add("release-stale")
             }
         } else {
             $noReleaseCount++
-            if ($null -ne $pushedAtAgeDays -and $pushedAtAgeDays -gt $StaleAfterDays) {
+            if ($byAge -and $null -ne $pushedAtAgeDays -and $pushedAtAgeDays -gt $StaleAfterDays) {
                 $signals.Add("no-latest-release")
             }
         }
 
         $isPinned = ($entry.featured -eq $true -or $entry.currentlyBuilding -eq $true)
-        if (-not $isPinned -and $null -ne $pushedAtAgeDays -and $pushedAtAgeDays -gt $ArchiveAfterDays) {
+        if ($byAge -and -not $isPinned -and $null -ne $pushedAtAgeDays -and $pushedAtAgeDays -gt $ArchiveAfterDays) {
             $signals.Add("archive-review")
         }
 
@@ -1092,6 +1111,7 @@ function Test-StaleProjectReview {
                 primaryAction = [string]$primaryAction["kind"]
                 featured = [bool]$entry.featured
                 currentlyBuilding = [bool]$entry.currentlyBuilding
+                reviewBy = $reviewBy
             })
         }
     }
@@ -1106,11 +1126,14 @@ function Test-StaleProjectReview {
         archiveReviewCount = [int]$archiveReviewCount
         noReleaseCount = [int]$noReleaseCount
         suppressedCount = [int]$suppressedCount
+        reviewByCount = [int]$reviewByCount
+        reviewOverdueCount = [int]$reviewOverdueCount
+        reviewScheduledCount = [int]$reviewScheduledCount
         warningCount = [int]$staleProjectCount
         statusCounts = @($statusCounts.GetEnumerator() | Sort-Object Name | ForEach-Object { [ordered]@{ kind = [string]$_.Name; count = [int]$_.Value } })
         # @(): the function's return unrolls a zero- or one-row result to $null or a bare row.
         suppressionReasonCounts = @(Get-SortedReportRows -Rows @($suppressionCounts.Values) -Keys @("reasonCode", "visibilityClass", "publicReason"))
         rows = $rows.ToArray()
-        note = "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers."
+        note = "Warning-only stale/archive review: visitor-facing rows are listed by repo; suppressed catalog rows are summarized by public reason code without exposing suppressed identifiers. An entry with a reviewBy date is judged by that date alone."
     }
 }

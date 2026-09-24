@@ -148,9 +148,12 @@ $script:SmokeAffectingPaths = @(
 # How long a local dependency-advisory review stays credible as the compensating
 # control for the banned Dependabot lane.
 $script:LocalAdvisoryReviewStaleDays = 7
-$script:StaleProjectPushedAtReviewDays = 365
+# A project unpushed for about six months is due a look (a warning), and one unpushed for a
+# year is an archive candidate. Release age keeps its own, longer threshold: a stable tool
+# can go a long time between releases. A catalog reviewBy date replaces all three.
+$script:StaleProjectPushedAtReviewDays = 186
 $script:StaleProjectReleaseReviewDays = 540
-$script:ArchiveProjectPushedAtReviewDays = 730
+$script:ArchiveProjectPushedAtReviewDays = 365
 $script:RequiredStatusCheckCandidates = @()
 $script:CodeQlSupportedLanguages = @("C", "C++", "C#", "Go", "Java", "JavaScript", "Kotlin", "Python", "Ruby", "Rust", "Swift", "TypeScript")
 $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"

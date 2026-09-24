@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- Catalog entries can carry a `reviewBy` date. An entry with one is left out of the age checks until that day and reported as overdue after it. Without one, the stale check now warns after 186 days without a push and suggests archiving after a year (it used to wait a year and two). Before this the check never fired for an actively maintained portfolio.
 - `-SeedCatalog` says what the README's `Start-Tool` install lines can't give back. They carry no entry script and no branch, so the warning names the entries seeded without them and points at `projects.json` for the values. A `ZIP/XPI` download now seeds as `zip-xpi`, so a catalog seeded from the committed README passes the shape check.
 - Catalog text can't carry any kind of dash into the README. A spaced single hyphen, two hyphens between words, three in a row, hyphens spaced with NBSP and the rarer dash characters are all refused now, not just em and en dashes. A hyphenated word, `--help`, a range and the minus sign are still fine.
 - The guard for culture-compared invisible characters follows expected values through variables, `BeforeAll` blocks and Describe data. It also covers `-BeIn`, `-BeLike` and decimal code points, and flags a plain string compared in a test that builds an invisible character. `-BeOrdinal` compares a list as a whole. Seventeen more assertions compare ordinally as a result.
