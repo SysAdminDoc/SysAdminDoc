@@ -12844,6 +12844,55 @@ Describe 'Hand-authored header links and anchors are validated' {
         ConvertTo-GitHubHeadingAnchor -Text '<b>AI</b> Implementation Services' | Should -Be 'ai-implementation-services'
     }
 
+    It 'gives the id github.com rendered for a heading with <Case>' -ForEach @(
+        # Each expected id was read off a heading rendered on github.com on 2026-09-24. The
+        # slug dropped every _, mark and number beyond 0-9, kept &amp; as "amp" and read
+        # neither escapes nor images, so a correct link to any of these was reported missing.
+        @{ Case = 'an underscore'; Text = 'Net_Tools'; Expected = 'net_tools' }
+        @{ Case = 'accented letters'; Text = 'Caf' + [char]0xE9 + ' D' + [char]0xE9 + 'j' + [char]0xE0; Expected = 'caf' + [char]0xE9 + '-d' + [char]0xE9 + 'j' + [char]0xE0 }
+        @{ Case = 'emphasis'; Text = 'A *b* _c_ **d** __e__'; Expected = 'a-b-c-d-e' }
+        @{ Case = 'underscores inside a word'; Text = 'a_b_c and _em_'; Expected = 'a_b_c-and-em' }
+        @{ Case = 'backslash escapes'; Text = 'x\_y and \*z\*'; Expected = 'x_y-and-z' }
+        @{ Case = 'escaped emphasis and an escaped entity'; Text = '\_em\_ and \&amp; lit'; Expected = '_em_-and-amp-lit' }
+        @{ Case = 'markup inside a code span'; Text = 'Use `_x_` and `&amp;` here'; Expected = 'use-_x_-and-amp-here' }
+        @{ Case = 'numbers that are not digits'; Text = 'Half ' + [char]0xBD + ' sup ' + [char]0xB2 + ' arabic ' + [char]0x663; Expected = 'half--sup--arabic-' + [char]0x663 }
+        @{ Case = 'a letter number and an astral digit'; Text = 'Rome ' + [char]0x216B + ' math ' + [char]::ConvertFromUtf32(0x1D7D8); Expected = 'rome-' + [char]0x217B + '-math-' + [char]::ConvertFromUtf32(0x1D7D8) }
+        @{ Case = 'fullwidth and subscript digits'; Text = 'wide ' + [char]0xFF11 + ' sub ' + [char]0x2081; Expected = 'wide-' + [char]0xFF11 + '-sub-' }
+        @{ Case = 'a combining mark'; Text = 'Cafe' + [char]0x301 + ' ok'; Expected = 'cafe' + [char]0x301 + '-ok' }
+        @{ Case = 'titlecase, modifier and other letters'; Text = 'Dz ' + [char]0x1C5 + ' ' + [char]0x3131 + ' ' + [char]0x2B0; Expected = 'dz-' + [char]0x1C6 + '-' + [char]0x3131 + '-' + [char]0x2B0 }
+        @{ Case = 'connector punctuation'; Text = 'a' + [char]0x203F + 'b wide' + [char]0xFF3F + 'line'; Expected = 'a' + [char]0x203F + 'b-wide' + [char]0xFF3F + 'line' }
+        @{ Case = 'the joiners'; Text = 'a' + [char]0x200D + 'b a' + [char]0x200C + 'b'; Expected = 'a' + [char]0x200D + 'b-a' + [char]0x200C + 'b' }
+        @{ Case = 'a circled letter'; Text = 'circ ' + [char]0x24B6; Expected = 'circ-' + [char]0x24D0 }
+        @{ Case = 'full lower casing'; Text = 'dot ' + [char]0x130 + ' sharp ' + [char]0x1E9E + ' kelvin ' + [char]0x212A + ' ' + [char]0x39F + [char]0x3A3; Expected = 'dot-i' + [char]0x307 + '-sharp-' + [char]0xDF + '-kelvin-k-' + [char]0x3BF + [char]0x3C3 }
+        @{ Case = 'a tab, an ampersand and a bang'; Text = "Tab`tHere & more!"; Expected = 'tabhere--more' }
+        @{ Case = 'other spaces and invisible characters'; Text = 'No' + [char]0xA0 + 'break ideo' + [char]0x3000 + 'space soft' + [char]0xAD + 'hyphen zero' + [char]0x200B + 'width'; Expected = 'nobreak-ideospace-softhyphen-zerowidth' }
+        @{ Case = 'dashes'; Text = '- dash ' + [char]0x2013 + ' here -'; Expected = '--dash--here--' }
+        @{ Case = 'an emoji'; Text = 'Party ' + [char]::ConvertFromUtf32(0x1F389) + ' time'; Expected = 'party--time' }
+        @{ Case = 'punctuation'; Text = "Hey, I'm v1.2: C++ @home `$5"; Expected = 'hey-im-v12-c-home-5' }
+        @{ Case = 'a link'; Text = '[Linked](https://example.invalid/) text'; Expected = 'linked-text' }
+        @{ Case = 'an image'; Text = '![Alt](https://example.invalid/a.png) pic'; Expected = '-pic' }
+        @{ Case = 'a code span'; Text = 'Use `code_here` now'; Expected = 'use-code_here-now' }
+        @{ Case = 'entities'; Text = 'Tom &amp; Jerry &lt;3'; Expected = 'tom--jerry-3' }
+        @{ Case = 'inline HTML'; Text = 'Big <b>bold</b> word'; Expected = 'big-bold-word' }
+        @{ Case = 'strikethrough'; Text = 'Old ~~gone~~ new'; Expected = 'old-gone-new' }
+    ) {
+        $slug = ConvertTo-GitHubHeadingAnchor -Text $Text
+
+        # Ordinal: Should -BeExactly compares by culture, so a slug that lost or kept a
+        # zero-width character would still pass.
+        [string]::Equals($slug, $Expected, [StringComparison]::Ordinal) |
+            Should -BeTrue -Because ('the slug was ' + (($slug.ToCharArray() | ForEach-Object { 'U+{0:X4}' -f [int]$_ }) -join ' '))
+    }
+
+    It 'finds the id GitHub gives a repeated heading and one with a closing run of #' {
+        # github.com numbered these same, same-1, same-2 and, since same-1 was taken,
+        # same-1-1; the closing ## isn't part of the text.
+        $readme = '<p align="center"><a href="#same">a</a> <a href="#same-1">b</a> <a href="#same-2">c</a> <a href="#same-1-1">d</a> <a href="#closed">e</a> <a href="#same-3">f</a></p>' +
+            "`n`n## Same`n`n## Same`n`n## Same`n`n## Same-1`n`n## Closed ##`n"
+
+        (@(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | ForEach-Object { $_.fragment }) -join ' ; ') | Should -Be 'same-3'
+    }
+
     It 'deduplicates a repeated external target' {
         $fixture = '<p><a href="https://dup.example/a">one</a> <a href="https://dup.example/a">two</a></p>' + "`n" + $GeneratedCatalogNotice
 

@@ -569,11 +569,17 @@ function Test-ReadmeHeaderAnchor {
         }
     }
     # A heading line in a fenced code block is code, not a heading. A heading's text is on
-    # its own line: a bare # is an empty heading, and the line after it is a paragraph.
-    foreach ($match in [regex]::Matches($withoutFences, '(?m)^ {0,3}#{1,6}[ \t]+(?<text>.+?)[ \t]*$')) {
+    # its own line: a bare # is an empty heading, and the line after it is a paragraph. A
+    # closing run of # isn't part of the text. A repeated slug gets -1, -2 and so on, skipping
+    # any id an earlier heading already took (Same, Same, Same-1 give same, same-1, same-1-1).
+    $headingIds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($match in [regex]::Matches($withoutFences, '(?m)^ {0,3}#{1,6}[ \t]+(?<text>.+?)(?:[ \t]+#+)?[ \t]*$')) {
         $slug = ConvertTo-GitHubHeadingAnchor -Text $match.Groups['text'].Value
         if (-not [string]::IsNullOrWhiteSpace($slug)) {
-            $null = $anchors.Add($slug)
+            $id = $slug
+            for ($suffix = 1; $headingIds.Contains($id); $suffix++) { $id = "$slug-$suffix" }
+            $null = $headingIds.Add($id)
+            $null = $anchors.Add($id)
         }
     }
 
@@ -606,19 +612,64 @@ function ConvertTo-GitHubHeadingAnchor {
     #>
     param([string]$Text)
 
-    $value = [string]$Text
-    # Strip inline HTML and Markdown emphasis/link syntax before slugging, matching how
-    # GitHub slugs the rendered heading text rather than the raw source.
-    $value = [regex]::Replace($value, '<[^>]+>', '')
-    $value = [regex]::Replace($value, '!?\[(?<text>[^\]]*)\]\([^)]*\)', '${text}')
-    $value = [regex]::Replace($value, '[`*_~]', '')
-    $value = $value.Trim().ToLowerInvariant()
-    $value = [regex]::Replace($value, '[^\p{L}\p{Nd}\s-]', '')
-    # Each whitespace character becomes its own hyphen. GitHub does not collapse runs,
-    # which is why a heading containing "&" yields a double hyphen once the "&" is
-    # dropped and both surrounding spaces survive.
-    $value = [regex]::Replace($value, '\s', '-')
-    return $value
+    # GitHub slugs the rendered heading text, so the Markdown goes first. Every rule here was
+    # read off the ids of headings rendered on github.com (2026-09-24). A code span's text is
+    # kept as written. Elsewhere a backslash escape is the character itself, an image drops
+    # out, a link or autolink leaves its text, a tag goes, an entity is decoded, and an
+    # underscore that opens or closes emphasis goes while one inside a word stays (a_b_c).
+    $rendered = [System.Text.StringBuilder]::new()
+    $segments = [regex]::Split([string]$Text, '(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)')
+    for ($index = 0; $index -lt $segments.Count; $index++) {
+        if ($index % 3 -eq 1) { continue }
+        if ($index % 3 -eq 2) {
+            $code = $segments[$index]
+            if ($code.Length -gt 2 -and $code.StartsWith(' ') -and $code.EndsWith(' ')) { $code = $code.Substring(1, $code.Length - 2) }
+            [void]$rendered.Append($code)
+            continue
+        }
+        # Escaped characters wait in the private use area until the markup is gone.
+        $part = [regex]::Replace($segments[$index], '\\(?<char>[!-/:-@\[-`{-~])', { param($m) [string][char](0xE000 + [int][char]$m.Groups['char'].Value) })
+        $part = [regex]::Replace($part, '!\[[^\]]*\]\([^)]*\)', '')
+        $part = [regex]::Replace($part, '\[(?<text>[^\]]*)\]\([^)]*\)', '${text}')
+        $part = [regex]::Replace($part, '<(?<url>[A-Za-z][A-Za-z0-9+.-]{1,31}:[^\s<>]*)>', '${url}')
+        $part = [regex]::Replace($part, '</?[A-Za-z][^>]*>', '')
+        do {
+            $before = $part
+            $part = [regex]::Replace($part, '(?<![\p{L}\p{N}_])(?<run>_+)(?=\S)(?<text>.+?)(?<=\S)\k<run>(?![\p{L}\p{N}_])', '${text}')
+        } while (-not [string]::Equals($part, $before, [StringComparison]::Ordinal))
+        $part = [System.Net.WebUtility]::HtmlDecode($part)
+        $part = [regex]::Replace($part, '[\uE021-\uE07E]', { param($m) [string][char]([int][char]$m.Value - 0xE000) })
+        [void]$rendered.Append($part)
+    }
+
+    # Lower case, with U+0130 (dotted capital I) in full, i and a combining dot as GitHub has
+    # it, where .NET gives a bare i. Then keep what GitHub's word class keeps: letters, marks,
+    # decimal digits, letter numbers (U+216B, roman twelve), connector punctuation (_, U+203F,
+    # U+FF3F), the joiners ZWJ and ZWNJ, the alphabetic symbols (circled U+24B6 on, and the
+    # squared and negative letters), hyphens and spaces. Other numbers (U+00BD one half,
+    # U+00B2, U+2081), emoji, tabs, NBSP and other spaces all go. Each space becomes its own
+    # hyphen, so "A & B" gives a-b with two hyphens.
+    $keptCategories = @(
+        [System.Globalization.UnicodeCategory]::UppercaseLetter, [System.Globalization.UnicodeCategory]::LowercaseLetter,
+        [System.Globalization.UnicodeCategory]::TitlecaseLetter, [System.Globalization.UnicodeCategory]::ModifierLetter,
+        [System.Globalization.UnicodeCategory]::OtherLetter, [System.Globalization.UnicodeCategory]::NonSpacingMark,
+        [System.Globalization.UnicodeCategory]::SpacingCombiningMark, [System.Globalization.UnicodeCategory]::EnclosingMark,
+        [System.Globalization.UnicodeCategory]::DecimalDigitNumber, [System.Globalization.UnicodeCategory]::LetterNumber,
+        [System.Globalization.UnicodeCategory]::ConnectorPunctuation
+    )
+    $slug = [System.Text.StringBuilder]::new()
+    foreach ($rune in $rendered.ToString().Replace([string][char]0x0130, "i$([char]0x0307)").ToLowerInvariant().EnumerateRunes()) {
+        $value = $rune.Value
+        if ($value -eq 0x20) {
+            [void]$slug.Append('-')
+        } elseif ($value -eq 0x2D -or $value -eq 0x200C -or $value -eq 0x200D -or
+            ($value -ge 0x24B6 -and $value -le 0x24E9) -or ($value -ge 0x1F130 -and $value -le 0x1F149) -or
+            ($value -ge 0x1F150 -and $value -le 0x1F169) -or ($value -ge 0x1F170 -and $value -le 0x1F189) -or
+            $keptCategories.Contains([System.Text.Rune]::GetUnicodeCategory($rune))) {
+            [void]$slug.Append($rune.ToString())
+        }
+    }
+    return $slug.ToString()
 }
 
 function Get-ReadmeActionRepoFromUrl {
