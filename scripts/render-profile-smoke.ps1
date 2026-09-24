@@ -158,9 +158,34 @@ function Connect-CdpWebSocket {
     }
 }
 
+# What the smoke looks for on the page, read from what the generator writes instead of
+# copied here, so renaming a heading can't leave the smoke looking for the old words: the
+# header's tagline, the heading over the category grid, the setup section's title, and the
+# section title and nav label of each category with a README entry, and the footer's link
+# to all repositories. Icons in front of a title aren't part of what's matched.
+function Get-RenderedSmokeExpectation {
+    param([System.Collections.IDictionary]$Catalog)
+    $plain = { param([string]$Html) ([System.Net.WebUtility]::HtmlDecode(($Html -replace '<[^>]+>', '')) -replace '^[^\p{L}\p{N}]+', '').Trim() }
+    $taglineLine = ((New-ProfileChrome -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')) -split '\r?\n', 2)[0]
+    $setupSummary = [regex]::Match((New-FirstTimeSetupSection), '<summary><b>(?<title>.*?)</b>').Groups['title'].Value
+    $footerLink = [regex]::Match((New-ProfileFooter), '\?tab=repositories">(?<text>[^<]+)</a>').Groups['text'].Value
+    $readmeSlugs = @($Catalog.entries | Where-Object { $_.includeInReadme } | ForEach-Object { [string]$_.category })
+    $categories = @($CategoryDefinitions | Where-Object { $readmeSlugs -contains $_.Slug })
+    [ordered]@{
+        tagline = & $plain ([regex]::Match($taglineLine, '<b>(?<text>.*?)</b>').Groups['text'].Value)
+        toolCatalogHeading = $ToolCatalogHeading
+        setupTitle = & $plain $setupSummary
+        categoryTitles = @($categories | ForEach-Object { & $plain $_.Title })
+        navLabels = @($categories | ForEach-Object { [System.Net.WebUtility]::HtmlDecode((Get-ProfileNavLabel -Slug $_.Slug)) })
+        footerLinkText = & $plain $footerLink
+    }
+}
+
 function Invoke-RenderedSmoke {
     param(
         [System.Net.WebSockets.ClientWebSocket]$Socket,
+        # From Get-RenderedSmokeExpectation.
+        [System.Collections.IDictionary]$Expectation,
         [ref]$CommandId,
         [string]$Url,
         [string]$Name,
@@ -213,7 +238,8 @@ function Invoke-RenderedSmoke {
   const text = document.body.innerText || "";
   const article = document.querySelector("article.markdown-body") || document.querySelector(".markdown-body");
   const root = article || document.body;
-  const sections = ["What's here", "First-time setup", "PowerShell System Utilities", "Python Desktop Applications", "Browser Extensions & Userscripts"];
+  const expected = __RENDERED_SMOKE_EXPECTATION__;
+  const sections = [expected.toolCatalogHeading, expected.setupTitle, ...expected.categoryTitles];
   const sectionResults = Object.fromEntries(sections.map((name) => [name, text.includes(name)]));
   const rootOverflow = root.scrollWidth > root.clientWidth + 2;
   const documentOverflow = document.documentElement.scrollWidth > window.innerWidth + 2;
@@ -235,13 +261,14 @@ function Invoke-RenderedSmoke {
     return values.every((value) => elementText.includes(value));
   };
   const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i]'));
-  const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["Broadcast IT", "practical public tools"]));
-  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["PowerShell", "Extensions"]));
+  const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, [expected.tagline]));
+  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, expected.navLabels));
   const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
-  const startHereNodes = textMatch("h1,h2,h3", "What");
-  const toolCatalogNodes = textMatch("h1,h2,h3", "What");
+  // The category grid is where a visitor starts now, and it's also the index of every project.
+  const startHereNodes = textMatch("h1,h2,h3", expected.toolCatalogHeading);
+  const toolCatalogNodes = textMatch("h1,h2,h3", expected.toolCatalogHeading);
   const footerImageNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
-  const footerTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, ["All repos"]));
+  const footerTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, [expected.footerLinkText]));
   const footerNodes = footerImageNodes.length > 0 ? footerImageNodes : footerTextNodes;
   const countVisible = (nodes) => nodes.filter(isVisible).length;
   const firstViewportComponentPresence = {
@@ -437,6 +464,8 @@ function Invoke-RenderedSmoke {
   };
 })()
 '@
+    # JSON is a JavaScript literal, so the expectation goes in as it is.
+    $expression = $expression.Replace('__RENDERED_SMOKE_EXPECTATION__', ($Expectation | ConvertTo-Json -Compress -Depth 4))
 
     $CommandId.Value++
     $evaluation = Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Runtime.evaluate" -Params @{
@@ -612,6 +641,7 @@ try {
     throw "Rendered profile smoke could not run. See $reportPath. Reason: $skipReason"
 }
 
+$expectation = Get-RenderedSmokeExpectation -Catalog (Get-Catalog -Path (Join-Path $RepoRoot $CatalogPath))
 $results = $null
 $lastLaunchError = $null
 for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
@@ -663,6 +693,7 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
                 foreach ($theme in $themes) {
                     Invoke-RenderedSmoke `
                         -Socket $socket `
+                        -Expectation $expectation `
                         -CommandId ([ref]$commandId) `
                         -Url $Url `
                         -Name $viewport.Name `

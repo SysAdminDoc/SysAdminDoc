@@ -603,7 +603,7 @@ function New-ToolCatalogSection {
     )
 
     $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("### What's here")
+    $lines.Add("### $ToolCatalogHeading")
     $lines.Add("")
     # One sentence for a visitor who arrives from a search result and has no idea what this
     # page is. The count comes from the catalog so it cannot go stale.

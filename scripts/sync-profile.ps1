@@ -80,6 +80,9 @@ if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) 
 # do not false-flag a benign public repo as medical-imaging.
 $script:MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
 $script:GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
+# The heading over the category grid. The rendered smoke looks for it on the page and reads
+# it from here, so a rename can't leave the smoke looking for the old words.
+$script:ToolCatalogHeading = "What's here"
 $script:MetadataGeneratedAtStaleDays = 7
 $script:SeedCatalogGuardMessage = "-SeedCatalog is a lossy legacy bootstrap parser. data/profile-catalog.json is the source of truth; re-run with -ForceSeedCatalog only for a one-shot bootstrap, then review the generated catalog before committing."
 $script:LinkValidationThrottle = 16

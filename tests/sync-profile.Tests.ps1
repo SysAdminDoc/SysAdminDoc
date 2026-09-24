@@ -9604,14 +9604,12 @@ Describe 'Rendered profile smoke wiring' {
     }
 
     It 'asserts key rendered sections and overflow/image health' {
-        $script:RenderSmokeScript | Should -Match "What.s here"
+        # The section names come from the generator (Get-RenderedSmokeExpectation); the
+        # in-process tests check they're in the README and not copied into the smoke.
+        $script:RenderSmokeScript | Should -Match 'const sections = \[expected\.toolCatalogHeading, expected\.setupTitle, \.\.\.expected\.categoryTitles\]'
         $script:RenderSmokeScript | Should -Not -Match 'Catalog Snapshot'
         $script:RenderSmokeScript | Should -Not -Match 'Featured Projects'
-        $script:RenderSmokeScript | Should -Match 'First-time setup'
         $script:RenderSmokeScript | Should -Not -Match 'Tool Catalog'
-        $script:RenderSmokeScript | Should -Match 'PowerShell System Utilities'
-        $script:RenderSmokeScript | Should -Match 'Python Desktop Applications'
-        $script:RenderSmokeScript | Should -Match 'Browser Extensions & Userscripts'
         $script:RenderSmokeScript | Should -Not -Match 'Python Applications'
         $script:RenderSmokeScript | Should -Match 'rootOverflow'
         $script:RenderSmokeScript | Should -Match 'failedImages'
@@ -15051,6 +15049,44 @@ Describe 'Rendered smoke helpers (in-process)' {
         $artifact | Should -Be (Join-Path $resolvedOutputDir 'rendered-profile-smoke.json')
         (Get-Content -LiteralPath $artifact -Raw | ConvertFrom-Json).status | Should -Be 'passed'
         Test-Path -LiteralPath (Join-Path $currentDirectory 'reports') | Should -BeFalse
+    }
+
+    It 'looks on the page for texts the README holds, and keeps no copy of them' {
+        # 12ecd37 renamed the page's sections, and the smoke's own copies of the old words
+        # failed every viewport for a week.
+        $expectation = Get-RenderedSmokeExpectation -Catalog (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json'))
+        $readme = [System.Net.WebUtility]::HtmlDecode(([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md')) -replace '<[^>]+>', ''))
+        $source = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1'))
+        $texts = @($expectation.tagline, $expectation.toolCatalogHeading, $expectation.setupTitle, $expectation.footerLinkText) + @($expectation.categoryTitles)
+
+        # The nav labels sit together in one line, as the smoke looks for them.
+        $navLine = @($readme -split '\r?\n' | Where-Object { $line = $_; @($expectation.navLabels | Where-Object { -not $line.Contains($_) }).Count -eq 0 })
+
+        @($expectation.categoryTitles).Count | Should -Be @($expectation.navLabels).Count
+        @($expectation.categoryTitles).Count | Should -BeGreaterThan 5
+        @($texts | Where-Object { [string]::IsNullOrWhiteSpace($_) -or -not $readme.Contains($_) }) | Should -BeNullOrEmpty
+        $navLine.Count | Should -BeGreaterThan 0 -Because 'the nav has to hold every label the smoke looks for'
+        @($texts | Where-Object { $source.Contains($_) }) | Should -BeNullOrEmpty
+    }
+
+    It 'follows the generator when the grid heading or the tagline changes' {
+        $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $catalog['profileHeader'] = [pscustomobject]@{ tagline = 'Fixture tagline & more' }
+        $catalog['entries'] = @($catalog.entries | Where-Object { $_.category -ne 'guides' })
+        $saved = $script:ToolCatalogHeading
+        try {
+            $script:ToolCatalogHeading = 'Fixture grid'
+            $expectation = Get-RenderedSmokeExpectation -Catalog $catalog
+            $gridHeading = ((New-ToolCatalogSection -Entries @() -RepoLookup @{}) -split '\r?\n', 2)[0]
+        } finally {
+            $script:ToolCatalogHeading = $saved
+        }
+
+        $expectation.tagline | Should -Be 'Fixture tagline & more'
+        $expectation.toolCatalogHeading | Should -Be 'Fixture grid'
+        $gridHeading | Should -Be '### Fixture grid'
+        @($expectation.navLabels) | Should -Not -Contain 'Guides'
+        @($expectation.categoryTitles) | Should -Not -Contain 'Guides & Resources'
     }
 
     It 'starts the browser CHROME_PATH names, and refuses one that is not there' {
