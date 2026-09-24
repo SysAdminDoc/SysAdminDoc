@@ -15187,6 +15187,9 @@ Describe 'Rendered smoke helpers (in-process)' {
             { Find-ChromeExecutable } | Should -Throw -ExpectedMessage "*CHROME_PATH is set to*missing.exe*"
             $env:CHROME_PATH = $TestDrive
             { Find-ChromeExecutable } | Should -Throw -ExpectedMessage "*CHROME_PATH is set to*"
+            # Review G8: one of only spaces fell back to the search.
+            $env:CHROME_PATH = ' '
+            { Find-ChromeExecutable } | Should -Throw -ExpectedMessage "*CHROME_PATH is set to*"
         } finally {
             $env:CHROME_PATH = $saved
         }

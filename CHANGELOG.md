@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- A `CHROME_PATH` of only spaces stops the rendered smoke check instead of letting it search for another browser.
 - The `-SeedCatalog` warning about `Start-Tool` install lines names every entry it means, once each, instead of the first five.
 - The header link check reads a list marker followed by tabs the way GitHub does, so a URL two tabs in is code and isn't checked. Link text in a heading can nest brackets to any depth.
 - The suite's guards caught up with another round of review. The check that keeps test runs out of the checkout refuses `pwsh '-Command'` and `/c`, a table passed on under another name, `Set-Item variable:`, `[ref]`, and a later write in a `-Process:` block. The invisible-character check finds values built in a `Describe`'s `BeforeAll`, double casts, `Rune` and data set inside an `if`.

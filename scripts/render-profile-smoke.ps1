@@ -27,7 +27,8 @@ if ([string]::IsNullOrWhiteSpace($Url)) {
 function Find-ChromeExecutable {
     # CHROME_PATH names the browser outright (a Playwright Chromium, say). One that points
     # nowhere is an error, not a reason to start whatever browser the search below finds.
-    if (-not [string]::IsNullOrWhiteSpace($env:CHROME_PATH)) {
+    # Set at all, it's used: one of only spaces is an error too.
+    if (-not [string]::IsNullOrEmpty($env:CHROME_PATH)) {
         if (-not (Test-Path -LiteralPath $env:CHROME_PATH -PathType Leaf)) {
             throw "CHROME_PATH is set to '$env:CHROME_PATH', which isn't a file."
         }
