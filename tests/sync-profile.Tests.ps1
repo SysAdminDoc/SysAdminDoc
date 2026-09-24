@@ -8718,31 +8718,49 @@ Describe 'Child script runs stay out of the checkout' {
         $script:TestFileAst = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'sync-profile.Tests.ps1'), [ref]$tokens, [ref]$parseErrors)
 
         # Every child pwsh that runs -File with a path the file-matching block accepts, however
-        # pwsh is named: pwsh, pwsh.exe or (Get-Command pwsh).Source.
+        # pwsh is named: pwsh, pwsh.exe, a full path to it, or anything computed that could
+        # hold it ((Get-Command pwsh).Source, & $exe), since the -File path says what runs.
         function script:Find-ChildRun {
             param([scriptblock]$FileMatches)
             @($script:TestFileAst.FindAll({
                 param($node)
                 $node -is [System.Management.Automation.Language.CommandAst] -and
-                    $node.CommandElements[0].Extent.Text -match '^(?:pwsh(?:\.exe)?|\(Get-Command pwsh(?:\.exe)?\)\.Source)$' -and
+                    ($node.CommandElements[0] -isnot [System.Management.Automation.Language.StringConstantExpressionAst] -or
+                    $node.CommandElements[0].Value -match '(?:^|[\\/])pwsh(?:\.exe)?$') -and
                     (& $FileMatches $node)
             }, $true))
         }
 
+        # pwsh takes -File as -f, -fi or -fil too, with one or two dashes or a slash, quoted or not.
+        $script:FileSwitchPattern = '(?:^|\s)[''"]?(?:--?|/)f(?:i(?:le?)?)?[''"]?\s+'
+
+        # A variable's name without local: or private:, which name the same variable.
+        function script:Get-VariableName {
+            param($Variable)
+            $Variable.VariablePath.UserPath -replace '^(?i:local|private):', ''
+        }
+
         # True when a path value comes from the test drive: $TestDrive itself, Join-Path with
-        # $TestDrive as its base, a double-quoted string that starts with it, or a variable or
-        # indexed value whose last assignment before the run is one of those. The text alone
-        # isn't enough: '$TestDrive/cache' in single quotes is a relative path in the checkout.
+        # $TestDrive as its base, a double-quoted string that starts with one of those, or a
+        # variable or indexed value whose last write before the run is one of those. The text
+        # alone isn't enough: '$TestDrive/cache' in single quotes is a relative path in the
+        # checkout.
         function script:Test-TestDriveValue {
             param($Value, [int]$Before, [int]$Depth = 0)
             if ($null -eq $Value -or $Depth -gt 6) { return $false }
             switch ($Value.GetType().Name) {
                 'VariableExpressionAst' {
-                    if ($Value.VariablePath.UserPath -eq 'TestDrive') { return $true }
+                    # Ordinal: -eq compares by culture and skips an invisible character, and
+                    # $TestDrive:cacheH is an item on the TestDrive: drive, not the variable.
+                    if ([string]::Equals($Value.VariablePath.UserPath, 'TestDrive', [StringComparison]::OrdinalIgnoreCase)) { return $true }
                     return (script:Test-AssignedFromTestDrive -Target $Value -Before $Before -Depth $Depth)
                 }
                 'IndexExpressionAst' { return (script:Test-AssignedFromTestDrive -Target $Value -Before $Before -Depth $Depth) }
                 'ParenExpressionAst' { return (script:Test-TestDriveValue -Value $Value.Pipeline -Before $Before -Depth ($Depth + 1)) }
+                'SubExpressionAst' {
+                    $statements = @($Value.SubExpression.Statements)
+                    return ($statements.Count -eq 1 -and (script:Test-TestDriveValue -Value $statements[0] -Before $Before -Depth ($Depth + 1)))
+                }
                 'PipelineAst' {
                     if ($Value.PipelineElements.Count -ne 1) { return $false }
                     return (script:Test-TestDriveValue -Value $Value.PipelineElements[0] -Before $Before -Depth ($Depth + 1))
@@ -8766,25 +8784,66 @@ Describe 'Child script runs stay out of the checkout' {
                     }
                     return $false
                 }
-                'ExpandableStringExpressionAst' { return ($Value.Extent.Text -match '^"\$(?:TestDrive\b|\{TestDrive\}|\(\$TestDrive\))') }
+                'ExpandableStringExpressionAst' {
+                    # What opens the string decides where the path lies ("$TestDrive\c",
+                    # "${TestDrive}\c", "$($TestDrive)\c", "$c\x"); a here-string is left to the
+                    # snapshot.
+                    $first = @($Value.NestedExpressions)[0]
+                    if ($null -eq $first -or $first.Extent.StartOffset -ne $Value.Extent.StartOffset + 1) { return $false }
+                    return (script:Test-TestDriveValue -Value $first -Before $Before -Depth ($Depth + 1))
+                }
                 default { return $false }
             }
         }
 
+        # The last write to the target before the run, in the script block the run sits in. A
+        # plain assignment, typed or not, is traced. A write the guard can't follow makes the
+        # path unsafe: one in a nested script block (ForEach-Object runs its block in the
+        # caller's scope, & { } in a child scope), a multiple assignment, a foreach variable,
+        # Set-Variable and its kin, or for an indexed value a whole-table reassignment.
         function script:Test-AssignedFromTestDrive {
             param($Target, [int]$Before, [int]$Depth)
             $scope = $Target.Parent
             while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
             if ($null -eq $scope) { return $false }
-            $targetText = $Target.Extent.Text
-            $last = @($scope.FindAll({
-                param($node)
-                $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Left.Extent.Text -eq $targetText -and $node.Extent.EndOffset -le $Before
-            }, $true) | Sort-Object { $_.Extent.StartOffset }) | Select-Object -Last 1
-            if ($null -eq $last) { return $false }
-            return (script:Test-TestDriveValue -Value $last.Right -Before $last.Extent.StartOffset -Depth ($Depth + 1))
+            $variable = if ($Target -is [System.Management.Automation.Language.IndexExpressionAst]) { $Target.Target } else { $Target }
+            if ($variable -isnot [System.Management.Automation.Language.VariableExpressionAst]) { return $false }
+            $name = script:Get-VariableName $variable
+            $isName = { param($node) $node -is [System.Management.Automation.Language.VariableExpressionAst] -and [string]::Equals((script:Get-VariableName $node), $name, [StringComparison]::OrdinalIgnoreCase) }
+            $writes = foreach ($node in $scope.FindAll({ param($node) $node.Extent.EndOffset -le $Before -or $node -is [System.Management.Automation.Language.ForEachStatementAst] }, $true)) {
+                $traced = $null
+                $untraceable = $false
+                if ($node -is [System.Management.Automation.Language.AssignmentStatementAst] -and $node.Extent.EndOffset -le $Before) {
+                    $left = $node.Left
+                    while ($left -is [System.Management.Automation.Language.AttributedExpressionAst]) { $left = $left.Child }
+                    if ($Target -is [System.Management.Automation.Language.IndexExpressionAst]) {
+                        if ($left -is [System.Management.Automation.Language.IndexExpressionAst] -and (& $isName $left.Target) -and [string]::Equals($left.Index.Extent.Text, $Target.Index.Extent.Text, [StringComparison]::Ordinal)) { $traced = $node.Right }
+                        elseif (& $isName $left) { $untraceable = $true }
+                    } elseif (& $isName $left) { $traced = $node.Right }
+                    if ($left -is [System.Management.Automation.Language.ArrayLiteralAst] -and @($left.Elements | Where-Object {
+                                $element = $_
+                                while ($element -is [System.Management.Automation.Language.AttributedExpressionAst]) { $element = $element.Child }
+                                & $isName $element
+                            }).Count -gt 0) { $untraceable = $true }
+                } elseif ($node -is [System.Management.Automation.Language.ForEachStatementAst] -and $node.Extent.StartOffset -lt $Before -and (& $isName $node.Variable)) {
+                    $untraceable = $true
+                } elseif ($node -is [System.Management.Automation.Language.CommandAst] -and
+                    @('set-variable', 'new-variable', 'clear-variable', 'remove-variable', 'sv', 'nv', 'clv', 'rv', 'set').Contains(([string]$node.GetCommandName()).ToLowerInvariant()) -and
+                    @($node.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.StringConstantExpressionAst] -and [string]::Equals(($_.Value -replace '^(?i:local|private):', ''), $name, [StringComparison]::OrdinalIgnoreCase) }).Count -gt 0) {
+                    $untraceable = $true
+                }
+                if ($null -eq $traced -and -not $untraceable) { continue }
+                $owningBlock = $node.Parent
+                while ($null -ne $owningBlock -and $owningBlock -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $owningBlock = $owningBlock.Parent }
+                [pscustomobject]@{ Offset = $node.Extent.StartOffset; Value = if ($untraceable -or -not [object]::ReferenceEquals($owningBlock, $scope)) { $null } else { $traced } }
+            }
+            $last = @($writes | Sort-Object Offset) | Select-Object -Last 1
+            if ($null -eq $last -or $null -eq $last.Value) { return $false }
+            return (script:Test-TestDriveValue -Value $last.Value -Before $last.Offset -Depth ($Depth + 1))
         }
 
+        # By the full name only: an abbreviated -Cache reads as missing, which fails the check
+        # rather than passing it.
         function script:Get-ParameterValue {
             param($Command, [string]$Name)
             $elements = @($Command.CommandElements)
@@ -8812,9 +8871,42 @@ Describe 'Child script runs stay out of the checkout' {
             })
         }
 
+        # PowerShell binds an unambiguous prefix (-Wri is -Write), so any prefix counts; one that
+        # could name another switch as well only makes the check ask for more paths.
         function script:Test-SwitchPresent {
             param($Command, [string]$Name)
-            @($Command.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName -eq $Name }).Count -gt 0
+            @($Command.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.CommandParameterAst] -and $_.ParameterName.Length -gt 0 -and $Name.StartsWith($_.ParameterName, [StringComparison]::OrdinalIgnoreCase) }).Count -gt 0
+        }
+
+        # What a sync-profile.ps1 run writes: the cache and lock always, the report under
+        # -Check, the README, feed and assets under -Write, the catalog under -SeedCatalog and
+        # under -DraftMissingCatalogEntries (with -Write).
+        function script:Get-SyncProfileRequiredPath {
+            param($Command)
+            $required = @('CachePath')
+            if (script:Test-SwitchPresent -Command $Command -Name 'Check') { $required += 'ReportPath' }
+            if (script:Test-SwitchPresent -Command $Command -Name 'Write') { $required += @('ReadmePath', 'ProjectsPath', 'AssetsPath') }
+            if ((script:Test-SwitchPresent -Command $Command -Name 'SeedCatalog') -or (script:Test-SwitchPresent -Command $Command -Name 'DraftMissingCatalogEntries')) { $required += 'CatalogPath' }
+            $required
+        }
+
+        # A pwsh run, or a computed command that may be one, whose arguments the guards can't
+        # read: a splat, or (for pwsh) a variable or array where no parameter takes it.
+        function script:Test-HiddenChildArgument {
+            param($Command)
+            $elements = @($Command.CommandElements)
+            $isPwsh = $elements[0].Extent.Text -match 'pwsh'
+            if (-not $isPwsh -and $elements[0] -is [System.Management.Automation.Language.StringConstantExpressionAst]) { return $false }
+            if (@($elements | Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] -and $_.Splatted }).Count -gt 0) { return $true }
+            if (-not $isPwsh) { return $false }
+            for ($index = 1; $index -lt $elements.Count; $index++) {
+                $previous = $elements[$index - 1]
+                $takenByParameter = $previous -is [System.Management.Automation.Language.CommandParameterAst] -and $null -eq $previous.Argument
+                if (-not $takenByParameter -and ($elements[$index] -is [System.Management.Automation.Language.VariableExpressionAst] -or
+                        $elements[$index] -is [System.Management.Automation.Language.ArrayExpressionAst] -or
+                        $elements[$index] -is [System.Management.Automation.Language.ArrayLiteralAst])) { return $true }
+            }
+            return $false
         }
 
         function script:Format-ChildRun {
@@ -8829,8 +8921,8 @@ Describe 'Child script runs stay out of the checkout' {
         $childRuns = script:Find-ChildRun -FileMatches {
             param($node)
             $text = $node.Extent.Text
-            if ($text -match '-File\s+\$script:SyncProfileScriptPath\b') { return $true }
-            if ($text -notmatch '-File\s+\$scriptPath\b') { return $false }
+            if ($text -match ($script:FileSwitchPattern + '\$script:SyncProfileScriptPath\b')) { return $true }
+            if ($text -notmatch ($script:FileSwitchPattern + '\$scriptPath\b')) { return $false }
             # $scriptPath names sync-profile.ps1 when the enclosing test assigns it so.
             $scope = $node.Parent
             while ($null -ne $scope -and $scope -isnot [System.Management.Automation.Language.ScriptBlockAst]) { $scope = $scope.Parent }
@@ -8838,14 +8930,8 @@ Describe 'Child script runs stay out of the checkout' {
         }
 
         $childRuns.Count | Should -BeGreaterThan 5 -Because 'the scan has to find the seed and entrypoint-mode runs'
-        # What each mode writes: the cache and lock always, the report under -Check, the
-        # README, feed and assets under -Write, the catalog under -SeedCatalog.
         @(foreach ($run in $childRuns) {
-            $required = @('CachePath')
-            if (script:Test-SwitchPresent -Command $run -Name 'Check') { $required += 'ReportPath' }
-            if (script:Test-SwitchPresent -Command $run -Name 'Write') { $required += @('ReadmePath', 'ProjectsPath', 'AssetsPath') }
-            if (script:Test-SwitchPresent -Command $run -Name 'SeedCatalog') { $required += 'CatalogPath' }
-            $unsafe = @(script:Get-UnsafeOutputPath -Command $run -Required $required -Optional @('BackstageExportPath'))
+            $unsafe = @(script:Get-UnsafeOutputPath -Command $run -Required (script:Get-SyncProfileRequiredPath -Command $run) -Optional @('BackstageExportPath'))
             if ($unsafe.Count -gt 0) { '{0} ({1})' -f (script:Format-ChildRun $run), ($unsafe -join ', ') }
         }) | Should -BeNullOrEmpty
     }
@@ -8855,7 +8941,7 @@ Describe 'Child script runs stay out of the checkout' {
         # the validation lane owns; a test run belongs in its own cache or its own root.
         $childRuns = script:Find-ChildRun -FileMatches {
             param($node)
-            $node.Extent.Text -match '-File\s+\$script:(?:DependencyReviewScriptPath|ReviewScriptPath)\b'
+            $node.Extent.Text -match ($script:FileSwitchPattern + '\$script:(?:DependencyReviewScriptPath|ReviewScriptPath)\b')
         }
 
         $childRuns.Count | Should -BeGreaterThan 6 -Because 'the scan has to find the pwsh and (Get-Command pwsh).Source runs'
@@ -8869,15 +8955,72 @@ Describe 'Child script runs stay out of the checkout' {
     }
 
     It 'writes every child pwsh run out in full, so the checks above can read it' {
-        # A splatted argument list hides the paths the run writes; the guards can't see it.
-        $splatted = @($script:TestFileAst.FindAll({
+        # A splatted argument list hides the paths the run writes, and so does an array passed
+        # to pwsh as one argument; the guards can't see either. A computed command (& $exe)
+        # may be pwsh, so it can't splat either.
+        $hidden = @($script:TestFileAst.FindAll({
             param($node)
             $node -is [System.Management.Automation.Language.CommandAst] -and
-                $node.CommandElements[0].Extent.Text -match 'pwsh' -and
-                @($node.CommandElements | Where-Object { $_ -is [System.Management.Automation.Language.VariableExpressionAst] -and $_.Splatted }).Count -gt 0
+                (script:Test-HiddenChildArgument -Command $node)
         }, $true))
 
-        @($splatted | ForEach-Object { script:Format-ChildRun $_ }) | Should -BeNullOrEmpty
+        @($hidden | ForEach-Object { script:Format-ChildRun $_ }) | Should -BeNullOrEmpty
+    }
+
+    It 'finds a hidden argument list in <Case>' -ForEach @(
+        @{ Case = 'a splat to pwsh'; Code = 'pwsh -File x.ps1 @arguments'; Hidden = $true }
+        @{ Case = 'a splat to a computed command'; Code = '& $exe @arguments'; Hidden = $true }
+        @{ Case = 'an array passed to pwsh'; Code = '& pwsh $arguments'; Hidden = $true }
+        @{ Case = 'an array after the script path'; Code = '& pwsh -NoProfile -File x.ps1 $arguments'; Hidden = $true }
+        @{ Case = 'not a value given to a parameter'; Code = '& pwsh -NoProfile -File $scriptPath -CachePath $cache'; Hidden = $false }
+        @{ Case = 'not a splat to a named command'; Code = 'Invoke-Thing @arguments'; Hidden = $false }
+    ) {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+        $command = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true))[0]
+
+        script:Test-HiddenChildArgument -Command $command | Should -Be $Hidden
+    }
+
+    It 'finds a child run however pwsh and -File are written: <Case>' -ForEach @(
+        @{ Case = 'pwsh -f'; Code = '& pwsh -NoProfile -f $script:SyncProfileScriptPath -Check' }
+        @{ Case = 'a quoted -File'; Code = '& pwsh -NoProfile ''-File'' $script:SyncProfileScriptPath -Check' }
+        @{ Case = 'a double-dash -file'; Code = '& pwsh --file $script:SyncProfileScriptPath -Check' }
+        @{ Case = 'pwsh held in a variable'; Code = '& $exe -NoProfile -File $script:SyncProfileScriptPath -Check' }
+        @{ Case = 'a full path to pwsh.exe'; Code = '& ''C:\Program Files\PowerShell\7\pwsh.exe'' -File $script:SyncProfileScriptPath -Check' }
+    ) {
+        $saved = $script:TestFileAst
+        try {
+            $script:TestFileAst = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+            $runs = script:Find-ChildRun -FileMatches { param($node) $node.Extent.Text -match ($script:FileSwitchPattern + '\$script:SyncProfileScriptPath\b') }
+        } finally {
+            $script:TestFileAst = $saved
+        }
+
+        @($runs) | Should -HaveCount 1
+    }
+
+    It 'asks a sync-profile run for the paths it writes: <Case>' -ForEach @(
+        @{ Case = 'a plain run'; Code = 'pwsh -File x.ps1 -Offline'; Expected = 'CachePath' }
+        @{ Case = 'a check'; Code = 'pwsh -File x.ps1 -Check'; Expected = 'CachePath,ReportPath' }
+        @{ Case = 'a seed'; Code = 'pwsh -File x.ps1 -SeedCatalog'; Expected = 'CachePath,CatalogPath' }
+        @{ Case = 'drafting missing entries'; Code = 'pwsh -File x.ps1 -Write -DraftMissingCatalogEntries'; Expected = 'CachePath,ReadmePath,ProjectsPath,AssetsPath,CatalogPath' }
+    ) {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+        $run = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true))[0]
+
+        (@(script:Get-SyncProfileRequiredPath -Command $run) -join ',') | Should -Be $Expected
+    }
+
+    It 'asks for the paths a switch written <Case> writes' -ForEach @(
+        @{ Case = 'in full'; Code = 'pwsh -File x.ps1 -Write'; Name = 'Write'; Present = $true }
+        @{ Case = 'as a prefix'; Code = 'pwsh -File x.ps1 -Wri'; Name = 'Write'; Present = $true }
+        @{ Case = 'in another case'; Code = 'pwsh -File x.ps1 -draftmissing'; Name = 'DraftMissingCatalogEntries'; Present = $true }
+        @{ Case = 'not as another switch'; Code = 'pwsh -File x.ps1 -WriteThrough'; Name = 'Write'; Present = $false }
+    ) {
+        $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
+        $run = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true))[0]
+
+        script:Test-SwitchPresent -Command $run -Name $Name | Should -Be $Present
     }
 
     It 'traces a path to the test drive only through <Case>' -ForEach @(
@@ -8889,6 +9032,24 @@ Describe 'Child script runs stay out of the checkout' {
         @{ Case = 'not a variable reassigned into the checkout'; Code = '$c = Join-Path $TestDrive "c"; $c = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
         @{ Case = 'not a value that only mentions it'; Code = '& pwsh -File x.ps1 -CachePath ($TestDrive -replace ''.+'', $script:RepoRoot)'; Safe = $false }
         @{ Case = 'not an assignment made after the run'; Code = '& pwsh -File x.ps1 -CachePath $c; $c = Join-Path $TestDrive "c"'; Safe = $false }
+        # Review of c2f43c1: each of these was misread.
+        @{ Case = 'not an assignment in a nested script block'; Code = '$c = Join-Path $script:RepoRoot "c"; 1 | ForEach-Object { $c = Join-Path $TestDrive "c" }; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a multiple assignment after it'; Code = '$c = Join-Path $TestDrive "c"; $c, $d = "a", "b"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a foreach variable after it'; Code = '$c = Join-Path $TestDrive "c"; foreach ($c in @("a")) { }; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not Set-Variable after it'; Code = '$c = Join-Path $TestDrive "c"; Set-Variable -Name c -Value "a"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not Clear-Variable after it'; Code = '$c = Join-Path $TestDrive "c"; Clear-Variable c; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a braced reassignment'; Code = '$c = Join-Path $TestDrive "c"; ${c} = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a local: reassignment'; Code = '$c = Join-Path $TestDrive "c"; $local:c = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'not a typed reassignment'; Code = '$c = Join-Path $TestDrive "c"; [string]$c = Join-Path $script:RepoRoot "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $false }
+        @{ Case = 'a typed assignment from it'; Code = '[string]$c = Join-Path $TestDrive "c"; & pwsh -File x.ps1 -CachePath $c'; Safe = $true }
+        @{ Case = 'an indexed value assigned from it'; Code = '$h = @{}; $h["c"] = Join-Path $TestDrive "c"; & pwsh -File x.ps1 -CachePath $h["c"]'; Safe = $true }
+        @{ Case = 'not an indexed value whose table was replaced'; Code = '$h = @{}; $h["c"] = Join-Path $TestDrive "c"; $h = @{ c = "c" }; & pwsh -File x.ps1 -CachePath $h["c"]'; Safe = $false }
+        @{ Case = 'not an item on the TestDrive: drive'; Code = '& pwsh -File x.ps1 -CachePath "$TestDrive:cacheH"'; Safe = $false }
+        @{ Case = 'a braced variable in a string'; Code = '& pwsh -File x.ps1 -CachePath "${TestDrive}\c"'; Safe = $true }
+        @{ Case = 'a subexpression in a string'; Code = '& pwsh -File x.ps1 -CachePath "$($TestDrive)\c"'; Safe = $true }
+        @{ Case = 'a string that opens with a traced variable'; Code = '$c = Join-Path $TestDrive "c"; & pwsh -File x.ps1 -CachePath "$c\x"'; Safe = $true }
+        @{ Case = 'not a string where it comes later'; Code = '& pwsh -File x.ps1 -CachePath "cache\$TestDrive"'; Safe = $false }
+        @{ Case = 'not a variable whose name hides a character'; Code = '& pwsh -File x.ps1 -CachePath ${Test' + [char]0x200B + 'Drive}'; Safe = $false }
     ) {
         $ast = [System.Management.Automation.Language.Parser]::ParseInput($Code, [ref]$null, [ref]$null)
         $run = @($ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] -and $node.CommandElements[0].Extent.Text -eq 'pwsh' }, $true))[0]

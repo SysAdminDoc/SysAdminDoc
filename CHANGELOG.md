@@ -2,6 +2,7 @@
 
 ## 2026-09-24
 
+- The test guards that keep child runs out of the checkout read more of the ways a path can be written. They used to miss a multiple assignment, a `foreach` variable, `Set-Variable`, `${c}`, `$local:c` and a typed `[string]$c`, and they took an assignment in a nested script block as the last one. `-Wri` now counts as `-Write`, and a run spelled `pwsh -f`, a quoted `-File` or `& $exe` gets scanned too. A write the guard can't follow now fails it instead of being skipped. Every child run in the suite still passes.
 - The sync report is back under its 112 KiB budget, at about 109 KB. It had grown to 125 KB when the userscript check started writing a full row for all 14 scripts, even the nine with nothing to report. It now writes full rows only for scripts with a warning or a fatal and lists the clean ones by name in `passingRepos`. The counts still cover every script.
 - The README check finds `run.ps1`'s owner when the assignment has a `[string]` cast or the value sits in parentheses. It used to report no owner for either. A variable whose name hides an invisible character no longer counts as a second owner assignment.
 - The PowerShell module lock passes its own schema. The schema asked for one `expectedSigner` string, but the file and the bootstrap use an `expectedSigners` list, and nothing checked the file against it. A test does now, and a signed record has to name at least one signer.
