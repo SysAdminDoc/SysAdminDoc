@@ -8204,12 +8204,15 @@ Describe 'Profile render-host decision record' {
 }
 
 Describe 'Code scanning posture decision' {
-    It 'reports PowerShell-only CodeQL as not applicable without hosted SARIF controls' {
+    It 'reports CodeQL as not applicable, with no supported language, without hosted SARIF controls' {
         $report = Get-Content -Raw -LiteralPath (Join-Path $script:RepoRoot 'reports/profile-sync-report.json') | ConvertFrom-Json
         $codeScanning = $report.repositorySettings.security.codeScanning
 
+        # PowerShell plus the HTML banner templates in design/showcase. The asset renderer is
+        # PowerShell for this reason: a Python one made GitHub report a CodeQL language.
         $codeScanning.status | Should -Be 'not-applicable'
-        $codeScanning.recommendation | Should -Be 'not-applicable-powershell-only'
+        $codeScanning.recommendation | Should -Be 'no-codeql-supported-languages-detected'
+        @($codeScanning.languagesInspected) | Should -Be @('HTML', 'PowerShell')
         $codeScanning.codeqlSupportedLanguageDetected | Should -BeFalse
         $codeScanning.codeqlWorkflowPresent | Should -BeFalse
         @($codeScanning.PSObject.Properties.Name) | Should -Not -Contain 'scorecardSarifUploadPresent'
