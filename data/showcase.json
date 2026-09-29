@@ -98,28 +98,7 @@
     { "want": "Make desktop YouTube work my way", "repo": "Astra-Deck" },
     { "want": "Edit a photo without installing anything", "repo": "Openshop" }
   ],
-  "trust": [
-    {
-      "icon": "&#128269;",
-      "title": "Read it before you run it",
-      "text": "Every project here is public, so you can read the code before you run it. There's no \"paste this into PowerShell\" line anywhere on this page, and there never will be."
-    },
-    {
-      "icon": "&#128230;",
-      "title": "Real releases",
-      "text": "Downloads come from GitHub Releases, not scripts. {checksumCount} of the latest releases ship a checksum file, so you can verify what you downloaded."
-    },
-    {
-      "icon": "&#128260;",
-      "title": "Android apps that keep themselves current",
-      "text": "APKs are signed release builds. Add any of them to Obtainium and new versions arrive straight from GitHub, no store in the middle."
-    },
-    {
-      "icon": "&#127968;",
-      "title": "Your device, your data",
-      "text": "A lot of these run entirely on your own machine and never ask you to sign up for anything."
-    }
-  ],
+  "trust": [],
   "shelves": [
     {
       "id": "windows-apps",

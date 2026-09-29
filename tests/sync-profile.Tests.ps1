@@ -5191,8 +5191,8 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
 
         @([regex]::Matches($committed, '(?m)^## (?<title>[^\r\n]+?)\r?$') | ForEach-Object { $_.Groups['title'].Value }) |
-            Should -Be @($ToolCatalogHeading, 'Pick your problem', 'How I ship', 'Latest releases', 'Browse everything')
-        $committed | Should -Match '(?s)\A<a href="[^"]+"><picture>'
+            Should -Be @($ToolCatalogHeading, 'Pick your problem', 'Latest releases', 'Browse everything')
+        $committed | Should -Match '(?s)\A<picture>\r?\n'
     }
 
     It 'reports generated README byte size under the default soft budget' {
@@ -5735,14 +5735,18 @@ Describe 'Update-Header idempotency' {
         $result | Should -Match '<b>Search everything &#8594;</b>'
     }
 
-    It 'opens on the showcase hero, dark and light, linked to the portfolio' {
+    It 'opens on the showcase hero, dark and light, as a bare picture GitHub keeps whole' {
+        # Wrapped in a link, the <picture> came apart on github.com: GitHub links the <img>
+        # itself, the browser can't nest the two links, and the outer one was left empty.
         $showcase = Get-DefaultShowcase
         $showcase.hero = [ordered]@{ darkImage = 'assets/showcase/profile-hero-dark.png'; lightImage = 'assets/showcase/profile-hero-light.png'; alt = 'Fixture hero & more' }
 
         $result = Update-Header -Header (New-TestProfileHeader) -Showcase $showcase
 
         $lines = @($result -split '\r?\n')
-        $lines[0] | Should -BeOrdinal ('<a href="' + (Get-ProfilePortfolioUrl) + '"><picture>')
+        $lines[0] | Should -BeOrdinal '<picture>'
+        $lines[4] | Should -BeOrdinal '</picture>'
+        $result | Should -Not -Match '<a [^>]*>\s*<picture>|</picture>\s*</a>'
         $lines[1] | Should -BeOrdinal '  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png">'
         $lines[2] | Should -BeOrdinal '  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-light.png">'
         $lines[3] | Should -BeOrdinal '  <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png" width="100%" alt="Fixture hero &amp; more">'
@@ -9445,9 +9449,12 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match '--remote-debugging-address=127[.]0[.]0[.]1'
         $script:RenderSmokeScript | Should -Match 'rendered-profile-smoke-chrome-\$attempt[.]err[.]log'
         $script:RenderSmokeScript | Should -Match 'for \(\$attempt = 1; \$attempt -le 2'
-        $script:RenderSmokeScript | Should -Match 'Chrome exited before DevTools became ready'
-        $script:RenderSmokeScript | Should -Match 'function Connect-CdpWebSocket'
-        $script:RenderSmokeScript | Should -Match 'CancellationTokenSource'
+        $script:RenderSmokeScript | Should -Match '(?m)^\. \(Join-Path \$PSScriptRoot "chrome-devtools\.ps1"\)'
+        # The DevTools plumbing is shared with the showcase asset renderer.
+        $devTools = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/chrome-devtools.ps1') -Raw
+        $devTools | Should -Match 'Chrome exited before DevTools became ready'
+        $devTools | Should -Match 'function Connect-CdpWebSocket'
+        $devTools | Should -Match 'CancellationTokenSource'
     }
 
     It 'guards recursive cleanup to the generated temp profile directory' {
@@ -11013,6 +11020,7 @@ Describe 'Report evidence freshness gate' {
         $result.smokeAffectingPaths | Should -Contain 'README.md'
         $result.smokeAffectingPaths | Should -Contain 'data/profile-catalog.json'
         $result.smokeAffectingPaths | Should -Contain 'scripts/render-profile-smoke.ps1'
+        $result.smokeAffectingPaths | Should -Contain 'scripts/chrome-devtools.ps1'
     }
 
     It 'renders a report generated before the smoke-age fields existed' {
@@ -14346,6 +14354,7 @@ Describe 'Script test seams need the suite opt-in' {
             'scripts/review-local-dependencies.ps1'
             'scripts/write-profile-sync-summary.ps1'
             'scripts/render-profile-smoke.ps1'
+            'scripts/render-showcase-assets.ps1'
             'scripts/new-support-bundle.ps1'
         )
     }
@@ -14828,6 +14837,52 @@ Describe 'No test starts the real gh' {
         $calls = if (Test-Path -LiteralPath $script:GhTrapLog) { @(Get-Content -LiteralPath $script:GhTrapLog) } else { @() }
 
         $calls | Should -BeNullOrEmpty -Because 'the suite stays offline'
+    }
+}
+
+Describe 'Showcase asset renderer (in-process)' {
+    BeforeAll {
+        # Loads the functions and specs only: the seam stops before a browser starts.
+        . (Join-Path $script:RepoRoot 'scripts/render-showcase-assets.ps1')
+    }
+
+    It 'rebuilds every committed button byte for byte from its spec and measured width' {
+        $committed = @(Get-ChildItem -LiteralPath (Join-Path $script:RepoRoot 'assets/buttons') -Filter '*.svg' -File | ForEach-Object { $_.BaseName } | Sort-Object)
+        @($ButtonSpecs.Name | Sort-Object) | Should -Be $committed
+
+        foreach ($spec in $ButtonSpecs) {
+            $saved = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot "assets/buttons/$($spec.Name).svg"))
+            $width = [int]([regex]::Match($saved, 'textLength="(\d+)"').Groups[1].Value)
+            $ButtonIcons.ContainsKey($spec.Icon) | Should -BeTrue -Because "$($spec.Name) draws the $($spec.Icon) icon"
+            New-ShowcaseButtonSvg -Label $spec.Label -IconPath $ButtonIcons[$spec.Icon] -Fill $spec.Fill -TextWidth $width -Font $ButtonFont |
+                Should -BeExactly $saved -Because "assets/buttons/$($spec.Name).svg must be what the renderer writes"
+        }
+    }
+
+    It 'has a spec for every button the README shows and a template for every banner' {
+        $readme = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
+        $shown = @([regex]::Matches($readme, 'assets/buttons/([a-z0-9-]+)\.svg') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+        $shown.Count | Should -BeGreaterThan 3
+        @($shown | Where-Object { $ButtonSpecs.Name -notcontains $_ }) | Should -BeNullOrEmpty
+
+        foreach ($spec in $BannerSpecs) {
+            Test-Path -LiteralPath (Join-Path $script:RepoRoot "design/showcase/$($spec.Template)") -PathType Leaf | Should -BeTrue
+            Test-Path -LiteralPath (Join-Path $script:RepoRoot "assets/showcase/$($spec.Output)") -PathType Leaf | Should -BeTrue
+            $spec.Scheme | Should -BeIn @('dark', 'light')
+        }
+    }
+
+    It 'escapes a label for the SVG and quotes it for the measuring script' {
+        $label = 'Tom & "Jerry" <b>'
+        $svg = New-ShowcaseButtonSvg -Label $label -IconPath 'M0 0' -Fill '#000000' -TextWidth 40 -Font $ButtonFont
+
+        $svg | Should -Match 'aria-label="Tom &amp; &quot;Jerry&quot; &lt;b&gt;"'
+        $svg | Should -Match '<title>Tom &amp; &quot;Jerry&quot; &lt;b&gt;</title>'
+        $svg | Should -Match 'width="87" height="32" viewBox="0 0 87 32"'
+        $svg | Should -Not -Match '<b>'
+        $expression = Get-ShowcaseTextWidthExpression -Label @($label, 'Plain') -Font $ButtonFont
+        $expression | Should -Match ([regex]::Escape('["Tom & \"Jerry\" <b>","Plain"].map('))
+        $expression | Should -Match ([regex]::Escape("c.font = `"700 13px 'Segoe UI',Inter,"))
     }
 }
 

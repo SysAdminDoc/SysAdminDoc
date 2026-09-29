@@ -1,8 +1,8 @@
-<a href="https://portfolio.getparkerai.com/"><picture>
+<picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-light.png">
   <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png" width="100%" alt="SysAdminDoc. Fix what bugs you, keep control of the rest. Free apps, extensions and utilities for Windows, Android and the browser.">
-</picture></a>
+</picture>
 
 <p align="center"><b>193</b> free projects &middot; <b>90,000+</b> downloads &middot; <b>every line</b> of source public &middot; <b>zero</b> commands to paste</p>
 
@@ -37,7 +37,7 @@ The ones people download most, and a few I'm proudest of.
 </td>
 <td width="50%" valign="top">
 <a href="https://github.com/SysAdminDoc/Hushfacebook"><img src="https://raw.githubusercontent.com/SysAdminDoc/HushFacebook/main/assets/readme-hero.png" width="100%" alt="Hushfacebook: keep the people, cut the noise. Morphe patches for Facebook that clear sponsored clutter, Reels and Stories."></a>
-<p><b><a href="https://github.com/SysAdminDoc/Hushfacebook">Hushfacebook</a></b> &middot; Android, Morphe patches &middot; &#11088;88 &middot; 7,000+ downloads<br>A patch bundle for Facebook. Keeps your friends in the feed and clears out the ads, Reels and Stories clutter.</p>
+<p><b><a href="https://github.com/SysAdminDoc/Hushfacebook">Hushfacebook</a></b> &middot; Android, Morphe patches &middot; &#11088;89 &middot; 7,000+ downloads<br>A patch bundle for Facebook. Keeps your friends in the feed and clears out the ads, Reels and Stories clutter.</p>
 <p><a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="28" alt="Download Hushfacebook"></a></p>
 </td>
 </tr>
@@ -84,28 +84,15 @@ The ones people download most, and a few I'm proudest of.
 | Make desktop YouTube work my way | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;16<br><a href="https://github.com/SysAdminDoc/Astra-Deck/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/extension.svg" height="24" alt="Get the Astra-Deck browser extension"></a> |
 | Edit a photo without installing anything | [**Openshop**](https://github.com/SysAdminDoc/Openshop) &#11088;16<br><a href="https://sysadmindoc.github.io/Openshop/"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/web.svg" height="24" alt="Open Openshop in your browser"></a> |
 
-## How I ship
-
-<table>
-<tr>
-<td width="50%" valign="top">&#128269; <b>Read it before you run it</b><br>Every project here is public, so you can read the code before you run it. There&#39;s no &quot;paste this into PowerShell&quot; line anywhere on this page, and there never will be.</td>
-<td width="50%" valign="top">&#128230; <b>Real releases</b><br>Downloads come from GitHub Releases, not scripts. 102 of the latest releases ship a checksum file, so you can verify what you downloaded.</td>
-</tr>
-<tr>
-<td width="50%" valign="top">&#128260; <b>Android apps that keep themselves current</b><br>APKs are signed release builds. Add any of them to Obtainium and new versions arrive straight from GitHub, no store in the middle.</td>
-<td width="50%" valign="top">&#127968; <b>Your device, your data</b><br>A lot of these run entirely on your own machine and never ask you to sign up for anything.</td>
-</tr>
-</table>
-
 ## Latest releases
 
 | Project | Version | Get it |
 |:--------|:--------|:-------|
 | [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;16 | [v4.92.1](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) | <a href="https://github.com/SysAdminDoc/Astra-Deck/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/extension.svg" height="24" alt="Get the Astra-Deck browser extension"></a> |
-| [**Hushfacebook**](https://github.com/SysAdminDoc/Hushfacebook) &#11088;88 | [v0.4.0](https://github.com/SysAdminDoc/Hushfacebook/releases/latest) | <a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfacebook"></a> |
+| [**Hushfacebook**](https://github.com/SysAdminDoc/Hushfacebook) &#11088;89 | [v0.4.0](https://github.com/SysAdminDoc/Hushfacebook/releases/latest) | <a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfacebook"></a> |
 | [**Hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;96 | [v0.64.0](https://github.com/SysAdminDoc/hushfeed/releases/latest) | <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfeed"></a> |
 | [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;30 | [v1.10.0](https://github.com/SysAdminDoc/CallShield/releases/latest) | <a href="https://github.com/SysAdminDoc/CallShield/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the CallShield APK"></a> |
-| [**HushMessenger**](https://github.com/SysAdminDoc/HushMessenger) &#11088;15 | [v0.4.2](https://github.com/SysAdminDoc/HushMessenger/releases/latest) | <a href="https://github.com/SysAdminDoc/HushMessenger/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download HushMessenger"></a> |
+| [**HushMessenger**](https://github.com/SysAdminDoc/HushMessenger) &#11088;16 | [v0.4.2](https://github.com/SysAdminDoc/HushMessenger/releases/latest) | <a href="https://github.com/SysAdminDoc/HushMessenger/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download HushMessenger"></a> |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;103 | [v0.2.94](https://github.com/SysAdminDoc/OpenTasker/releases/latest) | <a href="https://github.com/SysAdminDoc/OpenTasker/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the OpenTasker APK"></a> |
 
 ## Browse everything
@@ -238,7 +225,7 @@ Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for au
 | [**AppManagerNG**](https://github.com/SysAdminDoc/AppManagerNG) &#11088;105 | Power-user package manager. Continuation of MuntashirAkon/AppManager<br/><sub>Upstream: [MuntashirAkon/AppManager](https://github.com/MuntashirAkon/AppManager); License: GPL-3.0-or-later</sub><br><a href="https://github.com/SysAdminDoc/AppManagerNG/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the AppManagerNG APK"></a> |
 | [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;103 | FOSS Tasker alternative for Android<br><a href="https://github.com/SysAdminDoc/OpenTasker/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the OpenTasker APK"></a> |
 | [**Hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;96 | Morphe patch bundle for TikTok. Fewer accidental taps, less noise, more control over the feed and downloads.<br><a href="https://github.com/SysAdminDoc/hushfeed/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfeed"></a> |
-| [**Hushfacebook**](https://github.com/SysAdminDoc/Hushfacebook) &#11088;88 | Morphe patch bundle for Facebook. Clears ads, Reels and Stories clutter out of the feed.<br><a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfacebook"></a> |
+| [**Hushfacebook**](https://github.com/SysAdminDoc/Hushfacebook) &#11088;89 | Morphe patch bundle for Facebook. Clears ads, Reels and Stories clutter out of the feed.<br><a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfacebook"></a> |
 | [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;58 | Full-featured Android video editor. Kotlin, Jetpack Compose, and Media3<br><a href="https://github.com/SysAdminDoc/ClearCut/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the ClearCut APK"></a> |
 | [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;35 | Open-source Zedge alternative. Wallpapers, video wallpapers, ringtones, YouTube integration<br><a href="https://github.com/SysAdminDoc/Aura/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the Aura APK"></a> |
 | [**FileExplorer**](https://github.com/SysAdminDoc/FileExplorer) &#11088;31 | Full-featured file manager with root access, archive support, cloud storage<br><a href="https://github.com/SysAdminDoc/FileExplorer/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the FileExplorer APK"></a> |
@@ -247,8 +234,8 @@ Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for au
 | [**SwiftFloris**](https://github.com/SysAdminDoc/SwiftFloris) &#11088;28 | SwiftKey-inspired keyboard built on FlorisBoard's foundation<br><a href="https://github.com/SysAdminDoc/SwiftFloris/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the SwiftFloris APK"></a> |
 | [**LocalAndroidStore**](https://github.com/SysAdminDoc/LocalAndroidStore) &#11088;18 | Personal Android-app catalog sourced from GitHub Releases. Android sibling of LocalChromeStore<br><a href="https://github.com/SysAdminDoc/LocalAndroidStore/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the LocalAndroidStore APK"></a> |
 | [**HostShield**](https://github.com/SysAdminDoc/HostShield) &#11088;17 | AMOLED-dark hosts-based ad blocker. Inspired by AdAway<br><a href="https://github.com/SysAdminDoc/HostShield/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the HostShield APK"></a> |
+| [**HushMessenger**](https://github.com/SysAdminDoc/HushMessenger) &#11088;16 | Morphe patch bundle for Messenger, still in preview. Bring your own APK.<br><a href="https://github.com/SysAdminDoc/HushMessenger/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download HushMessenger"></a> |
 | [**Droidsmith**](https://github.com/SysAdminDoc/Droidsmith) &#11088;15 | Cross-platform ADB GUI for managing Android devices over USB/WiFi *(Rust)*<br><a href="https://github.com/SysAdminDoc/Droidsmith/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/windows.svg" height="24" alt="Download Droidsmith for Windows"></a> |
-| [**HushMessenger**](https://github.com/SysAdminDoc/HushMessenger) &#11088;15 | Morphe patch bundle for Messenger, still in preview. Bring your own APK.<br><a href="https://github.com/SysAdminDoc/HushMessenger/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download HushMessenger"></a> |
 | [**OpenLumen**](https://github.com/SysAdminDoc/OpenLumen) &#11088;14 | Open-source CF.Lumen successor. Root-grade display color filter for Android with rootless fallback<br><a href="https://github.com/SysAdminDoc/OpenLumen/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the OpenLumen APK"></a> |
 | [**Lawnchair-Lite**](https://github.com/SysAdminDoc/Lawnchair-Lite) &#11088;13 | Lightweight launcher with 5 built-in dark themes<br><a href="https://github.com/SysAdminDoc/Lawnchair-Lite/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the Lawnchair-Lite APK"></a> |
 | [**ZeusWatch**](https://github.com/SysAdminDoc/ZeusWatch) &#11088;12 | Premium dark weather app. No API keys required<br><a href="https://github.com/SysAdminDoc/ZeusWatch/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the ZeusWatch APK"></a> |

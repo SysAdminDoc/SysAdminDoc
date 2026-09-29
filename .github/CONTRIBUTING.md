@@ -7,7 +7,7 @@ Contributions, bug reports, and feature requests are welcome through [issues](ht
 The public `README.md` is generated from three sources:
 
 1. **`data/profile-catalog.json`** is the canonical list of projects, categories, descriptions, actions, and suppression rules. Its `profileHeader` block holds the README header's personal text and links, and `portfolioUrl` is the site behind "See everything" and "Get in touch".
-2. **`data/showcase.json`** is the storefront layer on top of it: the hero banner, the flagship cards, the "Pick your problem" index, the "How I ship" notes, and the shelves that group categories. Its shape is described in `schemas/profile-showcase.v1.json` and checked on every run.
+2. **`data/showcase.json`** is the storefront layer on top of it: the hero banner, the flagship cards, the "Pick your problem" index, optional trust notes (a "How I ship" section, empty on this profile), and the shelves that group categories. Its shape is described in `schemas/profile-showcase.v1.json` and checked on every run.
 3. **`scripts/sync-profile.ps1`** reads the catalog plus live GitHub metadata, then renders the full README, `projects.json` feed, and validation report. It holds the parameters, shared constants and the run itself, and loads its functions from `scripts/sync-profile/`, one file per concern.
 
 The header and everything below the `<!-- GENERATED PROFILE CATALOG -->` marker are generated and should not be edited directly.
@@ -18,7 +18,7 @@ The header and everything below the `<!-- GENERATED PROFILE CATALOG -->` marker 
 - **Generation logic**: README sections and buttons live in `scripts/sync-profile/readme-render.ps1`, the feed in `feed-export.ps1`, catalog loading in `catalog.ps1`, GitHub calls in `github-api.ps1`, link checks in `link-validation.ps1`, and the report in `profile-state.ps1` plus the `report-*.ps1` files.
 - **Profile header**: the tagline, about text, links and support button come from `profileHeader` in `data/profile-catalog.json`, and the banner above them from `hero` in `data/showcase.json`. The layout is `New-ProfileChrome` in `scripts/sync-profile/readme-render.ps1`.
 - **Flagships, problems and shelves**: edit `data/showcase.json`. Every repo it names has to be a public catalog entry and every shelf category has to exist, or the run stops before writing.
-- **Images**: buttons live in `assets/buttons/` and banners in `assets/showcase/`. Both are rendered from the HTML templates in `design/showcase/` with `py -3.13 scripts/render-showcase-assets.py` (Playwright, headless). The README links them by absolute `raw.githubusercontent.com` URLs because GitHub doesn't rewrite a relative `srcset`.
+- **Images**: buttons live in `assets/buttons/` and banners in `assets/showcase/`. `pwsh -File scripts/render-showcase-assets.ps1` rebuilds both in headless Chromium: it measures the button labels and screenshots the HTML templates in `design/showcase/`. Set `CHROME_PATH` to choose the browser. The README links them by absolute `raw.githubusercontent.com` URLs because GitHub doesn't rewrite a relative `srcset`.
 - **No commands to paste**: the page never carries a code block or an `irm`/`iex`/`curl | sh` line. Every project gets a download, install or source button instead, and the README check fails if a command slips back in.
 - **Running it for another account**: pass `-Owner`, give the catalog your own `portfolioUrl` (or leave it out to link your GitHub Pages address), and point `data/showcase.json` at your own repos and images.
 - **Validation rules**: edit `tests/sync-profile.Tests.ps1`.

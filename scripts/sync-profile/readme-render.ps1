@@ -523,7 +523,7 @@ function New-ProfileChrome {
     Renders the README header: the hero, the proof line, the pitch and the shelf nav.
     .DESCRIPTION
     With a showcase hero the header opens on its banner (a <picture> with dark and light
-    sources, linked to the portfolio). Without one it opens on the catalog's tagline, as a
+    sources). Without one it opens on the catalog's tagline, as a
     plain paragraph. The pitch is the catalog's about text; the proof line counts the
     README entries and quotes the showcase's download floor. Everything personal comes
     from the catalog and showcase, so a run for another account publishes only its own.
@@ -544,11 +544,14 @@ function New-ProfileChrome {
     $light = [string](Get-MemberValue -Object $hero -Name 'lightImage')
     $alt = [string](Get-MemberValue -Object $hero -Name 'alt')
     if ($null -ne $hero -and (Test-ShowcaseImageSource $dark) -and (Test-ShowcaseImageSource $light) -and (Test-VisibleText $alt)) {
-        $lines.Add('<a href="' + $portfolioUrl + '"><picture>')
+        # A bare <picture> on its own lines, the one form GitHub keeps whole. Inside a link it
+        # wraps the <img> in a second link of its own; the browser can't nest them, so the
+        # outer link ends up empty and the light source is lost.
+        $lines.Add('<picture>')
         $lines.Add('  <source media="(prefers-color-scheme: dark)" srcset="' + (Get-ProfileAssetUrl $dark) + '">')
         $lines.Add('  <source media="(prefers-color-scheme: light)" srcset="' + (Get-ProfileAssetUrl $light) + '">')
         $lines.Add('  <img src="' + (Get-ProfileAssetUrl $dark) + '" width="100%" alt="' + (ConvertTo-HtmlText $alt -Attribute) + '">')
-        $lines.Add('</picture></a>')
+        $lines.Add('</picture>')
         $lines.Add('')
     } else {
         # Text a reader can't see (NBSP, zero-width or bidi characters alone) counts as missing,
@@ -816,7 +819,7 @@ function New-ProfileAssetSvgs {
     Returns the generated profile SVG assets, which is an empty set.
     .DESCRIPTION
     The README's images are static files committed under assets/showcase and
-    assets/buttons (see scripts/render-showcase-assets.py), not generator output, so
+    assets/buttons (see scripts/render-showcase-assets.ps1), not generator output, so
     nothing is rendered, budgeted or drift-checked here. Test-ProfileState reports any
     file under -AssetsPath as out of sync.
     #>

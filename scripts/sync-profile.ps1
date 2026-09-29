@@ -157,7 +157,8 @@ $script:ReportAffectingPaths = @(
 $script:SmokeAffectingPaths = @(
     "README.md",
     "data/profile-catalog.json",
-    "scripts/render-profile-smoke.ps1"
+    "scripts/render-profile-smoke.ps1",
+    "scripts/chrome-devtools.ps1"
 )
 # How long a local dependency-advisory review stays credible as the compensating
 # control for the banned Dependabot lane.
