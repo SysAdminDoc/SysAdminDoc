@@ -361,8 +361,7 @@ function Test-ProfileState {
         throttleLimit = $LinkValidationThrottle
         elapsedMs = 0
         readmeActionTargetCount = 0
-        readmeInstallSnippetTargetCount = 0
-        readmeInstallDispatcherTargetCount = 0
+        readmeImageTargetCount = 0
         readmeDownloadLinkTargetCount = 0
         readmeUserscriptInstallTargetCount = 0
         warningCountByHost = @()
@@ -371,7 +370,7 @@ function Test-ProfileState {
     }
     if (-not $script:Offline -and -not $SkipLinkValidation) {
         $readmeHeaderTargets = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $ExpectedReadme)
-        $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme -Entries $included -RepoLookup $repoLookup)
+        $readmeActionTargets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $ExpectedReadme)
         $linkResult = Test-LinkTargets -Included $included -RepoLookup $repoLookup -ExtraTargets @($readmeHeaderTargets + $readmeActionTargets)
         $linkFailures = @($linkFailures + @($linkResult.failures))
         $linkWarnings = @($linkResult.warnings)
@@ -386,8 +385,7 @@ function Test-ProfileState {
             throttleLimit = $linkResult.throttleLimit
             elapsedMs = $linkResult.elapsedMs
             readmeActionTargetCount = @($readmeActionTargets).Count
-            readmeInstallSnippetTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-install-entrypoint" }).Count
-            readmeInstallDispatcherTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-install-dispatcher" }).Count
+            readmeImageTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-image" }).Count
             readmeDownloadLinkTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-download" }).Count
             readmeUserscriptInstallTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-userscript-install" }).Count
             warningCountByHost = @($linkResult.warningCountByHost)

@@ -161,24 +161,35 @@ function Connect-CdpWebSocket {
 
 # What the smoke looks for on the page, read from what the generator writes instead of
 # copied here, so renaming a heading can't leave the smoke looking for the old words: the
-# header's tagline, the heading over the category grid, the setup section's title, and the
-# section title and nav label of each category with a README entry, and the footer's link
-# to all repositories. Icons in front of a title aren't part of what's matched.
+# header's proof line, the flagship heading and every other section heading, each shelf's
+# title and nav label, and the footer's link to all repositories. Icons in front of a title
+# aren't part of what's matched.
 function Get-RenderedSmokeExpectation {
-    param([System.Collections.IDictionary]$Catalog)
+    param(
+        [System.Collections.IDictionary]$Catalog,
+        # The showcase from Get-Showcase; read from data/showcase.json when omitted.
+        [object]$Showcase
+    )
+    if (-not $PSBoundParameters.ContainsKey('Showcase')) { $Showcase = Get-Showcase }
     $plain = { param([string]$Html) ([System.Net.WebUtility]::HtmlDecode(($Html -replace '<[^>]+>', '')) -replace '^[^\p{L}\p{N}]+', '').Trim() }
-    $taglineLine = ((New-ProfileChrome -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')) -split '\r?\n', 2)[0]
-    $setupSummary = [regex]::Match((New-FirstTimeSetupSection), '<summary><b>(?<title>.*?)</b>').Groups['title'].Value
-    $footerLink = [regex]::Match((New-ProfileFooter), '\?tab=repositories">(?<text>[^<]+)</a>').Groups['text'].Value
-    $readmeSlugs = @($Catalog.entries | Where-Object { $_.includeInReadme } | ForEach-Object { [string]$_.category })
-    $categories = @($CategoryDefinitions | Where-Object { $readmeSlugs -contains $_.Slug })
+    # Rendered without live metadata, so a section that needs it (the latest releases)
+    # isn't expected. Everything else is the page as the generator writes it.
+    $readme = New-Readme -Catalog $Catalog -Repos @() -Showcase $Showcase
+    $proofLine = [regex]::Match($readme, '(?m)^<p align="center">[^\r\n]*commands to paste</p>').Value
+    $footer = New-ProfileFooter -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')
+    $footerLink = [regex]::Match($footer, '\?tab=repositories">(?<text>[^<]+)</a>').Groups['text'].Value
+    # The first link to the portfolio with words in it; the search button before it is an image.
+    $portfolioLink = @([regex]::Matches($footer, '<a href="' + [regex]::Escape((Get-ProfilePortfolioUrl)) + '">(?<text>(?:(?!</a>).)*)</a>') |
+            ForEach-Object { & $plain $_.Groups['text'].Value } | Where-Object { $_ }) | Select-Object -First 1
+    $shelves = @(Get-RenderedShelves -Showcase $Showcase -Entries @(Get-ReadmeEntries -Catalog $Catalog) -RepoLookup @{})
     [ordered]@{
-        tagline = & $plain ([regex]::Match($taglineLine, '<b>(?<text>.*?)</b>').Groups['text'].Value)
+        tagline = & $plain $proofLine
         toolCatalogHeading = $ToolCatalogHeading
-        setupTitle = & $plain $setupSummary
-        categoryTitles = @($categories | ForEach-Object { & $plain $_.Title })
-        navLabels = @($categories | ForEach-Object { [System.Net.WebUtility]::HtmlDecode((Get-ProfileNavLabel -Slug $_.Slug)) })
+        sectionHeadings = @([regex]::Matches($readme, '(?m)^## (?<title>[^\r\n]+)\r?$') | ForEach-Object { & $plain $_.Groups['title'].Value })
+        categoryTitles = @($shelves | ForEach-Object { & $plain (ConvertTo-HtmlText ([string]$_.title)) })
+        navLabels = @($shelves | ForEach-Object { [string]$_.navLabel })
         footerLinkText = & $plain $footerLink
+        portfolioLinkText = [string]$portfolioLink
     }
 }
 
@@ -240,7 +251,7 @@ function Invoke-RenderedSmoke {
   const article = document.querySelector("article.markdown-body") || document.querySelector(".markdown-body");
   const root = article || document.body;
   const expected = __RENDERED_SMOKE_EXPECTATION__;
-  const sections = [expected.toolCatalogHeading, expected.setupTitle, ...expected.categoryTitles];
+  const sections = [expected.toolCatalogHeading, ...expected.sectionHeadings, ...expected.categoryTitles];
   const sectionResults = Object.fromEntries(sections.map((name) => [name, text.includes(name)]));
   const rootOverflow = root.scrollWidth > root.clientWidth + 2;
   const documentOverflow = document.documentElement.scrollWidth > window.innerWidth + 2;
@@ -261,11 +272,11 @@ function Invoke-RenderedSmoke {
     const elementText = element ? (element.textContent || "") : "";
     return values.every((value) => elementText.includes(value));
   };
-  const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i]'));
+  const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i], img[src*="assets/showcase/profile-hero" i]'));
   const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, [expected.tagline]));
   const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, expected.navLabels));
   const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
-  // The category grid is where a visitor starts now, and it's also the index of every project.
+  // The flagship cards are where a visitor starts now.
   const startHereNodes = textMatch("h1,h2,h3", expected.toolCatalogHeading);
   const toolCatalogNodes = textMatch("h1,h2,h3", expected.toolCatalogHeading);
   const footerImageNodes = Array.from(root.querySelectorAll('img[alt*="profile footer" i], img[src*="assets/profile/footer" i]'));
@@ -449,7 +460,7 @@ function Invoke-RenderedSmoke {
     linkLabelIssues,
     ambiguousCrossDestinationLinkLabelCount: ambiguousLabels.length,
     ambiguousCrossDestinationLinkLabelSamples: ambiguousLabels.slice(0, 10).map(([label, hrefs]) => ({ label, destinationCount: hrefs.size })),
-    portfolioLinkText: text.includes("See everything") || text.includes("View full portfolio") || text.includes("View my full portfolio"),
+    portfolioLinkText: expected.portfolioLinkText.length > 0 && text.includes(expected.portfolioLinkText),
     sections: sectionResults,
     componentPresence,
     firstViewportComponentPresence,

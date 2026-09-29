@@ -16,7 +16,7 @@
 
 BeforeAll {
     # Lets the Describe blocks at the end dot-source the other scripts for coverage without
-    # running their main bodies; see the seams in scripts/*.ps1 and setup.ps1.
+    # running their main bodies; see the seams in scripts/*.ps1.
     $env:SYSADMINDOC_TEST_SEAM = '1'
     $script:RepoRoot = Split-Path -Parent $PSScriptRoot
     $script:SyncProfileScriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
@@ -31,6 +31,11 @@ BeforeAll {
     # dot-source above also bound a local $Offline parameter ($false) in this scope, which is
     # what plain $Offline reads used to find.
     $script:Offline = $true
+    # Fixture catalogs render with the neutral showcase (no hero, flagships, problems or
+    # trust notes, one shelf per category), as a run for a catalog with no showcase.json
+    # beside it does. Tests about this profile's showcase pass it with -Showcase.
+    $script:ShowcasePath = Join-Path ([System.IO.Path]::GetTempPath()) ('sysadmindoc-no-showcase-' + [guid]::NewGuid().ToString('N') + '.json')
+    $script:CommittedShowcasePath = Join-Path $script:RepoRoot 'data/showcase.json'
     # Nothing in the suite may start the real gh: mocks and function stubs stand in for it
     # in process, and child runs go offline. A gh.cmd first on PATH records any call that
     # gets past them (its first argument only; the rest can hold & for cmd to misread), and
@@ -119,6 +124,13 @@ BeforeAll {
         }
 
         return $violations.ToArray()
+    }
+
+    # The image button a README row gets: an <a> around one <img> whose alt text is the
+    # link's only name.
+    function New-TestButton {
+        param([string]$Href, [string]$File, [string]$Alt, [int]$Height = 24, [string]$AssetOwner = 'SysAdminDoc')
+        "<a href=`"$Href`"><img src=`"https://raw.githubusercontent.com/$AssetOwner/$AssetOwner/main/assets/buttons/$File.svg`" height=`"$Height`" alt=`"$Alt`"></a>"
     }
 
     function New-TestEntry {
@@ -233,7 +245,7 @@ AfterAll {
 
 Describe 'Function library loads via the dot-source test seam' {
     It 'exposes the core functions without running the fetch/main block' {
-        Get-Command New-Readme, New-ProjectsExportJson, Get-InstallSnippet, Test-HttpUrl, Get-Catalog -ErrorAction SilentlyContinue |
+        Get-Command New-Readme, New-ProjectsExportJson, Get-Showcase, Test-HttpUrl, Get-Catalog -ErrorAction SilentlyContinue |
             Should -HaveCount 5
     }
 
@@ -483,8 +495,8 @@ Describe 'Public text is encoded for where it lands' {
         $tableLines = @($section -split "\r?\n" | Where-Object { $_.StartsWith('|') })
 
         $tableLines | Should -HaveCount 3 -Because 'one catalog row renders one table row'
-        # The only unescaped pipes in that row are the four cell borders.
-        ([regex]::Matches($tableLines[2], '(?<!\\)\|')).Count | Should -Be 4
+        # The only unescaped pipes in that row are the three cell borders.
+        ([regex]::Matches($tableLines[2], '(?<!\\)\|')).Count | Should -Be 3
         # Escaped brackets are text; only an unescaped "](" could start a link.
         $readme | Should -Not -Match '(?<!\\)\]\(https://evil\.example'
         # The header's own <b> is legitimate; the injected elements must not appear.
@@ -506,55 +518,78 @@ Describe 'Public text is encoded for where it lands' {
     It 'names each row action after its project: <Case>' -ForEach @(
         # 884 duplicate labels across four viewports: Download, Launch, Install and Repo were
         # the whole accessible name of links going to 190 places.
-        @{ Case = 'a live app'; Field = 'liveUrl'; Url = 'https://example.test/app'; Kind = $null; Name = 'Launch Web Tool' }
-        @{ Case = 'a userscript'; Field = 'userscriptUrl'; Url = 'https://raw.githubusercontent.com/o/r/main/x.user.js'; Kind = $null; Name = 'Install Web Tool' }
-        @{ Case = 'a repository'; Field = $null; Url = $null; Kind = 'repo'; Name = 'Web Tool repository' }
+        @{ Case = 'a live app'; Field = 'liveUrl'; Url = 'https://example.test/app'; Kind = $null; Name = 'Open Web Tool in your browser' }
+        @{ Case = 'a userscript'; Field = 'userscriptUrl'; Url = 'https://raw.githubusercontent.com/o/r/main/x.user.js'; Kind = $null; Name = 'Install the Web Tool userscript' }
+        @{ Case = 'a repository'; Field = $null; Url = $null; Kind = 'repo'; Name = 'View the Web Tool source on GitHub' }
     ) {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'misc'
         $entry.title = 'Web Tool'
         if ($Field) { $entry[$Field] = $Url }
         if ($Kind) { $entry.downloadKind = $Kind }
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'misc' | Should -Match ('^<a href="[^"]+" aria-label="' + [regex]::Escape($Name) + '">')
+        Get-ActionLink -Entry $entry -Meta $null -Category 'misc' | Should -Match ('^<a href="[^"]+"><img src="[^"]+" height="24" alt="' + [regex]::Escape($Name) + '"></a>$')
     }
 
-    It 'names each category card''s button after its category' {
-        # Three cards said Browse and three Download, each pointing somewhere else.
-        $entry = New-TestEntry -Repo 'SecTool' -Category 'security'
+    It 'names a release button after what the release ships: <Case>' -ForEach @(
+        @{ Case = 'an APK'; Category = 'android'; Kind = 'apk'; Assets = @('A.apk'); File = 'apk'; Name = 'Get the A APK' }
+        @{ Case = 'a plain zip'; Category = 'misc'; Kind = $null; Assets = @('A.zip'); File = 'download'; Name = 'Download A' }
+        @{ Case = 'a Windows installer'; Category = 'desktop'; Kind = $null; Assets = @('A-setup.exe'); File = 'windows'; Name = 'Download A for Windows' }
+        @{ Case = 'a PowerShell tool'; Category = 'powershell'; Kind = 'zip'; Assets = @('A.zip'); File = 'windows'; Name = 'Download A for Windows' }
+        @{ Case = 'an extension'; Category = 'extensions'; Kind = 'zip'; Assets = @('A.zip'); File = 'extension'; Name = 'Get the A browser extension' }
+        @{ Case = 'a Windows app that also ships a Chrome build'; Category = 'desktop'; Kind = $null; Assets = @('A-win-x64.zip', 'A-chrome.zip'); File = 'windows'; Name = 'Download A for Windows' }
+        @{ Case = 'a desktop app that ships only a browser build'; Category = 'desktop'; Kind = $null; Assets = @('A.xpi'); File = 'extension'; Name = 'Get the A browser extension' }
+    ) {
+        $entry = New-TestEntry -Repo 'A' -Category $Category
+        if ($Kind) { $entry.downloadKind = $Kind }
 
-        $cell = New-ToolCatalogCell -Slug 'security' -Entries @($entry) -RepoLookup @{}
-
-        $cell | Should -Match '<a href="#security--networking" aria-label="Browse Security"><kbd>Browse &#8594;</kbd></a>'
+        Get-ActionLink -Entry $entry -Meta (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames $Assets) -Category $Category |
+            Should -BeOrdinal (New-TestButton -Href 'https://github.com/SysAdminDoc/A/releases/latest' -File $File -Alt $Name)
     }
 
-    It 'names a release action with its kind unless it is a plain download' {
-        $apk = New-TestEntry -Repo 'A' -Category 'android'; $apk.downloadKind = 'apk'
-        $plain = New-TestEntry -Repo 'B' -Category 'misc'
+    It 'offers Obtainium only beside a release that ships an APK' {
+        $entry = New-TestEntry -Repo 'A' -Category 'android'
 
-        Get-ActionLink -Entry $apk -Meta (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')) -Category 'android' | Should -Match 'aria-label="Download A \(APK\)"'
-        Get-ActionLink -Entry $plain -Meta (New-TestRepoMeta -Name 'B' -WithRelease -AssetNames @('B.zip')) -Category 'misc' | Should -Match 'aria-label="Download B"'
+        Get-ObtainiumLink -Entry $entry -Meta (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')) |
+            Should -BeOrdinal (New-TestButton -Href 'https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/SysAdminDoc/A' -File 'obtainium' -Alt 'Add A to Obtainium for automatic updates')
+        Get-ObtainiumLink -Entry $entry -Meta (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.zip')) | Should -BeNullOrEmpty
     }
 
-    It 'keeps catalog text in an action name an attribute value and nothing more' {
+    It 'keeps catalog text in a button name an attribute value and nothing more' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.title = 'Tool "q" & <b>x</b> | [y](https://evil.example/) `z`'
         $entry.liveUrl = 'https://example.test/a?b=1&c="d"'
 
         $link = Get-ActionLink -Entry $entry -Meta $null -Category 'web'
 
-        $link | Should -BeOrdinal ('<a href="https://example.test/a?b=1&amp;c=%22d%22" aria-label="Launch Tool &quot;q&quot; &amp; &lt;b&gt;x&lt;/b&gt; &#124; &#91;y&#93;(https://evil.example/) &#96;z&#96;">Launch</a>')
+        $link | Should -BeOrdinal (New-TestButton -Href 'https://example.test/a?b=1&amp;c=%22d%22' -File 'web' -Alt 'Open Tool &quot;q&quot; &amp; &lt;b&gt;x&lt;/b&gt; &#124; &#91;y&#93;(https://evil.example/) &#96;z&#96; in your browser')
     }
 
-    It 'reads the release and userscript targets back from the anchor tag form' {
-        $readme = @(
-            '| [**A**](https://github.com/o/A) | a | <a href="https://github.com/o/A/releases/latest" aria-label="Download A"><kbd>&#11015;&nbsp;Download</kbd></a> |'
-            '| [**S**](https://github.com/o/S) | s | <a href="https://raw.githubusercontent.com/o/S/main/s.user.js?x=1&amp;y=2" aria-label="Install S">Install</a> |'
-        ) -join "`n"
-
-        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @() -RepoLookup @{})
+    It 'reads the release and userscript targets back from <Case>' -ForEach @(
+        @{ Case = 'image buttons'; Readme = @(
+                '| [**A**](https://github.com/o/A) | a<br><a href="https://github.com/o/A/releases/latest"><img src="https://raw.githubusercontent.com/o/o/main/assets/buttons/download.svg" height="24" alt="Download A"></a> |'
+                '| [**S**](https://github.com/o/S) | s<br><a href="https://raw.githubusercontent.com/o/S/main/s.user.js?x=1&amp;y=2"><img src="https://raw.githubusercontent.com/o/o/main/assets/buttons/userscript.svg" height="24" alt="Install the S userscript"></a> |'
+            ) }
+        @{ Case = 'the older anchor tag form'; Readme = @(
+                '| [**A**](https://github.com/o/A) | a | <a href="https://github.com/o/A/releases/latest" aria-label="Download A"><kbd>&#11015;&nbsp;Download</kbd></a> |'
+                '| [**S**](https://github.com/o/S) | s | <a href="https://raw.githubusercontent.com/o/S/main/s.user.js?x=1&amp;y=2" aria-label="Install S">Install</a> |'
+            ) }
+    ) {
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme ($Readme -join "`n"))
 
         @($targets | Where-Object { $_.type -eq 'readme-download' } | ForEach-Object { $_.url }) | Should -BeOrdinal 'https://github.com/o/A/releases/latest'
         @($targets | Where-Object { $_.type -eq 'readme-userscript-install' } | ForEach-Object { $_.url }) | Should -BeOrdinal 'https://raw.githubusercontent.com/o/S/main/s.user.js?x=1&y=2'
+    }
+
+    It 'probes images hosted in other repositories and leaves the profile''s own to the disk check' {
+        $readme = @(
+            '<img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png" alt="hero">'
+            '<a href="https://github.com/SysAdminDoc/App"><img src="https://raw.githubusercontent.com/SysAdminDoc/App/main/assets/hero.png" width="100%" alt="App"></a>'
+            '<img src="https://github.com/user-attachments/assets/0f0e-1a2b" alt="shot">'
+        ) -join "`n"
+
+        $images = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme | Where-Object { $_.type -eq 'readme-image' } | ForEach-Object { $_.url })
+
+        $images | Should -BeOrdinal @('https://raw.githubusercontent.com/SysAdminDoc/App/main/assets/hero.png', 'https://github.com/user-attachments/assets/0f0e-1a2b')
     }
 
     It 'seeds action URLs and kinds back from the anchor tag form' {
@@ -583,7 +618,7 @@ Describe 'Public text is encoded for where it lands' {
         $entry = New-TestEntry -Repo 'LiveTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/app (beta)/<x>'
 
-        Get-ActionLink $entry $null 'web' | Should -BeOrdinal '<a href="https://example.test/app%20%28beta%29/%3Cx%3E" aria-label="Launch LiveTool">Launch</a>'
+        Get-ActionLink $entry $null 'web' | Should -BeOrdinal (New-TestButton -Href 'https://example.test/app%20%28beta%29/%3Cx%3E' -File 'web' -Alt 'Open LiveTool in your browser')
     }
 }
 
@@ -677,327 +712,8 @@ Describe 'Catalog refuses deceptive or unsafe one-line text' {
     }
 }
 
-Describe 'run.ps1 install dispatcher' {
-    BeforeAll {
-        $script:RunScriptPath = Join-Path $script:RepoRoot 'run.ps1'
-        . $script:RunScriptPath
-
-        function script:New-FakeFeed {
-            param([string]$Repo = 'WinTool', [string]$Branch = 'main', [string]$Entrypoint = 'WinTool.ps1')
-            [pscustomobject]@{
-                projects = @(
-                    [pscustomobject]@{ repo = 'NoEntry'; branch = 'main'; entrypoint = $null }
-                    [pscustomobject]@{ repo = $Repo; branch = $Branch; entrypoint = $Entrypoint }
-                )
-            }
-        }
-    }
-
-    BeforeEach {
-        $script:SavedTemp = $env:TEMP
-        $env:TEMP = Join-Path $TestDrive ('temp-' + [guid]::NewGuid().ToString('N'))
-        New-Item -ItemType Directory -Path $env:TEMP | Out-Null
-        $script:ToolCalls = New-Object System.Collections.Generic.List[string]
-    }
-
-    AfterEach {
-        $env:TEMP = $script:SavedTemp
-    }
-
-    It 'is pure ASCII Windows PowerShell 5.1 syntax that only defines Start-Tool' {
-        $bytes = [System.IO.File]::ReadAllBytes($script:RunScriptPath)
-        @($bytes | Where-Object { $_ -gt 127 }) | Should -BeNullOrEmpty
-        $text = [System.IO.File]::ReadAllText($script:RunScriptPath)
-        $text | Should -Match '(?m)^#Requires -Version 5\.1\s*$'
-        $tokens = $null
-        $errors = $null
-        $ast = [System.Management.Automation.Language.Parser]::ParseInput($text, [ref]$tokens, [ref]$errors)
-        $errors | Should -BeNullOrEmpty
-        # Nothing but the function at the top level, so irm | iex has no side effect.
-        @($ast.EndBlock.Statements | ForEach-Object { $_.GetType().Name }) | Should -Be @('FunctionDefinitionAst')
-        $text | Should -Not -Match '\?\?|\?\.|ForEach-Object -Parallel|\s-AsHashtable'
-    }
-
-    It 'parses in Windows PowerShell 5.1 itself' {
-        $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
-            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
-            return
-        }
-        $check = "`$e = `$null; `$t = `$null; [void][System.Management.Automation.Language.Parser]::ParseFile('$($script:RunScriptPath)', [ref]`$t, [ref]`$e); `$e.Count"
-        $parseErrors = & $windowsPowerShell -NoProfile -NonInteractive -Command $check
-        $LASTEXITCODE | Should -Be 0
-        [int]$parseErrors | Should -Be 0
-    }
-
-    It 'runs end to end in Windows PowerShell 5.1, fed through iex like the README line' {
-        $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
-            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
-            return
-        }
-        # The feed and git are stubbed, so nothing leaves the machine and the entry script is
-        # one this test wrote. A function wins over a cmdlet of the same name, so the stub
-        # feed also replaces Invoke-RestMethod inside Start-Tool. The entry script reports
-        # the error preference it sees and any of Start-Tool's variables it can read.
-        $driver = @'
-function Invoke-RestMethod { [pscustomobject]@{ projects = @([pscustomobject]@{ repo = 'WinTool'; branch = 'main'; entrypoint = 'Tools\Win Tool.ps1' }) } }
-function git {
-    if ($args[0] -eq 'clone') {
-        $directory = [string]$args[-1]
-        New-Item -ItemType Directory -Path (Join-Path $directory 'Tools') -Force | Out-Null
-        Set-Content -LiteralPath (Join-Path $directory 'Tools\Win Tool.ps1') -Value @(
-            '$leaked = @(''feed'', ''project'', ''repo'', ''directory'', ''target'', ''profileOwner'') | Where-Object { Get-Variable -Name $_ -ErrorAction SilentlyContinue }'
-            '"ran in PowerShell $($PSVersionTable.PSVersion.Major) with $ErrorActionPreference; leaked=$($leaked -join '','')"'
-        )
-    }
-    $global:LASTEXITCODE = 0
-}
-Get-Content -Raw -LiteralPath $env:SYSADMINDOC_RUN_SCRIPT | Invoke-Expression
-Start-Tool WinTool
-'@
-        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($driver))
-        $env:SYSADMINDOC_RUN_SCRIPT = $script:RunScriptPath
-        try {
-            $output = @(& $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded 2>&1 | ForEach-Object { [string]$_ })
-        } finally {
-            Remove-Item Env:SYSADMINDOC_RUN_SCRIPT -ErrorAction SilentlyContinue
-        }
-
-        $LASTEXITCODE | Should -Be 0
-        $output | Should -Contain 'ran in PowerShell 5 with Continue; leaked='
-    }
-
-    It 'clones, installs requirements and runs the entry script the feed names' {
-        Mock Invoke-RestMethod { New-FakeFeed }
-        function git {
-            $script:ToolCalls.Add('git ' + ($args -join ' '))
-            if ($args[0] -eq 'clone') {
-                $directory = [string]$args[-1]
-                New-Item -ItemType Directory -Path $directory | Out-Null
-                Set-Content -LiteralPath (Join-Path $directory 'requirements.txt') -Value 'rich' -Encoding utf8
-                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'ran.txt') -Value 'ran'" -Encoding utf8
-            }
-            $global:LASTEXITCODE = 0
-        }
-        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
-
-        Start-Tool WinTool
-
-        $directory = Join-Path $env:TEMP 'WinTool'
-        $script:ToolCalls[0] | Should -Be "git clone -q --depth 1 -b main https://github.com/SysAdminDoc/WinTool $directory"
-        # A working python first, then python -m pip, so the requirements land in the
-        # interpreter a Python tool runs in.
-        $script:ToolCalls[1] | Should -Be 'python --version'
-        $script:ToolCalls[2] | Should -Be ('python -m pip install -q -r ' + (Join-Path $directory 'requirements.txt'))
-        Get-Content -LiteralPath (Join-Path $directory 'ran.txt') | Should -Be 'ran'
-        Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Uri -eq 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/projects.json' }
-    }
-
-    It 'runs the entry script with the session''s error preference, not a caller''s' {
-        # The tool runs as if from the prompt, like the old one-liner: it sees the session's
-        # (global) preference, and neither a stricter one in Start-Tool nor its caller's own.
-        Mock Invoke-RestMethod { New-FakeFeed }
-        function git {
-            if ($args[0] -eq 'clone') {
-                $directory = [string]$args[-1]
-                New-Item -ItemType Directory -Path $directory | Out-Null
-                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'preference.txt') -Value `$ErrorActionPreference" -Encoding utf8
-            }
-            $global:LASTEXITCODE = 0
-        }
-        $savedPreference = $global:ErrorActionPreference
-        try {
-            $global:ErrorActionPreference = 'SilentlyContinue'
-            $ErrorActionPreference = 'Stop'
-
-            Start-Tool WinTool
-        } finally {
-            $global:ErrorActionPreference = $savedPreference
-        }
-
-        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\preference.txt') | Should -Be 'SilentlyContinue'
-    }
-
-    It 'says how to recover when git cannot update an old copy' {
-        Mock Invoke-RestMethod { New-FakeFeed }
-        New-Item -ItemType Directory -Path (Join-Path $env:TEMP 'WinTool') | Out-Null
-        function git { $global:LASTEXITCODE = 128 }
-
-        { Start-Tool WinTool } | Should -Throw '*exit 128*delete it and run Start-Tool again*'
-    }
-
-    It 'stops before cloning when <Tool> is missing' -ForEach @(
-        @{ Tool = 'git'; Entrypoint = 'WinTool.ps1'; Message = "*git isn't installed or isn't on PATH*" }
-        @{ Tool = 'python'; Entrypoint = 'app.py'; Message = "*is a Python tool, and python isn't installed*" }
-    ) {
-        # Without the check a missing git left an old exit code behind, and the tool was
-        # started from a folder that was never cloned.
-        $script:MissingTool = $Tool
-        $script:FakeEntrypoint = $Entrypoint
-        Mock Invoke-RestMethod { New-FakeFeed -Entrypoint $script:FakeEntrypoint }
-        Mock Get-Command { $null } -ParameterFilter { $Name -eq $script:MissingTool }
-        function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
-        function python { $script:ToolCalls.Add('python'); $global:LASTEXITCODE = 0 }
-
-        { Start-Tool WinTool } | Should -Throw $Message
-        @($script:ToolCalls) | Should -BeNullOrEmpty
-        # git is checked before the feed request; python needs the feed's entry script first.
-        Should -Invoke Invoke-RestMethod -Times $(if ($Tool -eq 'git') { 0 } else { 1 }) -Exactly
-    }
-
-    It 'matches a feed row by its exact name, whatever the case' {
-        # -eq compared by culture, which skips an invisible character, so a row named
-        # Win<U+200B>Tool answered Start-Tool WinTool. Case still doesn't matter, as on GitHub.
-        Mock Invoke-RestMethod { New-FakeFeed -Repo ('Win' + [char]0x200B + 'Tool') }
-        function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
-
-        { Start-Tool WinTool } | Should -Throw '*is not a project you can run*'
-        @($script:ToolCalls) | Should -BeNullOrEmpty
-
-        Mock Invoke-RestMethod { New-FakeFeed -Repo 'WinTool' }
-        function git {
-            $script:ToolCalls.Add('git ' + $args[0])
-            if ($args[0] -eq 'clone') {
-                $directory = [string]$args[-1]
-                New-Item -ItemType Directory -Path $directory | Out-Null
-                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'ran.txt') -Value 'ran'" -Encoding utf8
-            }
-            $global:LASTEXITCODE = 0
-        }
-
-        Start-Tool wintool
-        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\ran.txt') | Should -BeOrdinal 'ran'
-    }
-
-    It 'treats a python that can''t report its version as missing' {
-        # On a machine without Python, the python on PATH is often the Store's stand-in,
-        # which prints "Python was not found" and exits 9009.
-        Mock Invoke-RestMethod { New-FakeFeed -Repo 'PyTool' -Entrypoint 'app.py' }
-        function git { $script:ToolCalls.Add('git'); $global:LASTEXITCODE = 0 }
-        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')); $global:LASTEXITCODE = 9009 }
-
-        { Start-Tool PyTool } | Should -Throw "*is a Python tool, and python isn't installed*"
-        @($script:ToolCalls) | Should -Be @('python --version')
-    }
-
-    It 'judges <Case> by its exit code in Windows PowerShell 5.1 with <Via> at Stop' -ForEach @(
-        @{ Case = 'Python 2, which prints its version on stderr'; Via = 'the session'; Stub = 'if "%~1"=="--version" (echo Python 2.7.18 1>&2& exit /b 0)'; Started = $true }
-        @{ Case = 'a python that prints a warning on stderr'; Via = 'the session'; Stub = 'if "%~1"=="--version" (echo warning: user site not writable 1>&2& echo Python 3.12.0& exit /b 0)'; Started = $true }
-        @{ Case = 'the Store stand-in'; Via = 'the session'; Stub = 'echo Python was not found; run without arguments to install from the Microsoft Store 1>&2& exit /b 9009'; Started = $false }
-        # -ErrorAction Stop sets Start-Tool's own preference, which the check inherits, with
-        # the session left at Continue.
-        @{ Case = 'Python 2, which prints its version on stderr'; Via = 'Start-Tool -ErrorAction Stop'; Stub = 'if "%~1"=="--version" (echo Python 2.7.18 1>&2& exit /b 0)'; Started = $true }
-    ) {
-        $windowsPowerShell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        if (-not (Test-Path -LiteralPath $windowsPowerShell)) {
-            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is not installed here'
-            return
-        }
-        # With the session at Stop, Windows PowerShell turned any stderr line from python
-        # --version into an error, so a working python read as missing. Real python.cmd
-        # stubs, since a function stub writes no stderr.
-        $binPath = Join-Path $TestDrive ('python-' + [guid]::NewGuid().ToString('N'))
-        New-Item -ItemType Directory -Path $binPath | Out-Null
-        [System.IO.File]::WriteAllText((Join-Path $binPath 'python.cmd'), "@echo off`r`n$Stub`r`necho ran> `"%~dp0ran.txt`"`r`nexit /b 0`r`n")
-        $viaCall = $Via -eq 'Start-Tool -ErrorAction Stop'
-        $driver = @'
-$ErrorActionPreference = '<session-preference>'
-function Invoke-RestMethod { [pscustomobject]@{ projects = @([pscustomobject]@{ repo = 'PyTool'; branch = 'main'; entrypoint = 'app.py' }) } }
-function git { if ($args[0] -eq 'clone') { New-Item -ItemType Directory -Path ([string]$args[-1]) -Force | Out-Null }; $global:LASTEXITCODE = 0 }
-Get-Content -Raw -LiteralPath $env:SYSADMINDOC_RUN_SCRIPT | Invoke-Expression
-try { Start-Tool PyTool<call-arguments>; 'started' } catch { 'threw: ' + $_.Exception.Message }
-'@.Replace('<session-preference>', $(if ($viaCall) { 'Continue' } else { 'Stop' })).Replace('<call-arguments>', $(if ($viaCall) { ' -ErrorAction Stop' } else { '' }))
-        $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($driver))
-        $savedPath = $env:PATH
-        $env:SYSADMINDOC_RUN_SCRIPT = $script:RunScriptPath
-        try {
-            $env:PATH = $binPath + [System.IO.Path]::PathSeparator + $savedPath
-            $output = @(& $windowsPowerShell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded 2>&1 | ForEach-Object { [string]$_ })
-        } finally {
-            $env:PATH = $savedPath
-            Remove-Item Env:SYSADMINDOC_RUN_SCRIPT -ErrorAction SilentlyContinue
-        }
-
-        if ($Started) {
-            $output | Should -Contain 'started' -Because ($output -join "`n")
-            Test-Path -LiteralPath (Join-Path $binPath 'ran.txt') | Should -BeTrue -Because 'the tool itself ran with that python'
-        } else {
-            ($output -join "`n") | Should -Match "threw: Start-Tool: PyTool is a Python tool, and python isn't installed"
-            Test-Path -LiteralPath (Join-Path $binPath 'ran.txt') | Should -BeFalse
-        }
-    }
-
-    It 'warns when the requirements fail to install and still starts the tool' {
-        Mock Invoke-RestMethod { New-FakeFeed }
-        function git {
-            if ($args[0] -eq 'clone') {
-                $directory = [string]$args[-1]
-                New-Item -ItemType Directory -Path $directory | Out-Null
-                Set-Content -LiteralPath (Join-Path $directory 'requirements.txt') -Value 'rich' -Encoding utf8
-                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Value "Set-Content -LiteralPath (Join-Path `$PSScriptRoot 'ran.txt') -Value 'ran'" -Encoding utf8
-            }
-            $global:LASTEXITCODE = 0
-        }
-        # A working python whose pip install fails.
-        function python { $global:LASTEXITCODE = $(if ($args[0] -eq '--version') { 0 } else { 1 }) }
-
-        Start-Tool WinTool -WarningVariable warnings 3>$null
-
-        @($warnings) | Should -HaveCount 1
-        [string]$warnings[0] | Should -Match 'requirements failed \(exit 1\); starting it anyway'
-        Get-Content -LiteralPath (Join-Path $env:TEMP 'WinTool\ran.txt') | Should -Be 'ran'
-    }
-
-    It 'runs the tool with none of Start-Tool''s variables in reach' {
-        # The old one-liner ran the tool from the prompt, where only its own $d existed.
-        Mock Invoke-RestMethod { New-FakeFeed }
-        function git {
-            if ($args[0] -eq 'clone') {
-                $directory = [string]$args[-1]
-                New-Item -ItemType Directory -Path $directory | Out-Null
-                Set-Content -LiteralPath (Join-Path $directory 'WinTool.ps1') -Encoding utf8 -Value @(
-                    '$names = @(''Name'', ''feed'', ''project'', ''repo'', ''branch'', ''entrypoint'', ''directory'', ''requirements'', ''target'', ''profileOwner'', ''usesPython'')'
-                    'Set-Content -LiteralPath (Join-Path $PSScriptRoot ''leaked.txt'') -Value (@($names | Where-Object { Get-Variable -Name $_ -ErrorAction SilentlyContinue }) -join '','')'
-                )
-            }
-            $global:LASTEXITCODE = 0
-        }
-
-        Start-Tool WinTool
-
-        [System.IO.File]::ReadAllText((Join-Path $env:TEMP 'WinTool\leaked.txt')).Trim() | Should -BeNullOrEmpty
-    }
-
-    It 'updates an existing copy and runs a Python entry script with python' {
-        Mock Invoke-RestMethod { New-FakeFeed -Repo 'PyTool' -Branch 'master' -Entrypoint 'app\main.py' }
-        New-Item -ItemType Directory -Path (Join-Path $env:TEMP 'PyTool') | Out-Null
-        function git { $script:ToolCalls.Add('git ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
-        function python { $script:ToolCalls.Add('python ' + ($args -join ' ')); $global:LASTEXITCODE = 0 }
-
-        Start-Tool PyTool
-
-        $directory = Join-Path $env:TEMP 'PyTool'
-        # python --version first: a python that can't answer is the Store's stand-in.
-        @($script:ToolCalls) | Should -Be @('python --version', "git -C $directory pull -q", ('python ' + (Join-Path $directory 'app\main.py')))
-    }
-
-    It 'refuses <Case> before git or any script runs' -ForEach @(
-        @{ Case = 'an unsafe name'; Name = '..\WinTool'; Feed = @{} }
-        @{ Case = 'an entry script that expands code'; Name = 'WinTool'; Feed = @{ Entrypoint = 'run$(Remove-Item x).ps1' } }
-        @{ Case = 'an entry script outside the checkout'; Name = 'WinTool'; Feed = @{ Entrypoint = '..\outside.ps1' } }
-        @{ Case = 'a branch that looks like an option'; Name = 'WinTool'; Feed = @{ Branch = '--upload-pack=touch' } }
-        @{ Case = 'a project that is not in the feed'; Name = 'Missing'; Feed = @{} }
-    ) {
-        $script:FeedOverride = $Feed
-        Mock Invoke-RestMethod { New-FakeFeed @script:FeedOverride }
-        function git { $script:ToolCalls.Add('git') }
-
-        { Start-Tool $Name } | Should -Throw 'Start-Tool:*'
-        @($script:ToolCalls) | Should -BeNullOrEmpty
-    }
-
-    It 'requires installKind to match the entry script run.ps1 will start' {
+Describe 'Catalog entry scripts' {
+    It 'requires installKind to match the entry script it names' {
         $entry = New-TestEntry -Repo 'KindTool' -Category 'python'
         $entry.entrypoint = 'KindTool.ps1'
         $entry.installKind = 'python'
@@ -1881,26 +1597,6 @@ Describe 'MedicalPattern privacy regex is word-boundary anchored' {
     }
 }
 
-Describe 'Get-InstallSnippet' {
-    It 'emits the short run.ps1 line for a PowerShell project' {
-        $e = New-TestEntry -Repo 'WinTool' -Category 'powershell'
-        $e.entrypoint = 'WinTool.ps1'; $e.installKind = 'powershell'; $e.branch = 'main'
-        Get-InstallSnippet -Entry $e | Should -Be 'irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinTool'
-    }
-    It 'emits the same short line for a Python project on another branch' {
-        # run.ps1 reads the branch and the runner from projects.json.
-        $e = New-TestEntry -Repo 'PyTool' -Category 'python'
-        $e.entrypoint = 'app.py'; $e.installKind = 'python'; $e.branch = 'master'
-        $snippet = Get-InstallSnippet -Entry $e
-        $snippet | Should -Be 'irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool PyTool'
-        $snippet.Length | Should -BeLessThan 110
-    }
-    It 'returns null when the entry has no entrypoint' {
-        $e = New-TestEntry -Repo 'NoEntry' -Category 'powershell'
-        Get-InstallSnippet -Entry $e | Should -BeNullOrEmpty
-    }
-}
-
 Describe 'Branch-tip provenance' {
     It 'records the advertised branch, current tip SHA, and fetched-at time for a fresh response' {
         $sha = 'a' * 40
@@ -1980,12 +1676,12 @@ Describe 'URL and metadata helpers' {
         Get-DownloadLabel -Entry $apk -Category 'android' | Should -Be 'APK'
     }
 
-    It 'keeps release action icon and label from wrapping apart' {
+    It 'draws a release action as one image, so its icon and label cannot wrap apart' {
         $apk = New-TestEntry -Repo 'A' -Category 'android'; $apk.downloadKind = 'apk'
         $meta = New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')
 
         Get-ActionLink -Entry $apk -Meta $meta -Category 'android' |
-            Should -BeOrdinal '<a href="https://github.com/SysAdminDoc/A/releases/latest" aria-label="Download A (APK)"><kbd>&#11015;&nbsp;APK</kbd></a>'
+            Should -BeOrdinal (New-TestButton -Href 'https://github.com/SysAdminDoc/A/releases/latest' -File 'apk' -Alt 'Get the A APK')
     }
 }
 
@@ -3837,12 +3533,6 @@ Describe 'Test-LinkTargets batch reporting' {
         $readme = @'
 **[View full portfolio](https://sysadmindoc.github.io/)**
 
-```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | iex
-```
-
-[`setup.ps1`](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1)
-
 <picture><source srcset="https://skillicons.dev/icons?i=powershell&theme=dark"><img src="https://skillicons.dev/icons?i=powershell&theme=dark" /></picture>
 ![Stars](https://img.shields.io/github/stars/SysAdminDoc/SysAdminDoc)
 '@
@@ -3855,17 +3545,13 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | i
 
         $result = Test-LinkTargets -Included @() -RepoLookup @{} -ExtraTargets $targets -ProbeScript $probe -ThrottleLimit 2
 
-        $targets | Should -HaveCount 5
+        $targets | Should -HaveCount 3
         ($targets | Where-Object { $_.type -eq 'profile-portfolio' }).url | Should -Be 'https://sysadmindoc.github.io/'
-        ($targets | Where-Object { $_.type -eq 'setup-raw' }).url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'
-        ($targets | Where-Object { $_.type -eq 'setup-source' }).url | Should -Be 'https://github.com/SysAdminDoc/SysAdminDoc/blob/main/setup.ps1'
         @($targets | Where-Object { $_.type -eq 'header-image' }) | Should -HaveCount 2
 
-        @($result.failures) | Should -HaveCount 3
+        @($result.failures) | Should -HaveCount 1
         @($result.warnings) | Should -HaveCount 2
-        ($result.failures | ForEach-Object { $_.type }) | Should -Contain 'profile-portfolio'
-        ($result.failures | ForEach-Object { $_.type }) | Should -Contain 'setup-raw'
-        ($result.failures | ForEach-Object { $_.type }) | Should -Contain 'setup-source'
+        ($result.failures | ForEach-Object { $_.type }) | Should -Be 'profile-portfolio'
         ($result.warnings | ForEach-Object { $_.type } | Sort-Object -Unique) | Should -Be 'header-image'
 
         $headerWarnings = @($result.headerHostWarnings)
@@ -3874,46 +3560,27 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1 | i
         ($headerWarnings | Where-Object { $_.host -eq 'img.shields.io' }).count | Should -Be 1
     }
 
-    It 'extracts rendered README install, download, and userscript action targets' {
+    It 'extracts the README''s download, userscript and product image targets' {
         $readme = @'
-```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinTool
-```
-
-```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool <Name>
-```
-
-[<kbd>&#11015;&nbsp;APK</kbd>](https://github.com/SysAdminDoc/MobileTool/releases/latest)
-| [**ScriptTool**](https://github.com/SysAdminDoc/ScriptTool) | Browser helper | [Install](https://raw.githubusercontent.com/SysAdminDoc/ScriptTool/main/ScriptTool.user.js) |
+<a href="https://github.com/SysAdminDoc/MobileTool"><img src="https://raw.githubusercontent.com/SysAdminDoc/MobileTool/main/assets/hero.png" width="100%" alt="MobileTool on three phones"></a>
+<p><a href="https://github.com/SysAdminDoc/MobileTool/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="28" alt="Get the MobileTool APK"></a></p>
+| [**ScriptTool**](https://github.com/SysAdminDoc/ScriptTool) | Browser helper<br><a href="https://raw.githubusercontent.com/SysAdminDoc/ScriptTool/main/ScriptTool.user.js"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/userscript.svg" height="24" alt="Install the ScriptTool userscript"></a> |
 '@
-        $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
-        # Not main, so a hard-coded branch couldn't pass: six tools really are on master.
-        $winTool.entrypoint = 'Tools\Win Tool.ps1'; $winTool.branch = 'master'
-        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @($winTool))
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
 
-        # The "<Name>" placeholder in the setup section's example resolves to nothing.
-        $targets | Should -HaveCount 4
+        # The profile's own buttons are checked on disk, not probed.
+        $targets | Should -HaveCount 3
         ($targets | ForEach-Object { $_.type } | Sort-Object) -join ',' |
-            Should -Be 'readme-download,readme-install-dispatcher,readme-install-entrypoint,readme-userscript-install'
-        ($targets | Where-Object { $_.type -eq 'readme-install-entrypoint' }).url |
-            Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/master/Tools/Win%20Tool.ps1'
-        ($targets | Where-Object { $_.type -eq 'readme-install-dispatcher' }).url |
-            Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1'
+            Should -Be 'readme-download,readme-image,readme-userscript-install'
         ($targets | Where-Object { $_.type -eq 'readme-download' }).repo | Should -Be 'MobileTool'
         ($targets | Where-Object { $_.type -eq 'readme-userscript-install' }).repo | Should -Be 'ScriptTool'
-        ($targets | Where-Object { $_.group -eq 'readme-actions' }) | Should -HaveCount 4
+        ($targets | Where-Object { $_.type -eq 'readme-image' }).url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/MobileTool/main/assets/hero.png'
+        ($targets | Where-Object { $_.group -eq 'readme-actions' }) | Should -HaveCount 3
     }
 
     It 'keeps README action target failures visible through link validation rows' {
-        $readme = @'
-```powershell
-irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex; Start-Tool WinTool
-```
-'@
-        $winTool = New-TestEntry -Repo 'WinTool' -Category 'powershell'
-        $winTool.entrypoint = 'WinTool.ps1'; $winTool.branch = 'main'
-        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme -Entries @($winTool))
+        $readme = '<a href="https://github.com/SysAdminDoc/App"><img src="https://raw.githubusercontent.com/SysAdminDoc/App/main/assets/renamed.png" width="100%" alt="App"></a>'
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
         $probe = {
             param($target)
 
@@ -3922,9 +3589,9 @@ irm https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/run.ps1 | iex
 
         $result = Test-LinkTargets -Included @() -RepoLookup @{} -ExtraTargets $targets -ProbeScript $probe -ThrottleLimit 2
 
-        @($result.failures) | Should -HaveCount 2
-        @($result.failures | ForEach-Object { $_.type } | Sort-Object) | Should -Be @('readme-install-dispatcher', 'readme-install-entrypoint')
-        @($result.failures | Where-Object { $_.type -eq 'readme-install-entrypoint' })[0].url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/WinTool/main/WinTool.ps1'
+        @($result.failures) | Should -HaveCount 1
+        $result.failures[0].type | Should -Be 'readme-image'
+        $result.failures[0].url | Should -Be 'https://raw.githubusercontent.com/SysAdminDoc/App/main/assets/renamed.png'
     }
 }
 
@@ -5110,7 +4777,9 @@ Describe 'Profile footer contact route' {
         $footer | Should -Match ([regex]::Escape('<a href="' + (Get-ProfilePortfolioUrl) + '#connect">Get in touch</a>'))
         $footer | Should -Match 'See everything'
         $footer | Should -Not -Match 'mailto:'
-        [regex]::Matches($footer, '<img\b').Count | Should -Be 0
+        # The search button is the only image without a support block in the header data.
+        @([regex]::Matches($footer, '<img\b[^>]*>') | ForEach-Object { $_.Value }) |
+            Should -BeOrdinal ('<img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/search.svg" height="32" alt="Search every project on the portfolio site">')
     }
 
     It 'renders the contact link at the end of the generated README' {
@@ -5126,24 +4795,25 @@ Describe 'Profile footer contact route' {
     }
 }
 
-Describe 'What-is-this sentence before the category grid' {
-    It 'explains the page and its audience in one sentence ahead of the grid' {
+Describe 'Browse everything introduction' {
+    It 'explains the shelves in one line and links the search before the first shelf' {
+        $readme = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+        $section = $readme.Substring($readme.IndexOf('## Browse everything'))
+        $intro = @($section -split '\r?\n' | Where-Object { $_ -like 'Every public project*' })
+
+        $intro | Should -HaveCount 1
+        $intro[0] | Should -Match ([regex]::Escape('[search them all](' + (Get-ProfilePortfolioUrl) + ')'))
+        $intro[0] | Should -Not -Match '[\u2013\u2014]'
+        $section.IndexOf($intro[0]) | Should -BeLessThan $section.IndexOf('<a id=') -Because 'it has to come before the first shelf'
+    }
+
+    It 'counts the README projects in the proof line' {
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $visible = @($cat.entries | Where-Object { $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason) }).Count
+        $visible = @(Get-ReadmeEntries -Catalog $cat).Count
 
         $readme = New-Readme -Catalog $cat -Repos @()
-        $section = $readme.Substring($readme.IndexOf("### What's here"))
-        $sentence = @($section -split "\r?\n" | Where-Object { $_ -like 'This is the index of *' })
 
-        $sentence | Should -HaveCount 1
-        $sentence[0] | Should -Match "^This is the index of the $visible public projects I've published"
-        $sentence[0] | Should -Match 'for anyone who'
-        ($sentence[0] -split '(?<=[.!?])\s+').Count | Should -Be 1 -Because 'it is a single sentence'
-        $tagline = [regex]::Match($readme.TrimStart(), '^<p align="center"><b>(?<text>[^<]+)</b>').Groups['text'].Value
-        $tagline | Should -Not -BeNullOrEmpty
-        $sentence[0] | Should -Not -Match ([regex]::Escape($tagline))
-        $sentence[0] | Should -Not -Match '[\u2013\u2014]'
-        $section.IndexOf($sentence[0]) | Should -BeLessThan $section.IndexOf('| PowerShell |') -Because 'it has to come before the grid'
+        $readme | Should -Match ('(?m)^<p align="center"><b>' + $visible + '</b> free projects &middot; <b>every line</b> of source public &middot; <b>zero</b> commands to paste</p>')
     }
 }
 
@@ -5173,13 +4843,12 @@ Describe 'Star count display threshold' {
 
         $readme = New-Readme -Catalog $cat -Repos @($oneStar, $threeStars)
 
-        $readme | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) &middot; '
+        $readme | Should -Match '\[\*\*WinTool\*\*\]\(https://github\.com/SysAdminDoc/WinTool\) \| '
         $readme | Should -Not -Match 'WinTool\) &#11088;1'
-        $readme | Should -Match '\[\*\*PyTool\*\*\]\(https://github\.com/SysAdminDoc/PyTool\) &#11088;3'
+        $readme | Should -Match '\[\*\*PyTool\*\*\]\(https://github\.com/SysAdminDoc/PyTool\) &#11088;3 \| '
     }
 
-    It 'orders a category by the real star count, including counts it hides' {
-        $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'powershell' } | Select-Object -First 1
+    It 'orders a shelf by the real star count, including counts it hides' {
         $entries = @(
             (New-TestEntry -Repo 'Alpha' -Category 'powershell')
             (New-TestEntry -Repo 'Mu' -Category 'powershell')
@@ -5192,13 +4861,14 @@ Describe 'Star count display threshold' {
             $lookup[$stars[0].ToLowerInvariant()] = $meta
         }
 
-        $section = New-CategorySection -Entries $entries -RepoLookup $lookup -Definition $definition
-        $rows = @([regex]::Matches($section, '(?m)^\[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? &middot; ') | ForEach-Object { $_.Groups[1].Value })
+        $shelf = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries $entries -RepoLookup $lookup)[0]
+        $section = New-ShelfSection -Shelf $shelf -RepoLookup $lookup
+        $rows = @([regex]::Matches($section, '(?m)^\| \[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? \| ') | ForEach-Object { $_.Groups[1].Value })
 
         # Mu's single star is not shown, and it still ranks above Alpha's zero; alphabetical
         # order would put Alpha first.
         $rows | Should -Be @('Zeta', 'Mu', 'Alpha')
-        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 &middot; '
+        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 \| '
         $section | Should -Not -Match '&#11088;1'
     }
 }
@@ -5212,13 +4882,9 @@ Describe 'Owner-bound output follows -Owner' {
         $Owner = 'FixtureOwner'
         $readme = New-Readme -Catalog $script:OwnerAgnosticCatalog -Repos @()
 
-        $readme | Should -Not -Match '(?i)github\.com/SysAdminDoc|githubusercontent\.com/SysAdminDoc'
-        $readme | Should -Match ([regex]::Escape('[`setup.ps1`](https://github.com/FixtureOwner/FixtureOwner/blob/main/setup.ps1)'))
-        # What is left names the files setup.ps1 itself writes, which a fork's copy keeps.
-        $leftovers = @([regex]::Matches($readme, '(?i)SysAdminDoc[\w.*-]*') | ForEach-Object { $_.Value } | Select-Object -Unique)
-        $leftovers | Should -HaveCount 2
-        $leftovers | Should -Contain 'SysAdminDoc-setup.ps1'
-        $leftovers | Should -Contain 'SysAdminDoc-setup-*.log'
+        $readme | Should -Not -Match '(?i)sysadmindoc'
+        # Buttons come from the owner's own profile repository.
+        $readme | Should -Match ([regex]::Escape('src="https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/assets/buttons/'))
     }
 
     It 'counts rendered table rows for another owner' {
@@ -5234,26 +4900,14 @@ Describe 'Owner-bound output follows -Owner' {
         @($budgets.rows | Where-Object { $_.metric -eq 'tableRows' })[0].value | Should -Be $expectedRows
     }
 
-    It 'recognizes a featured action list row for another owner' {
-        $Owner = 'FixtureOwner'
-        $readme = '- [**FixtureTool**](https://github.com/FixtureOwner/FixtureTool) -- A fixture tool<br/>Web Tools<br/>Action: [Launch](https://fixture.example.test/)'
-
-        (Test-ReadmeExperience -Catalog $script:OwnerAgnosticCatalog -Repos @() -ExpectedReadme $readme).featuredActionList | Should -BeTrue
-    }
-
-    It 'seeds a catalog from a README generated for another owner' {
+    It 'refuses to seed a catalog from a storefront README' {
         $Owner = 'FixtureOwner'
         # Render before pointing $ReadmePath at the copy: New-Readme reads $ReadmePath too.
         $readme = New-Readme -Catalog $script:OwnerAgnosticCatalog -Repos @()
         $ReadmePath = Join-Path $TestDrive 'fixture-owner-readme.md'
         Set-Content -LiteralPath $ReadmePath -Value $readme -Encoding utf8
 
-        $seeded = New-CatalogFromReadme -Repos @()
-
-        $row = @($seeded.entries | Where-Object { $_.repo -eq 'FixtureTool' })
-        $row | Should -HaveCount 1
-        $row[0].category | Should -Be 'web'
-        $row[0].liveUrl | Should -Be 'https://fixture.example.test/'
+        { New-CatalogFromReadme -Repos @() } | Should -Throw -ExpectedMessage '*No catalog rows found*Restore data/profile-catalog.json from git history*'
     }
 
     It 'passes the published schemas with the catalog, feed and report of another owner' {
@@ -5316,20 +4970,41 @@ Describe 'Owner-bound output follows -Owner' {
 
     It 'seeds every legacy row shape from a README written for another owner' {
         $Owner = 'FixtureOwner'
-        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/owner-agnostic-catalog.json')
-        $catalog.entries = @($catalog.entries) + @(
-            (New-TestEntry -Repo 'OwnerCode' -Category 'powershell' -Description 'A code row')
-            (New-TestEntry -Repo 'OwnerMisc' -Category 'misc' -Description 'A two-column row')
-        )
-        # Render before pointing $ReadmePath at the copy: New-Readme reads $ReadmePath too.
-        $rendered = New-Readme -Catalog $catalog -Repos @()
-        # The featured table shapes are no longer rendered, but the legacy parser still reads them.
-        $featured = @(
+        # Rows as the README before v5.0.0 wrote them, which the seed parser still reads.
+        $legacy = @(
             '| [**FeatStars**](https://github.com/FixtureOwner/FeatStars) | &#11088;5 | Featured with stars |'
             '| [**FeatAction**](https://github.com/FixtureOwner/FeatAction) | PowerShell | &#11088;3 | Featured with an action | [Repo](https://github.com/FixtureOwner/FeatAction) |'
+            ''
+            '<a id="powershell-system-utilities"></a>'
+            '<details>'
+            '<summary><b>&#9889; PowerShell System Utilities</b> &middot; 1 repos &middot; <i>Windows admin</i></summary>'
+            ''
+            '[**OwnerCode**](https://github.com/FixtureOwner/OwnerCode) &middot; A code row'
+            ''
+            '</details>'
+            ''
+            '<a id="web-applications"></a>'
+            '<details>'
+            '<summary><b>&#127760; Web Applications</b> &middot; 1 repos &middot; <i>In the browser</i></summary>'
+            ''
+            '| Project | Description | Action |'
+            '|:--------|:------------|:-------|'
+            '| [**FixtureTool**](https://github.com/FixtureOwner/FixtureTool) | A fixture tool | [Launch](https://fixture.example.test/) |'
+            ''
+            '</details>'
+            ''
+            '<a id="misc--forks"></a>'
+            '<details>'
+            '<summary><b>&#128295; Misc & Forks</b> &middot; 1 repos &middot; <i>Everything else</i></summary>'
+            ''
+            '| Project | Description |'
+            '|:--------|:------------|'
+            '| [**OwnerMisc**](https://github.com/FixtureOwner/OwnerMisc) | A two-column row |'
+            ''
+            '</details>'
         ) -join "`n"
         $ReadmePath = Join-Path $TestDrive 'legacy-owner-readme.md'
-        Set-Content -LiteralPath $ReadmePath -Value ($featured + "`n`n" + $rendered) -Encoding utf8
+        Set-Content -LiteralPath $ReadmePath -Value $legacy -Encoding utf8
 
         $seeded = New-CatalogFromReadme -Repos @()
         $byRepo = @{}
@@ -5341,6 +5016,7 @@ Describe 'Owner-bound output follows -Owner' {
         $byRepo['FeatAction'].featured | Should -BeTrue
         $byRepo['OwnerCode'].category | Should -Be 'powershell'
         $byRepo['FixtureTool'].category | Should -Be 'web'
+        $byRepo['FixtureTool'].liveUrl | Should -Be 'https://fixture.example.test/'
         $byRepo['OwnerMisc'].category | Should -Be 'misc'
     }
 
@@ -5351,7 +5027,6 @@ Describe 'Owner-bound output follows -Owner' {
             '^# \$Owner is a script parameter \(defaults to "SysAdminDoc"\)'     # the comment on it
             "-UserAgent 'SysAdminDoc-[a-z-]+'|\[string\]\`$UserAgent = 'SysAdminDoc-profile-sync'"  # names the tool to servers
             'SysAdminDoc\.Networking'                                           # namespace of the compiled HTTP handler
-            'SysAdminDoc-setup'                                                 # files setup.ps1 itself writes
             'sysadmindoc-backstage-catalog\.v1'                                 # feed format identifier
         )
         $offenders = foreach ($path in $script:SyncProfileSourcePaths) {
@@ -5374,15 +5049,17 @@ Describe 'Owner-bound output follows -Owner' {
     }
 }
 
-Describe 'Empty category sections are not rendered' {
-    It 'returns an empty string for a category with no visible entries' {
-        $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'security' } | Select-Object -First 1
+Describe 'Empty shelves are not rendered' {
+    It 'leaves out a shelf with no visible entries' {
         $entries = @((New-TestEntry -Repo 'OnlyPowerShell' -Category 'powershell'))
-        $section = New-CategorySection -Entries $entries -RepoLookup @{} -Definition $definition
-        [string]::IsNullOrEmpty($section) | Should -BeTrue
+
+        $shelves = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries $entries -RepoLookup @{})
+
+        @($shelves | ForEach-Object { $_.id }) | Should -Be @('powershell-system-utilities')
+        New-ShelfSection -Shelf ([ordered]@{ id = 'security--networking'; title = 'Security'; entries = @() }) -RepoLookup @{} | Should -BeNullOrEmpty
     }
 
-    It 'links only to category sections that are rendered' {
+    It 'links only to shelves that are rendered' {
         # The fixture has no Android, Security, Desktop or Guides rows.
         $readme = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
         $rendered = @([regex]::Matches($readme, '(?m)^<a id="(?<id>[^"]+)"></a>') | ForEach-Object { $_.Groups['id'].Value })
@@ -5390,25 +5067,29 @@ Describe 'Empty category sections are not rendered' {
 
         $rendered | Should -Not -Contain 'android-applications'
         @($linked | Where-Object { $_ -notin $rendered }) | Should -BeNullOrEmpty -Because 'every in-page link needs a section to land on'
-        $readme | Should -Match '<sub>No public rows</sub>\s*\|'
         @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
         $readme | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
     }
 
-    It 'keeps the header contract when a catalog has no PowerShell rows' {
+    It 'keeps the README contract when a catalog has no PowerShell rows' {
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $catalog.entries = @($catalog.entries | Where-Object { $_.category -ne 'powershell' })
         $readme = New-Readme -Catalog $catalog -Repos @()
 
         $readme | Should -Not -Match 'powershell-system-utilities'
-        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeTrue
+        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme -Showcase (Get-DefaultShowcase)
+        $experience.missingShelfAnchors | Should -BeNullOrEmpty
+        $experience.passed | Should -BeTrue
     }
 
-    It 'renders a section when the category has at least one entry' {
-        $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq 'powershell' } | Select-Object -First 1
+    It 'renders a shelf when it has at least one entry' {
         $entries = @((New-TestEntry -Repo 'OnlyPowerShell' -Category 'powershell'))
-        $section = New-CategorySection -Entries $entries -RepoLookup @{} -Definition $definition
+        $shelf = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries $entries -RepoLookup @{})[0]
+
+        $section = New-ShelfSection -Shelf $shelf -RepoLookup @{}
+
         $section | Should -Match '<details>'
+        $section | Should -Match '&middot; 1 project</summary>'
         $section | Should -Match 'OnlyPowerShell'
     }
 }
@@ -5434,24 +5115,14 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
     It 'keeps the generated catalog notice when the compact discovery block is active' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
     }
-    It 'renders setup inspect-before-run and check-only guidance' {
-        $script:rendered | Should -Match 'Inspect first, then install only the tooling your machine is missing'
-        $script:rendered | Should -Match 'checks for PowerShell 7, Python, pip, and Git before changing anything'
-        $script:rendered | Should -Match 'Inspect before installing'
-        $script:rendered | Should -Match ([regex]::Escape('$u=''https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/setup.ps1'''))
-        $script:rendered | Should -Match 'SysAdminDoc-setup\.ps1'
-        $script:rendered | Should -Match '-CheckOnly'
-        $script:rendered | Should -Match 'SysAdminDoc-setup-\*\.log'
+    It 'offers no command to paste anywhere on the page' {
+        $script:rendered | Should -Not -Match '(?m)^ {0,3}(```|~~~)'
+        $script:rendered | Should -Not -Match '(?i)\birm\s+https?://|\|\s*iex\b|invoke-expression|start-tool\s'
+        $script:rendered | Should -Not -Match '(?i)first-time-setup|setup\.ps1|run\.ps1'
     }
-    It 'renders a short, contributor-labelled local validation pointer' {
-        $section = [regex]::Match($script:rendered, '(?s)<a id="local-validation"></a>.*?</details>').Value
-        $section | Should -Not -BeNullOrEmpty
-        $section | Should -Match 'For contributors'
-        $section | Should -Match ([regex]::Escape('pwsh -NoProfile -File .\scripts\validate-local.ps1'))
-        $section | Should -Match ([regex]::Escape('](https://github.com/SysAdminDoc/SysAdminDoc/blob/main/.github/CONTRIBUTING.md#local-validation)'))
-        # The lane-by-lane detail moved to CONTRIBUTING.md; a visitor does not scroll past it.
-        $section | Should -Not -Match 'package override drift|Pester 6 compatibility lane|Backstage'
-        ($section -split "`n").Count | Should -BeLessThan 20
+
+    It 'leaves contributor instructions to CONTRIBUTING.md' {
+        $script:rendered | Should -Not -Match 'validate-local|local-validation'
     }
 
     It 'keeps the full local validation guide in CONTRIBUTING.md' {
@@ -5465,7 +5136,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $contributing | Should -Match 'warns below PowerShell 7\.6 LTS'
         $contributing | Should -Match 'Pester 5\.9\.1'
         $contributing | Should -Match 'PSScriptAnalyzer 1\.25\.0'
-        $contributing | Should -Match 'code coverage over every script and `setup\.ps1`'
+        $contributing | Should -Match 'code coverage over every script under `scripts/`'
         $contributing | Should -Match ([regex]::Escape('sync-profile.ps1 -Check -GraphQlPageSize 300'))
         $contributing | Should -Match 'min-release-age=1'
         $contributing | Should -Match '-SkipBootstrap'
@@ -5490,7 +5161,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         $script:rendered | Should -Not -Match 'assets/profile/footer-(dark|light)\.svg'
         $script:rendered | Should -Not -Match '<img[^>]*assets/profile/'
-        $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf("### What's here"))
+        $headerRegion = $script:rendered.Substring(0, $script:rendered.IndexOf($GeneratedCatalogNotice))
         [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 0 -Because 'a header without support data has no image'
         $script:rendered | Should -Not -Match '#gh-(dark|light)-mode-only'
         $script:rendered | Should -Not -Match "Hey, I'm Matt|medical imaging|getparkerai\.com/healthcare-it|ko-fi"
@@ -5506,23 +5177,24 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
         $script:rendered | Should -Not -Match 'img\.shields\.io/github/(followers|stars)'
     }
-    It 'renders the catalog grid without start-here table, catalog snapshot, or featured projects' {
+    It 'renders only the shelves for a catalog with no showcase, and none of the retired sections' {
         $script:rendered | Should -Match ([regex]::Escape($GeneratedCatalogNotice))
-        $script:rendered | Should -Match "### What's here"
-        $script:rendered | Should -Not -Match '### Start Here'
-        $script:rendered | Should -Not -Match '### Catalog Snapshot'
-        $script:rendered | Should -Not -Match '### Featured Projects'
-        $script:rendered | Should -Not -Match ([regex]::Escape("| I want to... |"))
-        # The retired five-column layout forced horizontal scrolling at phone widths.
-        $script:rendered | Should -Not -Match ([regex]::Escape("| Signal | I want to... | Best category |"))
-        $script:rendered | Should -Not -Match 'Quick platform map'
-        $script:rendered | Should -Not -Match 'Feed consumers'
-        $script:rendered | Should -Match '<a id="first-time-setup"></a>'
-        $script:rendered | Should -Match "### What's here"
-        $script:rendered | Should -Match 'Pick a category to jump in'
-        $script:rendered | Should -Match 'Scripts and tools for Windows'
-        $script:rendered | Should -Match 'Browser-based tools and dashboards'
+        @([regex]::Matches($script:rendered, '(?m)^#{1,3} (?<title>[^\r\n]+)') | ForEach-Object { $_.Groups['title'].Value.Trim() }) |
+            Should -Be @('Browse everything')
+        foreach ($retired in @("What's here", 'Start Here', 'Catalog Snapshot', 'Featured Projects', 'I want to...', 'Quick platform map', 'Feed consumers', 'Pick a category to jump in')) {
+            $script:rendered | Should -Not -Match ([regex]::Escape($retired))
+        }
+        $script:rendered | Should -Match 'Scripts and tools for Windows|<a id="powershell-system-utilities"></a>'
     }
+
+    It 'publishes the storefront sections in order on the committed README' {
+        $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
+
+        @([regex]::Matches($committed, '(?m)^## (?<title>[^\r\n]+?)\r?$') | ForEach-Object { $_.Groups['title'].Value }) |
+            Should -Be @($ToolCatalogHeading, 'Pick your problem', 'How I ship', 'Latest releases', 'Browse everything')
+        $committed | Should -Match '(?s)\A<a href="[^"]+"><picture>'
+    }
+
     It 'reports generated README byte size under the default soft budget' {
         $budget = Test-ReadmeSizeBudget -ExpectedReadme $script:rendered
 
@@ -5970,18 +5642,18 @@ Write-Host ok
         $summary.skipReason | Should -Match 'Local rendered smoke artifact was not found'
         $summary.warningCount | Should -Be 1
     }
-    It 'reports the generated catalog notice in README experience checks' {
-        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered
+    It 'reports the storefront contract in README experience checks' {
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme $script:rendered -Showcase (Get-DefaultShowcase)
         $result.generatedCatalogNotice | Should -BeTrue
-        $result.startHereSection | Should -BeFalse
-        $result.catalogSnapshotSection | Should -BeFalse
-        $result.setupInspectPath | Should -BeTrue
-        $result.plainTextTagline | Should -BeFalse
-        # Only the SVG header could set these, and the generator no longer renders one.
-        $result.Keys | Should -Not -Contain 'themeAwareImageChrome'
-        $result.Keys | Should -Not -Contain 'meaningfulImageAltText'
-        $result.minimalProfileHeader | Should -BeTrue
-        $result.richProfileHeader | Should -BeFalse
+        $result.codeBlockCount | Should -Be 0
+        $result.pasteCommandCount | Should -Be 0
+        $result.showcasePassed | Should -BeTrue
+        $result.heroBanner | Should -BeFalse
+        $result.flagshipCards | Should -Be 0
+        $result.shelfCount | Should -Be @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries @(Get-ReadmeEntries -Catalog $script:cat) -RepoLookup @{}).Count
+        $result.missingShelfAnchors | Should -BeNullOrEmpty
+        $result.missingLocalImages | Should -BeNullOrEmpty
+        $result.unlabeledButtons | Should -Be 0
         $result.genericImageAltTextCount | Should -Be 0
         $result.thirdPartyMetricHostCount | Should -Be 0
         $result.thirdPartyBadgeHostCount | Should -Be 0
@@ -5990,29 +5662,40 @@ Write-Host ok
         $result.motionSafeChrome | Should -BeTrue
         $result.motionPatternCount | Should -Be 0
         $result.profileStatsChromeCount | Should -Be 0
-        $result.featuredPrimaryActions | Should -BeFalse
-        $result.currentlyBuildingActionColumn | Should -BeTrue
         $result.passed | Should -BeTrue
     }
 
-    It 'fails the header contract for a README that still carries the old SVG header' {
-        # The header the generator rendered before the README went text-only.
-        $oldHeader = @'
-<p align="center">
-  <img src="assets/profile/header-dark.svg#gh-dark-mode-only" alt="SysAdminDoc public tools command center profile header" />
-  <img src="assets/profile/header-light.svg#gh-light-mode-only" alt="SysAdminDoc public tools command center profile header" />
-</p>
+    It 'fails the storefront contract for a README that carries <Case>' -ForEach @(
+        @{ Case = 'a fenced install block'; Text = "``````powershell`nirm https://example.test/run.ps1 | iex`n``````"; Code = 2; Paste = 2 }
+        @{ Case = 'an inline paste-and-run line'; Text = 'Run <code>iwr https://example.test/x.ps1 | iex</code> in PowerShell.'; Code = 0; Paste = 2 }
+        @{ Case = 'curl piped to a shell'; Text = 'Or: curl -fsSL https://example.test/install.sh | bash'; Code = 0; Paste = 1 }
+        @{ Case = 'wget piped to a shell'; Text = 'Or: wget -qO- https://example.test/install.sh | sh'; Code = 0; Paste = 1 }
+        @{ Case = 'a tilde fence'; Text = "~~~`nnothing to run`n~~~"; Code = 2; Paste = 0 }
+        @{ Case = 'the retired launcher'; Text = 'Then type Start-Tool WinTool.'; Code = 0; Paste = 1 }
+    ) {
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme ($script:rendered + [Environment]::NewLine + $Text + [Environment]::NewLine) -Showcase (Get-DefaultShowcase)
 
-<p align="center">Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence</p>
+        $result.codeBlockCount | Should -Be $Code
+        $result.pasteCommandCount | Should -Be $Paste
+        $result.passed | Should -BeFalse
+    }
 
-**[View full portfolio](https://portfolio.getparkerai.com/)**
+    It 'fails the storefront contract for a button with no name' {
+        $unlabeled = '<a href="https://github.com/SysAdminDoc/WinTool/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/windows.svg" height="24"></a>'
 
-'@
-        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme ($oldHeader + $script:rendered)
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme ($script:rendered + [Environment]::NewLine + $unlabeled) -Showcase (Get-DefaultShowcase)
 
-        $result.richProfileHeader | Should -BeTrue
-        $result.plainTextTagline | Should -BeTrue
-        $result.minimalProfileHeader | Should -BeFalse
+        $result.unlabeledButtons | Should -Be 1
+        $result.imageAltTextIssueCount | Should -BeGreaterThan 0
+        $result.passed | Should -BeFalse
+    }
+
+    It 'fails the storefront contract for an image the repository does not hold' {
+        $missing = '<img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/not-committed.png" width="100%" alt="A banner that was never committed">'
+
+        $result = Test-ReadmeExperience -Catalog $script:cat -Repos @() -ExpectedReadme ($script:rendered + [Environment]::NewLine + $missing) -Showcase (Get-DefaultShowcase)
+
+        $result.missingLocalImages | Should -Be @('assets/showcase/not-committed.png')
         $result.passed | Should -BeFalse
     }
 
@@ -6040,22 +5723,183 @@ Describe 'Update-Header idempotency' {
         $second | Should -Be $first
     }
 
-    It 'produces a minimal text-only header with no image chrome' {
-        $result = Update-Header -Header (New-TestProfileHeader)
+    It 'produces a text header with no image when the showcase has no hero' {
+        $shelves = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries @((New-TestEntry -Repo 'WinTool' -Category 'powershell')) -RepoLookup @{})
+        $result = Update-Header -Header (New-TestProfileHeader) -Shelves $shelves -Showcase (Get-DefaultShowcase)
 
         $result | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
-        $result | Should -Not -Match '<img[^>]*assets/profile/'
-        [regex]::Matches($result, '<img\b').Count | Should -Be 1 -Because 'only the support image is expected'
-        $result | Should -Match 'support\.example\.test/button\.png'
+        [regex]::Matches($result, '<img\b').Count | Should -Be 0 -Because 'the support button sits in the footer now'
         $result | Should -Match 'More about the fixture'
-        $result | Should -Not -Match 'AI service overview'
         $result | Should -Match 'Fixture tagline for the header\.'
         $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
-        $result | Should -Not -Match 'Professional Focus|Public portfolio: 100 active repos'
+        $result | Should -Match '<b>Search everything &#8594;</b>'
+    }
+
+    It 'opens on the showcase hero, dark and light, linked to the portfolio' {
+        $showcase = Get-DefaultShowcase
+        $showcase.hero = [ordered]@{ darkImage = 'assets/showcase/profile-hero-dark.png'; lightImage = 'assets/showcase/profile-hero-light.png'; alt = 'Fixture hero & more' }
+
+        $result = Update-Header -Header (New-TestProfileHeader) -Showcase $showcase
+
+        $lines = @($result -split '\r?\n')
+        $lines[0] | Should -BeOrdinal ('<a href="' + (Get-ProfilePortfolioUrl) + '"><picture>')
+        $lines[1] | Should -BeOrdinal '  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png">'
+        $lines[2] | Should -BeOrdinal '  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-light.png">'
+        $lines[3] | Should -BeOrdinal '  <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png" width="100%" alt="Fixture hero &amp; more">'
+        $result | Should -Not -Match 'Fixture tagline for the header' -Because 'the banner carries the tagline'
+    }
+
+    It 'falls back to the text header when a hero image could leave its attribute' {
+        $showcase = Get-DefaultShowcase
+        $showcase.hero = [ordered]@{ darkImage = 'x.png" onerror="alert(1)'; lightImage = 'assets/showcase/profile-hero-light.png'; alt = 'Fixture hero' }
+
+        $result = Update-Header -Header (New-TestProfileHeader) -Showcase $showcase
+
+        $result | Should -Not -Match '<picture>|onerror'
+        $result | Should -Match 'Fixture tagline for the header\.'
+    }
+}
+
+Describe 'Showcase layer' {
+    BeforeAll {
+        $script:ShowcaseFixtureCatalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
+
+        # One of everything, all of it valid against the fixture catalog, for each case to
+        # break one way.
+        function script:New-FixtureShowcase {
+            $showcase = Get-DefaultShowcase
+            $showcase.hero = [ordered]@{ darkImage = 'assets/showcase/profile-hero-dark.png'; lightImage = 'assets/showcase/profile-hero-light.png'; alt = 'Fixture hero' }
+            $showcase.flagships = @([ordered]@{ repo = 'WinTool'; name = 'WinTool'; platform = 'Windows'; image = 'assets/showcase/opentasker.png'; imageAlt = 'WinTool main window'; pitch = 'Fixture pitch.'; downloads = '1,000+' })
+            $showcase.problems = @([ordered]@{ want = 'Tidy up a Windows install'; repo = 'WinTool' })
+            $showcase.trust = @([ordered]@{ icon = '&#128274;'; title = 'Checksums'; text = 'Checksums on {checksumCount} of them.' })
+            $showcase.freshReleaseCount = 3
+            return $showcase
+        }
+    }
+
+    It 'passes the committed showcase against its schema and the committed catalog' {
+        $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
+        $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+
+        (Test-JsonSchemaContract -Value $showcase -SchemaPath 'schemas/profile-showcase.v1.json').errors | Should -BeNullOrEmpty
+        $result = Test-ShowcaseShape -Catalog $catalog -Showcase $showcase
+        @($result.issues | ForEach-Object { "$($_.field): $($_.reason)" }) | Should -BeNullOrEmpty
+        $result.passed | Should -BeTrue
+    }
+
+    It 'gives a catalog with no showcase one shelf per category and nothing of this profile' {
+        $showcase = Get-DefaultShowcase
+
+        (Test-ShowcaseShape -Catalog $script:ShowcaseFixtureCatalog -Showcase $showcase).passed | Should -BeTrue
+        @($showcase.shelves).Count | Should -Be @($CategoryDefinitions).Count
+        @(@($showcase.flagships) + @($showcase.problems) + @($showcase.trust)) | Should -BeNullOrEmpty
+        $showcase.Contains('hero') | Should -BeFalse
+        $showcase.Contains('proof') | Should -BeFalse
+    }
+
+    It 'passes the fixture showcase, so each case below fails for its own reason' {
+        $result = Test-ShowcaseShape -Catalog $script:ShowcaseFixtureCatalog -Showcase (script:New-FixtureShowcase)
+
+        @($result.issues | ForEach-Object { "$($_.field): $($_.reason)" }) | Should -BeNullOrEmpty
+    }
+
+    It 'reports <Case>' -ForEach @(
+        @{ Case = 'a flagship that is not a README entry'; Field = 'flagships[0].repo'; Reason = "'NotListed' is not a README entry"; Break = { param($s) $s.flagships[0].repo = 'NotListed' } }
+        @{ Case = 'a flagship the catalog suppresses'; Field = 'flagships[0].repo'; Reason = "'HiddenTool' is not a README entry"; Break = { param($s) $s.flagships[0].repo = 'HiddenTool' } }
+        @{ Case = 'a problem row that is not a README entry'; Field = 'problems[0].repo'; Reason = 'is not a README entry'; Break = { param($s) $s.problems[0].repo = 'NotListed' } }
+        @{ Case = 'an image that is not committed'; Field = 'flagships[0].image'; Reason = 'not a committed image'; Break = { param($s) $s.flagships[0].image = 'assets/showcase/missing.png' } }
+        @{ Case = 'an image on another host'; Field = 'flagships[0].image'; Reason = 'not a committed image'; Break = { param($s) $s.flagships[0].image = 'https://images.example.test/card.png' } }
+        @{ Case = 'an image path with a line break after it'; Field = 'hero.darkImage'; Reason = 'not a committed image'; Break = { param($s) $s.hero.darkImage = "https://raw.githubusercontent.com/o/o/main/hero.png`n" } }
+        @{ Case = 'a pitch that asks for a pasted command'; Field = 'flagships[0].pitch'; Reason = 'contains a shell command'; Break = { param($s) $s.flagships[0].pitch = 'Run irm https://example.test/i.ps1 | iex to set it up.' } }
+        @{ Case = 'a problem a reader cannot see'; Field = 'problems[0].want'; Reason = 'is empty'; Break = { param($s) $s.problems[0].want = '   ' } }
+        @{ Case = 'hero alt text a reader cannot see'; Field = 'hero.alt'; Reason = 'is empty'; Break = { param($s) $s.hero.alt = ' ' } }
+        @{ Case = 'a misspelled field'; Field = '/flagships/0/pitchText'; Reason = 'is not a showcase field'; Break = { param($s) $s.flagships[0]['pitchText'] = 'Fixture pitch.' } }
+        @{ Case = 'a problem too long for its column'; Field = '/problems/0/want'; Reason = 'showcase schema'; Break = { param($s) $s.problems[0].want = 'x' * 81 } }
+        @{ Case = 'a download count that is not a floor'; Field = '/flagships/0/downloads'; Reason = 'showcase schema'; Break = { param($s) $s.flagships[0].downloads = 'lots' } }
+        @{ Case = 'a trust icon that is not a character reference'; Field = '/trust/0/icon'; Reason = 'showcase schema'; Break = { param($s) $s.trust[0].icon = '<b>' } }
+        @{ Case = 'a shelf id that could leave its attribute'; Field = '/shelves/0/id'; Reason = 'showcase schema'; Break = { param($s) $s.shelves[0].id = 'apps" onclick="x' } }
+        @{ Case = 'two shelves with one id'; Field = 'shelves[1].id'; Reason = 'is used by another shelf'; Break = { param($s) $s.shelves[1].id = $s.shelves[0].id } }
+        @{ Case = 'a category on two shelves'; Field = 'shelves[1].categories'; Reason = "'powershell' is already on shelf"; Break = { param($s) $s.shelves[1].categories = @('python', 'powershell') } }
+        @{ Case = 'a category with README entries and no shelf'; Field = 'shelves'; Reason = "category 'web' has README entries but no shelf"; Break = { param($s) $s.shelves = @($s.shelves | Where-Object { @($_.categories) -notcontains 'web' }) } }
+        @{ Case = 'more fresh releases than the section holds'; Field = '/freshReleaseCount'; Reason = 'showcase schema'; Break = { param($s) $s.freshReleaseCount = 50 } }
+    ) {
+        $showcase = script:New-FixtureShowcase
+        & $Break $showcase
+
+        $result = Test-ShowcaseShape -Catalog $script:ShowcaseFixtureCatalog -Showcase $showcase
+
+        $result.passed | Should -BeFalse
+        @($result.issues | Where-Object { $_.field -eq $Field -and $_.reason -match [regex]::Escape($Reason) }) | Should -HaveCount 1 -Because (@($result.issues | ForEach-Object { "$($_.field): $($_.reason)" }) -join '; ')
+    }
+
+    It 'leaves out a flagship card or problem row the catalog does not list' {
+        $showcase = script:New-FixtureShowcase
+        $showcase.flagships += [ordered]@{ repo = 'HiddenTool'; name = 'Hidden'; platform = 'Windows'; image = 'assets/showcase/opentasker.png'; imageAlt = 'Hidden card'; pitch = 'Hidden.'; downloads = $null }
+        $showcase.problems += [ordered]@{ want = 'See a hidden project'; repo = 'HiddenTool' }
+        $entries = @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog)
+
+        $cards = New-FlagshipSection -Showcase $showcase -Entries $entries -RepoLookup @{}
+        $problems = New-ProblemSection -Showcase $showcase -Entries $entries -RepoLookup @{}
+
+        [regex]::Matches($cards, '(?m)^<td width="50%" valign="top">').Count | Should -Be 1
+        $cards | Should -Match '<td width="50%"></td>' -Because 'an odd card count pads its row'
+        $cards | Should -Not -Match 'HiddenTool'
+        [regex]::Matches($problems, '(?m)^\| (?!If you want|:-)').Count | Should -Be 1
+        $problems | Should -Not -Match 'HiddenTool'
+    }
+
+    It 'drops a shelf whose id could leave its attribute, from the nav and the page' {
+        $showcase = script:New-FixtureShowcase
+        $showcase.problems = @()
+        $showcase.shelves[0].id = 'apps" onclick="x'
+
+        $readme = New-Readme -Catalog $script:ShowcaseFixtureCatalog -Repos @() -Showcase $showcase
+
+        $readme | Should -Not -Match 'onclick'
+        $readme | Should -Not -Match '\[\*\*WinTool\*\*\]' -Because 'the dropped shelf held the only PowerShell row'
+    }
+
+    It 'lists the newest releases first, as many as freshReleaseCount asks, and only ones with a download' {
+        $showcase = script:New-FixtureShowcase
+        $showcase.freshReleaseCount = 2
+        $lookup = ConvertTo-Lookup @(
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -ReleaseTag 'v1.0.0' -ReleasePublishedAt '2026-06-01T00:00:00Z' -AssetNames @('WinTool.zip'))
+            (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -ReleaseTag 'v2.0.0' -ReleasePublishedAt '2026-07-01T00:00:00Z' -AssetNames @('ReleaseTool.zip'))
+            (New-TestRepoMeta -Name 'PyTool' -WithRelease -ReleaseTag 'v3.0.0' -ReleasePublishedAt '2026-05-01T00:00:00Z' -AssetNames @('PyTool.exe'))
+            (New-TestRepoMeta -Name 'InstallTool' -WithRelease -ReleaseTag 'v9.0.0' -ReleasePublishedAt '2026-09-01T00:00:00Z')
+        )
+
+        $section = New-FreshReleaseSection -Showcase $showcase -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup
+        $rows = @($section -split '\r?\n' | Where-Object { $_ -match '^\| \[\*\*' })
+
+        $rows | Should -HaveCount 2
+        $rows[0] | Should -Match '\[\*\*ReleaseTool\*\*\].*\[v2\.0\.0\]'
+        $rows[1] | Should -Match '\[\*\*WinTool\*\*\].*\[v1\.0\.0\]'
+        $section | Should -Not -Match 'InstallTool' -Because 'a userscript row has no release to download'
+        $showcase.freshReleaseCount = 0
+        New-FreshReleaseSection -Showcase $showcase -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup | Should -BeNullOrEmpty
+    }
+
+    It 'counts the releases that ship a checksum into a trust note' {
+        $lookup = ConvertTo-Lookup @(
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -AssetNames @('WinTool.zip', 'SHA256SUMS.txt'))
+            (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -AssetNames @('ReleaseTool.zip'))
+        )
+
+        $section = New-TrustSection -Showcase (script:New-FixtureShowcase) -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup
+
+        $section | Should -Match '&#128274; <b>Checksums</b><br>Checksums on 1 of them\.'
+        $section | Should -Not -Match '\{checksumCount\}'
     }
 }
 
 Describe 'README separators' {
+    BeforeAll {
+        # The profile README as v4.10 committed it: category tables, code rows and Start-Tool
+        # blocks. The seed parser reads this format; the storefront README it can't.
+        $script:LegacyReadmePath = Join-Path $PSScriptRoot 'fixtures/legacy-readme-v4.txt'
+    }
+
     It 'joins its parts with middots, never a double hyphen or a dash' {
         # A double hyphen or an em or en dash between a name and its description reads as a
         # dash substitute; the page uses &middot; the way its header and footer already do.
@@ -6064,20 +5908,20 @@ Describe 'README separators' {
         $readme | Should -Not -Match ' -- '
         $readme.IndexOf([char]0x2014) | Should -Be -1
         $readme.IndexOf([char]0x2013) | Should -Be -1
-        $readme | Should -Match '(?m)^<summary><b>.+?</b> &middot; \d+ repos &middot; <i>'
-        $readme | Should -Match '(?m)^\[\*\*WinTool\*\*\]\([^)]+\) &middot; '
+        $readme | Should -Match '(?m)^<summary><b>.+?</b> &middot; \d+ projects?</summary>\r?$'
+        $readme | Should -Match '(?m)^<p align="center"><b>\d+</b> free projects &middot; '
     }
 
     It 'seeds a catalog from rows written with a middot or the old double hyphen' {
-        $rendered = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
+        $legacy = [System.IO.File]::ReadAllText($script:LegacyReadmePath)
         foreach ($variant in @('middot', 'hyphens')) {
-            $text = if ($variant -eq 'middot') { $rendered } else { [regex]::Replace($rendered, '(?m)^(\[\*\*.+?\*\*\]\([^)]+\)(?: &#11088;\d+)?) &middot; ', '$1 -- ') }
+            $text = if ($variant -eq 'middot') { $legacy } else { [regex]::Replace($legacy, '(?m)^(\[\*\*.+?\*\*\]\([^)]+\)(?: &#11088;\d+)?) &middot; ', '$1 -- ') }
             $ReadmePath = Join-Path $TestDrive "seed-$variant.md"
             [System.IO.File]::WriteAllText($ReadmePath, $text)
 
-            $seeded = New-CatalogFromReadme -Repos @()
+            $seeded = @(New-CatalogFromReadme -Repos @() 3>$null) | Select-Object -Last 1
 
-            @($seeded.entries | ForEach-Object { [string]$_.repo }) | Should -Contain 'WinTool' -Because "rows use $variant"
+            @($seeded.entries | ForEach-Object { [string]$_.repo }) | Should -Contain 'win11-nvme-driver-patcher' -Because "rows use $variant"
         }
     }
 
@@ -6120,11 +5964,9 @@ Describe 'README separators' {
 
     It 'says what a README of Start-Tool install lines can''t give back' {
         # Review of f4e88e5: Start-Tool <Name> names the tool and nothing else, so seeding from
-        # today's README recovered no entry script and no branch, and said nothing about it.
-        $rendered = New-Readme -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Repos @()
-        $ReadmePath = Join-Path $TestDrive 'seed-start-tool.md'
-        [System.IO.File]::WriteAllText($ReadmePath, $rendered)
-        $rendered | Should -Match 'Start-Tool ' -Because 'the fixture README has to hold Start-Tool lines for this to test anything'
+        # a v4 README recovered no entry script and no branch, and said nothing about it.
+        $ReadmePath = $script:LegacyReadmePath
+        [System.IO.File]::ReadAllText($ReadmePath) | Should -Match 'Start-Tool ' -Because 'the fixture README has to hold Start-Tool lines for this to test anything'
 
         $output = @(New-CatalogFromReadme -Repos @() 3>&1)
         $warnings = @($output | Where-Object { $_ -is [System.Management.Automation.WarningRecord] } | ForEach-Object { $_.Message })
@@ -6139,9 +5981,9 @@ Describe 'README separators' {
     It 'names every entry a Start-Tool line leaves without an entry script, each once' {
         # Review G8: the warning named five of the 62 entries, and a row with two Start-Tool
         # blocks was counted and named twice.
-        $readme = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
+        $readme = [System.IO.File]::ReadAllText($script:LegacyReadmePath)
         $block = [regex]::Match($readme, '(?m)^```powershell\r?\n[^`]*?Start-Tool [^`]*?```\r?\n')
-        $block.Success | Should -BeTrue -Because 'the committed README has to hold a Start-Tool block for this to test anything'
+        $block.Success | Should -BeTrue -Because 'the fixture README has to hold a Start-Tool block for this to test anything'
         $ReadmePath = Join-Path $TestDrive 'seed-twice.md'
         [System.IO.File]::WriteAllText($ReadmePath, $readme.Insert($block.Index + $block.Length, $block.Value))
 
@@ -6153,11 +5995,11 @@ Describe 'README separators' {
         $warning.StartsWith("$($named.Count) entries ", [StringComparison]::Ordinal) | Should -BeTrue
     }
 
-    It 'seeds a catalog from the committed README that passes the shape check' {
+    It 'seeds a catalog from the last v4 README that passes the shape check' {
         # Review of 5149e12: a ZIP/XPI download seeded as xpi, which isn't a catalog kind, so
         # -SeedCatalog -ForceSeedCatalog -Write on the committed README wrote a catalog that
         # failed its own check.
-        $ReadmePath = Join-Path $script:RepoRoot 'README.md'
+        $ReadmePath = $script:LegacyReadmePath
 
         $seeded = @(New-CatalogFromReadme -Repos @() 3>$null) | Select-Object -Last 1
 
@@ -6201,14 +6043,14 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/a|b\c'
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '<a href="https://example.test/a%7Cb%5Cc" aria-label="Launch WebTool">Launch</a>'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal (New-TestButton -Href 'https://example.test/a%7Cb%5Cc' -File 'web' -Alt 'Open WebTool in your browser')
     }
 
     It 'percent-encodes a line break in an action link, whatever the catalog check said' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = "https://example.test/a`r`n| [**Injected**](https://evil.example/) |"
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '<a href="https://example.test/a%0D%0A%7C%20[**Injected**]%28https://evil.example/%29%20%7C" aria-label="Launch WebTool">Launch</a>'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal (New-TestButton -Href 'https://example.test/a%0D%0A%7C%20[**Injected**]%28https://evil.example/%29%20%7C' -File 'web' -Alt 'Open WebTool in your browser')
     }
 
     It 'percent-encodes a C1 control in an action link as its UTF-8 bytes' {
@@ -6216,7 +6058,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.liveUrl = 'https://example.test/a' + [char]0x85 + 'b' + [char]0x9B + 'c' + [char]0x7F
 
-        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal '<a href="https://example.test/a%C2%85b%C2%9Bc%7F" aria-label="Launch WebTool">Launch</a>'
+        Get-ActionLink -Entry $entry -Meta $null -Category 'web' | Should -BeOrdinal (New-TestButton -Href 'https://example.test/a%C2%85b%C2%9Bc%7F' -File 'web' -Alt 'Open WebTool in your browser')
     }
 
     It 'holds <Field> to the schema''s case: <Value>' -ForEach @(
@@ -6360,7 +6202,7 @@ Describe 'Catalog URLs and names cannot break a README row' {
 
     It 'holds the feed''s branch to the catalog''s branch shape' {
         # The branch in the feed can come from GitHub's default branch, which the catalog
-        # check never sees; run.ps1 passes it to git clone -b.
+        # check never sees; anything that clones the project passes it to git clone -b.
         $cat = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         $payload = ConvertFrom-JsonPreservingArrays -Json (New-ProjectsExportJson -Catalog $cat -Repos @())
         $project = @(Get-JsonArrayItems (Get-MemberValue -Object $payload -Name 'projects'))[0]
@@ -6416,35 +6258,33 @@ Describe 'Catalog URLs and names cannot break a README row' {
 }
 
 Describe 'Profile header comes from catalog data' {
-    It 'renders the tagline, languages, about text, links and support button from the catalog' {
-        $result = (Update-Header -Header (New-TestProfileHeader) -CategorySlugs @('powershell')) -replace "`r`n", "`n"
+    It 'renders the tagline, about text and links from the catalog, and the support button in the footer' {
+        $result = (Update-Header -Header (New-TestProfileHeader)) -replace "`r`n", "`n"
+        $footer = New-ProfileFooter -Header (New-TestProfileHeader)
 
-        $result | Should -Match '^<p align="center"><b>Fixture tagline for the header\.</b><br/><sub>PowerShell &middot; Python</sub></p>'
-        $result | Should -Match '(?m)^## Hi, fixture here$'
-        $result | Should -Match '(?m)^Fixture about text\.$'
-        # One deliberate outbound call to action, not a pair of competing links.
-        [regex]::Matches($result, '(?m)^<p align="center"><a href="https://fixture\.example\.test/about/"><b>More about the fixture &#8594;</b></a></p>$').Count | Should -Be 1
-        $result | Should -Match '<a href="https://support\.example\.test/fixture">\s*<img height="36" src="https://support\.example\.test/button\.png" alt="Support the fixture" />\s*</a>'
+        @($result -split "`n")[0] | Should -BeOrdinal '<p align="center"><b>Fixture tagline for the header.</b></p>'
+        $result | Should -Match ([regex]::Escape('<p align="center">Fixture about text. <a href="https://fixture.example.test/about/">More about the fixture &#8594;</a></p>'))
+        $result | Should -Not -Match 'Hi, fixture here|<sub>PowerShell' -Because 'the heading and languages line are not rendered since v5.0.0'
+        [regex]::Matches($result, '<img\b').Count | Should -Be 0
+        $footer | Should -Match ([regex]::Escape('<a href="https://support.example.test/fixture"><img height="36" src="https://support.example.test/button.png" alt="Support the fixture"></a>'))
     }
 
-    It 'encodes header text for the HTML or Markdown it lands in' {
+    It 'encodes header text for the HTML block it lands in' {
         $header = New-TestProfileHeader
         $header.tagline = 'Tools & <scripts> "quoted"'
-        $header.languages = @('C#', '<script>')
-        $header.heading = 'Hi | [there]'
         $header.about = 'A [link](https://evil.example/) and <b>bold</b>'
         $header.links = @(@{ text = 'Read "more" <now>'; url = 'https://fixture.example.test/about/' })
         $header.support.imageAlt = 'Buy "me" a <coffee>'
 
-        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+        $result = Update-Header -Header $header
+        $footer = New-ProfileFooter -Header $header
 
-        # Inside an HTML block GitHub shows backslashes as written, so only entities are used there.
-        $result | Should -Match ([regex]::Escape('<b>Tools &amp; &lt;scripts&gt; &quot;quoted&quot;</b><br/><sub>C# &middot; &lt;script&gt;</sub>'))
-        $result | Should -Match ([regex]::Escape('## Hi \| \[there\]'))
-        $result | Should -Match ([regex]::Escape('A \[link\](https://evil.example/) and &lt;b&gt;bold&lt;/b&gt;'))
-        $result | Should -Match ([regex]::Escape('<b>Read &quot;more&quot; &lt;now&gt; &#8594;</b>'))
-        $result | Should -Match ([regex]::Escape('alt="Buy &quot;me&quot; a &lt;coffee&gt;"'))
-        $result | Should -Not -Match '<script>|<scripts>|<now>|<coffee>'
+        # Inside an HTML block GitHub shows text as written and runs no Markdown (checked with
+        # the /markdown API), so only entities are used there and the link stays text.
+        $result | Should -Match ([regex]::Escape('<b>Tools &amp; &lt;scripts&gt; &quot;quoted&quot;</b>'))
+        $result | Should -Match ([regex]::Escape('<p align="center">A [link](https://evil.example/) and &lt;b&gt;bold&lt;/b&gt; <a href="https://fixture.example.test/about/">Read &quot;more&quot; &lt;now&gt; &#8594;</a></p>'))
+        $footer | Should -Match ([regex]::Escape('alt="Buy &quot;me&quot; a &lt;coffee&gt;"'))
+        ($result + $footer) | Should -Not -Match '<script>|<scripts>|<now>|<coffee>|<b>bold'
     }
 
     It 'keeps every dollar sign in the header out of math' {
@@ -6452,89 +6292,39 @@ Describe 'Profile header comes from catalog data' {
         # span; the alt is an attribute, which is never math, so it keeps its $.
         $header = New-TestProfileHeader
         $header.tagline = 'Tools for $0'
-        $header.languages = @('$shell')
-        $header.heading = 'Hi $name'
         $header.about = '$$x^2$$ is math on GitHub'
         $header.links = @(@{ text = 'Save $5'; url = 'https://fixture.example.test/about/' })
         $header.support.imageAlt = 'Give $3'
 
-        $result = (Update-Header -Header $header -CategorySlugs @('powershell')) -replace "`r`n", "`n"
+        $result = (Update-Header -Header $header) -replace "`r`n", "`n"
+        $footer = New-ProfileFooter -Header $header
 
-        $result | Should -Match ([regex]::Escape('<b>Tools for <span>$</span>0</b><br/><sub><span>$</span>shell</sub>'))
-        $result | Should -Match ([regex]::Escape('## Hi <span>$</span>name'))
-        $result | Should -Match ('(?m)^' + [regex]::Escape('<span>$</span><span>$</span>x^2<span>$</span><span>$</span> is math on GitHub') + '$')
-        $result | Should -Match ([regex]::Escape('<b>Save <span>$</span>5 &#8594;</b>'))
-        $result | Should -Match ([regex]::Escape('alt="Give $3"'))
-        ([regex]::Matches($result, '\$').Count - [regex]::Matches($result, '<span>\$</span>').Count) | Should -Be 1 -Because 'only the alt''s dollar sign stands alone'
+        $result | Should -Match ([regex]::Escape('<b>Tools for <span>$</span>0</b>'))
+        $result | Should -Match ([regex]::Escape('<p align="center"><span>$</span><span>$</span>x^2<span>$</span><span>$</span> is math on GitHub <a href="https://fixture.example.test/about/">Save <span>$</span>5 &#8594;</a></p>'))
+        ([regex]::Matches($result, '\$').Count - [regex]::Matches($result, '<span>\$</span>').Count) | Should -Be 0
+        $footer | Should -Match ([regex]::Escape('alt="Give $3"'))
     }
 
-    It 'keeps the about text a paragraph when it starts with <Case>' -ForEach @(
-        @{ Case = 'a backtick fence'; About = '```is how I start every code block.'; Expected = '\`\`\`is how I start every code block.' }
-        @{ Case = 'a tilde fence'; About = '~~~ opens a fence too'; Expected = '\~~~ opens a fence too' }
-        @{ Case = 'a heading marker'; About = '# not a heading'; Expected = '\# not a heading' }
-        @{ Case = 'a level 6 heading marker'; About = '###### not a heading'; Expected = '\###### not a heading' }
-        @{ Case = 'a lone heading marker'; About = '#'; Expected = '\#' }
-        @{ Case = 'a rule'; About = '---'; Expected = '\---' }
-        @{ Case = 'a star rule'; About = '***'; Expected = '\***' }
-        @{ Case = 'an underscore rule'; About = '___'; Expected = '\___' }
-        @{ Case = 'a spaced rule'; About = '_ _ _ _'; Expected = '\_ _ _ _' }
-        @{ Case = 'a list marker'; About = '- not a list'; Expected = '\- not a list' }
-        @{ Case = 'a plus list marker'; About = '+ not a list'; Expected = '\+ not a list' }
-        @{ Case = 'a star list marker'; About = '* not a list'; Expected = '\* not a list' }
-        @{ Case = 'a lone list marker'; About = '-'; Expected = '\-' }
-        @{ Case = 'four spaces'; About = '    not a code block'; Expected = 'not a code block' }
-        @{ Case = 'an ordered list marker'; About = '1. not an ordered list'; Expected = '1\. not an ordered list' }
-        @{ Case = 'a parenthesis list marker'; About = '42) not an ordered list'; Expected = '42\) not an ordered list' }
-        @{ Case = 'a lone list number'; About = '1.'; Expected = '1\.' }
-        @{ Case = 'a lone parenthesis list number'; About = '1)'; Expected = '1\)' }
-        @{ Case = 'a four-digit list number'; About = '2024. was a good year'; Expected = '2024\. was a good year' }
-        # CommonMark allows nine digits, and GitHub renders 12345. as a list starting at 12345.
-        @{ Case = 'a five-digit list number'; About = '12345. five digits'; Expected = '12345\. five digits' }
-        @{ Case = 'a nine-digit list number'; About = '123456789. nine digits'; Expected = '123456789\. nine digits' }
-        @{ Case = 'a quote marker'; About = '> not a quote'; Expected = '&gt; not a quote' }
-    ) {
-        $header = New-TestProfileHeader
-        $header.about = $About
-
-        $lines = @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n')
-
-        $lines | Should -Contain $Expected
-    }
-
-    It 'leaves the about text as written when it starts with <Case>' -ForEach @(
+    It 'keeps about text that looks like Markdown inside the pitch paragraph: <Case>' -ForEach @(
+        @{ Case = 'a backtick fence'; About = '```is how I start every code block.' }
+        @{ Case = 'a tilde fence'; About = '~~~ opens a fence too' }
+        @{ Case = 'a heading marker'; About = '# not a heading' }
+        @{ Case = 'a rule'; About = '---' }
+        @{ Case = 'a list marker'; About = '- not a list' }
+        @{ Case = 'four spaces'; About = '    not a code block' }
+        @{ Case = 'an ordered list marker'; About = '1. not an ordered list' }
+        @{ Case = 'a quote marker'; About = '> not a quote' }
         @{ Case = 'emphasis'; About = '*Sysadmin* by day' }
-        @{ Case = 'strong emphasis'; About = '**Tools** I actually use' }
-        @{ Case = 'underscore emphasis'; About = '_Mostly_ PowerShell' }
-        @{ Case = 'strikethrough'; About = '~~Old~~ new tools' }
-        @{ Case = 'a hashtag'; About = '#homelab tools and notes' }
-        @{ Case = 'a decimal number'; About = '1.5 million downloads so far' }
-        @{ Case = 'a plus sign'; About = '+1 for automation' }
-        @{ Case = 'a negative number'; About = '-5 degrees outside, still coding' }
-        @{ Case = 'a long option'; About = '--help is the flag I read most' }
-        @{ Case = 'mixed rule characters'; About = '*-* marks the tools I use daily' }
-        @{ Case = 'strong emphasis in a rule''s characters'; About = '***Everything*** here is free' }
-        # Ten digits is past CommonMark's limit, so it's a paragraph already.
-        @{ Case = 'a ten-digit number and a period'; About = '1234567890. ten digits' }
     ) {
-        # None of these opens a block, so escaping them would show the markup as text.
+        # The pitch is one line that opens an HTML block, so none of these starts a block
+        # of its own and none needs a Markdown escape (which GitHub would show as written).
         $header = New-TestProfileHeader
         $header.about = $About
 
-        @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain $About
-    }
+        $lines = @((Update-Header -Header $header) -split '\r?\n')
 
-    It 'escapes only a closing run of # at the end of the heading: <Heading>' -ForEach @(
-        @{ Heading = 'Tools #'; Expected = '## Tools \#' }
-        @{ Heading = 'Tools ###'; Expected = '## Tools \###' }
-        @{ Heading = 'C#'; Expected = '## C#' }
-        @{ Heading = 'Docs at https://x.invalid/page#'; Expected = '## Docs at https://x.invalid/page#' }
-    ) {
-        # A run of # after a space is closing markup GitHub drops. One right after other text
-        # isn't, and an escape there would break an autolinked URL (checked with the API).
-        $header = New-TestProfileHeader
-        $header.heading = $Heading
-
-        @((Update-Header -Header $header -CategorySlugs @('powershell')) -split '\r?\n') | Should -Contain $Expected
+        $lines | Should -Contain ('<p align="center">' + (ConvertTo-HtmlText $About) + ' <a href="https://fixture.example.test/about/">More about the fixture &#8594;</a></p>')
+        @($lines | Where-Object { $_.StartsWith($About.TrimStart().Substring(0, 1), [StringComparison]::Ordinal) }) | Should -BeNullOrEmpty
     }
 
     It 'renders no header link or button whose URL could leave its attribute' {
@@ -6548,11 +6338,13 @@ Describe 'Profile header comes from catalog data' {
         )
         $header.support.imageUrl = 'https://support.example.test/b.png" onerror="x'
 
-        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+        $result = Update-Header -Header $header
+        $footer = New-ProfileFooter -Header $header
 
         $result | Should -Not -Match 'tracker\.example|javascript:|onerror|fixture\.example\.test/blank/'
-        $result | Should -Match ([regex]::Escape('<a href="https://fixture.example.test/kept/"><b>Kept &#8594;</b></a>'))
+        $result | Should -Match ([regex]::Escape('<a href="https://fixture.example.test/kept/">Kept &#8594;</a>'))
         [regex]::Matches($result, '<img\b').Count | Should -Be 0
+        $footer | Should -Not -Match 'onerror|support\.example\.test'
     }
 
     It 'renders no header link whose text is blank once encoded' {
@@ -6564,7 +6356,7 @@ Describe 'Profile header comes from catalog data' {
             @{ text = [string][char]7; url = 'https://fixture.example.test/bell/' }
         )
 
-        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+        $result = Update-Header -Header $header
 
         $result | Should -Not -Match 'fixture\.example\.test/(bidi|bell)/'
     }
@@ -6666,9 +6458,10 @@ Describe 'Profile header comes from catalog data' {
         $header = New-TestProfileHeader
         $header.support.imageAlt = [string][char]0x200B
 
-        $result = Update-Header -Header $header -CategorySlugs @('powershell')
+        $footer = New-ProfileFooter -Header $header
 
-        [regex]::Matches($result, '<img\b').Count | Should -Be 0
+        $footer | Should -Not -Match 'support\.example\.test'
+        [regex]::Matches($footer, '<img\b').Count | Should -Be 1 -Because 'only the search button is left'
     }
 
     It 'refuses given row text a reader can''t see, and allows it left out' {
@@ -6699,9 +6492,9 @@ Describe 'Profile header comes from catalog data' {
         $header.about = $Blank
         $header.links = @(@{ text = $Blank; url = 'https://fixture.example.test/blank/' })
 
-        $result = (Update-Header -Header $header -CategorySlugs @('powershell')) -replace "`r`n", "`n"
+        $result = (Update-Header -Header $header) -replace "`r`n", "`n"
 
-        $result | Should -Match '^<p align="center"><b>Public projects by [^<]+</b><br/><sub>PowerShell</sub></p>\n'
+        $result | Should -Match '^<p align="center"><b>Public projects by [^<]+</b></p>\n'
         $result | Should -Not -Match '(?m)^## '
         $result | Should -Not -Match 'fixture\.example\.test/blank/'
         $result | Should -Not -Match ([regex]::Escape($Blank))
@@ -6737,69 +6530,15 @@ Describe 'Profile header comes from catalog data' {
 
         $readme = New-Readme -Catalog $catalog -Repos @()
 
-        $headerRegion = $readme.Substring(0, $readme.IndexOf("### What's here"))
+        $headerRegion = $readme.Substring(0, $readme.IndexOf($GeneratedCatalogNotice))
         $headerRegion.TrimStart() | Should -Match '^<p align="center"><b>Public projects by FixtureOwner</b></p>'
         $headerRegion | Should -Not -Match "Matt|medical|getparkerai|ko-fi|Sysadmin by day|tool-builder"
         [regex]::Matches($headerRegion, '<img\b').Count | Should -Be 0
-        # The footer and the grid's portfolio links use the owner's own fallback.
+        # The footer and the shelves' portfolio links use the owner's own fallback.
         $readme | Should -Not -Match 'getparkerai'
         $readme | Should -Match ([regex]::Escape('<a href="https://fixtureowner.github.io/"><b>See everything</b></a>'))
-        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
-        $experience.minimalProfileHeader | Should -BeTrue
-        # This repository's run.ps1 still serves SysAdminDoc, so the page's install lines
-        # would install that account's tools until the owner's own copy names the owner.
-        $experience.installDispatcherOwner | Should -Be 'SysAdminDoc'
-        $experience.installDispatcherMatchesOwner | Should -BeFalse
-        $experience.passed | Should -BeFalse
-    }
-
-    It 'passes the install dispatcher check for the owner run.ps1 serves' {
-        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $readme = New-Readme -Catalog $catalog -Repos @()
-
-        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
-
-        [regex]::Matches($readme, '(?m)^irm \S+/run\.ps1 \| iex; Start-Tool ').Count | Should -BeGreaterThan 0
-        $experience.installDispatcherOwner | Should -Be $Owner
-        $experience.installDispatcherMatchesOwner | Should -BeTrue
-        $experience.passed | Should -BeTrue
-    }
-
-    It 'reads run.ps1''s owner from its syntax tree: <Case>' -ForEach @(
-        @{ Case = 'double quotes'; Script = "function Start-Tool {`n    `$profileOwner = `"SysAdminDoc`"`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
-        @{ Case = 'a block comment naming someone else first'; Script = "<#`n    `$profileOwner = 'Someone'`n#>`nfunction Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
-        @{ Case = 'two assignments'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n    `$profileOwner = 'Someone'`n}"; ExpectedOwner = $null; MatchesOwner = $false }
-        @{ Case = 'a computed value'; Script = "function Start-Tool {`n    `$profileOwner = `"`$env:OWNER`"`n}"; ExpectedOwner = $null; MatchesOwner = $false }
-        @{ Case = 'a name with a hidden character'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdmin" + [char]0x200B + "Doc'`n}"; ExpectedOwner = 'SysAdmin' + [char]0x200B + 'Doc'; MatchesOwner = $false }
-        # Review G4: these two gave no owner, and a variable whose name hid a character
-        # counted as a second assignment to $profileOwner.
-        @{ Case = 'a [string] cast'; Script = "function Start-Tool {`n    [string]`$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
-        @{ Case = 'a value in parentheses'; Script = "function Start-Tool {`n    `$profileOwner = (('SysAdminDoc'))`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
-        @{ Case = 'a validation attribute and a cast'; Script = "function Start-Tool {`n    [ValidateNotNullOrEmpty()][string]`$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
-        @{ Case = 'a cast to another type'; Script = "function Start-Tool {`n    [char[]]`$profileOwner = 'SysAdminDoc'`n}"; ExpectedOwner = $null; MatchesOwner = $false }
-        @{ Case = 'another variable with a hidden character'; Script = "function Start-Tool {`n    `$profileOwner = 'SysAdminDoc'`n    `${profile" + [char]0x200B + "Owner} = 'Someone'`n}"; ExpectedOwner = 'SysAdminDoc'; MatchesOwner = $true }
-    ) {
-        # The regex took the first $profileOwner = '...' it found, a block comment's included,
-        # a double-quoted one gave no owner at all, and -eq matched a name with a hidden
-        # character in it.
-        $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $readme = New-Readme -Catalog $catalog -Repos @()
-        $root = Join-Path $TestDrive ('run-owner-' + [guid]::NewGuid().ToString('N'))
-        New-Item -ItemType Directory -Path $root | Out-Null
-        Set-Content -LiteralPath (Join-Path $root 'run.ps1') -Value $Script -Encoding utf8
-        # A local $RepoRoot shadows the generator's for this block only; the generator reads it
-        # from the scope that calls it, so a $script: one would lose to the dot-sourced copy.
-        $RepoRoot = $root
-
-        $experience = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme
-
-        if ($null -eq $ExpectedOwner) {
-            $experience.installDispatcherOwner | Should -BeNullOrEmpty
-        } else {
-            # Ordinal: one owner holds a zero-width space that -BeExactly would skip.
-            $experience.installDispatcherOwner | Should -BeOrdinal $ExpectedOwner
-        }
-        $experience.installDispatcherMatchesOwner | Should -Be $MatchesOwner
+        # With no install lines the page no longer depends on this repository serving the owner.
+        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme -Showcase (Get-DefaultShowcase)).passed | Should -BeTrue
     }
 
     It 'takes a URL whose scheme is written in capitals' {
@@ -6811,7 +6550,7 @@ Describe 'Profile header comes from catalog data' {
         $header.links = @(@{ text = 'Caps link'; url = 'HTTPS://example.test/about/' })
 
         @((Test-CatalogShape -Catalog @{ entries = @($entry); profileHeader = $header }).issues | Where-Object { $_.field -like '*url*' -or $_.field -like '*Url*' }) | Should -BeNullOrEmpty
-        (Update-Header -Header $header -CategorySlugs @('powershell')) | Should -Match ([regex]::Escape('<a href="HTTPS://example.test/about/"><b>Caps link'))
+        (Update-Header -Header $header) | Should -Match ([regex]::Escape('<a href="HTTPS://example.test/about/">Caps link'))
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
         @($catalog.entries)[0].liveUrl = 'HTTPS://example.test/app/'
         (Test-JsonSchemaContract -Value $catalog -SchemaPath 'schemas/profile-catalog.v1.json').valid | Should -BeTrue
@@ -6847,14 +6586,20 @@ Describe 'Profile header comes from catalog data' {
         @($result.issues | Where-Object { $_.field -eq 'portfolioUrl' }) | Should -HaveCount 1
     }
 
-    It 'holds the README to the tagline its own catalog renders' {
+    It 'holds the README to the hero its showcase describes' {
         $catalog = Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')
-        $catalog.profileHeader = New-TestProfileHeader
-        $readme = New-Readme -Catalog $catalog -Repos @()
+        $showcase = Get-DefaultShowcase
+        $showcase.hero = [ordered]@{ darkImage = 'assets/showcase/profile-hero-dark.png'; lightImage = 'assets/showcase/profile-hero-light.png'; alt = 'Fixture hero' }
+        $withHero = New-Readme -Catalog $catalog -Repos @() -Showcase $showcase
+        $withoutHero = New-Readme -Catalog $catalog -Repos @() -Showcase (Get-DefaultShowcase)
 
-        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeTrue
-        $catalog.profileHeader.tagline = 'A different tagline.'
-        (Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $readme).minimalProfileHeader | Should -BeFalse
+        $good = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $withHero -Showcase $showcase
+        $bad = Test-ReadmeExperience -Catalog $catalog -Repos @() -ExpectedReadme $withoutHero -Showcase $showcase
+
+        $good.heroBanner | Should -BeTrue
+        $good.passed | Should -BeTrue
+        $bad.heroBanner | Should -BeFalse
+        $bad.passed | Should -BeFalse
     }
 
     It 'keeps this profile''s personal text and links out of the generator' {
@@ -6875,8 +6620,17 @@ Describe 'Profile header comes from catalog data' {
 
     It 'publishes the header this catalog describes' {
         $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
-        $slugs = @($CategoryDefinitions | ForEach-Object { [string]$_.Slug })
-        $header = (Update-Header -CategorySlugs $slugs -Header $catalog.profileHeader) -replace "`r`n", "`n"
+        $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
+        $entries = @(Get-ReadmeEntries -Catalog $catalog)
+        $shelves = @(Get-RenderedShelves -Showcase $showcase -Entries $entries -RepoLookup @{})
+        # A run links the catalog's portfolioUrl unless -PortfolioUrl says otherwise.
+        $savedPortfolio = Get-Variable -Name PortfolioUrl -Scope Script -ErrorAction SilentlyContinue
+        try {
+            $script:PortfolioUrl = [string]$catalog.portfolioUrl
+            $header = (Update-Header -Shelves $shelves -Header $catalog.profileHeader -Showcase $showcase -ProjectCount $entries.Count) -replace "`r`n", "`n"
+        } finally {
+            if ($savedPortfolio) { $script:PortfolioUrl = $savedPortfolio.Value } else { Remove-Variable -Name PortfolioUrl -Scope Script -ErrorAction SilentlyContinue }
+        }
         $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md')) -replace "`r`n", "`n"
 
         $catalog.profileHeader | Should -Not -BeNullOrEmpty
@@ -6933,68 +6687,6 @@ Describe 'Profile header comes from catalog data' {
 
         $result.valid | Should -BeFalse
         @($result.errors | Where-Object { $_.instanceLocation -eq '/profileHeader/links/0/url' }) | Should -Not -BeNullOrEmpty
-    }
-}
-
-Describe 'setup.ps1 hardening contract' {
-    BeforeAll {
-        $script:setupPath = Join-Path $script:RepoRoot 'setup.ps1'
-        $script:setupSource = Get-Content -LiteralPath $script:setupPath -Raw
-    }
-
-    It 'declares the supported Windows PowerShell floor' {
-        $script:setupSource | Should -Match '(?m)^#Requires -Version 5\.1\s*$'
-    }
-
-    It 'keeps the public bootstrapper ASCII-only for Windows PowerShell 5.1' {
-        $nonAsciiBytes = @([System.IO.File]::ReadAllBytes($script:setupPath) | Where-Object { $_ -gt 0x7f })
-
-        $nonAsciiBytes | Should -HaveCount 0
-    }
-
-    It 'supports check-only diagnostics without installation' {
-        $script:setupSource | Should -Match '\[switch\]\$CheckOnly'
-        $script:setupSource | Should -Match 'Check-only mode: no packages will be installed\.'
-        $script:setupSource | Should -Match "Pwsh = Write-ToolStatus 'pwsh' 'pwsh'"
-        $script:setupSource | Should -Match "Pip = Write-ToolStatus 'pip' 'pip'"
-        $script:setupSource | Should -Match '\$state\.Pwsh -and \$state\.Python -and \$state\.Pip -and \$state\.Git'
-        $script:setupSource | Should -Match 'PowerShell 7, Python, pip, and Git are installed'
-        $script:setupSource | Should -Match 'Run without -CheckOnly to install with winget'
-    }
-
-    It 'installs PowerShell 7 while keeping Windows PowerShell as bootstrap only' {
-        $script:setupSource | Should -Match 'Windows PowerShell 5\.1 is bootstrap-only'
-        $script:setupSource | Should -Match "Install-Pkg 'Microsoft.PowerShell' 'PowerShell 7' 'pwsh'"
-    }
-
-    It 'uses terminating failures when prerequisites remain missing' {
-        $script:setupSource | Should -Match 'function Stop-SetupWithFailure'
-        $script:setupSource | Should -Match 'throw \$Message'
-        $script:setupSource | Should -Match 'Stop-SetupWithFailure "One or more prerequisites are missing\.'
-        $script:setupSource | Should -Match 'Stop-SetupWithFailure "Setup cannot continue until winget is available\.'
-        $script:setupSource | Should -Match 'Stop-SetupWithFailure "Setup incomplete\.'
-    }
-
-    It 'writes a best-effort setup transcript under temp' {
-        $script:setupSource | Should -Match 'Start-Transcript'
-        $script:setupSource | Should -Match 'SysAdminDoc-setup-\{0\}-\{1\}\.log'
-        $script:setupSource | Should -Match '\$PID'
-        $script:setupSource | Should -Match 'Stop-Transcript'
-    }
-
-    It 'selects winget scope by elevation to avoid noisy machine-scope failures for non-admins' {
-        $script:setupSource | Should -Match 'function Test-Admin'
-        $script:setupSource | Should -Match 'WindowsBuiltInRole\]::Administrator'
-        $script:setupSource | Should -Match "\`$primaryScope = if \(Test-Admin\) \{ 'machine' \} else \{ 'user' \}"
-        $script:setupSource | Should -Match '--scope \$primaryScope'
-        $script:setupSource | Should -Match '--scope \$fallbackScope'
-    }
-
-    It 'parses as valid PowerShell (Windows PowerShell 5.1 floor)' {
-        $tokens = $null
-        $errors = $null
-        [System.Management.Automation.Language.Parser]::ParseFile($script:setupPath, [ref]$tokens, [ref]$errors) | Out-Null
-        $errors | Should -BeNullOrEmpty
     }
 }
 
@@ -7136,7 +6828,7 @@ Describe 'New-ProjectsExportJson feed' {
             $json.schema | Should -Be 'https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/schemas/profile-projects.v1.json'
 
             $readme = New-Readme -Catalog $cat -Repos @()
-            $readme | Should -Match 'https://raw.githubusercontent.com/FixtureOwner/FixtureOwner/main/setup[.]ps1'
+            $readme | Should -Match 'https://raw[.]githubusercontent[.]com/FixtureOwner/FixtureOwner/main/assets/buttons/'
             $readme | Should -Match 'https://github.com/FixtureOwner[?]tab=repositories'
             $readme | Should -Match 'https://fixtureowner[.]github[.]io/'
         } finally {
@@ -7553,7 +7245,7 @@ Describe 'Outside data is compared ordinally' {
     It 'has no culture-sensitive comparison with a literal in <File>' -ForEach @(
         @{ File = 'scripts/sync-profile/catalog.ps1' }
         @{ File = 'scripts/sync-profile/artifact-store.ps1' }
-        @{ File = 'run.ps1' }
+        @{ File = 'scripts/sync-profile/showcase.ps1' }
     ) {
         # These decide what the catalog, the cache and the feed may publish or start.
         $operators = @('Ieq', 'Ceq', 'Ine', 'Cne', 'Iin', 'Cin', 'Inotin', 'Cnotin', 'Icontains', 'Ccontains', 'Inotcontains', 'Cnotcontains')
@@ -8202,7 +7894,7 @@ Describe 'Feed JSON Schema contracts' {
         $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelKeepBranchCount'
         $schema.'$defs'.userscriptInstallTrust.required | Should -Contain 'releaseChannelBlockedCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeActionTargetCount'
-        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeInstallSnippetTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeImageTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeDownloadLinkTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeUserscriptInstallTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'liveProbedCount'
@@ -8448,7 +8140,8 @@ Describe 'Markdownlint contract' {
         $script:MarkdownlintConfig | Should -Match '(?m)^  MD034:\s+false\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^  MD041:\s+false\s*$'
         $script:MarkdownlintConfig | Should -Match '(?m)^  MD060:\s+false\s*$'
-        foreach ($tag in @('details', 'summary', 'kbd', 'br', 'sub', 'p', 'picture', 'source', 'img', 'a', 'b', 'i', 'code')) {
+        # table, tr and td hold the flagship cards and the trust notes side by side.
+        foreach ($tag in @('details', 'summary', 'kbd', 'br', 'sub', 'p', 'picture', 'source', 'img', 'a', 'b', 'i', 'code', 'table', 'tr', 'td')) {
             $script:MarkdownlintConfig | Should -Match "(?m)^\s+- $tag\s*$"
         }
         $script:MarkdownlintConfig | Should -Match '(?m)^\s+- "README[.]md"\s*$'
@@ -8653,20 +8346,28 @@ Describe 'Seed catalog guard' -Tag 'Integration' {
     }
 
     It 'allows forced offline one-shot seed mode with a lossy warning' {
+        # The seed reads the category tables of a README from before v5.0.0.
         $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
         $readmePath = Join-Path $TestDrive 'README.md'
         $catalogPath = Join-Path $TestDrive 'catalog.json'
-        Set-Content -LiteralPath $readmePath -Value @(
-            '# Temporary profile'
-            ''
-            '### Start Here'
-        ) -Encoding utf8
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'fixtures/legacy-readme-v4.txt') -Destination $readmePath
 
         $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -ForceSeedCatalog -Offline -ReadmePath $readmePath -CatalogPath $catalogPath -CachePath (Join-Path $TestDrive 'seed-cache') *>&1
 
         $LASTEXITCODE | Should -Be 0
         ($output | Out-String) | Should -Match 'LOSSY LEGACY SEED MODE'
         Test-Path -LiteralPath $catalogPath | Should -BeTrue
+    }
+
+    It 'refuses to seed from a storefront README, which holds no category tables' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $catalogPath = Join-Path $TestDrive 'storefront-catalog.json'
+
+        $output = & pwsh -NoProfile -File $scriptPath -SeedCatalog -ForceSeedCatalog -Offline -ReadmePath (Join-Path $script:RepoRoot 'README.md') -CatalogPath $catalogPath -CachePath (Join-Path $TestDrive 'storefront-seed-cache') *>&1
+
+        $LASTEXITCODE | Should -Not -Be 0
+        ($output | Out-String) | Should -Match 'No catalog rows found'
+        Test-Path -LiteralPath $catalogPath | Should -BeFalse
     }
 }
 
@@ -8772,6 +8473,45 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
         ($output | Out-String) | Should -Match 'Catalog issue: WebTool forkOf: forkOf must be owner/repo'
         (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash | Should -Be $before
         Test-Path -LiteralPath (Join-Path $TestDrive 'fork-projects.json') | Should -BeFalse
+    }
+
+    It 'reads the showcase beside the catalog, and refuses to write from one that fails its shape check' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $cachePath = Join-Path $TestDrive 'showcase-cache'
+        script:New-OfflineSnapshotCache -Path $cachePath
+        $catalogDirectory = Join-Path $TestDrive 'showcase-data'
+        New-Item -ItemType Directory -Path $catalogDirectory | Out-Null
+        $sourceCatalog = Join-Path $catalogDirectory 'profile-catalog.json'
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') -Destination $sourceCatalog
+        $showcase = Get-DefaultShowcase
+        $showcase.problems = @([ordered]@{ want = 'Find a project that is not listed'; repo = 'NotListed' })
+        [System.IO.File]::WriteAllText((Join-Path $catalogDirectory 'showcase.json'), ($showcase | ConvertTo-Json -Depth 20))
+        $readmePath = Join-Path $TestDrive 'showcase-README.md'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+        $before = (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -CatalogPath $sourceCatalog -ReadmePath $readmePath `
+            -ProjectsPath (Join-Path $TestDrive 'showcase-projects.json') -AssetsPath (Join-Path $TestDrive 'showcase-assets') -CachePath $cachePath *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match "Showcase issue: problems\[0\]\.repo: 'NotListed' is not a README entry"
+        ($output | Out-String) | Should -Match 'nothing was written'
+        (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash | Should -Be $before
+        Test-Path -LiteralPath (Join-Path $TestDrive 'showcase-projects.json') | Should -BeFalse
+    }
+
+    It 'refuses a -ShowcasePath that names no file, rather than going neutral' {
+        $scriptPath = Join-Path $script:RepoRoot 'scripts/sync-profile.ps1'
+        $readmePath = Join-Path $TestDrive 'typo-README.md'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'README.md') -Destination $readmePath -Force
+        $before = (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash
+
+        $output = & pwsh -NoProfile -File $scriptPath -Write -Offline -CatalogPath (Join-Path $PSScriptRoot 'fixtures/catalog.json') -ShowcasePath (Join-Path $TestDrive 'showcse.json') `
+            -ReadmePath $readmePath -ProjectsPath (Join-Path $TestDrive 'typo-projects.json') -AssetsPath (Join-Path $TestDrive 'typo-assets') -CachePath (Join-Path $TestDrive 'typo-cache') *>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match "-ShowcasePath names a file that isn't there"
+        (Get-FileHash -LiteralPath $readmePath -Algorithm SHA256).Hash | Should -Be $before
     }
 
     It 'refuses the catalog before fetching anything from GitHub' {
@@ -9002,11 +8742,14 @@ Describe 'Generation entrypoint modes' -Tag 'Integration' {
 }
 
 Describe 'Source files carry no invisible characters' {
-    It 'spells line separators and bidi controls in scripts as escapes' {
+    It 'spells control characters, line separators and bidi controls in scripts as escapes' {
         # A literal U+2028 or U+202E looks like nothing in an editor, which can drop or
         # reorder it; a regex that needs one writes it as a \u escape instead. The pattern is
         # built from the code points so this file holds none of the characters itself.
-        $codes = @(0x85, 0x2028, 0x2029) + @(0x202A..0x202E) + @(0x2066..0x2069)
+        # C0 controls count too: a scripted edit once turned a regex's \b into a raw
+        # backspace, and the pattern quietly stopped matching.
+        $c0 = @(0x00..0x08) + @(0x0B, 0x0C) + @(0x0E..0x1F) + @(0x7F)
+        $codes = $c0 + @(0x85, 0x2028, 0x2029) + @(0x202A..0x202E) + @(0x2066..0x2069)
         $pattern = '[' + (($codes | ForEach-Object { [string][char]92 + 'u' + $_.ToString('X4') }) -join '') + ']'
         # Every PowerShell file: scripts and tests at any depth, and the root's own, settings
         # data (.psd1) and modules (.psm1) included.
@@ -9674,7 +9417,9 @@ Describe 'Rendered profile smoke wiring' {
     It 'asserts key rendered sections and overflow/image health' {
         # The section names come from the generator (Get-RenderedSmokeExpectation); the
         # in-process tests check they're in the README and not copied into the smoke.
-        $script:RenderSmokeScript | Should -Match 'const sections = \[expected\.toolCatalogHeading, expected\.setupTitle, \.\.\.expected\.categoryTitles\]'
+        $script:RenderSmokeScript | Should -Match 'const sections = \[expected\.toolCatalogHeading, \.\.\.expected\.sectionHeadings, \.\.\.expected\.categoryTitles\]'
+        $script:RenderSmokeScript | Should -Match 'portfolioLinkText: expected\.portfolioLinkText\.length > 0 && text\.includes\(expected\.portfolioLinkText\)'
+        $script:RenderSmokeScript | Should -Not -Match 'See everything|View full portfolio'
         $script:RenderSmokeScript | Should -Not -Match 'Catalog Snapshot'
         $script:RenderSmokeScript | Should -Not -Match 'Featured Projects'
         $script:RenderSmokeScript | Should -Not -Match 'Tool Catalog'
@@ -9935,7 +9680,7 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match 'Userscript trust warnings'
             $summary | Should -Match 'Link targets checked'
             $summary | Should -Match 'README action link targets'
-            $summary | Should -Match 'README install snippet targets'
+            $summary | Should -Match 'README product image targets'
             $summary | Should -Match 'README download link targets'
             $summary | Should -Match 'README userscript install targets'
             $summary | Should -Match 'Metadata provider'
@@ -11721,7 +11466,7 @@ Describe 'PowerShell version baseline' {
         $result.supported | Should -BeFalse
     }
 
-    It 'marks Windows PowerShell as bootstrap-only for setup.ps1' {
+    It 'refuses Windows PowerShell for the generator' {
         $result = Test-PowerShellRuntimeSecurity `
             -Version ([version]'5.1.26100') `
             -Edition 'Desktop' `
@@ -12180,11 +11925,10 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         script:Assert-ConditionNewlyFired -Result $result -Condition 'catalogFeedAccounting'
     }
 
-    It 'fires readmeExperience when the header contract breaks' {
+    It 'fires readmeExperience when the page offers a command to paste' {
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
         $baseline = script:New-ReachabilityBaseline -Catalog $catalog
-        $broken = [regex]::Replace($baseline.ExpectedReadme, '^(\s*<p align="center"><b>)[^<]+', '${1}Something Else Entirely.')
-        $broken | Should -Not -Be $baseline.ExpectedReadme
+        $broken = $baseline.ExpectedReadme + "``````powershell`nirm https://example.test/x.ps1 | iex`n``````" + [Environment]::NewLine
 
         $result = script:Invoke-ReachabilityState -Baseline $baseline -Override @{
             ExpectedReadme = $broken
@@ -12478,7 +12222,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         Should -Invoke Test-LinkTargets -Times 1 -Exactly
     }
 
-    It 'counts every README action target by type, the dispatcher included' {
+    It 'counts every README action target by type' {
         # Not a condition of its own: the link summary's per-type counts have to add up to its
         # total. Same seams as the live-probe case above, with every probe passing.
         $catalog = Get-Catalog -Path $script:ReachabilityCatalogPath
@@ -12506,9 +12250,8 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         }
 
         $summary = $result.Report.linkValidationSummary
-        $summary.readmeInstallDispatcherTargetCount | Should -Be 1
-        $summary.readmeInstallSnippetTargetCount | Should -BeGreaterThan 0
-        ($summary.readmeInstallSnippetTargetCount + $summary.readmeInstallDispatcherTargetCount + $summary.readmeDownloadLinkTargetCount + $summary.readmeUserscriptInstallTargetCount) |
+        $summary.readmeDownloadLinkTargetCount | Should -BeGreaterThan 0
+        ($summary.readmeImageTargetCount + $summary.readmeDownloadLinkTargetCount + $summary.readmeUserscriptInstallTargetCount) |
             Should -Be $summary.readmeActionTargetCount
     }
 
@@ -13247,7 +12990,9 @@ Describe 'Uncataloged public repos get a reviewable stub' {
         $written | Should -Not -Match '__JsonArray'
         $after = $written | ConvertFrom-Json -AsHashtable
         @($after.entries[0].aliases) | Should -Be @('OldName')
-        @($after.profileHeader.languages).Count | Should -Be @($catalog.profileHeader.languages).Count
+        # The header's links are a one-item array, the case the wrappers used to break.
+        ,$after.profileHeader.links | Should -BeOfType [object[]]
+        @($after.profileHeader.links).Count | Should -Be @($catalog.profileHeader.links).Count
         @($after.profileHeader.links)[0].url | Should -Be @($catalog.profileHeader.links)[0].url
     }
 
@@ -13282,19 +13027,18 @@ Describe 'Hand-authored header links and anchors are validated' {
         $cta.fatalOnFailure | Should -BeTrue
     }
 
-    It 'reads no Markdown link from escaped brackets, but probes the URL GitHub autolinks in them' {
-        # GitHub autolinks the bare URL between escaped brackets (checked with the /markdown
-        # API), so it's a link a reader can follow and the check has to probe it. The escaped
-        # fragment is plain text.
+    It 'reads no link from Markdown in the pitch, which GitHub shows as text' {
+        # The pitch is one line of an HTML block, where GitHub runs neither Markdown links
+        # nor autolinks (checked with the /markdown API), so neither URL is a link a reader
+        # can follow and neither fragment needs a heading.
         $header = New-TestProfileHeader
         $header.about = 'Jump to [the tools](#tools) or read [the docs](https://docs.invalid/guide).'
-        $readme = Update-Header -Header $header -CategorySlugs @('powershell')
-        $readme | Should -Match ([regex]::Escape('\[the tools\](#tools)'))
+        $readme = Update-Header -Header $header
+        $readme | Should -Match ([regex]::Escape('<p align="center">Jump to [the tools](#tools) or read [the docs](https://docs.invalid/guide). <a href='))
 
-        $docs = @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme | Where-Object { $_.url -like '*docs.invalid*' })
-        (@($docs | ForEach-Object { $_.url }) -join ' ; ') | Should -Be 'https://docs.invalid/guide'
-        $docs[0].fatalOnFailure | Should -BeTrue
+        @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme | Where-Object { $_.url -like '*docs.invalid*' }) | Should -BeNullOrEmpty
         @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme | Where-Object { $_.fragment -eq 'tools' }) | Should -BeNullOrEmpty
+        @(Get-ReadmeHeaderLinkValidationTargets -ExpectedReadme $readme | ForEach-Object { $_.url }) | Should -Contain 'https://fixture.example.test/about/'
     }
 
     It 'still reads a Markdown link and anchor that are not escaped' {
@@ -13422,7 +13166,8 @@ Describe 'Hand-authored header links and anchors are validated' {
     }
 
     It 'fails a missing local anchor without any network access' {
-        $planted = $script:LiveReadme.Replace('<a href="#powershell-system-utilities">PowerShell</a>', '<a href="#totally-absent-section">PowerShell</a>')
+        $script:LiveReadme | Should -Match ([regex]::Escape('<a href="#windows-apps">Windows</a>')) -Because 'the plant needs the nav link it replaces'
+        $planted = $script:LiveReadme.Replace('<a href="#windows-apps">Windows</a>', '<a href="#totally-absent-section">Windows</a>')
 
         $missing = @(Test-ReadmeHeaderAnchor -ExpectedReadme $planted)
 
@@ -14597,7 +14342,6 @@ Describe 'Registry signatures verified against the live registry' -Tag 'Integrat
 Describe 'Script test seams need the suite opt-in' {
     BeforeDiscovery {
         $seamScripts = @(
-            'setup.ps1'
             'scripts/validate-local.ps1'
             'scripts/review-local-dependencies.ps1'
             'scripts/write-profile-sync-summary.ps1'
@@ -14884,9 +14628,8 @@ Describe 'Local validation helpers (in-process)' {
 
     It 'fails the lane when an instrumented file has no executed command' {
         $validation = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/validate-local.ps1') -Raw
-        $validation | Should -Match 'Join-Path \$repoRoot "scripts"'
-        $validation | Should -Match 'Join-Path \$repoRoot "setup\.ps1"'
-        $validation | Should -Match 'Join-Path \$repoRoot "run\.ps1"'
+        $validation | Should -Match '\$pesterConfig\.CodeCoverage\.Path = @\(Join-Path \$repoRoot "scripts"\)'
+        $validation | Should -Not -Match 'setup\.ps1|run\.ps1'
         $validation | Should -Match '\$uncoveredFiles = @\(Get-UncoveredCoverageFile -Coverage \$coverage\)'
         $validation | Should -Match 'Code coverage recorded no executed command in'
     }
@@ -15073,43 +14816,6 @@ Describe 'Support bundle helpers (in-process)' {
     }
 }
 
-Describe 'Setup bootstrapper helpers (in-process)' {
-    BeforeAll {
-        # The seam stops before anything is checked or installed. Install-Pkg,
-        # Update-PathFromRegistry and the transcript helpers change the machine or the
-        # session and are not called here.
-        . (Join-Path $script:RepoRoot 'setup.ps1')
-        $script:MissingCommand = 'sysadmindoc-no-such-command-' + [guid]::NewGuid().ToString('N')
-    }
-
-    It 'detects commands on PATH' {
-        Test-Cmd 'pwsh' | Should -BeTrue
-        Test-Cmd $script:MissingCommand | Should -BeFalse
-    }
-
-    It 'reads a version line only for installed tools' {
-        Get-VersionLine $script:MissingCommand | Should -BeNullOrEmpty
-        [string](Get-VersionLine 'pwsh') | Should -Match '7\.\d+'
-    }
-
-    It 'reports a tool status as present or missing' {
-        Write-ToolStatus 'pwsh' 'pwsh' 6>$null | Should -BeTrue
-        Write-ToolStatus 'none' $script:MissingCommand 6>$null | Should -BeFalse
-    }
-
-    It 'stops setup with the message it prints' {
-        { Stop-SetupWithFailure 'setup cannot continue' 6>$null } | Should -Throw 'setup cannot continue'
-    }
-
-    It 'answers the elevation question with a boolean' {
-        Test-Admin | Should -BeOfType ([bool])
-    }
-
-    It 'prints status lines without failing' {
-        { & { Write-Step 'step'; Write-Ok 'ok'; Write-Skip 'skip'; Write-Warn2 'warn' } 6>$null } | Should -Not -Throw
-    }
-}
-
 Describe 'No test starts the real gh' {
     It 'puts the trap first on PATH' {
         (Get-Command gh -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source | Should -Be (Join-Path $script:GhTrapDirectory 'gh.cmd')
@@ -15173,39 +14879,42 @@ Describe 'Rendered smoke helpers (in-process)' {
     It 'looks on the page for texts the README holds, and keeps no copy of them' {
         # 12ecd37 renamed the page's sections, and the smoke's own copies of the old words
         # failed every viewport for a week.
-        $expectation = Get-RenderedSmokeExpectation -Catalog (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json'))
+        $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
+        $expectation = Get-RenderedSmokeExpectation -Catalog (Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')) -Showcase $showcase
         $readme = [System.Net.WebUtility]::HtmlDecode(([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md')) -replace '<[^>]+>', ''))
         $source = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1'))
-        $texts = @($expectation.tagline, $expectation.toolCatalogHeading, $expectation.setupTitle, $expectation.footerLinkText) + @($expectation.categoryTitles)
+        $texts = @($expectation.tagline, $expectation.toolCatalogHeading, $expectation.footerLinkText, $expectation.portfolioLinkText) + @($expectation.sectionHeadings) + @($expectation.categoryTitles)
 
         # The nav labels sit together in one line, as the smoke looks for them.
         $navLine = @($readme -split '\r?\n' | Where-Object { $line = $_; @($expectation.navLabels | Where-Object { -not $line.Contains($_) }).Count -eq 0 })
 
         @($expectation.categoryTitles).Count | Should -Be @($expectation.navLabels).Count
         @($expectation.categoryTitles).Count | Should -BeGreaterThan 5
+        @($expectation.sectionHeadings) | Should -Contain $expectation.toolCatalogHeading
         @($texts | Where-Object { [string]::IsNullOrWhiteSpace($_) -or -not $readme.Contains($_) }) | Should -BeNullOrEmpty
         $navLine.Count | Should -BeGreaterThan 0 -Because 'the nav has to hold every label the smoke looks for'
         @($texts | Where-Object { $source.Contains($_) }) | Should -BeNullOrEmpty
     }
 
-    It 'follows the generator when the grid heading or the tagline changes' {
+    It 'follows the generator when a heading, a shelf or the portfolio link text changes' {
         $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
-        $catalog['profileHeader'] = [pscustomobject]@{ tagline = 'Fixture tagline & more' }
         $catalog['entries'] = @($catalog.entries | Where-Object { $_.category -ne 'guides' })
+        $showcase = Get-DefaultShowcase
         $saved = $script:ToolCatalogHeading
         try {
-            $script:ToolCatalogHeading = 'Fixture grid'
-            $expectation = Get-RenderedSmokeExpectation -Catalog $catalog
-            $gridHeading = ((New-ToolCatalogSection -Entries @() -RepoLookup @{}) -split '\r?\n', 2)[0]
+            $script:ToolCatalogHeading = 'Fixture flagships'
+            $showcase.flagships = @([ordered]@{ repo = @(Get-ReadmeEntries -Catalog $catalog)[0].repo; name = 'Fixture'; platform = 'Windows'; image = 'assets/showcase/opentasker.png'; imageAlt = 'Fixture card'; pitch = 'A fixture.'; downloads = $null })
+            $expectation = Get-RenderedSmokeExpectation -Catalog $catalog -Showcase $showcase
         } finally {
             $script:ToolCatalogHeading = $saved
         }
 
-        $expectation.tagline | Should -Be 'Fixture tagline & more'
-        $expectation.toolCatalogHeading | Should -Be 'Fixture grid'
-        $gridHeading | Should -Be '### Fixture grid'
+        $expectation.toolCatalogHeading | Should -Be 'Fixture flagships'
+        @($expectation.sectionHeadings) | Should -Contain 'Fixture flagships'
         @($expectation.navLabels) | Should -Not -Contain 'Guides'
         @($expectation.categoryTitles) | Should -Not -Contain 'Guides & Resources'
+        $expectation.tagline | Should -Match '^\d+ free projects · every line of source public · zero commands to paste$'
+        $expectation.portfolioLinkText | Should -Be 'See everything'
     }
 
     It 'starts the browser CHROME_PATH names, and refuses one that is not there' {

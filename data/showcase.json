@@ -1,0 +1,190 @@
+{
+  "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-showcase.v1.json",
+  "hero": {
+    "darkImage": "assets/showcase/profile-hero-dark.png",
+    "lightImage": "assets/showcase/profile-hero-light.png",
+    "alt": "SysAdminDoc. Fix what bugs you, keep control of the rest. Free apps, extensions and utilities for Windows, Android and the browser."
+  },
+  "proof": {
+    "downloads": "90,000+",
+    "measuredOn": "2026-09-28",
+    "method": "Floor of the summed GitHub release asset download counts across the public repositories (93,447 on the measured date). Raise it by hand; never round up past the measured total."
+  },
+  "flagships": [
+    {
+      "repo": "OpenTasker",
+      "name": "OpenTasker",
+      "platform": "Android",
+      "image": "assets/showcase/opentasker.png",
+      "imageAlt": "OpenTasker: put your phone on autopilot and read every rule. Three phone screens showing profiles, tasks and a flow.",
+      "pitch": "Phone automation in the spirit of Tasker, fully open source. Readable rules, 78 built-in actions, and all of it runs on your phone.",
+      "downloads": "10,000+"
+    },
+    {
+      "repo": "win11-nvme-driver-patcher",
+      "name": "NVMe Driver Patcher",
+      "platform": "Windows 11",
+      "image": "assets/showcase/nvme-patcher.png",
+      "imageAlt": "NVMe Driver Patcher: native NVMe on Windows 11, skipping the SCSI layer. Single exe, GUI and CLI, MSI for fleets.",
+      "pitch": "Switches Windows 11 to the native NVMe driver from Server 2025. It checks your system before it changes anything and keeps a clean way back.",
+      "downloads": "7,500+"
+    },
+    {
+      "repo": "hushfeed",
+      "name": "Hushfeed",
+      "platform": "Android, Morphe patches",
+      "image": "https://raw.githubusercontent.com/SysAdminDoc/HushFeed/main/assets/readme-hero.png",
+      "imageAlt": "Hushfeed: take back your feed. Morphe patches for TikTok with feed filters, gesture guards, playback and download controls.",
+      "pitch": "A patch bundle for TikTok. Fewer accidental taps, less noise, and more say over your feed and your downloads.",
+      "downloads": "25,000+"
+    },
+    {
+      "repo": "Hushfacebook",
+      "name": "Hushfacebook",
+      "platform": "Android, Morphe patches",
+      "image": "https://raw.githubusercontent.com/SysAdminDoc/HushFacebook/main/assets/readme-hero.png",
+      "imageAlt": "Hushfacebook: keep the people, cut the noise. Morphe patches for Facebook that clear sponsored clutter, Reels and Stories.",
+      "pitch": "A patch bundle for Facebook. Keeps your friends in the feed and clears out the ads, Reels and Stories clutter.",
+      "downloads": "7,000+"
+    },
+    {
+      "repo": "AppManagerNG",
+      "name": "AppManagerNG",
+      "platform": "Android",
+      "image": "https://raw.githubusercontent.com/SysAdminDoc/AppManagerNG/main/docs/marketing/appmanagerng-hero.png",
+      "imageAlt": "AppManagerNG: know what is installed, control what it can do. Phone screens showing the app list and permission inspector.",
+      "pitch": "See every app on your phone and what it can reach. Debloat, freeze and back up from one place, with or without root.",
+      "downloads": "4,500+"
+    },
+    {
+      "repo": "VideoSubtitleRemover",
+      "name": "Video Subtitle Remover",
+      "platform": "Windows",
+      "image": "https://github.com/user-attachments/assets/256ae00b-0ff8-466f-8aeb-4c993a69d7b9",
+      "imageAlt": "Video Subtitle Remover Pro: remove subtitles, keep the frame. The desktop app cleaning burned-in text from a video.",
+      "pitch": "Takes burned-in subtitles and on-screen text out of video, right on your PC. You review each text track before anything is removed.",
+      "downloads": "4,000+"
+    },
+    {
+      "repo": "DeepPurge",
+      "name": "DeepPurge",
+      "platform": "Windows",
+      "image": "https://raw.githubusercontent.com/SysAdminDoc/DeepPurge/main/docs/assets/deeppurge-hero.png",
+      "imageAlt": "DeepPurge: see what stays, control what goes. The Windows uninstaller listing installed programs.",
+      "pitch": "An uninstaller that shows you what it's about to remove before it does, and keeps a recovery trail when it's done.",
+      "downloads": null
+    },
+    {
+      "repo": "Openshop",
+      "name": "Openshop",
+      "platform": "Web",
+      "image": "https://raw.githubusercontent.com/SysAdminDoc/Openshop/main/design/openshop-social-preview.png",
+      "imageAlt": "Openshop: a full image studio right in your browser. Layers, selections, PSD interchange and local export.",
+      "pitch": "A full image editor in a browser tab, with layers and PSD support. No signup, and your files stay on your machine.",
+      "downloads": null
+    }
+  ],
+  "problems": [
+    { "want": "Stop spam calls and texts", "repo": "CallShield" },
+    { "want": "Put my phone on autopilot without a cloud account", "repo": "OpenTasker" },
+    { "want": "Block ads on my phone, no root needed", "repo": "HostShield" },
+    { "want": "Clear out the apps my phone came with", "repo": "AppManagerNG" },
+    { "want": "Uninstall a program and its leftovers", "repo": "DeepPurge" },
+    { "want": "Fix a Windows Update that's stuck", "repo": "WURepair" },
+    { "want": "See which app is eating my bandwidth, and cap it", "repo": "OpenNetLimit" },
+    { "want": "Resize a partition and see the plan first", "repo": "PartitionPilot" },
+    { "want": "Change monitor brightness and inputs from Windows", "repo": "MonitorControl" },
+    { "want": "Get burned-in subtitles out of a video", "repo": "VideoSubtitleRemover" },
+    { "want": "Make desktop YouTube work my way", "repo": "Astra-Deck" },
+    { "want": "Edit a photo without installing anything", "repo": "Openshop" }
+  ],
+  "trust": [
+    {
+      "icon": "&#128269;",
+      "title": "Read it before you run it",
+      "text": "Every project here is public, so you can read the code before you run it. There's no \"paste this into PowerShell\" line anywhere on this page, and there never will be."
+    },
+    {
+      "icon": "&#128230;",
+      "title": "Real releases",
+      "text": "Downloads come from GitHub Releases, not scripts. {checksumCount} of the latest releases ship a checksum file, so you can verify what you downloaded."
+    },
+    {
+      "icon": "&#128260;",
+      "title": "Android apps that keep themselves current",
+      "text": "APKs are signed release builds. Add any of them to Obtainium and new versions arrive straight from GitHub, no store in the middle."
+    },
+    {
+      "icon": "&#127968;",
+      "title": "Your device, your data",
+      "text": "A lot of these run entirely on your own machine and never ask you to sign up for anything."
+    }
+  ],
+  "shelves": [
+    {
+      "id": "windows-apps",
+      "title": "Windows and desktop apps",
+      "navLabel": "Windows",
+      "icon": "&#128421;&#65039;",
+      "blurb": "Installers, portable builds and desktop apps for your PC.",
+      "categories": ["desktop", "python"]
+    },
+    {
+      "id": "windows-admin",
+      "title": "Windows admin and security",
+      "navLabel": "Admin",
+      "icon": "&#128736;&#65039;",
+      "blurb": "Tools for tuning, repairing and locking down Windows. Grab the release, or read the source first.",
+      "categories": ["powershell", "security"]
+    },
+    {
+      "id": "android-apps",
+      "title": "Android apps",
+      "navLabel": "Android",
+      "icon": "&#128241;",
+      "blurb": "Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for automatic updates.",
+      "categories": ["android"]
+    },
+    {
+      "id": "browser-extensions",
+      "title": "Browser extensions and userscripts",
+      "navLabel": "Browser",
+      "icon": "&#129513;",
+      "blurb": "Add-ons for Chrome, Edge and Firefox. Userscripts run in Tampermonkey, Violentmonkey or ScriptVault.",
+      "categories": ["extensions"]
+    },
+    {
+      "id": "web-apps",
+      "title": "Web apps",
+      "navLabel": "Web",
+      "icon": "&#127760;",
+      "blurb": "Open them in a tab. Nothing to install.",
+      "categories": ["web"]
+    },
+    {
+      "id": "media-tools",
+      "title": "Media and creative tools",
+      "navLabel": "Media",
+      "icon": "&#127916;",
+      "blurb": "Video, audio and stream tools.",
+      "categories": ["media"]
+    },
+    {
+      "id": "guides",
+      "title": "Guides",
+      "navLabel": "Guides",
+      "icon": "&#128218;",
+      "blurb": "Step-by-step guides and reference lists.",
+      "categories": ["guides"]
+    },
+    {
+      "id": "forks",
+      "title": "Forks and experiments",
+      "navLabel": "Forks",
+      "icon": "&#129514;",
+      "blurb": "Forks of other people's projects, with credit to the originals, plus a few side experiments.",
+      "categories": ["misc"]
+    }
+  ],
+  "freshReleaseCount": 6
+}

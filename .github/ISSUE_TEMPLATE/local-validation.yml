@@ -13,7 +13,7 @@ body:
     attributes:
       label: Command or script
       description: Which script or validation step failed?
-      placeholder: "Example: scripts/validate-local.ps1, scripts/render-profile-smoke.ps1, setup.ps1 -CheckOnly"
+      placeholder: "Example: scripts/validate-local.ps1, scripts/render-profile-smoke.ps1, scripts/render-showcase-assets.py"
     validations:
       required: true
   - type: input

@@ -279,11 +279,13 @@
       "additionalProperties": false,
       "properties": {
         "tagline": {
+          "description": "Bold text header, shown when data/showcase.json has no hero banner.",
           "type": "string",
           "minLength": 1,
           "maxLength": 200
         },
         "languages": {
+          "description": "Not rendered since v5.0.0. Still accepted and text-checked so an older catalog keeps validating.",
           "type": "array",
           "items": {
             "type": "string",
@@ -292,16 +294,19 @@
           }
         },
         "heading": {
+          "description": "Not rendered since v5.0.0. Still accepted and text-checked so an older catalog keeps validating.",
           "type": "string",
           "minLength": 1,
           "maxLength": 100
         },
         "about": {
+          "description": "The pitch paragraph under the proof line, inside an HTML block.",
           "type": "string",
           "minLength": 1,
           "maxLength": 1000
         },
         "links": {
+          "description": "Links after the pitch, each followed by an arrow.",
           "type": "array",
           "items": {
             "type": "object",
@@ -323,6 +328,7 @@
           }
         },
         "support": {
+          "description": "The support button in the footer.",
           "type": "object",
           "additionalProperties": false,
           "required": [

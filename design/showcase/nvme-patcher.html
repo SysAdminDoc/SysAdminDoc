@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NVMe Driver Patcher hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    font-family: Inter, "Segoe UI", sans-serif; color: #eef4fb; position: relative;
+    background:
+      radial-gradient(640px 440px at 0% 0%, rgba(59, 130, 246, .18), transparent 70%),
+      radial-gradient(760px 560px at 92% 70%, rgba(99, 102, 241, .26), transparent 70%),
+      #070b17;
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(148,163,184,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(520px 420px at 78% 50%, #000 30%, transparent 75%);
+  }
+  .copy { position: absolute; left: 72px; top: 70px; width: 620px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand .mark { width: 52px; height: 52px; border-radius: 13px; background: linear-gradient(135deg, #2563eb, #7c3aed); display: grid; place-items: center; font: 800 15px/1 Inter, sans-serif; letter-spacing: .04em; }
+  .brand b { display: block; font-size: 22px; font-weight: 700; }
+  .brand small { display: block; font-size: 12px; letter-spacing: .14em; color: #93c5fd; font-weight: 600; margin-top: 3px; }
+  h1 { margin-top: 56px; font-size: 58px; line-height: 1.05; font-weight: 800; letter-spacing: -.03em; }
+  h1 span { color: #60a5fa; }
+  p { margin-top: 24px; font-size: 21px; line-height: 1.5; color: #9fb0c8; width: 560px; }
+  .chips { margin-top: 30px; display: flex; gap: 10px; }
+  .chip { display: flex; align-items: center; gap: 8px; padding: 8px 15px; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); font-size: 15px; font-weight: 500; }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #60a5fa; }
+  .foot { position: absolute; left: 72px; bottom: 34px; font-size: 13px; color: #5b6b84; letter-spacing: .02em; }
+  .art { position: absolute; left: 700px; top: 150px; width: 560px; filter: drop-shadow(0 30px 60px rgba(37, 99, 235, .45)); }
+  .stat { position: absolute; padding: 14px 18px; border-radius: 14px; background: rgba(15, 23, 42, .82); border: 1px solid rgba(148,163,184,.2); box-shadow: 0 20px 40px rgba(0,0,0,.45); }
+  .stat b { display: block; font-size: 15px; }
+  .stat small { display: block; font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .s1 { left: 760px; top: 70px; }
+  .s2 { left: 1010px; top: 470px; }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <img class="art" src="https://github.com/user-attachments/assets/68963fd7-fc98-4d91-bd83-b13768fff161" alt="">
+  <div class="stat s1"><b>nvmedisk.sys</b><small>Native NVMe driver from Server 2025</small></div>
+  <div class="stat s2"><b>Checks before it changes</b><small>and a way back if you need it</small></div>
+  <div class="copy">
+    <div class="brand">
+      <div class="mark">NVMe</div>
+      <div><b>NVMe Driver Patcher</b><small>WINDOWS 11 STORAGE</small></div>
+    </div>
+    <h1>Native NVMe<br>on Windows 11.<br><span>Skip the SCSI layer.</span></h1>
+    <p>Turn on the Windows Server 2025 native NVMe driver on your Windows 11 PC, with safety checks first.</p>
+    <div class="chips"><span class="chip">Single .exe</span><span class="chip">GUI and CLI</span><span class="chip">MSI for fleets</span></div>
+  </div>
+  <div class="foot">github.com/SysAdminDoc/win11-nvme-driver-patcher</div>
+</body>
+</html>

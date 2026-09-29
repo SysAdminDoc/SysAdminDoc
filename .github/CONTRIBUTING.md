@@ -4,19 +4,23 @@ Contributions, bug reports, and feature requests are welcome through [issues](ht
 
 ## How the profile is built
 
-The public `README.md` is generated from two sources:
+The public `README.md` is generated from three sources:
 
 1. **`data/profile-catalog.json`** is the canonical list of projects, categories, descriptions, actions, and suppression rules. Its `profileHeader` block holds the README header's personal text and links, and `portfolioUrl` is the site behind "See everything" and "Get in touch".
-2. **`scripts/sync-profile.ps1`** reads the catalog plus live GitHub metadata, then renders the full README, `projects.json` feed, and validation report. It holds the parameters, shared constants and the run itself, and loads its functions from `scripts/sync-profile/`, one file per concern.
+2. **`data/showcase.json`** is the storefront layer on top of it: the hero banner, the flagship cards, the "Pick your problem" index, the "How I ship" notes, and the shelves that group categories. Its shape is described in `schemas/profile-showcase.v1.json` and checked on every run.
+3. **`scripts/sync-profile.ps1`** reads the catalog plus live GitHub metadata, then renders the full README, `projects.json` feed, and validation report. It holds the parameters, shared constants and the run itself, and loads its functions from `scripts/sync-profile/`, one file per concern.
 
 The header and everything below the `<!-- GENERATED PROFILE CATALOG -->` marker are generated and should not be edited directly.
 
 ## Making changes
 
 - **Project metadata** (description, category, action label, order): edit `data/profile-catalog.json`.
-- **Generation logic**: README sections and install snippets live in `scripts/sync-profile/readme-render.ps1`, the feed in `feed-export.ps1`, catalog loading in `catalog.ps1`, GitHub calls in `github-api.ps1`, link checks in `link-validation.ps1`, and the report in `profile-state.ps1` plus the `report-*.ps1` files.
-- **Profile header**: the tagline, language line, greeting, about text, links and support button come from `profileHeader` in `data/profile-catalog.json`. Leave it out and the header is a neutral tagline plus the category nav. The layout is `New-ProfileChrome` in `scripts/sync-profile/readme-render.ps1`.
-- **Running it for another account**: pass `-Owner` and give the catalog your own `portfolioUrl` (or leave it out to link your GitHub Pages address). Change `$profileOwner` in `run.ps1` to your account too, because every install line on the page runs your copy of it. The README check fails until it does.
+- **Generation logic**: README sections and buttons live in `scripts/sync-profile/readme-render.ps1`, the feed in `feed-export.ps1`, catalog loading in `catalog.ps1`, GitHub calls in `github-api.ps1`, link checks in `link-validation.ps1`, and the report in `profile-state.ps1` plus the `report-*.ps1` files.
+- **Profile header**: the tagline, about text, links and support button come from `profileHeader` in `data/profile-catalog.json`, and the banner above them from `hero` in `data/showcase.json`. The layout is `New-ProfileChrome` in `scripts/sync-profile/readme-render.ps1`.
+- **Flagships, problems and shelves**: edit `data/showcase.json`. Every repo it names has to be a public catalog entry and every shelf category has to exist, or the run stops before writing.
+- **Images**: buttons live in `assets/buttons/` and banners in `assets/showcase/`. Both are rendered from the HTML templates in `design/showcase/` with `py -3.13 scripts/render-showcase-assets.py` (Playwright, headless). The README links them by absolute `raw.githubusercontent.com` URLs because GitHub doesn't rewrite a relative `srcset`.
+- **No commands to paste**: the page never carries a code block or an `irm`/`iex`/`curl | sh` line. Every project gets a download, install or source button instead, and the README check fails if a command slips back in.
+- **Running it for another account**: pass `-Owner`, give the catalog your own `portfolioUrl` (or leave it out to link your GitHub Pages address), and point `data/showcase.json` at your own repos and images.
 - **Validation rules**: edit `tests/sync-profile.Tests.ps1`.
 
 ## Local validation
@@ -67,13 +71,13 @@ pwsh -NoProfile -File .\scripts\sync-profile.ps1 -Check -BackstageExportPath .\r
 |:------|:---------|
 | Node tools | Runs `npm ci` before markdownlint so the pinned local package is present. The committed `.npmrc` sets `ignore-scripts=true`, `audit-level=high` and `min-release-age=1`, and the lane asks npm what it actually resolved before installing, so an environment override cannot quietly re-enable install scripts. |
 | Dependency review | Runs `npm audit --json` and `npm audit signatures`, checks package override drift, verifies npm lock/hash pins, and resolves every pin against the npm and PyPI registries. Each row separates what the parent declares, the resolved pin, and the registry latest. A new major is recorded as review-needed rather than forced, so a deliberate hold stays green. Answers are cached under `.cache/registry-versions.json`; `-OfflineRegistry` reads that cache and reports its age, which goes stale after 30 days. Registry signature verification records verified, invalid and missing counts, names each offending package, and reports per direct dependency whether the installed version carries a registry signature and a build provenance attestation. An invalid or missing signature fails the review. |
-| PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and keeps Windows PowerShell 5.1 limited to `setup.ps1` bootstrap. |
+| PowerShell runtime | Reports the current `pwsh` version/channel, warns below PowerShell 7.6 LTS during the 7.4 transition window, and refuses Windows PowerShell 5.1. |
 | PowerShell tools | Installs and imports Pester 5.9.1 plus PSScriptAnalyzer 1.25.0 for the current user when needed. Packages are downloaded as nupkg and their SHA-256 checked against `data/powershell-module-lock.json` before anything is extracted, then every signed file must carry one of the signers that lock names. A module with no reviewed record is refused rather than installed. Verified packages are cached under `.cache/powershell-modules` so an offline run reuses bytes that already passed. |
 | Pester 6 compatibility | Add `-Pester6Compatibility` to save Pester 6.1.0 into an isolated temporary module path and run the non-integration suite; the default Pester 5.9.1 lane is unchanged. |
 | Portfolio cross-surface probe | Add `-ProbePortfolio` to compare the deployed portfolio feed timestamp/schema/counts and key routes; external drift or outage is warning-only. |
 | Markdown | Runs `npm run lint:markdown` against the tracked public Markdown surfaces. |
 | Static analysis | Runs PSScriptAnalyzer with `PSScriptAnalyzerSettings.psd1`. |
-| Tests | Runs the Pester suite with code coverage over every script and `setup.ps1`, and fails if any of them ends the run with no executed command. |
+| Tests | Runs the Pester suite with code coverage over every script under `scripts/`, and fails if any of them ends the run with no executed command. |
 | Profile check | Runs `sync-profile.ps1 -Check` against the working tree after the tests and fails the run on a non-zero exit, naming the failing report conditions. The Pester suite only exercises the generator against fixtures, so this is the lane that validates the committed README, feed, assets, privacy suppression, and links. Add `-SkipProfileCheck` or `-SkipLinkValidation` for a faster loop; both announce that the run was reduced. |
 | Support bundle | Add `-SupportBundlePath .\SysAdminDoc-support.zip` to capture a redacted JSON/ZIP diagnostic bundle; pass known private values with `-SupportBundleRedactValue`. |
 | Backstage export | Add `-BackstageExportPath .\reports\backstage-catalog.json` to emit opt-in public-safe `backstage.io/v1alpha1` Component descriptors; suppressed, private, and metadata-unavailable rows are omitted. |

@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-28
+
+- The profile page is a storefront now, and it doesn't ask anyone to paste a command. The `irm ... | iex` one-liners, the first-time setup block and the `Start-Tool` launcher are gone. Every project gets a button instead: a Windows download, an APK, an Obtainium link, a browser extension, a userscript install, the live web app or the source. Nobody should have to run code they haven't read just to try something.
+- `run.ps1` and `setup.ps1` are deleted. They only existed to back those one-liners, and nothing outside this repo called them.
+- The page opens on a banner with dark and light versions, then a proof line with the project count, the download total and "zero commands to paste".
+- Four new sections come before the full list. "Flagship apps" has eight cards with screenshots and download buttons. "Pick your problem" maps twelve plain-language wants to the tool that handles each one. "How I ship" explains releases, checksums, signed APKs and Obtainium updates, and "Latest releases" shows the six newest. The old category tables became eight collapsible shelves under "Browse everything".
+- `data/showcase.json` holds that storefront layer, with its shape in `schemas/profile-showcase.v1.json`. Before writing anything, a run checks it against that schema and checks every repo, category and image it names. It's read from beside the catalog, so a fixture catalog or another account's first run gets a plain page. A `-ShowcasePath` that names a missing file stops the run instead.
+- Buttons and banners are committed images under `assets/buttons/` and `assets/showcase/`. They're rendered from HTML templates in `design/showcase/` by `scripts/render-showcase-assets.py`, so no badge service sits between a visitor and a download.
+- The README check holds the page to that. A code block or a paste-to-run command anywhere fails it, and so does a button without a name, an image that isn't committed or a shelf without its anchor.
+- Link validation drops the setup-script links and now follows the flagship screenshots that live in other repos, so a renamed image shows up as a broken link here.
+- Eighteen projects had the wrong download type in the catalog, which would have put the wrong button on them. They're fixed.
+- The rendered smoke check reads every section heading, shelf title and the portfolio link text from what the generator writes, instead of keeping its own copies.
+- `-SeedCatalog` refuses a storefront README with a clear message, since it can only read the category tables of a README from before this release.
+- The invisible-character check in the tests now catches raw control bytes too. One had turned a regex's `\b` into a backspace, and the pattern quietly stopped matching.
+
 ## 2026-09-24
 
 - Heading links decode every HTML5 named character reference as GitHub does, so `&colon;` drops out of the id and `&ell;` becomes the letter it names. The 2,125 names live in `data/html-entities.json`, taken from the WHATWG list with its hash recorded.

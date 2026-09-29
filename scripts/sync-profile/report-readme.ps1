@@ -166,20 +166,27 @@ function New-GeneratedArtifactDriftDiagnostics {
 }
 
 function Test-ReadmeExperience {
+    <#
+    .SYNOPSIS
+    Checks the generated README against the storefront contract.
+    .DESCRIPTION
+    The page offers a button for every project and never a command to paste: a code fence
+    (each fence line counts), or an irm/iwr/iex/curl-to-shell line anywhere, fails it. It also
+    reports the showcase's shape, the hero banner, the flagship, problem, trust and
+    release sections, a shelf anchor for every shelf that has entries, image alt text,
+    committed images that are missing, and third-party metric or render hosts.
+    #>
     param(
         [hashtable]$Catalog,
         [object[]]$Repos,
-        [string]$ExpectedReadme
+        [string]$ExpectedReadme,
+        [object]$Showcase
     )
 
+    if (-not $PSBoundParameters.ContainsKey('Showcase')) { $Showcase = Get-Showcase }
     $repoLookup = ConvertTo-Lookup $Repos
-    $entries = @($Catalog.entries | Where-Object {
-        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
-    })
-    $featured = @($entries | Where-Object { $_.featured -eq $true })
-    $building = @($entries | Where-Object { $_.currentlyBuilding -eq $true })
+    $entries = @(Get-ReadmeEntries -Catalog $Catalog)
     $missingPrimaryAction = New-Object System.Collections.Generic.List[string]
-
     foreach ($entry in $entries) {
         $action = Get-PrimaryAction $entry (Get-RepoMeta $entry $repoLookup) $entry.category
         if ([string]::IsNullOrWhiteSpace([string]$action["label"]) -or [string]::IsNullOrWhiteSpace([string]$action["url"])) {
@@ -187,28 +194,34 @@ function Test-ReadmeExperience {
         }
     }
 
-    $missingAnchors = New-Object System.Collections.Generic.List[string]
-    foreach ($definition in $CategoryDefinitions) {
-        # Categories with no visible entries render no section, so only require an anchor
-        # for categories that actually have at least one entry.
-        $categoryEntryCount = @($entries | Where-Object { $_.category -eq $definition.Slug }).Count
-        if ($categoryEntryCount -eq 0) {
-            continue
-        }
-        $anchor = '<a id="{0}"></a>' -f (Get-CategoryAnchor $definition.Slug)
-        if (-not $ExpectedReadme.Contains($anchor)) {
-            $missingAnchors.Add($definition.Slug)
-        }
+    $showcaseShape = Test-ShowcaseShape -Catalog $Catalog -Showcase $Showcase
+    $missingShelfAnchors = New-Object System.Collections.Generic.List[string]
+    $shelves = @(Get-RenderedShelves -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup)
+    foreach ($shelf in $shelves) {
+        if (-not $ExpectedReadme.Contains('<a id="' + $shelf.id + '"></a>')) { $missingShelfAnchors.Add([string]$shelf.id) }
     }
 
-    $unlabeledDownloads = [regex]::Matches($ExpectedReadme, '<kbd>&#11015;\s*</kbd>').Count
-    $hasStartHere = $ExpectedReadme.Contains("### Start Here")
-    $hasSnapshot = $ExpectedReadme.Contains("### Catalog Snapshot")
-    $hasGeneratedNotice = $ExpectedReadme.Contains($GeneratedCatalogNotice)
-    $hasSetupInspectPath = $ExpectedReadme.Contains("Inspect before installing") -and
-        $ExpectedReadme.Contains("-CheckOnly") -and
-        $ExpectedReadme.Contains("SysAdminDoc-setup.ps1") -and
-        $ExpectedReadme.Contains("SysAdminDoc-setup-*.log")
+    # What this page exists to avoid. A fence is code a visitor would copy; the command
+    # pattern catches one written inline or in an indented block too. The generator writes
+    # no indented block (catalog text is escaped), so a fence is the form worth counting.
+    $codeBlockCount = [regex]::Matches($ExpectedReadme, '(?m)^ {0,3}(?:```|~~~)').Count
+    $pasteCommandPattern = '(?im)(\birm\s+https?://|\biwr\s+https?://|invoke-(?:restmethod|webrequest)\s|\|\s*iex\b|invoke-expression|\bcurl\s[^\n|]*\|\s*(?:ba|z)?sh\b|\bwget\s[^\n|]*\|\s*(?:ba|z)?sh\b|start-tool\s)'
+    $pasteCommandCount = [regex]::Matches($ExpectedReadme, $pasteCommandPattern).Count
+
+    $hero = Get-MemberValue -Object $Showcase -Name 'hero'
+    $heroExpected = $null -ne $hero
+    $hasHeroBanner = [regex]::IsMatch($ExpectedReadme, '(?s)\A\s*<a href="[^"]+"><picture>\s*<source media="\(prefers-color-scheme: dark\)" srcset="[^"]+">\s*<source media="\(prefers-color-scheme: light\)" srcset="[^"]+">\s*<img [^>]*alt="[^"]+"[^>]*>\s*</picture></a>')
+    $flagshipCards = [regex]::Matches($ExpectedReadme, '(?m)^<td width="50%" valign="top">\r?\n<a href=').Count
+    $problemRows = 0
+    $problemMatch = [regex]::Match($ExpectedReadme, '(?ms)^## Pick your problem\r?\n(?<body>.*?)(?=^## |\z)')
+    if ($problemMatch.Success) { $problemRows = [regex]::Matches($problemMatch.Groups['body'].Value, '(?m)^\| (?!If you want to|:)').Count }
+    $trustNotes = 0
+    $trustMatch = [regex]::Match($ExpectedReadme, '(?ms)^## How I ship\r?\n(?<body>.*?)(?=^## |\z)')
+    if ($trustMatch.Success) { $trustNotes = [regex]::Matches($trustMatch.Groups['body'].Value, '<td width="50%" valign="top">[^<\r\n]*<b>').Count }
+    $freshReleaseRows = 0
+    $freshMatch = [regex]::Match($ExpectedReadme, '(?ms)^## Latest releases\r?\n(?<body>.*?)(?=^## |\z)')
+    if ($freshMatch.Success) { $freshReleaseRows = [regex]::Matches($freshMatch.Groups['body'].Value, '(?m)^\| (?!Project \||:)').Count }
+
     $thirdPartyMetricHostPattern = 'komarev\.com|github-readme-stats|streak-stats|github-readme-activity-graph'
     $thirdPartyMetricHostCount = [regex]::Matches($ExpectedReadme, $thirdPartyMetricHostPattern).Count
     $thirdPartyBadgeHostPattern = 'img\.shields\.io/github/(?:followers|stars)'
@@ -221,18 +234,18 @@ function Test-ReadmeExperience {
     )
     $motionPattern = '(?i)(?:[?&]animation=|[?&]repeat=true|readme-typing-svg(?:\.demolab\.com)?)'
     $motionPatternCount = [regex]::Matches($ExpectedReadme, $motionPattern).Count
-    $motionSafeChrome = $motionPatternCount -eq 0
     $profileStatsChromeCount = [regex]::Matches($ExpectedReadme, '<a href="https://skillicons\.dev">').Count
-    # The plain-text line under the old SVG header.
-    $hasPlainTextTagline = $ExpectedReadme.Contains("Windows utilities, Android apps, browser extensions, web tools, media workflows, and generated validation evidence")
     $genericAltPattern = 'alt="(Header|Typing SVG|Profile Views|Followers|Stars|Tech Stack|GitHub Stats|Top Languages|GitHub Streak|Activity Graph|Footer)"'
     $genericAltCount = [regex]::Matches($ExpectedReadme, $genericAltPattern).Count
-    # Per GitHub accessibility guidance, every <img> needs descriptive alt text.
-    # Warning-only completeness check across all rendered <img> tags.
-    $genericAltValuePattern = '(?i)^(header|typing svg|profile views|followers|stars|tech stack|github stats|top languages|github streak|activity graph|footer|image|img|logo|icon|screenshot|banner)$'
+    # Per GitHub accessibility guidance, every <img> needs descriptive alt text; an image
+    # button's alt text is the link's only name.
+    $genericAltValuePattern = '(?i)^(header|typing svg|profile views|followers|stars|tech stack|github stats|top languages|github streak|activity graph|footer|image|img|logo|icon|screenshot|banner|button|download)$'
     $imageTags = [regex]::Matches($ExpectedReadme, '(?is)<img\b[^>]*>')
-    $imageTagCount = $imageTags.Count
     $imageAltTextIssueCount = 0
+    $missingLocalImages = New-Object System.Collections.Generic.List[string]
+    $ownAssetPrefix = "https://raw.githubusercontent.com/$Owner/$Owner/main/"
+    $imageSources = @($imageTags | ForEach-Object { [regex]::Match($_.Value, '(?is)\bsrc\s*=\s*"(?<src>[^"]*)"').Groups['src'].Value })
+    $imageSources += @([regex]::Matches($ExpectedReadme, '(?is)<source\b[^>]*\bsrcset\s*=\s*"(?<src>[^"]*)"') | ForEach-Object { $_.Groups['src'].Value })
     foreach ($imageTag in $imageTags) {
         $altMatch = [regex]::Match($imageTag.Value, '(?is)\balt\s*=\s*(?:"(?<alt>[^"]*)"|''(?<alt>[^'']*)'')')
         if (-not $altMatch.Success) {
@@ -244,121 +257,53 @@ function Test-ReadmeExperience {
             $imageAltTextIssueCount++
         }
     }
-    $imageAltTextComplete = $imageAltTextIssueCount -eq 0
-    $hasFeaturedActionColumn = $ExpectedReadme.Contains("| Project | Category | Stars | Description | Action |")
-    $hasFeaturedActionList = [regex]::IsMatch($ExpectedReadme, '(?m)^- \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern) + '.+?\) -- .+?<br/>.+?<br/>(?:Action: )?\[')
-    $hasFeaturedPrimaryActions = $hasFeaturedActionColumn -or $hasFeaturedActionList
-    # The tagline paragraph this catalog's header opens with, from its profileHeader block
-    # or the neutral tagline when it has none.
-    $taglineLine = ((New-ProfileChrome -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')) -split '\r?\n', 2)[0]
-    # Any category nav link: the header links only categories that rendered, so a catalog
-    # with no PowerShell rows has no PowerShell link and is still a valid header.
-    $categoryNavPattern = '<a href="#(?:' + (@($CategoryDefinitions | ForEach-Object { [regex]::Escape((Get-CategoryAnchor $_.Slug)) }) -join '|') + ')">'
-    $hasMinimalProfileHeader = $ExpectedReadme.TrimStart().StartsWith($taglineLine, [StringComparison]::Ordinal) -and
-        $ExpectedReadme.Contains('<a href="' + (Get-ProfilePortfolioUrl) + '"><b>See everything') -and
-        [regex]::IsMatch($ExpectedReadme, $categoryNavPattern) -and
-        -not $ExpectedReadme.Contains('assets/profile/header-dark.svg') -and
-        -not $ExpectedReadme.Contains('assets/profile/header-light.svg')
-    $hasRichProfileHeader = $ExpectedReadme.Contains("assets/profile/header-dark.svg") -and
-        $ExpectedReadme.Contains("View full portfolio") -and
-        $ExpectedReadme.Contains("public tools command center")
-    # Every Start-Tool line fetches this repository's run.ps1, which fetches the feed and the
-    # repositories of the owner it names. A copy that names someone else, such as a fork
-    # that hasn't changed it, would install that account's tools from this page.
-    $installLineCount = [regex]::Matches($ExpectedReadme, '(?m)^irm \S+/run\.ps1 \| iex; Start-Tool ').Count
-    $runScriptPath = Join-Path $RepoRoot 'run.ps1'
-    $installDispatcherOwner = $null
-    if (Test-Path -LiteralPath $runScriptPath) {
-        # From the syntax tree, so a comment can't name the owner and either quoting works: the
-        # one assignment to $profileOwner, when its value is a constant string. Two of them, or
-        # a computed value, leave the owner unknown and the check failing. The variable may
-        # carry a [string] cast or validation attributes and the value may sit in parentheses;
-        # a cast to another type would change the value, so it leaves the owner unknown too.
-        $tokens = $null
-        $parseErrors = $null
-        $runScriptTree = [System.Management.Automation.Language.Parser]::ParseFile($runScriptPath, [ref]$tokens, [ref]$parseErrors)
-        $ownerAssignments = @($runScriptTree.FindAll({
-                    param($node)
-                    if ($node -isnot [System.Management.Automation.Language.AssignmentStatementAst]) { return $false }
-                    $target = $node.Left
-                    while ($target -is [System.Management.Automation.Language.AttributedExpressionAst]) { $target = $target.Child }
-                    # Ordinal: -eq compares by culture and skips an invisible character, which
-                    # PowerShell keeps in a variable's name.
-                    $target -is [System.Management.Automation.Language.VariableExpressionAst] -and
-                    [string]::Equals($target.VariablePath.UserPath, 'profileOwner', [StringComparison]::OrdinalIgnoreCase)
-                }, $true))
-        if ($ownerAssignments.Count -eq 1) {
-            $castsToString = $true
-            $target = $ownerAssignments[0].Left
-            while ($target -is [System.Management.Automation.Language.AttributedExpressionAst]) {
-                if ($target -is [System.Management.Automation.Language.ConvertExpressionAst] -and -not [string].Equals($target.StaticType)) { $castsToString = $false }
-                $target = $target.Child
-            }
-            $value = $ownerAssignments[0].Right
-            while ($value -is [System.Management.Automation.Language.CommandExpressionAst] -and
-                $value.Expression -is [System.Management.Automation.Language.ParenExpressionAst] -and
-                $value.Expression.Pipeline -is [System.Management.Automation.Language.PipelineAst] -and
-                $value.Expression.Pipeline.PipelineElements.Count -eq 1) {
-                $value = $value.Expression.Pipeline.PipelineElements[0]
-            }
-            if ($castsToString -and
-                $value -is [System.Management.Automation.Language.CommandExpressionAst] -and
-                $value.Expression -is [System.Management.Automation.Language.StringConstantExpressionAst]) {
-                $installDispatcherOwner = $value.Expression.Value
-            }
+    foreach ($source in $imageSources) {
+        if (-not $source.StartsWith($ownAssetPrefix, [StringComparison]::Ordinal)) { continue }
+        $relative = $source.Substring($ownAssetPrefix.Length)
+        if ($relative.Contains('..') -or -not (Test-Path -LiteralPath (Join-Path $RepoRoot $relative) -PathType Leaf)) {
+            if (-not $missingLocalImages.Contains($relative)) { $missingLocalImages.Add($relative) }
         }
     }
-    # Ordinal, ignoring case like GitHub's names: -eq compares by culture and skips an
-    # invisible character.
-    $installDispatcherMatchesOwner = $installLineCount -eq 0 -or ($null -ne $installDispatcherOwner -and [string]::Equals($installDispatcherOwner, $Owner, [StringComparison]::OrdinalIgnoreCase))
-    $hasCurrentlyBuildingActionColumn = ($building.Count -eq 0) -or
-        (-not $ExpectedReadme.Contains("**Currently Building**")) -or
-        $ExpectedReadme.Contains("| Project | Focus | Action |")
-    $hasDiscoveryContract = ($hasMinimalProfileHeader -and -not $hasSnapshot -and $hasGeneratedNotice) -or
-        ($hasMinimalProfileHeader -and -not $hasStartHere -and -not $hasSnapshot -and -not $hasGeneratedNotice)
-    # The minimal text header is the only one the generator renders. The old SVG header
-    # (richProfileHeader) and its plain-text tagline line are reported so a README that
-    # still carries them says why it fails.
-    $hasProfileHeaderContract = $hasMinimalProfileHeader -and -not $hasRichProfileHeader -and -not $hasPlainTextTagline -and $profileStatsChromeCount -eq 0
-    $passed = $hasDiscoveryContract -and $hasSetupInspectPath -and $hasCurrentlyBuildingActionColumn -and
-        $hasProfileHeaderContract -and $installDispatcherMatchesOwner -and
-        $motionSafeChrome -and
-        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $thirdPartyRenderHosts.Count -eq 0 -and
-        $missingAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and $unlabeledDownloads -eq 0
+    $unlabeledButtons = [regex]::Matches($ExpectedReadme, '(?is)<a\b[^>]*>\s*<img\b(?![^>]*\balt="[^"]*\S)[^>]*>\s*</a>').Count
+
+    $passed = $codeBlockCount -eq 0 -and $pasteCommandCount -eq 0 -and
+        $ExpectedReadme.Contains($GeneratedCatalogNotice) -and
+        $showcaseShape.passed -and
+        (-not $heroExpected -or $hasHeroBanner) -and
+        $missingShelfAnchors.Count -eq 0 -and $missingPrimaryAction.Count -eq 0 -and
+        $imageAltTextIssueCount -eq 0 -and $missingLocalImages.Count -eq 0 -and $unlabeledButtons -eq 0 -and
+        $motionPatternCount -eq 0 -and $profileStatsChromeCount -eq 0 -and
+        $thirdPartyMetricHostCount -eq 0 -and $thirdPartyBadgeHostCount -eq 0 -and $thirdPartyRenderHosts.Count -eq 0
 
     return [ordered]@{
         passed = [bool]$passed
-        startHereSection = [bool]$hasStartHere
-        catalogSnapshotSection = [bool]$hasSnapshot
-        generatedCatalogNotice = [bool]$hasGeneratedNotice
-        setupInspectPath = [bool]$hasSetupInspectPath
-        plainTextTagline = [bool]$hasPlainTextTagline
-        minimalProfileHeader = [bool]$hasMinimalProfileHeader
-        installDispatcherOwner = $installDispatcherOwner
-        installDispatcherMatchesOwner = [bool]$installDispatcherMatchesOwner
-        richProfileHeader = [bool]$hasRichProfileHeader
+        generatedCatalogNotice = [bool]$ExpectedReadme.Contains($GeneratedCatalogNotice)
+        codeBlockCount = $codeBlockCount
+        pasteCommandCount = $pasteCommandCount
+        showcasePassed = [bool]$showcaseShape.passed
+        showcaseIssues = @($showcaseShape.issues)
+        heroBanner = [bool]$hasHeroBanner
+        flagshipCards = $flagshipCards
+        problemRows = $problemRows
+        trustNotes = $trustNotes
+        freshReleaseRows = $freshReleaseRows
+        shelfCount = $shelves.Count
+        missingShelfAnchors = $missingShelfAnchors.ToArray()
         genericImageAltTextCount = $genericAltCount
-        imageTagCount = [int]$imageTagCount
+        imageTagCount = [int]$imageTags.Count
         imageAltTextIssueCount = [int]$imageAltTextIssueCount
-        imageAltTextComplete = [bool]$imageAltTextComplete
+        imageAltTextComplete = [bool]($imageAltTextIssueCount -eq 0)
+        missingLocalImages = $missingLocalImages.ToArray()
+        unlabeledButtons = $unlabeledButtons
         thirdPartyMetricHostCount = $thirdPartyMetricHostCount
         thirdPartyBadgeHostCount = $thirdPartyBadgeHostCount
         thirdPartyRenderHostCount = $thirdPartyRenderHosts.Count
         thirdPartyRenderHosts = $thirdPartyRenderHosts
-        motionSafeChrome = [bool]$motionSafeChrome
+        motionSafeChrome = [bool]($motionPatternCount -eq 0)
         motionPatternCount = $motionPatternCount
         profileStatsChromeCount = $profileStatsChromeCount
-        featuredRows = $featured.Count
-        featuredActionColumn = [bool]$hasFeaturedActionColumn
-        featuredActionList = [bool]$hasFeaturedActionList
-        featuredPrimaryActions = [bool]$hasFeaturedPrimaryActions
-        currentlyBuildingRows = $building.Count
-        currentlyBuildingActionColumn = [bool]$hasCurrentlyBuildingActionColumn
-        categoryAnchorCount = $CategoryDefinitions.Count - $missingAnchors.Count
-        missingCategoryAnchors = $missingAnchors.ToArray()
         primaryActionCoverage = $entries.Count - $missingPrimaryAction.Count
         missingPrimaryActions = $missingPrimaryAction.ToArray()
-        unlabeledDownloadButtons = $unlabeledDownloads
     }
 }
 

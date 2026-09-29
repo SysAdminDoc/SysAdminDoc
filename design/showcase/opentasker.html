@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OpenTasker hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    font-family: Inter, "Segoe UI", sans-serif; color: #eef4fb; position: relative;
+    background:
+      radial-gradient(620px 420px at 0% 0%, rgba(34, 211, 238, .16), transparent 70%),
+      radial-gradient(700px 520px at 100% 100%, rgba(59, 130, 246, .20), transparent 70%),
+      #070c17;
+  }
+  .copy { position: absolute; left: 72px; top: 70px; width: 600px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 52px; height: 52px; border-radius: 13px; }
+  .brand b { display: block; font-size: 22px; font-weight: 700; }
+  .brand small { display: block; font-size: 12px; letter-spacing: .14em; color: #7dd3fc; font-weight: 600; margin-top: 3px; }
+  h1 { margin-top: 56px; font-size: 56px; line-height: 1.05; font-weight: 800; letter-spacing: -.03em; }
+  h1 span { color: #22d3ee; }
+  p { margin-top: 24px; font-size: 21px; line-height: 1.5; color: #9fb0c8; width: 590px; }
+  .chips { margin-top: 30px; display: flex; gap: 10px; }
+  .chip { display: flex; align-items: center; gap: 8px; padding: 8px 15px; border-radius: 999px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); font-size: 15px; font-weight: 500; }
+  .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; }
+  .foot { position: absolute; left: 72px; bottom: 34px; font-size: 13px; color: #5b6b84; letter-spacing: .02em; }
+  .phone {
+    position: absolute; width: 250px; border-radius: 30px; padding: 9px; background: #1b2231;
+    box-shadow: 0 30px 70px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .phone img { width: 100%; display: block; border-radius: 22px; }
+  .p1 { left: 700px; top: 118px; transform: rotate(-4deg); }
+  .p2 { left: 890px; top: 58px; z-index: 2; width: 270px; }
+  .p3 { left: 1070px; top: 130px; transform: rotate(4deg); }
+</style>
+</head>
+<body>
+  <div class="copy">
+    <div class="brand">
+      <img src="https://raw.githubusercontent.com/SysAdminDoc/OpenTasker/master/OpenTasker_Icon_Package/OpenTasker_Primary_1024.png" alt="">
+      <div><b>OpenTasker</b><small>ANDROID AUTOMATION</small></div>
+    </div>
+    <h1>Put your phone<br>on autopilot.<br><span>Read every rule.</span></h1>
+    <p>An open-source Tasker alternative. Profiles, triggers and 78 built-in actions, running entirely on your device.</p>
+    <div class="chips"><span class="chip">On-device</span><span class="chip">Encrypted database</span><span class="chip">No account</span></div>
+  </div>
+  <div class="phone p1"><img src="https://raw.githubusercontent.com/SysAdminDoc/OpenTasker/master/fastlane/metadata/android/en-US/images/phoneScreenshots/02-tasks.png" alt=""></div>
+  <div class="phone p2"><img src="https://raw.githubusercontent.com/SysAdminDoc/OpenTasker/master/fastlane/metadata/android/en-US/images/phoneScreenshots/01-profiles.png" alt=""></div>
+  <div class="phone p3"><img src="https://raw.githubusercontent.com/SysAdminDoc/OpenTasker/master/fastlane/metadata/android/en-US/images/phoneScreenshots/04-flow.png" alt=""></div>
+  <div class="foot">github.com/SysAdminDoc/OpenTasker</div>
+</body>
+</html>

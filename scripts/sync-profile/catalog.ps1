@@ -602,6 +602,13 @@ function New-CatalogFromReadme {
         }
     }
 
+    # The parser reads the category tables of the profile README before v5.0.0. The
+    # storefront README since then groups categories into shelves and carries no row it
+    # could read back, so an empty result is refused instead of written as a catalog.
+    if ($entries.Count -eq 0) {
+        throw "No catalog rows found in $readmeReadPath. -SeedCatalog reads the category tables of a profile README from before v5.0.0; the storefront README cant be read back. Restore data/profile-catalog.json from git history instead."
+    }
+
     foreach ($entry in $entries.Values) {
         $meta = Get-RepoMeta $entry $repoLookup
         if ($meta -and $meta.defaultBranchRef -and $meta.defaultBranchRef.name -and -not $entry.branch) {
@@ -786,10 +793,10 @@ function Test-CatalogShape {
 
         # \z, not $: in .NET $ also matches before a final newline, which would pass
         # "tool.ps1`n" and break the pasted command.
-        # entrypoint and branch reach git and the shell through run.ps1 (git clone -b <branch>,
-        # then the entry script), and the expanded command in the README's setup section
-        # quotes them the same way. A $ or backtick would expand inside double quotes and a
-        # quote, semicolon or space would end the argument, so both take a strict shape.
+        # entrypoint and branch are published in projects.json for anything that clones a
+        # project and starts its entry script. A $ or backtick would expand inside double
+        # quotes there and a quote, semicolon or space would end the argument, so both take
+        # a strict shape.
         $entrypoint = [string]$entry.entrypoint
         if (-not [string]::IsNullOrWhiteSpace($entrypoint) -and $entrypoint -cnotmatch '^(?:[A-Za-z0-9][A-Za-z0-9 ._()+-]*[\\/])*[A-Za-z0-9][A-Za-z0-9 ._()+-]*\.(?:ps1|py|pyw)\z') {
             $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "entrypoint"; value = $entrypoint; reason = "entrypoint must be a relative .ps1, .py or .pyw path of letters, digits, spaces and ._()+- only" })
@@ -798,8 +805,8 @@ function Test-CatalogShape {
         # skips zero-width and other ignorable characters, so "py<ZWSP>thon" equals "python"
         # there and would be published as written.
         if (-not [string]::IsNullOrWhiteSpace($entrypoint)) {
-            # run.ps1 starts a .ps1 in PowerShell and a .py or .pyw with python, and
-            # projects.json carries installKind for anyone else reading the feed; both must agree.
+            # A .ps1 starts in PowerShell and a .py or .pyw with python, and projects.json
+            # carries installKind for anyone reading the feed; the two must agree.
             $expectedKind = if ($entrypoint -like '*.ps1') { 'powershell' } else { 'python' }
             if (-not [string]::Equals([string]$entry.installKind, $expectedKind, [StringComparison]::Ordinal)) {
                 $issues.Add([ordered]@{ repo = if ([string]::IsNullOrWhiteSpace($repo)) { $null } else { $repo }; field = "installKind"; value = [string]$entry.installKind; reason = "installKind must be $expectedKind for the entrypoint $entrypoint" })

@@ -1,6 +1,7 @@
-# README rendering: the generated header and footer, the category grid, per-category
-# sections, project actions, install snippets and the setup and local-validation
-# sections. Dot-sourced by scripts/sync-profile.ps1.
+# README rendering: the generated header (hero, proof line, pitch, shelf nav), the
+# flagship cards, the problem index, the trust notes, the latest releases, the shelves,
+# the footer, and the button each project links from. Dot-sourced by
+# scripts/sync-profile.ps1.
 
 function Get-StarText {
     param([object]$Meta)
@@ -308,80 +309,124 @@ function Get-PrimaryAction {
     }
 }
 
+function Get-ProfileAssetUrl {
+    # Images are written as absolute raw URLs on the profile repository's main branch.
+    # GitHub rewrites a relative img src, but not a relative srcset in <picture>, and a
+    # README read anywhere else (the portfolio, a feed reader) has no base to resolve
+    # one against.
+    param([string]$Path)
+
+    if ($Path -cmatch '^https://') { return $Path }
+    return "https://raw.githubusercontent.com/$Owner/$Owner/main/$($Path.TrimStart('/'))"
+}
+
+function Get-ActionButton {
+    <#
+    .SYNOPSIS
+    Picks the button a project's primary action shows and the name a screen reader hears.
+    .DESCRIPTION
+    Returns the button file under assets/buttons and alt text naming the project. A
+    release is sorted by what its latest assets are: an APK, a browser extension, a
+    Windows build, or a plain download. Without inspected assets the catalog's download
+    kind decides.
+    #>
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [string]$Category,
+        # The name the alt text uses; the catalog title when omitted.
+        [string]$DisplayName
+    )
+
+    $action = Get-PrimaryAction $Entry $Meta $Category
+    $title = if (Test-VisibleText $DisplayName) { $DisplayName } else { [string]$Entry.title }
+    if (-not (Test-VisibleText $title)) { $title = [string]$Entry.repo }
+    $button = switch ([string]$action["kind"]) {
+        "live" { @{ file = "web"; alt = "Open $title in your browser" } }
+        "install" { @{ file = "userscript"; alt = "Install the $title userscript" } }
+        "repo" {
+            if ($Category -eq "guides") { @{ file = "guide"; alt = "Read the $title guide" } }
+            else { @{ file = "source"; alt = "View the $title source on GitHub" } }
+        }
+        default {
+            $kind = Get-EffectiveDownloadKind -Entry $Entry -Category $Category
+            $names = @(Get-ReleaseAssetNamesFromMeta -Meta $Meta) -join "`n"
+            # A Windows build outranks a browser build outside the extensions category: a
+            # desktop app can ship a companion extension (a web clipper) beside its installer.
+            if ($kind -eq "apk") {
+                @{ file = "apk"; alt = "Get the $title APK" }
+            } elseif ($Category -eq "extensions" -or $kind -in @("crx", "xpi", "crx-xpi", "zip-xpi")) {
+                @{ file = "extension"; alt = "Get the $title browser extension" }
+            } elseif ($kind -eq "exe" -or $Category -eq "powershell" -or $names -match '(?im)\.(exe|msi|msix)$|win(?:dows)?[-_.]?(?:x64|x86|arm64)') {
+                @{ file = "windows"; alt = "Download $title for Windows" }
+            } elseif ($names -match '(?im)\.(crx|xpi)$|[-_.](chrome|chromium|firefox|edge)[-_.]') {
+                @{ file = "extension"; alt = "Get the $title browser extension" }
+            } else {
+                @{ file = "download"; alt = "Download $title" }
+            }
+        }
+    }
+    return [ordered]@{
+        kind = [string]$action["kind"]
+        url = [string]$action["url"]
+        file = [string]$button.file
+        alt = [string]$button.alt
+    }
+}
+
+function ConvertTo-SafeHref {
+    # Live and userscript URLs come from the catalog. Percent-encode what would end or
+    # break the attribute or its table cell; a well-formed URL is unchanged. Control
+    # characters too, C1 included as their UTF-8 bytes (U+0085 is a line break to some
+    # readers). -Write refuses all of these before it renders and -Check fails on them,
+    # but the renderer doesn't lean on either.
+    param([string]$Url)
+
+    $url = $Url.Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
+    $url = [regex]::Replace($url, '[\x00-\x1F\x7F-\x9F]', { param($match) -join ([System.Text.Encoding]::UTF8.GetBytes($match.Value) | ForEach-Object { '%{0:X2}' -f $_ }) })
+    return $url.Replace('&', '&amp;').Replace('"', '%22')
+}
+
+function ConvertTo-ButtonAltText {
+    # The alt text names whose button it is, so a screen reader listing 190 links doesn't
+    # hear the same few words. It comes from catalog text, so the quote and ampersand are
+    # encoded, and a pipe too, which would split a table cell; brackets and backticks as
+    # well, so the tag read as text couldn't start a link or a code span.
+    param([string]$Text)
+
+    return [System.Net.WebUtility]::HtmlEncode($Text).Replace('|', '&#124;').Replace('[', '&#91;').Replace(']', '&#93;').Replace('`', '&#96;')
+}
+
 function Get-ActionLink {
     param(
         [hashtable]$Entry,
         [object]$Meta,
-        [string]$Category
+        [string]$Category,
+        [int]$Height = 24,
+        [string]$DisplayName
     )
 
-    $action = Get-PrimaryAction $Entry $Meta $Category
-    $label = [string]$action["label"]
-    # Live and userscript URLs come from the catalog. Percent-encode what would end or
-    # break a Markdown link destination or its table cell; a well-formed URL is unchanged.
-    # Control characters too, since a line break here would end the row. -Write refuses all
-    # of these before it renders and -Check fails on them, but the renderer doesn't lean on either.
-    $url = ([string]$action["url"]).Replace(' ', '%20').Replace('(', '%28').Replace(')', '%29').Replace('<', '%3C').Replace('>', '%3E').Replace('|', '%7C').Replace('\', '%5C')
-    # C1 controls (0x80-0x9F) too, as their UTF-8 bytes: U+0085 is a line break to some readers.
-    $url = [regex]::Replace($url, '[\x00-\x1F\x7F-\x9F]', { param($match) -join ([System.Text.Encoding]::UTF8.GetBytes($match.Value) | ForEach-Object { '%{0:X2}' -f $_ }) })
-    # Every row's action says Download, Launch, Install or Repo, so a screen reader listing the
-    # links heard the same few names for 190 different places. The link is written as HTML so
-    # it can carry a name that says whose it is (GitHub keeps aria-label), while it still
-    # shows the short word. Both values are attributes now: the quote and ampersand are
-    # encoded, and a pipe too, which would split the table cell. The name comes from catalog
-    # text, so brackets and backticks are encoded as well: in the attribute they read the
-    # same, and if the tag were ever taken for text they couldn't start a link or a code span.
-    $title = [string]$Entry.title
-    if ([string]::IsNullOrWhiteSpace($title)) { $title = [string]$Entry.repo }
-    $name = switch ([string]$action["kind"]) {
-        "release" { if ([string]::Equals($label, 'Download', [StringComparison]::Ordinal)) { "Download $title" } else { "Download $title ($label)" } }
-        "repo" { "$title repository" }
-        default { "$label $title" }
-    }
-    $href = $url.Replace('&', '&amp;').Replace('"', '%22')
-    $ariaLabel = [System.Net.WebUtility]::HtmlEncode($name).Replace('|', '&#124;').Replace('[', '&#91;').Replace(']', '&#93;').Replace('`', '&#96;')
-    $text = if ($action["kind"] -eq "release") { "<kbd>&#11015;&nbsp;$([System.Net.WebUtility]::HtmlEncode($label))</kbd>" } else { [System.Net.WebUtility]::HtmlEncode($label) }
-    return "<a href=`"$href`" aria-label=`"$ariaLabel`">$text</a>"
+    $button = Get-ActionButton $Entry $Meta $Category -DisplayName $DisplayName
+    $src = Get-ProfileAssetUrl "assets/buttons/$($button.file).svg"
+    return "<a href=`"$(ConvertTo-SafeHref $button.url)`"><img src=`"$src`" height=`"$Height`" alt=`"$(ConvertTo-ButtonAltText $button.alt)`"></a>"
 }
 
-function Get-InstallSnippet {
-    # One short line per project. The clone, requirements and run steps live in run.ps1,
-    # which looks the branch and entry script up in projects.json; the first-time setup
-    # section shows the steps written out in full.
-    param([hashtable]$Entry)
-
-    if ([string]::IsNullOrWhiteSpace([string]$Entry.entrypoint)) {
-        return $null
-    }
-    return "irm https://raw.githubusercontent.com/$Owner/$Owner/main/run.ps1 | iex; Start-Tool $($Entry.repo)"
-}
-
-function New-CategoryLink {
-    param([string]$Slug)
-
-    return "[{0}](#{1})" -f (Get-CategoryDisplayName $Slug), (Get-CategoryAnchor $Slug)
-}
-
-function New-CategoryPreviewLine {
+function Get-ObtainiumLink {
+    # A second button for an Android app whose latest release ships an APK: Obtainium adds
+    # the repository and installs each new release from GitHub.
     param(
-        [hashtable[]]$Items
+        [hashtable]$Entry,
+        [object]$Meta,
+        [int]$Height = 24,
+        [string]$DisplayName
     )
 
-    $picks = @($Items |
-        Sort-Object @{ Expression = { if ($_.featured -eq $true) { 0 } else { 1 } } },
-                    @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { [int]$_.order } } },
-                    @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } } |
-        Select-Object -First 3)
-
-    if ($picks.Count -eq 0) {
-        return $null
-    }
-
-    $links = foreach ($entry in $picks) {
-        "[**$(ConvertTo-MarkdownText $entry.title -LinkLabel)**]($(Get-RepoUrl $entry))"
-    }
-
-    return "Suggested starting points: $($links -join ', ')."
+    if (@(Get-ReleaseAssetKindsFromMeta -Meta $Meta) -notcontains "apk") { return $null }
+    $title = if (Test-VisibleText $DisplayName) { $DisplayName } else { [string]$Entry.title }
+    if (-not (Test-VisibleText $title)) { $title = [string]$Entry.repo }
+    $href = "https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/$(Get-RepoUrl $Entry)"
+    $src = Get-ProfileAssetUrl "assets/buttons/obtainium.svg"
+    return "<a href=`"$(ConvertTo-SafeHref $href)`"><img src=`"$src`" height=`"$Height`" alt=`"$(ConvertTo-ButtonAltText "Add $title to Obtainium for automatic updates")`"></a>"
 }
 
 function Get-ProfilePortfolioUrl {
@@ -414,490 +459,117 @@ function Get-ProfilePortfolioUrl {
     return "https://$($Owner.ToLowerInvariant()).github.io/"
 }
 
-function Get-ProfileSetupRawUrl {
-    return "https://raw.githubusercontent.com/$Owner/$Owner/main/setup.ps1"
+function Get-ReadmeEntries {
+    param([hashtable]$Catalog)
+
+    return @($Catalog.entries | Where-Object {
+        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
+    })
 }
 
-function Get-ProfileSetupSourceUrl {
-    return "https://github.com/$Owner/$Owner/blob/main/setup.ps1"
-}
-
-function Get-ProfileRouteDefinitions {
-    $powershellLink = New-CategoryLink "powershell"
-    $pythonLink = New-CategoryLink "python"
-    $desktopLink = New-CategoryLink "desktop"
-    $extensionsLink = New-CategoryLink "extensions"
-    $androidLink = New-CategoryLink "android"
-    $webLink = New-CategoryLink "web"
-    $securityLink = New-CategoryLink "security"
-    $mediaLink = New-CategoryLink "media"
-    $guidesLink = New-CategoryLink "guides"
-    $miscLink = New-CategoryLink "misc"
-    $setupLink = "[First-time setup](#first-time-setup)"
-    $validationLink = "[Local validation](#local-validation)"
-
-    return @(
-        [ordered]@{
-            Signal = "<kbd>PS</kbd>"
-            Want = "Automate something on Windows"
-            Best = "$powershellLink or $desktopLink"
-            Find = "PowerShell scripts you can paste and run, plus downloadable desktop tools."
-            Action = "[<kbd>Browse &#8594;</kbd>](#powershell-system-utilities)"
-        },
-        [ordered]@{
-            Signal = "<kbd>PY</kbd>"
-            Want = "Run a Python tool"
-            Best = $pythonLink
-            Find = "Desktop apps, media tools, automation scripts, and utilities."
-            Action = "[<kbd>Browse &#8594;</kbd>](#python-desktop-applications)"
-        },
-        [ordered]@{
-            Signal = "<kbd>WEB</kbd>"
-            Want = "Open something in a browser"
-            Best = $webLink
-            Find = "Live web apps and self-hosted dashboards. No install needed."
-            Action = "[<kbd>Open &#8594;</kbd>](#web-applications)"
-        },
-        [ordered]@{
-            Signal = "<kbd>EXT</kbd>"
-            Want = "Add something to Chrome or Firefox"
-            Best = $extensionsLink
-            Find = "Browser extensions and userscripts you can install in one click."
-            Action = "[<kbd>Install &#8594;</kbd>](#browser-extensions--userscripts)"
-        },
-        [ordered]@{
-            Signal = "<kbd>APK</kbd>"
-            Want = "Get an Android app"
-            Best = $androidLink
-            Find = "APKs you can sideload, plus Android source projects."
-            Action = "[<kbd>Download &#8594;</kbd>](#android-applications)"
-        },
-        [ordered]@{
-            Signal = "<kbd>SEC</kbd>"
-            Want = "Check or lock down a network"
-            Best = $securityLink
-            Find = "Security auditing, DNS tools, and hardening scripts."
-            Action = "[<kbd>Browse &#8594;</kbd>](#security--networking)"
-        },
-        [ordered]@{
-            Signal = "<kbd>MED</kbd>"
-            Want = "Fix, convert, or capture media"
-            Best = $mediaLink
-            Find = "Video repair, stream capture, compression, and format conversion."
-            Action = "[<kbd>Download &#8594;</kbd>](#media--conversion-tools)"
-        },
-        [ordered]@{
-            Signal = "<kbd>DOC</kbd>"
-            Want = "Read a how-to guide"
-            Best = $guidesLink
-            Find = "Step-by-step guides, checklists, and reference material."
-            Action = "[<kbd>Read &#8594;</kbd>](#guides--resources)"
-        },
-        [ordered]@{
-            Signal = "<kbd>OPS</kbd>"
-            Want = "Contribute to this repo"
-            Best = "$setupLink or $validationLink"
-            Find = "Dev setup, linting, testing, and validation for contributors."
-            Action = "[<kbd>Verify &#8594;</kbd>](#local-validation)"
-        },
-        [ordered]@{
-            Signal = "<kbd>ALL</kbd>"
-            Want = "Search everything"
-            Best = "[Full portfolio]($(Get-ProfilePortfolioUrl)) or $miscLink"
-            Find = "The full catalog with filters, search, and download links."
-            Action = "[<kbd>Search &#8594;</kbd>]($(Get-ProfilePortfolioUrl))"
-        }
-    )
-}
-
-function Get-ToolCatalogDescription {
-    param([string]$Slug)
-
-    switch ($Slug) {
-        "powershell" { return "Scripts and tools for Windows." }
-        "python" { return "Desktop apps, utilities, and creative tools." }
-        "web" { return "Browser-based tools and dashboards." }
-        "extensions" { return "Chrome/Firefox add-ons and userscripts." }
-        "android" { return "Apps for your phone." }
-        "security" { return "Network auditing and hardening." }
-        "desktop" { return "Windows and cross-platform apps." }
-        "media" { return "Video, audio, and stream tools." }
-        "guides" { return "How-to guides and reference docs." }
-        "misc" { return "Forks and side projects." }
-        default { return "Public projects." }
-    }
-}
-
-function Get-ToolCatalogActionLabel {
-    param([string]$Slug)
-
-    switch ($Slug) {
-        "web" { return "Open" }
-        "extensions" { return "Install" }
-        "android" { return "Download" }
-        "desktop" { return "Download" }
-        "media" { return "Download" }
-        "guides" { return "Read" }
-        "misc" { return "Explore" }
-        default { return "Browse" }
-    }
-}
-
-function New-ToolCatalogCell {
-    param(
-        [string]$Slug,
-        [hashtable[]]$Entries,
-        [hashtable]$RepoLookup
-    )
-
-    $definition = $CategoryDefinitions | Where-Object { $_.Slug -eq $Slug } | Select-Object -First 1
-    if (-not $definition) {
-        return ""
-    }
-
-    $lookup = $RepoLookup
-    $items = @($Entries | Where-Object { $_.category -eq $Slug } | Sort-Object @{ Expression = {
-        $key = ([string]$_.repo).ToLowerInvariant()
-        $m = if ($lookup -and $lookup.ContainsKey($key)) { $lookup[$key] } else { $null }
-        if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
-    }; Descending = $true }, @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } })
-
-    $picks = @($items |
-        Sort-Object @{ Expression = { if ($_.featured -eq $true) { 0 } else { 1 } } },
-                    @{ Expression = { if ($_.featuredRank) { [int]$_.featuredRank } else { [int]$_.order } } },
-                    @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } } |
-        Select-Object -First 3)
-
-    $description = Get-ToolCatalogDescription -Slug $Slug
-    $icon = Get-CategoryIcon -Slug $Slug
-    $heading = if ([string]::IsNullOrWhiteSpace($icon)) {
-        "**$($definition.DisplayName)**"
-    } else {
-        "$icon **$($definition.DisplayName)**"
-    }
-    if ($picks.Count -eq 0) {
-        # An empty category renders no section (New-CategorySection), so a Browse button
-        # here would point at an anchor that does not exist.
-        return "$heading<br/>$description<br/><sub>No public rows</sub>"
-    }
-
-    $pickLinks = @($picks | ForEach-Object { "[**$(ConvertTo-MarkdownText $_.title -LinkLabel)**]($(Get-RepoUrl $_))" })
-    $actionLabel = Get-ToolCatalogActionLabel -Slug $Slug
-    $anchor = Get-CategoryAnchor $Slug
-    # Several cards say Browse or Download, so each button is named for its category, as the
-    # row actions are for their projects.
-    $buttonName = [System.Net.WebUtility]::HtmlEncode("$actionLabel $($definition.DisplayName)").Replace('|', '&#124;').Replace('[', '&#91;').Replace(']', '&#93;')
-
-    return "$heading<br/>$description<br/><sub>$($pickLinks -join '<br/>')</sub><br/><a href=`"#$anchor`" aria-label=`"$buttonName`"><kbd>$actionLabel &#8594;</kbd></a>"
-}
-
-function New-ToolCatalogSection {
-    param(
-        [hashtable[]]$Entries,
-        [hashtable]$RepoLookup
-    )
-
-    $rows = @(
-        @("powershell", "python", "web", "extensions", "android"),
-        @("security", "desktop", "media", "guides", "misc")
-    )
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("### $ToolCatalogHeading")
-    $lines.Add("")
-    # One sentence for a visitor who arrives from a search result and has no idea what this
-    # page is. The count comes from the catalog so it cannot go stale.
-    # "Public projects", not "open-source tools": the count includes guides, and a few repos
-    # carry source-available licenses that GitHub reports as "Other".
-    $lines.Add("This is the index of the $(@($Entries).Count) public projects I've published, mostly tools and apps, sorted by where they run, for anyone who wants something that works on the setup they already have.")
-    $lines.Add("")
-    $lines.Add("Pick a category to jump in. Each one has a few suggestions to start with.")
-    $lines.Add("")
-
-    foreach ($row in $rows) {
-        $headers = @($row | ForEach-Object { Get-CategoryDisplayName -Slug $_ })
-        $cells = @($row | ForEach-Object { New-ToolCatalogCell -Slug $_ -Entries $Entries -RepoLookup $RepoLookup })
-        $lines.Add("| $($headers -join ' | ') |")
-        $lines.Add("|$((@(':---') * $headers.Count) -join '|')|")
-        $lines.Add("| $($cells -join ' | ') |")
-        $lines.Add("")
-    }
-
-    return ($lines -join [Environment]::NewLine).TrimEnd()
-}
-
-function New-DiscoverySection {
-    $routes = @(Get-ProfileRouteDefinitions)
-
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("### Start Here")
-    $lines.Add("")
-    $lines.Add("Pick what you're looking for. Each section has install commands, download links, or a live demo you can try right now.")
-    $lines.Add("")
-    # Three columns instead of five. The old "Best category" column duplicated the target of
-    # the Action link, and five prose columns forced horizontal scrolling on phone widths.
-    $lines.Add("| I want to... | What you'll find | Action |")
-    $lines.Add("|:-------------|:-----------------|:-------|")
-    foreach ($route in $routes) {
-        $lines.Add("| $($route.Signal) $($route.Want) | $($route.Find) | $($route.Action) |")
-    }
-
-    return ($lines -join [Environment]::NewLine)
-}
-
-function New-FirstTimeSetupSection {
-    $content = @'
-<a id="first-time-setup"></a>
-
-<details>
-<summary><b>&#128190; First-time setup</b> &middot; <i>Inspect first, then install only the tooling your machine is missing.</i></summary>
-<br/>
-
-The setup path checks for PowerShell 7, Python, pip, and Git before changing anything, then refreshes the current shell so the project snippets and validation tools work immediately. On a fresh Windows machine, open **PowerShell** and paste:
-
-```powershell
-irm https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/setup.ps1 | iex
-```
-
-Inspect before installing:
-
-```powershell
-$u='https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/setup.ps1'; $p="$env:TEMP\SysAdminDoc-setup.ps1"; irm $u -OutFile $p; notepad $p; powershell -NoProfile -ExecutionPolicy Bypass -File $p -CheckOnly
-```
-
-| Step | Behavior |
-|:-----|:---------|
-| Checks first | Reports PowerShell 7, Python, pip, and Git state before installing missing tools. |
-| Inspect before installing | Save the script, review it, then run `-CheckOnly` to report PowerShell 7, Python, Git, pip, and winget state without installing. |
-| Installs with Windows tooling | Uses `winget` for [PowerShell 7](https://learn.microsoft.com/powershell/), [Python 3.13](https://www.python.org/), and [Git for Windows](https://git-scm.com/). |
-| Refreshes the shell | Updates the current `PATH` so install snippets and validation commands work without reopening PowerShell. |
-| Records diagnostics | Writes a best-effort transcript to `%TEMP%\SysAdminDoc-setup-*.log`. |
-| Shows its source | [`setup.ps1`](https://github.com/__PROFILE_OWNER__/__PROFILE_OWNER__/blob/main/setup.ps1) is the exact script being run. |
-
-Already have PowerShell 7, Python, pip, and Git? Skip this section and open the category you need.
-
-Every PowerShell and Python project on this page starts with one line like this:
-
-```powershell
-irm https://raw.githubusercontent.com/__PROFILE_OWNER__/__PROFILE_OWNER__/main/run.ps1 | iex; Start-Tool <Name>
-```
-
-[`run.ps1`](https://github.com/__PROFILE_OWNER__/__PROFILE_OWNER__/blob/main/run.ps1) looks the project up in the public `projects.json` feed, clones it into `%TEMP%` (or updates the copy that's already there), installs its `requirements.txt` if it has one, and starts its entry script. Written out in full, `Start-Tool <Name>` runs:
-
-```text
-$d="$env:TEMP\<Name>"; if(Test-Path $d){git -C $d pull -q}else{git clone -q --depth 1 -b <branch> https://github.com/__PROFILE_OWNER__/<Name> $d}; if(Test-Path "$d\requirements.txt"){python -m pip install -q -r "$d\requirements.txt"}; & "$d\<entry script>"
-```
-
-A `.py` entry script runs with `python` instead of `&`. Both one-liners download over TLS 1.2, which Windows PowerShell uses by default on Windows 10 and later. On older Windows, run `[Net.ServicePointManager]::SecurityProtocol = 'Tls12'` first.
-
-</details>
-'@
-    return $content.Replace('__PROFILE_OWNER__', [string]$Owner)
-}
-
-function New-LocalValidationSection {
-    # The full lane list lives in .github/CONTRIBUTING.md: it is contributor material, and
-    # at 70 lines it dominated the end of a page most visitors open to find a tool.
-    $content = @'
-<a id="local-validation"></a>
-
-<details>
-<summary><b>&#9989; Local validation</b> &middot; <i>For contributors: check the profile before you push.</i></summary>
-<br/>
-
-Changing the catalog or the generator? Run this from the repo root first:
-
-```powershell
-pwsh -NoProfile -File .\scripts\validate-local.ps1
-```
-
-It lints, analyzes, tests and re-checks the generated profile. Every lane, switch and troubleshooting option is in [CONTRIBUTING.md](https://github.com/__PROFILE_OWNER__/__PROFILE_OWNER__/blob/main/.github/CONTRIBUTING.md#local-validation).
-
-</details>
-'@
-    return $content.Replace('__PROFILE_OWNER__', [string]$Owner)
-}
-
-function New-CategorySection {
+function Get-ShelfEntries {
+    # A shelf's entries, most-starred first, then by name.
     param(
         [hashtable[]]$Entries,
         [hashtable]$RepoLookup,
-        [hashtable]$Definition
+        [string[]]$Categories
     )
 
-    $items = @($Entries | Where-Object { $_.category -eq $Definition.Slug } | Sort-Object @{ Expression = {
-        $key = ([string]$_.repo).ToLowerInvariant()
-        $m = if ($RepoLookup -and $RepoLookup.ContainsKey($key)) { $RepoLookup[$key] } else { $null }
-        if ($m -and $null -ne $m.stargazerCount) { [int]$m.stargazerCount } else { 0 }
-    }; Descending = $true }, @{ Expression = { ConvertTo-OrdinalSortKey $_.repo } })
-    # Skip categories with no visible entries so an empty <details> shell is never rendered.
-    if ($items.Count -eq 0) {
-        return ""
+    $rows = foreach ($entry in @($Entries | Where-Object { $Categories -ccontains [string]$_.category })) {
+        $stars = Get-MemberValue -Object (Get-RepoMeta $entry $RepoLookup) -Name 'stargazerCount'
+        [pscustomobject]@{ entry = $entry; stars = $(if ($null -ne $stars) { [int]$stars } else { 0 }) }
     }
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add("<a id=`"$(Get-CategoryAnchor $Definition.Slug)`"></a>")
-    $lines.Add("<details>")
-    $lines.Add(($Definition.Summary -f $items.Count))
-    $lines.Add("<br/>")
-    $lines.Add("")
-    $preview = New-CategoryPreviewLine -Items $items
-    if ($preview) {
-        $lines.Add($preview)
-        $lines.Add("")
-    }
-
-    switch ($Definition.Render) {
-        "code" {
-            foreach ($entry in $items) {
-                $meta = Get-RepoMeta $entry $RepoLookup
-                $line = "$(Get-ProjectLink $entry $meta) &middot; $(Get-DisplayDescription $entry $meta)"
-                $action = Get-ActionLink $entry $meta $Definition.Slug
-                if ($action -match 'releases/latest') {
-                    $line += " &nbsp;$action"
-                }
-                $lines.Add($line)
-                $snippet = Get-InstallSnippet $entry
-                if ($snippet) {
-                    $lines.Add('```powershell')
-                    $lines.Add($snippet)
-                    $lines.Add('```')
-                    $lines.Add("")
-                } else {
-                    $lines.Add("")
-                }
-            }
-        }
-        "web-table" {
-            $lines.Add("| Project | Description | Live |")
-            $lines.Add("|:--------|:------------|:----:|")
-            foreach ($entry in $items) {
-                $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
-            }
-            $lines.Add("")
-        }
-        "install-table" {
-            $lines.Add("| Project | Description | Install |")
-            $lines.Add("|:--------|:------------|:-------:|")
-            foreach ($entry in $items) {
-                $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
-            }
-            $lines.Add("")
-        }
-        "download-table" {
-            $lines.Add("| Project | Description | Download |")
-            $lines.Add("|:--------|:------------|:--------:|")
-            foreach ($entry in $items) {
-                $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
-            }
-            $lines.Add("")
-        }
-        "desktop-table" {
-            $lines.Add("| Project | Description | Language | Download |")
-            $lines.Add("|:--------|:------------|:--------:|:--------:|")
-            foreach ($entry in $items) {
-                $meta = Get-RepoMeta $entry $RepoLookup
-                $language = if (Test-VisibleText ([string]$entry.language)) {
-                    [string]$entry.language
-                } elseif ($meta -and $meta.primaryLanguage -and $meta.primaryLanguage.name) {
-                    [string]$meta.primaryLanguage.name
-                } else {
-                    ""
-                }
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) | $(ConvertTo-MarkdownText $language) | $(Get-ActionLink $entry $meta $Definition.Slug) |")
-            }
-            $lines.Add("")
-        }
-        "simple-table" {
-            $lines.Add("| Project | Description |")
-            $lines.Add("|:--------|:------------|")
-            foreach ($entry in $items) {
-                $meta = Get-RepoMeta $entry $RepoLookup
-                $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta) |")
-            }
-            $lines.Add("")
-        }
-    }
-
-    $lines.Add("</details>")
-    return ($lines -join [Environment]::NewLine)
+    return @($rows | Sort-Object @{ Expression = 'stars'; Descending = $true }, @{ Expression = { ConvertTo-OrdinalSortKey $_.entry.repo } } | ForEach-Object { $_.entry })
 }
 
-function New-ProfileAssetSvgs {
-    <#
-    .SYNOPSIS
-    Returns the generated profile SVG assets, which is an empty set for the text-only README.
-    .DESCRIPTION
-    The README header and footer are plain text and reference no generated image, so
-    nothing is rendered, committed, budgeted or drift-checked, and no contribution
-    calendar is fetched. Test-ProfileState reports any file under -AssetsPath as out of
-    sync. Bringing image chrome back is a code change: add the renderer here together
-    with the README markup that references it.
-    #>
-    [CmdletBinding()]
-    param()
+function Get-RenderedShelves {
+    # The showcase's shelves that have at least one README entry, each with its entries.
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
 
-    return [ordered]@{}
+    $shelves = foreach ($shelf in (Get-ShowcaseList $Showcase 'shelves')) {
+        # The id lands raw in an anchor and the nav's href, so one that could leave its
+        # attribute drops the shelf. The schema check refuses such a showcase before a write.
+        $id = [string](Get-MemberValue -Object $shelf -Name 'id')
+        if ($id -cnotmatch '^[a-z0-9]+(?:-+[a-z0-9]+)*\z') { continue }
+        $categories = @(Get-JsonArrayItems (Get-MemberValue -Object $shelf -Name 'categories') | ForEach-Object { [string]$_ })
+        $items = @(Get-ShelfEntries -Entries $Entries -RepoLookup $RepoLookup -Categories $categories)
+        if ($items.Count -eq 0) { continue }
+        [ordered]@{
+            id = $id
+            title =[string](Get-MemberValue -Object $shelf -Name 'title')
+            navLabel = [string](Get-MemberValue -Object $shelf -Name 'navLabel')
+            icon = [string](Get-MemberValue -Object $shelf -Name 'icon')
+            blurb = [string](Get-MemberValue -Object $shelf -Name 'blurb')
+            categories = $categories
+            entries = $items
+        }
+    }
+    return @($shelves)
+}
+
+function Get-EntryByRepo {
+    param([hashtable[]]$Entries, [string]$Repo)
+
+    return @($Entries | Where-Object { [string]::Equals([string]$_.repo, $Repo, [StringComparison]::OrdinalIgnoreCase) }) | Select-Object -First 1
 }
 
 function New-ProfileChrome {
-    # Minimal text header. Everything personal in it (tagline, languages, greeting, about
-    # text, links and support button) comes from the catalog's profileHeader block, so a
-    # run for another account publishes only what its own catalog says. With no block the
-    # header is a neutral tagline and the category nav. Satisfies the minimal header
-    # contract in Test-ReadmeExperience: the README starts with the tagline paragraph and
-    # exposes plain category nav anchors with no profile-asset header image.
+    <#
+    .SYNOPSIS
+    Renders the README header: the hero, the proof line, the pitch and the shelf nav.
+    .DESCRIPTION
+    With a showcase hero the header opens on its banner (a <picture> with dark and light
+    sources, linked to the portfolio). Without one it opens on the catalog's tagline, as a
+    plain paragraph. The pitch is the catalog's about text; the proof line counts the
+    README entries and quotes the showcase's download floor. Everything personal comes
+    from the catalog and showcase, so a run for another account publishes only its own.
+    #>
     param(
-        # Categories that rendered a section. The nav links only to these: an empty category
-        # renders no section, so its anchor would be dead. Omitted, every category is linked.
-        [string[]]$CategorySlugs,
+        # Shelves that rendered, from Get-RenderedShelves. The nav links only to these.
+        [object[]]$Shelves,
         # The catalog's profileHeader block; $null renders the neutral header.
-        [object]$Header
+        [object]$Header,
+        [object]$Showcase,
+        [int]$ProjectCount = 0
     )
 
-    # Text a reader can't see (NBSP, zero-width or bidi characters alone) counts as missing
-    # throughout, so it can't draw an empty heading, an empty language slot or an arrow-only link.
-    $tagline = [string](Get-MemberValue -Object $Header -Name 'tagline')
-    if (-not (Test-VisibleText $tagline)) {
-        $tagline = "Public projects by $Owner"
-    }
-    $languages = @(Get-JsonArrayItems (Get-MemberValue -Object $Header -Name 'languages') | Where-Object { Test-VisibleText ([string]$_) } | ForEach-Object { ConvertTo-HtmlText ([string]$_) })
-    $taglineLine = '<p align="center"><b>' + (ConvertTo-HtmlText $tagline) + '</b>'
-    if ($languages.Count -gt 0) {
-        $taglineLine += '<br/><sub>' + ($languages -join ' &middot; ') + '</sub>'
+    $portfolioUrl = Get-ProfilePortfolioUrl
+    $lines = New-Object System.Collections.Generic.List[string]
+    $hero = Get-MemberValue -Object $Showcase -Name 'hero'
+    $dark = [string](Get-MemberValue -Object $hero -Name 'darkImage')
+    $light = [string](Get-MemberValue -Object $hero -Name 'lightImage')
+    $alt = [string](Get-MemberValue -Object $hero -Name 'alt')
+    if ($null -ne $hero -and (Test-ShowcaseImageSource $dark) -and (Test-ShowcaseImageSource $light) -and (Test-VisibleText $alt)) {
+        $lines.Add('<a href="' + $portfolioUrl + '"><picture>')
+        $lines.Add('  <source media="(prefers-color-scheme: dark)" srcset="' + (Get-ProfileAssetUrl $dark) + '">')
+        $lines.Add('  <source media="(prefers-color-scheme: light)" srcset="' + (Get-ProfileAssetUrl $light) + '">')
+        $lines.Add('  <img src="' + (Get-ProfileAssetUrl $dark) + '" width="100%" alt="' + (ConvertTo-HtmlText $alt -Attribute) + '">')
+        $lines.Add('</picture></a>')
+        $lines.Add('')
+    } else {
+        # Text a reader can't see (NBSP, zero-width or bidi characters alone) counts as missing,
+        # so it can't draw an empty heading or an arrow-only link.
+        $tagline = [string](Get-MemberValue -Object $Header -Name 'tagline')
+        if (-not (Test-VisibleText $tagline)) {
+            $tagline = "Public projects by $Owner"
+        }
+        $lines.Add('<p align="center"><b>' + (ConvertTo-HtmlText $tagline) + '</b></p>')
+        $lines.Add('')
     }
 
-    $lines = New-Object System.Collections.Generic.List[string]
-    $lines.Add($taglineLine + '</p>')
+    $proof = New-Object System.Collections.Generic.List[string]
+    if ($ProjectCount -gt 0) { $proof.Add("<b>$ProjectCount</b> free projects") }
+    $downloads = [string](Get-MemberValue -Object (Get-MemberValue -Object $Showcase -Name 'proof') -Name 'downloads')
+    if (Test-VisibleText $downloads) { $proof.Add('<b>' + (ConvertTo-HtmlText $downloads) + '</b> downloads') }
+    $proof.Add('<b>every line</b> of source public')
+    $proof.Add('<b>zero</b> commands to paste')
+    $lines.Add('<p align="center">' + ($proof -join ' &middot; ') + '</p>')
     $lines.Add('')
-    $heading = [string](Get-MemberValue -Object $Header -Name 'heading')
-    if (Test-VisibleText $heading) {
-        # A run of # at the end of an ATX heading, after a space, is read as closing markup and
-        # dropped, so its first # is escaped. One right after other text (C#, a URL's #) isn't
-        # markup, and an escape there would break an autolinked URL.
-        $lines.Add('## ' + ((ConvertTo-MarkdownText $heading).Trim() -replace '(?<=^|[ \t])#+$', '\$0'))
-        $lines.Add('')
-    }
-    $about = [string](Get-MemberValue -Object $Header -Name 'about')
-    if (Test-VisibleText $about) {
-        # The about text is a paragraph on its own line, so its first characters could open
-        # a heading, list, rule or fence, and leading spaces a code block. Backticks, < and
-        # > are already escaped or entities by now, and tabs dropped. Only a marker that
-        # really opens a block is escaped: a rule line (three or more of one of - * _), a
-        # list marker or 1 to 6 #s followed by a space, a tilde fence, an ordered-list number
-        # followed by a space. Leading emphasis (*x*, **x**, _x_, ~~x~~) and a #hashtag stay
-        # as written. The line after a blank one can't underline a heading, so = is safe.
-        $aboutText = (ConvertTo-MarkdownText $about).TrimStart()
-        if ($aboutText -match '^([-*_])(?: *\1){2,} *\z' -or $aboutText -match '^(?:[-+*](?: |\z)|#{1,6}(?: |\z)|~~~)') {
-            $aboutText = '\' + $aboutText
-        } elseif ($aboutText -match '^([0-9]{1,9})([.)])(?= |\z)') {
-            $aboutText = $Matches[1] + '\' + $Matches[2] + $aboutText.Substring($Matches[0].Length)
-        }
-        $lines.Add($aboutText)
-        $lines.Add('')
-    }
+
     # Test-CatalogShape refuses any other URL before anything is written, but the renderer
     # doesn't lean on it: a URL that could leave its attribute, or isn't https, isn't rendered.
     $safeUrlPattern = '^(?i:https)://[!#-&(-;=?-\[\]-{}~]+\z'
@@ -906,26 +578,269 @@ function New-ProfileChrome {
         # Checked before encoding: a lone NBSP encodes to &#160;, which no longer looks blank.
         $text = [string](Get-MemberValue -Object $_ -Name 'text')
         if ($url -cmatch $safeUrlPattern -and (Test-VisibleText $text)) {
-            '<a href="' + $url + '"><b>' + (ConvertTo-HtmlText $text) + ' &#8594;</b></a>'
+            '<a href="' + $url + '">' + (ConvertTo-HtmlText $text) + ' &#8594;</a>'
         }
     })
-    if ($links.Count -gt 0) {
-        $lines.Add('<p align="center">' + ($links -join ' &middot; ') + '</p>')
+    $about = [string](Get-MemberValue -Object $Header -Name 'about')
+    $pitch = @()
+    if (Test-VisibleText $about) { $pitch += (ConvertTo-HtmlText $about) }
+    if ($links.Count -gt 0) { $pitch += ($links -join ' &middot; ') }
+    if ($pitch.Count -gt 0) {
+        $lines.Add('<p align="center">' + ($pitch -join ' ') + '</p>')
         $lines.Add('')
     }
-    $navSlugs = @("powershell", "python", "web", "extensions", "android", "security", "desktop", "media", "guides", "misc")
-    if ($PSBoundParameters.ContainsKey('CategorySlugs')) {
-        $navSlugs = @($navSlugs | Where-Object { $CategorySlugs -ccontains $_ })
-    }
-    $categoryLinks = @($navSlugs | ForEach-Object {
-        $slug = [string]$_
-        $displayName = Get-ProfileNavLabel -Slug $slug
-        "<a href=`"#$((Get-CategoryAnchor $slug))`">$displayName</a>"
+
+    $nav = @(@($Shelves) | Where-Object { $_ } | ForEach-Object {
+        '<a href="#' + $_.id + '">' + (ConvertTo-HtmlText ([string]$_.navLabel)) + '</a>'
     })
-    if ($categoryLinks.Count -gt 0) {
-        $lines.Add('<p align="center">' + ($categoryLinks -join ' &middot; ') + '</p>')
-        $lines.Add('')
+    $nav += '<a href="' + $portfolioUrl + '"><b>Search everything &#8594;</b></a>'
+    $lines.Add('<p align="center">' + ($nav -join ' &middot; ') + '</p>')
+    $lines.Add('')
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-FlagshipCard {
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [object]$Card
+    )
+
+    $repoUrl = Get-RepoUrl $Entry
+    $name = [string](Get-MemberValue -Object $Card -Name 'name')
+    if (-not (Test-VisibleText $name)) { $name = [string]$Entry.title }
+    $facts = New-Object System.Collections.Generic.List[string]
+    $facts.Add('<b><a href="' + $repoUrl + '">' + (ConvertTo-HtmlText $name) + '</a></b>')
+    $platform = [string](Get-MemberValue -Object $Card -Name 'platform')
+    if (Test-VisibleText $platform) { $facts.Add((ConvertTo-HtmlText $platform)) }
+    $stars = (Get-StarText $Meta).Trim()
+    if ($stars) { $facts.Add($stars) }
+    $downloads = [string](Get-MemberValue -Object $Card -Name 'downloads')
+    if (Test-VisibleText $downloads) { $facts.Add((ConvertTo-HtmlText $downloads) + ' downloads') }
+
+    $buttons = @((Get-ActionLink $Entry $Meta ([string]$Entry.category) -Height 28 -DisplayName $name))
+    $obtainium = Get-ObtainiumLink -Entry $Entry -Meta $Meta -Height 28 -DisplayName $name
+    if ($obtainium) { $buttons += $obtainium }
+
+    $image = Get-ProfileAssetUrl ([string](Get-MemberValue -Object $Card -Name 'image'))
+    $alt = ConvertTo-HtmlText ([string](Get-MemberValue -Object $Card -Name 'imageAlt')) -Attribute
+    return @(
+        '<td width="50%" valign="top">'
+        '<a href="' + $repoUrl + '"><img src="' + $image + '" width="100%" alt="' + $alt + '"></a>'
+        '<p>' + ($facts -join ' &middot; ') + '<br>' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $Card -Name 'pitch'))) + '</p>'
+        '<p>' + ($buttons -join ' ') + '</p>'
+        '</td>'
+    ) -join [Environment]::NewLine
+}
+
+function New-FlagshipSection {
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $cells = New-Object System.Collections.Generic.List[string]
+    foreach ($card in (Get-ShowcaseList $Showcase 'flagships')) {
+        $entry = Get-EntryByRepo -Entries $Entries -Repo ([string](Get-MemberValue -Object $card -Name 'repo'))
+        if (-not $entry -or -not (Test-ShowcaseImageSource ([string](Get-MemberValue -Object $card -Name 'image')))) { continue }
+        $cells.Add((New-FlagshipCard -Entry $entry -Meta (Get-RepoMeta $entry $RepoLookup) -Card $card))
     }
+    if ($cells.Count -eq 0) { return "" }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("## $ToolCatalogHeading")
+    $lines.Add("")
+    $lines.Add("The ones people download most, and a few I'm proudest of.")
+    $lines.Add("")
+    $lines.Add("<table>")
+    for ($i = 0; $i -lt $cells.Count; $i += 2) {
+        $lines.Add("<tr>")
+        $lines.Add($cells[$i])
+        if ($i + 1 -lt $cells.Count) { $lines.Add($cells[$i + 1]) } else { $lines.Add('<td width="50%"></td>') }
+        $lines.Add("</tr>")
+    }
+    $lines.Add("</table>")
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-ProblemSection {
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $rows = New-Object System.Collections.Generic.List[string]
+    foreach ($row in (Get-ShowcaseList $Showcase 'problems')) {
+        $want = [string](Get-MemberValue -Object $row -Name 'want')
+        $entry = Get-EntryByRepo -Entries $Entries -Repo ([string](Get-MemberValue -Object $row -Name 'repo'))
+        if (-not $entry -or -not (Test-VisibleText $want)) { continue }
+        $meta = Get-RepoMeta $entry $RepoLookup
+        # The button shares the project's cell: in a column of its own, a phone-width table
+        # squeezes an image-only column down to nothing.
+        $rows.Add("| $(ConvertTo-MarkdownText $want) | $(Get-ProjectLink $entry $meta)<br>$(Get-ActionLink $entry $meta ([string]$entry.category)) |")
+    }
+    if ($rows.Count -eq 0) { return "" }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("## Pick your problem")
+    $lines.Add("")
+    $lines.Add("| If you want to... | Try this |")
+    $lines.Add("|:------------------|:---------|")
+    foreach ($row in $rows) { $lines.Add($row) }
+    return ($lines -join [Environment]::NewLine)
+}
+
+function Get-ChecksumReleaseCount {
+    # README entries whose latest release lists a checksum file beside its assets.
+    param(
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    return @($Entries | Where-Object {
+        $names = @(Get-ReleaseAssetNamesFromMeta -Meta (Get-RepoMeta $_ $RepoLookup))
+        @($names | Where-Object { $_ -match '(?i)(sha256|sha512|checksum|sums)' }).Count -gt 0
+    }).Count
+}
+
+function New-TrustSection {
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $notes = @(Get-ShowcaseList $Showcase 'trust' | Where-Object {
+        (Test-VisibleText ([string](Get-MemberValue -Object $_ -Name 'title'))) -and (Test-VisibleText ([string](Get-MemberValue -Object $_ -Name 'text')))
+    })
+    if ($notes.Count -eq 0) { return "" }
+    $checksumCount = [string](Get-ChecksumReleaseCount -Entries $Entries -RepoLookup $RepoLookup)
+
+    $cells = @(foreach ($note in $notes) {
+        $icon = [string](Get-MemberValue -Object $note -Name 'icon')
+        $prefix = if ($icon -cmatch '^(?:&#[0-9]{2,7};)+\z') { "$icon " } else { "" }
+        $text = (ConvertTo-HtmlText ([string](Get-MemberValue -Object $note -Name 'text'))).Replace('{checksumCount}', $checksumCount)
+        '<td width="50%" valign="top">' + $prefix + '<b>' + (ConvertTo-HtmlText ([string](Get-MemberValue -Object $note -Name 'title'))) + '</b><br>' + $text + '</td>'
+    })
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("## How I ship")
+    $lines.Add("")
+    $lines.Add("<table>")
+    for ($i = 0; $i -lt $cells.Count; $i += 2) {
+        $lines.Add("<tr>")
+        $lines.Add($cells[$i])
+        if ($i + 1 -lt $cells.Count) { $lines.Add($cells[$i + 1]) } else { $lines.Add('<td width="50%"></td>') }
+        $lines.Add("</tr>")
+    }
+    $lines.Add("</table>")
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-FreshReleaseSection {
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $limit = Get-MemberValue -Object $Showcase -Name 'freshReleaseCount'
+    if ($null -eq $limit -or [int]$limit -le 0) { return "" }
+    # Newest release first; the timestamp is compared as UTC ticks so the order can't
+    # follow the machine's culture or time zone, and ties fall back to the repo name.
+    $dated = foreach ($entry in $Entries) {
+        $meta = Get-RepoMeta $entry $RepoLookup
+        $release = Get-MemberValue -Object $meta -Name 'latestRelease'
+        $published = Get-MemberValue -Object $release -Name 'publishedAt'
+        $tag = [string](Get-MemberValue -Object $release -Name 'tagName')
+        if ($null -eq $published -or -not (Test-VisibleText $tag)) { continue }
+        if ((Get-ActionButton $entry $meta ([string]$entry.category)).kind -ne 'release') { continue }
+        $ticks = if ($published -is [datetime]) { $published.ToUniversalTime().Ticks } else {
+            $parsed = [datetimeoffset]::MinValue
+            if (-not [datetimeoffset]::TryParse([string]$published, [Globalization.CultureInfo]::InvariantCulture, [Globalization.DateTimeStyles]::AssumeUniversal, [ref]$parsed)) { continue }
+            $parsed.UtcTicks
+        }
+        [pscustomobject]@{ entry = $entry; meta = $meta; tag = $tag; ticks = $ticks }
+    }
+    $recent = @($dated | Sort-Object @{ Expression = 'ticks'; Descending = $true }, @{ Expression = { ConvertTo-OrdinalSortKey $_.entry.repo } } | Select-Object -First ([int]$limit))
+    if ($recent.Count -eq 0) { return "" }
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("## Latest releases")
+    $lines.Add("")
+    $lines.Add("| Project | Version | Get it |")
+    $lines.Add("|:--------|:--------|:-------|")
+    foreach ($row in $recent) {
+        $lines.Add("| $(Get-ProjectLink $row.entry $row.meta) | [$(ConvertTo-MarkdownText $row.tag -LinkLabel)]($(Get-ReleaseUrl $row.entry)) | $(Get-ActionLink $row.entry $row.meta ([string]$row.entry.category)) |")
+    }
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-ShelfSection {
+    param(
+        [System.Collections.IDictionary]$Shelf,
+        [hashtable]$RepoLookup
+    )
+
+    $items = @($Shelf.entries)
+    if ($items.Count -eq 0) { return "" }
+    $icon = if ($Shelf.icon -cmatch '^(?:&#[0-9]{2,7};)+\z') { "$($Shelf.icon) " } else { "" }
+    $noun = if ($items.Count -eq 1) { "project" } else { "projects" }
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("<a id=`"$($Shelf.id)`"></a>")
+    $lines.Add("<details>")
+    $lines.Add("<summary><b>$icon$(ConvertTo-HtmlText $Shelf.title)</b> &middot; $($items.Count) $noun</summary>")
+    $lines.Add("<br/>")
+    $lines.Add("")
+    if (Test-VisibleText $Shelf.blurb) {
+        $lines.Add((ConvertTo-MarkdownText $Shelf.blurb))
+        $lines.Add("")
+    }
+    $lines.Add("| Project | What it does |")
+    $lines.Add("|:--------|:-------------|")
+    foreach ($entry in $items) {
+        $meta = Get-RepoMeta $entry $RepoLookup
+        # The button sits under the description, the widest cell, for the reason given in
+        # New-ProblemSection.
+        $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta)<br>$(Get-ActionLink $entry $meta ([string]$entry.category)) |")
+    }
+    $lines.Add("")
+    $lines.Add("</details>")
+    return ($lines -join [Environment]::NewLine)
+}
+
+function New-ProfileAssetSvgs {
+    <#
+    .SYNOPSIS
+    Returns the generated profile SVG assets, which is an empty set.
+    .DESCRIPTION
+    The README's images are static files committed under assets/showcase and
+    assets/buttons (see scripts/render-showcase-assets.py), not generator output, so
+    nothing is rendered, budgeted or drift-checked here. Test-ProfileState reports any
+    file under -AssetsPath as out of sync.
+    #>
+    [CmdletBinding()]
+    param()
+
+    return [ordered]@{}
+}
+
+function New-ProfileFooter {
+    # The contact link opens the portfolio's contact section, which carries email and
+    # LinkedIn, so the README publishes no address. The support button comes from the
+    # catalog's profileHeader block.
+    param([object]$Header)
+
+    $portfolioUrl = Get-ProfilePortfolioUrl
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add('---')
+    $lines.Add('')
+    $lines.Add('<p align="center"><a href="' + $portfolioUrl + '"><img src="' + (Get-ProfileAssetUrl 'assets/buttons/search.svg') + '" height="32" alt="Search every project on the portfolio site"></a></p>')
+    $lines.Add('')
+    # Test-CatalogShape refuses any other URL before anything is written, but the renderer
+    # doesn't lean on it: a URL that could leave its attribute, or isn't https, isn't rendered.
+    $safeUrlPattern = '^(?i:https)://[!#-&(-;=?-\[\]-{}~]+\z'
     $support = Get-MemberValue -Object $Header -Name 'support'
     $supportUrl = [string](Get-MemberValue -Object $support -Name 'url')
     $supportImageUrl = [string](Get-MemberValue -Object $support -Name 'imageUrl')
@@ -933,31 +848,21 @@ function New-ProfileChrome {
     # the button has no name; like a link with no text, it isn't drawn.
     $supportAlt = [string](Get-MemberValue -Object $support -Name 'imageAlt')
     if ($supportUrl -cmatch $safeUrlPattern -and $supportImageUrl -cmatch $safeUrlPattern -and (Test-VisibleText $supportAlt)) {
-        $lines.Add('<p align="center">')
-        $lines.Add('  <a href="' + $supportUrl + '">')
-        $lines.Add('    <img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText $supportAlt -Attribute) + '" />')
-        $lines.Add('  </a>')
-        $lines.Add('</p>')
+        $lines.Add('<p align="center"><sub>Everything here is free. If one of these saved you an afternoon, a coffee keeps the next one coming.</sub></p>')
+        $lines.Add('')
+        $lines.Add('<p align="center"><a href="' + $supportUrl + '"><img height="36" src="' + $supportImageUrl + '" alt="' + (ConvertTo-HtmlText $supportAlt -Attribute) + '"></a></p>')
         $lines.Add('')
     }
+    $lines.Add('<p align="center"><a href="' + $portfolioUrl + '"><b>See everything</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">All repos</a> &middot; <a href="' + $portfolioUrl + '#connect">Get in touch</a></p>')
     return ($lines -join [Environment]::NewLine)
-}
-
-function New-ProfileFooter {
-    # Minimal, text-only footer: no SVG/image chrome. The contact link opens the portfolio's
-    # contact section, which carries email and LinkedIn, so the README publishes no address.
-    $portfolioUrl = Get-ProfilePortfolioUrl
-    return @(
-        '---'
-        ''
-        ('<p align="center"><a href="' + $portfolioUrl + '"><b>See everything</b></a> &middot; <a href="https://github.com/' + $Owner + '?tab=repositories">All repos</a> &middot; <a href="' + $portfolioUrl + '#connect">Get in touch</a></p>')
-    ) -join [Environment]::NewLine
 }
 
 function Update-Header {
     param(
-        [string[]]$CategorySlugs,
-        [object]$Header
+        [object[]]$Shelves,
+        [object]$Header,
+        [object]$Showcase,
+        [int]$ProjectCount = 0
     )
 
     return (New-ProfileChrome @PSBoundParameters).TrimEnd()
@@ -966,70 +871,57 @@ function Update-Header {
 function New-Readme {
     <#
     .SYNOPSIS
-    Renders the generated GitHub profile README from catalog and repo metadata.
+    Renders the generated GitHub profile README from catalog, showcase and repo metadata.
+    .DESCRIPTION
+    The whole file is generated: header, flagship cards, the problem index, the trust
+    notes, the latest releases, one collapsed shelf per group of categories, and the
+    footer. No section offers a command to paste; every project gets a button that opens
+    its release, its live app, its userscript or its source.
     .PARAMETER Catalog
     Normalized profile catalog returned by Get-Catalog.
     .PARAMETER Repos
     Repository metadata used for stars, release actions, topics, and counts.
+    .PARAMETER Showcase
+    The showcase from Get-Showcase; read from data/showcase.json when omitted.
     #>
     [CmdletBinding()]
     param(
         [hashtable]$Catalog,
-        [object[]]$Repos
+        [object[]]$Repos,
+        [object]$Showcase
     )
 
+    if (-not $PSBoundParameters.ContainsKey('Showcase')) { $Showcase = Get-Showcase }
     $repoLookup = ConvertTo-Lookup $Repos
-    $entries = @($Catalog.entries | Where-Object {
-        $_.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$_.suppressionReason)
-    })
-    $readmeReadPath = if ([System.IO.Path]::IsPathRooted($ReadmePath)) { $ReadmePath } else { Join-Path $RepoRoot $ReadmePath }
-    $readme = Get-Content -LiteralPath $readmeReadPath -Raw
-    $sectionMarkers = @($GeneratedCatalogNotice, "### Start Here", "### Featured Projects")
-    $includeGeneratedNotice = $readme.Contains($GeneratedCatalogNotice)
-    $start = -1
-    foreach ($marker in $sectionMarkers) {
-        $markerIndex = $readme.IndexOf($marker, [StringComparison]::Ordinal)
-        if ($markerIndex -ge 0 -and ($start -lt 0 -or $markerIndex -lt $start)) {
-            $start = $markerIndex
-        }
-    }
-    if ($start -lt 0) {
-        throw "README marker not found: generated catalog notice, ### Start Here, or ### Featured Projects"
-    }
-    $categorySections = New-Object System.Collections.Generic.List[string]
-    $renderedSlugs = New-Object System.Collections.Generic.List[string]
-    foreach ($definition in $CategoryDefinitions) {
-        $section = New-CategorySection -Entries $entries -RepoLookup $repoLookup -Definition $definition
-        if ([string]::IsNullOrEmpty($section)) {
-            continue
-        }
-        $categorySections.Add($section)
-        $renderedSlugs.Add([string]$definition.Slug)
-    }
-    $footer = New-ProfileFooter
-    $header = Update-Header -CategorySlugs $renderedSlugs.ToArray() -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')
-    $header = [regex]::Replace($header, '(\r?\n\s*---\s*)+$', [Environment]::NewLine + [Environment]::NewLine + '---')
+    $entries = @(Get-ReadmeEntries -Catalog $Catalog)
+    $shelves = @(Get-RenderedShelves -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup)
+    $header = Update-Header -Shelves $shelves -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader') -Showcase $Showcase -ProjectCount $entries.Count
 
     $blocks = New-Object System.Collections.Generic.List[string]
     $blocks.Add($header)
     $blocks.Add("")
-    if ($includeGeneratedNotice) {
-        $blocks.Add($GeneratedCatalogNotice)
-        $blocks.Add("")
-    }
-    $blocks.Add((New-ToolCatalogSection -Entries $entries -RepoLookup $repoLookup))
+    $blocks.Add($GeneratedCatalogNotice)
     $blocks.Add("")
-
-    foreach ($section in $categorySections) {
+    foreach ($section in @(
+            (New-FlagshipSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
+            (New-ProblemSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
+            (New-TrustSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
+            (New-FreshReleaseSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup))) {
+        if ([string]::IsNullOrEmpty($section)) { continue }
         $blocks.Add($section)
         $blocks.Add("")
     }
-
-    $blocks.Add((New-FirstTimeSetupSection))
-    $blocks.Add("")
-    $blocks.Add((New-LocalValidationSection))
-    $blocks.Add("")
-    $blocks.Add($footer)
+    if ($shelves.Count -gt 0) {
+        $blocks.Add("## Browse everything")
+        $blocks.Add("")
+        $blocks.Add("Every public project, grouped by where it runs. Tap a shelf to open it, or [search them all]($(Get-ProfilePortfolioUrl)) with filters.")
+        $blocks.Add("")
+        foreach ($shelf in $shelves) {
+            $blocks.Add((New-ShelfSection -Shelf $shelf -RepoLookup $repoLookup))
+            $blocks.Add("")
+        }
+    }
+    $blocks.Add((New-ProfileFooter -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')))
     $blocks.Add("")
     return ($blocks -join [Environment]::NewLine)
 }

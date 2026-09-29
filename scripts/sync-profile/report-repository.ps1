@@ -47,7 +47,7 @@ function Test-PowerShellRuntimeSecurity {
     $withinTransition = ($Now.ToUniversalTime() -le $transitionEnd)
 
     if ($isWindowsPowerShell) {
-        $warnings.Add("Windows PowerShell $WindowsPowerShellBootstrapVersion is allowed only for setup.ps1 bootstrap because $WindowsPowerShellAdvisoryId affects legacy Windows PowerShell command-injection posture.")
+        $warnings.Add("Windows PowerShell $WindowsPowerShellBootstrapVersion can't run the generator because $WindowsPowerShellAdvisoryId affects legacy Windows PowerShell command-injection posture.")
     } elseif (-not $meetsFloor) {
         $warnings.Add("PowerShell $versionValue is below the generator floor $PowerShellMinimumGeneratorVersion; install current LTS $PowerShellPreferredLtsVersion or newer.")
     } elseif ($versionValue -lt $PowerShellPreferredLtsVersion) {

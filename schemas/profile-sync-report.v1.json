@@ -1659,7 +1659,6 @@
                 "type": "string",
                 "enum": [
                   "metadata-complete",
-
                   "sbom-metadata",
                   "immutable-metadata",
                   "digest-metadata",
@@ -1748,7 +1747,6 @@
                 "type": "string",
                 "enum": [
                   "metadata-complete",
-
                   "sbom-metadata",
                   "immutable-metadata",
                   "digest-metadata",
@@ -7244,8 +7242,7 @@
         "throttleLimit",
         "elapsedMs",
         "readmeActionTargetCount",
-        "readmeInstallSnippetTargetCount",
-        "readmeInstallDispatcherTargetCount",
+        "readmeImageTargetCount",
         "readmeDownloadLinkTargetCount",
         "readmeUserscriptInstallTargetCount",
         "warningCountByHost",
@@ -7265,7 +7262,10 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "oldestCacheEntryAgeHours": {
-          "type": ["number", "null"]
+          "type": [
+            "number",
+            "null"
+          ]
         },
         "allResultsFromCache": {
           "type": "boolean"
@@ -7279,10 +7279,7 @@
         "readmeActionTargetCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
-        "readmeInstallSnippetTargetCount": {
-          "$ref": "#/$defs/nonNegativeInteger"
-        },
-        "readmeInstallDispatcherTargetCount": {
+        "readmeImageTargetCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "readmeDownloadLinkTargetCount": {
@@ -7302,12 +7299,25 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["url", "host", "status", "retryAfterUtc"],
+            "required": [
+              "url",
+              "host",
+              "status",
+              "retryAfterUtc"
+            ],
             "properties": {
-              "url": { "type": "string" },
-              "host": { "$ref": "#/$defs/nullableString" },
-              "status": { "$ref": "#/$defs/nullableInteger" },
-              "retryAfterUtc": { "type": "string" }
+              "url": {
+                "type": "string"
+              },
+              "host": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "status": {
+                "$ref": "#/$defs/nullableInteger"
+              },
+              "retryAfterUtc": {
+                "type": "string"
+              }
             }
           }
         },
@@ -7489,19 +7499,24 @@
       "additionalProperties": false,
       "required": [
         "passed",
-        "startHereSection",
-        "catalogSnapshotSection",
         "generatedCatalogNotice",
-        "setupInspectPath",
-        "plainTextTagline",
-        "minimalProfileHeader",
-        "installDispatcherOwner",
-        "installDispatcherMatchesOwner",
-        "richProfileHeader",
+        "codeBlockCount",
+        "pasteCommandCount",
+        "showcasePassed",
+        "showcaseIssues",
+        "heroBanner",
+        "flagshipCards",
+        "problemRows",
+        "trustNotes",
+        "freshReleaseRows",
+        "shelfCount",
+        "missingShelfAnchors",
         "genericImageAltTextCount",
         "imageTagCount",
         "imageAltTextIssueCount",
         "imageAltTextComplete",
+        "missingLocalImages",
+        "unlabeledButtons",
         "thirdPartyMetricHostCount",
         "thirdPartyBadgeHostCount",
         "thirdPartyRenderHostCount",
@@ -7509,48 +7524,67 @@
         "motionSafeChrome",
         "motionPatternCount",
         "profileStatsChromeCount",
-        "featuredRows",
-        "featuredActionColumn",
-        "featuredActionList",
-        "featuredPrimaryActions",
-        "currentlyBuildingRows",
-        "currentlyBuildingActionColumn",
-        "categoryAnchorCount",
-        "missingCategoryAnchors",
         "primaryActionCoverage",
-        "missingPrimaryActions",
-        "unlabeledDownloadButtons"
+        "missingPrimaryActions"
       ],
       "properties": {
         "passed": {
           "type": "boolean"
         },
-        "startHereSection": {
-          "type": "boolean"
-        },
-        "catalogSnapshotSection": {
-          "type": "boolean"
-        },
         "generatedCatalogNotice": {
           "type": "boolean"
         },
-        "setupInspectPath": {
+        "codeBlockCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "pasteCommandCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "showcasePassed": {
           "type": "boolean"
         },
-        "plainTextTagline": {
+        "showcaseIssues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "reason"
+            ],
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "heroBanner": {
           "type": "boolean"
         },
-        "minimalProfileHeader": {
-          "type": "boolean"
+        "flagshipCards": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
-        "installDispatcherOwner": {
-          "$ref": "#/$defs/nullableString"
+        "problemRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
-        "installDispatcherMatchesOwner": {
-          "type": "boolean"
+        "trustNotes": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
-        "richProfileHeader": {
-          "type": "boolean"
+        "freshReleaseRows": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "shelfCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "missingShelfAnchors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "genericImageAltTextCount": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -7563,6 +7597,15 @@
         },
         "imageAltTextComplete": {
           "type": "boolean"
+        },
+        "missingLocalImages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unlabeledButtons": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
         "thirdPartyMetricHostCount": {
           "$ref": "#/$defs/nonNegativeInteger"
@@ -7585,38 +7628,11 @@
         "profileStatsChromeCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
-        "featuredRows": {
-          "$ref": "#/$defs/nonNegativeInteger"
-        },
-        "featuredActionColumn": {
-          "type": "boolean"
-        },
-        "featuredActionList": {
-          "type": "boolean"
-        },
-        "featuredPrimaryActions": {
-          "type": "boolean"
-        },
-        "currentlyBuildingRows": {
-          "$ref": "#/$defs/nonNegativeInteger"
-        },
-        "currentlyBuildingActionColumn": {
-          "type": "boolean"
-        },
-        "categoryAnchorCount": {
-          "$ref": "#/$defs/nonNegativeInteger"
-        },
-        "missingCategoryAnchors": {
-          "$ref": "#/$defs/stringArray"
-        },
         "primaryActionCoverage": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "missingPrimaryActions": {
           "$ref": "#/$defs/stringArray"
-        },
-        "unlabeledDownloadButtons": {
-          "$ref": "#/$defs/nonNegativeInteger"
         }
       }
     }

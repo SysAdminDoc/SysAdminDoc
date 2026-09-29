@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SysAdminDoc profile hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1d;
+    --ink: #f4f7fb;
+    --muted: #a3b0c6;
+    --chip-bg: rgba(255, 255, 255, .06);
+    --chip-line: rgba(255, 255, 255, .14);
+    --glow-a: rgba(45, 212, 191, .22);
+    --glow-b: rgba(139, 92, 246, .26);
+    --accent: linear-gradient(90deg, #2dd4bf 0%, #60a5fa 45%, #a78bfa 100%);
+    --tile-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+    --tile-line: rgba(255, 255, 255, .10);
+    --fade: #0a0f1d;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f7fb;
+      --ink: #0d1526;
+      --muted: #4a5870;
+      --chip-bg: rgba(13, 21, 38, .05);
+      --chip-line: rgba(13, 21, 38, .14);
+      --glow-a: rgba(20, 184, 166, .16);
+      --glow-b: rgba(124, 58, 237, .14);
+      --accent: linear-gradient(90deg, #0f766e 0%, #1d4ed8 50%, #6d28d9 100%);
+      --tile-shadow: 0 18px 38px rgba(15, 23, 42, .28);
+      --tile-line: rgba(13, 21, 38, .10);
+      --fade: #f5f7fb;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1600px; height: 560px; overflow: hidden; }
+  body {
+    font-family: Inter, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(700px 420px at 8% 0%, var(--glow-a), transparent 70%),
+      radial-gradient(760px 520px at 88% 100%, var(--glow-b), transparent 70%),
+      var(--bg);
+    color: var(--ink);
+    position: relative;
+  }
+  .mosaic {
+    position: absolute; left: 790px; top: -250px;
+    display: grid; grid-template-columns: repeat(4, 330px); gap: 20px;
+    transform: perspective(1600px) rotateX(14deg) rotateY(-20deg) rotateZ(8deg);
+    transform-origin: 0 50%;
+  }
+  .mosaic img {
+    width: 330px; height: 186px; object-fit: cover; object-position: left center;
+    border-radius: 14px; border: 1px solid var(--tile-line); box-shadow: var(--tile-shadow);
+    display: block;
+  }
+  .fade {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, var(--fade) 0%, var(--fade) 47%, transparent 69%);
+  }
+  .copy { position: absolute; left: 96px; top: 84px; width: 820px; }
+  .brand { display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 22px; letter-spacing: -.01em; }
+  .mark {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--accent);
+    display: grid; place-items: center; color: #fff; font: 800 20px/1 "Cascadia Code", Consolas, monospace;
+    box-shadow: 0 8px 24px rgba(96, 165, 250, .35);
+  }
+  .tag { margin-left: 6px; font-size: 13px; font-weight: 600; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
+  h1 { margin-top: 40px; font-size: 64px; line-height: 1.02; font-weight: 800; letter-spacing: -.035em; }
+  h1 span { background: var(--accent); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  p { margin-top: 26px; font-size: 26px; line-height: 1.42; color: var(--muted); width: 750px; }
+  .chips { margin-top: 30px; display: flex; gap: 10px; }
+  .chip {
+    padding: 10px 20px; border-radius: 999px; background: var(--chip-bg); border: 1px solid var(--chip-line);
+    font-size: 20px; font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="mosaic">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/AppManagerNG/main/docs/marketing/appmanagerng-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/HushFeed/main/assets/readme-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/DeepPurge/main/docs/assets/deeppurge-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/ZeusWatch/main/docs/screenshots/zeuswatch-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/PartitionPilot/main/assets/marketing/readme-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/FileExplorer/main/assets/marketing/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/OpenNetLimit/main/assets/marketing/readme-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/Openshop/main/design/openshop-social-preview.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/AlarmClockXtreme/main/assets/marketing/hero.png" alt="">
+    <img src="https://github.com/user-attachments/assets/256ae00b-0ff8-466f-8aeb-4c993a69d7b9" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/LocalAndroidStore/main/docs/assets/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/HostsGuard/main/assets/marketing/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/Images/main/assets/marketing/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/HushFacebook/main/assets/readme-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/ExplorerTweaks/main/assets/marketing/readme-hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/BetterTTS/main/assets/marketing/social-preview.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/LocalDesktopStore/main/assets/marketing/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/KeepSyncNotes/main/assets/marketing/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/Multistreamer/main/assets/marketing/hero.png" alt="">
+    <img src="https://raw.githubusercontent.com/SysAdminDoc/BookmarkVault/main/assets/marketing/bookmarkvault-hero.png" alt="">
+  </div>
+  <div class="fade"></div>
+  <div class="copy">
+    <div class="brand"><div class="mark">&gt;_</div>SysAdminDoc<span class="tag">Open-source tools</span></div>
+    <h1>Fix what bugs you.<br><span>Keep control of the rest.</span></h1>
+    <p>Free apps, extensions and utilities for Windows, Android and the browser. Built after hours by a working sysadmin.</p>
+    <div class="chips"><span class="chip">Windows</span><span class="chip">Android</span><span class="chip">Chrome &amp; Firefox</span><span class="chip">Web apps</span></div>
+  </div>
+</body>
+</html>

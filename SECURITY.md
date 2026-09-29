@@ -14,7 +14,7 @@ For non-sensitive reports (broken links, profile corrections, validation failure
 
 - Public profile README generation and validation logic.
 - Public `projects.json` feed data and schema contracts.
-- Public setup snippets, release links, and install one-liners.
+- Release, download and install links on the profile, and the images behind them.
 - Workflow automation and validation scripts in this repository.
 
 **Not in scope:**

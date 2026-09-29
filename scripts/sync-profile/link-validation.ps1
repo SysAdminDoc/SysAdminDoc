@@ -531,13 +531,11 @@ function Get-ReadmeHeaderLinkValidationTargets {
     $targets = New-Object System.Collections.Generic.List[object]
     $seenUrls = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
-    # These three carry the profile's call to action and install path, so a failure is
-    # fatal rather than a warning even though every header link is now probed.
+    # The portfolio carries the profile's main call to action, so a failure is fatal rather
+    # than a warning even though every header link is now probed.
     $criticalUrls = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     $criticalLinks = @(
-        [ordered]@{ type = "profile-portfolio"; url = Get-ProfilePortfolioUrl },
-        [ordered]@{ type = "setup-raw"; url = Get-ProfileSetupRawUrl },
-        [ordered]@{ type = "setup-source"; url = Get-ProfileSetupSourceUrl }
+        [ordered]@{ type = "profile-portfolio"; url = Get-ProfilePortfolioUrl }
     )
     foreach ($link in $criticalLinks) {
         $null = $criticalUrls.Add([string]$link.url)
@@ -1042,50 +1040,29 @@ function Add-ReadmeActionLinkValidationTarget {
 }
 
 function Get-ReadmeActionLinkValidationTargets {
-    param(
-        [string]$ExpectedReadme,
-        # Catalog rows and live metadata, to resolve each "Start-Tool <Name>" line to the
-        # entry script run.ps1 will start.
-        [hashtable[]]$Entries = @(),
-        [hashtable]$RepoLookup = @{}
-    )
+    param([string]$ExpectedReadme)
 
     $targets = New-Object System.Collections.Generic.List[object]
     $seenTargets = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-    $entryByRepo = @{}
-    foreach ($entry in @($Entries)) {
-        if (-not [string]::IsNullOrWhiteSpace([string]$entry.repo)) {
-            $entryByRepo[([string]$entry.repo).ToLowerInvariant()] = $entry
-        }
-    }
 
-    foreach ($block in [regex]::Matches($ExpectedReadme, '(?ms)```(?:powershell|pwsh|ps1)?\s*(?<script>.*?)```')) {
-        $scriptText = $block.Groups['script'].Value
-        $startMatch = [regex]::Match($scriptText, '(?m)^\s*irm (?<dispatcher>https://raw\.githubusercontent\.com/\S+/run\.ps1) \| iex; Start-Tool (?<repo>[A-Za-z0-9._-]+)\s*$')
-        if (-not $startMatch.Success) {
-            continue
-        }
-
-        # The dispatcher itself: every one-liner breaks if it is missing.
-        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-dispatcher" -Url $startMatch.Groups['dispatcher'].Value
-        $repo = $startMatch.Groups['repo'].Value
-        $entry = $entryByRepo[$repo.ToLowerInvariant()]
-        if ($null -eq $entry -or [string]::IsNullOrWhiteSpace([string]$entry.entrypoint)) {
-            continue
-        }
-        $branch = Get-Branch $entry (Get-RepoMeta $entry $RepoLookup)
-        $rawUrl = ConvertTo-RawGitHubUrl -RepositoryOwner $Owner -Repo ([string]$entry.repo) -Branch $branch -Path ([string]$entry.entrypoint)
-        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-install-entrypoint" -Url $rawUrl -Repo ([string]$entry.repo)
-    }
-
-    # Row actions are <a href="..." aria-label="..."> tags now (the href's & written &amp;);
-    # an older README's Markdown links are still read.
+    # Row actions are image buttons, <a href="..."><img ... alt="..."></a> (the href's &
+    # written &amp;); an older README's Markdown links and aria-labelled links are still read.
     foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\]\((?<url>https://github\.com/[^)\s]+/releases/latest)\)|<a href="(?<url>https://github\.com/[^"\s]+/releases/latest)"')) {
         Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-download" -Url ([System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value))
     }
 
-    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\[Install\]\((?<url>https://raw\.githubusercontent\.com/[^)\s]+)\)|<a href="(?<url>https://raw\.githubusercontent\.com/[^"\s]+)" aria-label="Install ')) {
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)\[Install\]\((?<url>https://raw\.githubusercontent\.com/[^)\s]+)\)|<a href="(?<url>https://raw\.githubusercontent\.com/[^"\s]+)"(?: aria-label="Install |><img [^>]*alt="Install )')) {
         Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-userscript-install" -Url ([System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value))
+    }
+
+    # Flagship images live in each product's own repository, so a moved or renamed file
+    # there breaks a card here. The profile's own assets are checked on disk instead
+    # (Test-ReadmeExperience), since a new one isn't on main until it's pushed.
+    $ownAssetPrefix = "https://raw.githubusercontent.com/$Owner/$Owner/"
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)<img [^>]*\bsrc="(?<url>https://(?:raw\.githubusercontent\.com|github\.com/user-attachments)/[^"\s]+)"')) {
+        $url = [System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value)
+        if ($url.StartsWith($ownAssetPrefix, [StringComparison]::OrdinalIgnoreCase)) { continue }
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-image" -Url $url
     }
 
     return $targets.ToArray()

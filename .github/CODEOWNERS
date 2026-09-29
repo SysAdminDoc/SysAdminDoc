@@ -6,8 +6,8 @@
 /data/profile-catalog.json @SysAdminDoc
 /projects.json @SysAdminDoc
 /reports/ @SysAdminDoc
-/assets/profile/ @SysAdminDoc
-/setup.ps1 @SysAdminDoc
+/assets/ @SysAdminDoc
+/data/showcase.json @SysAdminDoc
 /SECURITY.md @SysAdminDoc
 /PSScriptAnalyzerSettings.psd1 @SysAdminDoc
 /.markdownlint-cli2.yaml @SysAdminDoc

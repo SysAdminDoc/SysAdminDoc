@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-showcase.v1.json",
+  "title": "SysAdminDoc profile showcase",
+  "description": "The marketing layer of the generated profile README: hero banner, flagship cards, the problem index, trust notes and the shelves that group catalog categories. Test-ShowcaseShape in scripts/sync-profile/showcase.ps1 checks a showcase against this schema, then checks what a schema can't see (repos, categories, image files).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "flagships", "problems", "trust", "shelves"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "pattern": "^https://raw\\.githubusercontent\\.com/([A-Za-z0-9-]+)/\\1/main/schemas/profile-showcase\\.v1\\.json(?![\\s\\S])"
+    },
+    "hero": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["darkImage", "lightImage", "alt"],
+      "properties": {
+        "darkImage": { "$ref": "#/$defs/imageSource" },
+        "lightImage": { "$ref": "#/$defs/imageSource" },
+        "alt": { "$ref": "#/$defs/text" }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["downloads", "measuredOn", "method"],
+      "properties": {
+        "downloads": { "type": "string", "pattern": "^[0-9][0-9,]*\\+(?![\\s\\S])" },
+        "measuredOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])" },
+        "method": { "$ref": "#/$defs/text" }
+      }
+    },
+    "flagships": {
+      "type": "array",
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "name", "platform", "image", "imageAlt", "pitch", "downloads"],
+        "properties": {
+          "repo": { "$ref": "#/$defs/repo" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "platform": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "image": { "$ref": "#/$defs/imageSource" },
+          "imageAlt": { "$ref": "#/$defs/text" },
+          "pitch": { "type": "string", "minLength": 1, "maxLength": 220 },
+          "downloads": { "type": ["string", "null"], "pattern": "^[0-9][0-9,]*\\+(?![\\s\\S])" }
+        }
+      }
+    },
+    "problems": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["want", "repo"],
+        "properties": {
+          "want": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "repo": { "$ref": "#/$defs/repo" }
+        }
+      }
+    },
+    "trust": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "text"],
+        "properties": {
+          "icon": { "$ref": "#/$defs/icon" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "text": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "shelves": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "navLabel", "categories"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-+[a-z0-9]+)*(?![\\s\\S])" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+          "navLabel": { "type": "string", "minLength": 1, "maxLength": 20 },
+          "icon": { "$ref": "#/$defs/icon" },
+          "blurb": { "type": ["string", "null"], "maxLength": 200 },
+          "categories": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": ["powershell", "python", "web", "extensions", "android", "security", "media", "desktop", "guides", "misc"]
+            }
+          }
+        }
+      }
+    },
+    "freshReleaseCount": { "type": "integer", "minimum": 0, "maximum": 20 }
+  },
+  "$defs": {
+    "repo": { "type": "string", "pattern": "^[A-Za-z0-9._-]+(?![\\s\\S])" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 400 },
+    "icon": { "type": "string", "pattern": "^(&#[0-9]{2,7};)+(?![\\s\\S])" },
+    "imageSource": {
+      "type": "string",
+      "pattern": "^(https://(raw\\.githubusercontent\\.com|github\\.com/user-attachments/assets)/[A-Za-z0-9._~/%-]+|[A-Za-z0-9_-][A-Za-z0-9._/-]*\\.(png|jpg|jpeg|webp|gif|svg))(?![\\s\\S])"
+    }
+  }
+}

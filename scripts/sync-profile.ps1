@@ -11,6 +11,9 @@ param(
     [string]$ReportPath = "reports/profile-sync-report.json",
     [string]$SmokeReportPath = "reports/rendered-profile-smoke.json",
     [string]$AssetsPath = "assets/profile",
+    # The storefront layer. Left out, showcase.json beside the catalog; a catalog with no
+    # showcase beside it (a fixture, another account's first run) gets the neutral one.
+    [string]$ShowcasePath,
     [switch]$SkipLinkValidation,
     [switch]$ApplyTopics,
     [string]$TopicAllowlistPath = "data/topic-allowlist.json",
@@ -54,8 +57,12 @@ try {
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 # Read before the library is dot-sourced below, which can replace $PSBoundParameters here.
 $portfolioUrlGiven = $PSBoundParameters.ContainsKey('PortfolioUrl')
+$showcasePathGiven = $PSBoundParameters.ContainsKey('ShowcasePath')
 $script:SmokeReportPath = $SmokeReportPath
 $script:AssetsPath = $AssetsPath
+# Resolved now, against the directory the run starts in, the way -CatalogPath is read.
+$script:ShowcasePath = if ($showcasePathGiven) { $ShowcasePath } else { [System.IO.Path]::Combine((Split-Path -Parent $CatalogPath), 'showcase.json') }
+$script:ShowcasePath = [System.IO.Path]::GetFullPath($script:ShowcasePath, (Get-Location).ProviderPath)
 $script:GraphQlPageSize = [int]$GraphQlPageSize
 $script:CachePath = $CachePath
 $script:CacheTtlHours = [int]$CacheTtlHours
@@ -79,10 +86,11 @@ if (-not $SeedCatalog -and -not $Write -and -not $Check -and -not $ApplyTopics) 
 # Word-boundary anchored so substrings (e.g. "dose" inside "glucose"/"overdose")
 # do not false-flag a benign public repo as medical-imaging.
 $script:MedicalPattern = '(?i)\b(xray|x-ray|dicom|pacs|radiograph|radiology|fluoro|dose|mammograph|nexray|clarity-pacs|weasis|orthanc|chiropractic-imaging|vet-imaging|dental-imaging|medical-imaging)\b'
-$script:GeneratedCatalogNotice = '<!-- GENERATED PROFILE CATALOG: edit data/profile-catalog.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit the sections below. -->'
-# The heading over the category grid. The rendered smoke looks for it on the page and reads
-# it from here, so a rename can't leave the smoke looking for the old words.
-$script:ToolCatalogHeading = "What's here"
+$script:GeneratedCatalogNotice = '<!-- GENERATED PROFILE: edit data/profile-catalog.json or data/showcase.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit this file. -->'
+# The heading over the flagship cards, the first section under the header. The rendered smoke
+# looks for it on the page and reads it from here, so a rename can't leave the smoke looking
+# for the old words.
+$script:ToolCatalogHeading = "Flagship apps"
 # HTML5's named character references (data/html-entities.json), read the first time a heading
 # needs one.
 $script:HtmlEntityTable = $null
@@ -166,9 +174,11 @@ $SchemaBaseUrl = "https://raw.githubusercontent.com/$Owner/$Owner/main/schemas"
 $script:CatalogSchemaUrl = "$SchemaBaseUrl/profile-catalog.v1.json"
 $script:ProjectsSchemaUrl = "$SchemaBaseUrl/profile-projects.v1.json"
 $script:ReportSchemaUrl = "$SchemaBaseUrl/profile-sync-report.v1.json"
+$script:ShowcaseSchemaUrl = "$SchemaBaseUrl/profile-showcase.v1.json"
 $script:CatalogSchemaPath = Join-Path $RepoRoot "schemas/profile-catalog.v1.json"
 $script:ProjectsSchemaPath = Join-Path $RepoRoot "schemas/profile-projects.v1.json"
 $script:ReportSchemaPath = Join-Path $RepoRoot "schemas/profile-sync-report.v1.json"
+$script:ShowcaseSchemaPath = Join-Path $RepoRoot "schemas/profile-showcase.v1.json"
 # Pinned REST calendar version. 2022-11-28 stays supported for at least 24 months from
 # the 2026-03-12 announcement; migrating to 2026-03-10 is a tracked, deliberate change.
 $script:GitHubRestApiVersion = "2022-11-28"
@@ -295,6 +305,7 @@ $GeneratorLibraryFiles = @(
     'scripts/sync-profile/github-api.ps1'
     'scripts/sync-profile/outbound-http.ps1'
     'scripts/sync-profile/catalog.ps1'
+    'scripts/sync-profile/showcase.ps1'
     'scripts/sync-profile/release-trust.ps1'
     'scripts/sync-profile/link-validation.ps1'
     'scripts/sync-profile/readme-render.ps1'
@@ -363,6 +374,13 @@ if (-not $SeedCatalog -and (Test-Path -LiteralPath $CatalogPath)) {
     $catalogForRun = Get-Catalog -Path $CatalogPath
 }
 
+# Only a showcase left to be found beside the catalog may be missing. A named one that
+# isn't there is a typo, and the neutral showcase in its place would publish a bare page.
+if ($showcasePathGiven -and -not (Test-Path -LiteralPath $script:ShowcasePath -PathType Leaf)) {
+    Write-Error "-ShowcasePath names a file that isn't there: $script:ShowcasePath" -ErrorAction Continue
+    exit 1
+}
+
 # -Write alone never reaches Test-ProfileState, where -Check runs the shape check and the
 # JSON schemas, yet it is the command the README tells editors to run. The shape check
 # holds every value the README renders to its schema shape, so a catalog that fails it
@@ -375,6 +393,14 @@ if ($catalogForRun -and $Write -and -not $Check) {
             Write-Warning ("Catalog issue: {0}{1}: {2}" -f $issueRepo, $issue.field, $issue.reason)
         }
         Write-Error 'The catalog failed its shape check, so nothing was written. Fix the issues above, or run -Check for the full report.' -ErrorAction Continue
+        exit 1
+    }
+    $showcaseShape = Test-ShowcaseShape -Catalog $catalogForRun -Showcase (Get-Showcase)
+    if (-not $showcaseShape.passed) {
+        foreach ($issue in @($showcaseShape.issues)) {
+            Write-Warning ("Showcase issue: {0}: {1}" -f $issue.field, $issue.reason)
+        }
+        Write-Error "The showcase failed its shape check, so nothing was written. Fix the issues above in $script:ShowcasePath." -ErrorAction Continue
         exit 1
     }
 }
