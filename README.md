@@ -4,11 +4,9 @@
   <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png" width="100%" alt="SysAdminDoc. Fix what bugs you, keep control of the rest. Free apps, extensions and utilities for Windows, Android and the browser.">
 </picture>
 
-<p align="center"><b>193</b> free projects &middot; <b>90,000+</b> downloads</p>
+<p align="center"><b>200+</b> free projects &middot; <b>100,000+</b> downloads</p>
 
 <p align="center">Hi! I&#39;m Matt. <a href="https://portfolio.getparkerai.com/healthcare-it/">More about what I do &#8594;</a></p>
-
-<p align="center"><a href="#windows-apps">Windows</a> &middot; <a href="#windows-admin">Admin</a> &middot; <a href="#android-apps">Android</a> &middot; <a href="#browser-extensions">Browser</a> &middot; <a href="#web-apps">Web</a> &middot; <a href="#media-tools">Media</a> &middot; <a href="#guides">Guides</a> &middot; <a href="#forks">Forks</a> &middot; <a href="https://portfolio.getparkerai.com/"><b>Search everything &#8594;</b></a></p>
 
 <!-- GENERATED PROFILE: edit data/profile-catalog.json or data/showcase.json, then run scripts/sync-profile.ps1 -Write. Do not hand-edit this file. -->
 
