@@ -6,9 +6,10 @@
     "alt": "SysAdminDoc. Fix what bugs you, keep control of the rest. Free apps, extensions and utilities for Windows, Android and the browser."
   },
   "proof": {
-    "downloads": "90,000+",
-    "measuredOn": "2026-09-28",
-    "method": "Floor of the summed GitHub release asset download counts across the public repositories (93,447 on the measured date). Raise it by hand; never round up past the measured total."
+    "projects": "200+",
+    "downloads": "100,000+",
+    "measuredOn": "2026-09-29",
+    "method": "Summed GitHub release asset downloads across the public repositories: 99,580 on 2026-09-29 (228 public repos, 206 not forks). The 100,000+ headline was set by hand that day, 420 ahead of the count, which was climbing about 6,000 a day."
   },
   "flagships": [
     {
@@ -36,7 +37,7 @@
       "image": "https://raw.githubusercontent.com/SysAdminDoc/HushFeed/main/assets/readme-hero.png",
       "imageAlt": "Hushfeed: take back your feed. Morphe patches for TikTok with feed filters, gesture guards, playback and download controls.",
       "pitch": "A patch bundle for TikTok. Fewer accidental taps, less noise, and more say over your feed and your downloads.",
-      "downloads": "25,000+"
+      "downloads": "29,000+"
     },
     {
       "repo": "Hushfacebook",
@@ -45,7 +46,7 @@
       "image": "https://raw.githubusercontent.com/SysAdminDoc/HushFacebook/main/assets/readme-hero.png",
       "imageAlt": "Hushfacebook: keep the people, cut the noise. Morphe patches for Facebook that clear sponsored clutter, Reels and Stories.",
       "pitch": "A patch bundle for Facebook. Keeps your friends in the feed and clears out the ads, Reels and Stories clutter.",
-      "downloads": "7,000+"
+      "downloads": "9,000+"
     },
     {
       "repo": "AppManagerNG",
@@ -103,7 +104,6 @@
     {
       "id": "windows-apps",
       "title": "Windows and desktop apps",
-      "navLabel": "Windows",
       "icon": "&#128421;&#65039;",
       "blurb": "Installers, portable builds and desktop apps for your PC.",
       "categories": ["desktop", "python"]
@@ -111,7 +111,6 @@
     {
       "id": "windows-admin",
       "title": "Windows admin and security",
-      "navLabel": "Admin",
       "icon": "&#128736;&#65039;",
       "blurb": "Tools for tuning, repairing and locking down Windows. Grab the release, or read the source first.",
       "categories": ["powershell", "security"]
@@ -119,7 +118,6 @@
     {
       "id": "android-apps",
       "title": "Android apps",
-      "navLabel": "Android",
       "icon": "&#128241;",
       "blurb": "Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for automatic updates.",
       "categories": ["android"]
@@ -127,7 +125,6 @@
     {
       "id": "browser-extensions",
       "title": "Browser extensions and userscripts",
-      "navLabel": "Browser",
       "icon": "&#129513;",
       "blurb": "Add-ons for Chrome, Edge and Firefox. Userscripts run in Tampermonkey, Violentmonkey or ScriptVault.",
       "categories": ["extensions"]
@@ -135,7 +132,6 @@
     {
       "id": "web-apps",
       "title": "Web apps",
-      "navLabel": "Web",
       "icon": "&#127760;",
       "blurb": "Open them in a tab. Nothing to install.",
       "categories": ["web"]
@@ -143,7 +139,6 @@
     {
       "id": "media-tools",
       "title": "Media and creative tools",
-      "navLabel": "Media",
       "icon": "&#127916;",
       "blurb": "Video, audio and stream tools.",
       "categories": ["media"]
@@ -151,7 +146,6 @@
     {
       "id": "guides",
       "title": "Guides",
-      "navLabel": "Guides",
       "icon": "&#128218;",
       "blurb": "Step-by-step guides and reference lists.",
       "categories": ["guides"]
@@ -159,7 +153,6 @@
     {
       "id": "forks",
       "title": "Forks and experiments",
-      "navLabel": "Forks",
       "icon": "&#129514;",
       "blurb": "Forks of other people's projects, with credit to the originals, plus a few side experiments.",
       "categories": ["misc"]

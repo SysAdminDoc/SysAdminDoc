@@ -4813,7 +4813,16 @@ Describe 'Browse everything introduction' {
 
         $readme = New-Readme -Catalog $cat -Repos @()
 
-        $readme | Should -Match ('(?m)^<p align="center"><b>' + $visible + '</b> free projects &middot; <b>every line</b> of source public &middot; <b>zero</b> commands to paste</p>')
+        $readme | Should -Match ('(?m)^<p align="center"><b>' + $visible + '</b> free projects</p>')
+    }
+
+    It 'quotes the showcase floors in the proof line, and says nothing without them' {
+        $showcase = [ordered]@{ proof = [ordered]@{ projects = '200+'; downloads = '94,000+' } }
+
+        New-ProofLine -Showcase $showcase -ProjectCount 193 | Should -BeExactly '<p align="center"><b>200+</b> free projects &middot; <b>94,000+</b> downloads</p>'
+        New-ProofLine -Showcase ([ordered]@{ proof = [ordered]@{ downloads = '94,000+' } }) -ProjectCount 12 | Should -BeExactly '<p align="center"><b>12</b> free projects &middot; <b>94,000+</b> downloads</p>'
+        New-ProofLine -Showcase (Get-DefaultShowcase) -ProjectCount 12 | Should -BeExactly '<p align="center"><b>12</b> free projects</p>'
+        New-ProofLine -Showcase (Get-DefaultShowcase) -ProjectCount 0 | Should -BeExactly ''
     }
 }
 
@@ -5068,7 +5077,7 @@ Describe 'Empty shelves are not rendered' {
         $rendered | Should -Not -Contain 'android-applications'
         @($linked | Where-Object { $_ -notin $rendered }) | Should -BeNullOrEmpty -Because 'every in-page link needs a section to land on'
         @(Test-ReadmeHeaderAnchor -ExpectedReadme $readme) | Should -BeNullOrEmpty
-        $readme | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
+        $readme | Should -Match '(?m)^<a id="powershell-system-utilities"></a>'
     }
 
     It 'keeps the README contract when a catalog has no PowerShell rows' {
@@ -5168,7 +5177,7 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $script:rendered | Should -Not -Match 'AI service overview'
         $script:rendered | Should -Not -Match 'Proof:|186\+ shipped'
         $script:rendered | Should -Not -Match '<a href="#start-here">Start Here</a>'
-        $script:rendered | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
+        $headerRegion | Should -Not -Match 'href="#' -Because 'the shelf nav under the pitch is gone'
         $script:rendered | Should -Not -Match '### Professional Focus'
         $script:rendered | Should -Not -Match '(?m)^\*\*Currently Building\*\*$'
         $script:rendered | Should -Not -Match 'https://skillicons\.dev'
@@ -5724,15 +5733,15 @@ Describe 'Update-Header idempotency' {
     }
 
     It 'produces a text header with no image when the showcase has no hero' {
-        $shelves = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries @((New-TestEntry -Repo 'WinTool' -Category 'powershell')) -RepoLookup @{})
-        $result = Update-Header -Header (New-TestProfileHeader) -Shelves $shelves -Showcase (Get-DefaultShowcase)
+        $result = Update-Header -Header (New-TestProfileHeader) -Showcase (Get-DefaultShowcase)
 
         $result | Should -Not -Match 'assets/profile/header-(dark|light)\.svg'
         [regex]::Matches($result, '<img\b').Count | Should -Be 0 -Because 'the support button sits in the footer now'
         $result | Should -Match 'More about the fixture'
         $result | Should -Match 'Fixture tagline for the header\.'
-        $result | Should -Match '<a href="#powershell-system-utilities">PowerShell</a>'
-        $result | Should -Match '<b>Search everything &#8594;</b>'
+        # The shelf nav under the pitch is gone; the shelves open further down the page.
+        $result | Should -Not -Match '<a href="#'
+        $result | Should -Not -Match 'Search everything'
     }
 
     It 'opens on the showcase hero, dark and light, as a bare picture GitHub keeps whole' {
@@ -5913,7 +5922,7 @@ Describe 'README separators' {
         $readme.IndexOf([char]0x2014) | Should -Be -1
         $readme.IndexOf([char]0x2013) | Should -Be -1
         $readme | Should -Match '(?m)^<summary><b>.+?</b> &middot; \d+ projects?</summary>\r?$'
-        $readme | Should -Match '(?m)^<p align="center"><b>\d+</b> free projects &middot; '
+        $readme | Should -Match '(?m)^<p align="center"><b>\d+</b> free projects</p>\r?$'
     }
 
     It 'seeds a catalog from rows written with a middot or the old double hyphen' {
@@ -6498,7 +6507,7 @@ Describe 'Profile header comes from catalog data' {
 
         $result = (Update-Header -Header $header) -replace "`r`n", "`n"
 
-        $result | Should -Match '^<p align="center"><b>Public projects by [^<]+</b></p>\n'
+        $result | Should -Match '^<p align="center"><b>Public projects by [^<]+</b></p>(\n|$)'
         $result | Should -Not -Match '(?m)^## '
         $result | Should -Not -Match 'fixture\.example\.test/blank/'
         $result | Should -Not -Match ([regex]::Escape($Blank))
@@ -6626,12 +6635,11 @@ Describe 'Profile header comes from catalog data' {
         $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
         $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
         $entries = @(Get-ReadmeEntries -Catalog $catalog)
-        $shelves = @(Get-RenderedShelves -Showcase $showcase -Entries $entries -RepoLookup @{})
         # A run links the catalog's portfolioUrl unless -PortfolioUrl says otherwise.
         $savedPortfolio = Get-Variable -Name PortfolioUrl -Scope Script -ErrorAction SilentlyContinue
         try {
             $script:PortfolioUrl = [string]$catalog.portfolioUrl
-            $header = (Update-Header -Shelves $shelves -Header $catalog.profileHeader -Showcase $showcase -ProjectCount $entries.Count) -replace "`r`n", "`n"
+            $header = (Update-Header -Header $catalog.profileHeader -Showcase $showcase -ProjectCount $entries.Count) -replace "`r`n", "`n"
         } finally {
             if ($savedPortfolio) { $script:PortfolioUrl = $savedPortfolio.Value } else { Remove-Variable -Name PortfolioUrl -Scope Script -ErrorAction SilentlyContinue }
         }
@@ -9435,7 +9443,6 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'failedImages'
         $script:RenderSmokeScript | Should -Match 'componentPresence'
         $script:RenderSmokeScript | Should -Match 'firstViewportComponentPresence'
-        $script:RenderSmokeScript | Should -Match 'navigation'
         $script:RenderSmokeScript | Should -Match 'startHere'
         $script:RenderSmokeScript | Should -Match 'blankPage'
         $script:RenderSmokeScript | Should -Match 'croppedElementCount'
@@ -13177,8 +13184,8 @@ Describe 'Hand-authored header links and anchors are validated' {
     }
 
     It 'fails a missing local anchor without any network access' {
-        $script:LiveReadme | Should -Match ([regex]::Escape('<a href="#windows-apps">Windows</a>')) -Because 'the plant needs the nav link it replaces'
-        $planted = $script:LiveReadme.Replace('<a href="#windows-apps">Windows</a>', '<a href="#totally-absent-section">Windows</a>')
+        # The header has no local links of its own since the shelf nav went, so the plant adds one.
+        $planted = '<p align="center"><a href="#totally-absent-section">Windows</a></p>' + "`n" + $script:LiveReadme
 
         $missing = @(Test-ReadmeHeaderAnchor -ExpectedReadme $planted)
 
@@ -14943,14 +14950,9 @@ Describe 'Rendered smoke helpers (in-process)' {
         $source = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'scripts/render-profile-smoke.ps1'))
         $texts = @($expectation.tagline, $expectation.toolCatalogHeading, $expectation.footerLinkText, $expectation.portfolioLinkText) + @($expectation.sectionHeadings) + @($expectation.categoryTitles)
 
-        # The nav labels sit together in one line, as the smoke looks for them.
-        $navLine = @($readme -split '\r?\n' | Where-Object { $line = $_; @($expectation.navLabels | Where-Object { -not $line.Contains($_) }).Count -eq 0 })
-
-        @($expectation.categoryTitles).Count | Should -Be @($expectation.navLabels).Count
         @($expectation.categoryTitles).Count | Should -BeGreaterThan 5
         @($expectation.sectionHeadings) | Should -Contain $expectation.toolCatalogHeading
         @($texts | Where-Object { [string]::IsNullOrWhiteSpace($_) -or -not $readme.Contains($_) }) | Should -BeNullOrEmpty
-        $navLine.Count | Should -BeGreaterThan 0 -Because 'the nav has to hold every label the smoke looks for'
         @($texts | Where-Object { $source.Contains($_) }) | Should -BeNullOrEmpty
     }
 
@@ -14969,9 +14971,8 @@ Describe 'Rendered smoke helpers (in-process)' {
 
         $expectation.toolCatalogHeading | Should -Be 'Fixture flagships'
         @($expectation.sectionHeadings) | Should -Contain 'Fixture flagships'
-        @($expectation.navLabels) | Should -Not -Contain 'Guides'
         @($expectation.categoryTitles) | Should -Not -Contain 'Guides & Resources'
-        $expectation.tagline | Should -Match '^\d+ free projects · every line of source public · zero commands to paste$'
+        $expectation.tagline | Should -Match '^\d+ free projects$'
         $expectation.portfolioLinkText | Should -Be 'See everything'
     }
 

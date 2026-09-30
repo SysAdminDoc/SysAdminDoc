@@ -18,7 +18,6 @@ function Get-DefaultShowcase {
         [ordered]@{
             id = Get-CategoryAnchor $definition.Slug
             title = Get-CategoryDisplayName $definition.Slug
-            navLabel = Get-ProfileNavLabel -Slug $definition.Slug
             icon = Get-CategoryIcon -Slug $definition.Slug
             blurb = $null
             categories = @([string]$definition.Slug)
@@ -173,7 +172,6 @@ function Test-ShowcaseShape {
         $id = [string](Get-MemberValue -Object $shelf -Name 'id')
         if (-not $shelfIds.Add($id)) { & $add "$field.id" "'$id' is used by another shelf" }
         & $checkText "$field.title" (Get-MemberValue -Object $shelf -Name 'title')
-        & $checkText "$field.navLabel" (Get-MemberValue -Object $shelf -Name 'navLabel')
         & $checkText "$field.blurb" (Get-MemberValue -Object $shelf -Name 'blurb') -Optional
         foreach ($slug in @(Get-JsonArrayItems (Get-MemberValue -Object $shelf -Name 'categories'))) {
             $slug = [string]$slug

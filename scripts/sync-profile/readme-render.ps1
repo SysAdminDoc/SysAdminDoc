@@ -224,16 +224,6 @@ function Get-DownloadLabel {
     }
 }
 
-function Get-ProfileNavLabel {
-    param([string]$Slug)
-
-    if ($Slug -eq "misc") {
-        return "Forks"
-    }
-
-    return Get-CategoryDisplayName -Slug $Slug
-}
-
 function Get-CategoryAnchor {
     param([string]$Slug)
 
@@ -501,7 +491,6 @@ function Get-RenderedShelves {
         [ordered]@{
             id = $id
             title =[string](Get-MemberValue -Object $shelf -Name 'title')
-            navLabel = [string](Get-MemberValue -Object $shelf -Name 'navLabel')
             icon = [string](Get-MemberValue -Object $shelf -Name 'icon')
             blurb = [string](Get-MemberValue -Object $shelf -Name 'blurb')
             categories = $categories
@@ -520,24 +509,21 @@ function Get-EntryByRepo {
 function New-ProfileChrome {
     <#
     .SYNOPSIS
-    Renders the README header: the hero, the proof line, the pitch and the shelf nav.
+    Renders the README header: the hero, the proof line and the pitch.
     .DESCRIPTION
     With a showcase hero the header opens on its banner (a <picture> with dark and light
     sources). Without one it opens on the catalog's tagline, as a
-    plain paragraph. The pitch is the catalog's about text; the proof line counts the
-    README entries and quotes the showcase's download floor. Everything personal comes
-    from the catalog and showcase, so a run for another account publishes only its own.
+    plain paragraph. The pitch is the catalog's about text; the proof line comes from
+    New-ProofLine. Everything personal comes from the catalog and showcase, so a run for
+    another account publishes only its own.
     #>
     param(
-        # Shelves that rendered, from Get-RenderedShelves. The nav links only to these.
-        [object[]]$Shelves,
         # The catalog's profileHeader block; $null renders the neutral header.
         [object]$Header,
         [object]$Showcase,
         [int]$ProjectCount = 0
     )
 
-    $portfolioUrl = Get-ProfilePortfolioUrl
     $lines = New-Object System.Collections.Generic.List[string]
     $hero = Get-MemberValue -Object $Showcase -Name 'hero'
     $dark = [string](Get-MemberValue -Object $hero -Name 'darkImage')
@@ -564,14 +550,11 @@ function New-ProfileChrome {
         $lines.Add('')
     }
 
-    $proof = New-Object System.Collections.Generic.List[string]
-    if ($ProjectCount -gt 0) { $proof.Add("<b>$ProjectCount</b> free projects") }
-    $downloads = [string](Get-MemberValue -Object (Get-MemberValue -Object $Showcase -Name 'proof') -Name 'downloads')
-    if (Test-VisibleText $downloads) { $proof.Add('<b>' + (ConvertTo-HtmlText $downloads) + '</b> downloads') }
-    $proof.Add('<b>every line</b> of source public')
-    $proof.Add('<b>zero</b> commands to paste')
-    $lines.Add('<p align="center">' + ($proof -join ' &middot; ') + '</p>')
-    $lines.Add('')
+    $proofLine = New-ProofLine -Showcase $Showcase -ProjectCount $ProjectCount
+    if ($proofLine) {
+        $lines.Add($proofLine)
+        $lines.Add('')
+    }
 
     # Test-CatalogShape refuses any other URL before anything is written, but the renderer
     # doesn't lean on it: a URL that could leave its attribute, or isn't https, isn't rendered.
@@ -592,14 +575,37 @@ function New-ProfileChrome {
         $lines.Add('<p align="center">' + ($pitch -join ' ') + '</p>')
         $lines.Add('')
     }
-
-    $nav = @(@($Shelves) | Where-Object { $_ } | ForEach-Object {
-        '<a href="#' + $_.id + '">' + (ConvertTo-HtmlText ([string]$_.navLabel)) + '</a>'
-    })
-    $nav += '<a href="' + $portfolioUrl + '"><b>Search everything &#8594;</b></a>'
-    $lines.Add('<p align="center">' + ($nav -join ' &middot; ') + '</p>')
-    $lines.Add('')
     return ($lines -join [Environment]::NewLine)
+}
+
+function New-ProofLine {
+    <#
+    .SYNOPSIS
+    The header's proof line: how many free projects and how many downloads.
+    .DESCRIPTION
+    Both numbers are hand-kept floors in the showcase's proof block ("200+"). Without a
+    projects floor the line counts the README entries; without a downloads floor it leaves
+    downloads out. Returns an empty string when there's nothing to say.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [object]$Showcase,
+        [int]$ProjectCount = 0
+    )
+
+    $proof = Get-MemberValue -Object $Showcase -Name 'proof'
+    $parts = New-Object System.Collections.Generic.List[string]
+    $projects = [string](Get-MemberValue -Object $proof -Name 'projects')
+    if (Test-VisibleText $projects) {
+        $parts.Add('<b>' + (ConvertTo-HtmlText $projects) + '</b> free projects')
+    } elseif ($ProjectCount -gt 0) {
+        $parts.Add("<b>$ProjectCount</b> free projects")
+    }
+    $downloads = [string](Get-MemberValue -Object $proof -Name 'downloads')
+    if (Test-VisibleText $downloads) { $parts.Add('<b>' + (ConvertTo-HtmlText $downloads) + '</b> downloads') }
+    if ($parts.Count -eq 0) { return "" }
+    return '<p align="center">' + ($parts -join ' &middot; ') + '</p>'
 }
 
 function New-FlagshipCard {
@@ -862,7 +868,6 @@ function New-ProfileFooter {
 
 function Update-Header {
     param(
-        [object[]]$Shelves,
         [object]$Header,
         [object]$Showcase,
         [int]$ProjectCount = 0
@@ -898,7 +903,7 @@ function New-Readme {
     $repoLookup = ConvertTo-Lookup $Repos
     $entries = @(Get-ReadmeEntries -Catalog $Catalog)
     $shelves = @(Get-RenderedShelves -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup)
-    $header = Update-Header -Shelves $shelves -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader') -Showcase $Showcase -ProjectCount $entries.Count
+    $header = Update-Header -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader') -Showcase $Showcase -ProjectCount $entries.Count
 
     $blocks = New-Object System.Collections.Generic.List[string]
     $blocks.Add($header)

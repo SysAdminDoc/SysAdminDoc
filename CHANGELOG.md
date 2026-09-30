@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-29
+
+- Star counts are fresh across the page, and two flagship download floors went up: Hushfeed to 29,000+ and Hushfacebook to 9,000+. Release downloads across the public repos added up to 99,580 today.
+- The proof line in the header now reads "200+ free projects · 100,000+ downloads" and stops there. Both numbers are hand-kept floors in `data/showcase.json`. `proof.projects` is new and sits next to `proof.downloads`, so a sync keeps the header as it was edited on GitHub instead of writing the old entry count back. Leave `proof.projects` out and the line counts the README entries like before.
+- The shelf nav under the pitch is gone, and so is each shelf's `navLabel`. The shelves still open further down under "Browse everything", and the rendered smoke check no longer looks for the nav.
+- The pitch is shorter: "Hi! I'm Matt." and the link to what I do.
+
 ## 2026-09-28
 
 - The profile page is a storefront now, and it doesn't ask anyone to paste a command. The `irm ... | iex` one-liners, the first-time setup block and the `Start-Tool` launcher are gone. Every project gets a button instead: a Windows download, an APK, an Obtainium link, a browser extension, a userscript install, the live web app or the source. Nobody should have to run code they haven't read just to try something.

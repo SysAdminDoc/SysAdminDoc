@@ -26,6 +26,7 @@
       "additionalProperties": false,
       "required": ["downloads", "measuredOn", "method"],
       "properties": {
+        "projects": { "type": "string", "pattern": "^[0-9][0-9,]*\\+(?![\\s\\S])" },
         "downloads": { "type": "string", "pattern": "^[0-9][0-9,]*\\+(?![\\s\\S])" },
         "measuredOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\\s\\S])" },
         "method": { "$ref": "#/$defs/text" }
@@ -82,11 +83,10 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title", "navLabel", "categories"],
+        "required": ["id", "title", "categories"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(-+[a-z0-9]+)*(?![\\s\\S])" },
           "title": { "type": "string", "minLength": 1, "maxLength": 60 },
-          "navLabel": { "type": "string", "minLength": 1, "maxLength": 20 },
           "icon": { "$ref": "#/$defs/icon" },
           "blurb": { "type": ["string", "null"], "maxLength": 200 },
           "categories": {

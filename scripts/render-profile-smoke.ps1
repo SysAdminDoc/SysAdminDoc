@@ -28,7 +28,7 @@ if ([string]::IsNullOrWhiteSpace($Url)) {
 # What the smoke looks for on the page, read from what the generator writes instead of
 # copied here, so renaming a heading can't leave the smoke looking for the old words: the
 # header's proof line, the flagship heading and every other section heading, each shelf's
-# title and nav label, and the footer's link to all repositories. Icons in front of a title
+# title, and the footer's link to all repositories. Icons in front of a title
 # aren't part of what's matched.
 function Get-RenderedSmokeExpectation {
     param(
@@ -41,7 +41,7 @@ function Get-RenderedSmokeExpectation {
     # Rendered without live metadata, so a section that needs it (the latest releases)
     # isn't expected. Everything else is the page as the generator writes it.
     $readme = New-Readme -Catalog $Catalog -Repos @() -Showcase $Showcase
-    $proofLine = [regex]::Match($readme, '(?m)^<p align="center">[^\r\n]*commands to paste</p>').Value
+    $proofLine = New-ProofLine -Showcase $Showcase -ProjectCount @(Get-ReadmeEntries -Catalog $Catalog).Count
     $footer = New-ProfileFooter -Header (Get-MemberValue -Object $Catalog -Name 'profileHeader')
     $footerLink = [regex]::Match($footer, '\?tab=repositories">(?<text>[^<]+)</a>').Groups['text'].Value
     # The first link to the portfolio with words in it; the search button before it is an image.
@@ -53,7 +53,6 @@ function Get-RenderedSmokeExpectation {
         toolCatalogHeading = $ToolCatalogHeading
         sectionHeadings = @([regex]::Matches($readme, '(?m)^## (?<title>[^\r\n]+)\r?$') | ForEach-Object { & $plain $_.Groups['title'].Value })
         categoryTitles = @($shelves | ForEach-Object { & $plain (ConvertTo-HtmlText ([string]$_.title)) })
-        navLabels = @($shelves | ForEach-Object { [string]$_.navLabel })
         footerLinkText = & $plain $footerLink
         portfolioLinkText = [string]$portfolioLink
     }
@@ -140,7 +139,6 @@ function Invoke-RenderedSmoke {
   };
   const headerAssetNodes = Array.from(root.querySelectorAll('img[alt*="profile header" i], img[src*="assets/profile/header" i], img[src*="assets/showcase/profile-hero" i]'));
   const heroTextNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, [expected.tagline]));
-  const navigationNodes = Array.from(root.querySelectorAll("p")).filter((element) => textIncludesAll(element, expected.navLabels));
   const headerNodes = headerAssetNodes.length > 0 ? headerAssetNodes : heroTextNodes;
   // The flagship cards are where a visitor starts now.
   const startHereNodes = textMatch("h1,h2,h3", expected.toolCatalogHeading);
@@ -151,7 +149,6 @@ function Invoke-RenderedSmoke {
   const countVisible = (nodes) => nodes.filter(isVisible).length;
   const firstViewportComponentPresence = {
     header: countVisible(headerNodes),
-    navigation: countVisible(navigationNodes),
     startHere: countVisible(startHereNodes),
     toolCatalog: countVisible(toolCatalogNodes),
     footer: countVisible(footerNodes)
@@ -160,7 +157,6 @@ function Invoke-RenderedSmoke {
     header: headerNodes.length,
     headerAsset: headerAssetNodes.length,
     hero: heroTextNodes.length,
-    navigation: navigationNodes.length,
     startHere: startHereNodes.length,
     toolCatalog: toolCatalogNodes.length,
     footer: footerNodes.length
@@ -374,7 +370,6 @@ function Invoke-RenderedSmoke {
         [bool]$result.detailsKeyboardSanity.passed -and
         [bool]$result.linkLabelSanityPassed -and
         ([int]$firstViewportComponentPresence.header -gt 0) -and
-        ([int]$componentPresence.navigation -gt 0) -and
         ([int]$componentPresence.startHere -gt 0) -and
         ([int]$componentPresence.toolCatalog -gt 0) -and
         ([int]$componentPresence.footer -gt 0)

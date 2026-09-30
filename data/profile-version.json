@@ -1,6 +1,6 @@
 {
-  "version": "v5.0.0",
-  "date": "2026-09-28",
+  "version": "v5.0.1",
+  "date": "2026-09-29",
   "source": "profile-sync-internal-evidence-version",
   "publicReleaseCadence": "manual-public-milestone-only"
 }
