@@ -8,8 +8,8 @@
   "proof": {
     "projects": "200+",
     "downloads": "100,000+",
-    "measuredOn": "2026-09-29",
-    "method": "Summed GitHub release asset downloads across the public repositories: 99,580 on 2026-09-29 (228 public repos, 206 not forks). The 100,000+ headline was set by hand that day, 420 ahead of the count, which was climbing about 6,000 a day."
+    "measuredOn": "2026-10-09",
+    "method": "Summed GitHub release asset downloads across the public repositories: 221,379 on 2026-10-09 (234 public repos, 210 not forks, forks add none). The 100,000+ headline was set by hand on 2026-09-29, when the count was 99,580, and stays as the owner set it."
   },
   "flagships": [
     {
@@ -19,7 +19,7 @@
       "image": "assets/showcase/opentasker.png",
       "imageAlt": "OpenTasker: put your phone on autopilot and read every rule. Three phone screens showing profiles, tasks and a flow.",
       "pitch": "Phone automation in the spirit of Tasker, fully open source. Readable rules, 78 built-in actions, and all of it runs on your phone.",
-      "downloads": "10,000+"
+      "downloads": "11,000+"
     },
     {
       "repo": "win11-nvme-driver-patcher",
@@ -28,7 +28,7 @@
       "image": "assets/showcase/nvme-patcher.png",
       "imageAlt": "NVMe Driver Patcher: native NVMe on Windows 11, skipping the SCSI layer. Single exe, GUI and CLI, MSI for fleets.",
       "pitch": "Switches Windows 11 to the native NVMe driver from Server 2025. It checks your system before it changes anything and keeps a clean way back.",
-      "downloads": "7,500+"
+      "downloads": "8,000+"
     },
     {
       "repo": "hushfeed",
@@ -37,7 +37,7 @@
       "image": "https://raw.githubusercontent.com/SysAdminDoc/HushFeed/main/assets/readme-hero.png",
       "imageAlt": "Hushfeed: take back your feed. Morphe patches for TikTok with feed filters, gesture guards, playback and download controls.",
       "pitch": "A patch bundle for TikTok. Fewer accidental taps, less noise, and more say over your feed and your downloads.",
-      "downloads": "29,000+"
+      "downloads": "60,000+"
     },
     {
       "repo": "Hushfacebook",
@@ -46,7 +46,7 @@
       "image": "https://raw.githubusercontent.com/SysAdminDoc/HushFacebook/main/assets/readme-hero.png",
       "imageAlt": "Hushfacebook: keep the people, cut the noise. Morphe patches for Facebook that clear sponsored clutter, Reels and Stories.",
       "pitch": "A patch bundle for Facebook. Keeps your friends in the feed and clears out the ads, Reels and Stories clutter.",
-      "downloads": "9,000+"
+      "downloads": "47,000+"
     },
     {
       "repo": "AppManagerNG",
@@ -55,7 +55,7 @@
       "image": "https://raw.githubusercontent.com/SysAdminDoc/AppManagerNG/main/docs/marketing/appmanagerng-hero.png",
       "imageAlt": "AppManagerNG: know what is installed, control what it can do. Phone screens showing the app list and permission inspector.",
       "pitch": "See every app on your phone and what it can reach. Debloat, freeze and back up from one place, with or without root.",
-      "downloads": "4,500+"
+      "downloads": "7,500+"
     },
     {
       "repo": "VideoSubtitleRemover",
@@ -64,7 +64,7 @@
       "image": "https://github.com/user-attachments/assets/256ae00b-0ff8-466f-8aeb-4c993a69d7b9",
       "imageAlt": "Video Subtitle Remover Pro: remove subtitles, keep the frame. The desktop app cleaning burned-in text from a video.",
       "pitch": "Takes burned-in subtitles and on-screen text out of video, right on your PC. You review each text track before anything is removed.",
-      "downloads": "4,000+"
+      "downloads": "5,000+"
     },
     {
       "repo": "DeepPurge",

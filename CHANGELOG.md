@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-09
+
+- HushGram, HushThreads, HushTelegram and HushPinterest are on the Android shelf now. Each has its own description without a version number, so the line doesn't go stale with the next release. The morphe-manager and morphe-desktop forks are cataloged too but stay off the page, since they're plain copies of upstream with no changes.
+- PatchDock moved to the portfolio only. The Android shelf would have run to 31 rows with the new bundles, one over the 30-row limit, and PatchDock was the source-only row with no stars yet.
+- Flagship download floors caught up with the release counts: Hushfeed 60,000+, Hushfacebook 47,000+, OpenTasker 11,000+, NVMe Driver Patcher 8,000+, AppManagerNG 7,500+ and Video Subtitle Remover 5,000+. Release downloads across the public repos add up to 221,379 today. The 100,000+ in the header is still the hand-set number from 2026-09-29.
+- Latest releases, star counts and every shelf are regenerated from today's data.
+
 ## 2026-09-29
 
 - Star counts are fresh across the page, and two flagship download floors went up: Hushfeed to 29,000+ and Hushfacebook to 9,000+. Release downloads across the public repos added up to 99,580 today.
