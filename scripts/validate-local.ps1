@@ -671,7 +671,8 @@ function Assert-ScriptAnalyzerClean {
         "scripts/chrome-devtools.ps1",
         "scripts/render-showcase-assets.ps1",
         "scripts/write-profile-sync-summary.ps1",
-        "scripts/new-support-bundle.ps1"
+        "scripts/new-support-bundle.ps1",
+        "scripts/refresh-profile.ps1"
     ) + $generatorLibrary
 
     $findings = foreach ($target in $targets) {

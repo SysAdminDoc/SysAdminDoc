@@ -14707,6 +14707,7 @@ Describe 'Script test seams need the suite opt-in' {
             'scripts/render-profile-smoke.ps1'
             'scripts/render-showcase-assets.ps1'
             'scripts/new-support-bundle.ps1'
+            'scripts/refresh-profile.ps1'
         )
     }
 
@@ -15188,6 +15189,193 @@ Describe 'No test starts the real gh' {
         $calls = if (Test-Path -LiteralPath $script:GhTrapLog) { @(Get-Content -LiteralPath $script:GhTrapLog) } else { @() }
 
         $calls | Should -BeNullOrEmpty -Because 'the suite stays offline'
+    }
+}
+
+Describe 'Storefront refresh (in-process)' {
+    BeforeAll {
+        # Loads the functions only: the seam stops before a sync, a commit or a push.
+        . (Join-Path $script:RepoRoot 'scripts/refresh-profile.ps1')
+        $script:RefreshReportFixture = [ordered]@{
+            publicRepoCount = 234
+            missingPublicRepos = @()
+            downloadFloors = [ordered]@{
+                status = 'warning'; totalReleaseDownloads = 221622; repoCount = 193; measuredRepoCount = 193
+                rows = @(
+                    [ordered]@{ subject = 'proof'; repo = $null; floorText = '100,000+'; measured = 221622; status = 'underclaim'; suggestedFloor = '221,000+' }
+                    [ordered]@{ subject = 'flagship'; repo = 'hushfeed'; floorText = '60,000+'; measured = 60701; status = 'ok'; suggestedFloor = $null }
+                )
+            }
+        }
+    }
+
+    BeforeEach {
+        $script:RefreshGitCalls = [System.Collections.Generic.List[string]]::new()
+        $script:RefreshScriptCalls = [System.Collections.Generic.List[string]]::new()
+        # Both seams in call order, so a case can check what ran before what.
+        $script:RefreshCallLog = [System.Collections.Generic.List[string]]::new()
+        $script:RefreshGitStub = @{ Ident = 'SysAdminDoc <matt_parker@outlook.com> 1760000000 -0400'; Dirty = @(); PageChanges = @(' M README.md'); PushExit = 0 }
+        $script:RefreshScriptFails = { param($Path, $Arguments) $false }
+        $script:RefreshReportStub = $script:RefreshReportFixture
+        Mock Write-Host { }
+        Mock Get-RefreshReport { $script:RefreshReportStub }
+        Mock Invoke-RefreshScript {
+            $script:RefreshScriptCalls.Add((@($Path) + @($Arguments)) -join ' ')
+            $script:RefreshCallLog.Add('run ' + ((@($Path) + @($Arguments)) -join ' '))
+            if (& $script:RefreshScriptFails $Path $Arguments) { 1 } else { 0 }
+        }
+        Mock Invoke-RefreshGit {
+            $script:RefreshGitCalls.Add($Arguments -join ' ')
+            $script:RefreshCallLog.Add('git ' + ($Arguments -join ' '))
+            $stub =$script:RefreshGitStub
+            switch ($Arguments[0]) {
+                'var' { return [ordered]@{ exitCode = 0; output = @($stub.Ident) } }
+                'status' {
+                    $lines = if ($Arguments -contains 'README.md') { $stub.PageChanges } else { $stub.Dirty }
+                    return [ordered]@{ exitCode = 0; output = @($lines) }
+                }
+                # Something is staged.
+                'diff' { return [ordered]@{ exitCode = 1; output = @() } }
+                'rev-parse' { return [ordered]@{ exitCode = 0; output = @('abc1234') } }
+                'push' { return [ordered]@{ exitCode = $stub.PushExit; output = @(if ($stub.PushExit) { '! [rejected] main -> main (fetch first)' }) } }
+            }
+            [ordered]@{ exitCode = 0; output = @() }
+        }
+    }
+
+    It 'syncs at the page size that fits the account and touches no git without -Commit' {
+        $result = Invoke-ProfileRefresh -ChromePath ''
+
+        $result.status | Should -Be 'ok'
+        @($script:RefreshScriptCalls) | Should -Be @('scripts/sync-profile.ps1 -Write -Check -DraftMissingCatalogEntries -GraphQlPageSize 150')
+        $script:RefreshGitCalls.Count | Should -Be 0
+        @($result.steps | ForEach-Object { "$($_.name):$($_.status)" }) | Should -Be @('sync:passed', 'floors:passed', 'smoke:skipped')
+    }
+
+    It 'commits as SysAdminDoc, pushes, then smokes the pushed page and commits that evidence on its own' {
+        $result = Invoke-ProfileRefresh -Commit -ChromePath 'C:\chromium\chrome.exe'
+
+        $result.status | Should -Be 'ok'
+        @($script:RefreshScriptCalls) | Should -Be @(
+            'scripts/sync-profile.ps1 -Write -Check -DraftMissingCatalogEntries -GraphQlPageSize 150'
+            'scripts/render-profile-smoke.ps1'
+            'scripts/sync-profile.ps1 -Check -GraphQlPageSize 150'
+        )
+        $commits = @($script:RefreshGitCalls | Where-Object { $_ -match ' commit ' })
+        $commits | Should -HaveCount 2
+        foreach ($commit in $commits) {
+            $commit | Should -Match '^-c user\.name=SysAdminDoc -c user\.email=matt_parker@outlook\.com commit -q -m '
+            $commit | Should -Not -Match '(?i)co-authored|claude|anthropic'
+        }
+        $commits[0] | Should -Match 'chore: refresh the profile storefront'
+        $commits[1] | Should -Match 'chore: record the rendered smoke'
+        @($script:RefreshGitCalls | Where-Object { $_ -eq 'push origin HEAD:main' }) | Should -HaveCount 2
+        # The smoke has to see the page that was just pushed.
+        $firstPush = $script:RefreshCallLog.IndexOf('git push origin HEAD:main')
+        $firstPush | Should -BeGreaterThan -1
+        $script:RefreshCallLog.IndexOf('run scripts/render-profile-smoke.ps1') | Should -BeGreaterThan $firstPush
+        @($result.steps | ForEach-Object { $_.name }) | Should -Be @('identity', 'clean-tree', 'sync', 'floors', 'commit', 'push', 'smoke', 'evidence', 'evidence-commit', 'evidence-push')
+        $result.commits | Should -Be @('abc1234', 'abc1234')
+    }
+
+    It 'stages only the generated files' {
+        $null = Invoke-ProfileRefresh -Commit -ChromePath ''
+
+        @($script:RefreshGitCalls | Where-Object { $_ -like 'add *' }) | Should -Be @('add -- README.md projects.json reports/profile-sync-report.json assets/profile')
+    }
+
+    It 'makes one commit after the smoke when the published page did not change' {
+        $script:RefreshGitStub.PageChanges = @()
+
+        $result = Invoke-ProfileRefresh -Commit -ChromePath 'C:\chromium\chrome.exe'
+
+        $result.status | Should -Be 'ok'
+        $commits = @($script:RefreshGitCalls | Where-Object { $_ -match ' commit ' })
+        $commits | Should -HaveCount 1
+        $commits[0] | Should -Match 'chore: refresh the profile storefront'
+        @($result.steps | Where-Object { $_.name -eq 'commit' })[0].status | Should -Be 'skipped'
+    }
+
+    It 'stops before the sync when git would commit as someone else' {
+        $script:RefreshGitStub.Ident = 'Someone Else <someone@example.com> 1760000000 -0400'
+
+        $result = Invoke-ProfileRefresh -Commit -ChromePath ''
+
+        $result.status | Should -Be 'failed'
+        $result.failedStep | Should -Be 'identity'
+        $result.message | Should -Match 'Someone Else <someone@example\.com>, not SysAdminDoc <matt_parker@outlook\.com>'
+        $script:RefreshScriptCalls.Count | Should -Be 0
+    }
+
+    It 'stops before the sync on a modified tracked file' {
+        $script:RefreshGitStub.Dirty = @(' M scripts/sync-profile.ps1')
+
+        $result = Invoke-ProfileRefresh -Commit -ChromePath ''
+
+        $result.failedStep | Should -Be 'clean-tree'
+        $result.message | Should -Match 'scripts/sync-profile\.ps1'
+        $script:RefreshScriptCalls.Count | Should -Be 0
+    }
+
+    It 'names the sync step and the drafted rows when a public repo has no catalog row' {
+        $script:RefreshScriptFails = { param($Path, $Arguments) $Path -eq 'scripts/sync-profile.ps1' }
+        $script:RefreshReportStub = [ordered]@{ missingPublicRepos = @([ordered]@{ repo = 'NewTool' }) }
+
+        $result = Invoke-ProfileRefresh -Commit -ChromePath 'C:\chromium\chrome.exe'
+
+        $result.failedStep | Should -Be 'sync'
+        $result.message | Should -Match '1 public repo\(s\) have no catalog row'
+        @($script:RefreshGitCalls | Where-Object { $_ -match ' commit |^push' }) | Should -BeNullOrEmpty
+    }
+
+    It 'names the push step when the push is rejected' {
+        $script:RefreshGitStub.PushExit = 1
+
+        $result = Invoke-ProfileRefresh -Commit -ChromePath 'C:\chromium\chrome.exe'
+
+        $result.failedStep | Should -Be 'push'
+        $result.message | Should -Match 'rejected'
+        @($script:RefreshScriptCalls) | Should -Not -Contain 'scripts/render-profile-smoke.ps1'
+    }
+
+    It 'names the smoke step when the rendered smoke fails' {
+        $script:RefreshScriptFails = { param($Path, $Arguments) $Path -eq 'scripts/render-profile-smoke.ps1' }
+
+        $result = Invoke-ProfileRefresh -ChromePath 'C:\chromium\chrome.exe'
+
+        $result.failedStep | Should -Be 'smoke'
+        $script:RefreshScriptCalls.Count | Should -Be 2
+    }
+
+    It 'prints each floor against its measured count' {
+        $lines = @(Format-RefreshDownloadFloors -Report $script:RefreshReportFixture)
+
+        $lines[0] | Should -BeOrdinal 'Download floors (warning): 221,622 release downloads across 193 of 193 repos.'
+        $lines[1] | Should -BeOrdinal '  header: 100,000+ against 221,622, underclaim (suggest 221,000+)'
+        $lines[2] | Should -BeOrdinal '  hushfeed: 60,000+ against 60,701, ok'
+        @(Format-RefreshDownloadFloors -Report $null) | Should -Be @('Download floors: the report has no downloadFloors section.')
+    }
+
+    It 'writes the counts into the refresh commit message' {
+        New-RefreshCommitMessage -Report $script:RefreshReportFixture -Now ([datetimeoffset]'2026-10-09T12:00:00Z') |
+            Should -BeOrdinal "chore: refresh the profile storefront`n`nRegenerated from live metadata on 2026-10-09: 234 public repos, 0 uncataloged, 221,622 release downloads measured."
+    }
+
+    It 'exits non-zero and names the step when run as a script' {
+        # A child pwsh whose git and pwsh are functions: the identity passes, the sync fails.
+        $child = Join-Path $TestDrive 'refresh-child.ps1'
+        $refreshScript = (Join-Path $script:RepoRoot 'scripts/refresh-profile.ps1').Replace("'", "''")
+        Set-Content -LiteralPath $child -Encoding utf8 -Value @"
+Remove-Item -LiteralPath Env:SYSADMINDOC_TEST_SEAM -ErrorAction SilentlyContinue
+function global:git { if (`$args -contains 'var') { 'SysAdminDoc <matt_parker@outlook.com> 1760000000 -0400' }; `$global:LASTEXITCODE = 0 }
+function global:pwsh { `$global:LASTEXITCODE = 1 }
+& '$refreshScript' -Commit
+"@
+        $output = @(& pwsh -NoProfile -NonInteractive -File $child 2>&1 | ForEach-Object { [string]$_ })
+        $exitCode = $LASTEXITCODE
+
+        $exitCode | Should -Be 1
+        ($output -join "`n") | Should -Match "Refresh stopped at step 'sync'"
     }
 }
 
