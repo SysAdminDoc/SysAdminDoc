@@ -5195,9 +5195,10 @@
             "windowsPowerShellBootstrapOnly",
             "windowsPowerShellAdvisory",
             "sources",
-            "runtimeSecurityAdvisory",
+            "runtimeSecurityAdvisories",
             "minimumSecurePatchVersions",
-            "meetsMinimumSecurePatch"
+            "meetsMinimumSecurePatch",
+            "missedAdvisories"
           ],
           "properties": {
             "generatorMinimumVersion": {
@@ -5222,9 +5223,36 @@
             "sources": {
               "$ref": "#/$defs/stringArray"
             },
-            "runtimeSecurityAdvisory": {
-              "type": "string",
-              "minLength": 1
+            "runtimeSecurityAdvisories": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "url",
+                  "fixedVersions"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "fixedVersions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
             },
             "minimumSecurePatchVersions": {
               "type": "array",
@@ -5235,6 +5263,9 @@
             },
             "meetsMinimumSecurePatch": {
               "type": "boolean"
+            },
+            "missedAdvisories": {
+              "$ref": "#/$defs/stringArray"
             }
           }
         },

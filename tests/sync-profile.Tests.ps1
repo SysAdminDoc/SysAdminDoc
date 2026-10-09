@@ -7540,6 +7540,12 @@ Describe 'Feed JSON Schema contracts' {
         foreach ($field in @('status', 'current', 'policy', 'capabilities', 'supported', 'preferred', 'warningCount', 'warnings')) {
             $required | Should -Contain $field
         }
+        $policyRequired = @($schema.'$defs'.runtimeSecurity.properties.policy.required)
+        foreach ($field in @('runtimeSecurityAdvisories', 'minimumSecurePatchVersions', 'meetsMinimumSecurePatch', 'missedAdvisories')) {
+            $policyRequired | Should -Contain $field
+        }
+        $policyRequired | Should -Not -Contain 'runtimeSecurityAdvisory'
+        $schema.'$defs'.runtimeSecurity.properties.policy.properties.runtimeSecurityAdvisories.items.required | Should -Be @('id', 'url', 'fixedVersions')
 
         $summaryScript = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'scripts/write-profile-sync-summary.ps1') -Raw
         $summaryScript | Should -Match 'PowerShell runtime status'
@@ -11463,20 +11469,58 @@ Describe 'PowerShell version baseline' {
 
     It 'classifies current PowerShell LTS as preferred runtime' {
         $result = Test-PowerShellRuntimeSecurity `
-            -Version ([version]'7.6.5') `
+            -Version ([version]'7.6.6') `
             -Edition 'Core' `
             -NativeJsonSchemaAvailable $true `
-            -Now ([datetimeoffset]::Parse('2026-07-06T00:00:00Z'))
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
 
         $result.status | Should -Be 'ok'
         $result.current.channel | Should -Be 'current-lts'
         $result.supported | Should -BeTrue
         $result.preferred | Should -BeTrue
         $result.policy.meetsMinimumSecurePatch | Should -BeTrue
+        @($result.policy.missedAdvisories) | Should -BeNullOrEmpty
         $result.warningCount | Should -Be 0
     }
 
-    It 'warns for an in-support runtime still affected by CVE-2026-50523' {
+    It 'lists every advisory with its fixed builds and takes the floors from the highest' {
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.6.6') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
+
+        @($result.policy.runtimeSecurityAdvisories | ForEach-Object { $_.id }) | Should -Be @('CVE-2026-50523', 'CVE-2026-62801', 'CVE-2026-40400', 'CVE-2026-69806')
+        @($result.policy.runtimeSecurityAdvisories | Where-Object { $_.id -eq 'CVE-2026-50523' })[0].fixedVersions | Should -Be @('7.4.19', '7.5.10', '7.6.5')
+        @($result.policy.runtimeSecurityAdvisories | Where-Object { $_.id -eq 'CVE-2026-40400' })[0].fixedVersions | Should -Be @('7.4.18', '7.5.11', '7.6.6')
+        # 7.4 isn't affected by the .NET elevation of privilege, so it has no 7.4 build.
+        @($result.policy.runtimeSecurityAdvisories | Where-Object { $_.id -eq 'CVE-2026-69806' })[0].fixedVersions | Should -Be @('7.5.11', '7.6.6')
+        @($result.policy.minimumSecurePatchVersions) | Should -Be @('7.4.20', '7.5.11', '7.6.6')
+        foreach ($advisory in $result.policy.runtimeSecurityAdvisories) {
+            $advisory.url | Should -Match ([regex]::Escape($advisory.id))
+            @($result.policy.sources) | Should -Contain $advisory.url
+        }
+    }
+
+    It 'names only the advisories a 7.6.5 runtime still carries' {
+        # 7.6.5 fixed CVE-2026-50523 and is hit by the three of 2026-09-11.
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.6.5') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
+
+        $result.status | Should -Be 'warning'
+        $result.supported | Should -BeTrue
+        $result.policy.meetsMinimumSecurePatch | Should -BeFalse
+        @($result.policy.missedAdvisories) | Should -Be @('CVE-2026-62801', 'CVE-2026-40400', 'CVE-2026-69806')
+        $warning = ($result.warnings -join ' ')
+        $warning | Should -Match 'CVE-2026-62801, CVE-2026-40400, CVE-2026-69806'
+        $warning | Should -Not -Match 'CVE-2026-50523'
+        $warning | Should -Match '7\.6\.6'
+    }
+
+    It 'names every advisory for a runtime older than all of them' {
         $result = Test-PowerShellRuntimeSecurity `
             -Version ([version]'7.6.3') `
             -Edition 'Core' `
@@ -11486,25 +11530,48 @@ Describe 'PowerShell version baseline' {
         $result.status | Should -Be 'warning'
         $result.supported | Should -BeTrue
         $result.policy.meetsMinimumSecurePatch | Should -BeFalse
+        @($result.policy.missedAdvisories) | Should -HaveCount 4
         ($result.warnings -join ' ') | Should -Match 'CVE-2026-50523'
-        ($result.warnings -join ' ') | Should -Match '7\.6\.5'
+        ($result.warnings -join ' ') | Should -Match '7\.6\.6'
     }
 
-    It 'applies the CVE-2026-50523 patch floor per release line' {
+    It 'applies the patch floor per release line' {
         $patched75 = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.5.11') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
+        $vulnerable75 = Test-PowerShellRuntimeSecurity `
             -Version ([version]'7.5.10') `
             -Edition 'Core' `
             -NativeJsonSchemaAvailable $true `
-            -Now ([datetimeoffset]::Parse('2026-08-20T00:00:00Z'))
-        $vulnerable75 = Test-PowerShellRuntimeSecurity `
-            -Version ([version]'7.5.9') `
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
+        $patched74 = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.4.20') `
             -Edition 'Core' `
             -NativeJsonSchemaAvailable $true `
-            -Now ([datetimeoffset]::Parse('2026-08-20T00:00:00Z'))
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
 
         $patched75.policy.meetsMinimumSecurePatch | Should -BeTrue
         $vulnerable75.policy.meetsMinimumSecurePatch | Should -BeFalse
-        ($vulnerable75.warnings -join ' ') | Should -Match '7\.5\.10'
+        @($vulnerable75.policy.missedAdvisories) | Should -Be @('CVE-2026-62801', 'CVE-2026-40400', 'CVE-2026-69806')
+        ($vulnerable75.warnings -join ' ') | Should -Match '7\.5\.11'
+        $patched74.policy.meetsMinimumSecurePatch | Should -BeTrue
+        @($patched74.policy.missedAdvisories) | Should -BeNullOrEmpty
+    }
+
+    It 'skips an advisory on a line it does not affect or already fixed' {
+        # 7.4.19 has CVE-2026-50523's fix and CVE-2026-40400's (7.4.18), and 7.4 isn't
+        # affected by CVE-2026-69806, so only CVE-2026-62801 (fixed in 7.4.20) is left.
+        $result = Test-PowerShellRuntimeSecurity `
+            -Version ([version]'7.4.19') `
+            -Edition 'Core' `
+            -NativeJsonSchemaAvailable $true `
+            -Now ([datetimeoffset]::Parse('2026-10-09T00:00:00Z'))
+
+        $result.policy.meetsMinimumSecurePatch | Should -BeFalse
+        @($result.policy.missedAdvisories) | Should -Be @('CVE-2026-62801')
+        ($result.warnings -join ' ') | Should -Match 'affected by CVE-2026-62801; update to 7\.4\.20'
     }
 
     It 'warns for PowerShell 7.4 during the transition window' {
@@ -11530,6 +11597,31 @@ Describe 'PowerShell version baseline' {
 
         $result.status | Should -Be 'fail'
         $result.supported | Should -BeFalse
+    }
+
+    It 'stops accepting fully patched 7.4 and 7.5 runtimes the day after 2026-11-10' {
+        # 7.4 reaches end of support on 2026-11-10 and 7.5 follows .NET 9 to the same day,
+        # so the cutoff is pinned here: move it on purpose, never by accident.
+        foreach ($version in @('7.4.20', '7.5.11')) {
+            $lastDay = Test-PowerShellRuntimeSecurity `
+                -Version ([version]$version) `
+                -Edition 'Core' `
+                -NativeJsonSchemaAvailable $true `
+                -Now ([datetimeoffset]::Parse('2026-11-10T12:00:00Z'))
+            $dayAfter = Test-PowerShellRuntimeSecurity `
+                -Version ([version]$version) `
+                -Edition 'Core' `
+                -NativeJsonSchemaAvailable $true `
+                -Now ([datetimeoffset]::Parse('2026-11-11T00:00:00Z'))
+
+            $lastDay.policy.previousLtsAcceptedUntil | Should -Be '2026-11-10'
+            $lastDay.policy.meetsMinimumSecurePatch | Should -BeTrue -Because "$version is the patched build on its line"
+            $lastDay.supported | Should -BeTrue
+            $lastDay.status | Should -Be 'warning'
+            $dayAfter.supported | Should -BeFalse
+            $dayAfter.status | Should -Be 'fail'
+            ($dayAfter.warnings -join ' ') | Should -Match '2026-11-10'
+        }
     }
 
     It 'refuses Windows PowerShell for the generator' {

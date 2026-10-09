@@ -8,6 +8,7 @@
 - Latest releases, star counts and every shelf are regenerated from today's data.
 - Every Morphe patch bundle now leads with an "Add to Morphe" button. It opens the add-source link that Morphe Manager documents, so the app adds the repository as a patch source and picks up each new bundle on its own. The plain Download button follows it for anyone who wants the file. All seven Hush bundles get the pair in the shelves, in Latest releases and on the two flagship cards.
 - A release that ships an `.mpp` file is recognized as a patch bundle, and the catalog has a `morphe` download kind that expects one. The sync check probes every add-source link the page shows and counts them in the report.
+- The PowerShell runtime check now carries a list of advisories instead of one. The three published on 2026-09-11 (CVE-2026-62801, CVE-2026-40400 and CVE-2026-69806) join CVE-2026-50523, each with the fixed build its advisory lists for every line it affects. That puts the floors at 7.4.20, 7.5.11 and 7.6.6, and a 7.6.5 runtime gets a warning that names the three it still carries. The report's `runtimeSecurity.policy` lists each advisory with its fixed builds, and a test pins the 2026-11-10 date after which 7.4 and 7.5 stop being accepted.
 
 ## 2026-09-29
 

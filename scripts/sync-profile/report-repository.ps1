@@ -59,14 +59,22 @@ function Test-PowerShellRuntimeSecurity {
     }
 
     $securePatch = $null
+    $missedAdvisories = @()
     if (-not $isWindowsPowerShell) {
         $securePatch = $PowerShellMinimumSecurePatchVersions |
             Where-Object { $_.Major -eq $versionValue.Major -and $_.Minor -eq $versionValue.Minor } |
             Select-Object -First 1
+        # Each advisory the runtime still carries: its line has a fixed build and the
+        # runtime is older than it. A patched-for-one, vulnerable-to-three runtime is
+        # named for the three.
+        $missedAdvisories = @($PowerShellSecurityAdvisories | Where-Object {
+                $fixed = @($_.fixedVersions | Where-Object { $_.Major -eq $versionValue.Major -and $_.Minor -eq $versionValue.Minor })
+                $fixed.Count -gt 0 -and $versionValue -lt $fixed[0]
+            } | ForEach-Object { [string]$_.id })
     }
     $meetsSecurePatch = ($null -eq $securePatch) -or ($versionValue -ge $securePatch)
     if (-not $meetsSecurePatch) {
-        $warnings.Add("PowerShell $versionValue is affected by $PowerShellSecurityAdvisoryId; update to $securePatch or newer on the $($versionValue.Major).$($versionValue.Minor) line.")
+        $warnings.Add("PowerShell $versionValue is affected by $($missedAdvisories -join ', '); update to $securePatch or newer on the $($versionValue.Major).$($versionValue.Minor) line.")
     }
 
     if ($meetsFloor -and -not $nativeJsonSchema) {
@@ -95,10 +103,17 @@ function Test-PowerShellRuntimeSecurity {
             windowsPowerShellBootstrapVersion = $WindowsPowerShellBootstrapVersion
             windowsPowerShellBootstrapOnly = $true
             windowsPowerShellAdvisory = $WindowsPowerShellAdvisoryId
-            runtimeSecurityAdvisory = $PowerShellSecurityAdvisoryId
+            runtimeSecurityAdvisories = @($PowerShellSecurityAdvisories | ForEach-Object {
+                    [ordered]@{
+                        id = [string]$_.id
+                        url = [string]$_.url
+                        fixedVersions = @($_.fixedVersions | ForEach-Object { $_.ToString() })
+                    }
+                })
             minimumSecurePatchVersions = @($PowerShellMinimumSecurePatchVersions | ForEach-Object { $_.ToString() })
             meetsMinimumSecurePatch = [bool]$meetsSecurePatch
-            sources = @($PowerShellLifecycleUrl, $WindowsPowerShellAdvisoryUrl, $PowerShellSecurityAdvisoryUrl)
+            missedAdvisories = @($missedAdvisories)
+            sources = @(@($PowerShellLifecycleUrl, $WindowsPowerShellAdvisoryUrl) + @($PowerShellSecurityAdvisories | ForEach-Object { [string]$_.url }))
         }
         capabilities = [ordered]@{
             nativeJsonSchema = [bool]$nativeJsonSchema

@@ -186,15 +186,29 @@ $script:GitHubRestApiVersion = "2022-11-28"
 $script:PowerShellMinimumGeneratorVersion = [version]"7.4.0"
 $script:PowerShellPreferredLtsVersion = [version]"7.6.0"
 $script:PowerShellPreviousLtsAcceptedUntil = "2026-11-10"
-# CVE-2026-50523 (command injection) affects 7.4.0-7.4.18, 7.5.0-7.5.9, and 7.6.0-7.6.4.
-# Patched builds are 7.4.19, 7.5.10, and 7.6.5, so an in-support runtime can still be
-# vulnerable and needs its own per-line minimum rather than only a floor check.
-$script:PowerShellSecurityAdvisoryId = "CVE-2026-50523"
-$script:PowerShellSecurityAdvisoryUrl = "https://nvd.nist.gov/vuln/detail/CVE-2026-50523"
+# PowerShell security advisories, each with the first patched build on every supported
+# line. An in-support runtime can still be vulnerable, so each line gets its own minimum
+# rather than only a floor check. A line missing from an advisory's fixed builds isn't
+# affected by it. CVE-2026-50523 (command injection) was fixed in 7.4.19 / 7.5.10 / 7.6.5.
+# The advisories of 2026-09-11, from each one's "Affected Software" table: #98
+# CVE-2026-62801 (RCE) in 7.4.20 / 7.5.11 / 7.6.6, #99 CVE-2026-40400 (RCE) in
+# 7.4.18 / 7.5.11 / 7.6.6, and #101 CVE-2026-69806 (.NET elevation of privilege) in
+# 7.5.11 / 7.6.6 with 7.4 not affected. Add a new advisory here; the floors below follow.
+$script:PowerShellSecurityAdvisories = @(
+    [ordered]@{ id = "CVE-2026-50523"; url = "https://nvd.nist.gov/vuln/detail/CVE-2026-50523"; fixedVersions = @([version]"7.4.19", [version]"7.5.10", [version]"7.6.5") }
+    [ordered]@{ id = "CVE-2026-62801"; url = "https://nvd.nist.gov/vuln/detail/CVE-2026-62801"; fixedVersions = @([version]"7.4.20", [version]"7.5.11", [version]"7.6.6") }
+    [ordered]@{ id = "CVE-2026-40400"; url = "https://nvd.nist.gov/vuln/detail/CVE-2026-40400"; fixedVersions = @([version]"7.4.18", [version]"7.5.11", [version]"7.6.6") }
+    [ordered]@{ id = "CVE-2026-69806"; url = "https://nvd.nist.gov/vuln/detail/CVE-2026-69806"; fixedVersions = @([version]"7.5.11", [version]"7.6.6") }
+)
+# The highest fixed build on each line across every advisory: 7.4.20, 7.5.11 and 7.6.6.
 $script:PowerShellMinimumSecurePatchVersions = @(
-    [version]"7.4.19",
-    [version]"7.5.10",
-    [version]"7.6.5"
+    foreach ($line in @("7.4", "7.5", "7.6")) {
+        $script:PowerShellSecurityAdvisories |
+            ForEach-Object { $_.fixedVersions } |
+            Where-Object { "$($_.Major).$($_.Minor)" -eq $line } |
+            Sort-Object -Descending |
+            Select-Object -First 1
+    }
 )
 $script:WindowsPowerShellBootstrapVersion = "5.1"
 $script:WindowsPowerShellAdvisoryId = "CVE-2025-54100"
