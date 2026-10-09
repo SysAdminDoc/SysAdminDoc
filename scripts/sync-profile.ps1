@@ -273,6 +273,14 @@ $script:CategoryDefinitions = @(
         DefaultDownloadKind = "apk"
     },
     [ordered]@{
+        Slug = "patches"
+        DisplayName = "Patch bundles"
+        Title = "&#129657; Morphe Patch Bundles"
+        Summary = '<summary><b>&#129657; Morphe Patch Bundles</b> &middot; {0} repos &middot; <i>Patch bundles for Android apps that install through Morphe Manager.</i></summary>'
+        Render = "download-table"
+        DefaultDownloadKind = "morphe"
+    },
+    [ordered]@{
         Slug = "security"
         DisplayName = "Security"
         Title = "&#128274; Security & Networking"

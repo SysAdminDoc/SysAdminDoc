@@ -80,6 +80,7 @@ function Get-ProjectSearchType {
         "extensions" { return "browser-extension" }
         "guides" { return "guide" }
         "media" { return "media-tool" }
+        "patches" { return "patch-bundle" }
         "powershell" { return "powershell-tool" }
         "python" { return "python-tool" }
         "security" { return "security-tool" }
@@ -101,6 +102,7 @@ function Get-ProjectSearchTypeLabel {
         "downloadable-project" { return "Downloadable project" }
         "guide" { return "Guide" }
         "media-tool" { return "Media tool" }
+        "patch-bundle" { return "Patch bundle" }
         "powershell-tool" { return "PowerShell tool" }
         "python-tool" { return "Python tool" }
         "repository" { return "Repository" }

@@ -94,7 +94,7 @@
             "minItems": 1,
             "uniqueItems": true,
             "items": {
-              "enum": ["powershell", "python", "web", "extensions", "android", "security", "media", "desktop", "guides", "misc"]
+              "enum": ["powershell", "python", "web", "extensions", "android", "patches", "security", "media", "desktop", "guides", "misc"]
             }
           }
         }

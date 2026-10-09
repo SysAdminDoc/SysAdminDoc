@@ -5341,7 +5341,7 @@
       "repo": "PatchDock",
       "title": "PatchDock",
       "category": "android",
-      "includeInReadme": false,
+      "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 21,
       "branch": "main",
@@ -5359,7 +5359,7 @@
       "allowPublicMedical": false,
       "aliasOf": null,
       "suppressionReason": null,
-      "readmeReviewNote": "Routed to portfolio-only on 2026-10-09 to keep the Android shelf at the 30-row soft limit after four Hush patch bundles joined it; preserved in projects.json and the portfolio feed.",
+      "readmeReviewNote": null,
       "notes": null
     },
     {
@@ -5536,7 +5536,7 @@
     {
       "repo": "hushfeed",
       "title": "Hushfeed",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 25,
@@ -5560,7 +5560,7 @@
     {
       "repo": "Hushfacebook",
       "title": "Hushfacebook",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 26,
@@ -5584,7 +5584,7 @@
     {
       "repo": "HushMessenger",
       "title": "HushMessenger",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 27,
@@ -5608,7 +5608,7 @@
     {
       "repo": "HushGram",
       "title": "HushGram",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 28,
@@ -5632,7 +5632,7 @@
     {
       "repo": "HushThreads",
       "title": "HushThreads",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 29,
@@ -5656,7 +5656,7 @@
     {
       "repo": "HushTelegram",
       "title": "HushTelegram",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 30,
@@ -5680,7 +5680,7 @@
     {
       "repo": "HushPinterest",
       "title": "HushPinterest",
-      "category": "android",
+      "category": "patches",
       "includeInReadme": true,
       "includeInPortfolio": true,
       "order": 31,

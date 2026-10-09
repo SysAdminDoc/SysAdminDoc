@@ -360,6 +360,7 @@ function Get-TopicHints {
             "web" { foreach ($hint in @("web-app", "javascript", "github-pages")) { Add-TopicHint $hints $hint } }
             "extensions" { foreach ($hint in @("browser-extension", "userscript")) { Add-TopicHint $hints $hint } }
             "android" { foreach ($hint in @("android", "kotlin")) { Add-TopicHint $hints $hint } }
+            "patches" { foreach ($hint in @("android", "morphe", "patches")) { Add-TopicHint $hints $hint } }
             "security" { foreach ($hint in @("security", "networking")) { Add-TopicHint $hints $hint } }
             "media" { foreach ($hint in @("media", "conversion")) { Add-TopicHint $hints $hint } }
             "desktop" { foreach ($hint in @("desktop-app", "windows")) { Add-TopicHint $hints $hint } }

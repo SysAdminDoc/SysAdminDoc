@@ -233,6 +233,7 @@ function Get-CategoryAnchor {
         "web" { return "web-applications" }
         "extensions" { return "browser-extensions--userscripts" }
         "android" { return "android-applications" }
+        "patches" { return "morphe-patch-bundles" }
         "security" { return "security--networking" }
         "media" { return "media--conversion-tools" }
         "desktop" { return "native-desktop-applications" }

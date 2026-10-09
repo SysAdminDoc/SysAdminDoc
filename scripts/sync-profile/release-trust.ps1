@@ -648,6 +648,7 @@ function Get-EffectiveDownloadKind {
     if ([string]::IsNullOrWhiteSpace($kind)) {
         switch ($Category) {
             "android" { $kind = "apk" }
+            "patches" { $kind = "morphe" }
             "extensions" { $kind = "download" }
             "desktop" { $kind = "zip" }
             default { $kind = "download" }

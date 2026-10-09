@@ -588,6 +588,20 @@ Describe 'Public text is encoded for where it lands' {
         Get-MorpheSourceUrl -Entry $entry | Should -BeOrdinal 'https://morphe.software/add-source?github=SysAdminDoc%2FA'
     }
 
+    It 'gives the patches category its own anchor, feed type and Morphe default' {
+        $entry = New-TestEntry -Repo 'A' -Category 'patches'
+        $meta = New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('patches-1.0.0.mpp')
+
+        Get-EffectiveDownloadKind -Entry $entry -Category 'patches' | Should -Be 'morphe'
+        Get-ExpectedReleaseAssetKinds -Entry $entry -Category 'patches' | Should -Be @('mpp')
+        Get-ActionLinkGroup -Entry $entry -Meta $meta -Category 'patches' |
+            Should -BeOrdinal ((New-TestButton -Href 'https://morphe.software/add-source?github=SysAdminDoc%2FA' -File 'morphe' -Alt 'Add A to Morphe') + ' ' + (New-TestButton -Href 'https://github.com/SysAdminDoc/A/releases/latest' -File 'download' -Alt 'Download A'))
+        Get-CategoryAnchor -Slug 'patches' | Should -BeOrdinal 'morphe-patch-bundles'
+        Get-CategoryDisplayName -Slug 'patches' | Should -BeOrdinal 'Patch bundles'
+        Get-ProjectSearchType -Entry $entry -PrimaryActionKind 'release' | Should -BeOrdinal 'patch-bundle'
+        Get-ProjectSearchTypeLabel -Type 'patch-bundle' | Should -BeOrdinal 'Patch bundle'
+    }
+
     It 'reads the Morphe add-source target back with its repository' {
         $readme = '| [**A**](https://github.com/o/A) | a<br><a href="https://morphe.software/add-source?github=o%2FA"><img src="https://raw.githubusercontent.com/o/o/main/assets/buttons/morphe.svg" height="24" alt="Add A to Morphe"></a> <a href="https://github.com/o/A/releases/latest"><img src="https://raw.githubusercontent.com/o/o/main/assets/buttons/download.svg" height="24" alt="Download A"></a> |'
 
@@ -5846,6 +5860,21 @@ Describe 'Showcase layer' {
         $result = Test-ShowcaseShape -Catalog $catalog -Showcase $showcase
         @($result.issues | ForEach-Object { "$($_.field): $($_.reason)" }) | Should -BeNullOrEmpty
         $result.passed | Should -BeTrue
+    }
+
+    It 'keeps every Morphe patch bundle on the patch bundles shelf and off the Android one' {
+        $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
+        $catalog = Get-Catalog -Path (Join-Path $script:RepoRoot 'data/profile-catalog.json')
+        $bundles = @($catalog.entries | Where-Object { [string]$_.downloadKind -eq 'morphe' })
+
+        $bundles.Count | Should -BeGreaterOrEqual 7
+        @($bundles | Where-Object { [string]$_.category -ne 'patches' } | ForEach-Object { $_.repo }) | Should -BeNullOrEmpty
+        $patchShelves = @($showcase.shelves | Where-Object { @($_.categories) -contains 'patches' })
+        $patchShelves | Should -HaveCount 1
+        @($patchShelves[0].categories) | Should -Be @('patches')
+        # Obtainium can't install a patch bundle, so the Android shelf's blurb must not offer it one.
+        $android = @($showcase.shelves | Where-Object { $_.id -eq 'android-apps' })[0]
+        $android.blurb | Should -Not -Match 'Morphe|bundle'
     }
 
     It 'gives a catalog with no showcase one shelf per category and nothing of this profile' {
@@ -13300,6 +13329,13 @@ Describe 'Uncataloged public repos get a reviewable stub' {
         # JavaScript alone is not a category signal, so it stays unresolved.
         (New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'Plain' -Language 'JavaScript')).entry.category |
             Should -BeNullOrEmpty
+    }
+
+    It 'drafts a Morphe-tagged repo as a patch bundle even though it is tagged android first' {
+        (New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'HushNew' -Language 'Kotlin' -Topics @('ad-blocker', 'android', 'morphe', 'patches'))).entry.category |
+            Should -Be 'patches'
+        (New-CatalogEntryStub -Repo (script:New-StubRepo -Name 'Droid' -Language 'Kotlin' -Topics @('android'))).entry.category |
+            Should -Be 'android'
     }
 
     It 'writes suppressed, schema-valid drafts and skips repos already cataloged' {

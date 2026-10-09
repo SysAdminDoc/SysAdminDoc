@@ -976,6 +976,10 @@ function Get-InferredCatalogCategory {
             ([string]$name).ToLowerInvariant()
         } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 
+    # A Morphe patch bundle is tagged android too, so it is looked for across every topic first.
+    foreach ($topic in $topics) {
+        if ($topic -ceq 'morphe' -or $topic -ceq 'morphe-patches') { return "patches" }
+    }
     foreach ($topic in $topics) {
         switch -Regex ($topic) {
             '^(userscript|browser-extension|chrome-extension|firefox-addon)$' { return "extensions" }

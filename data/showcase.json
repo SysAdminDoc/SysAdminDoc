@@ -119,8 +119,15 @@
       "id": "android-apps",
       "title": "Android apps",
       "icon": "&#128241;",
-      "blurb": "Sideload-friendly APKs and Morphe patch bundles from GitHub Releases. Add an APK to Obtainium, or a bundle to Morphe, and updates arrive on their own.",
+      "blurb": "Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for automatic updates.",
       "categories": ["android"]
+    },
+    {
+      "id": "patch-bundles",
+      "title": "Morphe patch bundles",
+      "icon": "&#129657;",
+      "blurb": "Patch bundles that clean up Android apps like TikTok, Facebook and Instagram. Tap Add to Morphe and Morphe Manager picks up each new release on its own.",
+      "categories": ["patches"]
     },
     {
       "id": "browser-extensions",
