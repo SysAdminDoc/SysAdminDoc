@@ -216,7 +216,7 @@ Tools for tuning, repairing and locking down Windows. Grab the release, or read 
 <summary><b>&#128241; Android apps</b> &middot; 30 projects</summary>
 <br/>
 
-Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for automatic updates.
+Sideload-friendly APKs and Morphe patch bundles from GitHub Releases. Add an APK to Obtainium, or a bundle to Morphe, and updates arrive on their own.
 
 | Project | What it does |
 |:--------|:-------------|

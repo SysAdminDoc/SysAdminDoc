@@ -119,7 +119,7 @@
       "id": "android-apps",
       "title": "Android apps",
       "icon": "&#128241;",
-      "blurb": "Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for automatic updates.",
+      "blurb": "Sideload-friendly APKs and Morphe patch bundles from GitHub Releases. Add an APK to Obtainium, or a bundle to Morphe, and updates arrive on their own.",
       "categories": ["android"]
     },
     {
