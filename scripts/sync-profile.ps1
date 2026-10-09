@@ -526,6 +526,8 @@ if ($catalogForRun -and ($Write -or $Check)) {
                 ProbePortfolio = [bool]$ProbePortfolio
                 # The address the footer links, so the probe checks what a visitor reaches.
                 PortfolioUrl = Get-ProfilePortfolioUrl
+                # Measures nothing offline or from cached metadata; the floors then go unjudged.
+                DownloadMeasurement = Get-ReleaseDownloadMeasurement -Repos $repos
             }
             if ($Write) {
                 $profileStateParameters['CurrentReadme'] = $expected

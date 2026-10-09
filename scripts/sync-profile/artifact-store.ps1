@@ -706,6 +706,12 @@ function Get-ReleaseMetadataCacheKey {
     return "github-release:${Owner}:${Repo}"
 }
 
+function Get-ReleaseDownloadCacheKey {
+    param([string]$Repo)
+
+    return "github-release-downloads:${Owner}:${Repo}"
+}
+
 function Get-LinkProbeCacheKey {
     param([string]$Url)
 

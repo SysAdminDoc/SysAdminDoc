@@ -41,6 +41,7 @@ $script:ReportSectionEnforcement = [ordered]@{
     docVersionConsistency = [ordered]@{ enforcement = 'blocking'; failureCondition = 'docVersionConsistency' }
     profileReleaseConsistency = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Public releases are cut by hand at milestones (publicReleaseCadence in data/profile-version.json), so the internal version running ahead is expected.' }
     runtimeSecurity = [ordered]@{ enforcement = 'blocking'; failureCondition = 'runtimeSecurity' }
+    downloadFloors = [ordered]@{ enforcement = 'blocking'; failureCondition = 'downloadFloors' }
     validationPerformance = [ordered]@{ enforcement = 'advisory-by-policy'; reason = 'Timing and cache telemetry.' }
     missingPublicRepos = [ordered]@{ enforcement = 'blocking'; failureCondition = 'missingPublic' }
     privateVisibilityViolations = [ordered]@{ enforcement = 'blocking'; failureCondition = 'privateViolations' }
@@ -144,6 +145,10 @@ function Test-ProfileState {
     HTTPS origin used by the optional deployed portfolio probe; defaults to the one the page links.
     .PARAMETER PortfolioProbeSnapshot
     Optional deterministic probe evidence used by tests instead of network calls.
+    .PARAMETER DownloadMeasurement
+    Release downloads from Get-ReleaseDownloadMeasurement; without it the floors go unjudged.
+    .PARAMETER Showcase
+    The showcase whose hand-kept download floors are checked; defaults to Get-Showcase.
     #>
     [CmdletBinding()]
     param(
@@ -166,7 +171,9 @@ function Test-ProfileState {
     [switch]$ProbePortfolio,
     [string]$PortfolioUrl = (Get-ProfilePortfolioUrl),
     [object]$PortfolioProbeSnapshot,
-    [string]$SmokeReportPath = $script:SmokeReportPath
+    [string]$SmokeReportPath = $script:SmokeReportPath,
+    [object]$DownloadMeasurement = $null,
+    [object]$Showcase = (Get-Showcase)
     )
 
     # Normalize to a null-filtered array so .Count and enumeration stay safe under StrictMode
@@ -512,6 +519,7 @@ function Test-ProfileState {
         -DocVersionConsistency $docVersionConsistency `
         -TagRef (Get-ProfileRepositoryTagRef -TagName ([string]$docVersionConsistency.expectedVersion))
     $runtimeSecurity = Test-PowerShellRuntimeSecurity
+    $downloadFloors = Test-DownloadFloors -Showcase $Showcase -Measurement $DownloadMeasurement
     $reportGeneratedAt = (Get-Date).ToString("o")
     $feedProvenance = $null
     try {
@@ -583,6 +591,7 @@ function Test-ProfileState {
         docVersionConsistency = $docVersionConsistency
         profileReleaseConsistency = $profileReleaseConsistency
         runtimeSecurity = $runtimeSecurity
+        downloadFloors = $downloadFloors
         validationPerformance = $validationPerformance
         missingPublicRepos = $missingPublic
         privateVisibilityViolations = $privateViolations
@@ -721,6 +730,7 @@ function Test-ProfileState {
         schemaValidation = [bool]($schemaValidation.passed -ne $true)
         docVersionConsistency = [bool]($docVersionConsistency.passed -ne $true)
         runtimeSecurity = [bool]($runtimeSecurity.status -eq "fail")
+        downloadFloors = [bool]($downloadFloors.fatalCount -gt 0)
         releaseArtifactVerification = [bool]($VerifyReleaseArtifacts -and $releaseArtifactVerification.failureCount -gt 0)
     }
     $failed = $failureConditions.Values -contains $true

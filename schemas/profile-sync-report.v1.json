@@ -37,6 +37,7 @@
     "docVersionConsistency",
     "profileReleaseConsistency",
     "runtimeSecurity",
+    "downloadFloors",
     "validationPerformance",
     "missingPublicRepos",
     "privateVisibilityViolations",
@@ -163,6 +164,9 @@
     },
     "runtimeSecurity": {
       "$ref": "#/$defs/runtimeSecurity"
+    },
+    "downloadFloors": {
+      "$ref": "#/$defs/downloadFloors"
     },
     "validationPerformance": {
       "$ref": "#/$defs/validationPerformance"
@@ -5290,6 +5294,147 @@
         },
         "preferred": {
           "type": "boolean"
+        },
+        "warningCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "warnings": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "downloadFloors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "metric",
+        "note",
+        "measurementStatus",
+        "measuredAt",
+        "repoCount",
+        "measuredRepoCount",
+        "unmeasuredRepos",
+        "totalReleaseDownloads",
+        "rows",
+        "fatalCount",
+        "warningCount",
+        "warnings"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "warning",
+            "fail",
+            "not-measured"
+          ]
+        },
+        "metric": {
+          "type": "string",
+          "const": "release downloads"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "measurementStatus": {
+          "type": "string",
+          "enum": [
+            "measured",
+            "partial",
+            "not-measured"
+          ]
+        },
+        "measuredAt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repoCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "measuredRepoCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "unmeasuredRepos": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "totalReleaseDownloads": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "subject",
+              "repo",
+              "floorText",
+              "floor",
+              "measured",
+              "status",
+              "suggestedFloor"
+            ],
+            "properties": {
+              "subject": {
+                "type": "string",
+                "enum": [
+                  "proof",
+                  "flagship"
+                ]
+              },
+              "repo": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "floorText": {
+                "type": "string"
+              },
+              "floor": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "measured": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "overclaim",
+                  "underclaim",
+                  "not-measured",
+                  "unreadable"
+                ]
+              },
+              "suggestedFloor": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "fatalCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCount": {
           "$ref": "#/$defs/nonNegativeInteger"

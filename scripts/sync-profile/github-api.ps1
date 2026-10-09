@@ -854,6 +854,97 @@ function Add-ReleaseAssetMetadata {
     return @($Repos)
 }
 
+function Get-ReleaseDownloadMeasurement {
+    <#
+    .SYNOPSIS
+    Sums the download count of every asset on every release of each repository.
+    .DESCRIPTION
+    Release downloads, not people: GitHub counts each fetch of an asset, Morphe Manager's
+    update fetches of a patch bundle included. Only repositories whose metadata shows a
+    latest release are asked, one paginated REST call each, and each total is cached for
+    the validation cache TTL, so a second run the same day asks for nothing. Offline and
+    cached-metadata runs measure nothing. A repository whose count can't be read is listed
+    in unmeasuredRepos and leaves the total incomplete, so Test-DownloadFloors never judges
+    a floor against a short count.
+    .PARAMETER Repos
+    Live repository metadata from Get-GitHubRepos.
+    #>
+    [CmdletBinding()]
+    param([object[]]$Repos)
+
+    $perRepo = [System.Collections.Generic.Dictionary[string, long]]::new([StringComparer]::OrdinalIgnoreCase)
+    $provider = [string]$script:RepositoryMetadataProvider
+    if ($script:Offline -or $provider -eq "offline-empty" -or $provider.StartsWith("cache", [StringComparison]::OrdinalIgnoreCase)) {
+        return [ordered]@{
+            status = "not-measured"
+            reason = "Release downloads are measured on a live run only; this one used offline or cached repository metadata."
+            measuredAt = $null
+            repoCount = 0
+            measuredRepoCount = 0
+            unmeasuredRepos = @()
+            complete = $false
+            totalReleaseDownloads = $null
+            perRepo = $perRepo
+        }
+    }
+
+    $repoRows = @($Repos | Where-Object {
+            $null -ne $_ -and
+            $null -ne (Get-MemberValue -Object $_ -Name "latestRelease") -and
+            -not [string]::IsNullOrWhiteSpace([string](Get-MemberValue -Object $_ -Name "name"))
+        } | Sort-Object { ConvertTo-OrdinalSortKey ([string](Get-MemberValue -Object $_ -Name "name")) })
+    $unmeasured = New-Object System.Collections.Generic.List[string]
+    $total = [long]0
+    foreach ($repo in $repoRows) {
+        $repoName = [string](Get-MemberValue -Object $repo -Name "name")
+        $cacheKey = Get-ReleaseDownloadCacheKey -Repo $repoName
+        $count = $null
+        $cached = Get-ValidationCacheValue -Bucket releases -Key $cacheKey
+        if ($null -ne $cached) {
+            $count = [long]$cached
+        } else {
+            # --jq runs once per page, so the answer is one sum per page of 100 releases.
+            $gh = Invoke-GhCli -Arguments @("api", "repos/$Owner/$repoName/releases?per_page=100", "--paginate", "--jq", "[.[].assets[].download_count] | add // 0") -TimeoutSeconds 120
+            if ($gh.exitCode -eq 0) {
+                $sum = [long]0
+                $parsed = $true
+                foreach ($page in @([string]$gh.text -split "\r?\n" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })) {
+                    $value = [long]0
+                    if ([long]::TryParse($page.Trim(), [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture, [ref]$value)) {
+                        $sum += $value
+                    } else {
+                        $parsed = $false
+                        break
+                    }
+                }
+                if ($parsed) {
+                    $count = $sum
+                    Write-ValidationCacheEntry -Bucket releases -Key $cacheKey -Value $sum
+                }
+            }
+        }
+        if ($null -eq $count) {
+            $unmeasured.Add($repoName)
+            continue
+        }
+        $perRepo[$repoName] = $count
+        $total += $count
+    }
+
+    $complete = ($unmeasured.Count -eq 0)
+    return [ordered]@{
+        status = if ($complete) { "measured" } else { "partial" }
+        reason = if ($complete) { $null } else { "$($unmeasured.Count) repository count(s) could not be read, so the total is incomplete." }
+        measuredAt = (Get-Date).ToUniversalTime().ToString("o")
+        repoCount = [int]$repoRows.Count
+        measuredRepoCount = [int]$perRepo.Count
+        unmeasuredRepos = @($unmeasured.ToArray())
+        complete = [bool]$complete
+        totalReleaseDownloads = if ($complete) { [long]$total } else { $null }
+        perRepo = $perRepo
+    }
+}
+
 function Get-RepoNameWithOwner {
     param([object]$Repo)
 

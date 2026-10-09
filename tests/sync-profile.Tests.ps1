@@ -11441,6 +11441,188 @@ Describe 'Root Markdown hygiene' {
     }
 }
 
+Describe 'Hand-kept download floors' {
+    BeforeAll {
+        function script:New-TestDownloadMeasurement {
+            param([hashtable]$Counts = @{}, [string[]]$Unmeasured = @())
+            $perRepo = [System.Collections.Generic.Dictionary[string, long]]::new([StringComparer]::OrdinalIgnoreCase)
+            foreach ($key in $Counts.Keys) { $perRepo[$key] = [long]$Counts[$key] }
+            $complete = $Unmeasured.Count -eq 0
+            $total = [long]0
+            foreach ($value in $perRepo.Values) { $total += $value }
+            [ordered]@{
+                status = if ($complete) { 'measured' } else { 'partial' }
+                reason = $null
+                measuredAt = '2026-10-09T00:00:00.0000000Z'
+                repoCount = $perRepo.Count + $Unmeasured.Count
+                measuredRepoCount = $perRepo.Count
+                unmeasuredRepos = @($Unmeasured)
+                complete = $complete
+                totalReleaseDownloads = if ($complete) { $total } else { $null }
+                perRepo = $perRepo
+            }
+        }
+
+        function script:New-TestFloorShowcase {
+            param([string]$Proof = '100,000+', [object[]]$Flagships = @())
+            [ordered]@{
+                proof = [ordered]@{ projects = '200+'; downloads = $Proof; measuredOn = '2026-10-09'; method = 'fixture' }
+                flagships = @($Flagships | ForEach-Object { [ordered]@{ repo = $_[0]; downloads = $_[1] } })
+            }
+        }
+    }
+
+    It 'reads a floor as a number: <Text>' -ForEach @(
+        @{ Text = '60,000+'; Value = 60000 }
+        @{ Text = '500+'; Value = 500 }
+        @{ Text = '100,000+'; Value = 100000 }
+        @{ Text = '60,000'; Value = $null }
+        @{ Text = 'lots+'; Value = $null }
+        @{ Text = ''; Value = $null }
+    ) {
+        ConvertFrom-DownloadFloorText -Text $Text | Should -Be $Value
+    }
+
+    It 'rounds a suggested floor down by the hand-kept rule: <Measured>' -ForEach @(
+        @{ Measured = 7792; Floor = '7,500+' }
+        @{ Measured = 8103; Floor = '8,000+' }
+        @{ Measured = 9999; Floor = '9,500+' }
+        @{ Measured = 10000; Floor = '10,000+' }
+        @{ Measured = 60634; Floor = '60,000+' }
+        @{ Measured = 221379; Floor = '221,000+' }
+    ) {
+        Get-SuggestedDownloadFloor -Measured $Measured | Should -BeOrdinal $Floor
+    }
+
+    It 'fails a flagship floor above its measured count and names the floor that fits' {
+        $showcase = script:New-TestFloorShowcase -Proof '1,000+' -Flagships @(, @('A', '9,000+'))
+        $result = Test-DownloadFloors -Showcase $showcase -Measurement (script:New-TestDownloadMeasurement -Counts @{ A = 8103; B = 5000 })
+
+        $result.status | Should -Be 'fail'
+        $result.fatalCount | Should -Be 1
+        $row = @($result.rows | Where-Object { $_.repo -eq 'A' })[0]
+        $row.status | Should -Be 'overclaim'
+        $row.floor | Should -Be 9000
+        $row.measured | Should -Be 8103
+        $row.suggestedFloor | Should -BeOrdinal '8,000+'
+        ($result.warnings -join ' ') | Should -Match 'A claims 9,000\+ downloads, above the 8,103 release downloads measured; lower it to 8,000\+'
+    }
+
+    It 'warns on a floor under half the measured count and suggests the raise, without failing' {
+        $showcase = script:New-TestFloorShowcase -Proof '100,000+'
+        $result = Test-DownloadFloors -Showcase $showcase -Measurement (script:New-TestDownloadMeasurement -Counts @{ A = 221379 })
+
+        $result.status | Should -Be 'warning'
+        $result.fatalCount | Should -Be 0
+        $result.totalReleaseDownloads | Should -Be 221379
+        $result.rows[0].subject | Should -Be 'proof'
+        $result.rows[0].status | Should -Be 'underclaim'
+        $result.rows[0].suggestedFloor | Should -BeOrdinal '221,000+'
+    }
+
+    It 'passes a floor between half and all of the measured count' {
+        $showcase = script:New-TestFloorShowcase -Proof '200,000+' -Flagships @(, @('hushfeed', '60,000+'))
+        $result = Test-DownloadFloors -Showcase $showcase -Measurement (script:New-TestDownloadMeasurement -Counts @{ HushFeed = 60634; B = 160745 })
+
+        $result.status | Should -Be 'ok'
+        $result.warningCount | Should -Be 0
+        # The report schema wants an array here; an empty one must not collapse to null.
+        $null -eq $result.unmeasuredRepos | Should -BeFalse
+        @($result.unmeasuredRepos).Count | Should -Be 0
+        # GitHub reports the renamed repository as HushFeed; the showcase says hushfeed.
+        @($result.rows | Where-Object { $_.repo -eq 'hushfeed' })[0].measured | Should -Be 60634
+    }
+
+    It 'judges no total against an incomplete count, but still judges a measured flagship' {
+        $showcase = script:New-TestFloorShowcase -Proof '999,000+' -Flagships @(, @('A', '9,000+'))
+        $result = Test-DownloadFloors -Showcase $showcase -Measurement (script:New-TestDownloadMeasurement -Counts @{ A = 8103 } -Unmeasured @('B'))
+
+        $result.measurementStatus | Should -Be 'partial'
+        $result.totalReleaseDownloads | Should -BeNullOrEmpty
+        @($result.rows | Where-Object { $_.subject -eq 'proof' })[0].status | Should -Be 'not-measured'
+        @($result.rows | Where-Object { $_.repo -eq 'A' })[0].status | Should -Be 'overclaim'
+        @($result.unmeasuredRepos) | Should -Be @('B')
+    }
+
+    It 'leaves every floor unjudged when nothing was measured' {
+        $showcase = script:New-TestFloorShowcase -Proof '100,000+' -Flagships @(, @('A', '9,000+'))
+        $result = Test-DownloadFloors -Showcase $showcase -Measurement $null
+
+        $result.status | Should -Be 'not-measured'
+        $result.fatalCount | Should -Be 0
+        $result.warningCount | Should -Be 0
+        $null -eq $result.unmeasuredRepos | Should -BeFalse
+        @($result.rows | ForEach-Object { $_.status } | Sort-Object -Unique) | Should -Be @('not-measured')
+        $result.metric | Should -BeOrdinal 'release downloads'
+    }
+
+    It 'never writes the showcase' {
+        $source = (Get-Command Test-DownloadFloors).Definition + (Get-Command Get-ReleaseDownloadMeasurement).Definition
+        $source | Should -Not -Match 'Set-Content|WriteAllText|Out-File|Write-AtomicUtf8TextFile'
+    }
+
+    It 'sums every page of every release-bearing repository and caches nothing it could not read' {
+        Mock Invoke-GhCli {
+            $path = [string]$Arguments[1]
+            if ($path -like 'repos/*/A/releases*') { return [ordered]@{ output = @('120', '30'); exitCode = 0; text = "120`n30" } }
+            if ($path -like 'repos/*/B/releases*') { return [ordered]@{ output = @('gh: Server Error (HTTP 502)'); exitCode = 1; text = 'gh: Server Error (HTTP 502)' } }
+            throw "unexpected gh call: $($Arguments -join ' ')"
+        }
+        $savedOffline = $script:Offline
+        $savedProvider = $script:RepositoryMetadataProvider
+        $savedCache = $script:CacheEnabled
+        $script:Offline = $false
+        $script:RepositoryMetadataProvider = 'graphql'
+        $script:CacheEnabled = $false
+        try {
+            $repos = @(
+                (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.zip'))
+                (New-TestRepoMeta -Name 'B' -WithRelease -AssetNames @('B.zip'))
+                (New-TestRepoMeta -Name 'C')
+            )
+            $result = Get-ReleaseDownloadMeasurement -Repos $repos
+        } finally {
+            $script:Offline = $savedOffline
+            $script:RepositoryMetadataProvider = $savedProvider
+            $script:CacheEnabled = $savedCache
+        }
+
+        $result.status | Should -Be 'partial'
+        $result.complete | Should -BeFalse
+        $result.repoCount | Should -Be 2
+        $result.perRepo['a'] | Should -Be 150
+        @($result.unmeasuredRepos) | Should -Be @('B')
+        $result.totalReleaseDownloads | Should -BeNullOrEmpty
+        Should -Invoke Invoke-GhCli -Times 2 -Exactly
+        Should -Invoke Invoke-GhCli -Times 1 -Exactly -ParameterFilter { $Arguments -contains '--paginate' -and $Arguments -contains '--jq' -and [string]$Arguments[1] -like 'repos/*/A/releases?per_page=100' }
+    }
+
+    It 'measures nothing offline' {
+        Mock Invoke-GhCli { throw 'no gh call is allowed offline' }
+        $savedOffline = $script:Offline
+        $script:Offline = $true
+        try {
+            $result = Get-ReleaseDownloadMeasurement -Repos @((New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.zip')))
+        } finally {
+            $script:Offline = $savedOffline
+        }
+
+        $result.status | Should -Be 'not-measured'
+        $result.totalReleaseDownloads | Should -BeNullOrEmpty
+        Should -Invoke Invoke-GhCli -Times 0 -Exactly
+    }
+
+    It 'keeps the report section and its schema in step' {
+        $schema = Get-Content -LiteralPath (Join-Path $script:RepoRoot 'schemas/profile-sync-report.v1.json') -Raw | ConvertFrom-Json
+        @($schema.required) | Should -Contain 'downloadFloors'
+        $schema.properties.downloadFloors.'$ref' | Should -Be '#/$defs/downloadFloors'
+        $sample = Test-DownloadFloors -Showcase (script:New-TestFloorShowcase -Flagships @(, @('A', '9,000+'))) -Measurement (script:New-TestDownloadMeasurement -Counts @{ A = 8103 })
+        (@($sample.Keys) | Sort-Object) -join ',' | Should -Be ((@($schema.'$defs'.downloadFloors.required) | Sort-Object) -join ',')
+        (@($sample.rows[0].Keys) | Sort-Object) -join ',' | Should -Be ((@($schema.'$defs'.downloadFloors.properties.rows.items.required) | Sort-Object) -join ',')
+        $script:ReportSectionEnforcement['downloadFloors'].enforcement | Should -Be 'blocking'
+    }
+}
+
 Describe 'PowerShell version baseline' {
     It 'requires PowerShell 7.4+ for native JSON Schema validation' {
         $script:SyncProfileScript | Should -Match '(?m)^#Requires -Version 7\.4'
@@ -12271,6 +12453,23 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
         }
 
         script:Assert-ConditionNewlyFired -Result $result -Condition 'docVersionConsistency'
+    }
+
+    It 'fires downloadFloors on a hand-kept floor above the measured release downloads' {
+        $showcase = [ordered]@{ proof = [ordered]@{ projects = '1+'; downloads = '1,000+'; measuredOn = '2026-10-09'; method = 'fixture' }; flagships = @() }
+        $perRepo = [System.Collections.Generic.Dictionary[string, long]]::new([StringComparer]::OrdinalIgnoreCase)
+        $perRepo['ReleaseTool'] = 10
+        $measurement = [ordered]@{
+            status = 'measured'; reason = $null; measuredAt = '2026-10-09T00:00:00.0000000Z'
+            repoCount = 1; measuredRepoCount = 1; unmeasuredRepos = @(); complete = $true
+            totalReleaseDownloads = [long]10; perRepo = $perRepo
+        }
+
+        $result = script:Invoke-ReachabilityState -Baseline $script:ReachabilityBaseline -Override @{ Showcase = $showcase; DownloadMeasurement = $measurement }
+
+        script:Assert-ConditionNewlyFired -Result $result -Condition 'downloadFloors'
+        $result.Report.downloadFloors.status | Should -Be 'fail'
+        $result.Report.downloadFloors.rows[0].status | Should -Be 'overclaim'
     }
 
     It 'fires runtimeSecurity on a PowerShell below the generator floor' {

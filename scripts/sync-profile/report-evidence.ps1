@@ -1,6 +1,138 @@
 # Report sections about the repository's own evidence: report and smoke freshness,
-# roadmap and root Markdown hygiene, planning-doc version consistency and profile
-# release consistency. Dot-sourced by scripts/sync-profile.ps1.
+# roadmap and root Markdown hygiene, planning-doc version consistency, profile
+# release consistency and the hand-kept download floors. Dot-sourced by
+# scripts/sync-profile.ps1.
+
+function ConvertFrom-DownloadFloorText {
+    # "60,000+" is 60000. The showcase schema holds a floor to digits, commas and one
+    # trailing plus; anything else is $null.
+    param([AllowNull()][string]$Text)
+
+    if ([string]::IsNullOrWhiteSpace($Text) -or $Text -cnotmatch '^[0-9][0-9,]*\+\z') { return $null }
+    $value = [long]0
+    if (-not [long]::TryParse($Text.TrimEnd('+').Replace(',', ''), [Globalization.NumberStyles]::None, [Globalization.CultureInfo]::InvariantCulture, [ref]$value)) {
+        return $null
+    }
+    return $value
+}
+
+function Get-SuggestedDownloadFloor {
+    # The rounding rule the hand-kept floors follow: under 10,000 down to the nearest 500,
+    # from 10,000 up down to the nearest 1,000.
+    param([long]$Measured)
+
+    $step = if ($Measured -lt 10000) { [long]500 } else { [long]1000 }
+    $floor = [long]([Math]::Floor([double]$Measured / $step)) * $step
+    return $floor.ToString("N0", [Globalization.CultureInfo]::InvariantCulture) + "+"
+}
+
+function Test-DownloadFloors {
+    <#
+    .SYNOPSIS
+    Holds the hand-kept download floors to the measured release downloads.
+    .DESCRIPTION
+    The header's proof.downloads and each flagship card's downloads are typed by hand in
+    data/showcase.json. A floor above the measured count overclaims and fails the run. A
+    floor under half of it is a warning that names the rounded value it could go up to.
+    Nothing here writes the showcase: the owner's numbers win. A floor is judged only
+    against a complete count, the total when every repository was measured and a flagship
+    when its own repository was.
+    .PARAMETER Showcase
+    The showcase whose floors are checked.
+    .PARAMETER Measurement
+    Get-ReleaseDownloadMeasurement's result; $null when nothing was measured.
+    #>
+    param(
+        [object]$Showcase = (Get-Showcase),
+        [AllowNull()][object]$Measurement
+    )
+
+    $measurementStatus = if ($null -eq $Measurement) { "not-measured" } else { [string](Get-MemberValue -Object $Measurement -Name 'status') }
+    $complete = $null -ne $Measurement -and [bool](Get-MemberValue -Object $Measurement -Name 'complete')
+    $perRepo = if ($null -ne $Measurement) { Get-MemberValue -Object $Measurement -Name 'perRepo' } else { $null }
+    $total = if ($complete) { Get-MemberValue -Object $Measurement -Name 'totalReleaseDownloads' } else { $null }
+
+    $candidates = New-Object System.Collections.Generic.List[object]
+    $proof = Get-MemberValue -Object $Showcase -Name 'proof'
+    $proofFloor = if ($null -ne $proof) { [string](Get-MemberValue -Object $proof -Name 'downloads') } else { $null }
+    if (-not [string]::IsNullOrWhiteSpace($proofFloor)) {
+        $candidates.Add([ordered]@{ subject = 'proof'; repo = $null; floorText = $proofFloor; measured = $total })
+    }
+    foreach ($card in (Get-ShowcaseList $Showcase 'flagships')) {
+        $floorText = [string](Get-MemberValue -Object $card -Name 'downloads')
+        if ([string]::IsNullOrWhiteSpace($floorText)) { continue }
+        $repo = [string](Get-MemberValue -Object $card -Name 'repo')
+        $measured = $null
+        if ($perRepo -is [System.Collections.Generic.Dictionary[string, long]]) {
+            $value = [long]0
+            if ($perRepo.TryGetValue($repo, [ref]$value)) { $measured = $value }
+        } elseif ($perRepo -is [System.Collections.IDictionary]) {
+            foreach ($key in @($perRepo.Keys)) {
+                if ([string]::Equals([string]$key, $repo, [StringComparison]::OrdinalIgnoreCase)) { $measured = [long]$perRepo[$key] }
+            }
+        }
+        $candidates.Add([ordered]@{ subject = 'flagship'; repo = $repo; floorText = $floorText; measured = $measured })
+    }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $warnings = New-Object System.Collections.Generic.List[string]
+    $fatalCount = 0
+    foreach ($candidate in $candidates) {
+        $name = if ($candidate.subject -eq 'proof') { 'The header' } else { $candidate.repo }
+        $floor = ConvertFrom-DownloadFloorText -Text $candidate.floorText
+        $measured = $candidate.measured
+        $suggested = $null
+        $status = if ($null -eq $floor) {
+            $warnings.Add("$name download floor '$($candidate.floorText)' isn't a number like 60,000+.")
+            'unreadable'
+        } elseif ($null -eq $measured) {
+            'not-measured'
+        } elseif ($floor -gt [long]$measured) {
+            $fatalCount++
+            $suggested = Get-SuggestedDownloadFloor -Measured ([long]$measured)
+            $warnings.Add("$name claims $($candidate.floorText) downloads, above the $(([long]$measured).ToString('N0', [Globalization.CultureInfo]::InvariantCulture)) release downloads measured; lower it to $suggested or less.")
+            'overclaim'
+        } elseif (($floor * 2) -lt [long]$measured) {
+            $suggested = Get-SuggestedDownloadFloor -Measured ([long]$measured)
+            $warnings.Add("$name claims $($candidate.floorText) downloads against $(([long]$measured).ToString('N0', [Globalization.CultureInfo]::InvariantCulture)) release downloads measured; it could go up to $suggested.")
+            'underclaim'
+        } else {
+            'ok'
+        }
+        $rows.Add([ordered]@{
+                subject = [string]$candidate.subject
+                repo = if ([string]::IsNullOrWhiteSpace([string]$candidate.repo)) { $null } else { [string]$candidate.repo }
+                floorText = [string]$candidate.floorText
+                floor = $floor
+                measured = if ($null -eq $measured) { $null } else { [long]$measured }
+                status = $status
+                suggestedFloor = $suggested
+            })
+    }
+
+    # Assigned before the hashtable: an if expression unrolls an empty array to $null.
+    $unmeasuredRepos = @()
+    if ($null -ne $Measurement) {
+        $unmeasuredRepos = @(Get-MemberValue -Object $Measurement -Name 'unmeasuredRepos' | Where-Object { $null -ne $_ } | ForEach-Object { [string]$_ })
+    }
+    $judged = @($rows | Where-Object { $_.status -in @('ok', 'overclaim', 'underclaim') }).Count
+    $status = if ($fatalCount -gt 0) { 'fail' } elseif ($warnings.Count -gt 0) { 'warning' } elseif ($judged -eq 0) { 'not-measured' } else { 'ok' }
+    return [ordered]@{
+        status = $status
+        metric = 'release downloads'
+        note = "GitHub's download count summed over every asset of every release. It counts each fetch, Morphe Manager's update downloads of a patch bundle included, so it measures downloads, not people. Floors are hand-kept in data/showcase.json and nothing here changes them."
+        measurementStatus = if ([string]::IsNullOrWhiteSpace($measurementStatus)) { 'not-measured' } else { $measurementStatus }
+        measuredAt = if ($null -ne $Measurement) { Get-MemberValue -Object $Measurement -Name 'measuredAt' } else { $null }
+        repoCount = if ($null -ne $Measurement) { [int](Get-MemberValue -Object $Measurement -Name 'repoCount') } else { 0 }
+        measuredRepoCount = if ($null -ne $Measurement) { [int](Get-MemberValue -Object $Measurement -Name 'measuredRepoCount') } else { 0 }
+        unmeasuredRepos = $unmeasuredRepos
+        totalReleaseDownloads = if ($null -eq $total) { $null } else { [long]$total }
+        rows = @($rows.ToArray())
+        fatalCount = [int]$fatalCount
+        warningCount = [int]$warnings.Count
+        warnings = @($warnings.ToArray())
+    }
+}
 
 function Get-LatestReportAffectingCommit {
     param([string[]]$Paths = $ReportAffectingPaths)
