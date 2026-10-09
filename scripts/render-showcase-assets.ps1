@@ -41,6 +41,7 @@ $ButtonIcons = @{
     code = "M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"
     book = "M12 6.5C10.3 5 7.8 4.5 4 4.5v14c3.8 0 6.3.5 8 2 1.7-1.5 4.2-2 8-2v-14c-3.8 0-6.3.5-8 2zM12 6.5v14"
     search = "M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM15.5 15.5L20 20"
+    layers = "M12 3.5l8.5 4.5L12 12.5 3.5 8zM3.5 12.5l8.5 4.5 8.5-4.5M3.5 16.5L12 21l8.5-4.5"
 }
 
 # One file per button. Every fill holds at least 4.5:1 against white text and reads on both
@@ -50,6 +51,7 @@ $ButtonSpecs = @(
     [pscustomobject]@{ Name = "download"; Label = "Download"; Icon = "download"; Fill = "#1F6FEB" }
     [pscustomobject]@{ Name = "apk"; Label = "Get the APK"; Icon = "phone"; Fill = "#1A7F37" }
     [pscustomobject]@{ Name = "obtainium"; Label = "Obtainium"; Icon = "refresh"; Fill = "#57606A" }
+    [pscustomobject]@{ Name = "morphe"; Label = "Add to Morphe"; Icon = "layers"; Fill = "#BF3989" }
     [pscustomobject]@{ Name = "extension"; Label = "Get the extension"; Icon = "puzzle"; Fill = "#6639BA" }
     [pscustomobject]@{ Name = "userscript"; Label = "Install userscript"; Icon = "bolt"; Fill = "#0E7C86" }
     [pscustomobject]@{ Name = "web"; Label = "Open the app"; Icon = "globe"; Fill = "#8250DF" }

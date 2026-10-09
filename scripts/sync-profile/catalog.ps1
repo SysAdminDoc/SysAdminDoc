@@ -703,7 +703,7 @@ function Test-CatalogShape {
     [void]$allowedCategories.Add("suppressed")
 
     $allowedDownloadKinds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-    foreach ($kind in @("apk", "crx", "crx-xpi", "download", "exe", "repo", "userscript", "zip", "zip-xpi")) {
+    foreach ($kind in @("apk", "crx", "crx-xpi", "download", "exe", "morphe", "repo", "userscript", "zip", "zip-xpi")) {
         [void]$allowedDownloadKinds.Add($kind)
     }
 

@@ -15,6 +15,7 @@ function ConvertTo-ReleaseAssetKind {
     $lower = ([string]$Name).ToLowerInvariant()
     if ([string]::IsNullOrWhiteSpace($lower)) { return $null }
     if ($lower.EndsWith(".apk")) { return "apk" }
+    if ($lower.EndsWith(".mpp")) { return "mpp" }
     if ($lower -match '\.(exe|msi|msix|appx|appxbundle)$') { return "exe" }
     if ($lower -match '\.(zip|7z|rar|tgz)$' -or $lower.EndsWith(".tar.gz")) { return "zip" }
     if ($lower.EndsWith(".crx")) { return "crx" }
@@ -670,6 +671,7 @@ function Get-ExpectedReleaseAssetKinds {
         "crx" { return @("crx") }
         "xpi" { return @("xpi") }
         "crx-xpi" { return @("crx", "xpi") }
+        "morphe" { return @("mpp") }
         "download" { return @("downloadable") }
         default { return @($kind) }
     }

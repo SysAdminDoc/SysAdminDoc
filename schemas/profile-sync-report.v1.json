@@ -7245,6 +7245,7 @@
         "readmeImageTargetCount",
         "readmeDownloadLinkTargetCount",
         "readmeUserscriptInstallTargetCount",
+        "readmeMorpheSourceTargetCount",
         "warningCountByHost",
         "headerHostWarnings",
         "deferredRetries",
@@ -7286,6 +7287,9 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "readmeUserscriptInstallTargetCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "readmeMorpheSourceTargetCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "warningCountByHost": {

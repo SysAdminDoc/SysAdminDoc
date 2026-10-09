@@ -388,6 +388,7 @@ function Test-ProfileState {
             readmeImageTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-image" }).Count
             readmeDownloadLinkTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-download" }).Count
             readmeUserscriptInstallTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-userscript-install" }).Count
+            readmeMorpheSourceTargetCount = @($readmeActionTargets | Where-Object { $_.type -eq "readme-morphe-source" }).Count
             warningCountByHost = @($linkResult.warningCountByHost)
             headerHostWarnings = @($linkResult.headerHostWarnings)
             deferredRetries = @($linkResult.deferredRetries)

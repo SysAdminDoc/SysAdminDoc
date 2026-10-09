@@ -6,6 +6,8 @@
 - PatchDock moved to the portfolio only. The Android shelf would have run to 31 rows with the new bundles, one over the 30-row limit, and PatchDock was the source-only row with no stars yet.
 - Flagship download floors caught up with the release counts: Hushfeed 60,000+, Hushfacebook 47,000+, OpenTasker 11,000+, NVMe Driver Patcher 8,000+, AppManagerNG 7,500+ and Video Subtitle Remover 5,000+. Release downloads across the public repos add up to 221,379 today. The 100,000+ in the header is still the hand-set number from 2026-09-29.
 - Latest releases, star counts and every shelf are regenerated from today's data.
+- Every Morphe patch bundle now leads with an "Add to Morphe" button. It opens the add-source link that Morphe Manager documents, so the app adds the repository as a patch source and picks up each new bundle on its own. The plain Download button follows it for anyone who wants the file. All seven Hush bundles get the pair in the shelves, in Latest releases and on the two flagship cards.
+- A release that ships an `.mpp` file is recognized as a patch bundle, and the catalog has a `morphe` download kind that expects one. The sync check probes every add-source link the page shows and counts them in the report.
 
 ## 2026-09-29
 

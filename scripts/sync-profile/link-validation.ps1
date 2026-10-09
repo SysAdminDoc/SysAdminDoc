@@ -1055,6 +1055,14 @@ function Get-ReadmeActionLinkValidationTargets {
         Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-userscript-install" -Url ([System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value))
     }
 
+    # "Add to Morphe" buttons (Get-MorpheSourceUrl): the repository is the percent-encoded
+    # owner/repo in the query, not a path segment, so it's read from there.
+    foreach ($match in [regex]::Matches($ExpectedReadme, '(?i)<a href="(?<url>https://morphe\.software/add-source\?github=(?<ownerRepo>[^"\s&]+))"')) {
+        $ownerRepo = [Uri]::UnescapeDataString($match.Groups['ownerRepo'].Value)
+        $repo = if ($ownerRepo.Contains('/')) { $ownerRepo.Substring($ownerRepo.IndexOf('/') + 1) } else { $ownerRepo }
+        Add-ReadmeActionLinkValidationTarget -Targets $targets -SeenTargets $seenTargets -Type "readme-morphe-source" -Url ([System.Net.WebUtility]::HtmlDecode($match.Groups['url'].Value)) -Repo $repo
+    }
+
     # Flagship images live in each product's own repository, so a moved or renamed file
     # there breaks a card here. The profile's own assets are checked on disk instead
     # (Test-ReadmeExperience), since a new one isn't on main until it's pushed.

@@ -554,6 +554,54 @@ Describe 'Public text is encoded for where it lands' {
         Get-ObtainiumLink -Entry $entry -Meta (New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.zip')) | Should -BeNullOrEmpty
     }
 
+    It 'leads with Add to Morphe and follows with the download beside a release that ships a patch bundle' {
+        $entry = New-TestEntry -Repo 'A' -Category 'android'
+        $meta = New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('patches-1.0.0.mpp', 'SHA256SUMS.txt')
+
+        Get-ActionLink -Entry $entry -Meta $meta -Category 'android' |
+            Should -BeOrdinal (New-TestButton -Href 'https://morphe.software/add-source?github=SysAdminDoc%2FA' -File 'morphe' -Alt 'Add A to Morphe')
+        Get-MorpheDownloadLink -Entry $entry -Meta $meta |
+            Should -BeOrdinal (New-TestButton -Href 'https://github.com/SysAdminDoc/A/releases/latest' -File 'download' -Alt 'Download A')
+        Get-ActionLinkGroup -Entry $entry -Meta $meta -Category 'android' |
+            Should -BeOrdinal ((New-TestButton -Href 'https://morphe.software/add-source?github=SysAdminDoc%2FA' -File 'morphe' -Alt 'Add A to Morphe') + ' ' + (New-TestButton -Href 'https://github.com/SysAdminDoc/A/releases/latest' -File 'download' -Alt 'Download A'))
+        Get-ObtainiumLink -Entry $entry -Meta $meta | Should -BeNullOrEmpty
+        (Get-ActionButton $entry $meta 'android').kind | Should -Be 'release'
+    }
+
+    It 'leaves an APK release with its APK button and no bundle download' {
+        $entry = New-TestEntry -Repo 'A' -Category 'android'
+        $meta = New-TestRepoMeta -Name 'A' -WithRelease -AssetNames @('A.apk')
+
+        Get-ActionLinkGroup -Entry $entry -Meta $meta -Category 'android' |
+            Should -BeOrdinal (New-TestButton -Href 'https://github.com/SysAdminDoc/A/releases/latest' -File 'apk' -Alt 'Get the A APK')
+        Get-MorpheDownloadLink -Entry $entry -Meta $meta | Should -BeNullOrEmpty
+    }
+
+    It 'classifies a Morphe patch bundle by its .mpp asset and expects one for the morphe kind' {
+        ConvertTo-ReleaseAssetKind -Name 'patches-0.69.0.mpp' | Should -Be 'mpp'
+        Get-ReleaseAssetKinds -AssetNames @('patches-0.69.0.mpp', 'SHA256SUMS.txt') | Should -Be @('mpp', 'other')
+
+        $entry = New-TestEntry -Repo 'A' -Category 'android'
+        $entry.downloadKind = 'morphe'
+        Get-EffectiveDownloadKind -Entry $entry -Category 'android' | Should -Be 'morphe'
+        Get-ExpectedReleaseAssetKinds -Entry $entry -Category 'android' | Should -Be @('mpp')
+        Get-MorpheSourceUrl -Entry $entry | Should -BeOrdinal 'https://morphe.software/add-source?github=SysAdminDoc%2FA'
+    }
+
+    It 'reads the Morphe add-source target back with its repository' {
+        $readme = '| [**A**](https://github.com/o/A) | a<br><a href="https://morphe.software/add-source?github=o%2FA"><img src="https://raw.githubusercontent.com/o/o/main/assets/buttons/morphe.svg" height="24" alt="Add A to Morphe"></a> <a href="https://github.com/o/A/releases/latest"><img src="https://raw.githubusercontent.com/o/o/main/assets/buttons/download.svg" height="24" alt="Download A"></a> |'
+
+        $targets = @(Get-ReadmeActionLinkValidationTargets -ExpectedReadme $readme)
+
+        $morphe = @($targets | Where-Object { $_.type -eq 'readme-morphe-source' })
+        $morphe | Should -HaveCount 1
+        $morphe[0].url | Should -BeOrdinal 'https://morphe.software/add-source?github=o%2FA'
+        $morphe[0].repo | Should -Be 'A'
+        $morphe[0].group | Should -Be 'readme-actions'
+        $morphe[0].fatalOnFailure | Should -BeTrue
+        @($targets | Where-Object { $_.type -eq 'readme-download' } | ForEach-Object { $_.url }) | Should -BeOrdinal 'https://github.com/o/A/releases/latest'
+    }
+
     It 'keeps catalog text in a button name an attribute value and nothing more' {
         $entry = New-TestEntry -Repo 'WebTool' -Category 'web'
         $entry.title = 'Tool "q" & <b>x</b> | [y](https://evil.example/) `z`'

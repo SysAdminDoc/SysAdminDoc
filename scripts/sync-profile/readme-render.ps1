@@ -341,9 +341,14 @@ function Get-ActionButton {
         default {
             $kind = Get-EffectiveDownloadKind -Entry $Entry -Category $Category
             $names = @(Get-ReleaseAssetNamesFromMeta -Meta $Meta) -join "`n"
-            # A Windows build outranks a browser build outside the extensions category: a
-            # desktop app can ship a companion extension (a web clipper) beside its installer.
-            if ($kind -eq "apk") {
+            # A Morphe patch bundle is installed by adding its repository as a source in
+            # Morphe Manager, so that link leads and the file download follows it
+            # (Get-MorpheDownloadLink). A Windows build outranks a browser build outside the
+            # extensions category: a desktop app can ship a companion extension (a web
+            # clipper) beside its installer.
+            if ($kind -eq "morphe" -or (Test-MorpheBundleRelease -Meta $Meta)) {
+                @{ file = "morphe"; alt = "Add $title to Morphe"; url = Get-MorpheSourceUrl $Entry }
+            } elseif ($kind -eq "apk") {
                 @{ file = "apk"; alt = "Get the $title APK" }
             } elseif ($Category -eq "extensions" -or $kind -in @("crx", "xpi", "crx-xpi", "zip-xpi")) {
                 @{ file = "extension"; alt = "Get the $title browser extension" }
@@ -358,7 +363,7 @@ function Get-ActionButton {
     }
     return [ordered]@{
         kind = [string]$action["kind"]
-        url = [string]$action["url"]
+        url = if ($button.ContainsKey("url")) { [string]$button.url } else { [string]$action["url"] }
         file = [string]$button.file
         alt = [string]$button.alt
     }
@@ -417,6 +422,57 @@ function Get-ObtainiumLink {
     $href = "https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/$(Get-RepoUrl $Entry)"
     $src = Get-ProfileAssetUrl "assets/buttons/obtainium.svg"
     return "<a href=`"$(ConvertTo-SafeHref $href)`"><img src=`"$src`" height=`"$Height`" alt=`"$(ConvertTo-ButtonAltText "Add $title to Obtainium for automatic updates")`"></a>"
+}
+
+function Test-MorpheBundleRelease {
+    # True when the latest release ships a Morphe patch bundle (.mpp).
+    param([object]$Meta)
+
+    return @(Get-ReleaseAssetKindsFromMeta -Meta $Meta) -contains "mpp"
+}
+
+function Get-MorpheSourceUrl {
+    # The add-source link Morphe Manager documents (docs/patch-sources.md): the app adds
+    # the repository as a patch source and installs each new bundle from GitHub. The
+    # owner/repo value is one query parameter, so its slash is percent-encoded.
+    param([hashtable]$Entry)
+
+    $ownerRepo = (Get-RepoUrl $Entry) -replace '^https://github\.com/', ''
+    return "https://morphe.software/add-source?github=$([Uri]::EscapeDataString($ownerRepo))"
+}
+
+function Get-MorpheDownloadLink {
+    # The second button beside "Add to Morphe": the bundle itself, for anyone who adds
+    # sources by hand or keeps a copy.
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [int]$Height = 24,
+        [string]$DisplayName
+    )
+
+    $button = Get-ActionButton $Entry $Meta ([string]$Entry.category) -DisplayName $DisplayName
+    if ($button.kind -ne "release" -or $button.file -ne "morphe") { return $null }
+    $title = if (Test-VisibleText $DisplayName) { $DisplayName } else { [string]$Entry.title }
+    if (-not (Test-VisibleText $title)) { $title = [string]$Entry.repo }
+    $src = Get-ProfileAssetUrl "assets/buttons/download.svg"
+    return "<a href=`"$(ConvertTo-SafeHref (Get-ReleaseUrl $Entry))`"><img src=`"$src`" height=`"$Height`" alt=`"$(ConvertTo-ButtonAltText "Download $title")`"></a>"
+}
+
+function Get-ActionLinkGroup {
+    # A row's buttons: the primary action, then the bundle download beside "Add to Morphe".
+    param(
+        [hashtable]$Entry,
+        [object]$Meta,
+        [string]$Category,
+        [int]$Height = 24,
+        [string]$DisplayName
+    )
+
+    $links = @((Get-ActionLink $Entry $Meta $Category -Height $Height -DisplayName $DisplayName))
+    $download = Get-MorpheDownloadLink -Entry $Entry -Meta $Meta -Height $Height -DisplayName $DisplayName
+    if ($download) { $links += $download }
+    return ($links -join " ")
 }
 
 function Get-ProfilePortfolioUrl {
@@ -630,6 +686,8 @@ function New-FlagshipCard {
     $buttons = @((Get-ActionLink $Entry $Meta ([string]$Entry.category) -Height 28 -DisplayName $name))
     $obtainium = Get-ObtainiumLink -Entry $Entry -Meta $Meta -Height 28 -DisplayName $name
     if ($obtainium) { $buttons += $obtainium }
+    $download = Get-MorpheDownloadLink -Entry $Entry -Meta $Meta -Height 28 -DisplayName $name
+    if ($download) { $buttons += $download }
 
     $image = Get-ProfileAssetUrl ([string](Get-MemberValue -Object $Card -Name 'image'))
     $alt = ConvertTo-HtmlText ([string](Get-MemberValue -Object $Card -Name 'imageAlt')) -Attribute
@@ -688,7 +746,7 @@ function New-ProblemSection {
         $meta = Get-RepoMeta $entry $RepoLookup
         # The button shares the project's cell: in a column of its own, a phone-width table
         # squeezes an image-only column down to nothing.
-        $rows.Add("| $(ConvertTo-MarkdownText $want) | $(Get-ProjectLink $entry $meta)<br>$(Get-ActionLink $entry $meta ([string]$entry.category)) |")
+        $rows.Add("| $(ConvertTo-MarkdownText $want) | $(Get-ProjectLink $entry $meta)<br>$(Get-ActionLinkGroup $entry $meta ([string]$entry.category)) |")
     }
     if ($rows.Count -eq 0) { return "" }
 
@@ -781,7 +839,7 @@ function New-FreshReleaseSection {
     $lines.Add("| Project | Version | Get it |")
     $lines.Add("|:--------|:--------|:-------|")
     foreach ($row in $recent) {
-        $lines.Add("| $(Get-ProjectLink $row.entry $row.meta) | [$(ConvertTo-MarkdownText $row.tag -LinkLabel)]($(Get-ReleaseUrl $row.entry)) | $(Get-ActionLink $row.entry $row.meta ([string]$row.entry.category)) |")
+        $lines.Add("| $(Get-ProjectLink $row.entry $row.meta) | [$(ConvertTo-MarkdownText $row.tag -LinkLabel)]($(Get-ReleaseUrl $row.entry)) | $(Get-ActionLinkGroup $row.entry $row.meta ([string]$row.entry.category)) |")
     }
     return ($lines -join [Environment]::NewLine)
 }
@@ -812,7 +870,7 @@ function New-ShelfSection {
         $meta = Get-RepoMeta $entry $RepoLookup
         # The button sits under the description, the widest cell, for the reason given in
         # New-ProblemSection.
-        $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta)<br>$(Get-ActionLink $entry $meta ([string]$entry.category)) |")
+        $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta)<br>$(Get-ActionLinkGroup $entry $meta ([string]$entry.category)) |")
     }
     $lines.Add("")
     $lines.Add("</details>")
