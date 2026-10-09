@@ -1,8 +1,3 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-light.png">
-  <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/showcase/profile-hero-dark.png" width="100%" alt="SysAdminDoc. Fix what bugs you, keep control of the rest. Free apps, extensions and utilities for Windows, Android and the browser.">
-</picture>
 
 <p align="center"><b>200+</b> free projects &middot; <b>100,000+</b> downloads</p>
 
