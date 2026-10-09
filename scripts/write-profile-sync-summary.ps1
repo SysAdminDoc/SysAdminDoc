@@ -211,6 +211,7 @@ $readmeActionTargetCount = if ($linkSummary -and $linkSummary.PSObject.Propertie
 $readmeImageTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeImageTargetCount') { [int]$linkSummary.readmeImageTargetCount } else { 0 }
 $readmeDownloadLinkTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeDownloadLinkTargetCount') { [int]$linkSummary.readmeDownloadLinkTargetCount } else { 0 }
 $readmeUserscriptInstallTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeUserscriptInstallTargetCount') { [int]$linkSummary.readmeUserscriptInstallTargetCount } else { 0 }
+$readmeMorpheSourceTargetCount = if ($linkSummary -and $linkSummary.PSObject.Properties.Name -contains 'readmeMorpheSourceTargetCount') { [int]$linkSummary.readmeMorpheSourceTargetCount } else { 0 }
 $releaseRowsChecked = if ($releaseDrift) { [int]$releaseDrift.checkedCatalogRows } else { 0 }
 $branchTipStatus = if ($branchTipProvenance) { [string]$branchTipProvenance.status } else { "unknown" }
 $branchTipCheckedCount = if ($branchTipProvenance) { [int]$branchTipProvenance.checkedInstallActionCount } else { 0 }
@@ -675,6 +676,7 @@ $summary = @"
 | README product image targets | $readmeImageTargetCount |
 | README download link targets | $readmeDownloadLinkTargetCount |
 | README userscript install targets | $readmeUserscriptInstallTargetCount |
+| README Morphe source targets | $readmeMorpheSourceTargetCount |
 | Link failures | $linkFailureCount |
 | Link warnings | $linkWarningCount |
 | Metadata provider | $metadataProvider |

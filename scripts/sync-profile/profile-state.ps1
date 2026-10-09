@@ -371,6 +371,7 @@ function Test-ProfileState {
         readmeImageTargetCount = 0
         readmeDownloadLinkTargetCount = 0
         readmeUserscriptInstallTargetCount = 0
+        readmeMorpheSourceTargetCount = 0
         warningCountByHost = @()
         headerHostWarnings = @()
         deferredRetries = @()

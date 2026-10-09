@@ -7963,6 +7963,7 @@ Describe 'Feed JSON Schema contracts' {
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeImageTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeDownloadLinkTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeUserscriptInstallTargetCount'
+        $schema.'$defs'.linkValidationSummary.required | Should -Contain 'readmeMorpheSourceTargetCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'liveProbedCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'cacheServedCount'
         $schema.'$defs'.linkValidationSummary.required | Should -Contain 'oldestCacheEntryAgeHours'
@@ -9754,6 +9755,7 @@ Describe 'Profile sync report summaries' -Tag 'Integration' {
             $summary | Should -Match 'README product image targets'
             $summary | Should -Match 'README download link targets'
             $summary | Should -Match 'README userscript install targets'
+            $summary | Should -Match 'README Morphe source targets'
             $summary | Should -Match 'Metadata provider'
             $summary | Should -Match 'Metadata GraphQL page size'
             $summary | Should -Match 'Metadata request count'
@@ -12608,7 +12610,7 @@ Describe 'Every blocking failure condition can be made to fire' -Tag 'Integratio
 
         $summary = $result.Report.linkValidationSummary
         $summary.readmeDownloadLinkTargetCount | Should -BeGreaterThan 0
-        ($summary.readmeImageTargetCount + $summary.readmeDownloadLinkTargetCount + $summary.readmeUserscriptInstallTargetCount) |
+        ($summary.readmeImageTargetCount + $summary.readmeDownloadLinkTargetCount + $summary.readmeUserscriptInstallTargetCount + $summary.readmeMorpheSourceTargetCount) |
             Should -Be $summary.readmeActionTargetCount
     }
 
