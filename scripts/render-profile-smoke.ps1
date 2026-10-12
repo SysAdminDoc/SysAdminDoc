@@ -70,7 +70,9 @@ function Invoke-RenderedSmoke {
         [string]$Theme,
         [int]$Width,
         [int]$Height,
-        [string]$ScreenshotPath
+        [string]$ScreenshotPath,
+        # The whole page with its shelves as a visitor first sees them, below the fold too.
+        [string]$FullPageScreenshotPath
     )
 
     $CommandId.Value++
@@ -261,12 +263,30 @@ function Invoke-RenderedSmoke {
     failedCount: detailKeyboardRows.filter((row) => !row.passed).length,
     passed: detailKeyboardRows.every((row) => row.passed)
   };
+  // The shelves start collapsed, and nothing inside a closed details element is laid out.
+  // Open them all so their tables and buttons are measured the way a visitor who opens one
+  // sees them, then put each back the way it was.
+  const openStates = details.map((detail) => detail.open);
+  details.forEach((detail) => { detail.open = true; });
   const tables = Array.from(root.querySelectorAll("table"));
   const rootRect = root.getBoundingClientRect();
   const tableOverflowRows = tables.filter((table) => {
     const rect = table.getBoundingClientRect();
     return table.scrollWidth > table.clientWidth + 2 || rect.left < rootRect.left - 2 || rect.right > rootRect.right + 2;
   });
+  // GitHub serves README images through its camo proxy and keeps the original address in
+  // data-canonical-src. A button squeezed by a narrow cell keeps its shape and loses height.
+  const buttonImages = Array.from(root.querySelectorAll("img")).filter((img) =>
+    /\/assets\/buttons\/[a-z0-9-]+\.svg/.test(img.getAttribute("data-canonical-src") || img.getAttribute("src") || ""));
+  const smallButtons = buttonImages.filter((img) => {
+    const rect = img.getBoundingClientRect();
+    return rect.width > 0 && rect.height < 23.5;
+  });
+  const smallButtonSamples = smallButtons.slice(0, 5).map((img) => ({
+    alt: (img.getAttribute("alt") || "").slice(0, 80),
+    height: Math.round(img.getBoundingClientRect().height * 10) / 10
+  }));
+  details.forEach((detail, index) => { detail.open = openStates[index]; });
   const normalizeLabel = (value) => (value || "").replace(/\s+/g, " ").trim().toLowerCase();
   const getLinkLabel = (anchor) => {
     const ariaLabel = normalizeLabel(anchor.getAttribute("aria-label"));
@@ -310,6 +330,9 @@ function Invoke-RenderedSmoke {
     tableCount: tables.length,
     tableOverflowCount: tableOverflowRows.length,
     tableOverflowSamples: tableOverflowRows.slice(0, 5).map((table) => (table.textContent || "").trim().replace(/\s+/g, " ").slice(0, 80)),
+    buttonCount: buttonImages.length,
+    smallButtonCount: smallButtons.length,
+    smallButtonSamples,
     linkCount: links.length,
     linkLabelCount: linkLabels.length,
     uniqueLinkLabelCount: unique(linkLabels).length,
@@ -354,6 +377,23 @@ function Invoke-RenderedSmoke {
         captureBeyondViewport = $false
     }
     [System.IO.File]::WriteAllBytes($ScreenshotPath, [Convert]::FromBase64String($screenshot.data))
+    if (-not [string]::IsNullOrWhiteSpace($FullPageScreenshotPath)) {
+        $CommandId.Value++
+        $metrics = Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Page.getLayoutMetrics"
+        $CommandId.Value++
+        $fullPage = Send-CdpCommand -Socket $Socket -Id $CommandId.Value -Method "Page.captureScreenshot" -Params @{
+            format = "png"
+            captureBeyondViewport = $true
+            clip = @{
+                x = 0
+                y = 0
+                width = [Math]::Ceiling([double]$metrics.cssContentSize.width)
+                height = [Math]::Ceiling([double]$metrics.cssContentSize.height)
+                scale = 1
+            }
+        }
+        [System.IO.File]::WriteAllBytes($FullPageScreenshotPath, [Convert]::FromBase64String($fullPage.data))
+    }
 
     $missingSections = @($result.sections.PSObject.Properties | Where-Object { -not [bool]$_.Value } | ForEach-Object { $_.Name })
     $failedImages = @($result.failedImages)
@@ -367,6 +407,10 @@ function Invoke-RenderedSmoke {
     (-not [bool]$result.blankPage) -and
     ([int]$result.croppedElementCount -eq 0) -and
     ([int]$result.overlapWarningCount -eq 0) -and
+        # A table wider than its column hides buttons off-screen on a phone, and a button
+        # under 24px tall misses WCAG 2.2's target size and turns its label unreadable.
+        ([int]$result.tableOverflowCount -eq 0) -and
+        ([int]$result.smallButtonCount -eq 0) -and
         [bool]$result.detailsKeyboardSanity.passed -and
         [bool]$result.linkLabelSanityPassed -and
         ([int]$firstViewportComponentPresence.header -gt 0) -and
@@ -382,6 +426,7 @@ function Invoke-RenderedSmoke {
         passed = $passed
         screenshot = $ScreenshotPath
         screenshotPath = $ScreenshotPath
+        fullPageScreenshotPath = if ([string]::IsNullOrWhiteSpace($FullPageScreenshotPath)) { $null } else { $FullPageScreenshotPath }
         title = $result.title
         finalUrl = $result.url
         portfolioLinkText = [bool]$result.portfolioLinkText
@@ -404,6 +449,9 @@ function Invoke-RenderedSmoke {
         tableCount = [int]$result.tableCount
         tableOverflowCount = [int]$result.tableOverflowCount
         tableOverflowSamples = @($result.tableOverflowSamples)
+        buttonCount = [int]$result.buttonCount
+        smallButtonCount = [int]$result.smallButtonCount
+        smallButtonSamples = @($result.smallButtonSamples)
         linkCount = [int]$result.linkCount
         linkLabelCount = [int]$result.linkLabelCount
         uniqueLinkLabelCount = [int]$result.uniqueLinkLabelCount
@@ -573,7 +621,8 @@ for ($attempt = 1; $attempt -le 2 -and $null -eq $results; $attempt++) {
                         -Theme $theme `
                         -Width $viewport.Width `
                         -Height $viewport.Height `
-                        -ScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name)-$theme.png")
+                        -ScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name)-$theme.png") `
+                        -FullPageScreenshotPath (Join-Path $resolvedOutputDir "rendered-profile-smoke-$($viewport.Name)-$theme-full.png")
                 }
             }
         } finally {

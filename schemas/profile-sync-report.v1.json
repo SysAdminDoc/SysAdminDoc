@@ -6200,6 +6200,8 @@
         "detailsKeyboardSanityPassed",
         "tableCount",
         "tableOverflowCount",
+        "buttonCount",
+        "smallButtonCount",
         "linkCount",
         "linkLabelCount",
         "uniqueLinkLabelCount",
@@ -6307,6 +6309,12 @@
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "tableOverflowCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "buttonCount": {
+          "$ref": "#/$defs/nonNegativeInteger"
+        },
+        "smallButtonCount": {
           "$ref": "#/$defs/nonNegativeInteger"
         },
         "linkCount": {

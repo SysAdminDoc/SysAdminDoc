@@ -399,11 +399,17 @@ function Get-ActionLink {
         [object]$Meta,
         [string]$Category,
         [int]$Height = 24,
-        [string]$DisplayName
+        [string]$DisplayName,
+        # For a half-width flagship card: about 128px across on a 390px phone, narrower than
+        # the 143px "Download for Windows" art, which would shrink under 24px tall. The card
+        # already names the platform, so it shows the plain Download art; the alt text keeps
+        # saying Windows.
+        [switch]$Narrow
     )
 
     $button = Get-ActionButton $Entry $Meta $Category -DisplayName $DisplayName
-    $src = Get-ProfileAssetUrl "assets/buttons/$($button.file).svg"
+    $file = if ($Narrow -and $button.file -eq 'windows') { 'download' } else { [string]$button.file }
+    $src = Get-ProfileAssetUrl "assets/buttons/$file.svg"
     return "<a href=`"$(ConvertTo-SafeHref $button.url)`"><img src=`"$src`" height=`"$Height`" alt=`"$(ConvertTo-ButtonAltText $button.alt)`"></a>"
 }
 
@@ -684,10 +690,11 @@ function New-FlagshipCard {
     $downloads = [string](Get-MemberValue -Object $Card -Name 'downloads')
     if (Test-VisibleText $downloads) { $facts.Add((ConvertTo-HtmlText $downloads) + ' downloads') }
 
-    $buttons = @((Get-ActionLink $Entry $Meta ([string]$Entry.category) -Height 28 -DisplayName $name))
-    $obtainium = Get-ObtainiumLink -Entry $Entry -Meta $Meta -Height 28 -DisplayName $name
+    # 24px like the rest of the page: at 28 the wider buttons outgrow a half-width card on a phone.
+    $buttons = @((Get-ActionLink $Entry $Meta ([string]$Entry.category) -Height 24 -DisplayName $name -Narrow))
+    $obtainium = Get-ObtainiumLink -Entry $Entry -Meta $Meta -Height 24 -DisplayName $name
     if ($obtainium) { $buttons += $obtainium }
-    $download = Get-MorpheDownloadLink -Entry $Entry -Meta $Meta -Height 28 -DisplayName $name
+    $download = Get-MorpheDownloadLink -Entry $Entry -Meta $Meta -Height 24 -DisplayName $name
     if ($download) { $buttons += $download }
 
     $image = Get-ProfileAssetUrl ([string](Get-MemberValue -Object $Card -Name 'image'))
@@ -837,10 +844,12 @@ function New-FreshReleaseSection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("## Latest releases")
     $lines.Add("")
-    $lines.Add("| Project | Version | Get it |")
-    $lines.Add("|:--------|:--------|:-------|")
+    # The buttons go under the project name, not in a third column: a column of nothing
+    # but images shrank them under 24px tall on a phone.
+    $lines.Add("| Project | Version |")
+    $lines.Add("|:--------|:--------|")
     foreach ($row in $recent) {
-        $lines.Add("| $(Get-ProjectLink $row.entry $row.meta) | [$(ConvertTo-MarkdownText $row.tag -LinkLabel)]($(Get-ReleaseUrl $row.entry)) | $(Get-ActionLinkGroup $row.entry $row.meta ([string]$row.entry.category)) |")
+        $lines.Add("| $(Get-ProjectLink $row.entry $row.meta)<br>$(Get-ActionLinkGroup $row.entry $row.meta ([string]$row.entry.category)) | [$(ConvertTo-MarkdownText $row.tag -LinkLabel)]($(Get-ReleaseUrl $row.entry)) |")
     }
     return ($lines -join [Environment]::NewLine)
 }
@@ -865,13 +874,12 @@ function New-ShelfSection {
         $lines.Add((ConvertTo-MarkdownText $Shelf.blurb))
         $lines.Add("")
     }
-    $lines.Add("| Project | What it does |")
-    $lines.Add("|:--------|:-------------|")
+    # A list, not a table: on a 390px phone a two-column table pushed half the buttons past
+    # its edge and squeezed the rest under 24px tall. A list item wraps to the screen, so
+    # each button keeps its full size on its own line under the description.
     foreach ($entry in $items) {
         $meta = Get-RepoMeta $entry $RepoLookup
-        # The button sits under the description, the widest cell, for the reason given in
-        # New-ProblemSection.
-        $lines.Add("| $(Get-ProjectLink $entry $meta) | $(Get-DisplayDescription $entry $meta)<br>$(Get-ActionLinkGroup $entry $meta ([string]$entry.category)) |")
+        $lines.Add("- $(Get-ProjectLink $entry $meta) &middot; $(Get-DisplayDescription $entry $meta)<br>$(Get-ActionLinkGroup $entry $meta ([string]$entry.category))")
     }
     $lines.Add("")
     $lines.Add("</details>")

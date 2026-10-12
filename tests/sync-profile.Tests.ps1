@@ -4934,12 +4934,12 @@ Describe 'Star count display threshold' {
 
         $shelf = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries $entries -RepoLookup $lookup)[0]
         $section = New-ShelfSection -Shelf $shelf -RepoLookup $lookup
-        $rows = @([regex]::Matches($section, '(?m)^\| \[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? \| ') | ForEach-Object { $_.Groups[1].Value })
+        $rows = @([regex]::Matches($section, '(?m)^- \[\*\*(\w+)\*\*\]\([^)]*\)(?: &#11088;\d+)? &middot; ') | ForEach-Object { $_.Groups[1].Value })
 
         # Mu's single star is not shown, and it still ranks above Alpha's zero; alphabetical
         # order would put Alpha first.
         $rows | Should -Be @('Zeta', 'Mu', 'Alpha')
-        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 \| '
+        $section | Should -Match '\[\*\*Zeta\*\*\]\([^)]*\) &#11088;3 &middot; '
         $section | Should -Not -Match '&#11088;1'
     }
 }
@@ -4961,8 +4961,8 @@ Describe 'Owner-bound output follows -Owner' {
     It 'counts rendered table rows for another owner' {
         $Owner = 'FixtureOwner'
         $readme = New-Readme -Catalog $script:OwnerAgnosticCatalog -Repos @()
-        $expectedRows = [regex]::Matches($readme, '(?m)^\| \[\*\*.+?\*\*\]\(https://github\.com/FixtureOwner/').Count
-        $expectedRows | Should -BeGreaterThan 0 -Because 'the fixture renders a web tools table row'
+        $expectedRows = [regex]::Matches($readme, '(?m)^(?:\| |- )\[\*\*.+?\*\*\]\(https://github\.com/FixtureOwner/').Count
+        $expectedRows | Should -BeGreaterThan 0 -Because 'the fixture renders a web tools shelf row'
 
         $density = Test-ReadmeDensity -ExpectedReadme $readme -Entries @($script:OwnerAgnosticCatalog.entries) -RepoLookup (ConvertTo-Lookup @())
         $budgets = Test-GeneratedArtifactBudgets -ExpectedReadme $readme -ExpectedProjectsJson '{"projects":[]}' -ExpectedAssets @{} -ReportJson '{}'
@@ -5162,6 +5162,20 @@ Describe 'Empty shelves are not rendered' {
         $section | Should -Match '<details>'
         $section | Should -Match '&middot; 1 project</summary>'
         $section | Should -Match 'OnlyPowerShell'
+    }
+
+    It 'renders shelf rows as list items with the buttons on their own line, never as a table' {
+        $entry = New-TestEntry -Repo 'ListTool' -Category 'powershell' -Description 'Tidies things'
+        $meta = New-TestRepoMeta -Name 'ListTool' -WithRelease -AssetNames @('ListTool.exe')
+        $lookup = ConvertTo-Lookup @($meta)
+        $shelf = @(Get-RenderedShelves -Showcase (Get-DefaultShowcase) -Entries @($entry) -RepoLookup $lookup)[0]
+
+        $section = New-ShelfSection -Shelf $shelf -RepoLookup $lookup
+
+        $section | Should -Not -Match '(?m)^\|'
+        $line = @($section -split '\r?\n' | Where-Object { $_ -like '- *' })
+        $line | Should -HaveCount 1
+        $line[0] | Should -Match '^- \[\*\*ListTool\*\*\]\(https://github\.com/SysAdminDoc/ListTool\)(?: &#11088;\d+)? &middot; Tidies things[^<]*<br><a href="https://github\.com/SysAdminDoc/ListTool/releases/latest"><img src="[^"]+/assets/buttons/windows\.svg" height="24" alt="Download ListTool for Windows"></a>$'
     }
 }
 
@@ -5568,10 +5582,10 @@ Write-Host ok
         $summary.mobilePassedCount | Should -Be 0
         $summary.mobileFailedCount | Should -Be 1
         $summary.warningCount | Should -BeGreaterThan 0
-        # A table scrolling inside a page that does not overflow is how GitHub renders wide
-        # Markdown tables on phones, so it is recorded but not warned about.
+        # A table scrolling inside a page that holds together still hides what sits past its
+        # edge on a phone, so it is warned about and the disposition says which kind it was.
         $summary.tableOverflowDisposition | Should -Be 'contained-table-scroll'
-        ($summary.warnings -join ' ') | Should -Not -Match 'table overflow'
+        ($summary.warnings -join ' ') | Should -Match 'table overflow'
         ($summary.warnings -join ' ') | Should -Match 'accessible label'
         ($summary.warnings -join ' ') | Should -Match 'keyboard/focus sanity'
     }
@@ -5591,7 +5605,7 @@ Write-Host ok
         (New-RenderedProfileSmokeSummary -SmokeReport $null).ambiguousCrossDestinationLinkLabelCount | Should -Be 0
     }
 
-    It 'warns about table overflow only when the page itself overflows horizontally' {
+    It 'warns about every table overflow and names whether the page broke too' {
         $makeViewport = {
             param([bool]$PageOverflow)
             [pscustomobject]@{
@@ -5630,10 +5644,44 @@ Write-Host ok
 
         $contained.tableOverflowCount | Should -Be 2
         $contained.tableOverflowDisposition | Should -Be 'contained-table-scroll'
-        ($contained.warnings -join ' ') | Should -Not -Match 'table overflow'
+        ($contained.warnings -join ' ') | Should -Match 'table overflow'
+        $contained.status | Should -Be 'warning'
 
         $broken.tableOverflowDisposition | Should -Be 'page-overflow'
         ($broken.warnings -join ' ') | Should -Match 'table overflow'
+    }
+
+    It 'sums the buttons drawn under 24px tall and warns on any' {
+        $viewport = {
+            param([string]$Name, [int]$Small)
+            [pscustomobject]@{
+                name = $Name; passed = ($Small -eq 0); rootOverflow = $false; documentOverflow = $false
+                detailsCount = 1; detailsSummaryCount = 1; tableCount = 2; tableOverflowCount = 0
+                buttonCount = 240; smallButtonCount = $Small
+                linkCount = 4; linkLabelCount = 4; uniqueLinkLabelCount = 4; duplicateLinkLabelCount = 0
+                actionableLinkCount = 4; uniqueActionableLinkLabelCount = 4; emptyLinkLabelCount = 0
+                nonActionableLinkCount = 0; linkLabelSanityPassed = $true
+                screenshotPath = 'reports/rendered-profile-smoke-mobile-dark.png'
+                fullPageScreenshotPath = 'reports/rendered-profile-smoke-mobile-dark-full.png'
+            }
+        }
+        $smoke = [pscustomobject]@{
+            generatedAt = '2026-10-09T00:00:00Z'
+            url = 'https://github.com/SysAdminDoc'
+            passed = $false
+            viewports = @((& $viewport 'desktop' 0), (& $viewport 'mobile' 3))
+        }
+
+        $summary = New-RenderedProfileSmokeSummary -SmokeReport $smoke
+
+        $summary.buttonCount | Should -Be 480
+        $summary.smallButtonCount | Should -Be 3
+        ($summary.warnings -join ' ') | Should -Match '3 button\(s\) drawn under 24px tall'
+        @($summary.screenshotPaths) | Should -Contain 'reports/rendered-profile-smoke-mobile-dark-full.png'
+        $clean = New-RenderedProfileSmokeSummary -SmokeReport ([pscustomobject]@{ generatedAt = '2026-10-09T00:00:00Z'; url = 'https://github.com/SysAdminDoc'; passed = $true; viewports = @((& $viewport 'desktop' 0), (& $viewport 'mobile' 0)) })
+        $clean.smallButtonCount | Should -Be 0
+        ($clean.warnings -join ' ') | Should -Not -Match 'under 24px'
+        (New-RenderedProfileSmokeSummary -SmokeReport $null).smallButtonCount | Should -Be 0
     }
 
     It 'warns on rendered smoke overflow and narrow mobile root width' {
@@ -5922,6 +5970,21 @@ Describe 'Showcase layer' {
         @($result.issues | Where-Object { $_.field -eq $Field -and $_.reason -match [regex]::Escape($Reason) }) | Should -HaveCount 1 -Because (@($result.issues | ForEach-Object { "$($_.field): $($_.reason)" }) -join '; ')
     }
 
+    It 'gives a flagship card 24px buttons and the plain Download art for a Windows download' {
+        $entry = New-TestEntry -Repo 'WinApp' -Category 'desktop'
+        $meta = New-TestRepoMeta -Name 'WinApp' -WithRelease -AssetNames @('WinApp-setup.exe')
+        $card = [ordered]@{ repo = 'WinApp'; name = 'Win App'; platform = 'Windows'; image = 'assets/showcase/opentasker.png'; imageAlt = 'Win App'; pitch = 'Pitch.'; downloads = $null }
+
+        $html = New-FlagshipCard -Entry $entry -Meta $meta -Card $card
+
+        # Half the article is about 128px on a 390px phone; the 143px Windows art would shrink.
+        $html | Should -Match '<img src="[^"]+/assets/buttons/download\.svg" height="24" alt="Download Win App for Windows">'
+        $html | Should -Not -Match 'buttons/windows\.svg'
+        $html | Should -Not -Match 'height="28"'
+        # Outside a flagship card the Windows art stays.
+        Get-ActionLink $entry $meta 'desktop' | Should -Match 'buttons/windows\.svg'
+    }
+
     It 'leaves out a flagship card or problem row the catalog does not list' {
         $showcase = script:New-FixtureShowcase
         $showcase.flagships += [ordered]@{ repo = 'HiddenTool'; name = 'Hidden'; platform = 'Windows'; image = 'assets/showcase/opentasker.png'; imageAlt = 'Hidden card'; pitch = 'Hidden.'; downloads = $null }
@@ -5965,6 +6028,9 @@ Describe 'Showcase layer' {
         $rows | Should -HaveCount 2
         $rows[0] | Should -Match '\[\*\*ReleaseTool\*\*\].*\[v2\.0\.0\]'
         $rows[1] | Should -Match '\[\*\*WinTool\*\*\].*\[v1\.0\.0\]'
+        # Two columns, the buttons under the name: a column of nothing but images shrank them on a phone.
+        $section | Should -Match '(?m)^\| Project \| Version \|\r?$'
+        $rows[0] | Should -Match '^\| \[\*\*ReleaseTool\*\*\]\([^)]+\)(?: &#11088;\d+)?<br><a href="[^"]+"><img [^>]+></a> \| \[v2\.0\.0\]\([^)]+\) \|$'
         $section | Should -Not -Match 'InstallTool' -Because 'a userscript row has no release to download'
         $showcase.freshReleaseCount = 0
         New-FreshReleaseSection -Showcase $showcase -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup | Should -BeNullOrEmpty
@@ -7607,6 +7673,8 @@ Describe 'Feed JSON Schema contracts' {
                 'detailsKeyboardSanityPassed',
                 'tableCount',
                 'tableOverflowCount',
+                'buttonCount',
+                'smallButtonCount',
                 'linkCount',
                 'linkLabelCount',
                 'uniqueLinkLabelCount',
@@ -9556,6 +9624,21 @@ Describe 'Rendered profile smoke wiring' {
         $script:RenderSmokeScript | Should -Match 'SysAdminDoc-render-smoke-\[0-9a-f\]\{32\}'
         $script:RenderSmokeScript | Should -Match 'Refusing to remove unexpected rendered-smoke profile directory'
         $script:RenderSmokeScript | Should -Match 'Remove-RenderedSmokeProfileDir -Path \$profileDir'
+    }
+
+    It 'fails a viewport on a table wider than its column or a button under 24px, measured with the shelves open' {
+        $script:RenderSmokeScript | Should -Match '\(\[int\]\$result\.tableOverflowCount -eq 0\) -and'
+        $script:RenderSmokeScript | Should -Match '\(\[int\]\$result\.smallButtonCount -eq 0\) -and'
+        $script:RenderSmokeScript | Should -Match 'rect\.height < 23\.5'
+        # The shelves are opened for the measurement and each is put back as it was.
+        $script:RenderSmokeScript | Should -Match 'details\.forEach\(\(detail\) => \{ detail\.open = true; \}\);[\s\S]*const tables = [\s\S]*const smallButtons = [\s\S]*details\.forEach\(\(detail, index\) => \{ detail\.open = openStates\[index\]; \}\);'
+        $script:RenderSmokeScript | Should -Match 'data-canonical-src'
+    }
+
+    It 'saves a full-page capture next to each viewport screenshot' {
+        $script:RenderSmokeScript | Should -Match 'captureBeyondViewport = \$true'
+        $script:RenderSmokeScript | Should -Match 'Page\.getLayoutMetrics'
+        $script:RenderSmokeScript | Should -Match '-FullPageScreenshotPath \(Join-Path \$resolvedOutputDir "rendered-profile-smoke-\$\(\$viewport\.Name\)-\$theme-full\.png"\)'
     }
 
     It 'remains a local smoke script while hosted workflows are absent' {

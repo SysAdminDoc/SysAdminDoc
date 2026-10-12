@@ -2,6 +2,16 @@
 # experience, size, heading and density budgets, artifact budgets, rendered-smoke
 # evidence and SVG contrast. Dot-sourced by scripts/sync-profile.ps1.
 
+function Get-ReadmeProjectRowCount {
+    # Project rows the README renders: shelf list items and table rows alike, each one
+    # starting with the bold link to an owner repository. The report still calls the
+    # number tableRowCount, the name it had when every shelf was a table.
+    param([AllowNull()][string]$Readme)
+
+    if ([string]::IsNullOrEmpty($Readme)) { return 0 }
+    return [regex]::Matches($Readme, '(?m)^(?:\| |- )\[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern)).Count
+}
+
 function Get-CompactDiffSnippet {
     param(
         [AllowNull()][string]$Text,
@@ -507,7 +517,7 @@ function Test-ReadmeDensity {
         [regex]::Split($safeReadme.TrimEnd(), '\r?\n').Count
     }
     $detailsSectionCount = [regex]::Matches($safeReadme, '(?m)^<details>\s*$').Count
-    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern)).Count
+    $tableRowCount = Get-ReadmeProjectRowCount -Readme $safeReadme
     $categoryRows = New-Object System.Collections.Generic.List[object]
     $warnings = New-Object System.Collections.Generic.List[string]
     $repoOnlyProjectCount = 0
@@ -736,7 +746,7 @@ function Test-GeneratedArtifactBudgets {
     } else {
         [regex]::Split($safeReadme.TrimEnd(), '\r?\n').Count
     }
-    $tableRowCount = [regex]::Matches($safeReadme, '(?m)^\| \[\*\*.+?\*\*\]\(' + (Get-OwnerRepoUrlPattern)).Count
+    $tableRowCount = Get-ReadmeProjectRowCount -Readme $safeReadme
     $detailsSectionCount = [regex]::Matches($safeReadme, '(?m)^<details>\s*$').Count
     $imageTagCount = [regex]::Matches($safeReadme, '<img\b|!\[').Count
     $codeFenceCount = [regex]::Matches($safeReadme, '(?m)^```').Count
@@ -760,7 +770,7 @@ function Test-GeneratedArtifactBudgets {
     $rows = New-Object System.Collections.Generic.List[object]
     $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "bytes" -Value ([System.Text.Encoding]::UTF8.GetByteCount($safeReadme)) -SoftLimit $ReadmeSoftLimitBytes -Note "Generated profile README byte budget."))
     $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "lines" -Value $lineCount -SoftLimit $ReadmeLineSoftLimit -Note "Rendered profile scan budget."))
-    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "tableRows" -Value $tableRowCount -SoftLimit $ReadmeTableRowSoftLimit -Note "Generated project table-row budget."))
+    $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "tableRows" -Value $tableRowCount -SoftLimit $ReadmeTableRowSoftLimit -Note "Generated project row budget, shelf list items and table rows alike."))
     $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "detailsSections" -Value $detailsSectionCount -SoftLimit $ReadmeDetailsSectionSoftLimit -Note "Collapsible section budget."))
     $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "imageTags" -Value $imageTagCount -SoftLimit $ReadmeImageTagSoftLimit -Note "Rendered image budget."))
     $rows.Add((New-ArtifactBudgetRow -Artifact "README.md" -Metric "codeBlocks" -Value $codeBlockCount -SoftLimit $ReadmeCodeBlockSoftLimit -Note "Install-snippet block budget."))
@@ -830,6 +840,8 @@ function New-RenderedProfileSmokeSummary {
             tableOverflowCount = 0
             # Null, not "none": the smoke did not run, so no table was seen at all.
             tableOverflowDisposition = $null
+            buttonCount = 0
+            smallButtonCount = 0
             linkCount = 0
             linkLabelCount = 0
             uniqueLinkLabelCount = 0
@@ -881,6 +893,8 @@ function New-RenderedProfileSmokeSummary {
     $detailsKeyboardSanityPassed = $null
     $tableCount = 0
     $tableOverflowCount = 0
+    $buttonCount = 0
+    $smallButtonCount = 0
     $linkCount = 0
     $linkLabelCount = 0
     $uniqueLinkLabelCount = 0
@@ -921,6 +935,10 @@ function New-RenderedProfileSmokeSummary {
         if (-not [string]::IsNullOrWhiteSpace([string]$screenshotPath)) {
             $screenshotPaths.Add((ConvertTo-RepoRelativeReportPath -Path ([string]$screenshotPath)))
         }
+        $fullPageScreenshotPath = [string](Get-MemberValue -Object $viewport -Name "fullPageScreenshotPath")
+        if (-not [string]::IsNullOrWhiteSpace($fullPageScreenshotPath)) {
+            $screenshotPaths.Add((ConvertTo-RepoRelativeReportPath -Path $fullPageScreenshotPath))
+        }
 
         $failedImageCount += @(Get-MemberValue -Object $viewport -Name "failedImages").Count
         $missingSectionCount += @(Get-MemberValue -Object $viewport -Name "missingSections").Count
@@ -936,6 +954,8 @@ function New-RenderedProfileSmokeSummary {
             $detailsSummaryCount += [int](Get-MemberValue -Object $viewport -Name "detailsSummaryCount")
             $tableCount += [int](Get-MemberValue -Object $viewport -Name "tableCount")
             $tableOverflowCount += [int](Get-MemberValue -Object $viewport -Name "tableOverflowCount")
+            $buttonCount += [int](Get-MemberValue -Object $viewport -Name "buttonCount")
+            $smallButtonCount += [int](Get-MemberValue -Object $viewport -Name "smallButtonCount")
             $linkCount += [int](Get-MemberValue -Object $viewport -Name "linkCount")
             $linkLabelCount += [int](Get-MemberValue -Object $viewport -Name "linkLabelCount")
             $uniqueLinkLabelCount += [int](Get-MemberValue -Object $viewport -Name "uniqueLinkLabelCount")
@@ -1045,12 +1065,14 @@ function New-RenderedProfileSmokeSummary {
         }
     }
     if ($accessibilityEvidenceAvailable) {
-        # A table that scrolls inside a page that does not itself overflow is how GitHub
-        # renders wide Markdown tables at phone widths: the table gets its own scroll
-        # container, so the page layout is intact. Only warn when the page really breaks,
-        # and keep the per-table count as informational evidence either way.
-        if ($tableOverflowCount -gt 0 -and $overflowCount -gt 0) {
-            $warnings.Add("Rendered profile smoke found $tableOverflowCount table overflow warning(s) on a page that also overflows horizontally.")
+        # GitHub gives a wide table its own sideways scroll box, so the page holds together,
+        # but on a phone whatever sits past the table's edge is out of sight. Since
+        # 2026-10-09 that counts; tableOverflowDisposition still says which kind it was.
+        if ($tableOverflowCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $tableOverflowCount table overflow warning(s); a table wider than its column hides its buttons off-screen on a phone.")
+        }
+        if ($smallButtonCount -gt 0) {
+            $warnings.Add("Rendered profile smoke found $smallButtonCount button(s) drawn under 24px tall.")
         }
         if ($emptyLinkLabelCount -gt 0) {
             $warnings.Add("Rendered profile smoke found $emptyLinkLabelCount link(s) without an accessible label.")
@@ -1101,6 +1123,8 @@ function New-RenderedProfileSmokeSummary {
         } else {
             "contained-table-scroll"
         }
+        buttonCount = [int]$buttonCount
+        smallButtonCount = [int]$smallButtonCount
         linkCount = [int]$linkCount
         linkLabelCount = [int]$linkLabelCount
         uniqueLinkLabelCount = [int]$uniqueLinkLabelCount
