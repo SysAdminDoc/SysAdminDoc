@@ -575,8 +575,9 @@ function New-ProfileChrome {
     Renders the README header: the hero, the proof line and the pitch.
     .DESCRIPTION
     With a showcase hero the header opens on its banner (a <picture> with dark and light
-    sources). Without one it opens on the catalog's tagline, as a
-    plain paragraph. The pitch is the catalog's about text; the proof line comes from
+    sources). With hero set to false it opens straight on the proof line, the way the owner
+    cut the banner on GitHub on 2026-10-09. Without a hero it opens on the catalog's tagline,
+    as a plain paragraph. The pitch is the catalog's about text; the proof line comes from
     New-ProofLine. Everything personal comes from the catalog and showcase, so a run for
     another account publishes only its own.
     #>
@@ -592,7 +593,9 @@ function New-ProfileChrome {
     $dark = [string](Get-MemberValue -Object $hero -Name 'darkImage')
     $light = [string](Get-MemberValue -Object $hero -Name 'lightImage')
     $alt = [string](Get-MemberValue -Object $hero -Name 'alt')
-    if ($null -ne $hero -and (Test-ShowcaseImageSource $dark) -and (Test-ShowcaseImageSource $light) -and (Test-VisibleText $alt)) {
+    if ($hero -is [bool] -and -not $hero) {
+        # No banner and no tagline.
+    } elseif ($null -ne $hero -and (Test-ShowcaseImageSource $dark) -and (Test-ShowcaseImageSource $light) -and (Test-VisibleText $alt)) {
         # A bare <picture> on its own lines, the one form GitHub keeps whole. Inside a link it
         # wraps the <img> in a second link of its own; the browser can't nest them, so the
         # outer link ends up empty and the light source is lost.
@@ -948,9 +951,8 @@ function New-Readme {
     .SYNOPSIS
     Renders the generated GitHub profile README from catalog, showcase and repo metadata.
     .DESCRIPTION
-    The whole file is generated: header, flagship cards, the problem index, the trust
-    notes, the latest releases, one collapsed shelf per group of categories, and the
-    footer. No section offers a command to paste; every project gets a button that opens
+    The whole file is generated: header, the latest releases, flagship cards, the problem
+    index, the trust notes, one collapsed shelf per group of categories, and the footer. No section offers a command to paste; every project gets a button that opens
     its release, its live app, its userscript or its source.
     .PARAMETER Catalog
     Normalized profile catalog returned by Get-Catalog.
@@ -977,11 +979,12 @@ function New-Readme {
     $blocks.Add("")
     $blocks.Add($GeneratedCatalogNotice)
     $blocks.Add("")
+    # Latest releases lead: the owner moved them above the flagships on GitHub on 2026-10-09.
     foreach ($section in @(
+            (New-FreshReleaseSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
             (New-FlagshipSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
             (New-ProblemSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
-            (New-TrustSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
-            (New-FreshReleaseSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup))) {
+            (New-TrustSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup))) {
         if ([string]::IsNullOrEmpty($section)) { continue }
         $blocks.Add($section)
         $blocks.Add("")

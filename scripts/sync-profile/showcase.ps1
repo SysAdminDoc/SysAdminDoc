@@ -121,8 +121,9 @@ function Test-ShowcaseShape {
         if ($text -match $commandPattern) { & $add $Field 'contains a shell command; the profile never asks a visitor to paste one' }
     }
 
+    # false turns the banner off (see New-ProfileChrome), so there's nothing to check.
     $hero = Get-MemberValue -Object $Showcase -Name 'hero'
-    if ($null -ne $hero) {
+    if ($null -ne $hero -and $hero -isnot [bool]) {
         foreach ($name in @('darkImage', 'lightImage')) {
             if (-not (Test-ShowcaseImageSource ([string](Get-MemberValue -Object $hero -Name $name)))) {
                 & $add "hero.$name" 'is not a committed image or a GitHub-hosted https URL'

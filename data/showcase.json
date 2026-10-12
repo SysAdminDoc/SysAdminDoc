@@ -1,10 +1,6 @@
 {
   "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-showcase.v1.json",
-  "hero": {
-    "darkImage": "assets/showcase/profile-hero-dark.png",
-    "lightImage": "assets/showcase/profile-hero-light.png",
-    "alt": "SysAdminDoc. Fix what bugs you, keep control of the rest. Free apps, extensions and utilities for Windows, Android and the browser."
-  },
+  "hero": false,
   "proof": {
     "projects": "200+",
     "downloads": "100,000+",

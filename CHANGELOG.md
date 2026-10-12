@@ -2,6 +2,7 @@
 
 ## 2026-10-11
 
+- The page opens on the proof line now, and Latest releases comes first, above Flagship apps. Both edits were made on GitHub on 2026-10-09, and the generator keeps them now, so a sync no longer brings the banner back or moves the releases down. Setting `hero` to `false` in `data/showcase.json` turns the banner off. Leave `hero` out and the page opens on the catalog tagline like before.
 - Every table and button fits a phone now. The shelves are lists instead of two-column tables, with each project's buttons on their own line under its description. Latest releases puts the buttons under the project name instead of in a third column, and the flagship cards use 24px buttons like the rest of the page. A flagship's Windows button shows the plain Download art, since the card already names the platform and the wider art would shrink on a half-width card. On 2026-10-09 at 390px, 5 of 11 tables ran past the screen and 99 shelf buttons sat off-screen. Now none do, and no button draws under 24px tall.
 - The rendered smoke check fails a table that runs wider than its column, and a button drawn under 24px tall. It opens every shelf before measuring so the collapsed ones count too, and it saves a full-page screenshot next to each first-screen one.
 

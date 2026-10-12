@@ -5276,8 +5276,9 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
 
         @([regex]::Matches($committed, '(?m)^## (?<title>[^\r\n]+?)\r?$') | ForEach-Object { $_.Groups['title'].Value }) |
-            Should -Be @($ToolCatalogHeading, 'Pick your problem', 'Latest releases', 'Browse everything')
-        $committed | Should -Match '(?s)\A<picture>\r?\n'
+            Should -Be @('Latest releases', $ToolCatalogHeading, 'Pick your problem', 'Browse everything')
+        # The owner cut the banner on GitHub on 2026-10-09; the page opens on the proof line.
+        $committed | Should -Match '(?s)\A<p align="center"><b>'
     }
 
     It 'reports generated README byte size under the default soft budget' {
@@ -5880,6 +5881,20 @@ Describe 'Update-Header idempotency' {
 
         $result | Should -Not -Match '<picture>|onerror'
         $result | Should -Match 'Fixture tagline for the header\.'
+    }
+
+    It 'opens on the proof line with no banner and no tagline when the hero is turned off' {
+        $showcase = Get-DefaultShowcase
+        $showcase.hero = $false
+        $showcase.proof = [ordered]@{ projects = '200+'; downloads = '100,000+'; measuredOn = '2026-10-09'; method = 'Fixture method.' }
+
+        $result = Update-Header -Header (New-TestProfileHeader) -Showcase $showcase
+
+        $result | Should -Not -Match '<picture>|<img\b'
+        $result | Should -Not -Match 'Fixture tagline for the header'
+        @($result -split '\r?\n')[0] | Should -Match '^<p align="center"><b>200\+</b> free projects'
+        (Test-ShowcaseShape -Catalog (Get-Catalog -Path (Join-Path $PSScriptRoot 'fixtures/catalog.json')) -Showcase $showcase).issues |
+            Where-Object { $_.field -like '*hero*' } | Should -BeNullOrEmpty
     }
 }
 

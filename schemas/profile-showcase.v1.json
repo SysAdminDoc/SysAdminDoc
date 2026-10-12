@@ -12,14 +12,20 @@
       "pattern": "^https://raw\\.githubusercontent\\.com/([A-Za-z0-9-]+)/\\1/main/schemas/profile-showcase\\.v1\\.json(?![\\s\\S])"
     },
     "hero": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["darkImage", "lightImage", "alt"],
-      "properties": {
-        "darkImage": { "$ref": "#/$defs/imageSource" },
-        "lightImage": { "$ref": "#/$defs/imageSource" },
-        "alt": { "$ref": "#/$defs/text" }
-      }
+      "description": "The banner the page opens on. false opens the page on the proof line with no banner and no tagline; leaving it out opens on the catalog tagline.",
+      "oneOf": [
+        { "const": false },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["darkImage", "lightImage", "alt"],
+          "properties": {
+            "darkImage": { "$ref": "#/$defs/imageSource" },
+            "lightImage": { "$ref": "#/$defs/imageSource" },
+            "alt": { "$ref": "#/$defs/text" }
+          }
+        }
+      ]
     },
     "proof": {
       "type": "object",

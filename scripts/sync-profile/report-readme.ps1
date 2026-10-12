@@ -219,7 +219,7 @@ function Test-ReadmeExperience {
     $pasteCommandCount = [regex]::Matches($ExpectedReadme, $pasteCommandPattern).Count
 
     $hero = Get-MemberValue -Object $Showcase -Name 'hero'
-    $heroExpected = $null -ne $hero
+    $heroExpected = $null -ne $hero -and $hero -isnot [bool]
     # A bare <picture>: GitHub takes one inside a link apart (see New-ProfileChrome).
     $hasHeroBanner = [regex]::IsMatch($ExpectedReadme, '(?s)\A\s*<picture>\s*<source media="\(prefers-color-scheme: dark\)" srcset="[^"]+">\s*<source media="\(prefers-color-scheme: light\)" srcset="[^"]+">\s*<img [^>]*alt="[^"]+"[^>]*>\s*</picture>\r?\n')
     $flagshipCards = [regex]::Matches($ExpectedReadme, '(?m)^<td width="50%" valign="top">\r?\n<a href=').Count
