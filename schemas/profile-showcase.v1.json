@@ -56,6 +56,31 @@
         }
       }
     },
+    "bundles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "rows"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "blurb": { "type": ["string", "null"], "maxLength": 400 },
+        "linkText": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "linkUrl": { "type": "string", "pattern": "^https://[!#-&(-;=?-\\[\\]-{}~]+(?![\\s\\S])" },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["app", "repo"],
+            "properties": {
+              "app": { "type": "string", "minLength": 1, "maxLength": 30 },
+              "repo": { "$ref": "#/$defs/repo" }
+            }
+          }
+        }
+      }
+    },
     "problems": {
       "type": "array",
       "maxItems": 20,

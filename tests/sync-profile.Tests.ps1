@@ -5274,9 +5274,10 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
 
     It 'publishes the storefront sections in order on the committed README' {
         $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
+        $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
 
         @([regex]::Matches($committed, '(?m)^## (?<title>[^\r\n]+?)\r?$') | ForEach-Object { $_.Groups['title'].Value }) |
-            Should -Be @('Latest releases', $ToolCatalogHeading, 'Pick your problem', 'Browse everything')
+            Should -Be @($showcase.bundles.title, 'Latest releases', $ToolCatalogHeading, 'Pick your problem', 'Browse everything')
         # The owner cut the banner on GitHub on 2026-10-09; the page opens on the proof line.
         $committed | Should -Match '(?s)\A<p align="center"><b>'
     }
@@ -5975,6 +5976,10 @@ Describe 'Showcase layer' {
         @{ Case = 'a category on two shelves'; Field = 'shelves[1].categories'; Reason = "'powershell' is already on shelf"; Break = { param($s) $s.shelves[1].categories = @('python', 'powershell') } }
         @{ Case = 'a category with README entries and no shelf'; Field = 'shelves'; Reason = "category 'web' has README entries but no shelf"; Break = { param($s) $s.shelves = @($s.shelves | Where-Object { @($_.categories) -notcontains 'web' }) } }
         @{ Case = 'more fresh releases than the section holds'; Field = '/freshReleaseCount'; Reason = 'showcase schema'; Break = { param($s) $s.freshReleaseCount = 50 } }
+        @{ Case = 'a bundle row that is not a README entry'; Field = 'bundles.rows[0].repo'; Reason = "'NotListed' is not a README entry"; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'App'; repo = 'NotListed' }) } } }
+        @{ Case = 'a bundle with two rows'; Field = 'bundles.rows[1].repo'; Reason = "'ReleaseTool' already has a row"; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'One'; repo = 'ReleaseTool' }, [ordered]@{ app = 'Two'; repo = 'ReleaseTool' }) } } }
+        @{ Case = 'a bundle app a reader cannot see'; Field = 'bundles.rows[0].app'; Reason = 'is empty'; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = '  '; repo = 'ReleaseTool' }) } } }
+        @{ Case = 'a bundle link that is not https'; Field = '/bundles/linkUrl'; Reason = 'showcase schema'; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; linkText = 'Get it'; linkUrl = 'javascript:alert(1)'; rows = @([ordered]@{ app = 'App'; repo = 'ReleaseTool' }) } } }
     ) {
         $showcase = script:New-FixtureShowcase
         & $Break $showcase
@@ -6014,6 +6019,7 @@ Describe 'Showcase layer' {
         $cards | Should -Not -Match 'HiddenTool'
         [regex]::Matches($problems, '(?m)^\| (?!If you want|:-)').Count | Should -Be 1
         $problems | Should -Not -Match 'HiddenTool'
+        $problems | Should -Match '(?m)^Start from the job you need done\.\r?$'
     }
 
     It 'drops a shelf whose id could leave its attribute, from the nav and the page' {
@@ -6047,8 +6053,76 @@ Describe 'Showcase layer' {
         $section | Should -Match '(?m)^\| Project \| Version \|\r?$'
         $rows[0] | Should -Match '^\| \[\*\*ReleaseTool\*\*\]\([^)]+\)(?: &#11088;\d+)?<br><a href="[^"]+"><img [^>]+></a> \| \[v2\.0\.0\]\([^)]+\) \|$'
         $section | Should -Not -Match 'InstallTool' -Because 'a userscript row has no release to download'
+        $section | Should -Match '(?m)^New versions, newest first\.\r?$'
         $showcase.freshReleaseCount = 0
         New-FreshReleaseSection -Showcase $showcase -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup | Should -BeNullOrEmpty
+    }
+
+    It 'leaves the bundle table rows out of Latest releases' {
+        $showcase = script:New-FixtureShowcase
+        $showcase.bundles = [ordered]@{ title = 'Patch bundles'; rows = @([ordered]@{ app = 'Media app'; repo = 'ReleaseTool' }) }
+        $lookup = ConvertTo-Lookup @(
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -ReleaseTag 'v1.0.0' -ReleasePublishedAt '2026-06-01T00:00:00Z' -AssetNames @('WinTool.zip'))
+            (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -ReleaseTag 'v2.0.0' -ReleasePublishedAt '2026-07-01T00:00:00Z' -AssetNames @('ReleaseTool.zip'))
+        )
+
+        $section = New-FreshReleaseSection -Showcase $showcase -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup
+
+        $section | Should -Not -Match 'ReleaseTool' -Because 'the bundle table already shows its version'
+        $section | Should -Match '\[\*\*WinTool\*\*\].*\[v1\.0\.0\]'
+        $section | Should -Match '(?m)^New versions of everything else, newest first\.\r?$'
+    }
+
+    It 'lists each bundle with the app it is for, its version and its buttons, in the showcase order' {
+        $showcase = script:New-FixtureShowcase
+        $showcase.bundles = [ordered]@{
+            title = 'Patch bundles'
+            blurb = 'One line about them.'
+            linkText = 'Get the patcher'
+            linkUrl = 'https://example.test/get'
+            rows = @(
+                [ordered]@{ app = 'Media app'; repo = 'ReleaseTool' }
+                [ordered]@{ app = 'Hidden app'; repo = 'HiddenTool' }
+                [ordered]@{ app = 'Windows'; repo = 'WinTool' }
+            )
+        }
+        $lookup = ConvertTo-Lookup @(
+            (New-TestRepoMeta -Name 'WinTool' -WithRelease -ReleaseTag 'v1.0.0' -ReleasePublishedAt '2026-06-01T00:00:00Z' -AssetNames @('WinTool.zip'))
+            (New-TestRepoMeta -Name 'ReleaseTool' -WithRelease -ReleaseTag 'v2.0.0' -ReleasePublishedAt '2026-07-01T00:00:00Z' -AssetNames @('ReleaseTool.zip'))
+        )
+        $entries = @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog)
+
+        $section = New-BundleSection -Showcase $showcase -Entries $entries -RepoLookup $lookup
+        $rows = @($section -split '\r?\n' | Where-Object { $_ -match '^\| \*\*' })
+
+        $section | Should -Match '(?m)^## Patch bundles\r?$'
+        $section | Should -Match '(?m)^One line about them\. <a href="https://example\.test/get">Get the patcher &#8594;</a>\r?$'
+        # Two columns, the version beside the name: a third column ran off a 390px phone.
+        $section | Should -Match '(?m)^\| App \| Bundle \|\r?$'
+        $rows | Should -HaveCount 2
+        $rows[0] | Should -Match '^\| \*\*Media app\*\* \| \[\*\*ReleaseTool\*\*\]\([^)]+\)(?: &#11088;\d+)?&nbsp;&middot; \[v2\.0\.0\]\([^)]+\)<br><a href="[^"]+"><img [^>]+></a> \|$'
+        $rows[1] | Should -Match '^\| \*\*Windows\*\* \| \[\*\*WinTool\*\*\]'
+        $section | Should -Not -Match 'HiddenTool|Hidden app' -Because 'a suppressed entry stays off the page'
+
+        $showcase.bundles.linkUrl = 'javascript:alert(1)'
+        New-BundleSection -Showcase $showcase -Entries $entries -RepoLookup $lookup | Should -Not -Match 'javascript|Get the patcher'
+        $showcase.Remove('bundles')
+        New-BundleSection -Showcase $showcase -Entries $entries -RepoLookup $lookup | Should -BeNullOrEmpty
+    }
+
+    It 'asks for a bundle row for every patch bundle on the page, and none for a suppressed one' {
+        $showcase = script:New-FixtureShowcase
+        $showcase.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'Media app'; repo = 'ReleaseTool' }) }
+        $catalog = @{ entries = @($script:ShowcaseFixtureCatalog.entries) + @(
+                @{ repo = 'HushNew'; category = 'patches'; includeInReadme = $true; suppressionReason = $null }
+                @{ repo = 'HushSoon'; category = 'patches'; includeInReadme = $false; suppressionReason = 'No release yet.' }
+            )
+        }
+
+        $issues = @((Test-ShowcaseShape -Catalog $catalog -Showcase $showcase).issues | Where-Object { $_.field -eq 'bundles.rows' })
+
+        $issues | Should -HaveCount 1
+        $issues[0].reason | Should -Match "'HushNew' is a patch bundle on the page with no row"
     }
 
     It 'counts the releases that ship a checksum into a trust note' {

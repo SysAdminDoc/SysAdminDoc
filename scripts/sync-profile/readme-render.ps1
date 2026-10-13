@@ -764,6 +764,8 @@ function New-ProblemSection {
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("## Pick your problem")
     $lines.Add("")
+    $lines.Add("Start from the job you need done.")
+    $lines.Add("")
     $lines.Add("| If you want to... | Try this |")
     $lines.Add("|:------------------|:---------|")
     foreach ($row in $rows) { $lines.Add($row) }
@@ -816,6 +818,75 @@ function New-TrustSection {
     return ($lines -join [Environment]::NewLine)
 }
 
+function Get-BundleRows {
+    # The bundle table's rows that name a README entry, in the showcase's order, each with
+    # its entry. Empty when the showcase has no bundles block or the block has no title.
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries
+    )
+
+    $bundles = Get-MemberValue -Object $Showcase -Name 'bundles'
+    if (-not (Test-VisibleText ([string](Get-MemberValue -Object $bundles -Name 'title')))) { return @() }
+    $rows = foreach ($row in (Get-ShowcaseList $bundles 'rows')) {
+        $app = [string](Get-MemberValue -Object $row -Name 'app')
+        $entry = Get-EntryByRepo -Entries $Entries -Repo ([string](Get-MemberValue -Object $row -Name 'repo'))
+        if (-not $entry -or -not (Test-VisibleText $app)) { continue }
+        [pscustomobject]@{ app = $app; entry = $entry }
+    }
+    return @($rows)
+}
+
+function New-BundleSection {
+    <#
+    .SYNOPSIS
+    The patch bundle table: which app each bundle is for, its buttons and its version.
+    .DESCRIPTION
+    The showcase's bundles block names the section, says in a line what the bundles are
+    and how to add one, and lists every bundle with the app it patches, in its own order.
+    Every bundle stays in the table whatever its release date, so a new one never waits for
+    a slot in Latest releases. The buttons sit under the bundle's name for the same reason
+    they do in Latest releases: a column of nothing but images shrinks them on a phone.
+    #>
+    param(
+        [object]$Showcase,
+        [hashtable[]]$Entries,
+        [hashtable]$RepoLookup
+    )
+
+    $rows = @(Get-BundleRows -Showcase $Showcase -Entries $Entries)
+    if ($rows.Count -eq 0) { return "" }
+    $bundles = Get-MemberValue -Object $Showcase -Name 'bundles'
+
+    $lines = New-Object System.Collections.Generic.List[string]
+    $lines.Add("## $(ConvertTo-MarkdownText ([string](Get-MemberValue -Object $bundles -Name 'title')))")
+    $lines.Add("")
+    $intro = New-Object System.Collections.Generic.List[string]
+    $blurb = [string](Get-MemberValue -Object $bundles -Name 'blurb')
+    if (Test-VisibleText $blurb) { $intro.Add((ConvertTo-MarkdownText $blurb)) }
+    # Same rule as the footer's support link: only an https URL that can't leave its attribute.
+    $linkUrl = [string](Get-MemberValue -Object $bundles -Name 'linkUrl')
+    $linkText = [string](Get-MemberValue -Object $bundles -Name 'linkText')
+    if ($linkUrl -cmatch '^(?i:https)://[!#-&(-;=?-\[\]-{}~]+\z' -and (Test-VisibleText $linkText)) {
+        $intro.Add('<a href="' + $linkUrl + '">' + (ConvertTo-HtmlText $linkText) + ' &#8594;</a>')
+    }
+    if ($intro.Count -gt 0) {
+        $lines.Add($intro -join ' ')
+        $lines.Add("")
+    }
+    # Two columns: at 390px a third, for the version, ran past the edge of the screen.
+    $lines.Add("| App | Bundle |")
+    $lines.Add("|:----|:-------|")
+    foreach ($row in $rows) {
+        $meta = Get-RepoMeta $row.entry $RepoLookup
+        $tag = [string](Get-MemberValue -Object (Get-MemberValue -Object $meta -Name 'latestRelease') -Name 'tagName')
+        # The no-break space keeps the dot on the line before it when a phone wraps the cell.
+        $version = if (Test-VisibleText $tag) { "&nbsp;&middot; [$(ConvertTo-MarkdownText $tag -LinkLabel)]($(Get-ReleaseUrl $row.entry))" } else { "" }
+        $lines.Add("| **$(ConvertTo-MarkdownText $row.app)** | $(Get-ProjectLink $row.entry $meta)$version<br>$(Get-ActionLinkGroup $row.entry $meta ([string]$row.entry.category)) |")
+    }
+    return ($lines -join [Environment]::NewLine)
+}
+
 function New-FreshReleaseSection {
     param(
         [object]$Showcase,
@@ -825,9 +896,14 @@ function New-FreshReleaseSection {
 
     $limit = Get-MemberValue -Object $Showcase -Name 'freshReleaseCount'
     if ($null -eq $limit -or [int]$limit -le 0) { return "" }
+    # The bundle table already shows each bundle's version, so its rows leave the slots here
+    # to everything else.
+    $bundled = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($row in @(Get-BundleRows -Showcase $Showcase -Entries $Entries)) { $bundled.Add([string]$row.entry.repo) | Out-Null }
     # Newest release first; the timestamp is compared as UTC ticks so the order can't
     # follow the machine's culture or time zone, and ties fall back to the repo name.
     $dated = foreach ($entry in $Entries) {
+        if ($bundled.Contains([string]$entry.repo)) { continue }
         $meta = Get-RepoMeta $entry $RepoLookup
         $release = Get-MemberValue -Object $meta -Name 'latestRelease'
         $published = Get-MemberValue -Object $release -Name 'publishedAt'
@@ -846,6 +922,8 @@ function New-FreshReleaseSection {
 
     $lines = New-Object System.Collections.Generic.List[string]
     $lines.Add("## Latest releases")
+    $lines.Add("")
+    $lines.Add($(if ($bundled.Count -gt 0) { "New versions of everything else, newest first." } else { "New versions, newest first." }))
     $lines.Add("")
     # The buttons go under the project name, not in a third column: a column of nothing
     # but images shrank them under 24px tall on a phone.
@@ -951,8 +1029,8 @@ function New-Readme {
     .SYNOPSIS
     Renders the generated GitHub profile README from catalog, showcase and repo metadata.
     .DESCRIPTION
-    The whole file is generated: header, the latest releases, flagship cards, the problem
-    index, the trust notes, one collapsed shelf per group of categories, and the footer. No section offers a command to paste; every project gets a button that opens
+    The whole file is generated: header, the patch bundle table, the latest releases,
+    flagship cards, the problem index, the trust notes, one collapsed shelf per group of categories, and the footer. No section offers a command to paste; every project gets a button that opens
     its release, its live app, its userscript or its source.
     .PARAMETER Catalog
     Normalized profile catalog returned by Get-Catalog.
@@ -979,8 +1057,11 @@ function New-Readme {
     $blocks.Add("")
     $blocks.Add($GeneratedCatalogNotice)
     $blocks.Add("")
-    # Latest releases lead: the owner moved them above the flagships on GitHub on 2026-10-09.
+    # Releases lead: the owner moved them above the flagships on GitHub on 2026-10-09, when
+    # every row was a patch bundle. The bundle table keeps those on top with the app each one
+    # is for, and Latest releases follows it with everything else.
     foreach ($section in @(
+            (New-BundleSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
             (New-FreshReleaseSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
             (New-FlagshipSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),
             (New-ProblemSection -Showcase $Showcase -Entries $entries -RepoLookup $repoLookup),

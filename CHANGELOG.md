@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-12
+
+- HushTumblr shipped v0.0.1, so it's on the page now with its Add to Morphe and Download buttons. The patch bundle shelf holds eight.
+- The page opens on a table of every Hush patch bundle, sorted by the app it's for (Facebook, Instagram, Messenger, Pinterest, Telegram, Threads, TikTok and Tumblr). Each row shows the bundle, its stars and version, and its two buttons. A line above the table says what the bundles do and how to add one, with a link to get Morphe Manager. A new bundle never has to wait for a slot in Latest releases to show up near the top.
+- Latest releases follows the bundle table and shows six of everything else, since the bundles already show their versions. It had been seven Hush rows in a row.
+- Latest releases and Pick your problem each open with a one-line intro.
+- The table lives in a new `bundles` block in `data/showcase.json` (title, blurb, an optional link and one row per app). A patch bundle on the page without a row there stops the sync before it writes, so the next bundle can't be left off the table.
+- The bundle table is two columns, with the version beside the bundle's name. A third column for the version ran past the edge of a 390px phone.
+
 ## 2026-10-11
 
 - HushFacebook Web and GitHub Repo Hider are on the extensions shelf, each with an Install userscript button. HushTumblr is in the catalog too but stays off the page until its first release, so its Add to Morphe button won't point at an empty release list.

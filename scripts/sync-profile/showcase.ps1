@@ -82,8 +82,8 @@ function Test-ShowcaseShape {
     .SYNOPSIS
     Checks data/showcase.json against the catalog it decorates.
     .DESCRIPTION
-    The showcase meets schemas/profile-showcase.v1.json, every flagship and problem row
-    names a README entry, every image is a committed file or a GitHub-hosted URL with real
+    The showcase meets schemas/profile-showcase.v1.json, every flagship, problem and bundle
+    row names a README entry, every patch bundle on the page has a bundle row, every image is a committed file or a GitHub-hosted URL with real
     alt text, the shelves cover each README category exactly once, and no text a visitor
     reads is blank or carries a shell command.
     #>
@@ -103,10 +103,12 @@ function Test-ShowcaseShape {
     }
     $readmeRepos = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
     $readmeCategories = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    $readmePatchBundles = New-Object System.Collections.Generic.List[string]
     foreach ($entry in @($Catalog.entries)) {
         if ($entry.includeInReadme -ne $false -and [string]::IsNullOrWhiteSpace([string]$entry.suppressionReason)) {
             $readmeRepos.Add([string]$entry.repo) | Out-Null
             $readmeCategories.Add([string]$entry.category) | Out-Null
+            if ([string]$entry.category -ceq 'patches') { $readmePatchBundles.Add([string]$entry.repo) }
         }
     }
     # A pasted command is what this page exists to avoid; catch one in the copy too.
@@ -154,6 +156,27 @@ function Test-ShowcaseShape {
         if (-not $readmeRepos.Contains($repo)) { & $add "problems[$index].repo" "'$repo' is not a README entry in the catalog" }
         & $checkText "problems[$index].want" (Get-MemberValue -Object $row -Name 'want')
         $index++
+    }
+
+    $bundles = Get-MemberValue -Object $Showcase -Name 'bundles'
+    if ($null -ne $bundles) {
+        & $checkText 'bundles.title' (Get-MemberValue -Object $bundles -Name 'title')
+        & $checkText 'bundles.blurb' (Get-MemberValue -Object $bundles -Name 'blurb') -Optional
+        & $checkText 'bundles.linkText' (Get-MemberValue -Object $bundles -Name 'linkText') -Optional
+        $listed = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+        $index = 0
+        foreach ($row in (Get-ShowcaseList $bundles 'rows')) {
+            $repo = [string](Get-MemberValue -Object $row -Name 'repo')
+            if (-not $readmeRepos.Contains($repo)) { & $add "bundles.rows[$index].repo" "'$repo' is not a README entry in the catalog" }
+            elseif (-not $listed.Add($repo)) { & $add "bundles.rows[$index].repo" "'$repo' already has a row" }
+            & $checkText "bundles.rows[$index].app" (Get-MemberValue -Object $row -Name 'app')
+            $index++
+        }
+        # The table is where a visitor looks for a bundle, so one on the page without a row
+        # (a new bundle just taken off the suppressed list) stops the write until it has one.
+        foreach ($repo in $readmePatchBundles) {
+            if (-not $listed.Contains($repo)) { & $add 'bundles.rows' "'$repo' is a patch bundle on the page with no row in the bundle table" }
+        }
     }
 
     $index = 0
