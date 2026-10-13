@@ -19,7 +19,7 @@ Better versions of the apps you already use. Each bundle takes the ads and clutt
 | **TikTok** | [**Hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;206&nbsp;&middot; [v0.71.2](https://github.com/SysAdminDoc/hushfeed/releases/latest)<br><a href="https://morphe.software/add-source?github=SysAdminDoc%2Fhushfeed"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe.svg" height="24" alt="Add Hushfeed to Morphe"></a> <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfeed"></a> |
 | **Tumblr** | [**HushTumblr**](https://github.com/SysAdminDoc/HushTumblr) &#11088;2&nbsp;&middot; [v0.0.1](https://github.com/SysAdminDoc/HushTumblr/releases/latest)<br><a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushTumblr"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe.svg" height="24" alt="Add HushTumblr to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushTumblr/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download HushTumblr"></a> |
 
-## Flagship apps
+## My other apps
 
 The ones people download most, and a few I'm proudest of.
 
