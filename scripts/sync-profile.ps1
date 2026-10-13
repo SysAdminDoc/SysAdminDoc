@@ -90,7 +90,7 @@ $script:GeneratedCatalogNotice = '<!-- GENERATED PROFILE: edit data/profile-cata
 # The heading over the flagship cards, the first section under the header. The rendered smoke
 # looks for it on the page and reads it from here, so a rename can't leave the smoke looking
 # for the old words.
-$script:ToolCatalogHeading = "Flagship apps"
+$script:ToolCatalogHeading = "My other apps"
 # HTML5's named character references (data/html-entities.json), read the first time a heading
 # needs one.
 $script:HtmlEntityTable = $null

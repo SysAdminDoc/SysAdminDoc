@@ -9,18 +9,18 @@
   },
   "bundles": {
     "title": "Hush patch bundles for Android",
-    "blurb": "Cleaner versions of the apps you already use. Each bundle takes the ads and clutter out of one app, and every patch has its own switch. Install Morphe Manager, tap Add to Morphe next to your app, and new releases show up on their own.",
+    "blurb": "Better versions of the apps you already use. Each bundle takes the ads and clutter out. Install Morphe Manager, tap Add to Morphe next to your app, and new releases show up on their own.",
     "linkText": "Get Morphe Manager",
     "linkUrl": "https://morphe.software/",
     "rows": [
-      { "app": "Facebook", "repo": "Hushfacebook" },
-      { "app": "Instagram", "repo": "HushGram" },
-      { "app": "Messenger", "repo": "HushMessenger" },
-      { "app": "Pinterest", "repo": "HushPinterest" },
-      { "app": "Telegram", "repo": "HushTelegram" },
-      { "app": "Threads", "repo": "HushThreads" },
-      { "app": "TikTok", "repo": "hushfeed" },
-      { "app": "Tumblr", "repo": "HushTumblr" }
+      { "app": "Facebook", "repo": "Hushfacebook", "logo": "assets/platforms/facebook.svg" },
+      { "app": "Instagram", "repo": "HushGram", "logo": "assets/platforms/instagram.svg" },
+      { "app": "Messenger", "repo": "HushMessenger", "logo": "assets/platforms/messenger.svg" },
+      { "app": "Pinterest", "repo": "HushPinterest", "logo": "assets/platforms/pinterest.svg" },
+      { "app": "Telegram", "repo": "HushTelegram", "logo": "assets/platforms/telegram.svg" },
+      { "app": "Threads", "repo": "HushThreads", "logo": "assets/platforms/threads.svg" },
+      { "app": "TikTok", "repo": "hushfeed", "logo": "assets/platforms/tiktok.svg" },
+      { "app": "Tumblr", "repo": "HushTumblr", "logo": "assets/platforms/tumblr.svg" }
     ]
   },
   "flagships": [
@@ -177,5 +177,5 @@
       "categories": ["misc"]
     }
   ],
-  "freshReleaseCount": 6
+  "freshReleaseCount": 0
 }

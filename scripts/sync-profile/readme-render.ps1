@@ -832,7 +832,7 @@ function Get-BundleRows {
         $app = [string](Get-MemberValue -Object $row -Name 'app')
         $entry = Get-EntryByRepo -Entries $Entries -Repo ([string](Get-MemberValue -Object $row -Name 'repo'))
         if (-not $entry -or -not (Test-VisibleText $app)) { continue }
-        [pscustomobject]@{ app = $app; entry = $entry }
+        [pscustomobject]@{ app = $app; entry = $entry; logo = [string](Get-MemberValue -Object $row -Name 'logo') }
     }
     return @($rows)
 }
@@ -840,13 +840,12 @@ function Get-BundleRows {
 function New-BundleSection {
     <#
     .SYNOPSIS
-    The patch bundle table: which app each bundle is for, its buttons and its version.
+    Three columns of patch bundles with platform logos, versions and install links.
     .DESCRIPTION
     The showcase's bundles block names the section, says in a line what the bundles are
     and how to add one, and lists every bundle with the app it patches, in its own order.
-    Every bundle stays in the table whatever its release date, so a new one never waits for
-    a slot in Latest releases. The buttons sit under the bundle's name for the same reason
-    they do in Latest releases: a column of nothing but images shrinks them on a phone.
+    Every bundle stays in the table whatever its release date. Compact labeled buttons
+    fit side by side on desktop and wrap into two lines on a phone.
     #>
     param(
         [object]$Showcase,
@@ -874,16 +873,43 @@ function New-BundleSection {
         $lines.Add($intro -join ' ')
         $lines.Add("")
     }
-    # Two columns: at 390px a third, for the version, ran past the edge of the screen.
-    $lines.Add("| App | Bundle |")
-    $lines.Add("|:----|:-------|")
-    foreach ($row in $rows) {
+    # Preferred cell widths fill the desktop column. Compact labeled buttons keep all
+    # three columns readable on a phone without shrinking below their 24px height.
+    $lines.Add('<table width="100%">')
+    for ($index = 0; $index -lt $rows.Count; $index++) {
+        if ($index % 3 -eq 0) { $lines.Add('<tr>') }
+        $row = $rows[$index]
         $meta = Get-RepoMeta $row.entry $RepoLookup
         $tag = [string](Get-MemberValue -Object (Get-MemberValue -Object $meta -Name 'latestRelease') -Name 'tagName')
-        # The no-break space keeps the dot on the line before it when a phone wraps the cell.
-        $version = if (Test-VisibleText $tag) { "&nbsp;&middot; [$(ConvertTo-MarkdownText $tag -LinkLabel)]($(Get-ReleaseUrl $row.entry))" } else { "" }
-        $lines.Add("| **$(ConvertTo-MarkdownText $row.app)** | $(Get-ProjectLink $row.entry $meta)$version<br>$(Get-ActionLinkGroup $row.entry $meta ([string]$row.entry.category)) |")
+        $lines.Add('<td width="300" valign="top">')
+        $logo = if (Test-ShowcaseImageSource $row.logo) {
+            '<img src="' + (Get-ProfileAssetUrl $row.logo) + '" width="24" height="24" alt="' + (ConvertTo-HtmlText "$($row.app) logo") + '"> '
+        } else { '' }
+        $lines.Add($logo + '<b>' + (ConvertTo-HtmlText $row.app) + '</b><br>')
+        $title = (ConvertTo-HtmlText ([string]$row.entry.title)) -replace '^(Hush)(?=[A-Za-z])', '$1&shy;'
+        $lines.Add('<a href="' + (ConvertTo-SafeHref (Get-RepoUrl $row.entry)) + '">' + $title + '</a><br>')
+        $details = New-Object System.Collections.Generic.List[string]
+        $stars = (Get-StarText $meta).Trim()
+        if ($stars) { $details.Add($stars) }
+        if (Test-VisibleText $tag) {
+            $details.Add('<a href="' + (ConvertTo-SafeHref (Get-ReleaseUrl $row.entry)) + '">' + (ConvertTo-HtmlText $tag) + '</a>')
+        }
+        if ($details.Count -gt 0) { $lines.Add('<sub>' + ($details -join ' &middot; ') + '</sub><br>') }
+        $actions = Get-ActionLinkGroup $row.entry $meta ([string]$row.entry.category)
+        foreach ($name in @('morphe', 'download')) {
+            $full = Get-ProfileAssetUrl "assets/buttons/$name.svg"
+            $compact = Get-ProfileAssetUrl "assets/buttons/$name-compact.svg"
+            $actions = $actions.Replace('src="' + $full + '"', 'src="' + $compact + '"')
+        }
+        $lines.Add($actions)
+        $lines.Add('</td>')
+        if ($index % 3 -eq 2) { $lines.Add('</tr>') }
     }
+    if ($rows.Count % 3 -ne 0) {
+        for ($empty = $rows.Count % 3; $empty -lt 3; $empty++) { $lines.Add('<td width="300"></td>') }
+        $lines.Add('</tr>')
+    }
+    $lines.Add('</table>')
     return ($lines -join [Environment]::NewLine)
 }
 

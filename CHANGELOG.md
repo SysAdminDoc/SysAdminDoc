@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Hush bundles fill the page in a three-column grid, with each app's logo beside its name. Eight bundles now fit in three rows. Repo links, stars, release versions and install buttons stay together.
+- Compact install buttons keep their full labels and wrap into two lines on phones. Both controls stay 24 pixels tall.
+- The generator keeps the latest profile edits, including the shorter Hush intro, "My other apps" heading and removed Latest releases section.
+
 ## 2026-10-12
 
 - HushTumblr shipped v0.0.1, so it's on the page now with its Add to Morphe and Download buttons. The patch bundle shelf holds eight.

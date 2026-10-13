@@ -170,6 +170,10 @@ function Test-ShowcaseShape {
             if (-not $readmeRepos.Contains($repo)) { & $add "bundles.rows[$index].repo" "'$repo' is not a README entry in the catalog" }
             elseif (-not $listed.Add($repo)) { & $add "bundles.rows[$index].repo" "'$repo' already has a row" }
             & $checkText "bundles.rows[$index].app" (Get-MemberValue -Object $row -Name 'app')
+            $logo = [string](Get-MemberValue -Object $row -Name 'logo')
+            if ($logo -and -not (Test-ShowcaseImageSource $logo)) {
+                & $add "bundles.rows[$index].logo" 'is not an existing local image or a safe GitHub image URL'
+            }
             $index++
         }
         # The table is where a visitor looks for a bundle, so one on the page without a row

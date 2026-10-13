@@ -5276,8 +5276,11 @@ Describe 'New-Readme generation (offline, fixture catalog)' {
         $committed = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'README.md'))
         $showcase = [System.IO.File]::ReadAllText($script:CommittedShowcasePath) | ConvertFrom-Json -AsHashtable -Depth 20
 
+        $headings = @($showcase.bundles.title)
+        if ($showcase.freshReleaseCount -gt 0) { $headings += 'Latest releases' }
+        $headings += @($ToolCatalogHeading, 'Pick your problem', 'Browse everything')
         @([regex]::Matches($committed, '(?m)^## (?<title>[^\r\n]+?)\r?$') | ForEach-Object { $_.Groups['title'].Value }) |
-            Should -Be @($showcase.bundles.title, 'Latest releases', $ToolCatalogHeading, 'Pick your problem', 'Browse everything')
+            Should -Be $headings
         # The owner cut the banner on GitHub on 2026-10-09; the page opens on the proof line.
         $committed | Should -Match '(?s)\A<p align="center"><b>'
     }
@@ -5979,6 +5982,8 @@ Describe 'Showcase layer' {
         @{ Case = 'a bundle row that is not a README entry'; Field = 'bundles.rows[0].repo'; Reason = "'NotListed' is not a README entry"; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'App'; repo = 'NotListed' }) } } }
         @{ Case = 'a bundle with two rows'; Field = 'bundles.rows[1].repo'; Reason = "'ReleaseTool' already has a row"; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'One'; repo = 'ReleaseTool' }, [ordered]@{ app = 'Two'; repo = 'ReleaseTool' }) } } }
         @{ Case = 'a bundle app a reader cannot see'; Field = 'bundles.rows[0].app'; Reason = 'is empty'; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = '  '; repo = 'ReleaseTool' }) } } }
+        @{ Case = 'a bundle logo that is missing'; Field = 'bundles.rows[0].logo'; Reason = 'existing local image'; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'App'; repo = 'ReleaseTool'; logo = 'assets/platforms/missing.svg' }) } } }
+        @{ Case = 'a bundle logo that could leave its attribute'; Field = 'bundles.rows[0].logo'; Reason = 'safe GitHub image'; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; rows = @([ordered]@{ app = 'App'; repo = 'ReleaseTool'; logo = 'https://raw.githubusercontent.com/x/x/main/a.svg" onerror="x' }) } } }
         @{ Case = 'a bundle link that is not https'; Field = '/bundles/linkUrl'; Reason = 'showcase schema'; Break = { param($s) $s.bundles = [ordered]@{ title = 'Bundles'; linkText = 'Get it'; linkUrl = 'javascript:alert(1)'; rows = @([ordered]@{ app = 'App'; repo = 'ReleaseTool' }) } } }
     ) {
         $showcase = script:New-FixtureShowcase
@@ -6081,7 +6086,7 @@ Describe 'Showcase layer' {
             linkText = 'Get the patcher'
             linkUrl = 'https://example.test/get'
             rows = @(
-                [ordered]@{ app = 'Media app'; repo = 'ReleaseTool' }
+                [ordered]@{ app = 'Media app'; repo = 'ReleaseTool'; logo = 'assets/platforms/facebook.svg' }
                 [ordered]@{ app = 'Hidden app'; repo = 'HiddenTool' }
                 [ordered]@{ app = 'Windows'; repo = 'WinTool' }
             )
@@ -6093,15 +6098,17 @@ Describe 'Showcase layer' {
         $entries = @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog)
 
         $section = New-BundleSection -Showcase $showcase -Entries $entries -RepoLookup $lookup
-        $rows = @($section -split '\r?\n' | Where-Object { $_ -match '^\| \*\*' })
+        $cells = @([regex]::Matches($section, '<td width="300" valign="top">([\s\S]*?)</td>'))
 
         $section | Should -Match '(?m)^## Patch bundles\r?$'
         $section | Should -Match '(?m)^One line about them\. <a href="https://example\.test/get">Get the patcher &#8594;</a>\r?$'
-        # Two columns, the version beside the name: a third column ran off a 390px phone.
-        $section | Should -Match '(?m)^\| App \| Bundle \|\r?$'
-        $rows | Should -HaveCount 2
-        $rows[0] | Should -Match '^\| \*\*Media app\*\* \| \[\*\*ReleaseTool\*\*\]\([^)]+\)(?: &#11088;\d+)?&nbsp;&middot; \[v2\.0\.0\]\([^)]+\)<br><a href="[^"]+"><img [^>]+></a> \|$'
-        $rows[1] | Should -Match '^\| \*\*Windows\*\* \| \[\*\*WinTool\*\*\]'
+        $section | Should -Match '<table width="100%">'
+        $cells | Should -HaveCount 2
+        ([regex]::Matches($section, '<td ')).Count | Should -Be 3 -Because 'an incomplete row keeps three columns'
+        $cells[0].Value | Should -Match 'facebook\.svg" width="24" height="24" alt="Media app logo"> <b>Media app</b><br>'
+        $cells[0].Value | Should -Match '<a href="[^"]+">ReleaseTool</a><br>'
+        $cells[0].Value | Should -Match '<a href="[^"]+">v2\.0\.0</a>'
+        $cells[1].Value | Should -Match '<b>Windows</b><br>\s*<a href="[^"]+">WinTool</a>'
         $section | Should -Not -Match 'HiddenTool|Hidden app' -Because 'a suppressed entry stays off the page'
 
         $showcase.bundles.linkUrl = 'javascript:alert(1)'

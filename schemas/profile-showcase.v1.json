@@ -75,6 +75,7 @@
             "required": ["app", "repo"],
             "properties": {
               "app": { "type": "string", "minLength": 1, "maxLength": 30 },
+              "logo": { "type": "string", "minLength": 1, "maxLength": 500 },
               "repo": { "$ref": "#/$defs/repo" }
             }
           }
