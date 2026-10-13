@@ -19,19 +19,6 @@ Cleaner versions of the apps you already use. Each bundle takes the ads and clut
 | **TikTok** | [**Hushfeed**](https://github.com/SysAdminDoc/hushfeed) &#11088;206&nbsp;&middot; [v0.71.2](https://github.com/SysAdminDoc/hushfeed/releases/latest)<br><a href="https://morphe.software/add-source?github=SysAdminDoc%2Fhushfeed"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe.svg" height="24" alt="Add Hushfeed to Morphe"></a> <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download Hushfeed"></a> |
 | **Tumblr** | [**HushTumblr**](https://github.com/SysAdminDoc/HushTumblr) &#11088;2&nbsp;&middot; [v0.0.1](https://github.com/SysAdminDoc/HushTumblr/releases/latest)<br><a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushTumblr"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe.svg" height="24" alt="Add HushTumblr to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushTumblr/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download.svg" height="24" alt="Download HushTumblr"></a> |
 
-## Latest releases
-
-New versions of everything else, newest first.
-
-| Project | Version |
-|:--------|:--------|
-| [**Astra-Deck**](https://github.com/SysAdminDoc/Astra-Deck) &#11088;24<br><a href="https://github.com/SysAdminDoc/Astra-Deck/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/extension.svg" height="24" alt="Get the Astra-Deck browser extension"></a> | [v4.98.0](https://github.com/SysAdminDoc/Astra-Deck/releases/latest) |
-| [**CallShield**](https://github.com/SysAdminDoc/CallShield) &#11088;48<br><a href="https://github.com/SysAdminDoc/CallShield/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the CallShield APK"></a> | [v1.12.0](https://github.com/SysAdminDoc/CallShield/releases/latest) |
-| [**AstraDownloader**](https://github.com/SysAdminDoc/AstraDownloader) &#11088;2<br><a href="https://github.com/SysAdminDoc/AstraDownloader/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/windows.svg" height="24" alt="Download AstraDownloader for Windows"></a> | [v2.18.1](https://github.com/SysAdminDoc/AstraDownloader/releases/latest) |
-| [**ClearCut**](https://github.com/SysAdminDoc/ClearCut) &#11088;67<br><a href="https://github.com/SysAdminDoc/ClearCut/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the ClearCut APK"></a> | [v3.82.0](https://github.com/SysAdminDoc/ClearCut/releases/latest) |
-| [**Aura**](https://github.com/SysAdminDoc/Aura) &#11088;45<br><a href="https://github.com/SysAdminDoc/Aura/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the Aura APK"></a> | [v6.46.1](https://github.com/SysAdminDoc/Aura/releases/latest) |
-| [**OpenTasker**](https://github.com/SysAdminDoc/OpenTasker) &#11088;145<br><a href="https://github.com/SysAdminDoc/OpenTasker/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/apk.svg" height="24" alt="Get the OpenTasker APK"></a> | [v0.2.94](https://github.com/SysAdminDoc/OpenTasker/releases/latest) |
-
 ## Flagship apps
 
 The ones people download most, and a few I'm proudest of.
