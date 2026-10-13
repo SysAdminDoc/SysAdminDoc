@@ -6,7 +6,7 @@
 
 ## Hush patch bundles for Android
 
-Cleaner versions of the apps you already use. Each bundle takes the ads and clutter out of one app, and every patch has its own switch. Install Morphe Manager, tap Add to Morphe next to your app, and new releases show up on their own. <a href="https://morphe.software/">Get Morphe Manager &#8594;</a>
+Better versions of the apps you already use. Each bundle takes the ads and clutter out. Install Morphe Manager, tap Add to Morphe next to your app, and new releases show up on their own. <a href="https://morphe.software/">Get Morphe Manager &#8594;</a>
 
 | App | Bundle |
 |:----|:-------|
