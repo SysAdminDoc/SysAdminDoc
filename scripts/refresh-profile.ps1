@@ -46,8 +46,10 @@ $RefreshIdentityName = "SysAdminDoc"
 $RefreshIdentityEmail = "matt_parker@outlook.com"
 $RefreshReportPath = "reports/profile-sync-report.json"
 # What -Write regenerates. data/profile-catalog.json only changes when drafts are written,
-# and a run that drafts has already failed, so it is never part of a refresh commit.
-$RefreshGeneratedPaths = @("README.md", "projects.json", $RefreshReportPath, "assets/profile")
+# and a run that drafts has already failed, so it is never part of a refresh commit. No
+# assets/profile: the generator writes no images since 2026-09-22 and the folder is gone,
+# and git add stops on a path that doesn't exist.
+$RefreshGeneratedPaths = @("README.md", "projects.json", $RefreshReportPath)
 
 function Invoke-RefreshScript {
     # Runs a repository script in a child pwsh from the repository root, the directory its
@@ -208,7 +210,7 @@ function Invoke-ProfileRefresh {
     if ($Commit) {
         # The report restamps itself every run. When the page didn't change and a smoke
         # follows, one commit after the smoke carries the report, instead of two.
-        $page = Invoke-RefreshGit -Arguments @("status", "--porcelain", "--", "README.md", "projects.json", "assets/profile")
+        $page = Invoke-RefreshGit -Arguments @("status", "--porcelain", "--", "README.md", "projects.json")
         $pageChanged = $page.exitCode -ne 0 -or @($page.output | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }).Count -gt 0
         if ($pageChanged -or -not $smokeWillRun) {
             $failure = & $commitAndPush (New-RefreshCommitMessage -Report $report) ''

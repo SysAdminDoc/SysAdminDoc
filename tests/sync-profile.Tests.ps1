@@ -15489,7 +15489,9 @@ Describe 'Storefront refresh (in-process)' {
     It 'stages only the generated files' {
         $null = Invoke-ProfileRefresh -Commit -ChromePath ''
 
-        @($script:RefreshGitCalls | Where-Object { $_ -like 'add *' }) | Should -Be @('add -- README.md projects.json reports/profile-sync-report.json assets/profile')
+        # No assets/profile: the folder was deleted on 2026-09-22, and git add stops on a
+        # path that doesn't exist, which halted the 2026-10-12 refresh at its commit step.
+        @($script:RefreshGitCalls | Where-Object { $_ -like 'add *' }) | Should -Be @('add -- README.md projects.json reports/profile-sync-report.json')
     }
 
     It 'makes one commit after the smoke when the published page did not change' {
