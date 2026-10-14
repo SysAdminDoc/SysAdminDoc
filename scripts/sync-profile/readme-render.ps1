@@ -840,7 +840,7 @@ function Get-BundleRows {
 function New-BundleSection {
     <#
     .SYNOPSIS
-    Three columns of patch bundles with platform logos, versions and install links.
+    Three columns of patch bundles with platform logos and install links.
     .DESCRIPTION
     The showcase's bundles block names the section, says in a line what the bundles are
     and how to add one, and lists every bundle with the app it patches, in its own order.
@@ -880,21 +880,14 @@ function New-BundleSection {
         if ($index % 3 -eq 0) { $lines.Add('<tr>') }
         $row = $rows[$index]
         $meta = Get-RepoMeta $row.entry $RepoLookup
-        $tag = [string](Get-MemberValue -Object (Get-MemberValue -Object $meta -Name 'latestRelease') -Name 'tagName')
         $lines.Add('<td width="300" valign="top">')
         $logo = if (Test-ShowcaseImageSource $row.logo) {
             '<img src="' + (Get-ProfileAssetUrl $row.logo) + '" width="24" height="24" alt="' + (ConvertTo-HtmlText "$($row.app) logo") + '"> '
         } else { '' }
         $lines.Add($logo + '<b>' + (ConvertTo-HtmlText $row.app) + '</b><br>')
         $title = (ConvertTo-HtmlText ([string]$row.entry.title)) -replace '^(Hush)(?=[A-Za-z])', '$1&shy;'
+        # No star count or version: the cell names the app and the bundle, then its buttons.
         $lines.Add('<a href="' + (ConvertTo-SafeHref (Get-RepoUrl $row.entry)) + '">' + $title + '</a><br>')
-        $details = New-Object System.Collections.Generic.List[string]
-        $stars = (Get-StarText $meta).Trim()
-        if ($stars) { $details.Add($stars) }
-        if (Test-VisibleText $tag) {
-            $details.Add('<a href="' + (ConvertTo-SafeHref (Get-ReleaseUrl $row.entry)) + '">' + (ConvertTo-HtmlText $tag) + '</a>')
-        }
-        if ($details.Count -gt 0) { $lines.Add('<sub>' + ($details -join ' &middot; ') + '</sub><br>') }
         $actions = Get-ActionLinkGroup $row.entry $meta ([string]$row.entry.category)
         foreach ($name in @('morphe', 'download')) {
             $full = Get-ProfileAssetUrl "assets/buttons/$name.svg"
@@ -922,8 +915,8 @@ function New-FreshReleaseSection {
 
     $limit = Get-MemberValue -Object $Showcase -Name 'freshReleaseCount'
     if ($null -eq $limit -or [int]$limit -le 0) { return "" }
-    # The bundle table already shows each bundle's version, so its rows leave the slots here
-    # to everything else.
+    # The bundle table already lists every bundle, so its rows leave the slots here to
+    # everything else.
     $bundled = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
     foreach ($row in @(Get-BundleRows -Showcase $Showcase -Entries $Entries)) { $bundled.Add([string]$row.entry.repo) | Out-Null }
     # Newest release first; the timestamp is compared as UTC ticks so the order can't

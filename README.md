@@ -13,19 +13,16 @@ Better versions of the apps you already use. Each bundle takes the ads and clutt
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/facebook.svg" width="24" height="24" alt="Facebook logo"> <b>Facebook</b><br>
 <a href="https://github.com/SysAdminDoc/Hushfacebook">Hush&shy;facebook</a><br>
-<sub>&#11088;268 &middot; <a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest">v0.11.0</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushfacebook"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add Hushfacebook to Morphe"></a> <a href="https://github.com/SysAdminDoc/Hushfacebook/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download Hushfacebook"></a>
 </td>
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/instagram.svg" width="24" height="24" alt="Instagram logo"> <b>Instagram</b><br>
 <a href="https://github.com/SysAdminDoc/HushGram">Hush&shy;Gram</a><br>
-<sub>&#11088;121 &middot; <a href="https://github.com/SysAdminDoc/HushGram/releases/latest">v0.0.9</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushGram"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add HushGram to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushGram/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download HushGram"></a>
 </td>
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/messenger.svg" width="24" height="24" alt="Messenger logo"> <b>Messenger</b><br>
 <a href="https://github.com/SysAdminDoc/HushMessenger">Hush&shy;Messenger</a><br>
-<sub>&#11088;108 &middot; <a href="https://github.com/SysAdminDoc/HushMessenger/releases/latest">v0.23.0</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushMessenger"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add HushMessenger to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushMessenger/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download HushMessenger"></a>
 </td>
 </tr>
@@ -33,19 +30,16 @@ Better versions of the apps you already use. Each bundle takes the ads and clutt
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/pinterest.svg" width="24" height="24" alt="Pinterest logo"> <b>Pinterest</b><br>
 <a href="https://github.com/SysAdminDoc/HushPinterest">Hush&shy;Pinterest</a><br>
-<sub>&#11088;21 &middot; <a href="https://github.com/SysAdminDoc/HushPinterest/releases/latest">v0.0.7</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushPinterest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add HushPinterest to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushPinterest/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download HushPinterest"></a>
 </td>
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/telegram.svg" width="24" height="24" alt="Telegram logo"> <b>Telegram</b><br>
 <a href="https://github.com/SysAdminDoc/HushTelegram">Hush&shy;Telegram</a><br>
-<sub>&#11088;45 &middot; <a href="https://github.com/SysAdminDoc/HushTelegram/releases/latest">v0.0.13</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushTelegram"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add HushTelegram to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushTelegram/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download HushTelegram"></a>
 </td>
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/threads.svg" width="24" height="24" alt="Threads logo"> <b>Threads</b><br>
 <a href="https://github.com/SysAdminDoc/HushThreads">Hush&shy;Threads</a><br>
-<sub>&#11088;40 &middot; <a href="https://github.com/SysAdminDoc/HushThreads/releases/latest">v0.0.13</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushThreads"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add HushThreads to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushThreads/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download HushThreads"></a>
 </td>
 </tr>
@@ -53,13 +47,11 @@ Better versions of the apps you already use. Each bundle takes the ads and clutt
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/tiktok.svg" width="24" height="24" alt="TikTok logo"> <b>TikTok</b><br>
 <a href="https://github.com/SysAdminDoc/hushfeed">Hush&shy;feed</a><br>
-<sub>&#11088;206 &middot; <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest">v0.71.2</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2Fhushfeed"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add Hushfeed to Morphe"></a> <a href="https://github.com/SysAdminDoc/hushfeed/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download Hushfeed"></a>
 </td>
 <td width="300" valign="top">
 <img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/platforms/tumblr.svg" width="24" height="24" alt="Tumblr logo"> <b>Tumblr</b><br>
 <a href="https://github.com/SysAdminDoc/HushTumblr">Hush&shy;Tumblr</a><br>
-<sub>&#11088;2 &middot; <a href="https://github.com/SysAdminDoc/HushTumblr/releases/latest">v0.0.1</a></sub><br>
 <a href="https://morphe.software/add-source?github=SysAdminDoc%2FHushTumblr"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/morphe-compact.svg" height="24" alt="Add HushTumblr to Morphe"></a> <a href="https://github.com/SysAdminDoc/HushTumblr/releases/latest"><img src="https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/assets/buttons/download-compact.svg" height="24" alt="Download HushTumblr"></a>
 </td>
 <td width="300"></td>

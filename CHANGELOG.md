@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Hush bundles fill the page in a three-column grid, with each app's logo beside its name. Eight bundles now fit in three rows. Repo links, stars, release versions and install buttons stay together.
+- Hush bundles fill the page in a three-column grid, with each app's logo beside its name. Eight bundles now fit in three rows, each with its repo link and install buttons.
+- The Hush grid no longer shows star counts or version numbers. Each cell is just the app, the bundle and its two buttons.
 - Compact install buttons keep their full labels and wrap into two lines on phones. Both controls stay 24 pixels tall.
 - The generator keeps the latest profile edits, including the shorter Hush intro, "My other apps" heading and removed Latest releases section.
 

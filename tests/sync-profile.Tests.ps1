@@ -6073,12 +6073,12 @@ Describe 'Showcase layer' {
 
         $section = New-FreshReleaseSection -Showcase $showcase -Entries @(Get-ReadmeEntries -Catalog $script:ShowcaseFixtureCatalog) -RepoLookup $lookup
 
-        $section | Should -Not -Match 'ReleaseTool' -Because 'the bundle table already shows its version'
+        $section | Should -Not -Match 'ReleaseTool' -Because 'the bundle table already lists it'
         $section | Should -Match '\[\*\*WinTool\*\*\].*\[v1\.0\.0\]'
         $section | Should -Match '(?m)^New versions of everything else, newest first\.\r?$'
     }
 
-    It 'lists each bundle with the app it is for, its version and its buttons, in the showcase order' {
+    It 'lists each bundle with the app it is for and its buttons, without stars or version, in the showcase order' {
         $showcase = script:New-FixtureShowcase
         $showcase.bundles = [ordered]@{
             title = 'Patch bundles'
@@ -6107,7 +6107,8 @@ Describe 'Showcase layer' {
         ([regex]::Matches($section, '<td ')).Count | Should -Be 3 -Because 'an incomplete row keeps three columns'
         $cells[0].Value | Should -Match 'facebook\.svg" width="24" height="24" alt="Media app logo"> <b>Media app</b><br>'
         $cells[0].Value | Should -Match '<a href="[^"]+">ReleaseTool</a><br>'
-        $cells[0].Value | Should -Match '<a href="[^"]+">v2\.0\.0</a>'
+        $cells[0].Value | Should -Match '<a href="[^"]+">ReleaseTool</a><br>\s*<a href="[^"]+"><img ' -Because 'the buttons follow the bundle name directly'
+        $section | Should -Not -Match 'v2\.0\.0|v1\.0\.0|&#11088;|<sub>' -Because 'the bundle cells carry no version or star count'
         $cells[1].Value | Should -Match '<b>Windows</b><br>\s*<a href="[^"]+">WinTool</a>'
         $section | Should -Not -Match 'HiddenTool|Hidden app' -Because 'a suppressed entry stays off the page'
 
