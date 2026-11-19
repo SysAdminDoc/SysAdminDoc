@@ -1,0 +1,6 @@
+Platform marks from Font Awesome Free by Fonticons, Inc. (14c65a3747d0f3b751f15831fc719236aea8729d).
+https://github.com/FortAwesome/Font-Awesome
+https://fontawesome.com/license/free
+Icons are licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Modified to add platform colors, square backgrounds and consistent sizing.
+The original brand shapes are unchanged. Brand marks belong to their respective owners.
