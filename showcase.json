@@ -1,0 +1,209 @@
+{
+  "schema": "https://raw.githubusercontent.com/SysAdminDoc/SysAdminDoc/main/schemas/profile-showcase.v1.json",
+  "hero": false,
+  "proof": {
+    "projects": "200+",
+    "downloads": "1,000,000+",
+    "measuredOn": "2026-11-15",
+    "method": "Summed GitHub release asset downloads across the public repositories: 1,014,936 on 2026-11-15 (237 public repos, 213 not forks). Earlier counts: 99,580 on 2026-09-29, when the owner set 100,000+ by hand, and 221,379 on 2026-10-09."
+  },
+  "bundles": {
+    "title": "Hush patch bundles for Android",
+    "blurb": "Better versions of the apps you already use. Each bundle takes the ads and clutter out. Install Morphe Manager, tap Add to Morphe next to your app, and new releases show up on their own.",
+    "linkText": "Get Morphe Manager",
+    "linkUrl": "https://morphe.software/",
+    "rows": [
+      { "app": "Facebook", "repo": "Hushfacebook", "logo": "assets/platforms/facebook.svg" },
+      { "app": "Instagram", "repo": "HushGram", "logo": "assets/platforms/instagram.svg" },
+      { "app": "Messenger", "repo": "HushMessenger", "logo": "assets/platforms/messenger.svg" },
+      { "app": "PineDrama", "repo": "HushPine", "logo": "assets/platforms/pinedrama.svg" },
+      { "app": "Pinterest", "repo": "HushPinterest", "logo": "assets/platforms/pinterest.svg" },
+      { "app": "Telegram", "repo": "HushTelegram", "logo": "assets/platforms/telegram.svg" },
+      { "app": "Threads", "repo": "HushThreads", "logo": "assets/platforms/threads.svg" },
+      { "app": "TikTok", "repo": "hushfeed", "logo": "assets/platforms/tiktok.svg" },
+      { "app": "Tumblr", "repo": "HushTumblr", "logo": "assets/platforms/tumblr.svg" }
+    ]
+  },
+  "flagships": [
+    {
+      "repo": "CallShield",
+      "name": "CallShield",
+      "platform": "Android",
+      "image": "assets/showcase/callshield.jpg",
+      "imageAlt": "CallShield: spam calls stop before they ring, with no subscription. Three phone screens showing a number lookup, the protection dashboard and blocked calls.",
+      "pitch": "Blocks spam calls and flags spam texts with an on-device model and a signed database of 51,000+ numbers. No API keys and no subscription.",
+      "downloads": "4,000+"
+    },
+    {
+      "repo": "OpenLumen",
+      "name": "OpenLumen",
+      "platform": "Android",
+      "image": "assets/showcase/openlumen.jpg",
+      "imageAlt": "OpenLumen: change the display, not a layer on top. Three phone screens showing the display driver picker, the filter's sliders and a sunset schedule.",
+      "pitch": "A screen color filter that changes the display itself instead of painting a layer on top. Warm the screen on a schedule or fix a panel's color cast, fully offline.",
+      "downloads": "1,400+"
+    },
+    {
+      "repo": "SwiftFloris",
+      "name": "SwiftFloris",
+      "platform": "Android",
+      "image": "assets/showcase/swiftfloris.jpg",
+      "imageAlt": "SwiftFloris: SwiftKey-style typing with zero cloud. The keyboard's emoji panel and letter layout in a dark theme.",
+      "pitch": "A SwiftKey-style keyboard built on FlorisBoard, with no internet permission at all. Import your SwiftKey or Gboard dictionary and it all stays on your phone.",
+      "downloads": "1,300+"
+    },
+    {
+      "repo": "RcloneBrowserNG",
+      "name": "Rclone Browser NG",
+      "platform": "Windows, macOS, Linux",
+      "image": "assets/showcase/rclonebrowserng.jpg",
+      "imageAlt": "Rclone Browser NG: every cloud drive in one window, powered by rclone. Two desktop windows showing a remote's files and the list of configured remotes.",
+      "pitch": "A desktop app for rclone that picks up where the abandoned RcloneBrowser left off. Browse any remote, encrypted ones included, while transfers run in the background.",
+      "downloads": null
+    },
+    {
+      "repo": "AppManagerNG",
+      "name": "AppManagerNG",
+      "platform": "Android",
+      "image": "assets/showcase/appmanagerng.jpg",
+      "imageAlt": "AppManagerNG: know what is installed, control what it can do. Phone screens showing the app list and permission inspector.",
+      "pitch": "See every app on your phone and what it can reach. Freeze or remove the bloat and back up the rest, with or without root.",
+      "downloads": "13,000+"
+    },
+    {
+      "repo": "SnapCrop",
+      "name": "SnapCrop",
+      "platform": "Android",
+      "image": "assets/showcase/snapcrop.jpg",
+      "imageAlt": "SnapCrop: screenshots cropped clean, automatically. Three phone screens showing the screenshot library, the home screen's quick actions and the editor.",
+      "pitch": "Catches each screenshot as you take it and opens it in an editor with the status and nav bars already cropped off. Scrolling capture and automatic redaction of sensitive text are free.",
+      "downloads": null
+    },
+    {
+      "repo": "HushFacebookWeb",
+      "name": "HushFacebook Web",
+      "platform": "Browser",
+      "image": "assets/showcase/hushfacebookweb.jpg",
+      "imageAlt": "HushFacebook Web: a quieter Facebook feed. The same feed twice, first with an ad at the top, then with the Calm theme on and the ad and a suggested post folded into short notes.",
+      "pitch": "Takes ads and suggested posts out of Facebook in a desktop browser, and adds downloads and privacy switches. Runs as a userscript or a Chrome extension.",
+      "downloads": "3,000+"
+    },
+    {
+      "repo": "ZeusWatch",
+      "name": "ZeusWatch",
+      "platform": "Android",
+      "image": "assets/showcase/zeuswatch.jpg",
+      "imageAlt": "ZeusWatch: weather with a second opinion. Two phone screens showing today's forecast and a comparison of two places across forecast models.",
+      "pitch": "Weather with a second opinion. Put forecast providers side by side to see where the models disagree, then keep the sources you trust. No account needed.",
+      "downloads": "1,300+"
+    },
+    {
+      "repo": "AlarmClockXtreme",
+      "name": "AlarmClockXtreme",
+      "platform": "Android",
+      "image": "assets/showcase/alarmclockxtreme.jpg",
+      "imageAlt": "AlarmClockXtreme: wake up, stay up. A phone showing the alarm list, with a weather screen behind it.",
+      "pitch": "An alarm clock for heavy sleepers. Exact scheduling and 30 dismiss challenges get you up and keep you up, with no ads and no account.",
+      "downloads": "2,000+"
+    },
+    {
+      "repo": "OpenTasker",
+      "name": "OpenTasker",
+      "platform": "Android",
+      "image": "assets/showcase/opentasker.jpg",
+      "imageAlt": "OpenTasker: put your phone on autopilot and read every rule. Three phone screens showing profiles, tasks and a flow.",
+      "pitch": "Phone automation in the spirit of Tasker, fully open source. Rules you can read at a glance and 78 built-in actions, all running on your phone.",
+      "downloads": "14,000+"
+    },
+    {
+      "repo": "OpenNetLimit",
+      "name": "OpenNetLimit",
+      "platform": "Windows",
+      "image": "assets/showcase/opennetlimit.jpg",
+      "imageAlt": "OpenNetLimit: know what uses your connection, control what it can use. The Windows app showing live throughput and per-application bandwidth limits.",
+      "pitch": "See which apps are using your connection, then cap the ones that hog it. Per-app limits, traffic history, quotas and schedules on Windows.",
+      "downloads": "1,100+"
+    }
+  ],
+  "problems": [
+    { "want": "Stop spam calls and texts", "repo": "CallShield" },
+    { "want": "Put my phone on autopilot without a cloud account", "repo": "OpenTasker" },
+    { "want": "Block ads on my phone, no root needed", "repo": "HostShield" },
+    { "want": "Clear out the apps my phone came with", "repo": "AppManagerNG" },
+    { "want": "Uninstall a program and its leftovers", "repo": "DeepPurge" },
+    { "want": "Fix a Windows Update that's stuck", "repo": "WURepair" },
+    { "want": "See which app is eating my bandwidth, and cap it", "repo": "OpenNetLimit" },
+    { "want": "Resize a partition and see the plan first", "repo": "PartitionPilot" },
+    { "want": "Change monitor brightness and inputs from Windows", "repo": "MonitorControl" },
+    { "want": "Get burned-in subtitles out of a video", "repo": "VideoSubtitleRemover" },
+    { "want": "Make desktop YouTube work my way", "repo": "Astra-Deck" },
+    { "want": "Edit a photo without installing anything", "repo": "Openshop" }
+  ],
+  "trust": [],
+  "shelves": [
+    {
+      "id": "windows-apps",
+      "title": "Windows and desktop apps",
+      "icon": "&#128421;&#65039;",
+      "blurb": "Installers, portable builds and desktop apps for your PC.",
+      "categories": ["desktop", "python"]
+    },
+    {
+      "id": "windows-admin",
+      "title": "Windows admin and security",
+      "icon": "&#128736;&#65039;",
+      "blurb": "Tools for tuning, repairing and locking down Windows. Grab the release, or read the source first.",
+      "categories": ["powershell", "security"]
+    },
+    {
+      "id": "android-apps",
+      "title": "Android apps",
+      "icon": "&#128241;",
+      "blurb": "Sideload-friendly APKs from GitHub Releases. Add any of them to Obtainium for automatic updates.",
+      "categories": ["android"]
+    },
+    {
+      "id": "patch-bundles",
+      "title": "Morphe patch bundles",
+      "icon": "&#129657;",
+      "blurb": "Patch bundles that clean up Android apps like TikTok, Facebook and Instagram. Tap Add to Morphe and Morphe Manager picks up each new release on its own.",
+      "categories": ["patches"]
+    },
+    {
+      "id": "browser-extensions",
+      "title": "Browser extensions and userscripts",
+      "icon": "&#129513;",
+      "blurb": "Add-ons for Chrome, Edge and Firefox. Userscripts run in Tampermonkey, Violentmonkey or ScriptVault.",
+      "categories": ["extensions"]
+    },
+    {
+      "id": "web-apps",
+      "title": "Web apps",
+      "icon": "&#127760;",
+      "blurb": "Open them in a tab. Nothing to install.",
+      "categories": ["web"]
+    },
+    {
+      "id": "media-tools",
+      "title": "Media and creative tools",
+      "icon": "&#127916;",
+      "blurb": "Video, audio and stream tools.",
+      "categories": ["media"]
+    },
+    {
+      "id": "guides",
+      "title": "Guides",
+      "icon": "&#128218;",
+      "blurb": "Step-by-step guides and reference lists.",
+      "categories": ["guides"]
+    },
+    {
+      "id": "forks",
+      "title": "Forks and experiments",
+      "icon": "&#129514;",
+      "blurb": "Forks of other people's projects, with credit to the originals, plus a few side experiments.",
+      "categories": ["misc"]
+    }
+  ],
+  "freshReleaseCount": 0
+}
