@@ -107,12 +107,12 @@
       "downloads": "2,000+"
     },
     {
-      "repo": "OpenTasker",
-      "name": "OpenTasker",
+      "repo": "RuleDeck",
+      "name": "RuleDeck",
       "platform": "Android",
-      "image": "assets/showcase/opentasker.jpg",
-      "imageAlt": "OpenTasker: put your phone on autopilot and read every rule. Three phone screens showing profiles, tasks and a flow.",
-      "pitch": "Phone automation in the spirit of Tasker, fully open source. Rules you can read at a glance and 78 built-in actions, all running on your phone.",
+      "image": "assets/showcase/ruledeck.jpg",
+      "imageAlt": "RuleDeck: put your phone on autopilot and read every rule. Three phone screens showing tasks, profiles and a flow.",
+      "pitch": "Open-source automation for Android. Rules you can read at a glance and over 100 built-in actions, all running on your phone.",
       "downloads": "14,000+"
     },
     {
@@ -127,7 +127,7 @@
   ],
   "problems": [
     { "want": "Stop spam calls and texts", "repo": "CallShield" },
-    { "want": "Put my phone on autopilot without a cloud account", "repo": "OpenTasker" },
+    { "want": "Put my phone on autopilot without a cloud account", "repo": "RuleDeck" },
     { "want": "Block ads on my phone, no root needed", "repo": "HostShield" },
     { "want": "Clear out the apps my phone came with", "repo": "AppManagerNG" },
     { "want": "Uninstall a program and its leftovers", "repo": "DeepPurge" },
