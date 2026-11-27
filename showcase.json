@@ -107,15 +107,6 @@
       "downloads": "2,000+"
     },
     {
-      "repo": "RuleDeck",
-      "name": "RuleDeck",
-      "platform": "Android",
-      "image": "assets/showcase/ruledeck.jpg",
-      "imageAlt": "RuleDeck: put your phone on autopilot and read every rule. Three phone screens showing tasks, profiles and a flow.",
-      "pitch": "Open-source automation for Android. Rules you can read at a glance and over 100 built-in actions, all running on your phone.",
-      "downloads": "14,000+"
-    },
-    {
       "repo": "OpenNetLimit",
       "name": "OpenNetLimit",
       "platform": "Windows",
@@ -127,7 +118,6 @@
   ],
   "problems": [
     { "want": "Stop spam calls and texts", "repo": "CallShield" },
-    { "want": "Put my phone on autopilot without a cloud account", "repo": "RuleDeck" },
     { "want": "Block ads on my phone, no root needed", "repo": "HostShield" },
     { "want": "Clear out the apps my phone came with", "repo": "AppManagerNG" },
     { "want": "Uninstall a program and its leftovers", "repo": "DeepPurge" },
